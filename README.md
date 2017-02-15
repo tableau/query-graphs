@@ -26,7 +26,7 @@ The following additional resources are required for query visualization as an ex
 **multer.js**, and
 **node.js**.
 Node is used to start the Express service.
-If running query visualization as a service, then a separate http-server is not required, because it is included in node.
+If running query visualization as a service, then a separate http-server is not required.
 
 There is also a side-by-side comparison layout for comparing two queries at once.
 
@@ -37,22 +37,20 @@ Directory Structure
 Directory       | Description
 ---------       | -----------
 d3              | query visualization artifacts
-logs            | a collection of log files
 media           | screen captures, sample queries, uploads
-node_modules    | for node modules installed by npm
 result-table    | for side-by-side query comparisons
 ```
 
 Installation
 ------------
 
-Install latest stable version (at least 5.8.0) of node.js from [http://nodejs.org](http://nodejs.org).
+Install latest stable version (at least 5.8.0) of Node.js from <http://nodejs.org>.
 
 Run git clone on the query-graphs project, install node module dependencies, and
 start the visualization service.
 
 ```shell
-git clone https://gitlab.tableausoftware.com/ricole/query-graphs.git
+git clone https://github.com/tableau/query-graphs.git
 cd query-graphs
 npm install (or npm install --production for an install with no development dependencies)
 node upload-server.js
@@ -61,16 +59,21 @@ node upload-server.js
 Example Visualizations
 ----------------------
 
-1. Open an examplar query html file at 
-[http://localhost:3000/d3/query-graphs.html](http://localhost:3000/d3/query-graphs.html) or 
-[http://localhost:3000/d3/query-graphs.html?file=subquery.xml](http://localhost:3000/d3/query-graphs.html?file=subquery.xml).
+Open an examplar query html file at 
+* <http://localhost:3000/d3/query-graphs.html>, 
+* <http://localhost:3000/d3/query-graphs.html?file=joins.xml>,
+* <http://localhost:3000/d3/query-graphs.html?file=query-function.xml&collapse=n>,
+* <http://localhost:3000/d3/query-graphs.html?file=dint4.xml>,
+* <http://localhost:3000/d3/query-graphs.html?file=hyper-query2.json>, or
+* <http://localhost:3000/d3/query-graphs.html?file=hyper-steps2.json&orientation=left-to-right>,
 
-2. Open the upload form at 
-[http://localhost:3000/d3/upload-form.html](http://localhost:3000/d3/upload-form.html).
-LogicalQuery and QueryFunction XML trees, as files or text, may be uploaded to the express service for visualization.
+Open the upload form at 
+<http://localhost:3000/d3/upload-form.html>.
+LogicalQuery XML, QueryFunction XML, or HyPer query-plan JSON, as files or text, 
+may be uploaded to the express service for visualization.
 
-3. Open the side-by-side query comparison at 
-[http://localhost:3000/result-table/compare_layout.html?left=3d5c935c.xml&right=3d5c935c.xml&left-label=before&right-label=after](http://localhost:3000/result-table/compare_layout.html?left=3d5c935c.xml&right=3d5c935c.xml&left-label=before&right-label=after)
+Open the side-by-side query comparison at 
+<http://localhost:3000/result-table/compare_layout.html?left=3d5c935c.xml&right=3d5c935c.xml&left-label=before&right-label=after>.
 
 Query String Parameters
 -----------------------
@@ -125,17 +128,6 @@ its installation could be avoided by using **npm install --production** above.)
 
 ```shell
 npm run lint
-```
-Load Testing
-------------
-
-Run the following script to load test upload functionality assuming a *localhost* server.
-(The script requires the Apache HTTP server benchmarking tool **ab**, 
-which is included in a Apache HTTP server distribution and located in its \bin directory;
-it is not installed by npm install.)
-
-```shell
-npm run ab
 ```
 
 Acknowledgements 

@@ -1,0 +1,153 @@
+<logical-query>\n  <selects>\n
+<field>[AirlineDescription]</field>\n    <field>[Dest State (group)]</field>\n    <field>[Dest State Code (copy)]</field>\n
+<field>[sum:Number of Records:ok]</field>\n  </selects>\n  <aggregateOp class='logical-operator'>\n    <measures>\n
+<binding name='[sum:Number of Records:ok]'>\n   <funcallExp class='logical-expression' function='SUM' shape='aggregate'>\n
+<funcallExp class='logical-expression' function='$EXTEND_INT$' shape='scalar'>\n  <identifierExp
+class='logical-expression' identifier='[Number of Records]'>\n  </identifierExp>\n</funcallExp>\n
+</funcallExp>\n </binding>\n    </measures>\n    <groupbys>\n <binding name='[AirlineDescription]'>\n
+<identifierExp class='logical-expression' identifier='[AirlineDescription]'>\n   </identifierExp>\n </binding>\n
+<binding name='[Dest State (group)]'>\n   <identifierExp class='logical-expression' identifier='[Dest State (group)]'>\n
+</identifierExp>\n </binding>\n <binding name='[Dest State Code (copy)]'>\n   <identifierExp
+class='logical-expression' identifier='[Dest State Code (copy)]'>\n   </identifierExp>\n </binding>\n
+</groupbys>\n    <selectOp class='logical-operator'>\n <predicate>\n   <funcallExp class='logical-expression'
+function='!' shape='scalar'>\n<funcallExp class='logical-expression' function='$IN_SET$' shape='scalar'>\n
+<identifierExp class='logical-expression' identifier='[Dest State Code (copy)]'>\n  </identifierExp>\n
+<literalExp charset='0' class='logical-expression' collation='LEN_RUS_S2' datatype='string' value='&quot;&quot;'>\n
+</literalExp>\n  <literalExp charset='0' class='logical-expression' collation='LEN_RUS_S2' datatype='string'
+value='&quot;DE&quot;'>\n  </literalExp>\n  <literalExp charset='0' class='logical-expression'
+collation='LEN_RUS_S2' datatype='string' value='&quot;TT&quot;'>\n  </literalExp>\n</funcallExp>\n
+</funcallExp>\n </predicate>\n <projectOp class='logical-operator'>\n   <expressions>\n<binding
+name='[Dest State Code (copy)]'>\n  <identifierExp class='logical-expression' identifier='[DestState]'>\n
+</identifierExp>\n</binding>\n<binding name='[AirlineDescription]'>\n  <identifierExp
+class='logical-expression' identifier='[AirlineDescription]'>\n  </identifierExp>\n</binding>\n
+<binding name='[Dest State (group)]'>\n  <lookupExp class='logical-expression' domain='total'>\n    
+<tuplesOp alias='Group' class='logical-operator'>\n <columns>\n   <metadata-record class='column'>\n
+<remote-name>X_Dest State (group)</remote-name>\n<remote-type>-1</remote-type>\n
+<local-name>[Dest State (group)]</local-name>\n<remote-alias>X_Dest State (group)</remote-alias>\n
+<ordinal>57</ordinal>\n<local-type>string</local-type>\n
+<aggregation>Count</aggregation>\n<approx-count>5</approx-count>\n
+<contains-null>false</contains-null>\n<collation name='LEN_RUS_S2' />\n<attributes>\n
+<attribute datatype='integer' name='field-type'>2</attribute>\n  <attribute datatype='integer'
+name='role'>0</attribute>\n</attributes>\n   </metadata-record>\n
+<metadata-record class='column'>\n<remote-name>X_Dest State Code (copy)</remote-name>\n
+<remote-type>-1</remote-type>\n<local-name>[Dest State Code (copy)]</local-name>\n
+<remote-alias>X_Dest State Code (copy)</remote-alias>\n<ordinal>56</ordinal>\n
+<local-type>string</local-type>\n<aggregation>Count</aggregation>\n
+<approx-count>54</approx-count>\n<contains-null>false</contains-null>\n<collation
+name='LEN_RUS_S2' />\n<attributes>\n  <attribute datatype='integer'
+name='field-type'>2</attribute>\n  <attribute datatype='integer' name='role'>0</attribute>\n
+</attributes>\n   </metadata-record>\n </columns>\n <tuples>\n
+<tuple>(&quot;AL&quot;,&quot;AL&quot;)</tuple>\n   <tuple>(&quot;AL&quot;,&quot;AR&quot;)</tuple>\n
+<tuple>(&quot;AL&quot;,&quot;FL&quot;)</tuple>\n   <tuple>(&quot;AL&quot;,&quot;GA&quot;)</tuple>\n
+<tuple>(&quot;AL&quot;,&quot;LA&quot;)</tuple>\n   <tuple>(&quot;AL&quot;,&quot;MS&quot;)</tuple>\n
+<tuple>(&quot;AL&quot;,&quot;NC&quot;)</tuple>\n   <tuple>(&quot;AL&quot;,&quot;NM&quot;)</tuple>\n
+<tuple>(&quot;AL&quot;,&quot;OK&quot;)</tuple>\n   <tuple>(&quot;AL&quot;,&quot;SC&quot;)</tuple>\n
+<tuple>(&quot;AL&quot;,&quot;TN&quot;)</tuple>\n   <tuple>(&quot;AL&quot;,&quot;TX&quot;)</tuple>\n
+<tuple>(&quot;AZ&quot;,&quot;AZ&quot;)</tuple>\n   <tuple>(&quot;AZ&quot;,&quot;CA&quot;)</tuple>\n
+<tuple>(&quot;AZ&quot;,&quot;ID&quot;)</tuple>\n   <tuple>(&quot;AZ&quot;,&quot;NV&quot;)</tuple>\n
+<tuple>(&quot;AZ&quot;,&quot;OR&quot;)</tuple>\n   <tuple>(&quot;AZ&quot;,&quot;UT&quot;)</tuple>\n
+<tuple>(&quot;AZ&quot;,&quot;WA&quot;)</tuple>\n   <tuple>(&quot;CO&quot;,&quot;CO&quot;)</tuple>\n
+<tuple>(&quot;CO&quot;,&quot;IA&quot;)</tuple>\n   <tuple>(&quot;CO&quot;,&quot;IL&quot;)</tuple>\n
+<tuple>(&quot;CO&quot;,&quot;IN&quot;)</tuple>\n   <tuple>(&quot;CO&quot;,&quot;KS&quot;)</tuple>\n
+<tuple>(&quot;CO&quot;,&quot;MI&quot;)</tuple>\n   <tuple>(&quot;CO&quot;,&quot;MN&quot;)</tuple>\n
+<tuple>(&quot;CO&quot;,&quot;MO&quot;)</tuple>\n   <tuple>(&quot;CO&quot;,&quot;MT&quot;)</tuple>\n
+<tuple>(&quot;CO&quot;,&quot;ND&quot;)</tuple>\n   <tuple>(&quot;CO&quot;,&quot;NE&quot;)</tuple>\n
+<tuple>(&quot;CO&quot;,&quot;SD&quot;)</tuple>\n   <tuple>(&quot;CO&quot;,&quot;WI&quot;)</tuple>\n
+<tuple>(&quot;CO&quot;,&quot;WY&quot;)</tuple>\n   <tuple>(&quot;CT&quot;,&quot;CT&quot;)</tuple>\n
+<tuple>(&quot;CT&quot;,&quot;KY&quot;)</tuple>\n   <tuple>(&quot;CT&quot;,&quot;MA&quot;)</tuple>\n
+<tuple>(&quot;CT&quot;,&quot;MD&quot;)</tuple>\n   <tuple>(&quot;CT&quot;,&quot;ME&quot;)</tuple>\n
+<tuple>(&quot;CT&quot;,&quot;NH&quot;)</tuple>\n   <tuple>(&quot;CT&quot;,&quot;NJ&quot;)</tuple>\n
+<tuple>(&quot;CT&quot;,&quot;NY&quot;)</tuple>\n   <tuple>(&quot;CT&quot;,&quot;OH&quot;)</tuple>\n
+<tuple>(&quot;CT&quot;,&quot;PA&quot;)</tuple>\n   <tuple>(&quot;CT&quot;,&quot;RI&quot;)</tuple>\n
+<tuple>(&quot;CT&quot;,&quot;VA&quot;)</tuple>\n   <tuple>(&quot;CT&quot;,&quot;VT&quot;)</tuple>\n
+<tuple>(&quot;CT&quot;,&quot;WV&quot;)</tuple>\n   <tuple>(&quot;VI&quot;,&quot;&quot;)</tuple>\n
+<tuple>(&quot;VI&quot;,&quot;AK&quot;)</tuple>\n   <tuple>(&quot;VI&quot;,&quot;DE&quot;)</tuple>\n
+<tuple>(&quot;VI&quot;,&quot;HI&quot;)</tuple>\n   <tuple>(&quot;VI&quot;,&quot;PR&quot;)</tuple>\n
+<tuple>(&quot;VI&quot;,&quot;TT&quot;)</tuple>\n   <tuple>(&quot;VI&quot;,&quot;VI&quot;)</tuple>\n
+</tuples>\n <projectOp class='logical-operator'>\n   <expressions>\n
+<binding name='[Dest State (group)]'>\n  <identifierExp class='logical-expression'
+identifier='[DestState]'>\n  </identifierExp>\n</binding>\n<binding
+name='[Dest State Code (copy)]'>\n  <identifierExp class='logical-expression' identifier='[DestState]'>\n
+</identifierExp>\n</binding>\n   </expressions>\n   <relationOp
+class='logical-operator' connection='FlightsV8 Extractleaf' name='[Extract].[Extract]'>\n<relation
+name='Extract' type='table' />\n<cols>\n</cols>\n<type>\n
+<schema>\n    <field name='[AirTime]'>\n <type name='top' />\n
+</field>\n    <field name='[AirlineDescription]'>\n <type name='top' />\n
+</field>\n    <field name='[ArrDelay]'>\n <type name='top' />\n
+</field>\n    <field name='[ArrivalDelayGroups]'>\n <type name='top' />\n
+</field>\n    <field name='[CRSArrTime]'>\n <type name='nonnull' />\n
+</field>\n    <field name='[CRSDepTime]'>\n <type name='nonnull' />\n
+</field>\n    <field name='[CancellationCode]'>\n <type name='nonnull' />\n
+</field>\n    <field name='[Cancelled]'>\n <type name='nonnull' />\n
+</field>\n    <field name='[CarrierDelay]'>\n <type name='top' />\n
+</field>\n    <field name='[DayofMonth]'>\n <type name='nonnull' />\n
+</field>\n    <field name='[DepDelay]'>\n <type name='top' />\n
+</field>\n    <field name='[DepartureDelayGroups]'>\n <type name='top' />\n
+</field>\n    <field name='[DestAirportID]'>\n <type name='top' />\n
+</field>\n    <field name='[DestAirportSeqID]'>\n <type name='top' />\n
+</field>\n    <field name='[DestCityMarketID]'>\n <type name='top' />\n
+</field>\n    <field name='[DestCityName]'>\n <type name='nonnull' />\n
+</field>\n    <field name='[DestState]'>\n <type name='nonnull' />\n
+</field>\n    <field name='[Dest]'>\n <type name='nonnull' />\n
+</field>\n    <field name='[Distance]'>\n <type name='nonnull' />\n
+</field>\n    <field name='[FirstDepTime]'>\n <type name='nonnull' />\n
+</field>\n    <field name='[FlightDate]'>\n <type name='nonnull' />\n
+</field>\n    <field name='[FlightNum]'>\n <type name='nonnull' />\n
+</field>\n    <field name='[LateAircraftDelay]'>\n <type name='top' />\n
+</field>\n    <field name='[Number of Records]'>\n <type name='nonnull' />\n
+</field>\n    <field name='[OriginAirportID]'>\n <type name='top' />\n
+</field>\n    <field name='[OriginAirportSeqID]'>\n <type name='top' />\n
+</field>\n    <field name='[OriginCityMarketID]'>\n <type name='top' />\n
+</field>\n    <field name='[OriginCityName]'>\n <type name='nonnull' />\n
+</field>\n    <field name='[OriginState]'>\n <type name='nonnull' />\n
+</field>\n    <field name='[Origin]'>\n <type name='nonnull' />\n
+</field>\n    <field name='[TailNum]'>\n <type name='nonnull' />\n
+</field>\n    <field name='[TaxiIn]'>\n <type name='top' />\n
+</field>\n    <field name='[TaxiOut]'>\n <type name='top' />\n
+</field>\n    <field name='[TotalAddGTime]'>\n <type name='top' />\n
+</field>\n    <field name='[UniqueCarrier]'>\n <type name='nonnull' />\n
+</field>\n    <field name='[WeatherDelay]'>\n <type name='top' />\n
+</field>\n    <field name='[WheelsOn]'>\n <type name='nonnull' />\n
+</field>\n  </schema>\n</type>\n   </relationOp>\n
+</projectOp>\n    </tuplesOp>\n    <indices>\n <identifierExp class='logical-expression'
+identifier='[DestState]'>\n </identifierExp>\n    </indices>\n    <schema>\n
+<identifierExp class='logical-expression' identifier='[Dest State Code (copy)]'>\n </identifierExp>\n
+</schema>\n    <output-value>\n <identifierExp class='logical-expression' identifier='[Dest State
+(group)]'>\n </identifierExp>\n    </output-value>\n    <default-value>\n
+<literalExp charset='0' class='logical-expression' collation='LROOT' datatype='string' value='%null%'>\n
+</literalExp>\n    </default-value>\n  </lookupExp>\n</binding>\n   </expressions>\n
+<relationOp class='logical-operator' connection='FlightsV8 Extractleaf' name='[Extract].[Extract]'>\n<relation
+name='Extract' type='table' />\n<cols>\n</cols>\n<type>\n  <schema>\n
+<field name='[AirTime]'>\n <type name='top' />\n    </field>\n    <field
+name='[AirlineDescription]'>\n <type name='top' />\n    </field>\n    <field
+name='[ArrDelay]'>\n <type name='top' />\n    </field>\n    <field name='[Arriv
+alDelayGroups]'>\n <type name='top' />\n    </field>\n    <field name='[CRSArrTime]'>\n
+<type name='nonnull' />\n    </field>\n    <field name='[CRSDepTime]'>\n <type name='nonnull'
+/>\n    </field>\n    <field name='[CancellationCode]'>\n <type name='nonnull' />\n
+</field>\n    <field name='[Cancelled]'>\n <type name='nonnull' />\n    </field>\n
+<field name='[CarrierDelay]'>\n <type name='top' />\n    </field>\n    <field
+name='[DayofMonth]'>\n <type name='nonnull' />\n    </field>\n    <field name='[DepDelay]'>\n
+<type name='top' />\n    </field>\n    <field name='[DepartureDelayGroups]'>\n <type
+name='top' />\n    </field>\n    <field name='[DestAirportID]'>\n <type name='top' />\n
+</field>\n    <field name='[DestAirportSeqID]'>\n <type name='top' />\n    </field>\n
+<field name='[DestCityMarketID]'>\n <type name='top' />\n    </field>\n    <field
+name='[DestCityName]'>\n <type name='nonnull' />\n    </field>\n    <field
+name='[DestState]'>\n <type name='nonnull' />\n    </field>\n    <field name='[Dest]'>\n
+<type name='nonnull' />\n    </field>\n    <field name='[Distance]'>\n <type name='nonnull'
+/>\n    </field>\n    <field name='[FirstDepTime]'>\n <type name='nonnull' />\n
+</field>\n    <field name='[FlightDate]'>\n <type name='nonnull' />\n    </field>\n
+<field name='[FlightNum]'>\n <type name='nonnull' />\n    </field>\n    <field
+name='[LateAircraftDelay]'>\n <type name='top' />\n    </field>\n    <field name='[Number of
+Records]'>\n <type name='nonnull' />\n    </field>\n    <field name='[OriginAirportID]'>\n
+<type name='top' />\n    </field>\n    <field name='[OriginAirportSeqID]'>\n <type name='top'
+/>\n    </field>\n    <field name='[OriginCityMarketID]'>\n <type name='top' />\n
+</field>\n    <field name='[OriginCityName]'>\n <type name='nonnull' />\n    </field>\n
+<field name='[OriginState]'>\n <type name='nonnull' />\n    </field>\n    <field
+name='[Origin]'>\n <type name='nonnull' />\n    </field>\n    <field name='[TailNum]'>\n
+<type name='nonnull' />\n    </field>\n    <field name='[TaxiIn]'>\n <type name='top'
+/>\n    </field>\n    <field name='[TaxiOut]'>\n <type name='top' />\n
+</field>\n    <field name='[TotalAddGTime]'>\n <type name='top' />\n    </field>\n
+<field name='[UniqueCarrier]'>\n <type name='nonnull' />\n    </field>\n    <field
+name='[WeatherDelay]'>\n <type name='top' />\n    </field>\n    <field
+name='[WheelsOn]'>\n <type name='nonnull' />\n    </field>\n  </schema>\n</type>\n
+</relationOp>\n </projectOp>\n    </selectOp>\n  </aggregateOp>\n</logical-query>\n"}}

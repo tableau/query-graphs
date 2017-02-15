@@ -1,0 +1,10 @@
+*.md.html
+*.swp
+.DS_Store
+.project
+.settings
+.vscode
+npm-debug.log
+node_modules
+media/uploads
+!media/uploads/3d5c935c.xml

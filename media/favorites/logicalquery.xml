@@ -1,0 +1,244 @@
+<logical-query>
+  <selects>
+    <field>[none:C_CUSTKEY:ok]</field>
+    <field>[none:C_NAME:nk]</field>
+    <field>[none:O_ORDERDATE:ok]</field>
+    <field>[none:O_ORDERKEY:ok]</field>
+    <field>[none:O_TOTALPRICE:ok]</field>
+    <field>[sum:L_QUANTITY:qk]</field>
+  </selects>
+  <logical-operator class='aggregate'>
+    <measures>
+      <binding name='[sum:L_QUANTITY:qk]'>
+        <logical-expression class='funcall' function='SUM' shape='aggregate'>
+          <logical-expression class='identifier'>[L_QUANTITY]</logical-expression>
+        </logical-expression>
+      </binding>
+    </measures>
+    <groupbys>
+      <binding name='[none:C_CUSTKEY:ok]'>
+        <logical-expression class='identifier'>[none:C_CUSTKEY:ok]</logical-expression>
+      </binding>
+      <binding name='[none:C_NAME:nk]'>
+        <logical-expression class='identifier'>[none:C_NAME:nk]</logical-expression>
+      </binding>
+      <binding name='[none:O_ORDERDATE:ok]'>
+        <logical-expression class='identifier'>[none:O_ORDERDATE:ok]</logical-expression>
+      </binding>
+      <binding name='[none:O_ORDERKEY:ok]'>
+        <logical-expression class='identifier'>[none:O_ORDERKEY:ok]</logical-expression>
+      </binding>
+      <binding name='[none:O_TOTALPRICE:ok]'>
+        <logical-expression class='identifier'>[none:O_TOTALPRICE:ok]</logical-expression>
+      </binding>
+    </groupbys>
+    <logical-operator class='project'>
+      <expressions>
+        <binding name='[none:C_CUSTKEY:ok]'>
+          <logical-expression class='identifier'>[C_CUSTKEY]</logical-expression>
+        </binding>
+        <binding name='[none:C_NAME:nk]'>
+          <logical-expression class='identifier'>[C_NAME]</logical-expression>
+        </binding>
+        <binding name='[none:O_ORDERDATE:ok]'>
+          <logical-expression class='identifier'>[O_ORDERDATE]</logical-expression>
+        </binding>
+        <binding name='[none:O_ORDERKEY:ok]'>
+          <logical-expression class='identifier'>[O_ORDERKEY]</logical-expression>
+        </binding>
+        <binding name='[none:O_TOTALPRICE:ok]'>
+          <logical-expression class='identifier'>[O_TOTALPRICE]</logical-expression>
+        </binding>
+      </expressions>
+      <logical-operator class='project'>
+        <expressions>
+          <binding name='[N_NAME]'>
+            <logical-expression class='identifier'>[N_NAME1]</logical-expression>
+          </binding>
+          <binding name='[N_NAME (NATION1)]'>
+            <logical-expression class='identifier'>[N_NAME]</logical-expression>
+          </binding>
+        </expressions>
+        <logical-operator class='relation' connection='' name='[Extract].[Extract]'>
+          <relation name='Extract' table='[Extract].[Extract]' type='table' />
+          <cols>
+          </cols>
+          <type>
+            <schema>
+              <field name='[C_ACCTBAL]'>
+                <type name='nonnull' />
+              </field>
+              <field name='[C_ADDRESS]'>
+                <type name='nonnull' />
+              </field>
+              <field name='[C_COMMENT]'>
+                <type name='nonnull' />
+              </field>
+              <field name='[C_CUSTKEY]'>
+                <type name='nonnull' />
+              </field>
+              <field name='[C_MKTSEGMENT]'>
+                <type name='nonnull' />
+              </field>
+              <field name='[C_NAME]'>
+                <type name='nonnull' />
+              </field>
+              <field name='[C_NATIONKEY]'>
+                <type name='nonnull' />
+              </field>
+              <field name='[C_PHONE]'>
+                <type name='nonnull' />
+              </field>
+              <field name='[Calculation_1020711101751415]'>
+                <type name='nonnull' />
+              </field>
+              <field name='[Calculation_1690805085450945]'>
+                <type name='nonnull' />
+              </field>
+              <field name='[Calculation_1830805092417376]'>
+                <type name='nonnull' />
+              </field>
+              <field name='[Calculation_3690805085226096]'>
+                <type name='nonnull' />
+              </field>
+              <field name='[Calculation_3890805085406390]'>
+                <type name='nonnull' />
+              </field>
+              <field name='[Calculation_4310711085325373]'>
+                <type name='nonnull' />
+              </field>
+              <field name='[Calculation_5240805144448185]'>
+                <type name='top' />
+              </field>
+              <field name='[Calculation_7060711085256495]'>
+                <type name='nonnull' />
+              </field>
+              <field name='[Calculation_8100805085146752]'>
+                <type name='nonnull' />
+              </field>
+              <field name='[L Orderkey (copy)]'>
+                <type name='nonnull' />
+              </field>
+              <field name='[L_COMMITDATE]'>
+                <type name='nonnull' />
+              </field>
+              <field name='[L_DISCOUNT]'>
+                <type name='nonnull' />
+              </field>
+              <field name='[L_EXTENDEDPRICE]'>
+                <type name='nonnull' />
+              </field>
+              <field name='[L_LINESTATUS]'>
+                <type name='nonnull' />
+              </field>
+              <field name='[L_ORDERKEY]'>
+                <type name='nonnull' />
+              </field>
+              <field name='[L_PARTKEY]'>
+                <type name='nonnull' />
+              </field>
+              <field name='[L_QUANTITY]'>
+                <type name='nonnull' />
+              </field>
+              <field name='[L_RECEIPTDATE]'>
+                <type name='nonnull' />
+              </field>
+              <field name='[L_RETURNFLAG]'>
+                <type name='nonnull' />
+              </field>
+              <field name='[L_SHIPDATE]'>
+                <type name='nonnull' />
+              </field>
+              <field name='[L_SHIPINSTRUCT]'>
+                <type name='nonnull' />
+              </field>
+              <field name='[L_SHIPMODE]'>
+                <type name='nonnull' />
+              </field>
+              <field name='[L_SUPPKEY]'>
+                <type name='nonnull' />
+              </field>
+              <field name='[L_TAX]'>
+                <type name='nonnull' />
+              </field>
+              <field name='[N_NAME1]'>
+                <type name='nonnull' />
+              </field>
+              <field name='[N_NAME]'>
+                <type name='nonnull' />
+              </field>
+              <field name='[Number of Records]'>
+                <type name='nonnull' />
+              </field>
+              <field name='[O Orderpriority (group)]'>
+                <type name='nonnull' />
+              </field>
+              <field name='[O_ORDERDATE]'>
+                <type name='nonnull' />
+              </field>
+              <field name='[O_ORDERKEY]'>
+                <type name='nonnull' />
+              </field>
+              <field name='[O_ORDERPRIORITY]'>
+                <type name='nonnull' />
+              </field>
+              <field name='[O_ORDERSTATUS]'>
+                <type name='nonnull' />
+              </field>
+              <field name='[O_SHIPPRIORITY]'>
+                <type name='nonnull' />
+              </field>
+              <field name='[O_TOTALPRICE]'>
+                <type name='nonnull' />
+              </field>
+              <field name='[PS_AVAILQTY]'>
+                <type name='nonnull' />
+              </field>
+              <field name='[PS_PARTKEY]'>
+                <type name='nonnull' />
+              </field>
+              <field name='[PS_SUPPKEY]'>
+                <type name='nonnull' />
+              </field>
+              <field name='[PS_SUPPLYCOST]'>
+                <type name='nonnull' />
+              </field>
+              <field name='[P_BRAND]'>
+                <type name='nonnull' />
+              </field>
+              <field name='[P_CONTAINER]'>
+                <type name='nonnull' />
+              </field>
+              <field name='[P_NAME]'>
+                <type name='nonnull' />
+              </field>
+              <field name='[P_SIZE]'>
+                <type name='nonnull' />
+              </field>
+              <field name='[P_TYPE]'>
+                <type name='nonnull' />
+              </field>
+              <field name='[R_NAME]'>
+                <type name='nonnull' />
+              </field>
+              <field name='[S_ADDRESS]'>
+                <type name='nonnull' />
+              </field>
+              <field name='[S_NAME]'>
+                <type name='nonnull' />
+              </field>
+              <field name='[S_NATIONKEY]'>
+                <type name='nonnull' />
+              </field>
+              <field name='[S_PHONE]'>
+                <type name='nonnull' />
+              </field>
+            </schema>
+            <schema>
+            </schema>
+          </type>
+        </logical-operator>
+      </logical-operator>
+    </logical-operator>
+  </logical-operator>
+</logical-query>

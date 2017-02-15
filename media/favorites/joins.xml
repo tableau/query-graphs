@@ -1,0 +1,128 @@
+<logical-query>
+  <selects>
+    <field>[CategoryId]</field>
+    <field>[CategoryName]</field>
+    <field>[CustomerId]</field>
+    <field>[Number of Records]</field>
+    <field>[OrderId]</field>
+    <field>[ProductId (FK_OrderFact)]</field>
+    <field>[ProductId]</field>
+    <field>[ProductName]</field>
+    <field>[Profit]</field>
+    <field>[SubCategoryID]</field>
+    <field>[SubCategoryId]</field>
+    <field>[SubCategoryName]</field>
+  </selects>
+  <logical-operator class='project'>
+    <expressions>
+      <binding name='[Number of Records]'>
+        <logical-expression class='literal' datatype='integer'>1</logical-expression>
+      </binding>
+    </expressions>
+    <logical-operator class='join' comparison='equal-to' join='full' join-constraints='fk-pk'>
+      <logical-operator class='join' comparison='equal-to' join='right' join-constraints='pk-fk'>
+        <logical-operator class='join' comparison='equal-to' join='left' join-constraints='fk-pk'>
+          
+          <logical-operator class='relation' connection='' name='[dbo].[FK_DimDay]'>
+            <relation name='FK_DimDay' table='[dbo].[FK_DimDay]' type='table' />
+            <cols>
+            </cols>
+          </logical-operator>
+          
+          <logical-operator class='relation' connection='' name='[dbo].[FK_DimProductCategory]'>
+            <relation name='FK_DimProductCategory' table='[dbo].[FK_DimProductCategory]' type='table' />
+            <cols>
+            </cols>
+          </logical-operator>
+          <conditions>
+            <condition op='=='>
+              <logical-expression class='identifier'>[CategoryId]</logical-expression>
+              <logical-expression class='identifier'>[CategoryId]</logical-expression>
+            </condition>
+          </conditions>
+          <imports>
+            <binding name='[CategoryId (FK_DimProductCategory)]'>
+              <logical-expression class='identifier'>[CategoryId]</logical-expression>
+            </binding>
+            <binding name='[CategoryName]'>
+              <logical-expression class='identifier'>[CategoryName]</logical-expression>
+            </binding>
+          </imports>
+        </logical-operator>
+        <logical-operator class='relation' connection='' name='[dbo].[FK_OrderFact]'>
+          <relation name='FK_OrderFact' table='[dbo].[FK_OrderFact]' type='table' />
+          <cols>
+          </cols>
+        </logical-operator>
+        <conditions>
+          <condition op='=='>
+            <logical-expression class='identifier'>[ProductId]</logical-expression>
+            <logical-expression class='identifier'>[ProductId]</logical-expression>
+          </condition>
+        </conditions>
+        <imports>
+          <binding name='[CustomerId]'>
+            <logical-expression class='identifier'>[CustomerId]</logical-expression>
+          </binding>
+          <binding name='[DayId]'>
+            <logical-expression class='identifier'>[DayId]</logical-expression>
+          </binding>
+          <binding name='[Discount]'>
+            <logical-expression class='identifier'>[Discount]</logical-expression>
+          </binding>
+          <binding name='[OrderId]'>
+            <logical-expression class='identifier'>[OrderId]</logical-expression>
+          </binding>
+        </imports>
+      </logical-operator>
+      
+      <logical-operator class='join' comparison='equal-to' join='inner' join-constraints='fk-pk'>
+        <logical-operator class='relation' connection='' name='[dbo].[FK_DimProduct]'>
+          <relation name='FK_DimProduct' table='[dbo].[FK_DimProduct]' type='table' />
+          <cols>
+          </cols>
+        </logical-operator>
+        <logical-operator class='relation' connection='' name='[dbo].[FK_DimProductSubCategory]'>
+          <relation name='FK_DimProductSubCategory' table='[dbo].[FK_DimProductSubCategory]' type='table' />
+          <cols>
+          </cols>
+        </logical-operator>
+        <conditions>
+          <condition op='=='>
+            <logical-expression class='identifier'>[SubCategoryID]</logical-expression>
+            <logical-expression class='identifier'>[SubCategoryId]</logical-expression>
+          </condition>
+        </conditions>
+        <imports>
+          <binding name='[CategoryId]'>
+            <logical-expression class='identifier'>[CategoryId]</logical-expression>
+          </binding>
+          <binding name='[SubCategoryId]'>
+            <logical-expression class='identifier'>[SubCategoryId]</logical-expression>
+          </binding>
+          <binding name='[SubCategoryName]'>
+            <logical-expression class='identifier'>[SubCategoryName]</logical-expression>
+          </binding>
+        </imports>
+      </logical-operator>
+      
+      <conditions>
+        <condition op='=='>
+          <logical-expression class='identifier'>[DayId]</logical-expression>
+          <logical-expression class='identifier'>[DayId]</logical-expression>
+        </condition>
+      </conditions>
+      <imports>
+        <binding name='[DayId (FK_DimDay)]'>
+          <logical-expression class='identifier'>[DayId]</logical-expression>
+        </binding>
+        <binding name='[DayNo]'>
+          <logical-expression class='identifier'>[DayNo]</logical-expression>
+        </binding>
+        <binding name='[MonthId]'>
+          <logical-expression class='identifier'>[MonthId]</logical-expression>
+        </binding>
+      </imports>
+    </logical-operator>
+  </logical-operator>
+</logical-query>

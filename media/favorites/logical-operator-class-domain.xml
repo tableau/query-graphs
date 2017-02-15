@@ -1,0 +1,184 @@
+<logical-query>
+  <selects>
+    <field>[Country_Name]</field>
+  </selects>
+  <domainOp class='logical-operator' type='snowflake'>
+    <aggregateOp class='logical-operator'>
+      <measures>
+      </measures>
+      <groupbys>
+        <binding name='[Country_Name]'>
+          <identifierExp class='logical-expression' identifier='[Country_Name]'>
+          </identifierExp>
+        </binding>
+      </groupbys>
+      <selectOp class='logical-operator'>
+        <predicate>
+          <funcallExp class='logical-expression' function='$SYS_NARY_AND$' shape='scalar'>
+            <funcallExp class='logical-expression' function='==' shape='scalar'>
+              <identifierExp class='logical-expression' identifier='[Country_ISO3166_3]'>
+              </identifierExp>
+              <literalExp charset='0' class='logical-expression' collation='LROOT' datatype='string' value='&quot;USA&quot;'>
+              </literalExp>
+            </funcallExp>
+            <funcallExp class='logical-expression' function='==' shape='scalar'>
+              <identifierExp class='logical-expression' identifier='[IsDisplayName]'>
+              </identifierExp>
+              <literalExp class='logical-expression' datatype='integer' value='1'>
+              </literalExp>
+            </funcallExp>
+            <funcallExp class='logical-expression' function='$SYS_NARY_OR$' shape='scalar'>
+              <funcallExp class='logical-expression' function='$IN_SET$' shape='scalar'>
+                <identifierExp class='logical-expression' identifier='[Locale]'>
+                </identifierExp>
+                <literalExp charset='0' class='logical-expression' collation='LROOT' datatype='string' value='&quot;en_US&quot;'>
+                </literalExp>
+              </funcallExp>
+              <funcallExp class='logical-expression' function='isnull' shape='scalar'>
+                <identifierExp class='logical-expression' identifier='[Locale]'>
+                </identifierExp>
+              </funcallExp>
+            </funcallExp>
+          </funcallExp>
+        </predicate>
+        <projectOp class='logical-operator'>
+          <expressions>
+            <binding name='[Country_ISO3166_3]'>
+              <identifierExp class='logical-expression' identifier='[ISO3166_3]'>
+              </identifierExp>
+            </binding>
+          </expressions>
+          <joinOp class='logical-operator' comparison='equal-to' join='inner' join-constraints='pk-fk'>
+            <relationOp class='logical-operator' connection='' name='[Country]'>
+              <relation name='Country' type='table' />
+              <cols>
+              </cols>
+              <type>
+                <schema>
+                  <field name='[FIPS]'>
+                    <type name='nonnull' />
+                  </field>
+                  <field name='[ID]'>
+                    <type name='nonnull' />
+                  </field>
+                  <field name='[ISO3166_2]'>
+                    <type name='top' />
+                  </field>
+                  <field name='[ISO3166_3]'>
+                    <type name='top' />
+                  </field>
+                  <field name='[MapCode]'>
+                    <type name='nonnull' />
+                  </field>
+                  <field name='[ParentID]'>
+                    <type name='top' />
+                  </field>
+                </schema>
+                <functional-dependency>
+                  <schema>
+                    <field name='[ID]'>
+                      <type name='nonnull' />
+                    </field>
+                    <field name='[MapCode]'>
+                      <type name='nonnull' />
+                    </field>
+                  </schema>
+                  <determinant>
+                    <field>[ID]</field>
+                    <field>[MapCode]</field>
+                  </determinant>
+                  <dependent>
+                    <field></field>
+                  </dependent>
+                </functional-dependency>
+                <functional-dependency>
+                  <schema>
+                    <field name='[ID]'>
+                      <type name='nonnull' />
+                    </field>
+                    <field name='[MapCode]'>
+                      <type name='nonnull' />
+                    </field>
+                  </schema>
+                  <determinant>
+                    <field>[ID]</field>
+                    <field>[MapCode]</field>
+                  </determinant>
+                  <dependent>
+                    <field></field>
+                  </dependent>
+                </functional-dependency>
+              </type>
+            </relationOp>
+            <relationOp class='logical-operator' connection='' name='[CountrySynonyms]'>
+              <relation name='CountrySynonyms' type='table' />
+              <cols>
+              </cols>
+              <type>
+                <schema>
+                  <field name='[IsDisplayName]'>
+                    <type name='top' />
+                  </field>
+                  <field name='[Locale]'>
+                    <type name='top' />
+                  </field>
+                  <field name='[MapCode]'>
+                    <type name='nonnull' />
+                  </field>
+                  <field name='[Name]'>
+                    <type name='nonnull' />
+                  </field>
+                  <field name='[ParentID]'>
+                    <type name='top' />
+                  </field>
+                </schema>
+                <inclusion-dependency>
+                  <schema>
+                    <field name='[MapCode]'>
+                      <type name='nonnull' />
+                    </field>
+                    <field name='[ParentID]'>
+                      <type name='nonnull' />
+                    </field>
+                  </schema>
+                  <table connection='' name='[Country]'>
+                    <field alias='[MapCode]' name='[MapCode]' />
+                    <field alias='[MapCode]' name='[ParentID]' />
+                  </table>
+                </inclusion-dependency>
+              </type>
+            </relationOp>
+            <conditions>
+              <condition op='=='>
+                <identifierExp class='logical-expression' identifier='[ID]'>
+                </identifierExp>
+                <identifierExp class='logical-expression' identifier='[ParentID]'>
+                </identifierExp>
+              </condition>
+              <condition op='=='>
+                <identifierExp class='logical-expression' identifier='[MapCode]'>
+                </identifierExp>
+                <identifierExp class='logical-expression' identifier='[MapCode]'>
+                </identifierExp>
+              </condition>
+            </conditions>
+            <imports>
+              <binding name='[Country_Name]'>
+                <identifierExp class='logical-expression' identifier='[Name]'>
+                </identifierExp>
+              </binding>
+              <binding name='[IsDisplayName]'>
+                <identifierExp class='logical-expression' identifier='[IsDisplayName]'>
+                </identifierExp>
+              </binding>
+              <binding name='[Locale]'>
+                <identifierExp class='logical-expression' identifier='[Locale]'>
+                </identifierExp>
+              </binding>
+            </imports>
+          </joinOp>
+        </projectOp>
+      </selectOp>
+    </aggregateOp>
+  </domainOp>
+</logical-query>

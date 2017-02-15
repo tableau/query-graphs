@@ -1,0 +1,50 @@
+{
+    "header": [
+        "r_name",
+        "r_name"
+    ],
+    "plan": {
+        "cardinality": 5,
+        "from": "region",
+        "operator": "tablescan",
+        "segment": 16,
+        "tid": [
+            "tid",
+            [
+                "numeric",
+                18
+            ]
+        ],
+        "values": [
+            {
+                "iu": [
+                    "r_regionkey",
+                    [
+                        "integer"
+                    ]
+                ],
+                "name": "r_regionkey"
+            },
+            {
+                "iu": [
+                    "r_name",
+                    [
+                        "char",
+                        25
+                    ]
+                ],
+                "name": "r_name"
+            },
+            {
+                "iu": [
+                    "r_comment",
+                    [
+                        "varchar",
+                        152
+                    ]
+                ],
+                "name": "r_comment"
+            }
+        ]
+    }
+}
