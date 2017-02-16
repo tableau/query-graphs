@@ -1,6 +1,6 @@
 {
   "name": "query-graphs",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "description": "Helping people see and understand queries.",
   "main": "d3/query-graphs.js",
