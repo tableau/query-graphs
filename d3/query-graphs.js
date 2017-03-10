@@ -312,13 +312,6 @@ d3.text(directory + graphFile, function(err, graphString) {
                         node.name = node.properties.class;
                     }
                     break;
-                case "createtemptable":
-                    if (node.properties.table) {
-                        node.name = node.properties.table;
-                    } else {
-                        node.name = node.properties.class;
-                    }
-                    break;
                 default:
                     node.name = node.properties.class;
                     break;
@@ -343,15 +336,27 @@ d3.text(directory + graphFile, function(err, graphString) {
                         node.name = node.tag.replace(/Op$/, '');
                     }
                     break;
-                case "createtemptableOp":
+                default:
+                    node.name = node.tag.replace(/Op$/, '');
+                    break;
+            }
+        }
+
+        // properties.class are the operators
+        function handleFedOp(node) {
+            switch (node.properties.class) {
+                case "createtemptable":
+                case "createtemptablefromquery":
+                case "createtemptablefromtuples":
                     if (node.properties.table) {
                         node.name = node.properties.table;
                     } else {
-                        node.name = node.tag.replace(/Op$/, '');
+                        node.name = node.properties.class;
                     }
+                    node.class = "createtemptable";
                     break;
                 default:
-                    node.name = node.tag.replace(/Op$/, '');
+                    node.name = node.properties.class;
                     break;
             }
         }
@@ -374,6 +379,8 @@ d3.text(directory + graphFile, function(err, graphString) {
                     handleQueryFunction(node);
                     break;
                 case "fed-op":
+                    handleFedOp(node);
+                    break;
                 case "logical-operator":
                     handleLogicalOperator(node);
                     break;
@@ -776,6 +783,16 @@ d3.text(directory + graphFile, function(err, graphString) {
       .attr("class", "nodeCircle")
       .attr("r", 5);
 
+    // Build the run query symbol
+    var runQueryGroup = defs.append("g")
+      .attr("id", "run-query-symbol");
+    runQueryGroup.append("circle")
+      .attr("class", "nodeCircle")
+      .attr("r", 6);
+    runQueryGroup.append("path")
+      .attr("class", "run-query")
+      .attr("d", "M-2.5,-3.5L4,0L-2.5,3.5 z");
+
     // Build the Join symbols. They are just 2 overlapped circles for the most part.
     var radius = 6.0;
     var leftOffset = -3.0;
@@ -893,6 +910,27 @@ d3.text(directory + graphFile, function(err, graphString) {
       .attr("y", tableStartTop + tableRowHeight)
       .attr("height", tableHeight - tableRowHeight);
 
+    // Build the temp table symbol, very similar to the regular table symbol
+    var tempTableGroup = defs.append("g")
+      .attr("id", "temp-table-symbol");
+    tempTableGroup.append("rect")
+      .attr("class", "table-background")
+      .attr("x", tableStartLeft)
+      .attr("width", tableWidth)
+      .attr("y", tableStartTop)
+      .attr("height", tableHeight);
+    tempTableGroup.append("rect")
+      .attr("class", "table-header")
+      .attr("x", tableStartLeft)
+      .attr("width", tableWidth)
+      .attr("y", tableStartTop)
+      .attr("height", tableRowHeight);
+    tempTableGroup.append("text")
+      .attr("class", "table-text")
+      .attr("y", 4)
+      .attr("font-size", "8px")
+      .text("TMP");
+
     // Collapse all but me in my parent node
     // Nodes may have children and _children that were children prior to streamline
     function streamline(d) {
@@ -980,8 +1018,10 @@ d3.text(directory + graphFile, function(err, graphString) {
                     return "#" + d.properties.join + "-join-symbol";
                 } else if (d.class && d.class === "relation") {
                     return "#table-symbol";
-                } else if (d.properties && d.properties.class && d.properties.class === "createtemptable") {
-                    return "#table-symbol";
+                } else if (d.class && d.class === "createtemptable") {
+                    return "#temp-table-symbol";
+                } else if (d.name && d.name === "runquery") {
+                    return "#run-query-symbol";
                 }
                 return "#default-symbol";
             });
@@ -1061,8 +1101,10 @@ d3.text(directory + graphFile, function(err, graphString) {
         // Enter any new links at the parent's previous position.
         link.enter().insert("path", "g")
             .attr("class", function(d) {
-                if (d.source && d.source.tag === "binding") {
+                if (d.source && (d.source.tag === "binding" || d.source.class === "createtemptable")) {
                     return "link link-and-arrow";
+                } else if (d.target.class === "createtemptable" && d.source && d.source.name === "runquery") {
+                    return "link dotted-link";
                 }
                 return "link";
             })
