@@ -129,7 +129,9 @@ d3.text(directory + graphFile, function(err, graphString) {
     var _treeData = "";
     var convertHyPer = false;
     var parser = new xml2js.Parser({
-        explicitArray: false,
+        explicitRoot: false,
+        explicitChildren: true,
+        preserveChildrenOrder: true,
         // Don't merge attributes. XML attributes will be stored in node["$"]
         mergeAttrs: false
     });
@@ -163,62 +165,30 @@ d3.text(directory + graphFile, function(err, graphString) {
     }
 
     // Convert generic JSON to d3 tree format
-    function convertJSON(node, tag) {
-        var innerNode;
-        if (typeof (node) === "object" && !Array.isArray(node)) {
-            // "Object" nodes
-            var children = [];
-            var properties;
-            var text;
+    function convertJSON(node) {
+        var children = [];
+        var properties = {};
+        var text;
+        var tag = node["#name"];
 
-            if (node === null) {
-                return {
-                    tag: tag,
-                    text: node
-                };
-            }
-
-            Object.keys(node).forEach(function(key, _index) {
-                // $ indicates attributes in the XML, _ indicates the value of the text node
-                if (key === "$") {
-                    properties = node[key];
-                    return;
-                }
-                if (key === "_") {
-                    text = node[key];
-                    return;
-                }
-
-                // All other object attributes indicate inner nodes
-                innerNode = convertJSON(node[key], key);
-                if (Array.isArray(innerNode)) {
-                    children = children.concat(innerNode);
-                } else {
-                    children.push(innerNode);
-                }
-            });
-            return {
-                tag: tag,
-                properties: properties,
-                text: text,
-                children: children
-            };
-        } else if (Array.isArray(node)) {
-            // "Array" nodes
-            var listOfObjects = [];
-            node.forEach(function(value, _index) {
-                innerNode = convertJSON(value, tag);
-                listOfObjects.push(innerNode);
-            });
-            return listOfObjects;
-        } else if (typeof (node) === "string") {
-            // "String" nodes
-            return {
-                tag: tag,
-                text: node
-            };
+        if (node.$) {
+            properties = node.$;
         }
-        console.warn("Convert to JSON case not implemented");
+        if (node._) {
+            text = node._;
+        }
+        if (node.$$) {
+            node.$$.forEach(function (child) {
+                children.push(convertJSON(child));
+            });
+        }
+
+        return {
+            tag: tag,
+            properties: properties,
+            text: text,
+            children: children
+        }
     }
 
     // Function to generate nodes display names based on their properties
