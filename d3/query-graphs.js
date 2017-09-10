@@ -1084,90 +1084,101 @@ function drawQueryTree(treeData) {
     root.x0 = viewerHeight / 2;
     root.y0 = 0;
 
-    // Layout the tree initially and center on the root node.
-    update(root);
+    // Create parent links
+    common.visit(treeData, function() {}, function(d) {
+        if (d.children) {
+            var children = d.children;
+            var count = children.length;
+            for (var i = 0; i < count; i++) {
+                children[i].parent = d;
+            }
+            return children;
+        }
+        return null;
+    });
 
     // Assign federated query colors
     colors.colorFederated(root);
 
     // Collapse all non-essential nodes at their respective roots
     if (graphCollapse !== 'n') {
-        svgGroup.selectAll("g.node")
-            .each(function(d) {
-                if (d.name) {
-                    var _name = d.fullName ? d.fullName : d.name;
-                    switch (_name) {
-                        case 'aggregates':
-                        case 'builder':
-                        case 'cardinality':
-                        case 'condition':
-                        case 'conditions':
-                        case 'count':
-                        case 'criterion':
-                        case 'datasource':
-                        case 'expressions':
-                        case 'field':
-                        case 'from':
-                        case 'groupbys':
-                        case 'header':
-                        case 'imports':
-                        case 'operatorId':
-                        case 'matchMode':
-                        case 'measures':
-                        case 'metadata-record':
-                        case 'metadata-records':
-                        case 'method':
-                        case 'output':
-                        case 'orderbys':
-                        case 'predicate':
-                        case 'residuals':
-                        case 'restrictions':
-                        case 'runquery-columns':
-                        case 'segment':
-                        case 'selects':
-                        case 'schema':
-                        case 'tid':
-                        case 'top':
-                        case 'tuples':
-                        case 'values':
-                            if (graphCollapse === 's') {
-                                streamline(d);
-                            } else {
-                                toggleChildren(d);
-                            }
-                            return;
-                        default:
-                            break;
-                    }
+        common.visit(treeData, function(d) {
+            if (d.name) {
+                var _name = d.fullName ? d.fullName : d.name;
+                switch (_name) {
+                    case 'aggregates':
+                    case 'builder':
+                    case 'cardinality':
+                    case 'condition':
+                    case 'conditions':
+                    case 'count':
+                    case 'criterion':
+                    case 'datasource':
+                    case 'expressions':
+                    case 'field':
+                    case 'from':
+                    case 'groupbys':
+                    case 'header':
+                    case 'imports':
+                    case 'operatorId':
+                    case 'matchMode':
+                    case 'measures':
+                    case 'metadata-record':
+                    case 'metadata-records':
+                    case 'method':
+                    case 'output':
+                    case 'orderbys':
+                    case 'predicate':
+                    case 'residuals':
+                    case 'restrictions':
+                    case 'runquery-columns':
+                    case 'segment':
+                    case 'selects':
+                    case 'schema':
+                    case 'tid':
+                    case 'top':
+                    case 'tuples':
+                    case 'values':
+                        if (graphCollapse === 's') {
+                            streamline(d);
+                        } else {
+                            toggleChildren(d);
+                        }
+                        return;
+                    default:
+                        break;
                 }
-                if (d.class) {
-                    switch (d.class) {
-                        case 'relation':
-                            collapseChildren(d);
-                            return;
-                        default:
-                            break;
-                    }
+            }
+            if (d.class) {
+                switch (d.class) {
+                    case 'relation':
+                        collapseChildren(d);
+                        return;
+                    default:
+                        break;
                 }
-                if (d.tag) {
-                    switch (d.tag) {
-                        case 'header':
-                        case 'values':
-                        case 'tid':
-                            if (graphCollapse === 's') {
-                                streamline(d);
-                            } else {
-                                toggleChildren(d);
-                            }
-                            return;
-                        default:
-                            break;
-                    }
+            }
+            if (d.tag) {
+                switch (d.tag) {
+                    case 'header':
+                    case 'values':
+                    case 'tid':
+                        if (graphCollapse === 's') {
+                            streamline(d);
+                        } else {
+                            toggleChildren(d);
+                        }
+                        return;
+                    default:
+                        break;
                 }
-            });
+            }
+        }, function(d) {
+            return d.children && d.children.length > 0 ? d.children.slice(0) : null;
+        });
     }
 
-    // Update the tree after all non-essential nodes are collapsed
+    // Layout the tree initially and center on the root node.
     update(root);
 
     // Place root node into quandrant appropriate to orientation
