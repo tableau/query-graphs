@@ -107,63 +107,183 @@ var target = document.getElementById('tree-container');
 var spinner = new Spinner().spin(target);
 
 //
-// Get graph data
+// Create the symbols
 //
-d3.text(directory + graphFile, function(err, graphString) {
-    spinner.stop();
+function defineSymbols(baseSvg, ooo) {
+    baseSvg.append("svg:defs");
+    var defs = baseSvg.select("defs");
+    // Build the arrow
+    defs.append("svg:marker")
+        .attr("id", "arrow")
+        .attr("viewBox", "0 -5 10 10")
+        .attr("refX", 18)
+        .attr("refY", 0)
+        .attr("markerWidth", 5)
+        .attr("markerHeight", 5)
+        .attr("orient", ooo.arrowRotation)
+      .append("svg:path")
+        .attr("d", "M0,-5L10,0L0,5");
 
-    if (err) {
-        if (inlineString) {
-            graphString = inlineString;
-        } else {
-            document.write("Request for '" + directory + graphFile + "' failed with '" + err + "'.");
-            return;
-        }
-    }
+    // Build the default symbol. Use this symbol if there is not a better fit
+    defs.append("circle")
+      .attr("id", "default-symbol")
+      .attr("class", "nodeCircle")
+      .attr("r", 5);
 
-    // Remove explicit newlines
-    graphString = graphString.replace(/\\n/gm, " ");
+    // Build the run query symbol
+    var runQueryGroup = defs.append("g")
+      .attr("id", "run-query-symbol");
+    runQueryGroup.append("circle")
+      .attr("class", "nodeCircle")
+      .attr("r", 6);
+    runQueryGroup.append("path")
+      .attr("class", "run-query")
+      .attr("d", "M-2.5,-3.5L4,0L-2.5,3.5 z");
 
-    // Convert XML to JSON or parse as JSON per filename extension
+    // Build the Join symbols. They are just 2 overlapped circles for the most part.
+    var radius = 6.0;
+    var leftOffset = -3.0;
+    var rightOffset = 3.0;
+
+    var leftJoinGroup = defs.append("g")
+      .attr("id", "left-join-symbol");
+    leftJoinGroup.append("circle")
+      .attr("class", "empty-join")
+      .attr("r", radius)
+      .attr("cx", rightOffset);
+    leftJoinGroup.append("circle")
+      .attr("class", "fill-join")
+      .attr("r", radius)
+      .attr("cx", leftOffset);
+    leftJoinGroup.append("circle")
+      .attr("class", "only-stroke-join")
+      .attr("r", radius)
+      .attr("cx", rightOffset);
+
+    var rightJoinGroup = defs.append("g")
+      .attr("id", "right-join-symbol");
+    rightJoinGroup.append("circle")
+      .attr("class", "empty-join")
+      .attr("r", radius)
+      .attr("cx", leftOffset);
+    rightJoinGroup.append("circle")
+      .attr("class", "fill-join")
+      .attr("r", radius)
+      .attr("cx", rightOffset);
+    rightJoinGroup.append("circle")
+      .attr("class", "only-stroke-join")
+      .attr("r", radius)
+      .attr("cx", leftOffset);
+
+    var fullJoinGroup = defs.append("g")
+      .attr("id", "full-join-symbol");
+    fullJoinGroup.append("circle")
+      .attr("class", "fill-join no-stroke")
+      .attr("r", radius)
+      .attr("cx", rightOffset);
+    fullJoinGroup.append("circle")
+      .attr("class", "fill-join")
+      .attr("r", radius)
+      .attr("cx", leftOffset);
+    fullJoinGroup.append("circle")
+      .attr("class", "only-stroke-join")
+      .attr("r", radius)
+      .attr("cx", rightOffset);
+
+    // Drawing inner joins is more complex. We'll clip a circle (with another circle) to get the intersection shape
+    defs.append("clipPath")
+      .attr("id", "join-clip")
+      .append("circle")
+        .attr("class", "empty-join")
+        .attr("r", radius)
+        .attr("cx", leftOffset);
+
+    var innerJoinGroup = defs.append("g")
+      .attr("id", "inner-join-symbol");
+    innerJoinGroup.append("circle")
+      .attr("class", "empty-join")
+      .attr("r", radius)
+      .attr("cx", leftOffset);
+    innerJoinGroup.append("circle")
+      .attr("class", "empty-join")
+      .attr("r", radius)
+      .attr("cx", rightOffset);
+    innerJoinGroup.append("circle")
+      .attr("class", "fill-join no-stroke")
+      .attr("clip-path", "url(#join-clip)")
+      .attr("r", radius)
+      .attr("cx", rightOffset);
+    innerJoinGroup.append("circle")
+      .attr("class", "only-stroke-join")
+      .attr("r", radius)
+      .attr("cx", leftOffset);
+    innerJoinGroup.append("circle")
+      .attr("class", "only-stroke-join")
+      .attr("r", radius)
+      .attr("cx", rightOffset);
+
+    // Build the table symbol. Made out of several rectangles.
+    var tableRowWidth = 5.2;
+    var tableRowHeight = 2.8;
+    var tableWidth = tableRowWidth * 3;
+    var tableHeight = tableRowHeight * 4;
+    var tableStartLeft = -tableWidth / 2;
+    var tableStartTop = -tableHeight / 2;
+
+    var tableGroup = defs.append("g")
+      .attr("id", "table-symbol");
+    tableGroup.append("rect")
+      .attr("class", "table-background")
+      .attr("x", tableStartLeft)
+      .attr("width", tableWidth)
+      .attr("y", tableStartTop)
+      .attr("height", tableHeight);
+    tableGroup.append("rect")
+      .attr("class", "table-header")
+      .attr("x", tableStartLeft)
+      .attr("width", tableWidth)
+      .attr("y", tableStartTop)
+      .attr("height", tableRowHeight);
+    tableGroup.append("rect")
+      .attr("class", "table-border")
+      .attr("x", tableStartLeft)
+      .attr("width", tableWidth)
+      .attr("y", 0)
+      .attr("height", tableRowHeight);
+    tableGroup.append("rect")
+      .attr("class", "table-border")
+      .attr("x", -tableRowWidth / 2)
+      .attr("width", tableRowWidth)
+      .attr("y", tableStartTop + tableRowHeight)
+      .attr("height", tableHeight - tableRowHeight);
+
+    // Build the temp table symbol, very similar to the regular table symbol
+    var tempTableGroup = defs.append("g")
+      .attr("id", "temp-table-symbol");
+    tempTableGroup.append("rect")
+      .attr("class", "table-background")
+      .attr("x", tableStartLeft)
+      .attr("width", tableWidth)
+      .attr("y", tableStartTop)
+      .attr("height", tableHeight);
+    tempTableGroup.append("rect")
+      .attr("class", "table-header")
+      .attr("x", tableStartLeft)
+      .attr("width", tableWidth)
+      .attr("y", tableStartTop)
+      .attr("height", tableRowHeight);
+    tempTableGroup.append("text")
+      .attr("class", "table-text")
+      .attr("y", 4)
+      .attr("font-size", "8px")
+      .text("TMP");
+}
+
+//
+// Prepare the loaded data for visualization
+//
+function prepareTreeData(_treeData, convertHyPer) {
     var treeData = "";
-    var _treeData = "";
-    var convertHyPer = false;
-    var parser = new xml2js.Parser({
-        explicitRoot: false,
-        explicitChildren: true,
-        preserveChildrenOrder: true,
-        // Don't merge attributes. XML attributes will be stored in node["$"]
-        mergeAttrs: false
-    });
-    if (path.extname(graphFile) === '.json') {
-        try {
-            _treeData = JSON.parse(graphString);
-            convertHyPer = true;
-        } catch (err) {
-            document.write("JSON parse failed with '" + err + "'.");
-        }
-    } else if (path.extname(graphFile) === '.xml') {
-        parser.parseString(graphString, function(err, result) {
-            _treeData = result;
-            if (err) {
-                document.write("XML parse failed with '" + err + "'.");
-            }
-        });
-    } else {
-        parser.parseString(graphString, function(errXml, result) {
-            _treeData = result;
-            if (errXml) {
-                try {
-                    _treeData = JSON.parse(graphString);
-                    convertHyPer = true;
-                } catch (err) {
-                    document.write("XML parse failed with '" + errXml + "'.<br />");
-                    document.write("JSON parse failed with '" + err + "'.");
-                }
-            }
-        });
-    }
-
     // Convert generic JSON to d3 tree format
     function convertJSON(node) {
         var children = [];
@@ -178,7 +298,7 @@ d3.text(directory + graphFile, function(err, graphString) {
             text = node._;
         }
         if (node.$$) {
-            node.$$.forEach(function (child) {
+            node.$$.forEach(function(child) {
                 children.push(convertJSON(child));
             });
         }
@@ -188,7 +308,7 @@ d3.text(directory + graphFile, function(err, graphString) {
             properties: properties,
             text: text,
             children: children
-        }
+        };
     }
 
     // Function to generate nodes display names based on their properties
@@ -408,12 +528,10 @@ d3.text(directory + graphFile, function(err, graphString) {
                 case "unique":
                     if (node.text) {
                         node.name = node.tag + ":" + node.text;
+                    } else if (node.properties && node.properties.name) {
+                        node.name = node.tag + ":" + node.properties.name;
                     } else {
-                        if (node.properties && node.properties.name) {
-                            node.name = node.tag + ":" + node.properties.name;
-                        } else {
-                            node.name = node.tag;
-                        }
+                        node.name = node.tag;
                     }
                     break;
                 case "join":
@@ -512,6 +630,13 @@ d3.text(directory + graphFile, function(err, graphString) {
 
     generateDisplayNames(treeData);
 
+    return treeData;
+}
+
+//
+// Draw query tree
+//
+function drawQueryTree(treeData) {
     // Call visit function to establish maxLabelLength
     var totalNodes = 0;
     var maxLabelLength = 0;
@@ -733,173 +858,7 @@ d3.text(directory + graphFile, function(err, graphString) {
         .attr("class", "overlay")
         .call(zoomListener);
 
-    // Build the arrow
-    baseSvg.append("svg:defs")
-      .append("svg:marker")
-        .attr("id", "arrow")
-        .attr("viewBox", "0 -5 10 10")
-        .attr("refX", 18)
-        .attr("refY", 0)
-        .attr("markerWidth", 5)
-        .attr("markerHeight", 5)
-        .attr("orient", ooo.arrowRotation)
-      .append("svg:path")
-        .attr("d", "M0,-5L10,0L0,5");
-
-    var defs = baseSvg.select("defs");
-    // Build the default symbol. Use this symbol if there is not a better fit
-    defs.append("circle")
-      .attr("id", "default-symbol")
-      .attr("class", "nodeCircle")
-      .attr("r", 5);
-
-    // Build the run query symbol
-    var runQueryGroup = defs.append("g")
-      .attr("id", "run-query-symbol");
-    runQueryGroup.append("circle")
-      .attr("class", "nodeCircle")
-      .attr("r", 6);
-    runQueryGroup.append("path")
-      .attr("class", "run-query")
-      .attr("d", "M-2.5,-3.5L4,0L-2.5,3.5 z");
-
-    // Build the Join symbols. They are just 2 overlapped circles for the most part.
-    var radius = 6.0;
-    var leftOffset = -3.0;
-    var rightOffset = 3.0;
-
-    var leftJoinGroup = defs.append("g")
-      .attr("id", "left-join-symbol");
-    leftJoinGroup.append("circle")
-      .attr("class", "empty-join")
-      .attr("r", radius)
-      .attr("cx", rightOffset);
-    leftJoinGroup.append("circle")
-      .attr("class", "fill-join")
-      .attr("r", radius)
-      .attr("cx", leftOffset);
-    leftJoinGroup.append("circle")
-      .attr("class", "only-stroke-join")
-      .attr("r", radius)
-      .attr("cx", rightOffset);
-
-    var rightJoinGroup = defs.append("g")
-      .attr("id", "right-join-symbol");
-    rightJoinGroup.append("circle")
-      .attr("class", "empty-join")
-      .attr("r", radius)
-      .attr("cx", leftOffset);
-    rightJoinGroup.append("circle")
-      .attr("class", "fill-join")
-      .attr("r", radius)
-      .attr("cx", rightOffset);
-    rightJoinGroup.append("circle")
-      .attr("class", "only-stroke-join")
-      .attr("r", radius)
-      .attr("cx", leftOffset);
-
-    var fullJoinGroup = defs.append("g")
-      .attr("id", "full-join-symbol");
-    fullJoinGroup.append("circle")
-      .attr("class", "fill-join no-stroke")
-      .attr("r", radius)
-      .attr("cx", rightOffset);
-    fullJoinGroup.append("circle")
-      .attr("class", "fill-join")
-      .attr("r", radius)
-      .attr("cx", leftOffset);
-    fullJoinGroup.append("circle")
-      .attr("class", "only-stroke-join")
-      .attr("r", radius)
-      .attr("cx", rightOffset);
-
-    // Drawing inner joins is more complex. We'll clip a circle (with another circle) to get the intersection shape
-    defs.append("clipPath")
-      .attr("id", "join-clip")
-      .append("circle")
-        .attr("class", "empty-join")
-        .attr("r", radius)
-        .attr("cx", leftOffset);
-
-    var innerJoinGroup = defs.append("g")
-      .attr("id", "inner-join-symbol");
-    innerJoinGroup.append("circle")
-      .attr("class", "empty-join")
-      .attr("r", radius)
-      .attr("cx", leftOffset);
-    innerJoinGroup.append("circle")
-      .attr("class", "empty-join")
-      .attr("r", radius)
-      .attr("cx", rightOffset);
-    innerJoinGroup.append("circle")
-      .attr("class", "fill-join no-stroke")
-      .attr("clip-path", "url(#join-clip)")
-      .attr("r", radius)
-      .attr("cx", rightOffset);
-    innerJoinGroup.append("circle")
-      .attr("class", "only-stroke-join")
-      .attr("r", radius)
-      .attr("cx", leftOffset);
-    innerJoinGroup.append("circle")
-      .attr("class", "only-stroke-join")
-      .attr("r", radius)
-      .attr("cx", rightOffset);
-
-    // Build the table symbol. Made out of several rectangles.
-    var tableRowWidth = 5.2;
-    var tableRowHeight = 2.8;
-    var tableWidth = tableRowWidth * 3;
-    var tableHeight = tableRowHeight * 4;
-    var tableStartLeft = -tableWidth / 2;
-    var tableStartTop = -tableHeight / 2;
-
-    var tableGroup = defs.append("g")
-      .attr("id", "table-symbol");
-    tableGroup.append("rect")
-      .attr("class", "table-background")
-      .attr("x", tableStartLeft)
-      .attr("width", tableWidth)
-      .attr("y", tableStartTop)
-      .attr("height", tableHeight);
-    tableGroup.append("rect")
-      .attr("class", "table-header")
-      .attr("x", tableStartLeft)
-      .attr("width", tableWidth)
-      .attr("y", tableStartTop)
-      .attr("height", tableRowHeight);
-    tableGroup.append("rect")
-      .attr("class", "table-border")
-      .attr("x", tableStartLeft)
-      .attr("width", tableWidth)
-      .attr("y", 0)
-      .attr("height", tableRowHeight);
-    tableGroup.append("rect")
-      .attr("class", "table-border")
-      .attr("x", -tableRowWidth / 2)
-      .attr("width", tableRowWidth)
-      .attr("y", tableStartTop + tableRowHeight)
-      .attr("height", tableHeight - tableRowHeight);
-
-    // Build the temp table symbol, very similar to the regular table symbol
-    var tempTableGroup = defs.append("g")
-      .attr("id", "temp-table-symbol");
-    tempTableGroup.append("rect")
-      .attr("class", "table-background")
-      .attr("x", tableStartLeft)
-      .attr("width", tableWidth)
-      .attr("y", tableStartTop)
-      .attr("height", tableHeight);
-    tempTableGroup.append("rect")
-      .attr("class", "table-header")
-      .attr("x", tableStartLeft)
-      .attr("width", tableWidth)
-      .attr("y", tableStartTop)
-      .attr("height", tableRowHeight);
-    tempTableGroup.append("text")
-      .attr("class", "table-text")
-      .attr("y", 4)
-      .attr("font-size", "8px")
-      .text("TMP");
+    defineSymbols(baseSvg, ooo);
 
     // Collapse all but me in my parent node
     // Nodes may have children and _children that were children prior to streamline
@@ -1272,4 +1231,64 @@ d3.text(directory + graphFile, function(err, graphString) {
     treeText += "<span style='color: hsl(309, 84%, 36%)'>nodes: </span>";
     treeText += "<span style='color: black'>" + totalNodes + "</span><br />";
     $("#tree-label").html(treeText);
+}
+
+//
+// Get graph data
+//
+d3.text(directory + graphFile, function(err, graphString) {
+    spinner.stop();
+
+    if (err) {
+        if (inlineString) {
+            graphString = inlineString;
+        } else {
+            document.write("Request for '" + directory + graphFile + "' failed with '" + err + "'.");
+            return;
+        }
+    }
+
+    // Remove explicit newlines
+    graphString = graphString.replace(/\\n/gm, " ");
+
+    // Convert XML to JSON or parse as JSON per filename extension
+    var treeData = "";
+    var convertHyPer = false;
+    var parser = new xml2js.Parser({
+        explicitRoot: false,
+        explicitChildren: true,
+        preserveChildrenOrder: true,
+        // Don't merge attributes. XML attributes will be stored in node["$"]
+        mergeAttrs: false
+    });
+    if (path.extname(graphFile) === '.json') {
+        try {
+            treeData = JSON.parse(graphString);
+            convertHyPer = true;
+        } catch (err) {
+            document.write("JSON parse failed with '" + err + "'.");
+        }
+    } else if (path.extname(graphFile) === '.xml') {
+        parser.parseString(graphString, function(err, result) {
+            treeData = result;
+            if (err) {
+                document.write("XML parse failed with '" + err + "'.");
+            }
+        });
+    } else {
+        parser.parseString(graphString, function(errXml, result) {
+            treeData = result;
+            if (errXml) {
+                try {
+                    treeData = JSON.parse(graphString);
+                    convertHyPer = true;
+                } catch (err) {
+                    document.write("XML parse failed with '" + errXml + "'.<br />");
+                    document.write("JSON parse failed with '" + err + "'.");
+                }
+            }
+        });
+    }
+
+    drawQueryTree(prepareTreeData(treeData, convertHyPer));
 });
