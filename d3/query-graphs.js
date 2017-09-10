@@ -690,7 +690,7 @@ function drawQueryTree(treeData) {
                 return -root.x0 * scale + viewerWidth / 2;
             },
             rooty: function(_scale) {
-                return 50;
+                return 100;
             },
             arrowRotation: "270deg"
         },
@@ -780,7 +780,6 @@ function drawQueryTree(treeData) {
                 return a.parent === b.parent ? 1 : 2;
             },
             rootx: function(_scale) {
-                // return 50;
                 return maxLabelLength * 6;
             },
             rooty: function(scale) {
@@ -796,6 +795,7 @@ function drawQueryTree(treeData) {
         .size(ooo.size);
 
     // Define a d3 diagonal projection for use by the node paths later on.
+    var diagonalRaw = d3.svg.diagonal();
     var diagonal = d3.svg.diagonal()
         .projection(function(d) {
             return [ooo.x(d), ooo.y(d)];
@@ -1011,7 +1011,7 @@ function drawQueryTree(treeData) {
         var nodeExit = node.exit().transition()
             .duration(duration)
             .attr("transform", function(_d) {
-                return "translate(" + source.x + "," + source.y + ")";
+                return "translate(" + ooo.x(source) + "," + ooo.y(source) + ")";
             })
             .remove();
 
@@ -1042,7 +1042,7 @@ function drawQueryTree(treeData) {
                     x: source.x0,
                     y: source.y0
                 };
-                return diagonal({
+                return diagonalRaw({
                     source: o,
                     target: o
                 });
@@ -1081,8 +1081,9 @@ function drawQueryTree(treeData) {
 
     // Define the root
     root = treeData;
-    root.x0 = viewerHeight / 2;
-    root.y0 = 0;
+    var origin = {x: 0, y: 0};
+    root.x0 = ooo.x(origin);
+    root.y0 = ooo.y(origin);
 
     // Create parent links
     common.visit(treeData, function() {}, function(d) {
@@ -1186,9 +1187,8 @@ function drawQueryTree(treeData) {
         var scale = zoomListener.scale();
         var x = ooo.rootx(scale);
         var y = ooo.rooty(scale);
-        d3.select('g.main').transition()
-            .duration(duration)
-            .attr("transform", "translate(" + x + "," + y + ")scale(" + scale + ")");
+        d3.select('g.main')
+            .attr("transform", "translate(" + x + "," + y + "),scale(" + scale + ")");
         zoomListener.scale(scale);
         zoomListener.translate([x, y]);
     }
@@ -1225,11 +1225,7 @@ function drawQueryTree(treeData) {
         });
 
     // Scale for readability by a fixed amount due to problematic .getBBox() above
-    var dscale = zoomListener.scale();
-    d3.select('g.main').transition()
-        .duration(duration)
-        .attr("transform", "scale(" + dscale + ")");
-    zoomListener.scale(dscale * 1.5);
+    zoomListener.scale(zoomListener.scale() * 1.5);
 
     orientRoot();
 
