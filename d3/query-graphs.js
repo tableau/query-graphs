@@ -1234,18 +1234,25 @@ function drawQueryTree(treeData) {
 }
 
 //
-// Get graph data
+// Retrieve graph data
 //
-d3.text(directory + graphFile, function(err, graphString) {
+function retrieveData(callback) {
+    if (inlineString) {
+        callback(null, inlineString);
+    } else {
+        d3.text(directory + graphFile, callback);
+    }
+}
+
+//
+// Kick it off
+//
+retrieveData(function(err, graphString) {
     spinner.stop();
 
     if (err) {
-        if (inlineString) {
-            graphString = inlineString;
-        } else {
-            document.write("Request for '" + directory + graphFile + "' failed with '" + err + "'.");
-            return;
-        }
+        document.write("Request for '" + directory + graphFile + "' failed with '" + err + "'.");
+        return;
     }
 
     // Remove explicit newlines
