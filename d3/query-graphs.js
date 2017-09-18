@@ -690,7 +690,7 @@ function drawQueryTree(treeData) {
                 return -root.x0 * scale + viewerWidth / 2;
             },
             rooty: function(_scale) {
-                return 50;
+                return 100;
             },
             arrowRotation: "270deg"
         },
@@ -780,7 +780,6 @@ function drawQueryTree(treeData) {
                 return a.parent === b.parent ? 1 : 2;
             },
             rootx: function(_scale) {
-                // return 50;
                 return maxLabelLength * 6;
             },
             rooty: function(scale) {
