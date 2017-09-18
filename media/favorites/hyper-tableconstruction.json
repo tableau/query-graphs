@@ -1,0 +1,44 @@
+{
+    "id": 5,
+    "plan": {
+        "header": [
+            "lc_collate",
+            "v"
+        ],
+        "plan": {
+            "input": {
+                "operator": "tableconstruction",
+                "operatorId": 2,
+                "output": [
+                    [
+                        "v",
+                        [
+                            "Varchar"
+                        ]
+                    ]
+                ],
+                "values": [
+                    [
+                        {
+                            "expression": "const",
+                            "value": {
+                                "type": [
+                                    "Varchar"
+                                ],
+                                "value": "C"
+                            }
+                        }
+                    ]
+                ]
+            },
+            "operator": "cursorcreate",
+            "operatorId": 1,
+            "values": [
+                {
+                    "expression": "iuref",
+                    "iu": "v"
+                }
+            ]
+        }
+    }
+}

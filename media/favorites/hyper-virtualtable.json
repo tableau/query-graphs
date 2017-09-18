@@ -1,0 +1,1338 @@
+{
+    "id": 11,
+    "plan": {
+        "header": [
+            "attname",
+            "v33",
+            "atttypid",
+            "v34",
+            "attnotnull",
+            "v43",
+            "attnum",
+            "v",
+            "atttypmod",
+            "v39",
+            "attcollation",
+            "v88"
+        ],
+        "plan": {
+            "input": {
+                "cardinality": 201093750,
+                "criterion": [
+                    {
+                        "descending": false,
+                        "nullFirst": false,
+                        "value": {
+                            "expression": "iuref",
+                            "iu": [
+                                "v",
+                                [
+                                    "SmallInt"
+                                ]
+                            ]
+                        }
+                    }
+                ],
+                "input": {
+                    "cardinality": 201093750,
+                    "condition": {
+                        "arguments": [
+                            {
+                                "expression": "comparison",
+                                "left": {
+                                    "expression": "iuref",
+                                    "iu": "v48"
+                                },
+                                "mode": "<>",
+                                "right": {
+                                    "expression": "iuref",
+                                    "iu": "v81"
+                                }
+                            },
+                            {
+                                "expression": "comparison",
+                                "left": {
+                                    "expression": "iuref",
+                                    "iu": "v54"
+                                },
+                                "mode": "=",
+                                "right": {
+                                    "expression": "iuref",
+                                    "iu": "v34"
+                                }
+                            },
+                            {
+                                "expression": "comparison",
+                                "left": {
+                                    "expression": "iuref",
+                                    "iu": "v87"
+                                },
+                                "mode": "=",
+                                "right": {
+                                    "expression": "iuref",
+                                    "iu": "v48"
+                                }
+                            }
+                        ],
+                        "expression": "and"
+                    },
+                    "left": {
+                        "cardinality": 3750,
+                        "condition": {
+                            "expression": "comparison",
+                            "left": {
+                                "expression": "iuref",
+                                "iu": "v32"
+                            },
+                            "mode": "=",
+                            "right": {
+                                "expression": "iuref",
+                                "iu": "v2"
+                            }
+                        },
+                        "left": {
+                            "cardinality": 100,
+                            "condition": {
+                                "expression": "comparison",
+                                "left": {
+                                    "expression": "iuref",
+                                    "iu": "v3"
+                                },
+                                "mode": "=",
+                                "right": {
+                                    "expression": "const",
+                                    "value": {
+                                        "type": [
+                                            "Varchar"
+                                        ],
+                                        "value": "Extract"
+                                    }
+                                }
+                            },
+                            "input": {
+                                "cardinality": 1000,
+                                "database": 0,
+                                "id": 10,
+                                "name": "pg_class",
+                                "operator": "virtualtable",
+                                "operatorId": 6,
+                                "tableOid": [
+                                    "v30",
+                                    [
+                                        "Oid"
+                                    ]
+                                ],
+                                "tid": [
+                                    "v29",
+                                    [
+                                        "BigInt"
+                                    ]
+                                ],
+                                "tupleFlags": [
+                                    "v31",
+                                    [
+                                        "BigInt"
+                                    ]
+                                ],
+                                "values": [
+                                    {
+                                        "name": "oid",
+                                        "type": [
+                                            "Oid"
+                                        ],
+                                        "value": [
+                                            "v2",
+                                            [
+                                                "Oid"
+                                            ]
+                                        ]
+                                    },
+                                    {
+                                        "name": "relname",
+                                        "type": [
+                                            "Varchar"
+                                        ],
+                                        "value": [
+                                            "v3",
+                                            [
+                                                "Varchar"
+                                            ]
+                                        ]
+                                    },
+                                    {
+                                        "name": "relnamespace",
+                                        "type": [
+                                            "Oid"
+                                        ],
+                                        "value": [
+                                            "v4",
+                                            [
+                                                "Oid"
+                                            ]
+                                        ]
+                                    },
+                                    {
+                                        "name": "reltype",
+                                        "type": [
+                                            "Oid"
+                                        ],
+                                        "value": [
+                                            "v5",
+                                            [
+                                                "Oid"
+                                            ]
+                                        ]
+                                    },
+                                    {
+                                        "name": "reloftype",
+                                        "type": [
+                                            "Oid"
+                                        ],
+                                        "value": [
+                                            "v6",
+                                            [
+                                                "Oid"
+                                            ]
+                                        ]
+                                    },
+                                    {
+                                        "name": "relowner",
+                                        "type": [
+                                            "Oid"
+                                        ],
+                                        "value": [
+                                            "v7",
+                                            [
+                                                "Oid"
+                                            ]
+                                        ]
+                                    },
+                                    {
+                                        "name": "relam",
+                                        "type": [
+                                            "Oid"
+                                        ],
+                                        "value": [
+                                            "v8",
+                                            [
+                                                "Oid"
+                                            ]
+                                        ]
+                                    },
+                                    {
+                                        "name": "relfilenode",
+                                        "type": [
+                                            "Oid"
+                                        ],
+                                        "value": [
+                                            "v9",
+                                            [
+                                                "Oid"
+                                            ]
+                                        ]
+                                    },
+                                    {
+                                        "name": "reltablespace",
+                                        "type": [
+                                            "Oid"
+                                        ],
+                                        "value": [
+                                            "v10",
+                                            [
+                                                "Oid"
+                                            ]
+                                        ]
+                                    },
+                                    {
+                                        "name": "relpages",
+                                        "type": [
+                                            "Integer"
+                                        ],
+                                        "value": [
+                                            "v11",
+                                            [
+                                                "Integer"
+                                            ]
+                                        ]
+                                    },
+                                    {
+                                        "name": "reltuples",
+                                        "type": [
+                                            "Double"
+                                        ],
+                                        "value": [
+                                            "v12",
+                                            [
+                                                "Double"
+                                            ]
+                                        ]
+                                    },
+                                    {
+                                        "name": "reltoastrelid",
+                                        "type": [
+                                            "Oid"
+                                        ],
+                                        "value": [
+                                            "v13",
+                                            [
+                                                "Oid"
+                                            ]
+                                        ]
+                                    },
+                                    {
+                                        "name": "reltoastidxid",
+                                        "type": [
+                                            "Oid"
+                                        ],
+                                        "value": [
+                                            "v14",
+                                            [
+                                                "Oid"
+                                            ]
+                                        ]
+                                    },
+                                    {
+                                        "name": "relhasindex",
+                                        "type": [
+                                            "Bool"
+                                        ],
+                                        "value": [
+                                            "v15",
+                                            [
+                                                "Bool"
+                                            ]
+                                        ]
+                                    },
+                                    {
+                                        "name": "relisshared",
+                                        "type": [
+                                            "Bool"
+                                        ],
+                                        "value": [
+                                            "v16",
+                                            [
+                                                "Bool"
+                                            ]
+                                        ]
+                                    },
+                                    {
+                                        "name": "relpersistence",
+                                        "type": [
+                                            "Char1"
+                                        ],
+                                        "value": [
+                                            "v17",
+                                            [
+                                                "Char1"
+                                            ]
+                                        ]
+                                    },
+                                    {
+                                        "name": "relkind",
+                                        "type": [
+                                            "Char1"
+                                        ],
+                                        "value": [
+                                            "v18",
+                                            [
+                                                "Char1"
+                                            ]
+                                        ]
+                                    },
+                                    {
+                                        "name": "relnatts",
+                                        "type": [
+                                            "SmallInt"
+                                        ],
+                                        "value": [
+                                            "v19",
+                                            [
+                                                "SmallInt"
+                                            ]
+                                        ]
+                                    },
+                                    {
+                                        "name": "relchecks",
+                                        "type": [
+                                            "SmallInt"
+                                        ],
+                                        "value": [
+                                            "v20",
+                                            [
+                                                "SmallInt"
+                                            ]
+                                        ]
+                                    },
+                                    {
+                                        "name": "relhasoids",
+                                        "type": [
+                                            "Bool"
+                                        ],
+                                        "value": [
+                                            "v21",
+                                            [
+                                                "Bool"
+                                            ]
+                                        ]
+                                    },
+                                    {
+                                        "name": "relhaspkey",
+                                        "type": [
+                                            "Bool"
+                                        ],
+                                        "value": [
+                                            "v22",
+                                            [
+                                                "Bool"
+                                            ]
+                                        ]
+                                    },
+                                    {
+                                        "name": "relhasrules",
+                                        "type": [
+                                            "Bool"
+                                        ],
+                                        "value": [
+                                            "v23",
+                                            [
+                                                "Bool"
+                                            ]
+                                        ]
+                                    },
+                                    {
+                                        "name": "relhastriggers",
+                                        "type": [
+                                            "Bool"
+                                        ],
+                                        "value": [
+                                            "v24",
+                                            [
+                                                "Bool"
+                                            ]
+                                        ]
+                                    },
+                                    {
+                                        "name": "relhassubclass",
+                                        "type": [
+                                            "Bool"
+                                        ],
+                                        "value": [
+                                            "v25",
+                                            [
+                                                "Bool"
+                                            ]
+                                        ]
+                                    },
+                                    {
+                                        "name": "relfrozenxid",
+                                        "type": [
+                                            "BigInt"
+                                        ],
+                                        "value": [
+                                            "v26",
+                                            [
+                                                "BigInt"
+                                            ]
+                                        ]
+                                    },
+                                    {
+                                        "name": "relacl",
+                                        "type": [
+                                            "AclItem-array",
+                                            "nullable"
+                                        ],
+                                        "value": [
+                                            "v27",
+                                            [
+                                                "AclItem-array",
+                                                "nullable"
+                                            ]
+                                        ]
+                                    },
+                                    {
+                                        "name": "reloptions",
+                                        "type": [
+                                            "Varchar-array",
+                                            "nullable"
+                                        ],
+                                        "value": [
+                                            "v28",
+                                            [
+                                                "Varchar-array",
+                                                "nullable"
+                                            ]
+                                        ]
+                                    }
+                                ]
+                            },
+                            "operator": "select",
+                            "operatorId": 5
+                        },
+                        "method": "hash",
+                        "operator": "join",
+                        "operatorId": 4,
+                        "right": {
+                            "cardinality": 375,
+                            "condition": {
+                                "arguments": [
+                                    {
+                                        "expression": "not",
+                                        "input": {
+                                            "expression": "iuref",
+                                            "iu": "v45"
+                                        }
+                                    },
+                                    {
+                                        "expression": "comparison",
+                                        "left": {
+                                            "expression": "iuref",
+                                            "iu": "v"
+                                        },
+                                        "mode": ">",
+                                        "right": {
+                                            "expression": "const",
+                                            "value": {
+                                                "type": [
+                                                    "SmallInt"
+                                                ],
+                                                "value": 0
+                                            }
+                                        }
+                                    }
+                                ],
+                                "expression": "and"
+                            },
+                            "input": {
+                                "cardinality": 1000,
+                                "database": 0,
+                                "id": 6,
+                                "name": "pg_attribute",
+                                "operator": "virtualtable",
+                                "operatorId": 8,
+                                "tableOid": [
+                                    "v52",
+                                    [
+                                        "Oid"
+                                    ]
+                                ],
+                                "tid": [
+                                    "v51",
+                                    [
+                                        "BigInt"
+                                    ]
+                                ],
+                                "tupleFlags": [
+                                    "v53",
+                                    [
+                                        "BigInt"
+                                    ]
+                                ],
+                                "values": [
+                                    {
+                                        "name": "attrelid",
+                                        "type": [
+                                            "Oid"
+                                        ],
+                                        "value": [
+                                            "v32",
+                                            [
+                                                "Oid"
+                                            ]
+                                        ]
+                                    },
+                                    {
+                                        "name": "attname",
+                                        "type": [
+                                            "Varchar"
+                                        ],
+                                        "value": [
+                                            "v33",
+                                            [
+                                                "Varchar"
+                                            ]
+                                        ]
+                                    },
+                                    {
+                                        "name": "atttypid",
+                                        "type": [
+                                            "Oid"
+                                        ],
+                                        "value": [
+                                            "v34",
+                                            [
+                                                "Oid"
+                                            ]
+                                        ]
+                                    },
+                                    {
+                                        "name": "attstattarget",
+                                        "type": [
+                                            "Integer"
+                                        ],
+                                        "value": [
+                                            "v35",
+                                            [
+                                                "Integer"
+                                            ]
+                                        ]
+                                    },
+                                    {
+                                        "name": "attlen",
+                                        "type": [
+                                            "SmallInt"
+                                        ],
+                                        "value": [
+                                            "v36",
+                                            [
+                                                "SmallInt"
+                                            ]
+                                        ]
+                                    },
+                                    {
+                                        "name": "attnum",
+                                        "type": [
+                                            "SmallInt"
+                                        ],
+                                        "value": [
+                                            "v",
+                                            [
+                                                "SmallInt"
+                                            ]
+                                        ]
+                                    },
+                                    {
+                                        "name": "attndims",
+                                        "type": [
+                                            "Integer"
+                                        ],
+                                        "value": [
+                                            "v37",
+                                            [
+                                                "Integer"
+                                            ]
+                                        ]
+                                    },
+                                    {
+                                        "name": "attcacheoff",
+                                        "type": [
+                                            "Integer"
+                                        ],
+                                        "value": [
+                                            "v38",
+                                            [
+                                                "Integer"
+                                            ]
+                                        ]
+                                    },
+                                    {
+                                        "name": "atttypmod",
+                                        "type": [
+                                            "Integer"
+                                        ],
+                                        "value": [
+                                            "v39",
+                                            [
+                                                "Integer"
+                                            ]
+                                        ]
+                                    },
+                                    {
+                                        "name": "attbyval",
+                                        "type": [
+                                            "Bool"
+                                        ],
+                                        "value": [
+                                            "v40",
+                                            [
+                                                "Bool"
+                                            ]
+                                        ]
+                                    },
+                                    {
+                                        "name": "attstorage",
+                                        "type": [
+                                            "Char1"
+                                        ],
+                                        "value": [
+                                            "v41",
+                                            [
+                                                "Char1"
+                                            ]
+                                        ]
+                                    },
+                                    {
+                                        "name": "attalign",
+                                        "type": [
+                                            "Char1"
+                                        ],
+                                        "value": [
+                                            "v42",
+                                            [
+                                                "Char1"
+                                            ]
+                                        ]
+                                    },
+                                    {
+                                        "name": "attnotnull",
+                                        "type": [
+                                            "Bool"
+                                        ],
+                                        "value": [
+                                            "v43",
+                                            [
+                                                "Bool"
+                                            ]
+                                        ]
+                                    },
+                                    {
+                                        "name": "atthasdef",
+                                        "type": [
+                                            "Bool"
+                                        ],
+                                        "value": [
+                                            "v44",
+                                            [
+                                                "Bool"
+                                            ]
+                                        ]
+                                    },
+                                    {
+                                        "name": "attisdropped",
+                                        "type": [
+                                            "Bool"
+                                        ],
+                                        "value": [
+                                            "v45",
+                                            [
+                                                "Bool"
+                                            ]
+                                        ]
+                                    },
+                                    {
+                                        "name": "attislocal",
+                                        "type": [
+                                            "Bool"
+                                        ],
+                                        "value": [
+                                            "v46",
+                                            [
+                                                "Bool"
+                                            ]
+                                        ]
+                                    },
+                                    {
+                                        "name": "attinhcount",
+                                        "type": [
+                                            "Integer"
+                                        ],
+                                        "value": [
+                                            "v47",
+                                            [
+                                                "Integer"
+                                            ]
+                                        ]
+                                    },
+                                    {
+                                        "name": "attcollation",
+                                        "type": [
+                                            "Oid"
+                                        ],
+                                        "value": [
+                                            "v48",
+                                            [
+                                                "Oid"
+                                            ]
+                                        ]
+                                    },
+                                    {
+                                        "name": "attacl",
+                                        "type": [
+                                            "AclItem-array",
+                                            "nullable"
+                                        ],
+                                        "value": [
+                                            "v49",
+                                            [
+                                                "AclItem-array",
+                                                "nullable"
+                                            ]
+                                        ]
+                                    },
+                                    {
+                                        "name": "attoptions",
+                                        "type": [
+                                            "Varchar-array",
+                                            "nullable"
+                                        ],
+                                        "value": [
+                                            "v50",
+                                            [
+                                                "Varchar-array",
+                                                "nullable"
+                                            ]
+                                        ]
+                                    }
+                                ]
+                            },
+                            "operator": "select",
+                            "operatorId": 7
+                        }
+                    },
+                    "method": "hash",
+                    "operator": "leftsinglejoin",
+                    "operatorId": 3,
+                    "right": {
+                        "cardinality": 1000000,
+                        "condition": {
+                            "expression": "const",
+                            "value": {
+                                "type": [
+                                    "Bool"
+                                ],
+                                "value": true
+                            }
+                        },
+                        "left": {
+                            "cardinality": 1000,
+                            "database": 0,
+                            "id": 47,
+                            "name": "pg_type",
+                            "operator": "virtualtable",
+                            "operatorId": 10,
+                            "tableOid": [
+                                "v85",
+                                [
+                                    "Oid"
+                                ]
+                            ],
+                            "tid": [
+                                "v84",
+                                [
+                                    "BigInt"
+                                ]
+                            ],
+                            "tupleFlags": [
+                                "v86",
+                                [
+                                    "BigInt"
+                                ]
+                            ],
+                            "values": [
+                                {
+                                    "name": "oid",
+                                    "type": [
+                                        "Oid"
+                                    ],
+                                    "value": [
+                                        "v54",
+                                        [
+                                            "Oid"
+                                        ]
+                                    ]
+                                },
+                                {
+                                    "name": "typname",
+                                    "type": [
+                                        "Varchar"
+                                    ],
+                                    "value": [
+                                        "v55",
+                                        [
+                                            "Varchar"
+                                        ]
+                                    ]
+                                },
+                                {
+                                    "name": "typnamespace",
+                                    "type": [
+                                        "Oid"
+                                    ],
+                                    "value": [
+                                        "v56",
+                                        [
+                                            "Oid"
+                                        ]
+                                    ]
+                                },
+                                {
+                                    "name": "typowner",
+                                    "type": [
+                                        "Oid"
+                                    ],
+                                    "value": [
+                                        "v57",
+                                        [
+                                            "Oid"
+                                        ]
+                                    ]
+                                },
+                                {
+                                    "name": "typlen",
+                                    "type": [
+                                        "SmallInt"
+                                    ],
+                                    "value": [
+                                        "v58",
+                                        [
+                                            "SmallInt"
+                                        ]
+                                    ]
+                                },
+                                {
+                                    "name": "typbyval",
+                                    "type": [
+                                        "Bool"
+                                    ],
+                                    "value": [
+                                        "v59",
+                                        [
+                                            "Bool"
+                                        ]
+                                    ]
+                                },
+                                {
+                                    "name": "typtype",
+                                    "type": [
+                                        "Char1"
+                                    ],
+                                    "value": [
+                                        "v60",
+                                        [
+                                            "Char1"
+                                        ]
+                                    ]
+                                },
+                                {
+                                    "name": "typcategory",
+                                    "type": [
+                                        "Char1"
+                                    ],
+                                    "value": [
+                                        "v61",
+                                        [
+                                            "Char1"
+                                        ]
+                                    ]
+                                },
+                                {
+                                    "name": "typispreferred",
+                                    "type": [
+                                        "Bool"
+                                    ],
+                                    "value": [
+                                        "v62",
+                                        [
+                                            "Bool"
+                                        ]
+                                    ]
+                                },
+                                {
+                                    "name": "typisdefined",
+                                    "type": [
+                                        "Bool"
+                                    ],
+                                    "value": [
+                                        "v63",
+                                        [
+                                            "Bool"
+                                        ]
+                                    ]
+                                },
+                                {
+                                    "name": "typdelim",
+                                    "type": [
+                                        "Char1"
+                                    ],
+                                    "value": [
+                                        "v64",
+                                        [
+                                            "Char1"
+                                        ]
+                                    ]
+                                },
+                                {
+                                    "name": "typrelid",
+                                    "type": [
+                                        "Oid"
+                                    ],
+                                    "value": [
+                                        "v65",
+                                        [
+                                            "Oid"
+                                        ]
+                                    ]
+                                },
+                                {
+                                    "name": "typelem",
+                                    "type": [
+                                        "Oid"
+                                    ],
+                                    "value": [
+                                        "v66",
+                                        [
+                                            "Oid"
+                                        ]
+                                    ]
+                                },
+                                {
+                                    "name": "typarray",
+                                    "type": [
+                                        "Oid"
+                                    ],
+                                    "value": [
+                                        "v67",
+                                        [
+                                            "Oid"
+                                        ]
+                                    ]
+                                },
+                                {
+                                    "name": "typinput",
+                                    "type": [
+                                        "Oid"
+                                    ],
+                                    "value": [
+                                        "v68",
+                                        [
+                                            "Oid"
+                                        ]
+                                    ]
+                                },
+                                {
+                                    "name": "typoutput",
+                                    "type": [
+                                        "Oid"
+                                    ],
+                                    "value": [
+                                        "v69",
+                                        [
+                                            "Oid"
+                                        ]
+                                    ]
+                                },
+                                {
+                                    "name": "typreceive",
+                                    "type": [
+                                        "Oid"
+                                    ],
+                                    "value": [
+                                        "v70",
+                                        [
+                                            "Oid"
+                                        ]
+                                    ]
+                                },
+                                {
+                                    "name": "typsend",
+                                    "type": [
+                                        "Oid"
+                                    ],
+                                    "value": [
+                                        "v71",
+                                        [
+                                            "Oid"
+                                        ]
+                                    ]
+                                },
+                                {
+                                    "name": "typmodin",
+                                    "type": [
+                                        "Oid"
+                                    ],
+                                    "value": [
+                                        "v72",
+                                        [
+                                            "Oid"
+                                        ]
+                                    ]
+                                },
+                                {
+                                    "name": "typmodout",
+                                    "type": [
+                                        "Oid"
+                                    ],
+                                    "value": [
+                                        "v73",
+                                        [
+                                            "Oid"
+                                        ]
+                                    ]
+                                },
+                                {
+                                    "name": "typanalyze",
+                                    "type": [
+                                        "Oid"
+                                    ],
+                                    "value": [
+                                        "v74",
+                                        [
+                                            "Oid"
+                                        ]
+                                    ]
+                                },
+                                {
+                                    "name": "typalign",
+                                    "type": [
+                                        "Char1"
+                                    ],
+                                    "value": [
+                                        "v75",
+                                        [
+                                            "Char1"
+                                        ]
+                                    ]
+                                },
+                                {
+                                    "name": "typstorage",
+                                    "type": [
+                                        "Char1"
+                                    ],
+                                    "value": [
+                                        "v76",
+                                        [
+                                            "Char1"
+                                        ]
+                                    ]
+                                },
+                                {
+                                    "name": "typnotnull",
+                                    "type": [
+                                        "Bool"
+                                    ],
+                                    "value": [
+                                        "v77",
+                                        [
+                                            "Bool"
+                                        ]
+                                    ]
+                                },
+                                {
+                                    "name": "typbasetype",
+                                    "type": [
+                                        "Oid"
+                                    ],
+                                    "value": [
+                                        "v78",
+                                        [
+                                            "Oid"
+                                        ]
+                                    ]
+                                },
+                                {
+                                    "name": "typtypmod",
+                                    "type": [
+                                        "Integer"
+                                    ],
+                                    "value": [
+                                        "v79",
+                                        [
+                                            "Integer"
+                                        ]
+                                    ]
+                                },
+                                {
+                                    "name": "typndims",
+                                    "type": [
+                                        "Integer"
+                                    ],
+                                    "value": [
+                                        "v80",
+                                        [
+                                            "Integer"
+                                        ]
+                                    ]
+                                },
+                                {
+                                    "name": "typcollation ",
+                                    "type": [
+                                        "Oid"
+                                    ],
+                                    "value": [
+                                        "v81",
+                                        [
+                                            "Oid"
+                                        ]
+                                    ]
+                                },
+                                {
+                                    "name": "typdefaultbin",
+                                    "type": [
+                                        "Varchar",
+                                        "nullable"
+                                    ],
+                                    "value": [
+                                        "v82",
+                                        [
+                                            "Varchar",
+                                            "nullable"
+                                        ]
+                                    ]
+                                },
+                                {
+                                    "name": "typdefault",
+                                    "type": [
+                                        "Varchar",
+                                        "nullable"
+                                    ],
+                                    "value": [
+                                        "v83",
+                                        [
+                                            "Varchar",
+                                            "nullable"
+                                        ]
+                                    ]
+                                }
+                            ]
+                        },
+                        "method": "bnl",
+                        "operator": "join",
+                        "operatorId": 9,
+                        "right": {
+                            "cardinality": 1000,
+                            "database": 0,
+                            "id": 12,
+                            "name": "pg_collation",
+                            "operator": "virtualtable",
+                            "operatorId": 11,
+                            "tableOid": [
+                                "v95",
+                                [
+                                    "Oid"
+                                ]
+                            ],
+                            "tid": [
+                                "v94",
+                                [
+                                    "BigInt"
+                                ]
+                            ],
+                            "tupleFlags": [
+                                "v96",
+                                [
+                                    "BigInt"
+                                ]
+                            ],
+                            "values": [
+                                {
+                                    "name": "oid",
+                                    "type": [
+                                        "Oid"
+                                    ],
+                                    "value": [
+                                        "v87",
+                                        [
+                                            "Oid"
+                                        ]
+                                    ]
+                                },
+                                {
+                                    "name": "collname",
+                                    "type": [
+                                        "Varchar"
+                                    ],
+                                    "value": [
+                                        "v88",
+                                        [
+                                            "Varchar",
+                                            "nullable"
+                                        ]
+                                    ]
+                                },
+                                {
+                                    "name": "collnamespace",
+                                    "type": [
+                                        "Oid"
+                                    ],
+                                    "value": [
+                                        "v89",
+                                        [
+                                            "Oid"
+                                        ]
+                                    ]
+                                },
+                                {
+                                    "name": "collowner",
+                                    "type": [
+                                        "Oid"
+                                    ],
+                                    "value": [
+                                        "v90",
+                                        [
+                                            "Oid"
+                                        ]
+                                    ]
+                                },
+                                {
+                                    "name": "collencoding",
+                                    "type": [
+                                        "Integer"
+                                    ],
+                                    "value": [
+                                        "v91",
+                                        [
+                                            "Integer"
+                                        ]
+                                    ]
+                                },
+                                {
+                                    "name": "collcollate",
+                                    "type": [
+                                        "Varchar"
+                                    ],
+                                    "value": [
+                                        "v92",
+                                        [
+                                            "Varchar"
+                                        ]
+                                    ]
+                                },
+                                {
+                                    "name": "collctype",
+                                    "type": [
+                                        "Varchar"
+                                    ],
+                                    "value": [
+                                        "v93",
+                                        [
+                                            "Varchar"
+                                        ]
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                },
+                "operator": "sort",
+                "operatorId": 2
+            },
+            "operator": "cursorcreate",
+            "operatorId": 1,
+            "values": [
+                {
+                    "expression": "iuref",
+                    "iu": "v33"
+                },
+                {
+                    "expression": "iuref",
+                    "iu": "v34"
+                },
+                {
+                    "expression": "iuref",
+                    "iu": "v43"
+                },
+                {
+                    "expression": "iuref",
+                    "iu": "v"
+                },
+                {
+                    "expression": "iuref",
+                    "iu": "v39"
+                },
+                {
+                    "expression": "iuref",
+                    "iu": "v88"
+                }
+            ]
+        }
+    }
+}
