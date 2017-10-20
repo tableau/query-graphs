@@ -469,7 +469,7 @@ function prepareTreeData(_treeData, convertHyPer) {
             } else if (node.properties && node.properties.name) {
                 node.name = node.properties.name;
             } else if (node.properties && node.properties.value) {
-                if (node.properties.type == "string") {
+                if (node.properties.type === "string") {
                     node.name = "'" + node.properties.value + "'";
                 } else {
                     node.name = node.properties.value;
