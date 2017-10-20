@@ -451,6 +451,36 @@ function prepareTreeData(_treeData, convertHyPer) {
             }
         }
 
+        // for calculation-language expression trees
+        function handleDimensions(node) {
+            if (node.text) {
+                node.name = node.text;
+            } else if (node.properties && node.properties.type) {
+                node.name = node.properties.type;
+            } else {
+                node.name = node.tag;
+            }
+        }
+
+        // extensions for calculation-language expression trees
+        function handleExpression(node) {
+            if (node.text) {
+                node.name = node.text;
+            } else if (node.properties && node.properties.name) {
+                node.name = node.properties.name;
+            } else if (node.properties && node.properties.value) {
+                if (node.properties.type === "string") {
+                    node.name = "'" + node.properties.value + "'";
+                } else {
+                    node.name = node.properties.value;
+                }
+            } else if (node.properties && node.properties.class) {
+                node.name = node.properties.class;
+            } else {
+                node.name = node.tag;
+            }
+        }
+
         function generateDisplayNames(node) {
             // In-order traversal. Leaf node don't have children
             if (node.children) {
@@ -500,12 +530,17 @@ function prepareTreeData(_treeData, convertHyPer) {
                 case "runquery-column":
                     node.name = node.properties.name;
                     break;
+                case "dimensions":
+                    handleDimensions(node);
+                    break;
+                case "expression":
+                    handleExpression(node);
+                    break;
                 case "tuple":
                 case "header":
                 case "iu":
                 case "name":
                 case "mode":
-                case "expression":
                 case "value":
                 case "values":
                 case "output":

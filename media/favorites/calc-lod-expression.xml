@@ -1,0 +1,25 @@
+<expression aggregate='true' class='function' name='SUM' type='integer'>
+  <expression class='reference' name='[Calculation_739997761410400258]' type='integer'>
+    <expression class='dimensionality' type='integer'>
+      <dimensions type='FIXED'>
+        <expression class='reference' name='[Segment]' type='string' />
+        <expression class='reference' name='[Calculation_739997761410048000]' type='integer'>
+          <expression class='dimensionality' type='integer'>
+            <dimensions type='FIXED'>
+              <expression class='function' name='DATETRUNC' type='datetime'>
+                <expression class='literal' constant='true' type='string' value='month' />
+                <expression class='reference' name='[Order Date]' type='date' />
+              </expression>
+            </dimensions>
+            <expression aggregate='true' class='function' constant='true' name='SUM' type='integer'>
+              <expression class='literal' constant='true' type='integer' value='1' />
+            </expression>
+          </expression>
+        </expression>
+      </dimensions>
+      <expression aggregate='true' class='function' constant='true' name='SUM' type='integer'>
+        <expression class='literal' constant='true' type='integer' value='1' />
+      </expression>
+    </expression>
+  </expression>
+</expression> 
