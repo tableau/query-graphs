@@ -347,6 +347,10 @@ function prepareTreeData(_treeData, convertHyPer) {
                 case "literalExp":
                     node.name = node.properties.datatype + ":" + node.properties.value;
                     break;
+                case "referenceExp":
+                    node.name = "ref:" + node.properties.ref;
+                    node.class = "reference";
+                    break;
                 default:
                     node.name = node.tag.replace(/Exp$/, '');
                     break;
@@ -415,6 +419,10 @@ function prepareTreeData(_treeData, convertHyPer) {
                     node.name = node.tag.replace(/Op$/, '');
                     node.class = "join";
                     break;
+                case "referenceOp":
+                    node.name = "ref:" + node.properties.ref;
+                    node.class = "reference";
+                    break;
                 case "relationOp":
                     node.name = node.properties.name;
                     node.class = "relation";
@@ -448,6 +456,16 @@ function prepareTreeData(_treeData, convertHyPer) {
                 default:
                     node.name = node.properties.class;
                     break;
+            }
+        }
+
+        function handleBinding(node) {
+            if (node.properties && node.properties.name) {
+                node.name = node.properties.name;
+            } else if (node.properties && node.properties.ref) {
+                node.name = node.properties.ref;
+            } else {
+                node.name = "";
             }
         }
 
@@ -525,6 +543,8 @@ function prepareTreeData(_treeData, convertHyPer) {
                     }
                     break;
                 case "binding":
+                    handleBinding(node);
+                    break;
                 case "relation":
                 case "column":
                 case "runquery-column":
