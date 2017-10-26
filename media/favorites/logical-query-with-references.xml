@@ -1,0 +1,147 @@
+<logical-query>
+  <selects>
+    <field>[sum:Calculation_1173187767164026880:ok]</field>
+  </selects>
+  <dictionaryOp class='logical-operator'>
+    <bindings>
+      <binding ref='1'>
+        <projectOp class='logical-operator'>
+          <expressions></expressions>
+          <relationOp class='logical-operator' connection='Sample - Superstoreleaf' name='[Orders$]'>
+            <relation name='Orders$' type='table'>
+              <attributes gridOrigin='A1:U9995:no:A1:U9995:0' header='yes' outcome='6' />
+            </relation>
+            <cols></cols>
+            <type>
+              <schema>
+                <field name='[Category]'>
+                  <type name='top' />
+                </field>
+                <field name='[City]'>
+                  <type name='top' />
+                </field>
+                <!-- More fields elided... -->
+              </schema>
+            </type>
+          </relationOp>
+        </projectOp>
+      </binding>
+      <binding ref='2'>
+        <funcallExp class='logical-expression' function='DATETRUNC' shape='scalar'>
+          <literalExp charset='0' class='logical-expression' collation='LROOT' datatype='string' value='&quot;month&quot;' />
+          <identifierExp class='logical-expression' identifier='[Order Date]' />
+        </funcallExp>
+      </binding>
+      <binding ref='3'>
+        <projectOp class='logical-operator'>
+          <expressions>
+            <binding name='[__dimension__0]'>
+              <referenceExp class='logical-expression' ref='2' />
+            </binding>
+          </expressions>
+          <referenceOp class='logical-operator' ref='1' />
+        </projectOp>
+      </binding>
+      <binding ref='4'>
+        <funcallExp class='logical-expression' function='SUM' shape='aggregate'>
+          <literalExp class='logical-expression' datatype='integer' value='1' />
+        </funcallExp>
+      </binding>
+      <binding ref='5'>
+        <lookupExp class='logical-expression' domain='total'>
+          <aggregateOp class='logical-operator'>
+            <measures>
+              <binding name='[__measure__1]'>
+                <referenceExp class='logical-expression' ref='4' />
+              </binding>
+            </measures>
+            <groupbys>
+              <binding name='[__dimension__0]'>
+                <referenceExp class='logical-expression' ref='2' />
+              </binding>
+            </groupbys>
+            <referenceOp class='logical-operator' ref='1' />
+          </aggregateOp>
+          <indices>
+            <identifierExp class='logical-expression' identifier='[__dimension__0]' />
+          </indices>
+          <schema>
+            <identifierExp class='logical-expression' identifier='[__dimension__0]' />
+          </schema>
+          <output-value>
+            <identifierExp class='logical-expression' identifier='[__measure__1]' />
+          </output-value>
+          <default-value>
+            <literalExp class='logical-expression' datatype='integer' value='%null%' />
+          </default-value>
+        </lookupExp>
+      </binding>
+    </bindings>
+    <projectOp class='logical-operator'>
+      <expressions>
+        <binding name='[sum:Calculation_1173187767164026880:ok]'>
+          <lookupExp class='logical-expression' domain='total'>
+            <aggregateOp class='logical-operator'>
+              <measures>
+                <binding name='[__measure__4]'>
+                  <funcallExp class='logical-expression' function='SUM' shape='aggregate'>
+                    <lookupExp class='logical-expression' domain='total'>
+                      <aggregateOp class='logical-operator'>
+                        <measures>
+                          <binding name='[__measure__3]'>
+                            <referenceExp class='logical-expression' ref='4' />
+                          </binding>
+                        </measures>
+                        <groupbys>
+                          <binding name='[__dimension__2]'>
+                            <referenceExp class='logical-expression' ref='5' />
+                          </binding>
+                        </groupbys>
+                        <referenceOp class='logical-operator' ref='3' />
+                      </aggregateOp>
+                      <indices>
+                        <identifierExp class='logical-expression' identifier='[__dimension__2]' />
+                      </indices>
+                      <schema>
+                        <identifierExp class='logical-expression' identifier='[__dimension__2]' />
+                      </schema>
+                      <output-value>
+                        <identifierExp class='logical-expression' identifier='[__measure__3]' />
+                      </output-value>
+                      <default-value>
+                        <literalExp class='logical-expression' datatype='integer' value='%null%' />
+                      </default-value>
+                    </lookupExp>
+                  </funcallExp>
+                </binding>
+              </measures>
+              <groupbys></groupbys>
+              <aggregateOp class='logical-operator'>
+                <measures></measures>
+                <groupbys>
+                  <binding name='[__dimension__2]'>
+                    <referenceExp class='logical-expression' ref='5' />
+                  </binding>
+                </groupbys>
+                <referenceOp class='logical-operator' ref='3' />
+              </aggregateOp>
+            </aggregateOp>
+            <indices></indices>
+            <schema></schema>
+            <output-value>
+              <identifierExp class='logical-expression' identifier='[__measure__4]' />
+            </output-value>
+            <default-value>
+              <literalExp class='logical-expression' datatype='integer' value='%null%' />
+            </default-value>
+          </lookupExp>
+        </binding>
+      </expressions>
+      <aggregateOp class='logical-operator'>
+        <measures></measures>
+        <groupbys></groupbys>
+        <referenceOp class='logical-operator' ref='1' />
+      </aggregateOp>
+    </projectOp>
+  </dictionaryOp>
+</logical-query> 
