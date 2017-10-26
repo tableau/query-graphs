@@ -465,7 +465,7 @@ function prepareTreeData(_treeData, convertHyPer) {
             } else if (node.properties && node.properties.ref) {
                 node.name = node.properties.ref;
             } else {
-                node.name = "";
+                node.name = node.tag;
             }
         }
 
