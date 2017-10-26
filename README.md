@@ -48,6 +48,7 @@ Install latest stable version (at least 5.8.0) of Node.js from <http://nodejs.or
 
 Run git clone on the query-graphs project, install node module dependencies, and
 start the visualization service.
+Install also creates browserify bundles for the visualization service and for use in the Tableau Log Viewer.
 
 ```shell
 git clone https://github.com/tableau/query-graphs.git
@@ -107,9 +108,6 @@ Browserify and ESLint
 
 Build instructions to create the JavaScript bundle containing all required dependencies.
 Run after any changes to query-graphs.js or its module dependencies.
-It is only necessary to run browserify on query-graphs.js.
-(The browserify is a development dependency in package.json;
-its installation could be avoided by using **npm install --production** above.)
 
 ```shell
 npm run bundle
