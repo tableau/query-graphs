@@ -1,5 +1,6 @@
 *.md.html
 *.swp
+*.tgz
 .DS_Store
 .project
 .settings
@@ -8,3 +9,5 @@ npm-debug.log
 node_modules
 media/uploads/*
 !media/uploads/3d5c935c.xml
+d3/query-graphs.bundle.js
+d3/query-graphs.min.js
