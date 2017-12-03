@@ -35,7 +35,8 @@ var upload = multer({
 });
 
 app.get("/", function(req, res) {
-    res.send("hello world!");
+    res.redirect("d3/upload-form.html");
+    res.end();
 });
 
 app.use("/d3", express.static("d3"));
