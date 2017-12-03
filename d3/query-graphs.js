@@ -5,11 +5,11 @@ var path = require('path');
 // Require local modules
 var common = require('./common');
 var colors = require('./colors');
+var tableau = require('./tableau');
 var hyper = require('./hyper');
 
 // Require node modules
 var $ = require('jquery');
-var xml2js = require('xml2js');
 var d3 = require('d3');
 var d3tip = require('d3-tip');
 var Spinner = require('spin');
@@ -282,408 +282,138 @@ function defineSymbols(baseSvg, ooo) {
 //
 // Prepare the loaded data for visualization
 //
-function prepareTreeData(_treeData, convertHyPer) {
-    var treeData = "";
-    // Convert generic JSON to d3 tree format
-    function convertJSON(node) {
-        var children = [];
-        var properties = {};
-        var text;
-        var tag = node["#name"];
+function prepareTreeData(treeData) {
+    // Abbreviate labels
+    common.visit(treeData, function(node) {
+        // Do not use the full name if it is too long (to avoid label overlap)
+        if (node.name && node.name.length > MAX_DISPLAY_LENGTH) {
+            node.fullName = node.name;
+            // Use of ellipsis character …, different from triple dots ...
+            node.name = node.name.substring(0, MAX_DISPLAY_LENGTH) + "…";
+        }
+    }, function(n) {
+        return n.children;
+    });
 
-        if (node.$) {
-            properties = node.$;
+    // Create parent links
+    common.visit(treeData, function() {}, function(d) {
+        if (d.children) {
+            var children = d.children;
+            var count = children.length;
+            for (var i = 0; i < count; i++) {
+                children[i].parent = d;
+            }
+            return children;
         }
-        if (node._) {
-            text = node._;
-        }
-        if (node.$$) {
-            node.$$.forEach(function(child) {
-                children.push(convertJSON(child));
-            });
-        }
+        return null;
+    });
 
-        return {
-            tag: tag,
-            properties: properties,
-            text: text,
-            children: children
-        };
+    // Assign federated query colors
+    colors.colorFederated(treeData);
+
+    // Collapse all children regardless of the current state
+    function collapseChildren(d) {
+        var children = (d.children) ? d.children : null;
+        var _children = (d._children) ? d._children : null;
+        // all original children are in _children or none are
+        if (_children === null || _children.length === 0) {
+            d._children = children;
+        }
+        d.children = null;
+        return d;
     }
 
-    // Function to generate nodes display names based on their properties
-    var generateDisplayNames = (function() {
-        // properties.class are the expressions
-        function handleLogicalExpression(node) {
-            switch (node.properties.class) {
-                case "identifier":
-                    node.name = node.text;
-                    node.class = "identifier";
-                    break;
-                case "funcall":
-                    node.name = node.properties.function;
-                    node.class = "function";
-                    break;
-                case "literal":
-                    node.name = node.properties.datatype + ":" + node.text;
-                    break;
-                default:
-                    node.name = node.properties.class;
-                    break;
-            }
-        }
-
-        // tags are the expressions
-        function handleLogicalExpression2(node) {
-            switch (node.tag) {
-                case "identifierExp":
-                    node.name = node.properties.identifier;
-                    node.class = "identifier";
-                    break;
-                case "funcallExp":
-                    node.name = node.properties.function;
-                    node.class = "function";
-                    break;
-                case "literalExp":
-                    node.name = node.properties.datatype + ":" + node.properties.value;
-                    break;
-                case "referenceExp":
-                    node.name = "ref:" + node.properties.ref;
-                    node.class = "reference";
-                    break;
-                default:
-                    node.name = node.tag.replace(/Exp$/, '');
-                    break;
-            }
-        }
-
-        function handleQueryExpression(node) {
-            switch (node.properties.class) {
-                case "identifier":
-                    node.name = node.text;
-                    node.class = "identifier";
-                    break;
-                case "funcall":
-                    node.name = node.properties.function;
-                    node.class = "function";
-                    break;
-                case "literal":
-                    node.name = node.properties.datatype + ":" + node.text;
-                    break;
-                default:
-                    node.name = node.properties.class;
-                    break;
-            }
-        }
-
-        function handleQueryFunction(node) {
-            switch (node.properties.class) {
-                case "table":
-                    node.name = node.properties.table;
-                    node.class = "relation";
-                    break;
-                default:
-                    node.name = node.properties.class;
-                    break;
-            }
-        }
-
-        // properties.class are the operators
-        function handleLogicalOperator(node) {
-            switch (node.properties.class) {
-                case "join":
-                    node.name = node.properties.name;
-                    node.class = "join";
-                    break;
-                case "relation":
-                    node.name = node.properties.name;
-                    node.class = "relation";
-                    break;
-                case "tuples":
-                    if (node.properties.alias) {
-                        node.name = node.properties.class + ":" + node.properties.alias;
-                    } else {
-                        node.name = node.properties.class;
-                    }
-                    break;
-                default:
-                    node.name = node.properties.class;
-                    break;
-            }
-        }
-
-        // tags are the operators
-        function handleLogicalOperator2(node) {
-            switch (node.tag) {
-                case "joinOp":
-                    node.name = node.tag.replace(/Op$/, '');
-                    node.class = "join";
-                    break;
-                case "referenceOp":
-                    node.name = "ref:" + node.properties.ref;
-                    node.class = "reference";
-                    break;
-                case "relationOp":
-                    node.name = node.properties.name;
-                    node.class = "relation";
-                    break;
-                case "tuplesOp":
-                    if (node.properties.alias) {
-                        node.name = node.tag.replace(/Op$/, '') + ":" + node.properties.alias;
-                    } else {
-                        node.name = node.tag.replace(/Op$/, '');
-                    }
-                    break;
-                default:
-                    node.name = node.tag.replace(/Op$/, '');
-                    break;
-            }
-        }
-
-        // properties.class are the operators
-        function handleFedOp(node) {
-            switch (node.properties.class) {
-                case "createtemptable":
-                case "createtemptablefromquery":
-                case "createtemptablefromtuples":
-                    if (node.properties.table) {
-                        node.name = node.properties.table;
-                    } else {
-                        node.name = node.properties.class;
-                    }
-                    node.class = "createtemptable";
-                    break;
-                default:
-                    node.name = node.properties.class;
-                    break;
-            }
-        }
-
-        function handleBinding(node) {
-            if (node.properties && node.properties.name) {
-                node.name = node.properties.name;
-            } else if (node.properties && node.properties.ref) {
-                node.name = node.properties.ref;
+    // Collapse all but me in my parent node
+    // Nodes may have children and _children that were children prior to streamline
+    function streamline(d) {
+        if (d.parent) {
+            if (d.parent._children && d.parent._children !== null && d.parent._children.length > 0) {
+                // save all of the original children in _chidren one time only
             } else {
-                node.name = node.tag;
+                d.parent._children = d.parent.children.slice(0);
             }
+            var index = d.parent.children.indexOf(d);
+            d.parent.children.splice(index, 1);
         }
+    }
 
-        // for calculation-language expression trees
-        function handleDimensions(node) {
-            if (node.text) {
-                node.name = node.text;
-            } else if (node.properties && node.properties.type) {
-                node.name = node.properties.type;
-            } else {
-                node.name = node.tag;
-            }
-        }
-
-        // extensions for calculation-language expression trees
-        function handleExpression(node) {
-            if (node.text) {
-                node.name = node.text;
-            } else if (node.properties && node.properties.name) {
-                node.name = node.properties.name;
-            } else if (node.properties && node.properties.value) {
-                if (node.properties.type === "string") {
-                    node.name = "'" + node.properties.value + "'";
-                } else {
-                    node.name = node.properties.value;
-                }
-            } else if (node.properties && node.properties.class) {
-                node.name = node.properties.class;
-            } else {
-                node.name = node.tag;
-            }
-        }
-
-        function generateDisplayNames(node) {
-            // In-order traversal. Leaf node don't have children
-            if (node.children) {
-                for (var i = 0; i < node.children.length; i++) {
-                    generateDisplayNames(node.children[i]);
-                }
-            }
-            switch (node.tag) {
-                case "logical-expression":
-                    handleLogicalExpression(node);
-                    break;
-                case "query-expression":
-                    handleQueryExpression(node);
-                    break;
-                case "query-function":
-                    handleQueryFunction(node);
-                    break;
-                case "fed-op":
-                    handleFedOp(node);
-                    break;
-                case "logical-operator":
-                    handleLogicalOperator(node);
-                    break;
-                case "calculation":
-                    node.name = node.properties.formula;
-                    break;
-                case "condition":
-                    if (node.properties) {
-                        node.name = node.properties.op;
-                    } else {
-                        node.name = node.tag;
-                    }
-                    break;
-                case "field":
-                    if (node.text) {
-                        node.name = node.text;
-                        break;
-                    } else if (node.properties) {
-                        node.name = node.properties.name;
-                    } else {
-                        node.name = "field{}";
-                    }
-                    break;
-                case "binding":
-                    handleBinding(node);
-                    break;
-                case "relation":
-                case "column":
-                case "runquery-column":
-                    node.name = node.properties.name;
-                    break;
-                case "dimensions":
-                    handleDimensions(node);
-                    break;
-                case "expression":
-                    handleExpression(node);
-                    break;
-                case "tuple":
-                case "header":
-                case "iu":
-                case "name":
-                case "mode":
-                case "value":
-                case "values":
-                case "output":
-                case "distinctValues":
-                case "unnormalizedNames":
-                    if (node.text) {
-                        node.name = node.text;
-                    } else {
-                        node.name = node.tag;
-                    }
-                    break;
-                case "attribute":
-                case "operation":
-                case "source":
-                case "table":
-                case "tableOid":
-                case "tid":
-                case "tupleFlags":
-                case "type":
-                case "unique":
-                    if (node.text) {
-                        node.name = node.tag + ":" + node.text;
-                    } else if (node.properties && node.properties.name) {
-                        node.name = node.tag + ":" + node.properties.name;
-                    } else {
-                        node.name = node.tag;
-                    }
-                    break;
-                case "join":
-                    node.class = "join";
-                    if (typeof node.properties === "undefined") {
-                        node.properties = {};
-                    }
-                    node.properties.class = "join";
-                    node.properties.join = "inner";
-                    node.name = node.tag;
-                    break;
-                case "leftouterjoin":
-                    node.class = "join";
-                    if (typeof node.properties === "undefined") {
-                        node.properties = {};
-                    }
-                    node.properties.class = "join";
-                    node.properties.join = "left";
-                    node.name = node.tag;
-                    break;
-                case "rightouterjoin":
-                    node.class = "join";
-                    if (typeof node.properties === "undefined") {
-                        node.properties = {};
-                    }
-                    node.properties.class = "join";
-                    node.properties.join = "right";
-                    node.name = node.tag;
-                    break;
-                case "fullouterjoin":
-                    node.class = "join";
-                    if (typeof node.properties === "undefined") {
-                        node.properties = {};
-                    }
-                    node.properties.class = "join";
-                    node.properties.join = "full";
-                    node.name = node.tag;
-                    break;
-                case "tablescan":
-                case "cursorscan":
-                case "tdescan":
-                case "tableconstruction":
-                case "virtualtable":
-                    node.name = node.tag;
-                    node.class = 'relation';
-                    break;
-                default:
-                    if (node.properties && node.properties.class) {
-                        switch (node.properties.class) {
-                            case "logical-expression":
-                                handleLogicalExpression2(node);
-                                break;
-                            case "logical-operator":
-                                handleLogicalOperator2(node);
-                                break;
-                            default:
-                                if (node.tag) {
-                                    node.name = node.tag;
-                                } else {
-                                    node.name = JSON.stringify(node);
-                                }
-                                break;
+    // Collapse all non-essential nodes at their respective roots
+    if (graphCollapse !== 'n') {
+        common.visit(treeData, function(d) {
+            if (d.name) {
+                var _name = d.fullName ? d.fullName : d.name;
+                switch (_name) {
+                    case 'aggregates':
+                    case 'builder':
+                    case 'cardinality':
+                    case 'condition':
+                    case 'conditions':
+                    case 'count':
+                    case 'criterion':
+                    case 'datasource':
+                    case 'expressions':
+                    case 'field':
+                    case 'from':
+                    case 'groupbys':
+                    case 'header':
+                    case 'imports':
+                    case 'operatorId':
+                    case 'matchMode':
+                    case 'measures':
+                    case 'metadata-record':
+                    case 'metadata-records':
+                    case 'method':
+                    case 'output':
+                    case 'orderbys':
+                    case 'predicate':
+                    case 'residuals':
+                    case 'restrictions':
+                    case 'runquery-columns':
+                    case 'segment':
+                    case 'selects':
+                    case 'schema':
+                    case 'tid':
+                    case 'top':
+                    case 'tuples':
+                    case 'values':
+                        if (graphCollapse === 's') {
+                            streamline(d);
+                        } else {
+                            collapseChildren(d);
                         }
-                    } else if (node.tag) {
-                        node.name = node.tag;
-                    } else {
-                        node.name = JSON.stringify(node);
-                    }
-                    break;
-            }
-
-            // Do not use the full name if it is too long (to avoid label overlap)
-            if (node.name) {
-                if (node.name.length > MAX_DISPLAY_LENGTH) {
-                    node.fullName = node.name;
-                    // Use of ellipsis character …, different from triple dots ...
-                    node.name = node.name.substring(0, MAX_DISPLAY_LENGTH) + "…";
+                        return;
+                    default:
+                        break;
                 }
             }
-        }
-
-        return generateDisplayNames;
-    })();
-
-    // Convert JSON per filename extension
-    if (convertHyPer) {
-        treeData = hyper.convertHyPer(_treeData);
-    } else {
-        treeData = convertJSON(_treeData);
+            if (d.class) {
+                switch (d.class) {
+                    case 'relation':
+                        collapseChildren(d);
+                        return;
+                    default:
+                        break;
+                }
+            }
+            if (d.tag) {
+                switch (d.tag) {
+                    case 'header':
+                    case 'values':
+                    case 'tid':
+                        if (graphCollapse === 's') {
+                            streamline(d);
+                        } else {
+                            collapseChildren(d);
+                        }
+                        return;
+                    default:
+                        break;
+                }
+            }
+        }, function(d) {
+            return d.children && d.children.length > 0 ? d.children.slice(0) : null;
+        });
     }
-
-    // Tag the tree root
-    if (!treeData.tag) {
-        treeData.tag = "result";
-    }
-
-    generateDisplayNames(treeData);
 
     return treeData;
 }
@@ -915,20 +645,6 @@ function drawQueryTree(treeData) {
 
     defineSymbols(baseSvg, ooo);
 
-    // Collapse all but me in my parent node
-    // Nodes may have children and _children that were children prior to streamline
-    function streamline(d) {
-        if (d.parent) {
-            if (d.parent._children && d.parent._children !== null && d.parent._children.length > 0) {
-                // save all of the original children in _chidren one time only
-            } else {
-                d.parent._children = d.parent.children.slice(0);
-            }
-            var index = d.parent.children.indexOf(d);
-            d.parent.children.splice(index, 1);
-        }
-    }
-
     // Return true if node is collapsed
     function collapsed(d) {
         if (d.children && d._children) {
@@ -942,18 +658,6 @@ function drawQueryTree(treeData) {
             return true;
         }
         return false;
-    }
-
-    // Collapse all children regardless of the current state
-    function collapseChildren(d) {
-        var children = (d.children) ? d.children : null;
-        var _children = (d._children) ? d._children : null;
-        // all original children are in _children or none are
-        if (_children === null || _children.length === 0) {
-            d._children = children;
-        }
-        d.children = null;
-        return d;
     }
 
     // Toggle children function, streamlined nodes are partially collapsed
@@ -1140,100 +844,6 @@ function drawQueryTree(treeData) {
     root.x0 = ooo.x(origin);
     root.y0 = ooo.y(origin);
 
-    // Create parent links
-    common.visit(treeData, function() {}, function(d) {
-        if (d.children) {
-            var children = d.children;
-            var count = children.length;
-            for (var i = 0; i < count; i++) {
-                children[i].parent = d;
-            }
-            return children;
-        }
-        return null;
-    });
-
-    // Assign federated query colors
-    colors.colorFederated(root);
-
-    // Collapse all non-essential nodes at their respective roots
-    if (graphCollapse !== 'n') {
-        common.visit(treeData, function(d) {
-            if (d.name) {
-                var _name = d.fullName ? d.fullName : d.name;
-                switch (_name) {
-                    case 'aggregates':
-                    case 'builder':
-                    case 'cardinality':
-                    case 'condition':
-                    case 'conditions':
-                    case 'count':
-                    case 'criterion':
-                    case 'datasource':
-                    case 'expressions':
-                    case 'field':
-                    case 'from':
-                    case 'groupbys':
-                    case 'header':
-                    case 'imports':
-                    case 'operatorId':
-                    case 'matchMode':
-                    case 'measures':
-                    case 'metadata-record':
-                    case 'metadata-records':
-                    case 'method':
-                    case 'output':
-                    case 'orderbys':
-                    case 'predicate':
-                    case 'residuals':
-                    case 'restrictions':
-                    case 'runquery-columns':
-                    case 'segment':
-                    case 'selects':
-                    case 'schema':
-                    case 'tid':
-                    case 'top':
-                    case 'tuples':
-                    case 'values':
-                        if (graphCollapse === 's') {
-                            streamline(d);
-                        } else {
-                            toggleChildren(d);
-                        }
-                        return;
-                    default:
-                        break;
-                }
-            }
-            if (d.class) {
-                switch (d.class) {
-                    case 'relation':
-                        collapseChildren(d);
-                        return;
-                    default:
-                        break;
-                }
-            }
-            if (d.tag) {
-                switch (d.tag) {
-                    case 'header':
-                    case 'values':
-                    case 'tid':
-                        if (graphCollapse === 's') {
-                            streamline(d);
-                        } else {
-                            toggleChildren(d);
-                        }
-                        return;
-                    default:
-                        break;
-                }
-            }
-        }, function(d) {
-            return d.children && d.children.length > 0 ? d.children.slice(0) : null;
-        });
-    }
-
     // Layout the tree initially and center on the root node.
     update(root);
 
@@ -1310,8 +920,6 @@ function retrieveData(callback) {
 // Kick it off
 //
 retrieveData(function(err, graphString) {
-    spinner.stop();
-
     if (err) {
         document.write("Request for '" + directory + graphFile + "' failed with '" + err + "'.");
         return;
@@ -1319,45 +927,35 @@ retrieveData(function(err, graphString) {
 
     // Remove explicit newlines
     graphString = graphString.replace(/\\n/gm, " ");
-
-    // Convert XML to JSON or parse as JSON per filename extension
-    var treeData = "";
-    var convertHyPer = false;
-    var parser = new xml2js.Parser({
-        explicitRoot: false,
-        explicitChildren: true,
-        preserveChildrenOrder: true,
-        // Don't merge attributes. XML attributes will be stored in node["$"]
-        mergeAttrs: false
-    });
+    // Detect file type
+    var loaders;
     if (path.extname(graphFile) === '.json') {
-        try {
-            treeData = JSON.parse(graphString);
-            convertHyPer = true;
-        } catch (err) {
-            document.write("JSON parse failed with '" + err + "'.");
-        }
+        loaders = [hyper.loadHyperPlan];
     } else if (path.extname(graphFile) === '.xml') {
-        parser.parseString(graphString, function(err, result) {
-            treeData = result;
-            if (err) {
-                document.write("XML parse failed with '" + err + "'.");
-            }
-        });
+        loaders = [tableau.loadTableauPlan];
     } else {
-        parser.parseString(graphString, function(errXml, result) {
-            treeData = result;
-            if (errXml) {
-                try {
-                    treeData = JSON.parse(graphString);
-                    convertHyPer = true;
-                } catch (err) {
-                    document.write("XML parse failed with '" + errXml + "'.<br />");
-                    document.write("JSON parse failed with '" + err + "'.");
-                }
-            }
-        });
+        loaders = [tableau.loadTableauPlan, hyper.loadHyperPlan];
     }
 
-    drawQueryTree(prepareTreeData(treeData, convertHyPer));
+    // Try to load the data with the available loaders
+    var errors = [];
+    var loadedTree = null;
+    function tryLoad(loader) {
+        var result = loader(graphString);
+        if ("error" in result) {
+            errors.push(result.error);
+            return false;
+        }
+        loadedTree = result;
+        return true;
+    }
+    if (loaders.some(tryLoad)) {
+        spinner.stop();
+        drawQueryTree(prepareTreeData(loadedTree));
+    } else {
+        spinner.stop();
+        document.write(errors.reduce(function(a, b) {
+            return a + "<br/>" + b;
+        }));
+    }
 });

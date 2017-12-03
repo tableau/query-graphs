@@ -1,6 +1,6 @@
 
 // A recursive helper function for performing some setup by walking through all nodes
-var visit = function(parent, visitFn, childrenFn) {
+function visit(parent, visitFn, childrenFn) {
     if (!parent) {
         return;
     }
@@ -14,6 +14,6 @@ var visit = function(parent, visitFn, childrenFn) {
             visit(children[i], visitFn, childrenFn);
         }
     }
-};
+}
 
 exports.visit = visit;
