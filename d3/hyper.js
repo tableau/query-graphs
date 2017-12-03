@@ -1,10 +1,9 @@
-
 /*
 
-HyPer JSON Transformations
+Hyper JSON Transformations
 --------------------------
 
-The HyPer JSON representation renders verbosely as a D3 tree; therefore, perform the following transformations.
+The Hyper JSON representation renders verbosely as a D3 tree; therefore, perform the following transformations.
 
 Bulk Expressions
 ----------------
@@ -29,8 +28,10 @@ Miscellaneous
 
 */
 
-// Convert HyPer JSON to a D3 tree
-var convertHyPer = function(node, tag) {
+var common = require('./common');
+
+// Convert Hyper JSON to a D3 tree
+function convertHyper(node, tag) {
     var innerNode;
     if (typeof (node) === "object" && !Array.isArray(node)) {
         // "Object" nodes
@@ -74,7 +75,7 @@ var convertHyPer = function(node, tag) {
 
             // Bypass explicit child inputs
             if ((key === "plan" || key === "input" || key === "left" || key === "right") && node[key].operator) {
-                innerNode = convertHyPer(node[key], node[key].operator);
+                innerNode = convertHyper(node[key], node[key].operator);
                 if (Array.isArray(innerNode)) {
                     children = children.concat(innerNode);
                 } else {
@@ -93,34 +94,34 @@ var convertHyPer = function(node, tag) {
 
                 // Nodes that may be relocated in the tree
                 case "left":
-                    leftNode = convertHyPer(node[key], key);
+                    leftNode = convertHyper(node[key], key);
                     return;
                 case "right":
-                    rightNode = convertHyPer(node[key], key);
+                    rightNode = convertHyper(node[key], key);
                     return;
                 case "attribute":
-                    attributeNode = convertHyPer(node[key], key);
+                    attributeNode = convertHyper(node[key], key);
                     return;
                 case "value":
-                    valueNode = convertHyPer(node[key], key);
+                    valueNode = convertHyper(node[key], key);
                     return;
 
                 // Nodes that may not be relocated and have new child nodes added
                 case "mode":
-                    modeNode = convertHyPer(node[key], key);
+                    modeNode = convertHyper(node[key], key);
                     children.push(modeNode);
                     return;
                 case "expression":
                     // Suppress noisy expression tags
                     if (node[key] !== "iuref" && node[key] !== "comparison") {
-                        exprNode = convertHyPer(node[key], key);
+                        exprNode = convertHyper(node[key], key);
                         children.push(exprNode);
                     }
                     return;
 
                 // Standard inner nodes
                 default:
-                    innerNode = convertHyPer(node[key], key);
+                    innerNode = convertHyper(node[key], key);
                     if (Array.isArray(innerNode)) {
                         children = children.concat(innerNode);
                     } else {
@@ -165,7 +166,7 @@ var convertHyPer = function(node, tag) {
             }
             if (valueNode) {
                 // value nodes can be arrays of values
-                // todo: push valueNode that is an array, but will not be after skipping over "iuref" or "comparison"
+                // TODO: push valueNode that is an array, but will not be after skipping over "iuref" or "comparison"
                 if (Array.isArray(valueNode)) {
                     children = children.concat(valueNode);
                 } else {
@@ -186,7 +187,7 @@ var convertHyPer = function(node, tag) {
         // "Array" nodes
         var listOfObjects = [];
         node.forEach(function(value, _index) {
-            innerNode = convertHyPer(value, tag);
+            innerNode = convertHyper(value, tag);
             // objectify nested arrays
             if (Array.isArray(innerNode)) {
                 innerNode.forEach(function(value, _index) {
@@ -219,6 +220,108 @@ var convertHyPer = function(node, tag) {
         };
     }
     console.warn("Convert to JSON case not implemented");
-};
+}
 
-exports.convertHyPer = convertHyPer;
+// Function to generate nodes' display names based on their properties
+function generateDisplayNames(treeData) {
+    common.visit(treeData, function(node) {
+        switch (node.tag) {
+            case "join":
+                node.class = "join";
+                if (typeof node.properties === "undefined") {
+                    node.properties = {};
+                }
+                node.properties.class = "join";
+                node.properties.join = "inner";
+                node.name = node.tag;
+                break;
+            case "leftouterjoin":
+                node.class = "join";
+                if (typeof node.properties === "undefined") {
+                    node.properties = {};
+                }
+                node.properties.class = "join";
+                node.properties.join = "left";
+                node.name = node.tag;
+                break;
+            case "rightouterjoin":
+                node.class = "join";
+                if (typeof node.properties === "undefined") {
+                    node.properties = {};
+                }
+                node.properties.class = "join";
+                node.properties.join = "right";
+                node.name = node.tag;
+                break;
+            case "fullouterjoin":
+                node.class = "join";
+                if (typeof node.properties === "undefined") {
+                    node.properties = {};
+                }
+                node.properties.class = "join";
+                node.properties.join = "full";
+                node.name = node.tag;
+                break;
+            case "tablescan":
+            case "cursorscan":
+            case "tdescan":
+            case "tableconstruction":
+            case "virtualtable":
+                node.name = node.tag;
+                node.class = 'relation';
+                break;
+            case "expression":
+                node.name = node.text;
+                break;
+            case "attribute":
+            case "condition":
+            case "header":
+            case "iu":
+            case "name":
+            case "mode":
+            case "operation":
+            case "source":
+            case "tableOid":
+            case "tid":
+            case "tupleFlags":
+            case "type":
+            case "unique":
+            case "unnormalizedNames":
+            case "value":
+            case "value2":
+            case "values":
+            case "output":
+            case "distinctValues":
+                if (node.text) {
+                    node.name = node.tag + ":" + node.text;
+                } else {
+                    node.name = node.tag;
+                }
+                break;
+            default:
+                if (node.tag) {
+                    node.name = node.tag;
+                } else {
+                    node.name = JSON.stringify(node);
+                }
+                break;
+        }
+    }, function(n) {
+        return n.children;
+    });
+}
+
+// Loads a Hyper query plan
+function loadHyperPlan(graphString) {
+    var treeData;
+    try {
+        treeData = JSON.parse(graphString);
+    } catch (err) {
+        return {error: "JSON parse failed with '" + err + "'."};
+    }
+    treeData = convertHyper(treeData, "result");
+    generateDisplayNames(treeData);
+    return treeData;
+}
+
+exports.loadHyperPlan = loadHyperPlan;
