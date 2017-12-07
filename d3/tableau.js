@@ -10,6 +10,8 @@ already provides us the structure of the rendered tree.
 */
 
 // Require node modules
+var common = require('./common');
+var colors = require('./colors');
 var xml2js = require('xml2js');
 
 // Convert JSON as returned by xml2js parser to d3 tree format
@@ -38,6 +40,7 @@ function convertJSON(node) {
         children: children
     };
 }
+
 
 // Function to generate nodes' display names based on their properties
 var generateDisplayNames = (function() {
@@ -332,18 +335,125 @@ var generateDisplayNames = (function() {
     return generateDisplayNames;
 })();
 
+// Assign symbols & classes to the nodes
+function assignSymbolsAndClasses(treeData) {
+    common.visit(treeData,function(n) {
+        // Assign symbols
+        if (n.properties && n.properties.join && n.class && n.class === "join") {
+            n.symbol = n.properties.join + "-join-symbol";
+        } else if (n.class && n.class === "relation") {
+            n.symbol = "table-symbol";
+        } else if (n.class && n.class === "createtemptable") {
+            n.symbol = "temp-table-symbol";
+        } else if (n.name && n.name === "runquery") {
+            n.symbol = "run-query-symbol";
+        }
+        // Assign classes for incoming edge
+        if (n.tag == "binding" || n.class == "createtemptable") {
+            n.children.forEach(function(c) {
+                c.edgeClass="link-and-arrow";
+            });
+        } else if (n.name == "runquery") {
+            n.children.forEach(function(c) {
+                if (c.class=="createtemptable") {
+                   c.edgeClass="dotted-link";
+                }
+            });
+        }
+    }, function(d) {
+        return d.children && d.children.length > 0 ? d.children : null;
+    });
+}
+
+function collapseNodes(treeData, graphCollapse) {
+    var streamline = graphCollapse === "s" ? common.streamline : common.collapseChildren;
+    var collapseChildren = common.collapseChildren;
+    if (graphCollapse !== 'n') {
+        common.visit(treeData, function(d) {
+            if (d.name) {
+                var _name = d.fullName ? d.fullName : d.name;
+                switch (_name) {
+                    case 'aggregates':
+                    case 'builder':
+                    case 'cardinality':
+                    case 'condition':
+                    case 'conditions':
+                    case 'count':
+                    case 'criterion':
+                    case 'datasource':
+                    case 'expressions':
+                    case 'field':
+                    case 'from':
+                    case 'groupbys':
+                    case 'header':
+                    case 'imports':
+                    case 'operatorId':
+                    case 'matchMode':
+                    case 'measures':
+                    case 'metadata-record':
+                    case 'metadata-records':
+                    case 'method':
+                    case 'output':
+                    case 'orderbys':
+                    case 'predicate':
+                    case 'residuals':
+                    case 'restrictions':
+                    case 'runquery-columns':
+                    case 'segment':
+                    case 'selects':
+                    case 'schema':
+                    case 'tid':
+                    case 'top':
+                    case 'tuples':
+                    case 'values':
+                        streamline(d);
+                        return;
+                    default:
+                        break;
+                }
+            }
+            if (d.symbol) {
+                switch (d.symbol) {
+                    case 'table-symbol':
+                        collapseChildren(d);
+                        return;
+                    default:
+                        break;
+                }
+            }
+            if (d.tag) {
+                switch (d.tag) {
+                    case 'header':
+                    case 'values':
+                    case 'tid':
+                        streamline(d);
+                        return;
+                    default:
+                        break;
+                }
+            }
+        }, function(d) {
+            return d.children && d.children.length > 0 ? d.children.slice(0) : null;
+        });
+    }
+}
+
 // Prepare the loaded data for visualization
-function prepareTreeData(treeData) {
+function prepareTreeData(treeData, graphCollapse) {
     treeData = convertJSON(treeData);
     // Tag the tree root
     if (!treeData.tag) {
         treeData.tag = "result";
     }
     generateDisplayNames(treeData);
+    assignSymbolsAndClasses(treeData);
+    common.createParentLinks(treeData);
+    colors.colorFederated(treeData);
+    collapseNodes(treeData, graphCollapse);
     return treeData;
 }
 
-function loadTableauPlan(graphString) {
+function loadTableauPlan(graphString, graphCollapse) {
    var result;
    var parser = new xml2js.Parser({
        explicitRoot: false,
@@ -356,7 +466,7 @@ function loadTableauPlan(graphString) {
        if (err) {
            result={"error": "XML parse failed with '" + err + "'."};
        } else {
-           result=prepareTreeData(parsed);
+           result=prepareTreeData(parsed, graphCollapse);
        }
    });
    return result;

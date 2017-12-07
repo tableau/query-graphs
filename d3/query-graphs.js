@@ -4,7 +4,6 @@ var path = require('path');
 
 // Require local modules
 var common = require('./common');
-var colors = require('./colors');
 var tableau = require('./tableau');
 var hyper = require('./hyper');
 
@@ -280,10 +279,9 @@ function defineSymbols(baseSvg, ooo) {
 }
 
 //
-// Prepare the loaded data for visualization
+// Abbreviate all names if they are too long
 //
-function prepareTreeData(treeData) {
-    // Abbreviate labels
+function abbreviateNames(treeData) {
     common.visit(treeData, function(node) {
         // Do not use the full name if it is too long (to avoid label overlap)
         if (node.name && node.name.length > MAX_DISPLAY_LENGTH) {
@@ -292,138 +290,25 @@ function prepareTreeData(treeData) {
             node.name = node.name.substring(0, MAX_DISPLAY_LENGTH) + "…";
         }
     }, common.allChildren);
-
-    // Create parent links
-    common.visit(treeData, function() {}, function(d) {
-        if (d.children) {
-            var children = d.children;
-            var count = children.length;
-            for (var i = 0; i < count; i++) {
-                children[i].parent = d;
-            }
-            return children;
-        }
-        return null;
-    });
-
-    // Assign federated query colors
-    colors.colorFederated(treeData);
-
-    // Collapse all children regardless of the current state
-    function collapseChildren(d) {
-        var children = (d.children) ? d.children : null;
-        var _children = (d._children) ? d._children : null;
-        // all original children are in _children or none are
-        if (_children === null || _children.length === 0) {
-            d._children = children;
-        }
-        d.children = null;
-        return d;
-    }
-
-    // Collapse all but me in my parent node
-    // Nodes may have children and _children that were children prior to streamline
-    function streamline(d) {
-        if (d.parent) {
-            if (d.parent._children && d.parent._children !== null && d.parent._children.length > 0) {
-                // save all of the original children in _chidren one time only
-            } else {
-                d.parent._children = d.parent.children.slice(0);
-            }
-            var index = d.parent.children.indexOf(d);
-            d.parent.children.splice(index, 1);
-        }
-    }
-
-    // Collapse all non-essential nodes at their respective roots
-    if (graphCollapse !== 'n') {
-        common.visit(treeData, function(d) {
-            if (d.name) {
-                var _name = d.fullName ? d.fullName : d.name;
-                switch (_name) {
-                    case 'aggregates':
-                    case 'builder':
-                    case 'cardinality':
-                    case 'condition':
-                    case 'conditions':
-                    case 'count':
-                    case 'criterion':
-                    case 'datasource':
-                    case 'expressions':
-                    case 'field':
-                    case 'from':
-                    case 'groupbys':
-                    case 'header':
-                    case 'imports':
-                    case 'operatorId':
-                    case 'matchMode':
-                    case 'measures':
-                    case 'metadata-record':
-                    case 'metadata-records':
-                    case 'method':
-                    case 'output':
-                    case 'orderbys':
-                    case 'predicate':
-                    case 'residuals':
-                    case 'restrictions':
-                    case 'runquery-columns':
-                    case 'segment':
-                    case 'selects':
-                    case 'schema':
-                    case 'tid':
-                    case 'top':
-                    case 'tuples':
-                    case 'values':
-                        if (graphCollapse === 's') {
-                            streamline(d);
-                        } else {
-                            collapseChildren(d);
-                        }
-                        return;
-                    default:
-                        break;
-                }
-            }
-            if (d.class) {
-                switch (d.class) {
-                    case 'relation':
-                        collapseChildren(d);
-                        return;
-                    default:
-                        break;
-                }
-            }
-            if (d.tag) {
-                switch (d.tag) {
-                    case 'header':
-                    case 'values':
-                    case 'tid':
-                        if (graphCollapse === 's') {
-                            streamline(d);
-                        } else {
-                            collapseChildren(d);
-                        }
-                        return;
-                    default:
-                        break;
-                }
-            }
-        }, function(d) {
-            return d.children && d.children.length > 0 ? d.children.slice(0) : null;
-        });
-    }
-
-    return treeData;
 }
 
 //
 // Draw query tree
 //
-function drawQueryTree(treeData) {
+// The provided root node is an object with the following properies:
+//   * name: the displayed node name
+//   * symbol: the id of the symbol for this node
+//   * nodeClass: additional CSS classes applied to the node
+//   * edgeClass: additional CSS classes applied to the incoming link
+//   * properties: rendered in the tooltip
+//   * children: an array containing all currently visible child nodes
+//   * _children: an array containing all child nodes, including hidden nodes
+//   * <most other>: displayed as part of the tooltip
+function drawQueryTree(root) {
     // Call visit function to establish maxLabelLength
     var totalNodes = 0;
     var maxLabelLength = 0;
-    common.visit(treeData, function(d) {
+    common.visit(root, function(d) {
         totalNodes++;
         if (d.name) {
             maxLabelLength = Math.max(d.name.length, maxLabelLength);
@@ -436,7 +321,6 @@ function drawQueryTree(treeData) {
     // Misc. variables
     var i = 0;
     var duration = 750;
-    var root;
 
     // Size of the diagram
     var viewerWidth = window.innerWidth;
@@ -583,7 +467,7 @@ function drawQueryTree(treeData) {
         });
 
     // Initialize tooltip
-    var alwaysSuppressedKeys = ["parent", "properties"];
+    var alwaysSuppressedKeys = ["parent", "properties", "symbol", "nodeClass", "edgeClass"];
     var debugTooltipKeys = ["_children", "children", "_name", "depth", "id", "x", "x0", "y", "y0"];
     var tip = d3.tip()
         .attr('class', 'd3-tip')
@@ -690,7 +574,9 @@ function drawQueryTree(treeData) {
 
         // Enter any new nodes at the parent's previous position.
         var nodeEnter = node.enter().append("g")
-            .attr("class", "node")
+            .attr("class", function(d) {
+                return d.hasOwnProperty("nodeClass") ? d.nodeClass + " node" : "node";
+            })
             .attr("transform", function(_d) {
                 return "translate(" + source.x0 + "," + source.y0 + ")";
             })
@@ -698,14 +584,8 @@ function drawQueryTree(treeData) {
 
         nodeEnter.append("use")
             .attr("xlink:href", function(d) {
-                if (d.properties && d.properties.join && d.class && d.class === "join") {
-                    return "#" + d.properties.join + "-join-symbol";
-                } else if (d.class && d.class === "relation") {
-                    return "#table-symbol";
-                } else if (d.class && d.class === "createtemptable") {
-                    return "#temp-table-symbol";
-                } else if (d.name && d.name === "runquery") {
-                    return "#run-query-symbol";
+                if (d.symbol) {
+                    return "#" + d.symbol;
                 }
                 return "#default-symbol";
             });
@@ -723,12 +603,6 @@ function drawQueryTree(treeData) {
                 return d.name;
             })
             .style("fill-opacity", 0);
-
-        // Assign federated query color classes
-        node.attr("class", function(d) {
-            var _class = d3.select(this).attr("class");
-            return (d.federated && _class.search(d.federated) === -1 ? _class + " " + d.federated : _class);
-        });
 
         // Update the text to reflect whether node has children or not.
         node.select('text')
@@ -785,10 +659,8 @@ function drawQueryTree(treeData) {
         // Enter any new links at the parent's previous position.
         link.enter().insert("path", "g")
             .attr("class", function(d) {
-                if (d.source && (d.source.tag === "binding" || d.source.class === "createtemptable")) {
-                    return "link link-and-arrow";
-                } else if (d.target.class === "createtemptable" && d.source && d.source.name === "runquery") {
-                    return "link dotted-link";
+                if (d.target.hasOwnProperty("edgeClass")) {
+                    return "link " + d.target.edgeClass;
                 }
                 return "link";
             })
@@ -835,7 +707,6 @@ function drawQueryTree(treeData) {
         .attr("class", "main");
 
     // Define the root
-    root = treeData;
     var origin = {x: 0, y: 0};
     root.x0 = ooo.x(origin);
     root.y0 = ooo.y(origin);
@@ -937,7 +808,7 @@ retrieveData(function(err, graphString) {
     var errors = [];
     var loadedTree = null;
     function tryLoad(loader) {
-        var result = loader(graphString);
+        var result = loader(graphString, graphCollapse);
         if ("error" in result) {
             errors.push(result.error);
             return false;
@@ -946,8 +817,9 @@ retrieveData(function(err, graphString) {
         return true;
     }
     if (loaders.some(tryLoad)) {
+        abbreviateNames(loadedTree);
         spinner.stop();
-        drawQueryTree(prepareTreeData(loadedTree));
+        drawQueryTree(loadedTree);
     } else {
         spinner.stop();
         document.write(errors.reduce(function(a, b) {
