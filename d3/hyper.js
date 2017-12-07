@@ -30,31 +30,6 @@ Miscellaneous
 
 var common = require('./common');
 
-// Convert to string. Return undefined if not supported.
-function toString(d) {
-    if (typeof (d) === "string") {
-        return d;
-    } else if (typeof (d) === "number") {
-        return d.toString();
-    } else if (typeof (d) === "boolean") {
-        return d.toString();
-    } else if (d === null) {
-        return "null";
-    } else if (d === undefined) {
-        return "undefined";
-    }
-    return undefined;
-}
-
-// Convert to string. Returns the JSON serialization if not supported.
-function forceToString(d) {
-    var str = toString(d);
-    if (str === undefined) {
-        str = JSON.stringify(d);
-    }
-    return str;
-}
-
 // Convert Hyper JSON to a D3 tree
 function convertHyper(node, tag) {
     var innerNode;
@@ -104,7 +79,7 @@ function convertHyper(node, tag) {
             if (!node.hasOwnProperty(key)) {
                 return;
             }
-            properties[key] = forceToString(node[key]);
+            properties[key] = common.forceToString(node[key]);
         });
 
         // Display all other properties adaptively: simple expressions are displayed as properties, all others as part of the tree
@@ -115,7 +90,7 @@ function convertHyper(node, tag) {
             }
 
             // Try to display as string property
-            var str = toString(node[key]);
+            var str = common.toString(node[key]);
             if (str !== undefined) {
                 properties[key] = str;
                 return;
@@ -158,10 +133,10 @@ function convertHyper(node, tag) {
             }
         });
         return listOfObjects;
-    } else if (toString(node) !== undefined) {
+    } else if (common.toString(node) !== undefined) {
         return {
             tag: tag,
-            text: toString(node)
+            text: common.toString(node)
         };
     }
     console.warn("Convert to JSON case not implemented");

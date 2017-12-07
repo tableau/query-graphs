@@ -64,8 +64,35 @@ function streamline(d) {
     }
 }
 
+// Convert to string. Return undefined if not supported.
+function toString(d) {
+    if (typeof (d) === "string") {
+        return d;
+    } else if (typeof (d) === "number") {
+        return d.toString();
+    } else if (typeof (d) === "boolean") {
+        return d.toString();
+    } else if (d === null) {
+        return "null";
+    } else if (d === undefined) {
+        return "undefined";
+    }
+    return undefined;
+}
+
+// Convert to string. Returns the JSON serialization if not supported.
+function forceToString(d) {
+    var str = toString(d);
+    if (str === undefined) {
+        str = JSON.stringify(d);
+    }
+    return str;
+}
+
 exports.visit = visit;
 exports.allChildren = allChildren;
 exports.createParentLinks = createParentLinks;
 exports.collapseChildren = collapseChildren;
 exports.streamline = streamline;
+exports.toString = toString;
+exports.forceToString = forceToString;

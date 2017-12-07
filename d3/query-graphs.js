@@ -4,8 +4,13 @@ var path = require('path');
 
 // Require local modules
 var common = require('./common');
-var tableau = require('./tableau');
-var hyper = require('./hyper');
+var knownLoaders = {
+    hyper: require('./hyper').loadHyperPlan,
+    tableau: require('./tableau').loadTableauPlan,
+    json: require('./json').loadJson,
+    xml: require('./xml').loadXml,
+    raw: JSON.parse
+};
 
 // Require node modules
 var $ = require('jquery');
@@ -51,6 +56,12 @@ var inlineString;
 if (queryObject.inline) {
     inlineString = queryObject.inline;
     graphFile = "";
+}
+
+// Get file format
+var fileFormat = queryObject.format;
+if (fileFormat !== undefined && !knownLoaders.hasOwnProperty(fileFormat)) {
+    document.write("File format '" + fileFormat + "' not supported.");
 }
 
 // Get orientation name
@@ -828,12 +839,16 @@ retrieveData(function(err, graphString) {
     graphString = graphString.replace(/\\n/gm, " ");
     // Detect file type
     var loaders;
-    if (path.extname(graphFile) === '.json') {
-        loaders = [hyper.loadHyperPlan];
+    if (fileFormat !== undefined) {
+        loaders = [knownLoaders[fileFormat]];
+    } else if (path.extname(graphFile) === '.json') {
+        loaders = [knownLoaders.hyper, knownLoaders.json];
     } else if (path.extname(graphFile) === '.xml') {
-        loaders = [tableau.loadTableauPlan];
+        loaders = [knownLoaders.tableau, knownLoaders.xml];
+    } else if (path.extname(graphFile) === '.twb') {
+        loaders = [knownLoaders.xml];
     } else {
-        loaders = [tableau.loadTableauPlan, hyper.loadHyperPlan];
+        loaders = [knownLoaders.tableau, knownLoaders.hyper, knownLoaders.xml, knownLoaders.json];
     }
 
     // Try to load the data with the available loaders
