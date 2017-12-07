@@ -291,9 +291,7 @@ function prepareTreeData(treeData) {
             // Use of ellipsis character …, different from triple dots ...
             node.name = node.name.substring(0, MAX_DISPLAY_LENGTH) + "…";
         }
-    }, function(n) {
-        return n.children;
-    });
+    }, common.allChildren);
 
     // Create parent links
     common.visit(treeData, function() {}, function(d) {
@@ -430,9 +428,7 @@ function drawQueryTree(treeData) {
         if (d.name) {
             maxLabelLength = Math.max(d.name.length, maxLabelLength);
         }
-    }, function(d) {
-        return d.children && d.children.length > 0 ? d.children : null;
-    });
+    }, common.allChildren);
 
     // Limit maximum label length and keep layout tight for short names
     maxLabelLength = Math.min(maxLabelLength, MAX_DISPLAY_LENGTH);
