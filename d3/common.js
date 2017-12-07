@@ -50,9 +50,8 @@ function collapseChildren(d) {
     return d;
 }
 
-// Collapse all but me in my parent node
+// Collapse the given node in its parent node
 // Requires parent links to be present (e.g., created by `createParentLinks`)
-// Nodes may have children and _children that were children prior to streamline
 function streamline(d) {
     if (d.parent) {
         if (d.parent._children && d.parent._children !== null && d.parent._children.length > 0) {
