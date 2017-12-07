@@ -1,5 +1,5 @@
 
-// A recursive helper function for performing some setup by walking through all nodes
+// A recursive helper function for walking through all nodes
 function visit(parent, visitFn, childrenFn) {
     if (!parent) {
         return;
@@ -16,4 +16,12 @@ function visit(parent, visitFn, childrenFn) {
     }
 }
 
+// Returns all children of a node, including collapsed children
+function allChildren(n) {
+    var childrenLength = n.children ? n.children.length : 0;
+    var _childrenLength = n._children ? n._children.length : 0;
+    return _childrenLength > childrenLength ? n._children : n.children;
+}
+
 exports.visit = visit;
+exports.allChildren = allChildren;
