@@ -227,40 +227,20 @@ function generateDisplayNames(treeData) {
     common.visit(treeData, function(node) {
         switch (node.tag) {
             case "join":
-                node.class = "join";
-                if (typeof node.properties === "undefined") {
-                    node.properties = {};
-                }
-                node.properties.class = "join";
-                node.properties.join = "inner";
                 node.name = node.tag;
+                node.symbol = "inner-join-symbol";
                 break;
             case "leftouterjoin":
-                node.class = "join";
-                if (typeof node.properties === "undefined") {
-                    node.properties = {};
-                }
-                node.properties.class = "join";
-                node.properties.join = "left";
                 node.name = node.tag;
+                node.symbol = "left-join-symbol";
                 break;
             case "rightouterjoin":
-                node.class = "join";
-                if (typeof node.properties === "undefined") {
-                    node.properties = {};
-                }
-                node.properties.class = "join";
-                node.properties.join = "right";
                 node.name = node.tag;
+                node.symbol = "right-join-symbol";
                 break;
             case "fullouterjoin":
-                node.class = "join";
-                if (typeof node.properties === "undefined") {
-                    node.properties = {};
-                }
-                node.properties.class = "join";
-                node.properties.join = "full";
                 node.name = node.tag;
+                node.symbol = "full-join-symbol";
                 break;
             case "tablescan":
             case "cursorscan":
@@ -268,7 +248,12 @@ function generateDisplayNames(treeData) {
             case "tableconstruction":
             case "virtualtable":
                 node.name = node.tag;
-                node.class = 'relation';
+                node.symbol = 'table-symbol';
+                break;
+            case "temp":
+                node.name = node.tag;
+                node.symbol = "temp-table-symbol";
+                node.edgeClass = "link-and-arrow";
                 break;
             case "expression":
                 node.name = node.text;
@@ -311,8 +296,81 @@ function generateDisplayNames(treeData) {
     });
 }
 
+function collapseNodes(treeData, graphCollapse) {
+    var streamline = graphCollapse === "s" ? common.streamline : common.collapseChildren;
+    var collapseChildren = common.collapseChildren;
+    if (graphCollapse !== 'n') {
+        common.visit(treeData, function(d) {
+            if (d.name) {
+                var _name = d.fullName ? d.fullName : d.name;
+                switch (_name) {
+                    case 'aggregates':
+                    case 'builder':
+                    case 'cardinality':
+                    case 'condition':
+                    case 'conditions':
+                    case 'count':
+                    case 'criterion':
+                    case 'datasource':
+                    case 'expressions':
+                    case 'field':
+                    case 'from':
+                    case 'groupbys':
+                    case 'header':
+                    case 'imports':
+                    case 'operatorId':
+                    case 'matchMode':
+                    case 'measures':
+                    case 'metadata-record':
+                    case 'metadata-records':
+                    case 'method':
+                    case 'output':
+                    case 'orderbys':
+                    case 'predicate':
+                    case 'residuals':
+                    case 'restrictions':
+                    case 'runquery-columns':
+                    case 'segment':
+                    case 'selects':
+                    case 'schema':
+                    case 'tid':
+                    case 'top':
+                    case 'tuples':
+                    case 'values':
+                        streamline(d);
+                        return;
+                    default:
+                        break;
+                }
+            }
+            if (d.symbol) {
+                switch (d.symbol) {
+                    case 'table-symbol':
+                        collapseChildren(d);
+                        return;
+                    default:
+                        break;
+                }
+            }
+            if (d.tag) {
+                switch (d.tag) {
+                    case 'header':
+                    case 'values':
+                    case 'tid':
+                        streamline(d);
+                        return;
+                    default:
+                        break;
+                }
+            }
+        }, function(d) {
+            return d.children && d.children.length > 0 ? d.children.slice(0) : null;
+        });
+    }
+}
+
 // Loads a Hyper query plan
-function loadHyperPlan(graphString) {
+function loadHyperPlan(graphString, graphCollapse) {
     var treeData;
     try {
         treeData = JSON.parse(graphString);
@@ -321,6 +379,8 @@ function loadHyperPlan(graphString) {
     }
     treeData = convertHyper(treeData, "result");
     generateDisplayNames(treeData);
+    common.createParentLinks(treeData);
+    collapseNodes(treeData, graphCollapse);
     return treeData;
 }
 
