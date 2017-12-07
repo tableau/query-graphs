@@ -41,7 +41,6 @@ function convertJSON(node) {
     };
 }
 
-
 // Function to generate nodes' display names based on their properties
 var generateDisplayNames = (function() {
     // properties.class are the expressions
@@ -337,7 +336,7 @@ var generateDisplayNames = (function() {
 
 // Assign symbols & classes to the nodes
 function assignSymbolsAndClasses(treeData) {
-    common.visit(treeData,function(n) {
+    common.visit(treeData, function(n) {
         // Assign symbols
         if (n.properties && n.properties.join && n.class && n.class === "join") {
             n.symbol = n.properties.join + "-join-symbol";
@@ -349,14 +348,14 @@ function assignSymbolsAndClasses(treeData) {
             n.symbol = "run-query-symbol";
         }
         // Assign classes for incoming edge
-        if (n.tag == "binding" || n.class == "createtemptable") {
+        if (n.tag === "binding" || n.class === "createtemptable") {
             n.children.forEach(function(c) {
-                c.edgeClass="link-and-arrow";
+                c.edgeClass = "link-and-arrow";
             });
-        } else if (n.name == "runquery") {
+        } else if (n.name === "runquery") {
             n.children.forEach(function(c) {
-                if (c.class=="createtemptable") {
-                   c.edgeClass="dotted-link";
+                if (c.class === "createtemptable") {
+                    c.edgeClass = "dotted-link";
                 }
             });
         }
@@ -429,22 +428,22 @@ function prepareTreeData(treeData, graphCollapse) {
 }
 
 function loadTableauPlan(graphString, graphCollapse) {
-   var result;
-   var parser = new xml2js.Parser({
-       explicitRoot: false,
-       explicitChildren: true,
-       preserveChildrenOrder: true,
-       // Don't merge attributes. XML attributes will be stored in node["$"]
-       mergeAttrs: false
-   });
-   parser.parseString(graphString, function(err,parsed) {
-       if (err) {
-           result={"error": "XML parse failed with '" + err + "'."};
-       } else {
-           result=prepareTreeData(parsed, graphCollapse);
-       }
-   });
-   return result;
+    var result;
+    var parser = new xml2js.Parser({
+        explicitRoot: false,
+        explicitChildren: true,
+        preserveChildrenOrder: true,
+        // Don't merge attributes. XML attributes will be stored in node["$"]
+        mergeAttrs: false
+    });
+    parser.parseString(graphString, function(err, parsed) {
+        if (err) {
+            result = {error: "XML parse failed with '" + err + "'."};
+        } else {
+            result = prepareTreeData(parsed, graphCollapse);
+        }
+    });
+    return result;
 }
 
 exports.loadTableauPlan = loadTableauPlan;
