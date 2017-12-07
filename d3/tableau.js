@@ -440,7 +440,7 @@ function loadTableauPlan(graphString, graphCollapse) {
         if (err) {
             result = {error: "XML parse failed with '" + err + "'."};
         } else {
-            result = prepareTreeData(parsed, graphCollapse);
+            result = {root: prepareTreeData(parsed, graphCollapse)};
         }
     });
     return result;
