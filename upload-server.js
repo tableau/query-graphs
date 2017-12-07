@@ -11,6 +11,7 @@ var path = require('path');
 var app = express();
 
 var UPLOAD_DIR = "media/uploads/";
+var FAVORITES_DIR = "media/favorites/";
 var KEEP_FILES = 50;
 
 function generateRandomFilename(extname) {
@@ -114,6 +115,30 @@ app.post("/text-upload", function(req, res) {
     deleteOldFiles();
     // Redirect to the Visualization URL
     res.redirect("http://" + req.get("host") + "/d3/query-graphs.html?upload=y&file=" + filename);
+});
+
+function escapeHtml(unsafe) {
+    return unsafe.replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;").replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+}
+
+app.get("/favorites", function(req, res) {
+    fs.readdir(FAVORITES_DIR, function(err, files) {
+        res.setHeader('Content-Type', 'text/html');
+        if (err) {
+            console.log(err);
+            res.send(err);
+            return;
+        }
+        var html = "<html><head><title>Favorites</title></head><body><h1>Favorites</h1><ul>";
+        files.forEach(function(f) {
+            html += "<li><a href='d3/query-graphs.html?file=" + encodeURIComponent(f) + "'>" + escapeHtml(f) + "</a></li>";
+        });
+        html += "</ul></body></html>";
+        res.send(html);
+        res.end();
+    });
 });
 
 var server = app.listen(3000, function() {
