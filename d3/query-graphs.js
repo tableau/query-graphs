@@ -78,6 +78,23 @@ switch (graphCollapse) {
         break;
 }
 
+// Get properties to be rendered in the toplevel info card
+var toplevelProperties;
+if (queryObject.properties) {
+    try {
+        toplevelProperties = JSON.parse(queryObject.properties);
+    } catch (err) {
+        document.write("JSON parse failed with '" + err + "'.");
+    }
+} else {
+    toplevelProperties = {};
+}
+
+// Add the file name to the displayed properties
+if (!inlineString) {
+    toplevelProperties.file = graphFile;
+}
+
 var MAX_DISPLAY_LENGTH = 15;
 var svgGroup;
 
@@ -293,9 +310,22 @@ function abbreviateNames(treeData) {
 }
 
 //
+// Escapes a string for HTML
+//
+function escapeHtml(unsafe) {
+    return (String(unsafe)).replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;").replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+}
+
+//
 // Draw query tree
 //
-// The provided root node is an object with the following properies:
+// The treedata is an object with the following properties:
+//   * root: the root node; its format is described below
+//   * properties: displayed in the top-level tree label
+//
+// Each root node has the following properies:
 //   * name: the displayed node name
 //   * symbol: the id of the symbol for this node
 //   * nodeClass: additional CSS classes applied to the node
@@ -304,7 +334,8 @@ function abbreviateNames(treeData) {
 //   * children: an array containing all currently visible child nodes
 //   * _children: an array containing all child nodes, including hidden nodes
 //   * <most other>: displayed as part of the tooltip
-function drawQueryTree(root) {
+function drawQueryTree(treeData) {
+    var root = treeData.root;
     // Call visit function to establish maxLabelLength
     var totalNodes = 0;
     var maxLabelLength = 0;
@@ -763,10 +794,11 @@ function drawQueryTree(root) {
 
     // Add metrics card
     var treeText = "";
-    if (!inlineString) {
-        treeText += "<span style='color: hsl(309, 84%, 36%)'>file: </span>";
-        treeText += "<span style='color: black'>" + graphFile + "</span><br />";
-    }
+    var properties = treeData.properties ? treeData.properties : {};
+    Object.getOwnPropertyNames(properties).forEach(function(key) {
+        treeText += "<span style='color: hsl(309, 84%, 36%)'>" + escapeHtml(key) + ": </span>";
+        treeText += "<span style='color: black'>" + escapeHtml(properties[key]) + "</span><br />";
+    });
     treeText += "<span style='color: hsl(309, 84%, 36%)'>nodes: </span>";
     treeText += "<span style='color: black'>" + totalNodes + "</span><br />";
     $("#tree-label").html(treeText);
@@ -817,7 +849,13 @@ retrieveData(function(err, graphString) {
         return true;
     }
     if (loaders.some(tryLoad)) {
-        abbreviateNames(loadedTree);
+        abbreviateNames(loadedTree.root);
+        if (loadedTree.properties === undefined) {
+            loadedTree.properties = {};
+        }
+        Object.getOwnPropertyNames(toplevelProperties).forEach(function(key) {
+            loadedTree.properties[key] = toplevelProperties[key];
+        });
         spinner.stop();
         drawQueryTree(loadedTree);
     } else {

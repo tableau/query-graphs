@@ -336,17 +336,21 @@ function collapseNodes(treeData, graphCollapse) {
 
 // Loads a Hyper query plan
 function loadHyperPlan(graphString, graphCollapse) {
-    var treeData;
+    var json;
     try {
-        treeData = JSON.parse(graphString);
+        json = JSON.parse(graphString);
     } catch (err) {
         return {error: "JSON parse failed with '" + err + "'."};
     }
-    treeData = convertHyper(treeData, "result");
-    generateDisplayNames(treeData);
-    common.createParentLinks(treeData);
-    collapseNodes(treeData, graphCollapse);
-    return treeData;
+    var properties = {};
+    if (json.hasOwnProperty("plan") && json.plan.hasOwnProperty("header")) {
+        properties.columns = json.plan.header.length / 2;
+    }
+    var root = convertHyper(json, "result");
+    generateDisplayNames(root);
+    common.createParentLinks(root);
+    collapseNodes(root, graphCollapse);
+    return {root: root, properties: properties};
 }
 
 exports.loadHyperPlan = loadHyperPlan;
