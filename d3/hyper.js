@@ -30,21 +30,35 @@ Miscellaneous
 
 var common = require('./common');
 
+// Convert to string. Return undefined if not supported.
+function toString(d) {
+    if (typeof (d) === "string") {
+        return d;
+    } else if (typeof (d) === "number") {
+        return d.toString();
+    } else if (typeof (d) === "boolean") {
+        return d.toString();
+    } else if (d === null) {
+        return "null";
+    } else if (d === undefined) {
+        return "undefined";
+    }
+    return undefined;
+}
+
+// Convert to string. Returns the JSON serialization if not supported.
+function forceToString(d) {
+    var str = toString(d);
+    if (str === undefined) {
+        str = JSON.stringify(d);
+    }
+    return str;
+}
+
 // Convert Hyper JSON to a D3 tree
 function convertHyper(node, tag) {
     var innerNode;
     if (typeof (node) === "object" && !Array.isArray(node)) {
-        // "Object" nodes
-        var children = [];
-        var properties;
-        var text;
-        var leftNode;
-        var rightNode;
-        var exprNode;
-        var modeNode;
-        var valueNode;
-        var attributeNode;
-
         if (node === null) {
             return {
                 tag: tag,
@@ -52,137 +66,83 @@ function convertHyper(node, tag) {
             };
         }
 
-        Object.keys(node).forEach(function(key, _index) {
-            // Certain keys are better visualized as properties
-            switch (key) {
-                case "builder":
-                case "cardinality":
-                case "count":
-                case "from":
-                case "id":
-                case "matchMode": // legacy; used by the university Hyper instead of `singleMatch`
-                case "operatorId":
-                case "method":
-                case "segment":
-                    if (typeof properties === "undefined") {
-                        properties = {};
-                    }
-                    properties[key] = node[key];
-                    return;
-                default:
-                    break;
-            }
+        // "Object" nodes
+        var children = [];
+        var properties = {};
 
-            // Bypass explicit child inputs
-            if ((key === "plan" || key === "input" || key === "left" || key === "right") && node[key].operator) {
-                innerNode = convertHyper(node[key], node[key].operator);
-                if (Array.isArray(innerNode)) {
-                    children = children.concat(innerNode);
-                } else {
-                    children.push(innerNode);
-                }
+        // Take the first present tagKey as the new tag. Add all others as properties
+        var tagKeys = ["operator", "expression", "mode"];
+        var tagOverride;
+        tagKeys.forEach(function(key) {
+            if (!node.hasOwnProperty(key)) {
                 return;
             }
-
-            // Ignore operator key used as tag above in plan, input, left, and right keys
-            if (key === "operator") {
-                return;
-            }
-
-            // Simplify instance expressions
-            switch (key) {
-
-                // Nodes that may be relocated in the tree
-                case "left":
-                    leftNode = convertHyper(node[key], key);
-                    return;
-                case "right":
-                    rightNode = convertHyper(node[key], key);
-                    return;
-                case "attribute":
-                    attributeNode = convertHyper(node[key], key);
-                    return;
-                case "value":
-                    valueNode = convertHyper(node[key], key);
-                    return;
-
-                // Nodes that may not be relocated and have new child nodes added
-                case "mode":
-                    modeNode = convertHyper(node[key], key);
-                    children.push(modeNode);
-                    return;
-                case "expression":
-                    // Suppress noisy expression tags
-                    if (node[key] !== "iuref" && node[key] !== "comparison") {
-                        exprNode = convertHyper(node[key], key);
-                        children.push(exprNode);
-                    }
-                    return;
-
-                // Standard inner nodes
-                default:
-                    innerNode = convertHyper(node[key], key);
-                    if (Array.isArray(innerNode)) {
-                        children = children.concat(innerNode);
-                    } else {
-                        children.push(innerNode);
-                    }
-                    return;
+            if (tagOverride === undefined) {
+                tagOverride = node[key];
+            } else {
+                properties[key] = node[key];
             }
         });
 
-        // Restrictions pattern
-        if (modeNode && attributeNode && valueNode) {
-            modeNode.children = [];
-            modeNode.children.push(attributeNode);
-            modeNode.children.push(valueNode);
-        } else
+        // Add the following keys as children
+        var childKeys = ["input", "left", "right", "attribute", "value"];
+        childKeys.forEach(function(key) {
+            if (!node.hasOwnProperty(key)) {
+                return;
+            }
+            var child = convertHyper(node[key], key);
+            if (Array.isArray(child)) {
+                children = children.concat(child);
+            } else {
+                children.push(child);
+            }
+        });
 
-        // Conditions and residuals pattern
-        if (modeNode && leftNode && rightNode) {
-            modeNode.children = [];
-            modeNode.children.push(leftNode.children[0]);
-            modeNode.children.push(rightNode.children[0]);
-        } else
+        // Display these properties always as properties, even if they are more complex
+        var propertyKeys = ["analyze"];
+        propertyKeys.forEach(function(key) {
+            if (!node.hasOwnProperty(key)) {
+                return;
+            }
+            properties[key] = forceToString(node[key]);
+        });
 
-        // Comparisons and other binary expressions pattern
-        if (exprNode && leftNode && rightNode) {
-            exprNode.children = [];
-            exprNode.children.push(leftNode.children[0]);
-            exprNode.children.push(rightNode.children[0]);
-        } else
+        // Display all other properties adaptively: simple expressions are displayed as properties, all others as part of the tree
+        var handledKeys = tagKeys.concat(childKeys, propertyKeys);
+        Object.getOwnPropertyNames(node).forEach(function(key, _index) {
+            if (handledKeys.indexOf(key) !== -1) {
+                return;
+            }
 
-        // Unary expressions with a value pattern
-        if (exprNode && valueNode) {
-            exprNode.children = [];
-            exprNode.children.push(valueNode);
-        } else {
-            // No patterns matched: push nodes not pushed in the loop above
-            if (leftNode) {
-                children.push(leftNode);
+            // Try to display as string property
+            var str = toString(node[key]);
+            if (str !== undefined) {
+                properties[key] = str;
+                return;
             }
-            if (rightNode) {
-                children.push(rightNode);
+
+            // Display as part of the tree
+            innerNode = convertHyper(node[key], key);
+            if (Array.isArray(innerNode)) {
+                children = children.concat(innerNode);
+            } else {
+                children.push(innerNode);
             }
-            if (valueNode) {
-                // value nodes can be arrays of values
-                // TODO: push valueNode that is an array, but will not be after skipping over "iuref" or "comparison"
-                if (Array.isArray(valueNode)) {
-                    children = children.concat(valueNode);
-                } else {
-                    children.push(valueNode);
-                }
-            }
-            if (attributeNode) {
-                children.push(attributeNode);
-            }
-        }
-        return {
+            return;
+        });
+        // Build the converted node
+        var convertedNode = {
             tag: tag,
             properties: properties,
-            text: text,
             children: children
         };
+        if (tagOverride !== undefined) {
+            convertedNode.tag = tagOverride;
+            if (node.operator === undefined) {
+                convertedNode = {tag: tag, children: [convertedNode]};
+            }
+        }
+        return convertedNode;
     } else if (Array.isArray(node)) {
         // "Array" nodes
         var listOfObjects = [];
@@ -198,25 +158,10 @@ function convertHyper(node, tag) {
             }
         });
         return listOfObjects;
-    } else if (typeof (node) === "string") {
-        // "String" nodes
+    } else if (toString(node) !== undefined) {
         return {
             tag: tag,
-            text: node
-        };
-    } else if (typeof (node) === "number") {
-        // "Number" nodes
-        var numstr = node.toString();
-        return {
-            tag: tag,
-            text: numstr
-        };
-    } else if (typeof (node) === "boolean") {
-        // "Boolean" nodes
-        var boolstr = node.toString();
-        return {
-            tag: tag,
-            text: boolstr
+            text: toString(node)
         };
     }
     console.warn("Convert to JSON case not implemented");
