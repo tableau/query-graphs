@@ -60,7 +60,7 @@ function convertHyper(node, tag) {
                 case "count":
                 case "from":
                 case "id":
-                case "matchMode":
+                case "matchMode": // legacy; used by the university Hyper instead of `singleMatch`
                 case "operatorId":
                 case "method":
                 case "segment":
@@ -301,67 +301,32 @@ function collapseNodes(treeData, graphCollapse) {
     var collapseChildren = common.collapseChildren;
     if (graphCollapse !== 'n') {
         common.visit(treeData, function(d) {
-            if (d.name) {
-                var _name = d.fullName ? d.fullName : d.name;
-                switch (_name) {
-                    case 'aggregates':
-                    case 'builder':
-                    case 'cardinality':
-                    case 'condition':
-                    case 'conditions':
-                    case 'count':
-                    case 'criterion':
-                    case 'datasource':
-                    case 'expressions':
-                    case 'field':
-                    case 'from':
-                    case 'groupbys':
-                    case 'header':
-                    case 'imports':
-                    case 'operatorId':
-                    case 'matchMode':
-                    case 'measures':
-                    case 'metadata-record':
-                    case 'metadata-records':
-                    case 'method':
-                    case 'output':
-                    case 'orderbys':
-                    case 'predicate':
-                    case 'residuals':
-                    case 'restrictions':
-                    case 'runquery-columns':
-                    case 'segment':
-                    case 'selects':
-                    case 'schema':
-                    case 'tid':
-                    case 'top':
-                    case 'tuples':
-                    case 'values':
-                        streamline(d);
-                        return;
-                    default:
-                        break;
-                }
-            }
-            if (d.symbol) {
-                switch (d.symbol) {
-                    case 'table-symbol':
-                        collapseChildren(d);
-                        return;
-                    default:
-                        break;
-                }
-            }
-            if (d.tag) {
-                switch (d.tag) {
-                    case 'header':
-                    case 'values':
-                    case 'tid':
-                        streamline(d);
-                        return;
-                    default:
-                        break;
-                }
+            switch (d.tag) {
+                case 'aggregates':
+                case 'builder':
+                case 'cardinality':
+                case 'condition':
+                case 'criterion':
+                case 'from':
+                case 'header':
+                case 'output':
+                case 'residuals':
+                case 'restrictions':
+                case 'segment':
+                case 'schema':
+                case 'tid':
+                case 'values':
+                    streamline(d);
+                    return;
+                case "tablescan":
+                case "cursorscan":
+                case "tdescan":
+                case "tableconstruction":
+                case "virtualtable":
+                    collapseChildren(d);
+                    return;
+                default:
+                    break;
             }
         }, function(d) {
             return d.children && d.children.length > 0 ? d.children.slice(0) : null;

@@ -373,60 +373,35 @@ function collapseNodes(treeData, graphCollapse) {
             if (d.name) {
                 var _name = d.fullName ? d.fullName : d.name;
                 switch (_name) {
-                    case 'aggregates':
-                    case 'builder':
-                    case 'cardinality':
                     case 'condition':
                     case 'conditions':
-                    case 'count':
-                    case 'criterion':
                     case 'datasource':
                     case 'expressions':
                     case 'field':
-                    case 'from':
                     case 'groupbys':
-                    case 'header':
                     case 'imports':
-                    case 'operatorId':
-                    case 'matchMode':
                     case 'measures':
                     case 'metadata-record':
                     case 'metadata-records':
-                    case 'method':
-                    case 'output':
                     case 'orderbys':
                     case 'predicate':
-                    case 'residuals':
                     case 'restrictions':
                     case 'runquery-columns':
-                    case 'segment':
                     case 'selects':
                     case 'schema':
                     case 'tid':
                     case 'top':
                     case 'tuples':
-                    case 'values':
                         streamline(d);
                         return;
                     default:
                         break;
                 }
             }
-            if (d.symbol) {
-                switch (d.symbol) {
-                    case 'table-symbol':
+            if (d.class) {
+                switch (d.class) {
+                    case 'relation':
                         collapseChildren(d);
-                        return;
-                    default:
-                        break;
-                }
-            }
-            if (d.tag) {
-                switch (d.tag) {
-                    case 'header':
-                    case 'values':
-                    case 'tid':
-                        streamline(d);
                         return;
                     default:
                         break;
