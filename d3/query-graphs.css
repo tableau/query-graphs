@@ -189,6 +189,13 @@ marker#arrow {
   fill: #ccc;
 }
 
+.link-label {
+  font-size: 7px;
+  font-weight: bold;
+  font-family: Monaco, Consolas, monospace;
+  fill: #aaa;
+}
+
 /* Run Query */
 path.run-query {
   fill: #fff;

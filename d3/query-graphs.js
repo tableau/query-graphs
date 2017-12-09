@@ -340,6 +340,7 @@ function escapeHtml(unsafe) {
 //   * symbol: the id of the symbol for this node
 //   * nodeClass: additional CSS classes applied to the node
 //   * edgeClass: additional CSS classes applied to the incoming link
+//   * edgeLabel: label placed on the incoming edge
 //   * properties: rendered in the tooltip
 //   * children: an array containing all currently visible child nodes
 //   * _children: an array containing all child nodes, including hidden nodes
@@ -519,7 +520,7 @@ function drawQueryTree(treeData) {
     }
 
     // Helper function to retrieve all properties of the node object which should be rendered in the tooltip
-    var alwaysSuppressedKeys = ["name", "properties", "parent", "properties", "symbol", "nodeClass", "edgeClass"];
+    var alwaysSuppressedKeys = ["properties", "parent", "properties", "symbol", "nodeClass", "edgeClass", "edgeLabel"];
     var debugTooltipKeys = ["_children", "children", "_name", "depth", "id", "x", "x0", "y", "y0"];
     function getDirectProperties(d) {
         var props = {};
@@ -745,6 +746,45 @@ function drawQueryTree(treeData) {
             d.x0 = ooo.x(d);
             d.y0 = ooo.y(d);
         });
+
+        // Select the link labels
+        var linksWithLabels = links.filter(function(d) {
+            return d.target.edgeLabel !== undefined && d.target.edgeLabel.length;
+        });
+        var linkLabel = svgGroup.selectAll("text.link-label")
+            .data(linksWithLabels, function(d) {
+                return d.target.id;
+            });
+
+        // Enter new link labels
+        linkLabel.enter().insert("text")
+            .classed("link-label", true)
+            .attr("text-anchor", "middle")
+            .text(function(d) {
+                return d.target.edgeLabel;
+            })
+            .attr("x", source.x0)
+            .attr("y", source.y0)
+            .style("fill-opacity", 0);
+
+        // Update position for existing & new labels
+        linkLabel.transition()
+            .duration(duration)
+            .style("fill-opacity", 1)
+            .attr("x", function(d) {
+                return (d.source.x + d.target.x) / 2;
+            })
+            .attr("y", function(d) {
+                return (d.source.y + d.target.y) / 2;
+            });
+
+        // Remove labels
+        linkLabel.exit().transition()
+            .duration(duration)
+            .attr("x", source.x)
+            .attr("y", source.y)
+            .style("fill-opacity", 0)
+            .remove();
     }
 
     // Append a group which holds all nodes and which the zoom Listener can act upon.
