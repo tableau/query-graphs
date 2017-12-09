@@ -520,7 +520,7 @@ function drawQueryTree(treeData) {
     }
 
     // Helper function to retrieve all properties of the node object which should be rendered in the tooltip
-    var alwaysSuppressedKeys = ["properties", "parent", "properties", "symbol", "nodeClass", "edgeClass", "edgeLabel"];
+    var alwaysSuppressedKeys = ["name", "properties", "parent", "properties", "symbol", "nodeClass", "edgeClass", "edgeLabel"];
     var debugTooltipKeys = ["_children", "children", "_name", "depth", "id", "x", "x0", "y", "y0"];
     function getDirectProperties(d) {
         var props = {};

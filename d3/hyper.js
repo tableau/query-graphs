@@ -5,62 +5,46 @@ Hyper JSON Transformations
 
 The Hyper JSON representation renders verbosely as a D3 tree; therefore, perform the following transformations.
 
-Bulk Expressions
-----------------
-
-* Replace "plan", "input", "left", and "right" operator keys with the operator value and remove the operator key.
-
-Instance Expressions
---------------------
-
-* Convert "mode" with "attribute" and "value" keys (in same object) to mode with nested attribute and value keys.
-* Convert "mode" with "left" and "right" keys to mode with nested left and right *child* keys.
-* Convert "expression" with "left" and "right" keys to expression with nested left and right *child* keys.
-* Convert "expression" with a single "value" key to expression with the nested value key.
-
-Properties
-----------
-* Convert certain keys (see below) to a property list.
-
-Miscellaneous
--------------
-* Ignore (remove) "iuref" and "comparison" keys.
+Render a few pre-defined keys ("left", "right", "input" and a few others) always as direct input nodes.
+For most other nodes, decide based on their value: if it is of a plain type (string, number, ...), show it as part
+of the tooltip; otherwise show it as part of the tree.
+A short list of special-cased keys (e.g., "analyze") is always displayed as part of the tooltip.
+The label for a tree node is taken from the first defined property among "operator", "expression" and "mode".
 
 */
 
 var common = require('./common');
 
 // Convert Hyper JSON to a D3 tree
-function convertHyper(node, tag) {
-    var innerNode;
-    if (typeof (node) === "object" && !Array.isArray(node)) {
-        if (node === null) {
-            return {
-                tag: tag,
-                text: node
-            };
-        }
-
+function convertHyper(node, parentKey) {
+    if (common.toString(node) !== undefined) {
+        return {
+            text: common.toString(node)
+        };
+    } else if (typeof (node) === "object" && !Array.isArray(node)) {
         // "Object" nodes
         var children = [];
         var properties = {};
 
         // Take the first present tagKey as the new tag. Add all others as properties
         var tagKeys = ["operator", "expression", "mode"];
-        var tagOverride;
+        var tag;
         tagKeys.forEach(function(key) {
             if (!node.hasOwnProperty(key)) {
                 return;
             }
-            if (tagOverride === undefined) {
-                tagOverride = node[key];
+            if (tag === undefined) {
+                tag = node[key];
             } else {
-                properties[key] = node[key];
+                properties[key] = common.forceToString(node[key]);
             }
         });
+        if (tag === undefined) {
+            tag = parentKey;
+        }
 
         // Add the following keys as children
-        var childKeys = ["input", "left", "right", "attribute", "value"];
+        var childKeys = ["input", "left", "right", "arguments", "value", "valueForComparison"];
         childKeys.forEach(function(key) {
             if (!node.hasOwnProperty(key)) {
                 return;
@@ -97,12 +81,11 @@ function convertHyper(node, tag) {
             }
 
             // Display as part of the tree
-            innerNode = convertHyper(node[key], key);
-            if (Array.isArray(innerNode)) {
-                children = children.concat(innerNode);
-            } else {
-                children.push(innerNode);
+            var innerNodes = convertHyper(node[key], key);
+            if (!Array.isArray(innerNodes)) {
+                innerNodes = [innerNodes];
             }
+            children.push({tag: key, children: innerNodes});
             return;
         });
         // Display the cardinality on the links between the nodes
@@ -114,18 +97,12 @@ function convertHyper(node, tag) {
             children: children,
             edgeLabel: edgeLabel
         };
-        if (tagOverride !== undefined) {
-            convertedNode.tag = tagOverride;
-            if (node.operator === undefined) {
-                convertedNode = {tag: tag, children: [convertedNode]};
-            }
-        }
         return convertedNode;
     } else if (Array.isArray(node)) {
         // "Array" nodes
         var listOfObjects = [];
-        node.forEach(function(value, _index) {
-            innerNode = convertHyper(value, tag);
+        node.forEach(function(value, index) {
+            var innerNode = convertHyper(value, parentKey + "." + String(index));
             // objectify nested arrays
             if (Array.isArray(innerNode)) {
                 innerNode.forEach(function(value, _index) {
@@ -136,11 +113,6 @@ function convertHyper(node, tag) {
             }
         });
         return listOfObjects;
-    } else if (common.toString(node) !== undefined) {
-        return {
-            tag: tag,
-            text: common.toString(node)
-        };
     }
     console.warn("Convert to JSON case not implemented");
 }
@@ -178,28 +150,25 @@ function generateDisplayNames(treeData) {
                 node.symbol = "temp-table-symbol";
                 node.edgeClass = "link-and-arrow";
                 break;
-            case "expression":
-                node.name = node.text;
+            case "comparison":
+                node.name = node.properties.mode ? node.properties.mode : node.tag;
+                break;
+            case "iuref":
+                node.name = node.properties.iu ? node.properties.iu : node.tag;
                 break;
             case "attribute":
             case "condition":
             case "header":
             case "iu":
             case "name":
-            case "mode":
             case "operation":
             case "source":
             case "tableOid":
             case "tid":
             case "tupleFlags":
-            case "type":
             case "unique":
             case "unnormalizedNames":
-            case "value":
-            case "value2":
-            case "values":
             case "output":
-            case "distinctValues":
                 if (node.text) {
                     node.name = node.tag + ":" + node.text;
                 } else {
@@ -209,8 +178,10 @@ function generateDisplayNames(treeData) {
             default:
                 if (node.tag) {
                     node.name = node.tag;
+                } else if (node.text) {
+                    node.name = node.text;
                 } else {
-                    node.name = JSON.stringify(node);
+                    node.name = "";
                 }
                 break;
         }
