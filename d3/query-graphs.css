@@ -157,6 +157,18 @@ html, body {
   box-shadow: 2px 2px 2px #888;
 }
 
+.prop-name {
+  color: hsl(309, 84%, 36%);
+}
+
+.prop-name2 {
+  color: hsl(0, 0%, 50%);
+}
+
+.prop-value {
+  color: black;
+}
+
 .link {
   fill: none;
   stroke: #ccc;

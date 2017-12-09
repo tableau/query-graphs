@@ -508,46 +508,43 @@ function drawQueryTree(treeData) {
             return [ooo.x(d), ooo.y(d)];
         });
 
-    // Initialize tooltip
-    var alwaysSuppressedKeys = ["parent", "properties", "symbol", "nodeClass", "edgeClass"];
+    // Build a HTML list of properties to be displayed in a tooltip
+    function buildPropertyList(properties, cssClass) {
+        cssClass = cssClass === undefined ? "prop-name" : cssClass;
+        var html = "";
+        Object.getOwnPropertyNames(properties).forEach(function(key) {
+            html += "<span class='" + cssClass + "'>" + escapeHtml(key) + ": </span>";
+            html += "<span style='prop-value'>" + escapeHtml(properties[key]) + "</span><br />";
+        });
+        return html;
+    }
+
+    // Helper function to retrieve all properties of the node object which should be rendered in the tooltip
+    var alwaysSuppressedKeys = ["name", "properties", "parent", "properties", "symbol", "nodeClass", "edgeClass"];
     var debugTooltipKeys = ["_children", "children", "_name", "depth", "id", "x", "x0", "y", "y0"];
+    function getDirectProperties(d) {
+        var props = {};
+        Object.getOwnPropertyNames(d).forEach(function(key) {
+            if (alwaysSuppressedKeys.indexOf(key) >= 0) { // suppress some of the d3 data
+                return;
+            } else if (!DEBUG && debugTooltipKeys.indexOf(key) >= 0) {
+                return;
+            } else if (d[key]) { // only show non-empty data
+                props[key] = d[key];
+            }
+        });
+        return props;
+    }
+
+    // Initialize tooltip
     var tip = d3.tip()
         .attr('class', 'd3-tip')
         .offset([-10, 0])
         .html(function(d) {
-            var nameText = "";
-            var hoverText = "";
-            var propertiesText = "";
-            for (var key in d) {
-                // The display name will be in the top of the tooltip
-                if (key === "name") {
-                    nameText = "<span style='text-decoration: underline'>" + d[key] + "</span><br />";
-                } else if (key === "properties") { // display all of the "properties"
-                    var properties = d[key];
-                    for (var p in properties) {
-                        if ({}.hasOwnProperty.call(properties, p)) {
-                            propertiesText += "<span style='color: hsl(309, 84%, 36%)'>" + p + ": </span>";
-                            propertiesText += "<span style='color: black'>" + properties[p] + "</span><br />";
-                        }
-                    }
-                } else if (alwaysSuppressedKeys.indexOf(key) >= 0) { // suppress some of the d3 data
-                    continue;
-                } else if (!DEBUG && debugTooltipKeys.indexOf(key) >= 0) {
-                    continue;
-                } else if (d[key]) { // only show non-empty data
-                    // Trim the data if it comes from a text property
-                    if (key === "text") {
-                        d[key] = d[key].trim();
-                        // If it becomes an empty string, don't display it
-                        if (!d[key]) {
-                            continue;
-                        }
-                    }
-                    hoverText += "<span style='color: hsl(0, 0%, 50%)'>" + key + ": </span>";
-                    hoverText += "<span style='color: black'>" + d[key] + "</span><br />";
-                }
-            }
-            return nameText + hoverText + propertiesText;
+            var nameText = "<span style='text-decoration: underline'>" + escapeHtml(d.name) + "</span><br />";
+            var directPropsText = buildPropertyList(getDirectProperties(d), "props2-name");
+            var propertiesText = d.hasOwnProperty("properties") ? buildPropertyList(d.properties) : "";
+            return nameText + directPropsText + propertiesText;
         });
 
     // Define the zoom function for the zoomable tree
@@ -659,11 +656,18 @@ function drawQueryTree(treeData) {
             });
 
         // Change the symbol style class depending on whether it has children and is collapsed
-        node.call(tip); // invoke tooltip
         node.select("use")
             .attr("class", function(d) {
                 return collapsed(d) ? "collapsed" : "expanded";
+            });
+
+        // Add tooltips
+        node.filter(function(d) {
+                return Object.getOwnPropertyNames(getDirectProperties(d)).length ||
+                       (d.hasOwnProperty("properties") && Object.getOwnPropertyNames(d.properties).length);
             })
+            .call(tip) // invoke tooltip
+            .select("use")
             .on('mouseover', tip.show)
             .on('mouseout', tip.hide);
 
@@ -806,12 +810,8 @@ function drawQueryTree(treeData) {
     // Add metrics card
     var treeText = "";
     var properties = treeData.properties ? treeData.properties : {};
-    Object.getOwnPropertyNames(properties).forEach(function(key) {
-        treeText += "<span style='color: hsl(309, 84%, 36%)'>" + escapeHtml(key) + ": </span>";
-        treeText += "<span style='color: black'>" + escapeHtml(properties[key]) + "</span><br />";
-    });
-    treeText += "<span style='color: hsl(309, 84%, 36%)'>nodes: </span>";
-    treeText += "<span style='color: black'>" + totalNodes + "</span><br />";
+    treeText += buildPropertyList(properties);
+    treeText += buildPropertyList({nodes: totalNodes});
     $("#tree-label").html(treeText);
 }
 
