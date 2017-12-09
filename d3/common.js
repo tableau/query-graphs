@@ -89,6 +89,17 @@ function forceToString(d) {
     return str;
 }
 
+// Format a number using metric suffixes
+function formatMetric(x) {
+    var sizes = ["", "k", "M", "G", "T", "E", "P"];
+    var idx = 0;
+    while (x > 1000 && idx < sizes.length) {
+        x /= 1000;
+        ++idx;
+    }
+    return x.toFixed(0) + sizes[idx];
+}
+
 exports.visit = visit;
 exports.allChildren = allChildren;
 exports.createParentLinks = createParentLinks;
@@ -96,3 +107,4 @@ exports.collapseChildren = collapseChildren;
 exports.streamline = streamline;
 exports.toString = toString;
 exports.forceToString = forceToString;
+exports.formatMetric = formatMetric;

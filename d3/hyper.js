@@ -105,11 +105,14 @@ function convertHyper(node, tag) {
             }
             return;
         });
+        // Display the cardinality on the links between the nodes
+        var edgeLabel = node.hasOwnProperty("cardinality") ? common.formatMetric(node.cardinality) : undefined;
         // Build the converted node
         var convertedNode = {
             tag: tag,
             properties: properties,
-            children: children
+            children: children,
+            edgeLabel: edgeLabel
         };
         if (tagOverride !== undefined) {
             convertedNode.tag = tagOverride;
