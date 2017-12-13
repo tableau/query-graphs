@@ -4,6 +4,7 @@ var http = require('http');
 console.log('http.globalAgent.maxSockets = %d', http.globalAgent.maxSockets);
 
 var crypto = require('crypto');
+var compression = require('compression')
 var bodyParser = require('body-parser');
 var multer = require('multer');
 var fs = require('fs');
@@ -13,6 +14,19 @@ var app = express();
 var UPLOAD_DIR = "media/uploads/";
 var FAVORITES_DIR = "media/favorites/";
 var KEEP_FILES = 50;
+
+app.use(compression())
+app.use(bodyParser.urlencoded({extended: false, limit: "2mb"}));
+
+app.get("/", function(req, res) {
+    res.redirect("d3/upload-form.html");
+    res.end();
+});
+
+app.use("/d3", express.static("d3"));
+app.use("/media", express.static("media"));
+app.use("/node_modules", express.static("node_modules"));
+app.use("/result-table", express.static("result-table"));
 
 function generateRandomFilename(extname) {
     // 4 bytes for strings of length 8
@@ -34,17 +48,6 @@ var upload = multer({
         fileSize: 1024 * 20000 // 20MB
     }
 });
-
-app.get("/", function(req, res) {
-    res.redirect("d3/upload-form.html");
-    res.end();
-});
-
-app.use("/d3", express.static("d3"));
-app.use("/media", express.static("media"));
-app.use("/node_modules", express.static("node_modules"));
-app.use("/result-table", express.static("result-table"));
-app.use(bodyParser.urlencoded({extended: false, limit: "2mb"}));
 
 function deleteOldFiles() {
     fs.readdir(UPLOAD_DIR, function(err, files) {
