@@ -10,7 +10,6 @@ Query Graphs is an investigation into graph visualization for query processing, 
 query evaluation plans. The project tag line is "Helping people see and understand queries."
 The technology stack for query visualization consists of
 **browserify**, 
-**jquery.js**,
 **d3.js**,
 **d3-tip.js**, 
 **http-server**, and
