@@ -12,7 +12,7 @@ already provides us the structure of the rendered tree.
 // Require node modules
 var common = require('./common');
 var colors = require('./colors');
-var xml2js = require('xml2js');
+var xmlParser = require('xml2js/lib/parser').Parser;
 
 // Convert JSON as returned by xml2js parser to d3 tree format
 function convertJSON(node) {
@@ -429,7 +429,7 @@ function prepareTreeData(treeData, graphCollapse) {
 
 function loadTableauPlan(graphString, graphCollapse) {
     var result;
-    var parser = new xml2js.Parser({
+    var parser = new xmlParser({
         explicitRoot: false,
         explicitChildren: true,
         preserveChildrenOrder: true,
