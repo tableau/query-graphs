@@ -502,10 +502,13 @@ function drawQueryTree(treeData) {
         .size(ooo.size);
 
     // Define a d3 diagonal projection for use by the node paths later on.
-    var diagonalRaw = d3.svg.diagonal();
-    var diagonal = d3.svg.diagonal()
-        .projection(function(d) {
-            return [ooo.x(d), ooo.y(d)];
+    var diagonal = d3.svg.diagonal();
+    var diagonalSingularity = d3.svg.diagonal()
+        .source(function(d) {
+            return d;
+        })
+        .target(function(d) {
+            return d;
         });
 
     // Build a HTML list of properties to be displayed in a tooltip
@@ -604,6 +607,12 @@ function drawQueryTree(treeData) {
         // Compute the new tree layout.
         var nodes = tree.nodes(root).reverse();
         var links = tree.links(nodes);
+        nodes.forEach(function(d) {
+            var newX = ooo.x(d);
+            var newY = ooo.y(d);
+            d.x = newX;
+            d.y = newY;
+        });
 
         // Update the nodes…
         var node = svgGroup.selectAll("g.node")
@@ -675,7 +684,7 @@ function drawQueryTree(treeData) {
         var nodeUpdate = node.transition()
             .duration(duration)
             .attr("transform", function(d) {
-                return "translate(" + ooo.x(d) + "," + ooo.y(d) + ")";
+                return "translate(" + d.x + "," + d.y + ")";
             });
 
         // Fade the text in
@@ -686,7 +695,7 @@ function drawQueryTree(treeData) {
         var nodeExit = node.exit().transition()
             .duration(duration)
             .attr("transform", function(_d) {
-                return "translate(" + ooo.x(source) + "," + ooo.y(source) + ")";
+                return "translate(" + source.x + "," + source.y + ")";
             })
             .remove();
 
@@ -715,10 +724,7 @@ function drawQueryTree(treeData) {
                     x: source.x0,
                     y: source.y0
                 };
-                return diagonalRaw({
-                    source: o,
-                    target: o
-                });
+                return diagonalSingularity(o);
             });
 
         // Transition links to their new position.
@@ -734,18 +740,9 @@ function drawQueryTree(treeData) {
                     x: source.x,
                     y: source.y
                 };
-                return diagonal({
-                    source: o,
-                    target: o
-                });
+                return diagonalSingularity(o);
             })
             .remove();
-
-        // Stash the old positions for transition.
-        nodes.forEach(function(d) {
-            d.x0 = ooo.x(d);
-            d.y0 = ooo.y(d);
-        });
 
         // Select the link labels
         var linksWithLabels = links.filter(function(d) {
@@ -785,6 +782,12 @@ function drawQueryTree(treeData) {
             .attr("y", source.y)
             .style("fill-opacity", 0)
             .remove();
+
+        // Stash the old positions for transition.
+        nodes.forEach(function(d) {
+            d.x0 = d.x;
+            d.y0 = d.y;
+        });
     }
 
     // Append a group which holds all nodes and which the zoom Listener can act upon.
