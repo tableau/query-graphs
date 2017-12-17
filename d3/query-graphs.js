@@ -117,7 +117,7 @@ var delay = (function() {
     };
 })();
 
-window.addEventListener("resize",function() {
+window.addEventListener("resize", function() {
     delay(function() {
         console.log("resize!");
         // Adjust the view box
@@ -851,7 +851,7 @@ function drawQueryTree(treeData) {
     var properties = treeData.properties ? treeData.properties : {};
     treeText += buildPropertyList(properties);
     treeText += buildPropertyList({nodes: totalNodes});
-    document.getElementById("tree-label").innerHTML=treeText;
+    document.getElementById("tree-label").innerHTML = treeText;
 }
 
 //

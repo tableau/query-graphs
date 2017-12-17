@@ -4,7 +4,7 @@ var http = require('http');
 console.log('http.globalAgent.maxSockets = %d', http.globalAgent.maxSockets);
 
 var crypto = require('crypto');
-var compression = require('compression')
+var compression = require('compression');
 var bodyParser = require('body-parser');
 var multer = require('multer');
 var fs = require('fs');
@@ -15,7 +15,7 @@ var UPLOAD_DIR = "media/uploads/";
 var FAVORITES_DIR = "media/favorites/";
 var KEEP_FILES = 50;
 
-app.use(compression())
+app.use(compression());
 app.use(bodyParser.urlencoded({extended: false, limit: "2mb"}));
 
 app.get("/", function(req, res) {
