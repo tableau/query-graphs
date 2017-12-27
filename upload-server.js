@@ -9,6 +9,7 @@ var bodyParser = require('body-parser');
 var multer = require('multer');
 var fs = require('fs');
 var path = require('path');
+var readdirrec = require('recursive-readdir');
 var app = express();
 
 var UPLOAD_DIR = "media/uploads/";
@@ -127,16 +128,33 @@ function escapeHtml(unsafe) {
 }
 
 app.get("/favorites", function(req, res) {
-    fs.readdir(FAVORITES_DIR, function(err, files) {
+    readdirrec(FAVORITES_DIR, function(err, files) {
         res.setHeader('Content-Type', 'text/html');
         if (err) {
             console.log(err);
             res.send(err);
             return;
         }
+        files.sort();
         var html = "<html><head><title>Favorites</title></head><body><h1>Favorites</h1><ul>";
-        files.forEach(function(f) {
-            html += "<li><a href='d3/query-graphs.html?file=" + encodeURIComponent(f) + "'>" + escapeHtml(f) + "</a></li>";
+        var lastPath = [];
+        files.forEach(function(name) {
+            var relName = path.relative(FAVORITES_DIR, name);
+            var relPath = relName.split(path.sep);
+            var fileName = relPath.pop();
+            var commonLen = 0;
+            while (commonLen < Math.min(lastPath.length, relPath.length) && relPath[commonLen] === lastPath[commonLen]) {
+                ++commonLen;
+            }
+            for (var i = lastPath.length; i > commonLen; --i) {
+                html += "</ul></li>";
+            }
+            for (var j = commonLen; j < relPath.length; ++j) {
+                html += "<li>" + escapeHtml(relPath[j]) + "<ul>";
+            }
+            html += "<li><a href='d3/query-graphs.html?file=" +
+                    encodeURIComponent(relName) + "'>" + escapeHtml(fileName) + "</a></li>";
+            lastPath = relPath;
         });
         html += "</ul></body></html>";
         res.send(html);

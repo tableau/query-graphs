@@ -61,11 +61,11 @@ Example Visualizations
 
 Open an examplar query html file at 
 * <http://localhost:3000/d3/query-graphs.html>, 
-* <http://localhost:3000/d3/query-graphs.html?file=joins.xml>,
-* <http://localhost:3000/d3/query-graphs.html?file=query-function.xml&collapse=n>,
-* <http://localhost:3000/d3/query-graphs.html?file=dint4.xml>,
-* <http://localhost:3000/d3/query-graphs.html?file=hyper-query2.json>, or
-* <http://localhost:3000/d3/query-graphs.html?file=hyper-steps2.json&orientation=left-to-right>,
+* <http://localhost:3000/d3/query-graphs.html?file=tableau/joins.xml>,
+* <http://localhost:3000/d3/query-graphs.html?file=tableau/query-function.xml&collapse=n>,
+* <http://localhost:3000/d3/query-graphs.html?file=tableau/dint4.xml>,
+* <http://localhost:3000/d3/query-graphs.html?file=hyper/query2.json>, or
+* <http://localhost:3000/d3/query-graphs.html?file=hyper/steps2.json&orientation=left-to-right>,
 
 Open the upload form at 
 <http://localhost:3000/d3/upload-form.html>.
