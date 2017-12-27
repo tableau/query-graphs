@@ -21,6 +21,7 @@ var Spinner = require('spin');
 d3tip(d3);
 
 // Get query parameters from current url
+var paramErrors = [];
 var currentSearch = window.location.search;
 currentSearch = currentSearch.substring(1);
 
@@ -60,7 +61,7 @@ if (queryObject.inline) {
 // Get file format
 var fileFormat = queryObject.format;
 if (fileFormat !== undefined && !knownLoaders.hasOwnProperty(fileFormat)) {
-    document.write("File format '" + fileFormat + "' not supported.");
+    paramErrors.push("File format '" + fileFormat + "' not supported.");
 }
 
 // Get orientation name
@@ -72,7 +73,7 @@ switch (graphOrientation) {
     case "left-to-right":
         break;
     default:
-        document.write("Graph orientation '" + graphOrientation + "' not supported.");
+        paramErrors.push("Graph orientation '" + graphOrientation + "' not supported.");
         break;
 }
 
@@ -84,20 +85,18 @@ switch (graphCollapse) {
     case "s":
         break;
     default:
-        document.write("Graph collapse '" + graphCollapse + "' not supported.");
+        paramErrors.push("Graph collapse '" + graphCollapse + "' not supported.");
         break;
 }
 
 // Get properties to be rendered in the toplevel info card
-var toplevelProperties;
+var toplevelProperties = {};
 if (queryObject.properties) {
     try {
         toplevelProperties = JSON.parse(queryObject.properties);
     } catch (err) {
-        document.write("JSON parse failed with '" + err + "'.");
+        paramErrors.push("invalid `properties`: JSON parse failed with '" + err + "'.");
     }
-} else {
-    toplevelProperties = {};
 }
 
 // Add the file name to the displayed properties
@@ -106,7 +105,6 @@ if (!inlineString) {
 }
 
 var MAX_DISPLAY_LENGTH = 15;
-var svgGroup;
 
 // Resize event
 var delay = (function() {
@@ -129,8 +127,7 @@ window.addEventListener("resize", function() {
     }, 500);
 });
 
-var target = document.getElementById('tree-container');
-var spinner = new Spinner().spin(target);
+var spinner = new Spinner().spin(document.body);
 
 //
 // Create the symbols
@@ -345,7 +342,8 @@ function escapeHtml(unsafe) {
 //   * children: an array containing all currently visible child nodes
 //   * _children: an array containing all child nodes, including hidden nodes
 //   * <most other>: displayed as part of the tooltip
-function drawQueryTree(treeData) {
+function drawQueryTree(target, treeData) {
+    var svgGroup;
     var root = treeData.root;
     // Call visit function to establish maxLabelLength
     var totalNodes = 0;
@@ -556,7 +554,7 @@ function drawQueryTree(treeData) {
     var zoomListener = d3.behavior.zoom().scaleExtent([0.1, 5]).on("zoom", zoom);
 
     // Define the baseSvg, attaching a class for styling and the zoomListener
-    var baseSvg = d3.select("#tree-container").append("svg")
+    var baseSvg = d3.select(target).append("svg")
         .attr("viewBox", "0 0 " + viewerWidth + " " + viewerHeight)
         .attr("height", viewerHeight)
         .attr("class", "overlay")
@@ -851,7 +849,7 @@ function drawQueryTree(treeData) {
     var properties = treeData.properties ? treeData.properties : {};
     treeText += buildPropertyList(properties);
     treeText += buildPropertyList({nodes: totalNodes});
-    document.getElementById("tree-label").innerHTML = treeText;
+    d3.select(target).append("div").classed("tree-label", true).html(treeText);
 }
 
 //
@@ -868,54 +866,65 @@ function retrieveData(callback) {
 //
 // Kick it off
 //
-retrieveData(function(err, graphString) {
-    if (err) {
-        document.write("Request for '" + directory + graphFile + "' failed with '" + err + "'.");
-        return;
-    }
-
-    // Remove explicit newlines
-    graphString = graphString.replace(/\\n/gm, " ");
-    // Detect file type
-    var loaders;
-    if (fileFormat !== undefined) {
-        loaders = [knownLoaders[fileFormat]];
-    } else if (path.extname(graphFile) === '.json') {
-        loaders = [knownLoaders.hyper, knownLoaders.json];
-    } else if (path.extname(graphFile) === '.xml') {
-        loaders = [knownLoaders.tableau, knownLoaders.xml];
-    } else if (path.extname(graphFile) === '.twb') {
-        loaders = [knownLoaders.xml];
-    } else {
-        loaders = [knownLoaders.tableau, knownLoaders.hyper, knownLoaders.xml, knownLoaders.json];
-    }
-
-    // Try to load the data with the available loaders
-    var errors = [];
-    var loadedTree = null;
-    function tryLoad(loader) {
-        var result = loader(graphString, graphCollapse);
-        if ("error" in result) {
-            errors.push(result.error);
-            return false;
+if (paramErrors.length) {
+    spinner.stop();
+    document.write("invalid parameters!<br>");
+    document.write(paramErrors.reduce(function(a, b) {
+        return a + "<br/>" + b;
+    }));
+} else {
+    retrieveData(function(err, graphString) {
+        if (err) {
+            document.write("Request for '" + directory + graphFile + "' failed with '" + err + "'.");
+            return;
         }
-        loadedTree = result;
-        return true;
-    }
-    if (loaders.some(tryLoad)) {
-        abbreviateNames(loadedTree.root);
-        if (loadedTree.properties === undefined) {
-            loadedTree.properties = {};
+
+        // Remove explicit newlines
+        graphString = graphString.replace(/\\n/gm, " ");
+        // Detect file type
+        var loaders;
+        if (fileFormat !== undefined) {
+            loaders = [knownLoaders[fileFormat]];
+        } else if (path.extname(graphFile) === '.json') {
+            loaders = [knownLoaders.hyper, knownLoaders.json];
+        } else if (path.extname(graphFile) === '.xml') {
+            loaders = [knownLoaders.tableau, knownLoaders.xml];
+        } else if (path.extname(graphFile) === '.twb') {
+            loaders = [knownLoaders.xml];
+        } else {
+            loaders = [knownLoaders.tableau, knownLoaders.hyper, knownLoaders.xml, knownLoaders.json];
         }
-        Object.getOwnPropertyNames(toplevelProperties).forEach(function(key) {
-            loadedTree.properties[key] = toplevelProperties[key];
-        });
-        spinner.stop();
-        drawQueryTree(loadedTree);
-    } else {
-        spinner.stop();
-        document.write(errors.reduce(function(a, b) {
-            return a + "<br/>" + b;
-        }));
-    }
-});
+
+        // Try to load the data with the available loaders
+        var errors = [];
+        var loadedTree = null;
+        function tryLoad(loader) {
+            var result = loader(graphString, graphCollapse);
+            if ("error" in result) {
+                errors.push(result.error);
+                return false;
+            }
+            loadedTree = result;
+            return true;
+        }
+        if (loaders.some(tryLoad)) {
+            abbreviateNames(loadedTree.root);
+            if (loadedTree.properties === undefined) {
+                loadedTree.properties = {};
+            }
+            Object.getOwnPropertyNames(toplevelProperties).forEach(function(key) {
+                loadedTree.properties[key] = toplevelProperties[key];
+            });
+            spinner.stop();
+            var treeContainer = document.createElement('div');
+            treeContainer.className = "tree-container";
+            document.body.appendChild(treeContainer);
+            drawQueryTree(treeContainer, loadedTree);
+        } else {
+            spinner.stop();
+            document.write(errors.reduce(function(a, b) {
+                return a + "<br/>" + b;
+            }));
+        }
+    });
+}
