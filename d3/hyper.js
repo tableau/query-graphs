@@ -23,7 +23,8 @@ function convertHyper(node, parentKey) {
         };
     } else if (typeof (node) === "object" && !Array.isArray(node)) {
         // "Object" nodes
-        var children = [];
+        var explicitChildren = [];
+        var additionalChildren = [];
         var properties = {};
 
         // Take the first present tagKey as the new tag. Add all others as properties
@@ -51,9 +52,9 @@ function convertHyper(node, parentKey) {
             }
             var child = convertHyper(node[key], key);
             if (Array.isArray(child)) {
-                children = children.concat(child);
+                explicitChildren = explicitChildren.concat(child);
             } else {
-                children.push(child);
+                explicitChildren.push(child);
             }
         });
 
@@ -85,16 +86,35 @@ function convertHyper(node, parentKey) {
             if (!Array.isArray(innerNodes)) {
                 innerNodes = [innerNodes];
             }
-            children.push({tag: key, children: innerNodes});
+            additionalChildren.push({tag: key, children: innerNodes});
             return;
         });
         // Display the cardinality on the links between the nodes
         var edgeLabel = node.hasOwnProperty("cardinality") ? common.formatMetric(node.cardinality) : undefined;
+        // Collapse nodes as appropriate
+        var children;
+        var _children;
+        if (node.hasOwnProperty("plan")) {
+            // The top-level plan element needs special attention: we want to hide the `header` by default
+            _children = explicitChildren.concat(additionalChildren);
+            var planIdx = _children.findIndex(function(n) {
+                return n.tag === "plan";
+            });
+            children = [_children[planIdx]];
+        } else if (node.hasOwnProperty("operator")) {
+            // For operators, the additionalChildren are collapsed by default
+            children = explicitChildren;
+            _children = explicitChildren.concat(additionalChildren);
+        } else {
+            // Everything else (usually expressions): display uncollapsed
+            children = explicitChildren.concat(additionalChildren);
+        }
         // Build the converted node
         var convertedNode = {
             tag: tag,
             properties: properties,
             children: children,
+            _children: _children,
             edgeLabel: edgeLabel
         };
         return convertedNode;
@@ -185,65 +205,33 @@ function generateDisplayNames(treeData) {
                 }
                 break;
         }
-    }, function(n) {
-        return n.children;
-    });
-}
-
-function collapseNodes(treeData, graphCollapse) {
-    var streamline = graphCollapse === "s" ? common.streamline : common.collapseChildren;
-    var collapseChildren = common.collapseChildren;
-    if (graphCollapse !== 'n') {
-        common.visit(treeData, function(d) {
-            switch (d.tag) {
-                case 'aggregates':
-                case 'builder':
-                case 'cardinality':
-                case 'condition':
-                case 'criterion':
-                case 'from':
-                case 'header':
-                case 'output':
-                case 'residuals':
-                case 'restrictions':
-                case 'segment':
-                case 'schema':
-                case 'tid':
-                case 'values':
-                    streamline(d);
-                    return;
-                case "tablescan":
-                case "cursorscan":
-                case "tdescan":
-                case "tableconstruction":
-                case "virtualtable":
-                    collapseChildren(d);
-                    return;
-                default:
-                    break;
-            }
-        }, function(d) {
-            return d.children && d.children.length > 0 ? d.children.slice(0) : null;
-        });
-    }
+    }, common.allChildren);
 }
 
 // Loads a Hyper query plan
 function loadHyperPlan(graphString, graphCollapse) {
+    // Parse the plan as JSON
     var json;
     try {
         json = JSON.parse(graphString);
     } catch (err) {
         return {error: "JSON parse failed with '" + err + "'."};
     }
+    // Extract top-level meta data
     var properties = {};
     if (json.hasOwnProperty("plan") && json.plan.hasOwnProperty("header")) {
         properties.columns = json.plan.header.length / 2;
     }
+    // Load the graph with the nodes collapsed in an automatic way
     var root = convertHyper(json, "result");
     generateDisplayNames(root);
     common.createParentLinks(root);
-    collapseNodes(root, graphCollapse);
+    // Adjust the graph so it is collapsed as requested by the user
+    if (graphCollapse == 'y') {
+       common.visit(root, common.collapseAllChildren, common.allChildren);
+    } else if (graphCollapse == 'n') {
+       common.visit(root, common.expandAllChildren, common.allChildren);
+    }
     return {root: root, properties: properties};
 }
 
