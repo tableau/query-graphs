@@ -39,17 +39,22 @@ function createParentLinks(tree) {
 }
 
 // Collapse all children regardless of the current state
-function collapseChildren(d) {
-    var children = (d.children) ? d.children : null;
-    var _children = (d._children) ? d._children : null;
-    // all original children are in _children or none are
-    if (_children === null || _children.length === 0) {
-        d._children = children;
-    }
-    d.children = null;
+function collapseAllChildren(d) {
+    var children = (d.children) ? d.children : [];
+    var _children = (d._children) ? d._children : [];
+    d.children = null
+    d._children = children.length > _children.length ? children : _children;
     return d;
 }
 
+// Expand all children regardless of the current state
+function expandAllChildren(d) {
+    var children = (d.children) ? d.children : [];
+    var _children = (d._children) ? d._children : [];
+    d.children = children.length > _children.length ? children : _children;
+    d._children = null;
+    return d;
+}
 // Collapse the given node in its parent node
 // Requires parent links to be present (e.g., created by `createParentLinks`)
 function streamline(d) {
@@ -103,7 +108,8 @@ function formatMetric(x) {
 exports.visit = visit;
 exports.allChildren = allChildren;
 exports.createParentLinks = createParentLinks;
-exports.collapseChildren = collapseChildren;
+exports.collapseAllChildren = collapseAllChildren;
+exports.expandAllChildren = expandAllChildren;
 exports.streamline = streamline;
 exports.toString = toString;
 exports.forceToString = forceToString;

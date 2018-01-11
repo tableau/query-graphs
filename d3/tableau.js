@@ -365,8 +365,8 @@ function assignSymbolsAndClasses(treeData) {
 }
 
 function collapseNodes(treeData, graphCollapse) {
-    var streamline = graphCollapse === "s" ? common.streamline : common.collapseChildren;
-    var collapseChildren = common.collapseChildren;
+    var streamline = graphCollapse === "s" ? common.streamline : common.collapseAllChildren;
+    var collapseAllChildren = common.collapseAllChildren;
     if (graphCollapse !== 'n') {
         common.visit(treeData, function(d) {
             if (d.name) {
@@ -400,7 +400,7 @@ function collapseNodes(treeData, graphCollapse) {
             if (d.class) {
                 switch (d.class) {
                     case 'relation':
-                        collapseChildren(d);
+                        collapseAllChildren(d);
                         return;
                     default:
                         break;

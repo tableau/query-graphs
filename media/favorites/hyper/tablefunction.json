@@ -1,0 +1,18 @@
+{
+  "plan": {
+    "operator": "tablefunction",
+    "operatorId": 1,
+    "cardinality": 10,
+    "input": {
+      "operator": "tableconstruction",
+      "operatorId": 2,
+      "cardinality": 1,
+      "output": [],
+      "values": [[]]
+    },
+    "function": "sequence",
+    "args": [{"expression": "const", "value": {"type": ["Integer"], "value": 1}}, {"expression": "const", "value": {"type": ["Integer"], "value": 10}}],
+    "ius": [["v", ["Integer"]]]
+  },
+  "header": ["generate_series", "v"]
+}
