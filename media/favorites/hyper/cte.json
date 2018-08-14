@@ -1,0 +1,36 @@
+{
+  "query": "WITH t1 AS (VALUES(1),(2),(3)) SELECT * FROM t1 ta,t1 tb",
+  "plan": {
+    "operator": "join",
+    "operatorId": 1,
+    "cardinality": 9,
+    "method": "bnl",
+    "left": {
+      "operator": "explicitscan",
+      "operatorId": 2,
+      "cardinality": 3,
+      "output": [{"source": ["v", ["Integer"]], "target": ["v2", ["Integer"]]}],
+      "source": {
+        "operator": "temp",
+        "operatorId": 3,
+        "cardinality": 3,
+        "input": {
+          "operator": "tableconstruction",
+          "operatorId": 4,
+          "cardinality": 3,
+          "output": [["v", ["Integer"]]],
+          "values": [[{"expression": "const", "value": {"type": ["Integer"], "value": 1}}], [{"expression": "const", "value": {"type": ["Integer"], "value": 2}}], [{"expression": "const", "value": {"type": ["Integer"], "value": 3}}]]
+        }
+      }
+    },
+    "right": {
+      "operator": "explicitscan",
+      "operatorId": 5,
+      "cardinality": 3,
+      "output": [{"source": "v", "target": ["v3", ["Integer"]]}],
+      "source": 3
+    },
+    "condition": {"expression": "const", "value": {"type": ["Bool"], "value": true}}
+  },
+  "header": ["1", "v3", "1", "v2"]
+}
