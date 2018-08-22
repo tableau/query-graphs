@@ -42,7 +42,7 @@ function createParentLinks(tree) {
 function collapseAllChildren(d) {
     var children = (d.children) ? d.children : [];
     var _children = (d._children) ? d._children : [];
-    d.children = null
+    d.children = null;
     d._children = children.length > _children.length ? children : _children;
     return d;
 }

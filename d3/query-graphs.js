@@ -297,9 +297,8 @@ function defineSymbols(baseSvg, ooo) {
       .attr("height", tableRowHeight);
     tempTableGroup.append("text")
       .attr("class", "table-text")
-      .attr("y", 4)
-      .attr("font-size", "8px")
-      .text("TMP");
+      .attr("y", tableRowHeight + 0.8/* stroke-width */ / 2)
+      .text("tmp");
 }
 
 //
@@ -328,8 +327,9 @@ function escapeHtml(unsafe) {
 //
 // Draw query tree
 //
-// The treedata is an object with the following properties:
+// The treeData is an object with the following properties:
 //   * root: the root node; its format is described below
+//   * crosslinks: additional links between indirectly related nodes
 //   * properties: displayed in the top-level tree label
 //
 // Each root node has the following properies:
@@ -345,6 +345,8 @@ function escapeHtml(unsafe) {
 function drawQueryTree(target, treeData) {
     var svgGroup;
     var root = treeData.root;
+    var crosslinks = treeData.crosslinks;
+
     // Call visit function to establish maxLabelLength
     var totalNodes = 0;
     var maxLabelLength = 0;
@@ -365,6 +367,9 @@ function drawQueryTree(target, treeData) {
     // Size of the diagram
     var viewerWidth = window.innerWidth;
     var viewerHeight = window.innerHeight;
+
+    // Crosslink spacing to preserve source and target directionality
+    var crosslinkRawSpacing = {direction: 11.2 * 2, offset: 11.2 * 2};
 
     // Orientation mapping
     var orientations = {
@@ -397,6 +402,12 @@ function drawQueryTree(target, treeData) {
             rooty: function(_scale) {
                 return 100;
             },
+            sourcecrosslink: function(d) {
+                return {x: d.source.x - crosslinkRawSpacing.offset, y: d.source.y + crosslinkRawSpacing.direction};
+            },
+            targetcrosslink: function(d) {
+                return {x: d.target.x + crosslinkRawSpacing.offset, y: d.target.y - crosslinkRawSpacing.direction};
+            },
             arrowRotation: "270deg"
         },
         "right-to-left": {
@@ -427,6 +438,12 @@ function drawQueryTree(target, treeData) {
             },
             rooty: function(scale) {
                 return -root.y0 * scale + viewerHeight / 2;
+            },
+            sourcecrosslink: function(d) {
+                return {x: d.source.x - crosslinkRawSpacing.direction, y: d.source.y - crosslinkRawSpacing.offset};
+            },
+            targetcrosslink: function(d) {
+                return {x: d.target.x + crosslinkRawSpacing.direction, y: d.target.y + crosslinkRawSpacing.offset};
             },
             arrowRotation: "0deg"
         },
@@ -459,6 +476,12 @@ function drawQueryTree(target, treeData) {
             rooty: function(scale) {
                 return -root.y0 * scale + viewerHeight - 50;
             },
+            sourcecrosslink: function(d) {
+                return {x: d.source.x - crosslinkRawSpacing.offset, y: d.source.y - crosslinkRawSpacing.direction};
+            },
+            targetcrosslink: function(d) {
+                return {x: d.target.x + crosslinkRawSpacing.offset, y: d.target.y + crosslinkRawSpacing.direction};
+            },
             arrowRotation: "90deg"
         },
         "left-to-right": {
@@ -489,6 +512,12 @@ function drawQueryTree(target, treeData) {
             },
             rooty: function(scale) {
                 return -root.y0 * scale + viewerHeight / 2;
+            },
+            sourcecrosslink: function(d) {
+                return {x: d.source.x + crosslinkRawSpacing.direction, y: d.source.y - crosslinkRawSpacing.offset};
+            },
+            targetcrosslink: function(d) {
+                return {x: d.target.x - crosslinkRawSpacing.direction, y: d.target.y + crosslinkRawSpacing.offset};
             },
             arrowRotation: "180deg"
         }
@@ -540,7 +569,7 @@ function drawQueryTree(target, treeData) {
         .offset([-10, 0])
         .html(function(d) {
             var nameText = "<span style='text-decoration: underline'>" + escapeHtml(d.name) + "</span><br />";
-            var directPropsText = buildPropertyList(getDirectProperties(d), "props2-name");
+            var directPropsText = buildPropertyList(getDirectProperties(d), "prop-name2");
             var propertiesText = d.hasOwnProperty("properties") ? buildPropertyList(d.properties) : "";
             return nameText + directPropsText + propertiesText;
         });
@@ -591,6 +620,73 @@ function drawQueryTree(target, treeData) {
         d = toggleChildren(d);
         update(d);
     }
+
+    // Dash tween to make the highlighted edges animate from start node to end node
+    var tweenDash = function() {
+        var l = this.getTotalLength();
+        var i = d3.interpolateString("0," + l, l + "," + l);
+        return function(t) {
+            return i(t);
+        };
+    };
+
+    // Curve crosslink path appropriate for source and target node directionality
+    var diagonalRawCrosslink = function(d) {
+        var points = [];
+        points.push({x: d.source.x, y: d.source.y});
+        points.push(ooo.sourcecrosslink(d));
+        points.push(ooo.targetcrosslink(d));
+        points.push({x: d.target.x, y: d.target.y});
+        var path = "M" + points[0].x + "," + points[0].y;
+        var i;
+        for (i = 1; i < points.length - 2; i++) {
+            var xc = (points[i].x + points[i + 1].x) / 2;
+            var yc = (points[i].y + points[i + 1].y) / 2;
+            path += "Q" + points[i].x + "," + points[i].y + " " + xc + "," + yc;
+        }
+        path += "Q" + points[i].x + "," + points[i].y + " " + points[i + 1].x + "," + points[i + 1].y;
+        return path;
+    };
+
+    // Transition used to highlight edges on mouseover
+    var edgeTransitionIn = function(path) {
+        path.transition()
+            .duration(DEBUG ? duration : 0)
+            .attr("opacity", 1)
+            .attrTween("stroke-dasharray", tweenDash)
+            .attr("d", function(d) {
+                return diagonalRawCrosslink({
+                    source: {x: d.source.x0, y: d.source.y0},
+                    target: {x: d.target.x0, y: d.target.y0}
+                });
+            });
+    };
+
+    // Transition to unhighlight edges on mouseout
+    var edgeTransitionOut = function(path) {
+        path.transition()
+            .duration(DEBUG ? duration : 0)
+            .attr("opacity", 0)
+            .attr("d", function(d) {
+                return diagonalRawCrosslink({
+                    source: {x: d.source.x0, y: d.source.y0},
+                    target: {x: d.target.x0, y: d.target.y0}
+                });
+            });
+    };
+
+    // Handler builder for crosslink highlighting
+    var crosslinkHighlightHandler = function(transition) {
+        return function(d) {
+            var crosslinks = svgGroup.selectAll("path.crosslink-highlighted");
+
+            // Filter the edges to those connected to the current node
+            crosslinks.filter(function(dd) {
+                return d === dd.source || d === dd.target;
+            })
+            .call(transition);
+        };
+    };
 
     //
     // Update graph at the given source location, which may be the root or a subtree
@@ -661,13 +757,15 @@ function drawQueryTree(target, treeData) {
 
         // Add tooltips
         node.filter(function(d) {
-                return Object.getOwnPropertyNames(getDirectProperties(d)).length ||
+                return Object.getOwnPropertyNames(getDirectProperties(d)).length || // eslint-disable-line indent
                        (d.hasOwnProperty("properties") && Object.getOwnPropertyNames(d.properties).length);
-            })
+            }) // eslint-disable-line indent
             .call(tip) // invoke tooltip
             .select("use")
-            .on('mouseover', tip.show)
-            .on('mouseout', tip.hide);
+            .on('mouseover.tooltip', tip.show)
+            .on('mouseout.tooltip', tip.hide)
+            .on('mouseover.crosslinks', crosslinkHighlightHandler(edgeTransitionIn))
+            .on('mouseout.crosslinks', crosslinkHighlightHandler(edgeTransitionOut));
 
         // Transition nodes to their new position.
         var nodeUpdate = node.transition()
@@ -770,19 +868,69 @@ function drawQueryTree(target, treeData) {
             .duration(duration)
             .style("fill-opacity", 1)
             .attr("x", function(d) {
-                return (d.source.x + d.target.x) / 2;
+                return (d.source.x0 + d.target.x0) / 2;
             })
             .attr("y", function(d) {
-                return (d.source.y + d.target.y) / 2;
+                return (d.source.y0 + d.target.y0) / 2;
             });
 
         // Remove labels
         linkLabel.exit().transition()
             .duration(duration)
-            .attr("x", source.x)
-            .attr("y", source.y)
+            .attr("x", source.x0)
+            .attr("y", source.y0)
             .style("fill-opacity", 0)
             .remove();
+
+        // Update crosslinks
+        if (crosslinks !== undefined && crosslinks.length) {
+            var visibleCrosslinks = crosslinks.filter(function(d) {
+                return nodes.includes(d.source) && nodes.includes(d.target);
+            });
+
+            // Helper function to update crosslink paths
+            var updateCrosslinkPaths = function(cssClass, opacity) {
+                var crossLink = svgGroup.selectAll("path." + cssClass)
+                    .data(visibleCrosslinks);
+                crossLink.enter().insert("path", "g")
+                    .attr("class", cssClass)
+                    .attr("opacity", opacity)
+                    .attr("d", function(_d) {
+                        var o = {
+                            x: source.x0,
+                            y: source.y0
+                        };
+                        return diagonalRawCrosslink({
+                            source: o,
+                            target: o
+                        });
+                    });
+                crossLink.transition()
+                    .duration(duration)
+                    .attr("d", function(d) {
+                        return diagonalRawCrosslink({
+                            source: {x: d.source.x0, y: d.source.y0},
+                            target: {x: d.target.x0, y: d.target.y0}
+                        });
+                    });
+                crossLink.exit().transition()
+                    .duration(duration)
+                    .attr("d", function(_d) {
+                        var o = {
+                            x: source.x0,
+                            y: source.y0
+                        };
+                        return diagonalRawCrosslink({
+                            source: o,
+                            target: o
+                        });
+                    })
+                    .remove();
+            };
+
+            updateCrosslinkPaths("crosslink", 1/* opacity */);
+            updateCrosslinkPaths("crosslink-highlighted", 0/* opacity */);
+        }
     }
 
     // Append a group which holds all nodes and which the zoom Listener can act upon.
@@ -849,6 +997,9 @@ function drawQueryTree(target, treeData) {
     var properties = treeData.properties ? treeData.properties : {};
     treeText += buildPropertyList(properties);
     treeText += buildPropertyList({nodes: totalNodes});
+    if (crosslinks !== undefined && crosslinks.length) {
+        treeText += buildPropertyList({crosslinks: crosslinks.length});
+    }
     d3.select(target).append("div").classed("tree-label", true).html(treeText);
 }
 
