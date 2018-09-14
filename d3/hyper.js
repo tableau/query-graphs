@@ -58,6 +58,24 @@ function convertHyper(node, parentKey) {
             }
         });
 
+        // Add the following keys as children only when they refer to objects and display as properties if not
+        var objectKeys = ["source"];
+        objectKeys.forEach(function(key) {
+            if (!node.hasOwnProperty(key)) {
+                return;
+            }
+            if (typeof node[key] !== "object") {
+                properties[key] = common.forceToString(node[key]);
+                return;
+            }
+            var child = convertHyper(node[key], key);
+            if (Array.isArray(child)) {
+                explicitChildren = explicitChildren.concat(child);
+            } else {
+                explicitChildren.push(child);
+            }
+        });
+
         // Display these properties always as properties, even if they are more complex
         var propertyKeys = ["analyze"];
         propertyKeys.forEach(function(key) {
@@ -68,7 +86,7 @@ function convertHyper(node, parentKey) {
         });
 
         // Display all other properties adaptively: simple expressions are displayed as properties, all others as part of the tree
-        var handledKeys = tagKeys.concat(childKeys, propertyKeys);
+        var handledKeys = tagKeys.concat(childKeys, objectKeys, propertyKeys);
         Object.getOwnPropertyNames(node).forEach(function(key, _index) {
             if (handledKeys.indexOf(key) !== -1) {
                 return;
@@ -89,6 +107,7 @@ function convertHyper(node, parentKey) {
             additionalChildren.push({tag: key, children: innerNodes});
             return;
         });
+
         // Display the cardinality on the links between the nodes
         var edgeLabel = node.hasOwnProperty("cardinality") ? common.formatMetric(node.cardinality) : undefined;
         // Collapse nodes as appropriate
@@ -165,6 +184,10 @@ function generateDisplayNames(treeData) {
                 node.name = node.tag;
                 node.symbol = 'table-symbol';
                 break;
+            case "explicitscan":
+                node.name = node.tag;
+                node.symbol = "temp-table-symbol";
+                break;
             case "temp":
                 node.name = node.tag;
                 node.symbol = "temp-table-symbol";
@@ -208,6 +231,54 @@ function generateDisplayNames(treeData) {
     }, common.allChildren);
 }
 
+// Function to add crosslinks between related nodes
+function addCrosslinks(root) {
+    var crosslinks = [];
+    var sourcenodes = [];
+    var operatorsById = [];
+    var optimizerStep = 0;
+
+    common.visit(root, function(node) {
+        // Operators are only unique within an optimizer step
+        if (node.tag !== undefined && node.tag.startsWith("optimizersteps")) {
+            optimizerStep = parseInt(node.tag.split(".")[1], 10);
+        }
+
+        // Build map from operatorId to node
+        if (node.hasOwnProperty("properties") && node.properties.hasOwnProperty("operatorId")) {
+            operatorsById[[parseInt(node.properties.operatorId, 10), optimizerStep]] = node;
+        }
+
+        // Identify source operators
+        switch (node.tag) {
+            case "explicitscan":
+                if (node.hasOwnProperty("properties") && node.properties.hasOwnProperty("source")) {
+                    sourcenodes.push({node: node, operatorId: parseInt(node.properties.source, 10), optimizerStep: optimizerStep});
+                }
+                break;
+            case "earlyprobe":
+                if (node.hasOwnProperty("properties") && node.properties.hasOwnProperty("builder")) {
+                    sourcenodes.push({node: node, operatorId: parseInt(node.properties.builder, 10), optimizerStep: optimizerStep});
+                }
+                break;
+            default:
+                if (node.hasOwnProperty("properties") && node.properties.hasOwnProperty("magic")) {
+                    sourcenodes.push({node: node, operatorId: parseInt(node.properties.magic, 10), optimizerStep: optimizerStep});
+                }
+                break;
+        }
+    }, common.allChildren);
+
+    // Add crosslinks from source to matching target node
+    sourcenodes.forEach(function(source) {
+        var targetnode = operatorsById[[source.operatorId, source.optimizerStep]];
+        var entry = {source: source.node, target: targetnode};
+        crosslinks.push(entry);
+    });
+
+    return crosslinks;
+}
+
 // Loads a Hyper query plan
 function loadHyperPlan(graphString, graphCollapse) {
     // Parse the plan as JSON
@@ -227,12 +298,14 @@ function loadHyperPlan(graphString, graphCollapse) {
     generateDisplayNames(root);
     common.createParentLinks(root);
     // Adjust the graph so it is collapsed as requested by the user
-    if (graphCollapse == 'y') {
-       common.visit(root, common.collapseAllChildren, common.allChildren);
-    } else if (graphCollapse == 'n') {
-       common.visit(root, common.expandAllChildren, common.allChildren);
+    if (graphCollapse === 'y') {
+        common.visit(root, common.collapseAllChildren, common.allChildren);
+    } else if (graphCollapse === 'n') {
+        common.visit(root, common.expandAllChildren, common.allChildren);
     }
-    return {root: root, properties: properties};
+    // Add crosslinks
+    var crosslinks = addCrosslinks(root);
+    return {root: root, crosslinks: crosslinks, properties: properties};
 }
 
 exports.loadHyperPlan = loadHyperPlan;

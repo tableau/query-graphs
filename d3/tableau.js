@@ -427,6 +427,52 @@ function prepareTreeData(treeData, graphCollapse) {
     return treeData;
 }
 
+// Function to add crosslinks between related nodes
+function addCrosslinks(root) {
+    var crosslinks = [];
+    var sourcenodes = [];
+    var operatorsByName = [];
+
+    common.visit(root, function(node) {
+        // Build map from potential target operator name/ref to node
+        if (node.hasOwnProperty("federated") && node.federated === "fedeval_dataengine_connection" &&
+            node.hasOwnProperty("class") && node.class === "relation" &&
+            node.hasOwnProperty("name")) {
+            operatorsByName[node.name] = node;
+        } else if (node.tag === "binding" &&
+            node.hasOwnProperty("properties") && node.properties.hasOwnProperty("ref")) {
+            operatorsByName[node.properties.ref] = node;
+        }
+
+        // Identify source operators
+        switch (node.tag) {
+            case "fed-op":
+                if (node.hasOwnProperty("properties") && node.properties.hasOwnProperty("class") &&
+                    node.properties.class === "createtemptable") {
+                    sourcenodes.push({node: node, operatorName: node.properties.table});
+                }
+                break;
+            case "referenceOp":
+            case "referenceExp":
+                if (node.hasOwnProperty("properties") && node.properties.hasOwnProperty("ref")) {
+                    sourcenodes.push({node: node, operatorName: node.properties.ref});
+                }
+                break;
+            default:
+                break;
+        }
+    }, common.allChildren);
+
+    // Add crosslinks from source to matching target node
+    sourcenodes.forEach(function(source) {
+        var targetnode = operatorsByName[source.operatorName];
+        var entry = {source: source.node, target: targetnode};
+        crosslinks.push(entry);
+    });
+
+    return crosslinks;
+}
+
 function loadTableauPlan(graphString, graphCollapse) {
     var result;
     var parser = new XmlParser({
@@ -440,7 +486,9 @@ function loadTableauPlan(graphString, graphCollapse) {
         if (err) {
             result = {error: "XML parse failed with '" + err + "'."};
         } else {
-            result = {root: prepareTreeData(parsed, graphCollapse)};
+            var root = prepareTreeData(parsed, graphCollapse);
+            var crosslinks = addCrosslinks(root);
+            result = {root: root, crosslinks: crosslinks};
         }
     });
     return result;
