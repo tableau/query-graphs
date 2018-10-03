@@ -1,33 +1,28 @@
 Query Graphs
 ============
+[![Community Supported](https://img.shields.io/badge/Support%20Level-Community%20Supported-457387.svg)](https://www.tableau.com/support-levels-it-and-developer-tools)
 
 Helping people see and understand queries.
+
+<iframe src="https://tableau.github.io/query-graphs/d3/query-graphs.tlv.html?file=tableau/joins.xml" style="width: 90vw; height: 50vw; border-style: groove"></iframe>
 
 Description
 -----------
 
 Query Graphs is an investigation into graph visualization for query processing, such as for logical queries and their physical
-query evaluation plans. The project tag line is "Helping people see and understand queries."
-The technology stack for query visualization consists of
-**browserify**, 
-**d3.js**,
-**d3-tip.js**, 
-**http-server**, and
-**xml2js**.
-Browserify is used to satisfy required dependencies.
+query evaluation plans.
+Current visualizations are tailored for artifacts from Tableau's query ecosystem:
+LogicalQuery XML, QueryFunction XML, and Hyper query-plan JSON.
+Query Graphs is also used by the
+[Tableau Log Viewer](https://github.com/tableau/tableau-log-viewer)
+to visualize query artifacts in Tableau's log files.
 
-The following additional resources are required for query visualization as an express service:
-**body-parser.js**,
-**bootstrap**,
-**crypto.js**,
-**express.js**,
-**fs.js**,
-**multer.js**, and
-**node.js**.
-Node is used to start the Express service.
-If running query visualization as a service, then a separate http-server is not required.
-
-There is also a side-by-side comparison layout for comparing two queries at once.
+View example query visualizations at
+* <https://tableau.github.io/query-graphs/d3/query-graphs.tlv.html?file=tableau/joins.xml>,
+* <https://tableau.github.io/query-graphs/d3/query-graphs.tlv.html?file=tableau/query-function.xml&collapse=n>,
+* <https://tableau.github.io/query-graphs/d3/query-graphs.tlv.html?file=tableau/dint4.xml>,
+* <https://tableau.github.io/query-graphs/d3/query-graphs.tlv.html?file=hyper/query2.json>, or
+* <https://tableau.github.io/query-graphs/d3/query-graphs.tlv.html?file=hyper/steps2.json&orientation=left-to-right>.
 
 Directory Structure
 -------------------
@@ -56,11 +51,7 @@ npm install (or npm install --production for an install with no development depe
 node upload-server.js
 ```
 
-Example Visualizations
-----------------------
-
-Open an examplar query html file at 
-* <http://localhost:3000/d3/query-graphs.html>, 
+After local installation and server start, open example query visualizations file at
 * <http://localhost:3000/d3/query-graphs.html?file=tableau/joins.xml>,
 * <http://localhost:3000/d3/query-graphs.html?file=tableau/query-function.xml&collapse=n>,
 * <http://localhost:3000/d3/query-graphs.html?file=tableau/dint4.xml>,
@@ -69,7 +60,7 @@ Open an examplar query html file at
 
 Open the upload form at 
 <http://localhost:3000/d3/upload-form.html>.
-LogicalQuery XML, QueryFunction XML, or HyPer query-plan JSON, as files or text, 
+LogicalQuery XML, QueryFunction XML, or Hyper query-plan JSON, as files or text,
 may be uploaded to the express service for visualization.
 
 Open the side-by-side query comparison at 
