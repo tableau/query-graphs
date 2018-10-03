@@ -4,7 +4,7 @@ Query Graphs
 
 Helping people see and understand queries.
 
-<iframe src="https://tableau.github.io/query-graphs/d3/query-graphs.tlv.html?file=tableau/joins.xml" style="width: 90vw; height: 50vw; border-style: groove"></iframe>
+![Query Visualization](https://tableau.github.io/query-graphs/media/sample_graph.png "Sample Graph")
 
 Description
 -----------
