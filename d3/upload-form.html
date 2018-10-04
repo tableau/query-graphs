@@ -34,14 +34,14 @@
     <div class="container">
         <h1>Query visualization upload service</h1>
         <p>Upload queries and visualize them!</p>
-        <img class="center-block" src="/media/sample_graph.png" />
+        <img class="center-block" src="/media/sample_graph.png" style="max-width: 100%" />
         <h2>Direct file upload</h2>
         <form role="form" method="post" enctype="multipart/form-data" action="/file-upload">
             <div class="form-group">
                 <input type="hidden" name="redirect" value="yes">
                 <label for="queryfile">Choose a file and submit:</label>
                 <input type="file" id="queryfile" name="queryfile">
-                <p class="help-block">File containing a logical query, query function, or HyPer query plan (20MB limit)</p>
+                <p class="help-block">File containing a logical query, query function, or Hyper query plan (20MB limit)</p>
                 <button type="submit" class="btn btn-default">Submit</button>
             <div>
         </form>
@@ -50,7 +50,7 @@
         <h2>Copy & paste upload</h2>
         <form role="form" method="post" action="/text-upload">
             <div class="form-group">
-                <label for="querytext">Paste a logical query, query function, or HyPer query plan (2MB limit) in the following box and submit:</label>
+                <label for="querytext">Paste a logical query, query function, or Hyper query plan (2MB limit) in the following box and submit:</label>
                 <textarea class="form-control" rows="15" id="querytext" name="querytext"></textarea>
             </div>
             <button type="submit" class="btn btn-default">Submit</button>
