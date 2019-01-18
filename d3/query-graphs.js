@@ -885,7 +885,7 @@ function drawQueryTree(target, treeData) {
         // Update crosslinks
         if (crosslinks !== undefined && crosslinks.length) {
             var visibleCrosslinks = crosslinks.filter(function(d) {
-                return nodes.includes(d.source) && nodes.includes(d.target);
+                return nodes.indexOf(d.source) !== -1 && nodes.indexOf(d.target) !== -1;
             });
 
             // Helper function to update crosslink paths
