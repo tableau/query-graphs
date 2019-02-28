@@ -63,11 +63,11 @@
                             ( [d_date_sk] )
                             )
                           (and_
-                            (ge
+                            (>=
                               [d_date_sk]
                               2450815
                               )
-                            (le
+                            (<=
                               [d_date_sk]
                               2452738
                               )
@@ -76,7 +76,7 @@
                         random-access
                         )
                       "2" )
-                    ( ( le [cs_sold_date_sk] [d_date_sk] ) ( ge [cs_ship_date_sk] [d_date_sk] ) )
+                    ( ( <= [cs_sold_date_sk] [d_date_sk] ) ( >= [cs_ship_date_sk] [d_date_sk] ) )
                     ( ([d_date_sk] [d_date_sk]) )
                     inner
                     4

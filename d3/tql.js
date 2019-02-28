@@ -806,6 +806,41 @@ function assignSymbols(
 }
 
 /*------------------------------------------------------------------------
+  collapseNodes
+
+  ---------------------------------------------------------------------------*/
+function collapseNodes(
+
+    treeData,
+    graphCollapse )
+
+{
+    if (graphCollapse === 'n') return;
+
+    const streamline = ( "s" === graphCollapse ) ? common.streamline : common.collapseAllChildren;
+        common.visit( treeData,
+
+            function(d) {
+                switch ( d.class ) {
+                  case 'bindings':
+                  case 'expressions':
+                  case 'fields':
+                  case 'orderbys':
+                  case 'renames':
+                    streamline(d);
+                    return;
+                  default:
+                    break;
+                }
+            },
+
+            function(d) {
+                return d.children && d.children.length > 0 ? d.children.slice(0) : null;
+            }
+        );
+}
+
+/*------------------------------------------------------------------------
   loadTQLPlan
 
   ---------------------------------------------------------------------------*/
@@ -816,11 +851,12 @@ module.exports.loadTQLPlan = function(
 
 {
     try {
-        console.log( 'loadTQLPlan' );
         const   parser = new Parser( module.exports.tokenise( text ) );
         const   root = parser.parse()[0];
 
         assignSymbols( root );
+        common.createParentLinks( root );
+        collapseNodes( root, collapse );
 
         return { root: root, crosslinks: {}, properties: {}, };
     }
