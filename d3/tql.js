@@ -12,6 +12,8 @@
 // -----------------------------------------------------------------------------
 'use strict';
 
+const common = require('./common');
+
 ///////////////////////////////////////////////////////////////////////////
 
 /*------------------------------------------------------------------------
@@ -736,6 +738,38 @@ module.exports.parse = function(
 }
 
 /*------------------------------------------------------------------------
+  assignSymbols
+
+  ---------------------------------------------------------------------------*/
+function assignSymbols(
+
+    root )
+
+{
+    common.visit( root,
+
+        function( n ) {
+            // Assign symbols
+            if (n.properties && n.properties.join && n.class && n.class === "join")
+                n.symbol = n.properties.join + "-join-symbol";
+
+            else if ( n.class && "relation" == n.class ) {
+                if ( 'TEMP' === n.properties.name[0] )
+                    n.symbol = "temp-table-symbol";
+                else n.symbol = "table-symbol";
+            }
+
+            else if ( n.name && "remote" === n.name )
+                n.symbol = "run-query-symbol";
+        },
+
+        function( d ) {
+            return d.children && d.children.length > 0 ? d.children : null;
+        }
+    );
+}
+
+/*------------------------------------------------------------------------
   loadTQLPlan
 
   ---------------------------------------------------------------------------*/
@@ -749,6 +783,8 @@ module.exports.loadTQLPlan = function(
         console.log( 'loadTQLPlan' );
         const   parser = new Parser( module.exports.tokenise( text ) );
         const   root = parser.parse()[0];
+
+        assignSymbols( root );
 
         return { root: root, crosslinks: {}, properties: {}, };
     }
