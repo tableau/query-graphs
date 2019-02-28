@@ -216,31 +216,13 @@ Parser.prototype._identifier = function()
     const   result = [];
 
     while ( true ) {
-        const part = this._next();
-        if ( 'identifier' != part.type )
-            fail( 'Expected identifier but got "'+ part.value + '"', part );
+        const   field = this._field();
 
-        result.push( part.value.slice( 1, -1 ).replace( ']]', ']' ) );
+        result.push( field.name );
         if ( '.' != this._peek().value ) break;
 
         this._expect( '.' );
     }
-
-    return result;
-}
-
-/*------------------------------------------------------------------------
-  _identifiers
-
-  ---------------------------------------------------------------------------*/
-Parser.prototype._identifiers = function()
-{
-    const   result = [];
-
-    this._expect( '(' );
-    while ( ')' != this._peek().value )
-        result.push( this._identifier() );
-    this._expect( ')' );
 
     return result;
 }
@@ -673,6 +655,7 @@ Parser.prototype._operator = function()
         break;
 
       case 'remote':
+      result.class = 'remote';
         result.children.push( this._operator() );
         //  servers
         //  database
@@ -785,18 +768,30 @@ function assignSymbols(
     common.visit( root,
 
         function( n ) {
-            // Assign symbols
-            if (n.properties && n.properties.join && n.class && n.class === "join")
-                n.symbol = n.properties.join + "-join-symbol";
+            switch ( n.class ) {
+              case 'join':
+                if ( n.properties && n.properties.join )
+                    n.symbol = n.properties.join + "-join-symbol";
+                break;
 
-            else if ( n.class && "table" == n.class ) {
+              case 'table':
                 if ( 'TEMP' === n.properties.schema )
                     n.symbol = "temp-table-symbol";
                 else n.symbol = "table-symbol";
-            }
+                break;
 
-            else if ( n.name && "remote" === n.name )
-                n.symbol = "run-query-symbol";
+              case 'remote':
+                 n.symbol = "run-query-symbol";
+                 break;
+
+              case 'bindings':
+              case 'expressions':
+              case 'fields':
+              case 'renames':
+              case 'orderbys':
+                n.children.forEach( c => { c.edgeClass = "link-and-arrow"; } );
+                break;
+            }
         },
 
         function( d ) {
