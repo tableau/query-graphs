@@ -8,7 +8,7 @@
 // the NOTICES.txt file for further details.
 //
 // -----------------------------------------------------------------------------
-// test/parse-query-test.js
+// test/tql-test.js
 // -----------------------------------------------------------------------------
 
 var chai = require('chai');
@@ -32,11 +32,12 @@ describe('TQL parsing', function() {
                 class:  'reference',
                 children: [
                     {
-                        name:   'table',
-                        class:  'relation',
+                        name:   'catalog_sales',
+                        class:  'table',
                         children: [],
                         properties: {
-                            name: [ 'tpcds', 'catalog_sales', ],
+                            schema: 'tpcds',
+                            table: 'catalog_sales',
                         },
                     },
                 ],
@@ -61,11 +62,12 @@ describe('TQL parsing', function() {
                 class:  'reference',
                 children: [
                     {
-                        name:   'table',
-                        class:  'relation',
+                        name:   'catalog_sales',
+                        class:  'table',
                         children: [],
                         properties: {
-                            name: [ 'tpcds', 'catalog_sales', ],
+                            schema: 'tpcds',
+                            table: 'catalog_sales',
                         },
                     },
                 ],
@@ -89,11 +91,12 @@ describe('TQL parsing', function() {
                 class:  'reference',
                 children: [
                     {
-                        name:   'table',
-                        class:  'relation',
+                        name:   'catalog_sales',
+                        class:  'table',
                         children: [],
                         properties: {
-                            name: [ 'tpcds', 'catalog_sales', ],
+                            schema: 'tpcds',
+                            table: 'catalog_sales',
                         },
                     },
                 ],
@@ -115,11 +118,12 @@ describe('TQL parsing', function() {
                 class:  'reference',
                 children: [
                     {
-                        name:   'table',
-                        class:  'relation',
+                        name:   'catalog_sales',
+                        class:  'table',
                         children: [],
                         properties: {
-                            name: [ 'tpcds', 'catalog_sales', ],
+                            schema: 'tpcds',
+                            table: 'catalog_sales',
                         },
                     },
                 ],
@@ -151,19 +155,21 @@ describe('TQL parsing', function() {
                 class:  'join',
                 children: [
                     {
-                        name:   'table',
-                        class:  'relation',
+                        name:   'catalog_sales',
+                        class:  'table',
                         children: [],
                         properties: {
-                            name: [ 'tpcds', 'catalog_sales', ],
+                            schema: 'tpcds',
+                            table: 'catalog_sales',
                         },
                     },
-                     {
-                        name:   'table',
-                        class:  'relation',
+                    {
+                        name:   'date_dim',
+                        class:  'table',
                         children: [],
                         properties: {
-                            name: [ 'tpcds', 'date_dim', ],
+                            schema: 'tpcds',
+                            table: 'date_dim',
                         },
                     },
                ],
@@ -199,11 +205,12 @@ describe('TQL parsing', function() {
                 class:  'reference',
                 children: [
                     {
-                        name:   'table',
-                        class:  'relation',
+                        name:   'date_dim',
+                        class:  'table',
                         children: [],
                         properties: {
-                            name: [ 'tpcds', 'date_dim', ],
+                            schema: 'tpcds',
+                            table: 'date_dim',
                         },
                     },
                 ],
@@ -229,11 +236,12 @@ describe('TQL parsing', function() {
                 class:  'reference',
                 children: [
                     {
-                        name:   'table',
-                        class:  'relation',
+                        name:   'catalog_sales',
+                        class:  'table',
                         children: [],
                         properties: {
-                            name: [ 'tpcds', 'catalog_sales', ],
+                            schema: 'tpcds',
+                            table: 'catalog_sales',
                         },
                     },
                 ],
@@ -257,11 +265,12 @@ describe('TQL parsing', function() {
                 class:  'reference',
                 children: [
                     {
-                        name:   'table',
-                        class:  'relation',
+                        name:   'catalog_sales',
+                        class:  'table',
                         children: [],
                         properties: {
-                            name: [ 'tpcds', 'catalog_sales', ],
+                            schema: 'tpcds',
+                            table: 'catalog_sales',
                         },
                     },
                 ],
@@ -283,11 +292,12 @@ describe('TQL parsing', function() {
                 class:  'reference',
                 children: [
                     {
-                        name:   'table',
-                        class:  'relation',
+                        name:   'catalog_sales',
+                        class:  'table',
                         children: [],
                         properties: {
-                            name: [ 'tpcds', 'catalog_sales', ],
+                            schema: 'tpcds',
+                            table: 'catalog_sales',
                         },
                     },
                 ],
@@ -309,11 +319,12 @@ describe('TQL parsing', function() {
                 class:  'reference',
                 children: [
                     {
-                        name:   'table',
-                        class:  'relation',
+                        name:   'catalog_sales',
+                        class:  'table',
                         children: [],
                         properties: {
-                            name: [ 'tpcds', 'catalog_sales', ],
+                            schema: 'tpcds',
+                            table: 'catalog_sales',
                         },
                     },
                 ],
@@ -331,11 +342,12 @@ describe('TQL parsing', function() {
         const   setup = '(table [tpcds].[catalog_sales])';
         const   expected = [
             {
-                name:   'table',
-                class:  'relation',
+                name:   'catalog_sales',
+                class:  'table',
                 children: [],
                 properties: {
-                    name: [ 'tpcds', 'catalog_sales', ],
+                    schema: 'tpcds',
+                    table: 'catalog_sales',
                 },
             },
         ];

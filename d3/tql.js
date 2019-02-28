@@ -597,9 +597,14 @@ Parser.prototype._operator = function()
         break;
 
       case 'table':
-        result.class = 'relation';
-        result.properties.name = this._identifier();
+      {
+        result.class = 'table';
+        const   qname = this._identifier();
+        result.properties.schema = qname[0];
+        result.name =
+        result.properties.table = qname[1];
         break;
+      }
 
       case 'order':
         result.children.push( this._operator() );
@@ -753,8 +758,8 @@ function assignSymbols(
             if (n.properties && n.properties.join && n.class && n.class === "join")
                 n.symbol = n.properties.join + "-join-symbol";
 
-            else if ( n.class && "relation" == n.class ) {
-                if ( 'TEMP' === n.properties.name[0] )
+            else if ( n.class && "table" == n.class ) {
+                if ( 'TEMP' === n.properties.schema )
                     n.symbol = "temp-table-symbol";
                 else n.symbol = "table-symbol";
             }
