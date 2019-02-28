@@ -176,6 +176,37 @@ Parser.prototype._expect = function(
 }
 
 /*------------------------------------------------------------------------
+  _field
+
+  ---------------------------------------------------------------------------*/
+Parser.prototype._field = function()
+{
+    const part = this._next();
+    if ( 'identifier' != part.type )
+        fail( 'Expected field but got "'+ part.value + '"', part );
+
+    return { name: part.value.slice( 1, -1 ).replace( ']]', ']' ), class: 'field' };
+}
+
+/*------------------------------------------------------------------------
+  _fields
+
+  ---------------------------------------------------------------------------*/
+Parser.prototype._fields = function(
+
+    name = 'fields' )
+{
+    const   result = { name: name, class: 'fields', children: [] };
+
+    this._expect( '(' );
+    while ( ')' != this._peek().value )
+        result.children.push( this._field() );
+    this._expect( ')' );
+
+    return result;
+}
+
+/*------------------------------------------------------------------------
   _identifier
 
   ---------------------------------------------------------------------------*/
@@ -259,15 +290,15 @@ Parser.prototype._keyword = function()
   ---------------------------------------------------------------------------*/
 Parser.prototype._call = function()
 {
-    const op = this._next().value;
+    const name = this._next().value;
 
-    const args = [];
+    const children = [];
     while ( this._peek().value != ')' )
-       args.push( this._expr() );
+       children.push( this._expr() );
 
     this._next( ')' );
 
-    return { class: 'function', op: op, args: args };
+    return { class: 'function', name: name, children: children };
 }
 
 /*------------------------------------------------------------------------
@@ -281,43 +312,43 @@ Parser.prototype._expr = function()
     const   token = this._next();
     switch ( token.type ) {
       case 'identifier':
-        result = { class: token.type, value: token.value.slice( 1, -1 ).replace( ']]', ']' ) };
+        result = { class: token.type, name: token.value.slice( 1, -1 ).replace( ']]', ']' ) };
         break;
 
       case 'integer':
-        result = { class: token.type, value: parseInt( token.value ) };
+        result = { class: token.type, name: parseInt( token.value ) };
         break;
 
       case 'real':
-        result = { class: token.type, value: parseFloat( token.value ) };
+        result = { class: token.type, name: parseFloat( token.value ) };
         break;
 
       case 'date':
-        result = { class: token.type, value: token.value };
+        result = { class: token.type, name: token.value };
         break;
 
       case 'datetime':
-        result = { class: token.type, value: token.value };
+        result = { class: token.type, name: token.value };
         break;
 
       case 'duration':
-        result = { class: token.type, value: token.value };
+        result = { class: token.type, name: token.value };
         break;
 
       case 'string':
-        result = { class: token.type, value: token.value.slice( 1, -1 ).replace( /""/g, '"' ) };
+        result = { class: token.type, name: token.value.slice( 1, -1 ).replace( /""/g, '"' ) };
         break;
 
       case 'keyword':
         switch ( token.value ) {
           case 'true':
-            result = true;
+            result = { class: 'boolean', name: true };
             break;
           case 'false':
-            result = false;
+            result = { class: 'boolean', name: false };
             break;
           case 'null':
-            result = null;
+            result = { class: 'null', name: 'null' };
             break;
           default:
             result = this._call( token.value );
@@ -342,14 +373,16 @@ Parser.prototype._expr = function()
   _exprs
 
   ---------------------------------------------------------------------------*/
-Parser.prototype._exprs = function()
+Parser.prototype._exprs = function(
+
+    name = 'expressions' )
 {
-    let   result = [];
+    const   result = { name: name, class: 'expressions', children: [] };
 
     this._expect( '(' );
 
     while ( ')' != this._peek().value )
-        result.push( this._expr() );
+        result.children.push( this._expr() );
 
     this._expect( ')' );
 
@@ -362,32 +395,30 @@ Parser.prototype._exprs = function()
   ---------------------------------------------------------------------------*/
 Parser.prototype._binding = function()
 {
-    const   result = {};
-
     this._expect( '(' );
 
-    const   name = this._identifier()[0];
+    const   name = this._field();
     const   expr = this._expr();
 
     this._expect( ')' );
 
-    result[ name ] = expr;
-
-    return result;
+    return { name: name.name, class: 'binding', children: [ expr ] };
 }
 
 /*------------------------------------------------------------------------
   _bindings
 
   ---------------------------------------------------------------------------*/
-Parser.prototype._bindings = function()
+Parser.prototype._bindings = function(
+
+    name = 'expressions' )
 {
-    let   result = {};
+    const   result = { name: name, class: 'bindings', children: [] };
 
     this._expect( '(' );
 
     while ( ')' != this._peek().value )
-        result = Object.assign( result, this._binding() );
+        result.children.push( this._binding() );
 
     this._expect( ')' );
 
@@ -400,32 +431,30 @@ Parser.prototype._bindings = function()
   ---------------------------------------------------------------------------*/
 Parser.prototype._rename = function()
 {
-    const   result = {};
-
     this._expect( '(' );
 
-    const   inner = this._identifier()[0];
-    const   outer = this._identifier()[0];
+    const   inner = this._field();
+    const   outer = this._field();
 
     this._expect( ')' );
 
-    result[ outer ] = inner;
-
-    return result;
+    return { name: outer.name, source: inner.name, class: 'rename' };
 }
 
 /*------------------------------------------------------------------------
   _renames
 
   ---------------------------------------------------------------------------*/
-Parser.prototype._renames = function()
+Parser.prototype._renames = function(
+
+    name = 'renames' )
 {
-    let   result = {};
+    const   result = { name: name, class: 'renames', children: [], };
 
     this._expect( '(' );
 
     while ( ')' != this._peek().value )
-        result = Object.assign( result, this._rename() );
+        result.children.push( this._rename() );
 
     this._expect( ')' );
 
@@ -433,19 +462,19 @@ Parser.prototype._renames = function()
 }
 
 /*------------------------------------------------------------------------
-  _sort
+  _orderby
 
   ---------------------------------------------------------------------------*/
-Parser.prototype._sort = function()
+Parser.prototype._orderby = function()
 {
-    const   result = [];
+    const   result = { class: 'orderby' };
 
     this._expect( '(' );
 
-    result.push( this._identifier()[0] );
-    result.push( this._keyword() );
+    result.name = this._field().name;
+    result.sense = this._keyword();
     if ( 'identifier' === this._peek().type )
-        result.push( this._identifier()[0] );
+        result.rank = this._field().name;
 
     this._expect( ')' );
 
@@ -453,17 +482,19 @@ Parser.prototype._sort = function()
 }
 
 /*------------------------------------------------------------------------
-  _sorts
+  _orderbys
 
   ---------------------------------------------------------------------------*/
-Parser.prototype._sorts = function()
+Parser.prototype._orderbys = function(
+
+    name = 'orderbys' )
 {
-    let   result = [];
+    const   result = { name: name, class: 'orderbys', children: [] };
 
     this._expect( '(' );
 
     while ( ')' != this._peek().value )
-        result.push( this._sort() );
+        result.children.push( this._orderby() );
 
     this._expect( ')' );
 
@@ -495,8 +526,8 @@ Parser.prototype._operator = function()
       case 'aggregate':
       case 'ordaggr':
         result.children.push( this._operator() );
-        result.properties.groupbys = this._identifiers();
-        result.properties.expressions = this._bindings();
+        result.children.push( this._fields( 'groupbys' ) )
+        result.children.push( this._bindings( 'measures' ) )
         break;
 
       case 'append':
@@ -517,15 +548,15 @@ Parser.prototype._operator = function()
         break;
 
       case 'dict':
-        result.properties.name = this._identifier();
+        result.properties.name = this._field();
         result.children.push( this._operator() );
         break;
 
       case 'exchange':
         result.children.push( this._operator() );
         result.properties.concurrency = this._integer();
-        result.properties.affinity = this._identifier();
-        result.properties.ordered = this._expr();  //  true/false
+        result.properties.affinity = this._field().name;
+        result.properties.ordered = this._expr().name;  //  true/false
         break;
 
       case 'flowtable':
@@ -537,7 +568,7 @@ Parser.prototype._operator = function()
         result.children.push( this._operator() );
         result.properties.concurrency = this._integer();
         result.properties.thread = this._integer();
-        result.properties.clustering = this._identifiers();
+        result.children.push( this._fields( 'clustering' ) );
         break;
 
       case 'groupjoin':
@@ -552,7 +583,7 @@ Parser.prototype._operator = function()
         break;
 
       case 'indextable':
-        result.properties.reference = this._identifier();
+        result.properties.reference = this._field();
         result.children.push( this._operator() );
         break;
 
@@ -560,7 +591,7 @@ Parser.prototype._operator = function()
         result.class = 'join';
         result.children.push( this._operator() );
         result.children.push( this._operator() );
-        result.properties.columns = this._identifiers();
+        result.properties.columns = this._fields();
         result.properties.imports = [ this._renames() ];
         result.properties.indexes = this._rename();
         break;
@@ -569,8 +600,8 @@ Parser.prototype._operator = function()
         result.class = 'join';
         result.children.push( this._operator() );
         result.children.push( this._operator() );
-        result.properties.conditions = this._exprs();
-        result.properties.imports = [ this._renames() ];
+        result.children.push( this._exprs( 'conditions' ) );
+        result.children.push( this._renames( 'imports' ) );
         result.properties.join = this._keyword();
         result.properties.concurrency = this._integer();
         break;
@@ -578,7 +609,7 @@ Parser.prototype._operator = function()
       case 'iterate':
         result.children.push( this._operator() );
         result.children.push( this._operator() );
-        result.properties.reference = this._identifier();
+        result.properties.reference = this._field();
         break;
 
       case 'join':
@@ -608,7 +639,7 @@ Parser.prototype._operator = function()
 
       case 'order':
         result.children.push( this._operator() );
-        result.properties.orderbys = this._sorts();
+        result.children.push( this._orderbys() );
         break;
 
       case 'partition-restart':
@@ -616,7 +647,7 @@ Parser.prototype._operator = function()
         break;
 
       case 'partition-split':
-        result.properties.partitionbys = [ this._identifier(), ];
+        result.properties.partitionbys = [ this._field(), ];
         result.children.push( this._operator() );
         break;
 
@@ -633,12 +664,12 @@ Parser.prototype._operator = function()
 
       case 'project':
         result.children.push( this._operator() );
-        result.properties.expressions = this._bindings();
+        result.children.push( this._bindings( 'expressions' ) );
         break;
 
       case 'radix-sort':
         result.children.push( this._operator() );
-        result.properties.orderbys = this._sorts();
+        result.properties.orderbys = this._orderbys();
         break;
 
       case 'remote':
@@ -650,7 +681,7 @@ Parser.prototype._operator = function()
       case 'restrict':
       case 'scan':
         result.children.push( this._operator() );
-        result.properties.restrictions = this._identifiers();
+        result.children.push( this._fields( 'restrictions' ) );
         break;
 
       case 'select':
@@ -689,7 +720,7 @@ Parser.prototype._operator = function()
 
       case 'top':
         result.children.push( this._operator() );
-        result.properties.orderbys = this._sorts();
+        result.properties.orderbys = this._orderbys();
         result.properties.top = this._integer();
         break;
 
@@ -700,8 +731,8 @@ Parser.prototype._operator = function()
 
       case 'window':
         result.children.push( this._operator() );
-        result.properties.partitionbys = this._identifiers();
-        result.properties.orderbys = this._sorts();
+        result.properties.partitionbys = this._fields();
+        result.properties.orderbys = this._orderbys();
         result.properties.expressions = this._bindings();
         break;
     }

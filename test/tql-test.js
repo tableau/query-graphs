@@ -40,13 +40,27 @@ describe('TQL parsing', function() {
                             table: 'catalog_sales',
                         },
                     },
-                ],
-                properties: {
-                    groupbys: [ [ 'cs_ship_date_sk', ], [ 'cs_sold_date_sk', ], ],
-                    expressions: {
-                        count: { class: 'function', op: 'total', args: [ { class: 'identifier', value: 'count' } ] },
+                    {
+                        name:   'groupbys',
+                        class:  'fields',
+                        children: [
+                            { name: 'cs_ship_date_sk', class: 'field' },
+                            { name: 'cs_sold_date_sk', class: 'field' },
+                        ],
                     },
-                },
+                    {
+                        name:   'measures',
+                        class:  'bindings',
+                        children: [
+                            {
+                                name: 'count',
+                                class: 'binding',
+                                children: [ { class: 'function', name: 'total', children: [ { class: 'identifier', name: 'count' } ] } ],
+                            },
+                        ],
+                    },
+                ],
+                properties: {},
             },
         ];
 
@@ -74,7 +88,7 @@ describe('TQL parsing', function() {
                 properties: {
                     concurrency: 4,
                     ordered:     false,
-                    affinity:    [ "" ],
+                    affinity:    "",
                 },
             },
         ];
@@ -126,11 +140,15 @@ describe('TQL parsing', function() {
                             table: 'catalog_sales',
                         },
                     },
+                    {
+                        name:       'clustering',
+                        class:      'fields',
+                        children:   [],
+                    },
                 ],
                 properties: {
                     concurrency: 4,
                     thread:     0,
-                    clustering: [],
                 },
             },
         ];
@@ -172,23 +190,33 @@ describe('TQL parsing', function() {
                             table: 'date_dim',
                         },
                     },
-               ],
+                    {
+                        name:   'conditions',
+                        class:  'expressions',
+                        children: [
+                            { class: 'function', name: '<=', children: [
+                                { class: 'identifier', name: 'cs_sold_date_sk' },
+                                { class: 'identifier', name: 'd_date_sk' },
+                                ]
+                            },
+                            { class: 'function', name: '>=', children: [
+                                { class: 'identifier', name: 'cs_ship_date_sk' },
+                                { class: 'identifier', name: 'd_date_sk' },
+                                ]
+                            },
+                        ],
+                    },
+                    {
+                        name:   'imports',
+                        class:  'renames',
+                        children: [
+                            { name: 'd_date_sk', class: 'rename', source: 'd_date_sk', },
+                        ],
+                    },
+                ],
                 properties: {
                     join:       'inner',
                     concurrency: 4,
-                    imports: [ { d_date_sk: "d_date_sk" }, ],
-                    conditions: [
-                        { class: 'function', op: '<=', args: [
-                            { class: 'identifier', value: 'cs_sold_date_sk' },
-                            { class: 'identifier', value: 'd_date_sk' },
-                            ]
-                        },
-                        { class: 'function', op: '>=', args: [
-                            { class: 'identifier', value: 'cs_ship_date_sk' },
-                            { class: 'identifier', value: 'd_date_sk' },
-                            ]
-                        },
-                   ],
                 },
             },
         ];
@@ -213,10 +241,19 @@ describe('TQL parsing', function() {
                             table: 'date_dim',
                         },
                     },
+                    {
+                        name:   'orderbys',
+                        class:  'orderbys',
+                        children: [
+                            {
+                                name:   "d_date_sk",
+                                class:  'orderby',
+                                sense:  'asc',
+                            },
+                        ],
+                    },
                 ],
-                properties: {
-                    orderbys: [ [ "d_date_sk", "asc", ], ],
-                },
+                properties: {},
             },
         ];
 
@@ -244,12 +281,21 @@ describe('TQL parsing', function() {
                             table: 'catalog_sales',
                         },
                     },
-                ],
-                properties: {
-                    expressions: {
-                        count: { class: 'function', op: 'abs', args: [ { class: 'identifier', value: 'count' } ] },
+                    {
+                        name:   'expressions',
+                        class:  'bindings',
+                        children: [
+                            {
+                                name:   'count',
+                                class:  'binding',
+                                children: [
+                                    { name: 'abs', class: 'function',  children: [ { class: 'identifier', name: 'count' } ] },
+                                ],
+                            },
+                        ],
                     },
-                },
+                ],
+                properties: {},
             },
         ];
 
@@ -273,10 +319,16 @@ describe('TQL parsing', function() {
                             table: 'catalog_sales',
                         },
                     },
+                    {
+                        name:   'restrictions',
+                        class:  'fields',
+                        children: [
+                            { name: 'cs_ship_date_sk', class: 'field', },
+                            { name: 'cs_sold_date_sk', class: 'field', },
+                        ],
+                    },
                 ],
-                properties: {
-                    restrictions: [ [ 'cs_ship_date_sk', ], [ 'cs_sold_date_sk', ], ],
-                },
+                properties: {},
             },
         ];
 
@@ -300,11 +352,17 @@ describe('TQL parsing', function() {
                             table: 'catalog_sales',
                         },
                     },
+                    {
+                        name:   'restrictions',
+                        class:  'fields',
+                        children: [
+                            { name: 'cs_ship_date_sk', class: 'field', },
+                            { name: 'cs_sold_date_sk', class: 'field', },
+                        ],
+                    },
                 ],
-                properties: {
-                    restrictions: [ [ 'cs_ship_date_sk', ], [ 'cs_sold_date_sk', ], ],
-                },
-            },
+                properties: {},
+           },
         ];
 
         const   actual = TQL.parse( setup );
