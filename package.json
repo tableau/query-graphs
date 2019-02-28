@@ -5,7 +5,7 @@
   "description": "Helping people see and understand queries.",
   "main": "d3/query-graphs.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha --watch --recursive",
     "bundle": "browserify d3/query-graphs.js -d -o d3/query-graphs.bundle.js",
     "bundle-list": "browserify d3/query-graphs.js --list",
     "prebundle-uglify": "npm run bundle",
@@ -38,8 +38,10 @@
     "xml2js": "^0.4.16"
   },
   "devDependencies": {
+    "chai": "^4.2.0",
     "eslint": "^2.2.0",
-    "eslint-config-google": "^0.4.0"
+    "eslint-config-google": "^0.4.0",
+    "mocha": "^6.0.2"
   },
   "eslintConfig": {
     "extends": "google",

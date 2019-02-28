@@ -1,0 +1,123 @@
+(flowtable
+  (restrict
+    (project
+      (scan
+        (order
+          (aggregate
+            (exchange
+              (scan
+                (aggregate
+                  (iejoin
+                    (shared
+                      (flowtable
+                        (scan
+                          (aggregate
+                            (exchange
+                              (scan
+                                (aggregate
+                                  (scan
+                                    (fraction
+                                      (shared
+                                        (table [tpcds].[catalog_sales])
+                                        "0" )
+                                      4
+                                      0
+                                      ( )
+                                      )
+                                    ( [cs_ship_date_sk] [cs_sold_date_sk] )
+                                    )
+                                  ( [cs_ship_date_sk] [cs_sold_date_sk] )
+                                  (
+                                    ( [count]
+                                      (countstar
+                                        )
+                                    )
+                                  )
+                                  )
+                                ( [count] [cs_ship_date_sk] [cs_sold_date_sk] )
+                                )
+                              4
+                              []
+                              0
+                              )
+                            ( [cs_ship_date_sk] [cs_sold_date_sk] )
+                            (
+                              ( [count]
+                                (total
+                                  [count]
+                                  )
+                              )
+                            )
+                            )
+                          ( [count] [cs_ship_date_sk] [cs_sold_date_sk] )
+                          )
+                        )
+                      "1" )
+                    (shared
+                      (flowtable
+                        (select
+                          (scan
+                            (shared
+                              (table [tpcds].[date_dim])
+                              "0" )
+                            ( [d_date_sk] )
+                            )
+                          (and_
+                            (ge
+                              [d_date_sk]
+                              2450815
+                              )
+                            (le
+                              [d_date_sk]
+                              2452738
+                              )
+                            )
+                          )
+                        random-access
+                        )
+                      "2" )
+                    ( ( le [cs_sold_date_sk] [d_date_sk] ) ( ge [cs_ship_date_sk] [d_date_sk] ) )
+                    ( ([d_date_sk] [d_date_sk]) )
+                    inner
+                    4
+                    )
+                  ( [d_date_sk] )
+                  (
+                    ( [count]
+                      (sum
+                        [count]
+                        )
+                    )
+                  )
+                  )
+                ( [count] [d_date_sk] )
+                )
+              4
+              []
+              0
+              )
+            ( [d_date_sk] )
+            (
+              ( [count]
+                (sum
+                  [count]
+                  )
+              )
+            )
+            )
+          ( ([d_date_sk] asc) )
+          )
+        ( [count] [d_date_sk] )
+        )
+      (
+        ( [d_date_sk]
+          [d_date_sk]
+        )
+        ( [count]
+          [count]
+        )
+      )
+      )
+    ( [count] [d_date_sk] )
+    )
+  )
