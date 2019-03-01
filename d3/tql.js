@@ -484,6 +484,30 @@ Parser.prototype._orderbys = function(
 }
 
 /*------------------------------------------------------------------------
+  conditions
+
+  ---------------------------------------------------------------------------*/
+function conditions(
+
+    renames,
+    op )
+
+{
+    const   children = renames.children.map( rename => {
+        return {
+            name: op,
+            class: 'function',
+            children: [
+                { name: rename.name,   class: 'field' },
+                { name: rename.source, class: 'field' },
+            ]
+        };
+    });
+
+    return { name: renames.name, children: children, class: 'expressions' };
+}
+
+/*------------------------------------------------------------------------
   _operator
 
   ---------------------------------------------------------------------------*/
@@ -525,12 +549,11 @@ Parser.prototype._operator = function()
         result.class = 'join';
         result.children.push( this._operator() );
         result.children.push( this._operator() );
-        result.properties.imports = [ this._renames() ];
-        result.properties.conditions = [];
+        result.children.push( this._renames( 'imports' ) );
         break;
 
       case 'dict':
-        result.properties.name = this._field();
+        result.properties.name = this._field().name;
         result.children.push( this._operator() );
         break;
 
@@ -557,15 +580,15 @@ Parser.prototype._operator = function()
         result.class = 'join';
         result.children.push( this._operator() );
         result.children.push( this._operator() );
-        result.properties.conditions = this._renames();
-        result.properties.imports = [ this._renames() ];
-        result.properties.measures = this._bindings();
+        result.children.push( this._renames( 'conditions' ) );
+        result.children.push( this._renames( 'imports' ) );
+        result.children.push( this._bindings( 'measures' ) );
         //  Turn the joins into conditions
-        result.properties.conditions = conditions( result.properties.conditions, 'isnotdistinct' );
+        result.children[2] = conditions( result.children[2], 'isnotdistinct' );
         break;
 
       case 'indextable':
-        result.properties.reference = this._field();
+        result.properties.name = this._field().name;
         result.children.push( this._operator() );
         break;
 
@@ -573,9 +596,10 @@ Parser.prototype._operator = function()
         result.class = 'join';
         result.children.push( this._operator() );
         result.children.push( this._operator() );
-        result.properties.columns = this._fields();
-        result.properties.imports = [ this._renames() ];
-        result.properties.indexes = this._rename();
+        result.children.push( this._fields( 'restrictions' ) );
+        result.children.push( this._renames( 'imports' ) );
+        result.properties.index = this._rename();
+        result.properties.join = 'inner';
         break;
 
       case 'iejoin':
@@ -591,7 +615,7 @@ Parser.prototype._operator = function()
       case 'iterate':
         result.children.push( this._operator() );
         result.children.push( this._operator() );
-        result.properties.reference = this._field();
+        result.properties.name = this._field().name;
         break;
 
       case 'join':

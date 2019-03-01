@@ -68,6 +68,82 @@ describe('TQL parsing', function() {
         expect( actual ).to.deep.equal( expected );
     });
 
+    it('should parse cartprod', function() {
+        const   setup =
+            '(cartprod ' +
+            '  (table [tpcds].[catalog_sales]) ' +
+            '  (table [tpcds].[date_dim]) ' +
+            '  ( ([d_date_sk] [d_date_sk]) ) ' +
+            '  ) '
+            ;
+
+        const   expected = [
+            {
+                name:   'cartprod',
+                class:  'join',
+                children: [
+                    {
+                        name:   'catalog_sales',
+                        class:  'table',
+                        children: [],
+                        properties: {
+                            schema: 'tpcds',
+                            table: 'catalog_sales',
+                        },
+                    },
+                    {
+                        name:   'date_dim',
+                        class:  'table',
+                        children: [],
+                        properties: {
+                            schema: 'tpcds',
+                            table: 'date_dim',
+                        },
+                    },
+                    {
+                        name:   'imports',
+                        class:  'renames',
+                        children: [
+                            { name: 'd_date_sk', class: 'rename', source: 'd_date_sk', },
+                        ],
+                    },
+                ],
+                properties: {},
+            },
+        ];
+
+        const   actual = TQL.parse( setup );
+        expect( actual ).to.deep.equal( expected );
+    });
+
+    it('should parse dict', function() {
+        const   setup = '(dict [d_date_sk] (table [tpcds].[date_dim]) )';
+
+        const   expected = [
+            {
+                name:   'dict',
+                class:  'reference',
+                children: [
+                    {
+                        name:   'date_dim',
+                        class:  'table',
+                        children: [],
+                        properties: {
+                            schema: 'tpcds',
+                            table: 'date_dim',
+                        },
+                    },
+                ],
+                properties: {
+                    name: 'd_date_sk',
+                },
+            },
+        ];
+
+        const   actual = TQL.parse( setup );
+        expect( actual ).to.deep.equal( expected );
+    });
+
     it('should parse exchange', function() {
         const   setup = '(exchange (table [tpcds].[catalog_sales]) 4 [] false )';
         const   expected = [
@@ -157,6 +233,76 @@ describe('TQL parsing', function() {
         expect( actual ).to.deep.equal( expected );
     });
 
+    it('should parse groupjoin', function() {
+        const   setup =
+            '(groupjoin ' +
+            '  (table [tpcds].[catalog_sales]) ' +
+            '  (table [tpcds].[date_dim]) ' +
+            '  ( ( [cs_ship_date_sk] [d_date_sk] ) ) ' +
+            '  ( ( [sum] [sum] ) ) ' +
+            '  ( ( [sum] (total [d_date_sk] ) ) ) )';
+
+        const   expected = [
+            {
+                name:   'groupjoin',
+                class:  'join',
+                children: [
+                    {
+                        name:   'catalog_sales',
+                        class:  'table',
+                        children: [],
+                        properties: {
+                            schema: 'tpcds',
+                            table: 'catalog_sales',
+                        },
+                    },
+                    {
+                        name:   'date_dim',
+                        class:  'table',
+                        children: [],
+                        properties: {
+                            schema: 'tpcds',
+                            table: 'date_dim',
+                        },
+                    },
+                    {
+                        name:   'conditions',
+                        class:  'expressions',
+                        children: [
+                            { class: 'function', name: 'isnotdistinct', children: [
+                                { name: 'd_date_sk', class: 'field',  },
+                                { name: 'cs_ship_date_sk', class: 'field',  },
+                                ]
+                            },
+                        ],
+                    },
+                    {
+                        name:   'imports',
+                        class:  'renames',
+                        children: [
+                            { name: 'sum', class: 'rename', source: 'sum' },
+                        ],
+                    },
+                    {
+                        name:   'measures',
+                        class:  'bindings',
+                        children: [
+                            {
+                                name: 'sum',
+                                class: 'binding',
+                                children: [ { class: 'function', name: 'total', children: [ { class: 'identifier', name: 'd_date_sk' } ] } ],
+                            },
+                        ],
+                    },
+                ],
+                properties: {},
+            },
+        ];
+
+        const   actual = TQL.parse( setup );
+        expect( actual ).to.deep.equal( expected );
+    });
+
     it('should parse iejoin', function() {
         const   setup =
             '(iejoin ' +
@@ -217,6 +363,146 @@ describe('TQL parsing', function() {
                 properties: {
                     join:       'inner',
                     concurrency: 4,
+                },
+            },
+        ];
+
+        const   actual = TQL.parse( setup );
+        expect( actual ).to.deep.equal( expected );
+    });
+
+    it('should parse indextable', function() {
+        const   setup = '(indextable [d_date_sk] (table [tpcds].[date_dim]) )';
+
+        const   expected = [
+            {
+                name:   'indextable',
+                class:  'reference',
+                children: [
+                    {
+                        name:   'date_dim',
+                        class:  'table',
+                        children: [],
+                        properties: {
+                            schema: 'tpcds',
+                            table: 'date_dim',
+                        },
+                    },
+                ],
+                properties: {
+                    name: 'd_date_sk',
+                },
+            },
+        ];
+
+        const   actual = TQL.parse( setup );
+        expect( actual ).to.deep.equal( expected );
+    });
+
+
+    it('should parse indexjoin', function() {
+        const   setup =
+            '(indexjoin ' +
+            '  (table [tpcds].[catalog_sales]) ' +
+            '  (indextable [cs_sold_date_sk] (table [tpcds].[catalog_sales]) ) ' +
+            '  ( [cs_ship_date_sk] [cs_sold_date_sk] ) ' +
+            '  ( ([cs_sold_date_sk] [cs_sold_date_sk]) ) ' +
+            '  ( [.RANK] [.COUNT]) ) '
+            ;
+
+        const   expected = [
+            {
+                name:   'indexjoin',
+                class:  'join',
+                children: [
+                    {
+                        name:   'catalog_sales',
+                        class:  'table',
+                        children: [],
+                        properties: {
+                            schema: 'tpcds',
+                            table: 'catalog_sales',
+                        },
+                    },
+                    {
+                        name:   'indextable',
+                        class:  'reference',
+                        children: [
+                            {
+                                name:   'catalog_sales',
+                                class:  'table',
+                                children: [],
+                                properties: {
+                                    schema: 'tpcds',
+                                    table: 'catalog_sales',
+                                },
+                            }
+                        ],
+                        properties: {
+                            name: 'cs_sold_date_sk',
+                        },
+                    },
+                    {
+                        name:   'restrictions',
+                        class:  'fields',
+                        children: [
+                            { class: 'field', name: 'cs_ship_date_sk' },
+                            { class: 'field', name: 'cs_sold_date_sk' },
+                        ],
+                    },
+                    {
+                        name:   'imports',
+                        class:  'renames',
+                        children: [
+                            { name: 'cs_sold_date_sk', class: 'rename', source: 'cs_sold_date_sk', },
+                        ],
+                    },
+                ],
+                properties: {
+                    index:  { name: ".COUNT", source: ".RANK", class: 'rename', },
+                    join:   'inner',
+                },
+            },
+        ];
+
+        const   actual = TQL.parse( setup );
+        expect( actual ).to.deep.equal( expected );
+    });
+
+    it('should parse iterate', function() {
+        const   setup =
+            '(iterate ' +
+            '  (table [tpcds].[catalog_sales]) ' +
+            '  (table [tpcds].[date_dim]) ' +
+            '  [Iterate] ) '
+            ;
+
+        const   expected = [
+            {
+                name:   'iterate',
+                class:  'reference',
+                children: [
+                    {
+                        name:   'catalog_sales',
+                        class:  'table',
+                        children: [],
+                        properties: {
+                            schema: 'tpcds',
+                            table: 'catalog_sales',
+                        },
+                    },
+                    {
+                        name:   'date_dim',
+                        class:  'table',
+                        children: [],
+                        properties: {
+                            schema: 'tpcds',
+                            table: 'date_dim',
+                        },
+                    },
+                ],
+                properties: {
+                    name:  "Iterate",
                 },
             },
         ];
