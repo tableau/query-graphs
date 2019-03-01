@@ -207,6 +207,42 @@ Parser.prototype._fields = function(
 }
 
 /*------------------------------------------------------------------------
+  _tags
+
+  ---------------------------------------------------------------------------*/
+Parser.prototype._tags = function()
+{
+    this._expect( '(' );
+
+    const   name = this._field().name;
+    const   result = this._fields( name );
+
+    this._expect( ')' );
+
+    return result;
+}
+
+/*------------------------------------------------------------------------
+  _groups
+
+  ---------------------------------------------------------------------------*/
+Parser.prototype._groups = function(
+
+    name = 'groups' )
+{
+    const   result = { name: name, class: 'groups', children: [] };
+
+    this._expect( '(' );
+
+    while ( ')' != this._peek().value )
+        result.children.push( this._tags() );
+
+    this._expect( ')' );
+
+    return result;
+}
+
+/*------------------------------------------------------------------------
   _identifier
 
   ---------------------------------------------------------------------------*/
@@ -294,7 +330,7 @@ Parser.prototype._expr = function()
     const   token = this._next();
     switch ( token.type ) {
       case 'identifier':
-        result = { class: token.type, name: token.value.slice( 1, -1 ).replace( ']]', ']' ) };
+        result = { class: 'field', name: token.value.slice( 1, -1 ).replace( ']]', ']' ) };
         break;
 
       case 'integer':
@@ -455,7 +491,7 @@ Parser.prototype._orderby = function()
 
     result.name = this._field().name;
     result.sense = this._keyword();
-    if ( 'identifier' === this._peek().type )
+    if ( 'field' === this._peek().type )
         result.rank = this._field().name;
 
     this._expect( ')' );
@@ -477,6 +513,69 @@ Parser.prototype._orderbys = function(
 
     while ( ')' != this._peek().value )
         result.children.push( this._orderby() );
+
+    this._expect( ')' );
+
+    return result;
+}
+
+/*------------------------------------------------------------------------
+  _property
+
+  ---------------------------------------------------------------------------*/
+Parser.prototype._property = function()
+{
+    this._expect( '(' );
+
+    const   name = this._string();
+    const   value = this._string();
+
+    this._expect( ')' );
+
+    const   result = {};
+    result[ name ] = value;
+
+    return result;
+}
+
+/*------------------------------------------------------------------------
+  _properties
+
+  ---------------------------------------------------------------------------*/
+Parser.prototype._properties = function(
+
+    name = 'properties' )
+{
+    const   result = { name: name, class: 'properties', properties: {} };
+
+    this._expect( '(' );
+
+    while ( ')' != this._peek().value )
+        Object.assign( result.properties, this._property() );
+
+    this._expect( ')' );
+
+    return result;
+}
+
+/*------------------------------------------------------------------------
+  _schema
+
+  ---------------------------------------------------------------------------*/
+Parser.prototype._schema = function(
+
+    name = 'schema' )
+{
+    const   result = { name: name, class: 'schema', children: [] };
+
+    this._expect( '(' );
+
+    while ( ')' != this._peek().value ) {
+        const   column = this._properties();
+        column.name = column.properties.name;
+        delete column.properties.name;
+        result.children.push( column );
+    }
 
     this._expect( ')' );
 
@@ -623,25 +722,15 @@ Parser.prototype._operator = function()
         result.class = 'join';
         result.children.push( this._operator() );
         result.children.push( this._operator() );
-        result.properties.conditions = this._renames();
-        result.properties.imports = [ this._renames() ];
+        result.children.push( this._renames( 'conditions' ) );
+        result.children.push( this._renames( 'imports' ) );
         result.properties.join = this._keyword();
-        //  Turn the joins into conditions
-        result.properties.conditions = conditions(
-            result.properties.conditions,
+        //  Turn the renames into conditions
+        result.children[2] = conditions(
+            result.children[2],
             ( 'keyword' == this._peek().type ) ? this._keyword() : '='
         );
         break;
-
-      case 'table':
-      {
-        result.class = 'table';
-        const   qname = this._identifier();
-        result.properties.schema = qname[0];
-        result.name =
-        result.properties.table = qname[1];
-        break;
-      }
 
       case 'order':
         result.children.push( this._operator() );
@@ -653,19 +742,21 @@ Parser.prototype._operator = function()
         break;
 
       case 'partition-split':
-        result.properties.partitionbys = [ this._field(), ];
+        result.properties.name = this._field().name;
         result.children.push( this._operator() );
         break;
 
       case 'pivot':
         result.children.push( this._operator() );
-        result.properties.tags = this._tags();
-        result.properties.groups = this._groups();
+        result.children.push( this._tags() );
+        result.children.push( this._groups() );
         break;
 
       case 'positionaljoin':
+        result.class = 'join';
         while ( this._peek().value != ')' )
             result.children.push( this._operator() );
+        result.properties.join = 'inner';
         break;
 
       case 'project':
@@ -675,11 +766,11 @@ Parser.prototype._operator = function()
 
       case 'radix-sort':
         result.children.push( this._operator() );
-        result.properties.orderbys = this._orderbys();
+        result.children.push( this._orderbys() );
         break;
 
       case 'remote':
-      result.class = 'remote';
+        result.class = 'remote';
         result.children.push( this._operator() );
         //  servers
         //  database
@@ -693,7 +784,7 @@ Parser.prototype._operator = function()
 
       case 'select':
         result.children.push( this._operator() );
-        result.properties.conditions = [ this._expr() ];
+        result.children.push( { name: 'predicate', class: 'expressions', children: [ this._expr(), ] }  );
         break;
 
       case 'shared':
@@ -701,14 +792,21 @@ Parser.prototype._operator = function()
         result.properties.reference = parseInt( this._string() );
         break;
 
+      case 'table':
+      {
+        result.class = 'table';
+        const   qname = this._identifier();
+        result.properties.schema = qname[0];
+        result.name =
+        result.properties.table = qname[1];
+        break;
+      }
+
       case 'text':
-        result.properties.path = this._string();
-        result.properties.schema = [];
-        this._expect( '(' );
-        while ( ')' != this._peek().value )
-            result.properties.schema.push( this._properties() );
-        this._expect( ')' );
-        result.properties.config = this._properties();
+        result.class = 'table';
+        result.name = this._string();
+        result.children.push( this._schema() );
+        result.properties = this._properties().properties;
         break;
 
       case 'transform':
@@ -727,20 +825,24 @@ Parser.prototype._operator = function()
 
       case 'top':
         result.children.push( this._operator() );
-        result.properties.orderbys = this._orderbys();
+        result.children.push( this._orderbys() );
         result.properties.top = this._integer();
         break;
 
       case 'update':
         result.children.push( this._operator() );
-        result.properties.imports = [ this._renames() ];
+        result.children.push( this._renames( 'updates' ) );
         break;
 
       case 'window':
         result.children.push( this._operator() );
-        result.properties.partitionbys = this._fields();
-        result.properties.orderbys = this._orderbys();
-        result.properties.expressions = this._bindings();
+        result.children.push( this._fields( 'partitionbys' ) );
+        result.children.push( this._orderbys() );
+        result.children.push( this._bindings() );
+        break;
+
+      default:
+        fail( 'Unknown operator: ' + result.name, token );
         break;
     }
 
@@ -811,8 +913,9 @@ function assignSymbols(
               case 'bindings':
               case 'expressions':
               case 'fields':
-              case 'renames':
               case 'orderbys':
+              case 'renames':
+              case 'schema':
                 n.children.forEach( c => { c.edgeClass = "link-and-arrow"; } );
                 break;
             }
@@ -846,6 +949,7 @@ function collapseNodes(
                   case 'fields':
                   case 'orderbys':
                   case 'renames':
+                  case 'schema':
                     streamline(d);
                     return;
                   default:
