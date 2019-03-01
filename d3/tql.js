@@ -42,7 +42,7 @@ const types = {
     punctuation: /^[,\(\)\.]/,
     operator: /^[-+*\/%&!|\^<>=:]+/,
     keyword: /^\w[\w\d-]*/,
-    identifier: /^\[[^\]\\]*(?:\\.[^\]\\]*)*\]/,
+    field: /^\[[^\]\\]*(?:\\.[^\]\\]*)*\]/,
     integer: /^\d+/,
     real: /^\d+\.\d*(e[-+]?\d+)?/,
     date: /^\#\d{4}-\d{2}-\d{2}\#/,
@@ -182,10 +182,10 @@ Parser.prototype._expect = function(
 Parser.prototype._field = function()
 {
     const part = this._next();
-    if ( 'identifier' != part.type )
+    if ( 'field' != part.type )
         fail( 'Expected field but got "'+ part.value + '"', part );
 
-    return { name: part.value.slice( 1, -1 ).replace( ']]', ']' ), class: 'field' };
+    return { name: part.value, class: 'field' };
 }
 
 /*------------------------------------------------------------------------
@@ -277,6 +277,21 @@ Parser.prototype._integer = function()
 }
 
 /*------------------------------------------------------------------------
+  _boolean
+
+  ---------------------------------------------------------------------------*/
+Parser.prototype._boolean = function()
+{
+    const   booleans = { true: true, false: false };
+
+    const token = this._next();
+    if ( 'keyword' != token.type || !( token.value in booleans ) )
+        fail( 'Expected Boolean but got "'+ token.value + '"', token );
+
+    return booleans[ token.value ];
+}
+
+/*------------------------------------------------------------------------
   _string
 
   ---------------------------------------------------------------------------*/
@@ -329,44 +344,24 @@ Parser.prototype._expr = function()
 
     const   token = this._next();
     switch ( token.type ) {
-      case 'identifier':
-        result = { class: 'field', name: token.value.slice( 1, -1 ).replace( ']]', ']' ) };
-        break;
-
+      case 'field':
       case 'integer':
-        result = { class: token.type, name: parseInt( token.value ) };
-        break;
-
       case 'real':
-        result = { class: token.type, name: parseFloat( token.value ) };
-        break;
-
       case 'date':
-        result = { class: token.type, name: token.value };
-        break;
-
       case 'datetime':
-        result = { class: token.type, name: token.value };
-        break;
-
       case 'duration':
-        result = { class: token.type, name: token.value };
-        break;
-
       case 'string':
-        result = { class: token.type, name: token.value.slice( 1, -1 ).replace( /""/g, '"' ) };
+        result = { class: token.type, name: token.value };
         break;
 
       case 'keyword':
         switch ( token.value ) {
           case 'true':
-            result = { class: 'boolean', name: true };
-            break;
           case 'false':
-            result = { class: 'boolean', name: false };
+            result = { class: 'boolean', name: token.value };
             break;
           case 'null':
-            result = { class: 'null', name: 'null' };
+            result = { class: 'null', name: token.value };
             break;
           default:
             result = this._call( token.value );
@@ -572,7 +567,7 @@ Parser.prototype._schema = function(
 
     while ( ')' != this._peek().value ) {
         const   column = this._properties();
-        column.name = column.properties.name;
+        column.name = '[' + column.properties.name.replace( /\]/g, ']]' ) + ']';
         delete column.properties.name;
         result.children.push( column );
     }
@@ -665,7 +660,12 @@ Parser.prototype._operator = function()
         result.children.push( this._operator() );
         result.properties.concurrency = this._integer();
         result.properties.affinity = this._field().name;
-        result.properties.ordered = this._expr().name;  //  true/false
+        result.properties.thread = 0;
+        result.properties.ordered = false;
+        switch ( this._peek().type ) {
+          case 'integer':   result.properties.thread = this._integer(); break;
+          case 'keyword':   result.properties.ordered = this._boolean(); break;
+        }
         break;
 
       case 'flowtable':
