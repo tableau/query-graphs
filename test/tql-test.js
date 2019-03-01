@@ -116,6 +116,27 @@ describe('TQL parsing', function() {
         expect( actual ).to.deep.equal( expected );
     });
 
+    it('should parse database', function() {
+        const   setup = '(database "BlackBox/Window")';
+
+        const   expected = [
+            {
+                name:   'database',
+                class:  'command',
+                children: [
+                    {
+                        name:   'BlackBox/Window',
+                        class:  'string',
+                    },
+                ],
+                properties: {},
+            },
+        ];
+
+        const   actual = TQL.parse( setup );
+        expect( actual ).to.deep.equal( expected );
+    });
+
     it('should parse dict', function() {
         const   setup = '(dict [d_date_sk] (table [tpcds].[date_dim]) )';
 

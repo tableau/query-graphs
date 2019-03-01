@@ -651,6 +651,11 @@ Parser.prototype._operator = function()
         result.children.push( this._renames( 'imports' ) );
         break;
 
+      case 'database':
+        result.class = 'command';
+        result.children.push( { name: this._string(), class: 'string' } );
+        break;
+
       case 'dict':
         result.properties.name = this._field().name;
         result.children.push( this._operator() );
@@ -805,7 +810,11 @@ Parser.prototype._operator = function()
       case 'text':
         result.class = 'table';
         result.name = this._string();
+
+        if ( '(' !== this._peek().value ) break;
         result.children.push( this._schema() );
+
+        if ( '(' !== this._peek().value ) break;
         result.properties = this._properties().properties;
         break;
 
@@ -975,7 +984,7 @@ module.exports.loadTQLPlan = function(
 {
     try {
         const   parser = new Parser( module.exports.tokenise( text ) );
-        const   root = parser.parse()[0];
+        const   root = { name: 'plans', class: 'forest', children: parser.parse() };
 
         assignSymbols( root );
         common.createParentLinks( root );
