@@ -19,6 +19,45 @@ var TQL = require('./../d3/tql')
 ///////////////////////////////////////////////////////////////////////////
 
 describe('TQL parsing', function() {
+    it('should ignore comments', function() {
+        const   setup = [
+            '; comment ',
+            ' ; comment with leading whitespace',
+            ';',
+            '(database "BlackBox/Window")',
+            '; comment between plans',
+            '; (database "commented/out")',
+            '(table [tpcds].[catalog_sales]) ; comment at the end of a line',
+            '; comment at the end\n',
+        ].join( '\n' );
+
+        const   expected = [
+            {
+                name:   'database',
+                class:  'command',
+                children: [
+                    {
+                        name:   'BlackBox/Window',
+                        class:  'string',
+                    },
+                ],
+                properties: {},
+            },
+            {
+                name: '[catalog_sales]',
+                class:  'table',
+                children: [],
+                properties: {
+                    schema: '[tpcds]',
+                    table: '[catalog_sales]',
+                },
+            },
+        ];
+
+        const   actual = TQL.parse( setup );
+        expect( actual ).to.deep.equal( expected );
+    });
+
     it('should parse aggregate', function() {
         const   setup =
             '(aggregate ' +

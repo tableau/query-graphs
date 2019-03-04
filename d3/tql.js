@@ -51,17 +51,19 @@ const types = {
     string: /^"([^"]*"")*([^"]*)"/,
 };
 
+const whitespace = /^\s+|^;[^\n]*\n/;
+
 module.exports.token = function(
 
    string,
    pos = 0 )
 
 {
-    var sub = string.substr( pos );
-    let ws = sub.match ( /^\s*/ );
-    if ( ws ) {
+    for ( var sub = string.substr( pos ); ; sub = string.substr( pos ) ) {
+        let ws = sub.match ( whitespace );
+        if ( !ws ) break;
+
         pos += ws[0].length;
-        sub = string.substr( pos );
     }
 
     var token = Object.keys( types )
