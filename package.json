@@ -13,7 +13,7 @@
     "prebundle-tlv": "npm run bundle-uglify",
     "bundle-tlv": "tar -czf $npm_package_name-tlv-qt-$npm_package_version.tgz -C d3 query-graphs.tlv.html query-graphs.css query-graphs.min.js",
     "postinstall": "npm run bundle-tlv",
-    "lint": "eslint upload-server.js d3/query-graphs.js d3/common.js d3/colors.js d3/hyper.js d3/tableau.js d3/json.js d3/xml.js"
+    "lint": "eslint upload-server.js d3/query-graphs.js d3/common.js d3/colors.js d3/hyper.js d3/tableau.js d3/json.js d3/xml.js d3/tql.js"
   },
   "repository": {
     "type": "git",

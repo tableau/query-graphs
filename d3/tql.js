@@ -3,11 +3,16 @@
 // -----------------------------------------------------------------------------
 'use strict';
 
+/* eslint-disable spaced-comment */
+/* eslint-disable space-in-parens, computed-property-spacing, object-curly-spacing, array-bracket-spacing */
+/* eslint-disable no-multi-spaces, key-spacing */
+/* eslint-disable brace-style, comma-dangle, indent, yoda */
+
 const common = require('./common');
 
 ///////////////////////////////////////////////////////////////////////////
 
-/*------------------------------------------------------------------------
+/*-----------------------------------------------------------------------
   fail
 
   ---------------------------------------------------------------------------*/
@@ -24,7 +29,7 @@ function fail(
     throw error;
 }
 
-/*------------------------------------------------------------------------
+/*-----------------------------------------------------------------------
   token
 
   ---------------------------------------------------------------------------*/
@@ -50,23 +55,27 @@ module.exports.token = function(
    pos = 0 )
 
 {
-    for ( var sub = string.substr( pos ); ; sub = string.substr( pos ) ) {
-        let ws = sub.match ( whitespace );
-        if ( !ws ) break;
+    var sub = string.substr( pos );
+    for (; ; sub = string.substr( pos ) ) {
+        let ws = sub.match( whitespace );
+        if ( !ws ) { break; }
 
         pos += ws[0].length;
     }
 
     var token = Object.keys( types )
-        .reduce( function( token, type, index ) {
+        .reduce( function( token, type ) {
             let match = sub.match( types[ type ] );
-            if ( !match ) return token;
+            if ( !match ) { return token; }
 
             return { type: type, value: match[0], start: pos, end: pos + match[0].length };
         }, {} );
 
     if ( !( 'type' in token ) ) {
-        if ( pos < string.length ) fail( 'Invalid token starting at: "' + string.substr( pos, pos + 10 ) + '"...', { start: pos, end: pos } );
+        if ( pos < string.length ) {
+            fail( 'Invalid token starting at: "' + string.substr( pos, pos + 10 ) + '"...',
+                  { start: pos, end: pos }
+            ); }
         return token;
     }
 
@@ -75,10 +84,12 @@ module.exports.token = function(
         //  Keywords are case-insensitive
         token.value = token.value.toLowerCase();
         break;
+      default:
+        break;
     }
 
     return token;
-}
+};
 
 /*------------------------------------------------------------------------
   tokenise
@@ -93,14 +104,14 @@ module.exports.tokenise = function(
     var tokens = [];
     while ( pos < string.length ) {
         let token = module.exports.token( string, pos );
-        if ( !( 'end' in token ) ) break;
+        if ( !( 'end' in token ) ) { break; }
 
         tokens.push( token );
         pos = token.end;
     }
 
     return tokens;
-}
+};
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -108,12 +119,12 @@ module.exports.tokenise = function(
   Parser
 
   ---------------------------------------------------------------------------*/
-function Parser (
+function Parser(
 
     tokens )
 {
     if ( !(this instanceof Parser ) )
-        return new Parser( tokens );
+        { return new Parser( tokens ); }
 
     this._tokens = tokens;
     this._index = 0;
@@ -126,7 +137,7 @@ function Parser (
 Parser.prototype._done = function()
 {
     return this._index >= this._tokens.length;
-}
+};
 
 /*------------------------------------------------------------------------
   _peek
@@ -135,10 +146,10 @@ Parser.prototype._done = function()
 Parser.prototype._peek = function()
 {
     if ( this._done() )
-        fail( 'Unexpected end of the query', this._tokens[ this._tokens.length - 1 ] );
+        { fail( 'Unexpected end of the query', this._tokens[ this._tokens.length - 1 ] ); }
 
     return this._tokens[ this._index ];
-}
+};
 
 /*------------------------------------------------------------------------
   _next
@@ -150,7 +161,7 @@ Parser.prototype._next = function()
     this._index++;
 
     return next;
-}
+};
 
 /*------------------------------------------------------------------------
   _expect
@@ -162,11 +173,11 @@ Parser.prototype._expect = function(
 {
     const next = this._next();
 
-    if ( value != next.value )
-        fail( 'Expected "'+value+'" but got "'+next.value+'"', next );
+    if ( value !== next.value )
+        { fail( 'Expected "' + value + '" but got "' + next.value + '"', next ); }
 
     return next;
-}
+};
 
 /*------------------------------------------------------------------------
   _field
@@ -175,11 +186,11 @@ Parser.prototype._expect = function(
 Parser.prototype._field = function()
 {
     const part = this._next();
-    if ( 'field' != part.type )
-        fail( 'Expected field but got "'+ part.value + '"', part );
+    if ( 'field' !== part.type )
+        { fail( 'Expected field but got "' + part.value + '"', part ); }
 
     return { name: part.value, class: 'field' };
-}
+};
 
 /*------------------------------------------------------------------------
   _fields
@@ -192,12 +203,12 @@ Parser.prototype._fields = function(
     const   result = { name: name, class: 'fields', children: [] };
 
     this._expect( '(' );
-    while ( ')' != this._peek().value )
-        result.children.push( this._field() );
+    while ( ')' !== this._peek().value )
+        { result.children.push( this._field() ); }
     this._expect( ')' );
 
     return result;
-}
+};
 
 /*------------------------------------------------------------------------
   _tags
@@ -213,7 +224,7 @@ Parser.prototype._tags = function()
     this._expect( ')' );
 
     return result;
-}
+};
 
 /*------------------------------------------------------------------------
   _groups
@@ -227,13 +238,13 @@ Parser.prototype._groups = function(
 
     this._expect( '(' );
 
-    while ( ')' != this._peek().value )
-        result.children.push( this._tags() );
+    while ( ')' !== this._peek().value )
+        { result.children.push( this._tags() ); }
 
     this._expect( ')' );
 
     return result;
-}
+};
 
 /*------------------------------------------------------------------------
   _identifier
@@ -244,17 +255,17 @@ Parser.prototype._identifier = function()
     //  Really an array of dot-separated values
     const   result = [];
 
-    while ( true ) {
+    for ( ;; ) {
         const   field = this._field();
 
         result.push( field.name );
-        if ( '.' != this._peek().value ) break;
+        if ( '.' !== this._peek().value ) { break; }
 
         this._expect( '.' );
     }
 
     return result;
-}
+};
 
 /*------------------------------------------------------------------------
   _integer
@@ -263,11 +274,11 @@ Parser.prototype._identifier = function()
 Parser.prototype._integer = function()
 {
     const token = this._next();
-    if ( 'integer' != token.type )
-        fail( 'Expected integer but got "'+ token.value + '"', token );
+    if ( 'integer' !== token.type )
+        { fail( 'Expected integer but got "' + token.value + '"', token ); }
 
-    return parseInt( token.value );
-}
+    return parseInt( token.value, 10 );
+};
 
 /*------------------------------------------------------------------------
   _boolean
@@ -278,11 +289,11 @@ Parser.prototype._boolean = function()
     const   booleans = { true: true, false: false };
 
     const token = this._next();
-    if ( 'keyword' != token.type || !( token.value in booleans ) )
-        fail( 'Expected Boolean but got "'+ token.value + '"', token );
+    if ( 'keyword' !== token.type || !( token.value in booleans ) )
+        { fail( 'Expected Boolean but got "' + token.value + '"', token ); }
 
     return booleans[ token.value ];
-}
+};
 
 /*------------------------------------------------------------------------
   _string
@@ -291,11 +302,11 @@ Parser.prototype._boolean = function()
 Parser.prototype._string = function()
 {
     const token = this._next();
-    if ( 'string' != token.type )
-        fail( 'Expected string but got "'+ token.value + '"', token );
+    if ( 'string' !== token.type )
+        { fail( 'Expected string but got "' + token.value + '"', token ); }
 
     return token.value.slice( 1, -1 ).replace( /""/g, '"' );
-}
+};
 
 /*------------------------------------------------------------------------
   _keyword
@@ -304,11 +315,11 @@ Parser.prototype._string = function()
 Parser.prototype._keyword = function()
 {
     const token = this._next();
-    if ( 'keyword' != token.type )
-        fail( 'Expected keyword but got "'+ token.value + '"', token );
+    if ( 'keyword' !== token.type )
+        { fail( 'Expected keyword but got "' + token.value + '"', token ); }
 
     return token.value;
-}
+};
 
 /*------------------------------------------------------------------------
   _call
@@ -319,13 +330,13 @@ Parser.prototype._call = function()
     const name = this._next().value;
 
     const children = [];
-    while ( this._peek().value != ')' )
-       children.push( this._expr() );
+    while ( ')' !== this._peek().value )
+       { children.push( this._expr() ); }
 
     this._next( ')' );
 
     return { class: 'function', name: name, children: children };
-}
+};
 
 /*------------------------------------------------------------------------
   _expr
@@ -373,7 +384,7 @@ Parser.prototype._expr = function()
     }
 
     return result;
-}
+};
 
 /*------------------------------------------------------------------------
   _exprs
@@ -387,13 +398,13 @@ Parser.prototype._exprs = function(
 
     this._expect( '(' );
 
-    while ( ')' != this._peek().value )
-        result.children.push( this._expr() );
+    while ( ')' !== this._peek().value )
+        { result.children.push( this._expr() ); }
 
     this._expect( ')' );
 
     return result;
-}
+};
 
 /*------------------------------------------------------------------------
   _binding
@@ -408,8 +419,8 @@ Parser.prototype._binding = function()
 
     this._expect( ')' );
 
-    return { name: name.name, class: 'binding', children: [ expr ] };
-}
+    return { name: name.name, class: 'binding', children: [ expr, ] };
+};
 
 /*------------------------------------------------------------------------
   _bindings
@@ -423,13 +434,13 @@ Parser.prototype._bindings = function(
 
     this._expect( '(' );
 
-    while ( ')' != this._peek().value )
-        result.children.push( this._binding() );
+    while ( ')' !== this._peek().value )
+        { result.children.push( this._binding() ); }
 
     this._expect( ')' );
 
     return result;
-}
+};
 
 /*------------------------------------------------------------------------
   _rename
@@ -445,7 +456,7 @@ Parser.prototype._rename = function()
     this._expect( ')' );
 
     return { name: outer.name, source: inner.name, class: 'rename' };
-}
+};
 
 /*------------------------------------------------------------------------
   _renames
@@ -459,13 +470,13 @@ Parser.prototype._renames = function(
 
     this._expect( '(' );
 
-    while ( ')' != this._peek().value )
-        result.children.push( this._rename() );
+    while ( ')' !== this._peek().value )
+        { result.children.push( this._rename() ); }
 
     this._expect( ')' );
 
     return result;
-}
+};
 
 /*------------------------------------------------------------------------
   _orderby
@@ -480,12 +491,12 @@ Parser.prototype._orderby = function()
     result.name = this._field().name;
     result.sense = this._keyword();
     if ( 'field' === this._peek().type )
-        result.rank = this._field().name;
+        { result.rank = this._field().name; }
 
     this._expect( ')' );
 
     return result;
-}
+};
 
 /*------------------------------------------------------------------------
   _orderbys
@@ -499,13 +510,13 @@ Parser.prototype._orderbys = function(
 
     this._expect( '(' );
 
-    while ( ')' != this._peek().value )
-        result.children.push( this._orderby() );
+    while ( ')' !== this._peek().value )
+        { result.children.push( this._orderby() ); }
 
     this._expect( ')' );
 
     return result;
-}
+};
 
 /*------------------------------------------------------------------------
   _property
@@ -524,7 +535,7 @@ Parser.prototype._property = function()
     result[ name ] = value;
 
     return result;
-}
+};
 
 /*------------------------------------------------------------------------
   _properties
@@ -538,13 +549,13 @@ Parser.prototype._properties = function(
 
     this._expect( '(' );
 
-    while ( ')' != this._peek().value )
-        Object.assign( result.properties, this._property() );
+    while ( ')' !== this._peek().value )
+        { Object.assign( result.properties, this._property() ); }
 
     this._expect( ')' );
 
     return result;
-}
+};
 
 /*------------------------------------------------------------------------
   _schema
@@ -558,7 +569,7 @@ Parser.prototype._schema = function(
 
     this._expect( '(' );
 
-    while ( ')' != this._peek().value ) {
+    while ( ')' !== this._peek().value ) {
         const   column = this._properties();
         column.name = '[' + column.properties.name.replace( /\]/g, ']]' ) + ']';
         delete column.properties.name;
@@ -568,7 +579,7 @@ Parser.prototype._schema = function(
     this._expect( ')' );
 
     return result;
-}
+};
 
 /*------------------------------------------------------------------------
   conditions
@@ -604,8 +615,8 @@ Parser.prototype._operator = function()
 
     //  op
     const   token = this._next();
-    if ( 'keyword' != token.type )
-        fail( 'Expected operator name but got '+ next.value + '"', next );
+    if ( 'keyword' !== token.type )
+        { fail( 'Expected operator name but got ' + token.value + '"', token ); }
 
     //  operator structure
     const   result = {
@@ -619,14 +630,14 @@ Parser.prototype._operator = function()
       case 'aggregate':
       case 'ordaggr':
         result.children.push( this._operator() );
-        result.children.push( this._fields( 'groupbys' ) )
-        result.children.push( this._bindings( 'measures' ) )
+        result.children.push( this._fields( 'groupbys' ) );
+        result.children.push( this._bindings( 'measures' ) );
         break;
 
       case 'append':
         result.children.push( this._operator() );
         result.properties.imports = [];
-        while ( this._peek().value != ')' ) {
+        while ( ')' !== this._peek().value ) {
             result.children.push( this._operator() );
             result.properties.imports.push( this._renames() );
         }
@@ -658,12 +669,13 @@ Parser.prototype._operator = function()
         switch ( this._peek().type ) {
           case 'integer':   result.properties.thread = this._integer(); break;
           case 'keyword':   result.properties.ordered = this._boolean(); break;
+          default:          break;
         }
         break;
 
       case 'flowtable':
         result.children.push( this._operator() );
-        result.properties.encodings = ( 'keyword' == this._peek().type ) ? this._keyword() : 'none';
+        result.properties.encodings = ( 'keyword' === this._peek().type ) ? this._keyword() : 'none';
         break;
 
       case 'fraction':
@@ -726,7 +738,7 @@ Parser.prototype._operator = function()
         //  Turn the renames into conditions
         result.children[2] = conditions(
             result.children[2],
-            ( 'keyword' == this._peek().type ) ? this._keyword() : '='
+            ( 'keyword' === this._peek().type ) ? this._keyword() : '='
         );
         break;
 
@@ -752,8 +764,8 @@ Parser.prototype._operator = function()
 
       case 'positionaljoin':
         result.class = 'join';
-        while ( this._peek().value != ')' )
-            result.children.push( this._operator() );
+        while ( ')' !== this._peek().value )
+            { result.children.push( this._operator() ); }
         result.properties.join = 'inner';
         break;
 
@@ -787,7 +799,7 @@ Parser.prototype._operator = function()
 
       case 'shared':
         result.children.push( this._operator() );
-        result.properties.reference = parseInt( this._string() );
+        result.properties.reference = parseInt( this._string(), 10 );
         break;
 
       case 'table':
@@ -804,10 +816,10 @@ Parser.prototype._operator = function()
         result.class = 'table';
         result.name = this._string();
 
-        if ( '(' !== this._peek().value ) break;
+        if ( '(' !== this._peek().value ) { break; }
         result.children.push( this._schema() );
 
-        if ( '(' !== this._peek().value ) break;
+        if ( '(' !== this._peek().value ) { break; }
         result.properties = this._properties().properties;
         break;
 
@@ -815,7 +827,7 @@ Parser.prototype._operator = function()
       {
         this._expect( '(' );
         result.children.push( null );
-        while ( ')' != this._peek().value ) {
+        while ( ')' !== this._peek().value ) {
             let transform = this._transform();
             transform.children.push( result.children[0] );
             result.children[0] = transform;
@@ -851,7 +863,7 @@ Parser.prototype._operator = function()
     this._expect( ')' );
 
     return result;
-}
+};
 
 /*------------------------------------------------------------------------
   parse
@@ -862,10 +874,10 @@ Parser.prototype.parse = function()
     const result = [];
 
     while ( !this._done() )
-        result.push( this._operator() )
+        { result.push( this._operator() ); }
 
     return result;
-}
+};
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -882,7 +894,7 @@ module.exports.parse = function(
     const parser = new Parser( module.exports.tokenise( text, pos ) );
 
     return parser.parse();
-}
+};
 
 /*------------------------------------------------------------------------
   assignSymbols
@@ -899,13 +911,13 @@ function assignSymbols(
             switch ( n.class ) {
               case 'join':
                 if ( n.properties && n.properties.join )
-                    n.symbol = n.properties.join + "-join-symbol";
+                    { n.symbol = n.properties.join + "-join-symbol"; }
                 break;
 
               case 'table':
                 if ( 'TEMP' === n.properties.schema )
-                    n.symbol = "temp-table-symbol";
-                else n.symbol = "table-symbol";
+                    { n.symbol = "temp-table-symbol"; }
+                else { n.symbol = "table-symbol"; }
                 break;
 
               case 'remote':
@@ -919,6 +931,9 @@ function assignSymbols(
               case 'renames':
               case 'schema':
                 n.children.forEach( c => { c.edgeClass = "link-and-arrow"; } );
+                break;
+
+              default:
                 break;
             }
         },
@@ -939,7 +954,7 @@ function collapseNodes(
     graphCollapse )
 
 {
-    if (graphCollapse === 'n') return;
+    if (graphCollapse === 'n') { return; }
 
     const streamline = ( "s" === graphCollapse ) ? common.streamline : common.collapseAllChildren;
         common.visit( treeData,
@@ -990,4 +1005,4 @@ module.exports.loadTQLPlan = function(
         console.log( e );
         return { error: "TQL parse failed with '" + e + "' at (" + e.start + ", " + e.end + ")." };
     }
-}
+};

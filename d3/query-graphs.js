@@ -1048,7 +1048,7 @@ if (paramErrors.length) {
         } else if (path.extname(graphFile) === '.log') {
             loaders = [knownLoaders.tql];
         } else {
-            loaders = [knownLoaders.tableau, knownLoaders.hyper, knownLoaders.xml, knownLoaders.json, knownLoaders.tql ];
+            loaders = [knownLoaders.tableau, knownLoaders.hyper, knownLoaders.xml, knownLoaders.json, knownLoaders.tql];
         }
 
         // Try to load the data with the available loaders
