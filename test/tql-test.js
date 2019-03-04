@@ -1,11 +1,17 @@
 // -----------------------------------------------------------------------------
 // test/tql-test.js
 // -----------------------------------------------------------------------------
+'use strict';
 
-var chai = require('chai');
-var expect = chai.expect;
+/* eslint-disable spaced-comment */
+/* eslint-disable space-in-parens, computed-property-spacing, object-curly-spacing, array-bracket-spacing */
+/* eslint-disable no-multi-spaces, key-spacing */
+/* eslint-disable brace-style, comma-dangle, indent, yoda */
 
-var TQL = require('./../d3/tql')
+const chai = require('chai');
+const expect = chai.expect;
+
+const TQL = require('./../d3/tql');
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -85,7 +91,13 @@ describe('TQL parsing', function() {
                             {
                                 name: '[count]',
                                 class: 'binding',
-                                children: [ { class: 'function', name: 'total', children: [ { class: 'field', name: '[count]' } ] } ],
+                                children: [
+                                    {
+                                        class: 'function',
+                                        name: 'total',
+                                        children: [ { class: 'field', name: '[count]' } ]
+                                    }
+                                ],
                             },
                         ],
                     },
@@ -342,7 +354,13 @@ describe('TQL parsing', function() {
                             {
                                 name: '[sum]',
                                 class: 'binding',
-                                children: [ { class: 'function', name: 'total', children: [ { class: 'field', name: '[d_date_sk]' } ] } ],
+                                children: [
+                                    {
+                                        class: 'function',
+                                        name: 'total',
+                                        children: [ { class: 'field', name: '[d_date_sk]' } ]
+                                    }
+                                ],
                             },
                         ],
                     },
