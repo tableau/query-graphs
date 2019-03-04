@@ -52,12 +52,15 @@ const whitespace = /^\s+|^;[^\n]*\n/;
 module.exports.token = function(
 
    string,
-   pos = 0 )
+   pos )
 
 {
+    //  Default arguments...
+    pos = pos || 0;
+
     var sub = string.substr( pos );
     for (; ; sub = string.substr( pos ) ) {
-        let ws = sub.match( whitespace );
+        const   ws = sub.match( whitespace );
         if ( !ws ) { break; }
 
         pos += ws[0].length;
@@ -65,7 +68,7 @@ module.exports.token = function(
 
     var token = Object.keys( types )
         .reduce( function( token, type ) {
-            let match = sub.match( types[ type ] );
+            const   match = sub.match( types[ type ] );
             if ( !match ) { return token; }
 
             return { type: type, value: match[0], start: pos, end: pos + match[0].length };
@@ -98,12 +101,15 @@ module.exports.token = function(
 module.exports.tokenise = function(
 
    string,
-   pos = 0 )
+   pos )
 
 {
+    //  Default arguments...
+    pos = pos || 0;
+
     var tokens = [];
     while ( pos < string.length ) {
-        let token = module.exports.token( string, pos );
+        const   token = module.exports.token( string, pos );
         if ( !( 'end' in token ) ) { break; }
 
         tokens.push( token );
@@ -198,9 +204,9 @@ Parser.prototype._field = function()
   ---------------------------------------------------------------------------*/
 Parser.prototype._fields = function(
 
-    name = 'fields' )
+    name )
 {
-    const   result = { name: name, class: 'fields', children: [] };
+    const   result = { name: name || 'fields', class: 'fields', children: [] };
 
     this._expect( '(' );
     while ( ')' !== this._peek().value )
@@ -232,9 +238,9 @@ Parser.prototype._tags = function()
   ---------------------------------------------------------------------------*/
 Parser.prototype._groups = function(
 
-    name = 'groups' )
+    name )
 {
-    const   result = { name: name, class: 'groups', children: [] };
+    const   result = { name: name || 'groups', class: 'groups', children: [] };
 
     this._expect( '(' );
 
@@ -392,9 +398,9 @@ Parser.prototype._expr = function()
   ---------------------------------------------------------------------------*/
 Parser.prototype._exprs = function(
 
-    name = 'expressions' )
+    name )
 {
-    const   result = { name: name, class: 'expressions', children: [] };
+    const   result = { name: name || 'expressions', class: 'expressions', children: [] };
 
     this._expect( '(' );
 
@@ -428,9 +434,9 @@ Parser.prototype._binding = function()
   ---------------------------------------------------------------------------*/
 Parser.prototype._bindings = function(
 
-    name = 'expressions' )
+    name )
 {
-    const   result = { name: name, class: 'bindings', children: [] };
+    const   result = { name: name || 'expressions', class: 'bindings', children: [] };
 
     this._expect( '(' );
 
@@ -464,9 +470,9 @@ Parser.prototype._rename = function()
   ---------------------------------------------------------------------------*/
 Parser.prototype._renames = function(
 
-    name = 'renames' )
+    name )
 {
-    const   result = { name: name, class: 'renames', children: [], };
+    const   result = { name: name || 'renames', class: 'renames', children: [], };
 
     this._expect( '(' );
 
@@ -504,9 +510,9 @@ Parser.prototype._orderby = function()
   ---------------------------------------------------------------------------*/
 Parser.prototype._orderbys = function(
 
-    name = 'orderbys' )
+    name )
 {
-    const   result = { name: name, class: 'orderbys', children: [] };
+    const   result = { name: name || 'orderbys', class: 'orderbys', children: [] };
 
     this._expect( '(' );
 
@@ -543,9 +549,9 @@ Parser.prototype._property = function()
   ---------------------------------------------------------------------------*/
 Parser.prototype._properties = function(
 
-    name = 'properties' )
+    name )
 {
-    const   result = { name: name, class: 'properties', properties: {} };
+    const   result = { name: name || 'properties', class: 'properties', properties: {} };
 
     this._expect( '(' );
 
@@ -563,9 +569,9 @@ Parser.prototype._properties = function(
   ---------------------------------------------------------------------------*/
 Parser.prototype._schema = function(
 
-    name = 'schema' )
+    name )
 {
-    const   result = { name: name, class: 'schema', children: [] };
+    const   result = { name: name || 'schema', class: 'schema', children: [] };
 
     this._expect( '(' );
 
@@ -591,7 +597,7 @@ function conditions(
     op )
 
 {
-    const   children = renames.children.map( rename => {
+    const   children = renames.children.map( function( rename ) {
         return {
             name: op,
             class: 'function',
@@ -828,7 +834,7 @@ Parser.prototype._operator = function()
         this._expect( '(' );
         result.children.push( null );
         while ( ')' !== this._peek().value ) {
-            let transform = this._transform();
+            const   transform = this._transform();
             transform.children.push( result.children[0] );
             result.children[0] = transform;
         }
@@ -888,9 +894,12 @@ Parser.prototype.parse = function()
 module.exports.parse = function(
 
     text,
-    pos = 0 )
+    pos )
 
 {
+    //  Default arguments...
+    pos = pos || 0;
+
     const parser = new Parser( module.exports.tokenise( text, pos ) );
 
     return parser.parse();
@@ -930,7 +939,7 @@ function assignSymbols(
               case 'orderbys':
               case 'renames':
               case 'schema':
-                n.children.forEach( c => { c.edgeClass = "link-and-arrow"; } );
+                n.children.forEach( function( c ) { c.edgeClass = "link-and-arrow"; } );
                 break;
 
               default:
@@ -987,9 +996,12 @@ function collapseNodes(
 module.exports.loadTQLPlan = function(
 
     text,
-    collapse = 'n' )
+    collapse )
 
 {
+    //  Default arguments...
+    collapse = collapse || 'n';
+
     try {
         const   parser = new Parser( module.exports.tokenise( text ) );
         const   root = { name: 'plans', class: 'forest', children: parser.parse() };
