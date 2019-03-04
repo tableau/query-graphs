@@ -21,8 +21,9 @@ View example query visualizations at
 * <https://tableau.github.io/query-graphs/d3/query-graphs.tlv.html?file=tableau/joins.xml>,
 * <https://tableau.github.io/query-graphs/d3/query-graphs.tlv.html?file=tableau/query-function.xml&collapse=n>,
 * <https://tableau.github.io/query-graphs/d3/query-graphs.tlv.html?file=tableau/dint4.xml>,
-* <https://tableau.github.io/query-graphs/d3/query-graphs.tlv.html?file=hyper/query2.json>, or
-* <https://tableau.github.io/query-graphs/d3/query-graphs.tlv.html?file=hyper/steps2.json&orientation=left-to-right>.
+* <https://tableau.github.io/query-graphs/d3/query-graphs.tlv.html?file=hyper/query2.json>,
+* <https://tableau.github.io/query-graphs/d3/query-graphs.tlv.html?file=hyper/steps2.json&orientation=left-to-right>, or
+* <https://tableau.github.io/query-graphs/d3/query-graphs.tlv.html?file=tql/iejoin.tql&collapse=n>
 
 Directory Structure
 -------------------
