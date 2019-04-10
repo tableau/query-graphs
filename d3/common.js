@@ -96,9 +96,9 @@ function forceToString(d) {
 
 // Format a number using metric suffixes
 function formatMetric(x) {
-    var sizes = ["", "k", "M", "G", "T", "E", "P"];
+    var sizes = ["", "k", "M", "G", "T", "P", "E", "Z", "Y"];
     var idx = 0;
-    while (x > 1000 && idx < sizes.length) {
+    while (x > 1000 && idx < (sizes.length - 1)) {
         x /= 1000;
         ++idx;
     }
