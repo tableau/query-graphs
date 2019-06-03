@@ -152,7 +152,7 @@ app.get("/favorites", function(req, res) {
             for (var j = commonLen; j < relPath.length; ++j) {
                 html += "<li>" + escapeHtml(relPath[j]) + "<ul>";
             }
-            html += "<li><a href='d3/query-graphs.html?file=" +
+            html += "<li><a href='/d3/query-graphs.html?file=" +
                     encodeURIComponent(relName) + "'>" + escapeHtml(fileName) + "</a></li>";
             lastPath = relPath;
         });
