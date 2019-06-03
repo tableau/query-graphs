@@ -305,15 +305,11 @@ function defineSymbols(baseSvg, ooo) {
 //
 // Abbreviate all names if they are too long
 //
-function abbreviateNames(treeData) {
-    common.visit(treeData, function(node) {
-        // Do not use the full name if it is too long (to avoid label overlap)
-        if (node.name && node.name.length > MAX_DISPLAY_LENGTH) {
-            node.fullName = node.name;
-            // Use of ellipsis character …, different from triple dots ...
-            node.name = node.name.substring(0, MAX_DISPLAY_LENGTH) + "…";
-        }
-    }, common.allChildren);
+function abbreviateName(name) {
+    if (name && name.length > MAX_DISPLAY_LENGTH) {
+        return name.substring(0, MAX_DISPLAY_LENGTH) + "…";
+    }
+    return name;
 }
 
 //
@@ -734,20 +730,17 @@ function drawQueryTree(target, treeData) {
                 return ooo.textanchor(d);
             })
             .text(function(d) {
-                return d.name;
+                return abbreviateName(d.name);
             })
             .style("fill-opacity", 0);
 
-        // Update the text to reflect whether node has children or not.
+        // Update the text position to reflect whether node has children or not.
         node.select('text')
             .attr(ooo.textdimension(), function(d) {
                 return ooo.textdimensionoffset(d);
             })
             .attr("text-anchor", function(d) {
                 return ooo.textanchor(d);
-            })
-            .text(function(d) {
-                return d.name;
             });
 
         // Change the symbol style class depending on whether it has children and is collapsed
@@ -1064,7 +1057,6 @@ if (paramErrors.length) {
             return true;
         }
         if (loaders.some(tryLoad)) {
-            abbreviateNames(loadedTree.root);
             if (loadedTree.properties === undefined) {
                 loadedTree.properties = {};
             }
