@@ -15,4 +15,4 @@ export function colorFederated(treeData) {
             d.nodeClass = d.parent.federated;
         }
     }, common.allChildren);
-};
+}
