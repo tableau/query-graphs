@@ -22,7 +22,6 @@ var delay = (function() {
 
 window.addEventListener("resize", function() {
     delay(function() {
-        console.log("resize!");
         // Adjust the view box
         var svgElement = document.getElementsByTagName("svg")[0];
         svgElement.setAttribute("viewBox", "0 0 " +
@@ -265,7 +264,6 @@ function linkCrossLinks(root, crosslinks) {
 //   * _children: an array containing all child nodes, including hidden nodes
 //   * <most other>: displayed as part of the tooltip
 export function drawQueryTree(target, treeData) {
-    var svgGroup;
     var root = d3hierarchy.hierarchy(treeData.root, common.allChildren);
     var crosslinks = linkCrossLinks(root, treeData.crosslinks);
     var graphOrientation = treeData.graphOrientation ? treeData.graphOrientation : "top-to-bottom";
@@ -285,7 +283,8 @@ export function drawQueryTree(target, treeData) {
     maxLabelLength = Math.min(maxLabelLength, MAX_DISPLAY_LENGTH);
 
     // Misc. variables
-    var i = 0;
+    var svgGroup;
+    var nextId = 0;
     var duration = 750;
 
     // Size of the diagram
@@ -675,7 +674,7 @@ export function drawQueryTree(target, treeData) {
         // Update the nodes…
         var node = svgGroup.selectAll("g.node")
             .data(nodes, function(d) {
-                return d.id || (d.id = ++i);
+                return d.id || (d.id = ++nextId);
             });
 
         // Enter any new nodes at the parent's previous position.
