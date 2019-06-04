@@ -1,0 +1,31 @@
+{
+  "extends": "google",
+  "env": {
+    "browser": true,
+    "node": true
+  },
+  "rules": {
+    "indent": [
+      1,
+      4,
+      {
+        "SwitchCase": 1
+      }
+    ],
+    "max-len": [
+      2,
+      132
+    ],
+    "no-return-assign": [
+      2,
+      "except-parens"
+    ],
+    "no-unused-vars": [
+      2,
+      {
+        "argsIgnorePattern": "^_"
+      }
+    ],
+    "require-jsdoc": 0
+  }
+}

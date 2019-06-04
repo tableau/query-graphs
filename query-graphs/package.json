@@ -1,0 +1,54 @@
+{
+  "name": "query-graphs",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Helping people see and understand queries.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tableau/query-graphs.git",
+    "directory": "query-graphs"
+  },
+  "author": {
+    "name": "Rick Cole",
+    "email": "ricole@tableau.com"
+  },
+  "contributors": [
+    {
+      "name": "Luis Enciso",
+      "email": "lenciso@tableau.com"
+    },
+    {
+      "name": "Adrian Vogelsgesang",
+      "email": "avogelsgesang@tableau.com"
+    },
+    {
+      "name": "Richard Wesley",
+      "email": "hawkfish@tableau.com"
+    }
+  ],
+  "license": "MIT",
+  "files": [
+    "src/*.js",
+    "style/*.*"
+  ],
+  "directories": {
+    "lib": "lib/",
+    "test": "test/"
+  },
+  "style": "style/query-graphs.css",
+  "dependencies": {
+    "d3": "^3.5.16",
+    "d3-tip": "^0.6.7",
+    "xml2js": "^0.4.16"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "eslint": "^2.2.0",
+    "eslint-config-google": "^0.4.0",
+    "mocha": "^6.0.2"
+  },
+  "scripts": {
+    "test": "mocha --watch --recursive",
+    "lint": "eslint ."
+  }
+}

@@ -18,23 +18,20 @@ Query Graphs is also used by the
 to visualize query artifacts in Tableau's log files.
 
 View example query visualizations at
-* <https://tableau.github.io/query-graphs/d3/query-graphs.tlv.html?file=tableau/joins.xml>,
-* <https://tableau.github.io/query-graphs/d3/query-graphs.tlv.html?file=tableau/query-function.xml&collapse=n>,
-* <https://tableau.github.io/query-graphs/d3/query-graphs.tlv.html?file=tableau/dint4.xml>,
-* <https://tableau.github.io/query-graphs/d3/query-graphs.tlv.html?file=hyper/query2.json>,
-* <https://tableau.github.io/query-graphs/d3/query-graphs.tlv.html?file=hyper/steps2.json&orientation=left-to-right>, or
-* <https://tableau.github.io/query-graphs/d3/query-graphs.tlv.html?file=tql/iejoin.tql>
+* <https://tableau.github.io/query-graphs/standalone-server/webroot/query-graphs.tlv.html?file=tableau/joins.xml>,
+* <https://tableau.github.io/query-graphs/standalone-server/webroot/query-graphs.tlv.html?file=tableau/query-function.xml&collapse=n>,
+* <https://tableau.github.io/query-graphs/standalone-server/webroot/query-graphs.tlv.html?file=tableau/dint4.xml>,
+* <https://tableau.github.io/query-graphs/standalone-server/webroot/query-graphs.tlv.html?file=hyper/query2.json>,
+* <https://tableau.github.io/query-graphs/standalone-server/webroot/query-graphs.tlv.html?file=hyper/steps2.json&orientation=left-to-right>, or
+* <https://tableau.github.io/query-graphs/standalone-server/webroot/query-graphs.tlv.html?file=tql/iejoin.tql>
 
-Directory Structure
+Project Structure
 -------------------
 
-```
-Directory       | Description
----------       | -----------
-d3              | query visualization artifacts
-media           | screen captures, sample queries, uploads
-result-table    | for side-by-side query comparisons
-```
+This repository is a monorepo currently consisting of the following projects:
+
+* `query-graphs`: the reusable tree-loading and rendering components
+* `standalone-server`: a stand-alone server which allows to visualize query plans
 
 Installation
 ------------
@@ -47,26 +44,28 @@ Install also creates browserify bundles for the visualization service and for us
 
 ```shell
 git clone https://github.com/tableau/query-graphs.git
-cd query-graphs
+cd query-graphs/query-graphs
+npm install (or npm install --production for an install with no development dependencies)
+cd ../standalone-server
 npm install (or npm install --production for an install with no development dependencies)
 node upload-server.js
 ```
 
 After local installation and server start, open example query visualizations file at
-* <http://localhost:3000/d3/query-graphs.html?file=tableau/joins.xml>,
-* <http://localhost:3000/d3/query-graphs.html?file=tableau/query-function.xml&collapse=n>,
-* <http://localhost:3000/d3/query-graphs.html?file=tableau/dint4.xml>,
-* <http://localhost:3000/d3/query-graphs.html?file=hyper/query2.json>, or
-* <http://localhost:3000/d3/query-graphs.html?file=hyper/steps2.json&orientation=left-to-right>,
-* <http://localhost:3000/d3/query-graphs.html?file=tql/iejoin.tql>,
+* <http://localhost:3000/query-graphs.html?file=tableau/joins.xml>,
+* <http://localhost:3000/query-graphs.html?file=tableau/query-function.xml&collapse=n>,
+* <http://localhost:3000/query-graphs.html?file=tableau/dint4.xml>,
+* <http://localhost:3000/query-graphs.html?file=hyper/query2.json>, or
+* <http://localhost:3000/query-graphs.html?file=hyper/steps2.json&orientation=left-to-right>,
+* <http://localhost:3000/query-graphs.html?file=tql/iejoin.tql>,
 
 Open the upload form at
-<http://localhost:3000/d3/upload-form.html>.
+<http://localhost:3000/upload-form.html>.
 LogicalQuery XML, QueryFunction XML, or Hyper query-plan JSON, as files or text,
 may be uploaded to the express service for visualization.
 
 Open the side-by-side query comparison at
-<http://localhost:3000/result-table/compare_layout.html?left=3d5c935c.xml&right=3d5c935c.xml&left-label=before&right-label=after>.
+<http://localhost:3000/compare-layout.html>.
 
 Query String Parameters
 -----------------------
@@ -104,6 +103,7 @@ Build instructions to create the JavaScript bundle containing all required depen
 Run after any changes to query-graphs.js or its module dependencies.
 
 ```shell
+cd standalone-server
 npm run bundle
 ```
 
@@ -111,6 +111,7 @@ To create an archive containing the bundle and associated files for the Tableau 
 the following. Extract the archive in tlv-qt/query-graphs, a subdirectory in the tlv-qt project.
 
 ```shell
+cd standalone-server
 npm run bundle-tlv
 ```
 
@@ -125,6 +126,5 @@ npm run lint
 Acknowledgements
 ----------------
 
-The dragging, zooming, panning, panning, collapsing functionality originated from
+The dragging, zooming, panning, collapsing functionality originated from
 “D3.js Drag and Drop, Zoomable, Panning, Collapsible Tree with Auto-Sizing” (Rob Schmuecker’s block #7880033).
-
