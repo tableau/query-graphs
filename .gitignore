@@ -7,7 +7,9 @@
 .vscode
 npm-debug.log
 node_modules
-media/uploads/*
-!media/uploads/3d5c935c.xml
-d3/query-graphs.bundle.js
 package-lock.json
+standalone-server/media/uploads/*
+standalone-server/media/uploads/
+!standalone-server/media/uploads/3d5c935c.xml
+standalone-server/webroot/query-graphs.bundle.css
+standalone-server/webroot/query-graphs.bundle.js

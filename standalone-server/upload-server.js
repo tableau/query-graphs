@@ -20,14 +20,12 @@ app.use(compression());
 app.use(bodyParser.urlencoded({extended: false, limit: "2mb"}));
 
 app.get("/", function(req, res) {
-    res.redirect("d3/upload-form.html");
+    res.redirect("upload-form.html");
     res.end();
 });
 
-app.use("/d3", express.static("d3"));
+app.use("/", express.static("webroot"));
 app.use("/media", express.static("media"));
-app.use("/node_modules", express.static("node_modules"));
-app.use("/result-table", express.static("result-table"));
 
 function generateRandomFilename(extname) {
     // 4 bytes for strings of length 8
@@ -99,7 +97,7 @@ function deleteOldFiles() {
 app.post("/file-upload", upload.single("queryfile"), function(req, res, _next) {
     console.log("/file-upload called");
     deleteOldFiles();
-    var visualizationUrl = "http://" + req.get("host") + "/d3/query-graphs.html?upload=y&file=" + req.file.filename;
+    var visualizationUrl = "http://" + req.get("host") + "/query-graphs.html?upload=y&file=" + req.file.filename;
     console.log(req.body);
     if (req.body && req.body.redirect && req.body.redirect === "yes") {
         // Redirect to the Visualization URL
@@ -118,7 +116,7 @@ app.post("/text-upload", function(req, res) {
     fs.writeFileSync(UPLOAD_DIR + filename, querytext);
     deleteOldFiles();
     // Redirect to the Visualization URL
-    res.redirect("http://" + req.get("host") + "/d3/query-graphs.html?upload=y&file=" + filename);
+    res.redirect("http://" + req.get("host") + "/query-graphs.html?upload=y&file=" + filename);
 });
 
 function escapeHtml(unsafe) {
@@ -152,7 +150,7 @@ app.get("/favorites", function(req, res) {
             for (var j = commonLen; j < relPath.length; ++j) {
                 html += "<li>" + escapeHtml(relPath[j]) + "<ul>";
             }
-            html += "<li><a href='/d3/query-graphs.html?file=" +
+            html += "<li><a href='/query-graphs.html?file=" +
                     encodeURIComponent(relName) + "'>" + escapeHtml(fileName) + "</a></li>";
             lastPath = relPath;
         });

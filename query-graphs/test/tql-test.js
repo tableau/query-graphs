@@ -11,7 +11,7 @@
 const chai = require('chai');
 const expect = chai.expect;
 
-const TQL = require('./../d3/tql');
+const TQL = require('../lib/tql');
 
 ///////////////////////////////////////////////////////////////////////////
 

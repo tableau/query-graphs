@@ -2,23 +2,19 @@
 var path = require('path');
 
 // Require local modules
-var treeRendering = require('./tree-rendering');
+var treeRendering = require('query-graphs/lib/tree-rendering');
 var knownLoaders = {
-    hyper: require('./hyper').loadHyperPlan,
-    tableau: require('./tableau').loadTableauPlan,
-    json: require('./json').loadJson,
-    tql: require('./tql').loadTQLPlan,
-    xml: require('./xml').loadXml,
+    hyper: require('query-graphs/lib/hyper').loadHyperPlan,
+    tableau: require('query-graphs/lib/tableau').loadTableauPlan,
+    json: require('query-graphs/lib/json').loadJson,
+    tql: require('query-graphs/lib/tql').loadTQLPlan,
+    xml: require('query-graphs/lib/xml').loadXml,
     raw: JSON.parse
 };
 
 // Require node modules
-var d3 = require('d3');
-var d3tip = require('d3-tip');
+var d3 = require('query-graphs/node_modules/d3');
 var Spinner = require('spin');
-
-// Initialize tooltip
-d3tip(d3);
 
 // Get query parameters from current url
 var paramErrors = [];
@@ -103,7 +99,6 @@ if (queryObject.properties) {
 if (!inlineString) {
     toplevelProperties.file = graphFile;
 }
-
 
 //
 // Retrieve graph data
