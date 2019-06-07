@@ -23,7 +23,7 @@ View example query visualizations at
 * <https://tableau.github.io/query-graphs/d3/query-graphs.tlv.html?file=tableau/dint4.xml>,
 * <https://tableau.github.io/query-graphs/d3/query-graphs.tlv.html?file=hyper/query2.json>,
 * <https://tableau.github.io/query-graphs/d3/query-graphs.tlv.html?file=hyper/steps2.json&orientation=left-to-right>, or
-* <https://tableau.github.io/query-graphs/d3/query-graphs.tlv.html?file=tql/iejoin.tql&collapse=n>
+* <https://tableau.github.io/query-graphs/d3/query-graphs.tlv.html?file=tql/iejoin.tql>
 
 Directory Structure
 -------------------
@@ -58,7 +58,7 @@ After local installation and server start, open example query visualizations fil
 * <http://localhost:3000/d3/query-graphs.html?file=tableau/dint4.xml>,
 * <http://localhost:3000/d3/query-graphs.html?file=hyper/query2.json>, or
 * <http://localhost:3000/d3/query-graphs.html?file=hyper/steps2.json&orientation=left-to-right>,
-* <http://localhost:3000/d3/query-graphs.html?file=tql/iejoin.tql&collapse=n>,
+* <http://localhost:3000/d3/query-graphs.html?file=tql/iejoin.tql>,
 
 Open the upload form at
 <http://localhost:3000/d3/upload-form.html>.
