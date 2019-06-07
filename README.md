@@ -21,8 +21,9 @@ View example query visualizations at
 * <https://tableau.github.io/query-graphs/d3/query-graphs.tlv.html?file=tableau/joins.xml>,
 * <https://tableau.github.io/query-graphs/d3/query-graphs.tlv.html?file=tableau/query-function.xml&collapse=n>,
 * <https://tableau.github.io/query-graphs/d3/query-graphs.tlv.html?file=tableau/dint4.xml>,
-* <https://tableau.github.io/query-graphs/d3/query-graphs.tlv.html?file=hyper/query2.json>, or
-* <https://tableau.github.io/query-graphs/d3/query-graphs.tlv.html?file=hyper/steps2.json&orientation=left-to-right>.
+* <https://tableau.github.io/query-graphs/d3/query-graphs.tlv.html?file=hyper/query2.json>,
+* <https://tableau.github.io/query-graphs/d3/query-graphs.tlv.html?file=hyper/steps2.json&orientation=left-to-right>, or
+* <https://tableau.github.io/query-graphs/d3/query-graphs.tlv.html?file=tql/iejoin.tql&collapse=n>
 
 Directory Structure
 -------------------
@@ -57,13 +58,14 @@ After local installation and server start, open example query visualizations fil
 * <http://localhost:3000/d3/query-graphs.html?file=tableau/dint4.xml>,
 * <http://localhost:3000/d3/query-graphs.html?file=hyper/query2.json>, or
 * <http://localhost:3000/d3/query-graphs.html?file=hyper/steps2.json&orientation=left-to-right>,
+* <http://localhost:3000/d3/query-graphs.html?file=tql/iejoin.tql&collapse=n>,
 
-Open the upload form at 
+Open the upload form at
 <http://localhost:3000/d3/upload-form.html>.
 LogicalQuery XML, QueryFunction XML, or Hyper query-plan JSON, as files or text,
 may be uploaded to the express service for visualization.
 
-Open the side-by-side query comparison at 
+Open the side-by-side query comparison at
 <http://localhost:3000/result-table/compare_layout.html?left=3d5c935c.xml&right=3d5c935c.xml&left-label=before&right-label=after>.
 
 Query String Parameters
@@ -120,9 +122,9 @@ its installation could be avoided by using **npm install --production** above.)
 npm run lint
 ```
 
-Acknowledgements 
+Acknowledgements
 ----------------
 
-The dragging, zooming, panning, panning, collapsing functionality originated from 
+The dragging, zooming, panning, panning, collapsing functionality originated from
 “D3.js Drag and Drop, Zoomable, Panning, Collapsible Tree with Auto-Sizing” (Rob Schmuecker’s block #7880033).
 

@@ -1,11 +1,11 @@
 {
   "name": "query-graphs",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "description": "Helping people see and understand queries.",
   "main": "d3/query-graphs.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha --watch --recursive",
     "bundle": "browserify d3/query-graphs.js -d -o d3/query-graphs.bundle.js",
     "bundle-list": "browserify d3/query-graphs.js --list",
     "prebundle-uglify": "npm run bundle",
@@ -13,7 +13,7 @@
     "prebundle-tlv": "npm run bundle-uglify",
     "bundle-tlv": "tar -czf $npm_package_name-tlv-qt-$npm_package_version.tgz -C d3 query-graphs.tlv.html query-graphs.css query-graphs.min.js",
     "postinstall": "npm run bundle-tlv",
-    "lint": "eslint upload-server.js d3/query-graphs.js d3/common.js d3/colors.js d3/hyper.js d3/tableau.js d3/json.js d3/xml.js"
+    "lint": "eslint upload-server.js d3/query-graphs.js d3/common.js d3/colors.js d3/hyper.js d3/tableau.js d3/json.js d3/xml.js d3/tql.js"
   },
   "repository": {
     "type": "git",
@@ -38,8 +38,10 @@
     "xml2js": "^0.4.16"
   },
   "devDependencies": {
+    "chai": "^4.2.0",
     "eslint": "^2.2.0",
-    "eslint-config-google": "^0.4.0"
+    "eslint-config-google": "^0.4.0",
+    "mocha": "^6.0.2"
   },
   "eslintConfig": {
     "extends": "google",

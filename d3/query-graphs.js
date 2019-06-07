@@ -7,6 +7,7 @@ var common = require('./common');
 var knownLoaders = {
     hyper: require('./hyper').loadHyperPlan,
     tableau: require('./tableau').loadTableauPlan,
+    tql: require('./tql').loadTQLPlan,
     json: require('./json').loadJson,
     xml: require('./xml').loadXml,
     raw: JSON.parse
@@ -1042,8 +1043,12 @@ if (paramErrors.length) {
             loaders = [knownLoaders.tableau, knownLoaders.xml];
         } else if (path.extname(graphFile) === '.twb') {
             loaders = [knownLoaders.xml];
+        } else if (path.extname(graphFile) === '.tql') {
+            loaders = [knownLoaders.tql];
+        } else if (path.extname(graphFile) === '.log') {
+            loaders = [knownLoaders.tql];
         } else {
-            loaders = [knownLoaders.tableau, knownLoaders.hyper, knownLoaders.xml, knownLoaders.json];
+            loaders = [knownLoaders.tableau, knownLoaders.hyper, knownLoaders.xml, knownLoaders.json, knownLoaders.tql];
         }
 
         // Try to load the data with the available loaders
