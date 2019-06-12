@@ -34,7 +34,7 @@ function createParentLinks(tree) {
             }
             return children;
         }
-        return null;
+        return [];
     });
 }
 
@@ -42,7 +42,7 @@ function createParentLinks(tree) {
 function collapseAllChildren(d) {
     var children = (d.children) ? d.children : [];
     var _children = (d._children) ? d._children : [];
-    d.children = null;
+    d.children = [];
     d._children = children.length > _children.length ? children : _children;
     return d;
 }
@@ -52,15 +52,15 @@ function expandAllChildren(d) {
     var children = (d.children) ? d.children : [];
     var _children = (d._children) ? d._children : [];
     d.children = children.length > _children.length ? children : _children;
-    d._children = null;
+    d._children = [];
     return d;
 }
 // Collapse the given node in its parent node
 // Requires parent links to be present (e.g., created by `createParentLinks`)
 function streamline(d) {
     if (d.parent) {
-        if (d.parent._children && d.parent._children !== null && d.parent._children.length > 0) {
-            // save all of the original children in _chidren one time only
+        if (d.parent._children && d.parent._children.length > 0) {
+            // save all of the original children in _children one time only
         } else {
             d.parent._children = d.parent.children.slice(0);
         }

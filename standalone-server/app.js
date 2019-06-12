@@ -13,7 +13,7 @@ var knownLoaders = {
 };
 
 // Require node modules
-var d3 = require('query-graphs/node_modules/d3');
+var d3Fetch = require('query-graphs/node_modules/d3-fetch');
 var Spinner = require('spin');
 
 // Get query parameters from current url
@@ -101,17 +101,6 @@ if (!inlineString) {
 }
 
 //
-// Retrieve graph data
-//
-function retrieveData(callback) {
-    if (inlineString) {
-        callback(null, inlineString);
-    } else {
-        d3.text(directory + graphFile, callback);
-    }
-}
-
-//
 // Kick it off
 //
 var spinner = new Spinner().spin(document.body);
@@ -122,12 +111,7 @@ if (paramErrors.length) {
         return a + "<br/>" + b;
     }));
 } else {
-    retrieveData(function(err, graphString) {
-        if (err) {
-            document.write("Request for '" + directory + graphFile + "' failed with '" + err + "'.");
-            return;
-        }
-
+    var displayTree = function(graphString) {
         // Remove explicit newlines
         graphString = graphString.replace(/\\n/gm, " ");
         // Detect file type
@@ -180,5 +164,13 @@ if (paramErrors.length) {
                 return a + "<br/>" + b;
             }));
         }
-    });
+    };
+    if (inlineString) {
+        displayTree(inlineString);
+    } else {
+        d3Fetch.text(directory + graphFile)
+            .then(displayTree, function(err) {
+                document.write("Request for '" + directory + graphFile + "' failed with '" + err + "'.");
+            });
+    }
 }
