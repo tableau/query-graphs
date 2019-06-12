@@ -222,6 +222,24 @@ function escapeHtml(unsafe) {
         .replace(/"/g, "&quot;").replace(/'/g, "&#039;");
 }
 
+// Link cross-links against a d3 hierarchy
+function linkCrossLinks(root, crosslinks) {
+    if (!crosslinks) {
+        return [];
+    }
+    var descendants = root.descendants();
+    function map(d) {
+        return descendants.find(function(h) {
+            return h.data === d;
+        });
+    }
+    var linked = [];
+    crosslinks.forEach(function(l) {
+        linked.push({source: map(l.source), target: map(l.target)});
+    });
+    return linked;
+}
+
 //
 // Draw query tree
 //
@@ -247,15 +265,15 @@ function escapeHtml(unsafe) {
 //   * <most other>: displayed as part of the tooltip
 function drawQueryTree(target, treeData) {
     var svgGroup;
-    var root = treeData.root;
-    var crosslinks = treeData.crosslinks;
+    var root = d3.hierarchy(treeData.root, common.allChildren);
+    var crosslinks = linkCrossLinks(root, treeData.crosslinks);
     var graphOrientation = treeData.graphOrientation ? treeData.graphOrientation : "top-to-bottom";
     var DEBUG = treeData.DEBUG ? treeData.DEBUG : false;
 
     // Call visit function to establish maxLabelLength
     var totalNodes = 0;
     var maxLabelLength = 0;
-    common.visit(root, function(d) {
+    common.visit(treeData.root, function(d) {
         totalNodes++;
         if (d.name) {
             maxLabelLength = Math.max(d.name.length, maxLabelLength);
@@ -279,7 +297,7 @@ function drawQueryTree(target, treeData) {
     // Orientation mapping
     var orientations = {
         "top-to-bottom": {
-            size: [viewerWidth, viewerHeight],
+            link: d3.linkVertical,
             x: function(d) {
                 return d.x;
             },
@@ -301,11 +319,11 @@ function drawQueryTree(target, treeData) {
             nodesep: function(a, b) {
                 return a.parent === b.parent ? 1 : 1;
             },
-            rootx: function(scale) {
-                return -root.x0 * scale + viewerWidth / 2;
+            rootx: function(_scale) {
+                return root.x0;
             },
-            rooty: function(_scale) {
-                return 100;
+            rooty: function(scale) {
+                return root.y0 + (viewerHeight / 2 - 100) / scale;
             },
             sourcecrosslink: function(d) {
                 return {x: d.source.x - crosslinkRawSpacing.offset, y: d.source.y + crosslinkRawSpacing.direction};
@@ -316,7 +334,7 @@ function drawQueryTree(target, treeData) {
             arrowRotation: "270deg"
         },
         "right-to-left": {
-            size: [viewerHeight, viewerWidth],
+            link: d3.linkHorizontal,
             x: function(d) {
                 return viewerWidth - d.y;
             },
@@ -339,10 +357,10 @@ function drawQueryTree(target, treeData) {
                 return a.parent === b.parent ? 1 : 1.5;
             },
             rootx: function(scale) {
-                return -root.x0 * scale + viewerWidth - maxLabelLength * 6;
+                return root.x0 - (viewerWidth / 2 - maxLabelLength * 6) / scale;
             },
-            rooty: function(scale) {
-                return -root.y0 * scale + viewerHeight / 2;
+            rooty: function(_scale) {
+                return root.y0;
             },
             sourcecrosslink: function(d) {
                 return {x: d.source.x - crosslinkRawSpacing.direction, y: d.source.y - crosslinkRawSpacing.offset};
@@ -353,7 +371,7 @@ function drawQueryTree(target, treeData) {
             arrowRotation: "0deg"
         },
         "bottom-to-top": {
-            size: [viewerWidth, viewerHeight],
+            link: d3.linkVertical,
             x: function(d) {
                 return d.x;
             },
@@ -375,11 +393,11 @@ function drawQueryTree(target, treeData) {
             nodesep: function(a, b) {
                 return a.parent === b.parent ? 1 : 1;
             },
-            rootx: function(scale) {
-                return -root.x0 * scale + viewerWidth / 2;
+            rootx: function(_scale) {
+                return root.x0;
             },
             rooty: function(scale) {
-                return -root.y0 * scale + viewerHeight - 50;
+                return root.y0 - (viewerHeight / 2 - 50) / scale;
             },
             sourcecrosslink: function(d) {
                 return {x: d.source.x - crosslinkRawSpacing.offset, y: d.source.y - crosslinkRawSpacing.direction};
@@ -390,7 +408,7 @@ function drawQueryTree(target, treeData) {
             arrowRotation: "90deg"
         },
         "left-to-right": {
-            size: [viewerHeight, viewerWidth],
+            link: d3.linkHorizontal,
             x: function(d) {
                 return d.y;
             },
@@ -412,11 +430,11 @@ function drawQueryTree(target, treeData) {
             nodesep: function(a, b) {
                 return a.parent === b.parent ? 1 : 2;
             },
-            rootx: function(_scale) {
-                return maxLabelLength * 6;
+            rootx: function(scale) {
+                return root.y0 + (viewerWidth / 2 - maxLabelLength * 6) / scale;
             },
-            rooty: function(scale) {
-                return -root.y0 * scale + viewerHeight / 2;
+            rooty: function(_scale) {
+                return root.y0;
             },
             sourcecrosslink: function(d) {
                 return {x: d.source.x + crosslinkRawSpacing.direction, y: d.source.y - crosslinkRawSpacing.offset};
@@ -430,15 +448,25 @@ function drawQueryTree(target, treeData) {
 
     var ooo = orientations[graphOrientation];
 
-    var tree = d3.layout.tree()
-        .size(ooo.size);
+    var treelayout = d3.tree()
+        .nodeSize(ooo.nodesize())
+        .separation(ooo.nodesep);
 
     // Define a d3 diagonal projection for use by the node paths later on.
-    var diagonalRaw = d3.svg.diagonal();
-    var diagonal = d3.svg.diagonal()
-        .projection(function(d) {
-            return [ooo.x(d), ooo.y(d)];
-        });
+    var diagonal = ooo.link()
+       .x(function(d) {
+           return ooo.x(d);
+       })
+       .y(function(d) {
+           return ooo.y(d);
+       });
+    var diagonalRaw = ooo.link()
+       .x(function(d) {
+           return d.x;
+       })
+       .y(function(d) {
+           return d.y;
+       });
 
     // Build a HTML list of properties to be displayed in a tooltip
     function buildPropertyList(properties, cssClass) {
@@ -452,14 +480,22 @@ function drawQueryTree(target, treeData) {
     }
 
     // Helper function to retrieve all properties of the node object which should be rendered in the tooltip
-    var alwaysSuppressedKeys = ["name", "properties", "parent", "properties", "symbol", "nodeClass", "edgeClass", "edgeLabel"];
-    var debugTooltipKeys = ["_children", "children", "_name", "depth", "id", "x", "x0", "y", "y0"];
+    var debugTooltipKeys = ["height", "depth", "id", "x", "x0", "y", "y0"];
+    function getDebugProperties(d) {
+        var props = {};
+        debugTooltipKeys.forEach(function(key) {
+            if (d[key]) { // only show non-empty data
+                props[key] = d[key];
+            }
+        });
+        return props;
+    }
+    var alwaysSuppressedKeys = ["_children", "children", "name", "properties", "parent", "properties",
+                                "symbol", "nodeClass", "edgeClass", "edgeLabel"];
     function getDirectProperties(d) {
         var props = {};
         Object.getOwnPropertyNames(d).forEach(function(key) {
             if (alwaysSuppressedKeys.indexOf(key) >= 0) { // suppress some of the d3 data
-                return;
-            } else if (!DEBUG && debugTooltipKeys.indexOf(key) >= 0) {
                 return;
             } else if (d[key]) { // only show non-empty data
                 props[key] = d[key];
@@ -469,32 +505,65 @@ function drawQueryTree(target, treeData) {
     }
 
     // Initialize tooltip
-    var tip = d3.tip()
+    var tip = d3tip()
         .attr('class', 'd3-tip')
         .offset([-10, 0])
         .html(function(d) {
-            var nameText = "<span style='text-decoration: underline'>" + escapeHtml(d.name) + "</span><br />";
-            var directPropsText = buildPropertyList(getDirectProperties(d), "prop-name2");
-            var propertiesText = d.hasOwnProperty("properties") ? buildPropertyList(d.properties) : "";
-            return nameText + directPropsText + propertiesText;
+            var nameText = "<span style='text-decoration: underline'>" + escapeHtml(d.data.name) + "</span><br />";
+            var debugPropsText = DEBUG ? buildPropertyList(getDebugProperties(d), "prop-name2") : "";
+            var directPropsText = buildPropertyList(getDirectProperties(d.data), "prop-name2");
+            var propertiesText = d.data.hasOwnProperty("properties") ? buildPropertyList(d.data.properties) : "";
+            return nameText + debugPropsText + directPropsText + propertiesText;
         });
 
     // Define the zoom function for the zoomable tree
     function zoom() {
-        svgGroup.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+        svgGroup.attr("transform", d3.event.transform);
     }
 
-    // Define the zoomListener which calls the zoom function on the "zoom" event constrained within the scaleExtents
-    var zoomListener = d3.behavior.zoom().scaleExtent([0.1, 5]).on("zoom", zoom);
+    // Define the zoomBehavior which calls the zoom function on the "zoom" event constrained within the scaleExtents
+    var zoomBehavior = d3.zoom()
+        .extent(function() {
+            return [[0, 0], [viewerWidth, viewerHeight]];
+        })
+        .scaleExtent([0.1, 5]).on("zoom", zoom);
 
-    // Define the baseSvg, attaching a class for styling and the zoomListener
+    // Define the baseSvg, attaching a class for styling and the zoomBehavior
     var baseSvg = d3.select(target).append("svg")
         .attr("viewBox", "0 0 " + viewerWidth + " " + viewerHeight)
         .attr("height", viewerHeight)
         .attr("class", "overlay")
-        .call(zoomListener);
+        .call(zoomBehavior);
 
     defineSymbols(baseSvg, ooo);
+
+    function collapseDefault(r) {
+        common.visit(r, function(n) {
+            if (!n.data._children) {
+                return;
+            }
+            var allChildren = common.allChildren(n);
+            if (!allChildren) {
+                return;
+            }
+            n._children = [];
+            n.children = [];
+            allChildren.forEach(function(c) {
+                if (n.data.children.indexOf(c.data) !== -1) {
+                    n.children.push(c);
+                }
+                if (n.data._children.indexOf(c.data) !== -1) {
+                    n._children.push(c);
+                }
+            });
+            if (!n.children.length) {
+                n.children = null;
+            }
+            if (!n._children.length) {
+                n._children = null;
+            }
+        }, common.allChildren);
+    }
 
     // Return true if node is collapsed
     function collapsed(d) {
@@ -597,12 +666,10 @@ function drawQueryTree(target, treeData) {
     // Update graph at the given source location, which may be the root or a subtree
     //
     function update(source) {
-        // Specify size and separation of nodes
-        tree = tree.nodeSize(ooo.nodesize()).separation(ooo.nodesep);
-
         // Compute the new tree layout.
-        var nodes = tree.nodes(root).reverse();
-        var links = tree.links(nodes);
+        var layout = treelayout(root);
+        var nodes = layout.descendants().reverse();
+        var links = layout.links();
 
         // Update the nodes…
         var node = svgGroup.selectAll("g.node")
@@ -613,7 +680,7 @@ function drawQueryTree(target, treeData) {
         // Enter any new nodes at the parent's previous position.
         var nodeEnter = node.enter().append("g")
             .attr("class", function(d) {
-                return d.hasOwnProperty("nodeClass") ? d.nodeClass + " node" : "node";
+                return d.data.hasOwnProperty("nodeClass") ? d.data.nodeClass + " node" : "node";
             })
             .attr("transform", function(_d) {
                 return "translate(" + source.x0 + "," + source.y0 + ")";
@@ -622,8 +689,8 @@ function drawQueryTree(target, treeData) {
 
         nodeEnter.append("use")
             .attr("xlink:href", function(d) {
-                if (d.symbol) {
-                    return "#" + d.symbol;
+                if (d.data.symbol) {
+                    return "#" + d.data.symbol;
                 }
                 return "#default-symbol";
             });
@@ -638,12 +705,15 @@ function drawQueryTree(target, treeData) {
                 return ooo.textanchor(d);
             })
             .text(function(d) {
-                return abbreviateName(d.name);
+                return abbreviateName(d.data.name);
             })
             .style("fill-opacity", 0);
 
+        var nodeUpdate = node.merge(nodeEnter);
+        var nodeTransition = nodeUpdate.transition().duration(duration);
+
         // Update the text position to reflect whether node has children or not.
-        node.select('text')
+        nodeUpdate.select('text')
             .attr(ooo.textdimension(), function(d) {
                 return ooo.textdimensionoffset(d);
             })
@@ -652,15 +722,15 @@ function drawQueryTree(target, treeData) {
             });
 
         // Change the symbol style class depending on whether it has children and is collapsed
-        node.select("use")
+        nodeUpdate.select("use")
             .attr("class", function(d) {
                 return collapsed(d) ? "collapsed" : "expanded";
             });
 
         // Add tooltips
-        node.filter(function(d) {
+        nodeUpdate.filter(function(d) {
                 return Object.getOwnPropertyNames(getDirectProperties(d)).length || // eslint-disable-line indent
-                       (d.hasOwnProperty("properties") && Object.getOwnPropertyNames(d.properties).length);
+                       (d.data.hasOwnProperty("properties") && Object.getOwnPropertyNames(d.data.properties).length);
             }) // eslint-disable-line indent
             .call(tip) // invoke tooltip
             .select("use")
@@ -670,14 +740,13 @@ function drawQueryTree(target, treeData) {
             .on('mouseout.crosslinks', crosslinkHighlightHandler(edgeTransitionOut));
 
         // Transition nodes to their new position.
-        var nodeUpdate = node.transition()
-            .duration(duration)
+        nodeTransition
             .attr("transform", function(d) {
                 return "translate(" + ooo.x(d) + "," + ooo.y(d) + ")";
             });
 
         // Fade the text in
-        nodeUpdate.select("text")
+        nodeTransition.select("text")
             .style("fill-opacity", 1);
 
         // Transition exiting nodes to the parent's new position.
@@ -701,10 +770,10 @@ function drawQueryTree(target, treeData) {
             });
 
         // Enter any new links at the parent's previous position.
-        link.enter().insert("path", "g")
+        var linkEnter = link.enter().insert("path", "g")
             .attr("class", function(d) {
-                if (d.target.hasOwnProperty("edgeClass")) {
-                    return "link " + d.target.edgeClass;
+                if (d.target.data.hasOwnProperty("edgeClass")) {
+                    return "link " + d.target.data.edgeClass;
                 }
                 return "link";
             })
@@ -720,7 +789,7 @@ function drawQueryTree(target, treeData) {
             });
 
         // Transition links to their new position.
-        link.transition()
+        link.merge(linkEnter).transition()
             .duration(duration)
             .attr("d", diagonal);
 
@@ -747,7 +816,7 @@ function drawQueryTree(target, treeData) {
 
         // Select the link labels
         var linksWithLabels = links.filter(function(d) {
-            return d.target.edgeLabel !== undefined && d.target.edgeLabel.length;
+            return d.target.data.edgeLabel !== undefined && d.target.data.edgeLabel.length;
         });
         var linkLabel = svgGroup.selectAll("text.link-label")
             .data(linksWithLabels, function(d) {
@@ -755,19 +824,21 @@ function drawQueryTree(target, treeData) {
             });
 
         // Enter new link labels
-        linkLabel.enter().insert("text")
+        var linkLabelEnter = linkLabel.enter().insert("text")
             .classed("link-label", true)
             .attr("text-anchor", "middle")
             .text(function(d) {
-                return d.target.edgeLabel;
+                return d.target.data.edgeLabel;
             })
             .attr("x", source.x0)
             .attr("y", source.y0)
             .style("fill-opacity", 0);
 
+        var linkLabelUpdate = linkLabel.merge(linkLabelEnter);
+        var linkLabelTransition = linkLabelUpdate.transition().duration(duration);
+
         // Update position for existing & new labels
-        linkLabel.transition()
-            .duration(duration)
+        linkLabelTransition
             .style("fill-opacity", 1)
             .attr("x", function(d) {
                 return (d.source.x0 + d.target.x0) / 2;
@@ -785,77 +856,72 @@ function drawQueryTree(target, treeData) {
             .remove();
 
         // Update crosslinks
-        if (crosslinks !== undefined && crosslinks.length) {
-            var visibleCrosslinks = crosslinks.filter(function(d) {
-                return nodes.indexOf(d.source) !== -1 && nodes.indexOf(d.target) !== -1;
-            });
+        var visibleCrosslinks = crosslinks.filter(function(d) {
+            return nodes.indexOf(d.source) !== -1 && nodes.indexOf(d.target) !== -1;
+        });
 
-            // Helper function to update crosslink paths
-            var updateCrosslinkPaths = function(cssClass, opacity) {
-                var crossLink = svgGroup.selectAll("path." + cssClass)
-                    .data(visibleCrosslinks);
-                crossLink.enter().insert("path", "g")
-                    .attr("class", cssClass)
-                    .attr("opacity", opacity)
-                    .attr("d", function(_d) {
-                        var o = {
-                            x: source.x0,
-                            y: source.y0
-                        };
-                        return diagonalRawCrosslink({
-                            source: o,
-                            target: o
-                        });
+        // Helper function to update crosslink paths
+        var updateCrosslinkPaths = function(cssClass, opacity) {
+            var crossLink = svgGroup.selectAll("path." + cssClass)
+                .data(visibleCrosslinks);
+            var crossLinkEnter = crossLink.enter().insert("path", "g")
+                .attr("class", cssClass)
+                .attr("opacity", opacity)
+                .attr("d", function(_d) {
+                    var o = {
+                        x: source.x0,
+                        y: source.y0
+                    };
+                    return diagonalRawCrosslink({
+                        source: o,
+                        target: o
                     });
-                crossLink.transition()
-                    .duration(duration)
-                    .attr("d", function(d) {
-                        return diagonalRawCrosslink({
-                            source: {x: d.source.x0, y: d.source.y0},
-                            target: {x: d.target.x0, y: d.target.y0}
-                        });
+                });
+            crossLink.merge(crossLinkEnter).transition()
+                .duration(duration)
+                .attr("d", function(d) {
+                    return diagonalRawCrosslink({
+                        source: {x: d.source.x0, y: d.source.y0},
+                        target: {x: d.target.x0, y: d.target.y0}
                     });
-                crossLink.exit().transition()
-                    .duration(duration)
-                    .attr("d", function(_d) {
-                        var o = {
-                            x: source.x0,
-                            y: source.y0
-                        };
-                        return diagonalRawCrosslink({
-                            source: o,
-                            target: o
-                        });
-                    })
-                    .remove();
-            };
+                });
+            crossLink.exit().transition()
+                .duration(duration)
+                .attr("d", function(_d) {
+                    var o = {
+                        x: source.x0,
+                        y: source.y0
+                    };
+                    return diagonalRawCrosslink({
+                        source: o,
+                        target: o
+                    });
+                })
+                .remove();
+        };
 
-            updateCrosslinkPaths("crosslink", 1/* opacity */);
-            updateCrosslinkPaths("crosslink-highlighted", 0/* opacity */);
-        }
+        updateCrosslinkPaths("crosslink", 1/* opacity */);
+        updateCrosslinkPaths("crosslink-highlighted", 0/* opacity */);
     }
 
     // Append a group which holds all nodes and which the zoom Listener can act upon.
     svgGroup = baseSvg.append("g")
         .attr("class", "main");
-
     // Define the root
     var origin = {x: 0, y: 0};
     root.x0 = ooo.x(origin);
     root.y0 = ooo.y(origin);
 
     // Layout the tree initially and center on the root node.
+    collapseDefault(root);
     update(root);
 
     // Place root node into quandrant appropriate to orientation
     function orientRoot() {
-        var scale = zoomListener.scale();
+        var scale = d3.zoomTransform(baseSvg.node()).k;
         var x = ooo.rootx(scale);
         var y = ooo.rooty(scale);
-        d3.select('g.main')
-            .attr("transform", "translate(" + x + "," + y + "),scale(" + scale + ")");
-        zoomListener.scale(scale);
-        zoomListener.translate([x, y]);
+        zoomBehavior.translateTo(baseSvg, x, y);
     }
 
     // Handle selected keyboard events
@@ -890,7 +956,7 @@ function drawQueryTree(target, treeData) {
         });
 
     // Scale for readability by a fixed amount due to problematic .getBBox() above
-    zoomListener.scale(zoomListener.scale() * 1.5);
+    zoomBehavior.scaleBy(baseSvg, 1.5);
 
     orientRoot();
 

@@ -948,7 +948,7 @@ function assignSymbols(
         },
 
         function( d ) {
-            return d.children && d.children.length > 0 ? d.children : null;
+            return d.children && d.children.length > 0 ? d.children : [];
         }
     );
 }
@@ -984,7 +984,7 @@ function collapseNodes(
             },
 
             function(d) {
-                return d.children && d.children.length > 0 ? d.children.slice(0) : null;
+                return d.children && d.children.length > 0 ? d.children.slice(0) : [];
             }
         );
 }
@@ -1010,7 +1010,7 @@ module.exports.loadTQLPlan = function(
         common.createParentLinks( root );
         collapseNodes( root, collapse );
 
-        return { root: root, crosslinks: {}, properties: {}, };
+        return { root: root, crosslinks: [], properties: {}, };
     }
 
     catch ( e ) {
