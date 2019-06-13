@@ -11,5 +11,4 @@ package-lock.json
 standalone-server/media/uploads/*
 standalone-server/media/uploads/
 !standalone-server/media/uploads/3d5c935c.xml
-standalone-server/webroot/query-graphs.bundle.css
 standalone-server/webroot/query-graphs.bundle.js
