@@ -2,11 +2,12 @@
 var common = require('./common');
 
 // Third-party dependencies
-var d3 = require('d3');
+var d3selection = require("d3-selection");
+var d3hierarchy = require("d3-hierarchy")
+var d3shape = require("d3-shape")
+var d3zoom = require("d3-zoom")
+var d3interpolate = require("d3-interpolate")
 var d3tip = require('d3-tip');
-
-// Initialize tooltip
-d3tip(d3);
 
 var MAX_DISPLAY_LENGTH = 15;
 
@@ -265,7 +266,7 @@ function linkCrossLinks(root, crosslinks) {
 //   * <most other>: displayed as part of the tooltip
 function drawQueryTree(target, treeData) {
     var svgGroup;
-    var root = d3.hierarchy(treeData.root, common.allChildren);
+    var root = d3hierarchy.hierarchy(treeData.root, common.allChildren);
     var crosslinks = linkCrossLinks(root, treeData.crosslinks);
     var graphOrientation = treeData.graphOrientation ? treeData.graphOrientation : "top-to-bottom";
     var DEBUG = treeData.DEBUG ? treeData.DEBUG : false;
@@ -297,7 +298,7 @@ function drawQueryTree(target, treeData) {
     // Orientation mapping
     var orientations = {
         "top-to-bottom": {
-            link: d3.linkVertical,
+            link: d3shape.linkVertical,
             x: function(d) {
                 return d.x;
             },
@@ -334,7 +335,7 @@ function drawQueryTree(target, treeData) {
             arrowRotation: "270deg"
         },
         "right-to-left": {
-            link: d3.linkHorizontal,
+            link: d3shape.linkHorizontal,
             x: function(d) {
                 return viewerWidth - d.y;
             },
@@ -371,7 +372,7 @@ function drawQueryTree(target, treeData) {
             arrowRotation: "0deg"
         },
         "bottom-to-top": {
-            link: d3.linkVertical,
+            link: d3shape.linkVertical,
             x: function(d) {
                 return d.x;
             },
@@ -408,7 +409,7 @@ function drawQueryTree(target, treeData) {
             arrowRotation: "90deg"
         },
         "left-to-right": {
-            link: d3.linkHorizontal,
+            link: d3shape.linkHorizontal,
             x: function(d) {
                 return d.y;
             },
@@ -448,7 +449,7 @@ function drawQueryTree(target, treeData) {
 
     var ooo = orientations[graphOrientation];
 
-    var treelayout = d3.tree()
+    var treelayout = d3hierarchy.tree()
         .nodeSize(ooo.nodesize())
         .separation(ooo.nodesep);
 
@@ -518,18 +519,18 @@ function drawQueryTree(target, treeData) {
 
     // Define the zoom function for the zoomable tree
     function zoom() {
-        svgGroup.attr("transform", d3.event.transform);
+        svgGroup.attr("transform", d3selection.event.transform);
     }
 
     // Define the zoomBehavior which calls the zoom function on the "zoom" event constrained within the scaleExtents
-    var zoomBehavior = d3.zoom()
+    var zoomBehavior = d3zoom.zoom()
         .extent(function() {
             return [[0, 0], [viewerWidth, viewerHeight]];
         })
         .scaleExtent([0.1, 5]).on("zoom", zoom);
 
     // Define the baseSvg, attaching a class for styling and the zoomBehavior
-    var baseSvg = d3.select(target).append("svg")
+    var baseSvg = d3selection.select(target).append("svg")
         .attr("viewBox", "0 0 " + viewerWidth + " " + viewerHeight)
         .attr("height", viewerHeight)
         .attr("class", "overlay")
@@ -598,7 +599,7 @@ function drawQueryTree(target, treeData) {
     // Dash tween to make the highlighted edges animate from start node to end node
     var tweenDash = function() {
         var l = this.getTotalLength();
-        var i = d3.interpolateString("0," + l, l + "," + l);
+        var i = d3interpolate.interpolateString("0," + l, l + "," + l);
         return function(t) {
             return i(t);
         };
@@ -918,14 +919,14 @@ function drawQueryTree(target, treeData) {
 
     // Place root node into quandrant appropriate to orientation
     function orientRoot() {
-        var scale = d3.zoomTransform(baseSvg.node()).k;
+        var scale = d3zoom.zoomTransform(baseSvg.node()).k;
         var x = ooo.rootx(scale);
         var y = ooo.rooty(scale);
         zoomBehavior.translateTo(baseSvg, x, y);
     }
 
     // Handle selected keyboard events
-    d3.select('body')
+    d3selection.select('body')
         .on("keydown", function() {
             // Emit event key codes for debugging
             if (DEBUG) {
@@ -933,7 +934,7 @@ function drawQueryTree(target, treeData) {
                     .attr("x", "5")
                     .attr("y", "150")
                     .style("font-size", "50px")
-                    .text("keyCode: " + d3.event.keyCode)
+                    .text("keyCode: " + d3selection.event.keyCode)
                     .transition().duration(2000)
                     .style("font-size", "5px")
                     .style("fill-opacity", ".1")
@@ -943,7 +944,7 @@ function drawQueryTree(target, treeData) {
             // On space, expand all currently visible collapsed nodes, that is all for now
             // Subsequent uses may expand additional visible nodes that are now visible
             // Refresh browser window to get back to baseline
-            if (d3.event.keyCode === 32) {
+            if (d3selection.event.keyCode === 32) {
                 svgGroup.selectAll("g.node")
                     .each(function(d) {
                         if (collapsed(d)) {
@@ -968,7 +969,7 @@ function drawQueryTree(target, treeData) {
     if (crosslinks !== undefined && crosslinks.length) {
         treeText += buildPropertyList({crosslinks: crosslinks.length});
     }
-    d3.select(target).append("div").classed("tree-label", true).html(treeText);
+    d3selection.select(target).append("div").classed("tree-label", true).html(treeText);
 }
 
 exports.drawQueryTree = drawQueryTree;
