@@ -13,7 +13,7 @@ var knownLoaders = {
 };
 
 // Require node modules
-var d3Fetch = require('query-graphs/node_modules/d3-fetch');
+var d3Fetch = require('d3-fetch');
 var Spinner = require('spin');
 
 // Get query parameters from current url

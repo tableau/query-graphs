@@ -30,6 +30,7 @@
     "browserify": "^16.0.0",
     "compression": "^1.7.1",
     "crypto": "0.0.3",
+    "d3-fetch": "^1.1.2",
     "express": "^4.13.4",
     "fs": "0.0.2",
     "multer": "^1.1.0",
