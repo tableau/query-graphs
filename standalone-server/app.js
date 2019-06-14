@@ -15,9 +15,9 @@ import * as jsonLoader from 'query-graphs/lib/json';
 import * as tqlLoader from 'query-graphs/lib/tql';
 import * as xmlLoader from 'query-graphs/lib/xml';
 var knownLoaders = {
-    hyper: hyperLoader.loadHyperPlan,
+    hyper: hyperLoader.loadHyperPlanFromText,
     tableau: tableauLoader.loadTableauPlan,
-    json: jsonLoader.loadJson,
+    json: jsonLoader.loadJsonFromText,
     tql: tqlLoader.loadTQLPlan,
     xml: xmlLoader.loadXml,
     raw: JSON.parse

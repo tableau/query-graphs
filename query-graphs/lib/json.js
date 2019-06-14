@@ -39,13 +39,18 @@ function convertChildren(node) {
 }
 
 // Load a JSON tree
-export function loadJson(graphString, _graphCollapse) {
+export function loadJson(json) {
+    var root = {name: "root", children: convertChildren(json)};
+    return {root: root};
+}
+
+// Load a JSON tree from text
+export function loadJsonFromText(graphString, _graphCollapse) {
     var json;
     try {
         json = JSON.parse(graphString);
     } catch (err) {
         return {error: "JSON parse failed with '" + err + "'."};
     }
-    var root = {name: "root", children: convertChildren(json)};
-    return {root: root};
+    return loadJson(json);
 }
