@@ -280,14 +280,7 @@ function addCrosslinks(root) {
 }
 
 // Loads a Hyper query plan
-export function loadHyperPlan(graphString, graphCollapse) {
-    // Parse the plan as JSON
-    var json;
-    try {
-        json = JSON.parse(graphString);
-    } catch (err) {
-        return {error: "JSON parse failed with '" + err + "'."};
-    }
+export function loadHyperPlan(json, graphCollapse) {
     // Extract top-level meta data
     var properties = {};
     if (json.hasOwnProperty("plan") && json.plan.hasOwnProperty("header")) {
@@ -306,4 +299,16 @@ export function loadHyperPlan(graphString, graphCollapse) {
     // Add crosslinks
     var crosslinks = addCrosslinks(root);
     return {root: root, crosslinks: crosslinks, properties: properties};
+}
+
+// Load a JSON tree from text
+export function loadHyperPlanFromText(graphString, graphCollapse) {
+    // Parse the plan as JSON
+    var json;
+    try {
+        json = JSON.parse(graphString);
+    } catch (err) {
+        return {error: "JSON parse failed with '" + err + "'."};
+    }
+    return loadHyperPlan(json, graphCollapse);
 }
