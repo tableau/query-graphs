@@ -5,4 +5,11 @@ html, body {
   overflow: hidden;
 }
 
+.tree-container {
+  margin: 0 auto;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
 @import "~query-graphs/style/query-graphs.css"

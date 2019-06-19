@@ -11,26 +11,6 @@ import d3tip from 'd3-tip';
 
 var MAX_DISPLAY_LENGTH = 15;
 
-// Resize event
-var delay = (function() {
-    var timer = 0;
-    return function(callback, ms) {
-        clearTimeout(timer);
-        timer = setTimeout(callback, ms);
-    };
-})();
-
-window.addEventListener("resize", function() {
-    delay(function() {
-        // Adjust the view box
-        var svgElement = document.getElementsByTagName("svg")[0];
-        svgElement.setAttribute("viewBox", "0 0 " +
-            window.innerWidth + " " + window.innerHeight);
-        // Adjust the height (necessary in Internet Explorer)
-        svgElement.setAttribute("height", window.innerHeight);
-    }, 500);
-});
-
 //
 // Create the symbols
 //
@@ -288,8 +268,8 @@ export function drawQueryTree(target, treeData) {
     var duration = 750;
 
     // Size of the diagram
-    var viewerWidth = window.innerWidth;
-    var viewerHeight = window.innerHeight;
+    var viewerWidth = target.clientWidth;
+    var viewerHeight = target.clientHeight;
 
     // Crosslink spacing to preserve source and target directionality
     var crosslinkRawSpacing = {direction: 11.2 * 2, offset: 11.2 * 2};
@@ -524,13 +504,13 @@ export function drawQueryTree(target, treeData) {
     // Define the zoomBehavior which calls the zoom function on the "zoom" event constrained within the scaleExtents
     var zoomBehavior = d3zoom.zoom()
         .extent(function() {
-            return [[0, 0], [viewerWidth, viewerHeight]];
+            return [[0, 0], [target.clientWidth, target.clientHeight]];
         })
         .scaleExtent([0.1, 5]).on("zoom", zoom);
 
     // Define the baseSvg, attaching a class for styling and the zoomBehavior
     var baseSvg = d3selection.select(target).append("svg")
-        .attr("viewBox", "0 0 " + viewerWidth + " " + viewerHeight)
+        .attr("viewBox", "0 0 " + target.clientWidth + " " + target.clientHeight)
         .attr("height", viewerHeight)
         .attr("class", "overlay")
         .call(zoomBehavior);
@@ -924,37 +904,6 @@ export function drawQueryTree(target, treeData) {
         zoomBehavior.translateTo(baseSvg, x, y);
     }
 
-    // Handle selected keyboard events
-    d3selection.select('body')
-        .on("keydown", function() {
-            // Emit event key codes for debugging
-            if (DEBUG) {
-                baseSvg.append("text")
-                    .attr("x", "5")
-                    .attr("y", "150")
-                    .style("font-size", "50px")
-                    .text("keyCode: " + d3selection.event.keyCode)
-                    .transition().duration(2000)
-                    .style("font-size", "5px")
-                    .style("fill-opacity", ".1")
-                    .remove();
-            }
-
-            // On space, expand all currently visible collapsed nodes, that is all for now
-            // Subsequent uses may expand additional visible nodes that are now visible
-            // Refresh browser window to get back to baseline
-            if (d3selection.event.keyCode === 32) {
-                svgGroup.selectAll("g.node")
-                    .each(function(d) {
-                        if (collapsed(d)) {
-                            toggleChildren(d);
-                        }
-                    });
-                update(root);
-                orientRoot();
-            }
-        });
-
     // Scale for readability by a fixed amount due to problematic .getBBox() above
     zoomBehavior.scaleBy(baseSvg, 1.5);
 
@@ -969,4 +918,28 @@ export function drawQueryTree(target, treeData) {
         treeText += buildPropertyList({crosslinks: crosslinks.length});
     }
     d3selection.select(target).append("div").classed("tree-label", true).html(treeText);
+
+    function expandOneLevel() {
+        svgGroup.selectAll("g.node")
+            .each(function(d) {
+                if (collapsed(d)) {
+                    toggleChildren(d);
+                }
+            });
+        update(root);
+        orientRoot();
+    }
+
+    function resize() {
+        // Adjust the view box
+        baseSvg.setAttribute("viewBox", "0 0 " +
+            target.clientWidth + " " + target.clientHeight);
+        // Adjust the height (necessary in Internet Explorer)
+        baseSvg.setAttribute("height", target.clientHeight);
+    }
+
+    return {
+        expandOneLevel: expandOneLevel,
+        resize: resize
+    };
 }

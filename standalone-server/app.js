@@ -106,6 +106,37 @@ if (!inlineString) {
     toplevelProperties.file = graphFile;
 }
 
+
+var delay = (function() {
+    var timer = 0;
+    return function(callback, ms) {
+        clearTimeout(timer);
+        timer = setTimeout(callback, ms);
+    };
+})();
+
+//
+// Register event listeners not already handled by the query-graphs core
+//
+function registerEventHandlers(widget) {
+    document.body.addEventListener("keydown", function(e) {
+       // Emit event key codes for debugging
+       if (DEBUG) {
+           console.log("pressed key " + event.keyCode);
+       }
+
+       // On space, expand all currently visible collapsed nodes, that is all for now
+       // Subsequent uses may expand additional visible nodes that are now visible
+       // Refresh browser window to get back to baseline
+       if (event.keyCode === 32) {
+          widget.expandOneLevel()
+       }
+   }, false);
+   window.addEventListener("resize", function() {
+       delay(function() { widget.resize(); }, 500);
+   });
+}
+
 //
 // Kick it off
 //
@@ -163,7 +194,8 @@ if (paramErrors.length) {
             var treeContainer = document.createElement('div');
             treeContainer.className = "tree-container";
             document.body.appendChild(treeContainer);
-            treeRendering.drawQueryTree(treeContainer, loadedTree);
+            var widget = treeRendering.drawQueryTree(treeContainer, loadedTree);
+            registerEventHandlers(widget);
         } else {
             spinner.stop();
             document.write(errors.reduce(function(a, b) {
