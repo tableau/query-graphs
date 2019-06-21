@@ -1,9 +1,9 @@
 
 // Require local modules
-var common = require('./common');
+import * as common from './common';
 
 // Color graph per federated connections
-var colorFederated = function(treeData) {
+export function colorFederated(treeData) {
     common.visit(treeData, function(d) {
         if (d.tag && d.tag === 'fed-op') {
             if (d.properties && d.properties.connection) {
@@ -16,5 +16,3 @@ var colorFederated = function(treeData) {
         }
     }, common.allChildren);
 };
-
-exports.colorFederated = colorFederated;

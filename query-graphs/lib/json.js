@@ -7,7 +7,7 @@ Map the JSON tree directly to a D3 tree, without any modifications
 
 */
 
-var common = require('./common');
+import * as common from './common';
 
 function convertChildren(node) {
     var children;
@@ -39,7 +39,7 @@ function convertChildren(node) {
 }
 
 // Load a JSON tree
-function loadJson(graphString, _graphCollapse) {
+export function loadJson(graphString, _graphCollapse) {
     var json;
     try {
         json = JSON.parse(graphString);
@@ -49,5 +49,3 @@ function loadJson(graphString, _graphCollapse) {
     var root = {name: "root", children: convertChildren(json)};
     return {root: root};
 }
-
-exports.loadJson = loadJson;

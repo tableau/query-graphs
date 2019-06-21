@@ -1,13 +1,13 @@
-// Require local modules
-var common = require('./common');
+// Import local modules
+import * as common from './common';
 
 // Third-party dependencies
-var d3selection = require("d3-selection");
-var d3hierarchy = require("d3-hierarchy")
-var d3shape = require("d3-shape")
-var d3zoom = require("d3-zoom")
-var d3interpolate = require("d3-interpolate")
-var d3tip = require('d3-tip');
+import * as d3selection from "d3-selection";
+import * as d3hierarchy from "d3-hierarchy";
+import * as d3shape from "d3-shape";
+import * as d3zoom from "d3-zoom";
+import * as d3interpolate from "d3-interpolate";
+import d3tip from 'd3-tip';
 
 var MAX_DISPLAY_LENGTH = 15;
 
@@ -264,7 +264,7 @@ function linkCrossLinks(root, crosslinks) {
 //   * children: an array containing all currently visible child nodes
 //   * _children: an array containing all child nodes, including hidden nodes
 //   * <most other>: displayed as part of the tooltip
-function drawQueryTree(target, treeData) {
+export function drawQueryTree(target, treeData) {
     var svgGroup;
     var root = d3hierarchy.hierarchy(treeData.root, common.allChildren);
     var crosslinks = linkCrossLinks(root, treeData.crosslinks);
@@ -971,5 +971,3 @@ function drawQueryTree(target, treeData) {
     }
     d3selection.select(target).append("div").classed("tree-label", true).html(treeText);
 }
-
-exports.drawQueryTree = drawQueryTree;

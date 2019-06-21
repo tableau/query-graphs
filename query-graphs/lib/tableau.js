@@ -10,9 +10,9 @@ already provides us the structure of the rendered tree.
 */
 
 // Require node modules
-var common = require('./common');
-var colors = require('./colors');
-var XmlParser = require('xml2js/lib/parser').Parser;
+import * as common from './common';
+import * as colors from './colors';
+import { Parser as XmlParser } from 'xml2js/lib/parser';
 
 // Convert JSON as returned by xml2js parser to d3 tree format
 function convertJSON(node) {
@@ -473,7 +473,7 @@ function addCrosslinks(root) {
     return crosslinks;
 }
 
-function loadTableauPlan(graphString, graphCollapse) {
+export function loadTableauPlan(graphString, graphCollapse) {
     var result;
     var parser = new XmlParser({
         explicitRoot: false,
@@ -493,5 +493,3 @@ function loadTableauPlan(graphString, graphCollapse) {
     });
     return result;
 }
-
-exports.loadTableauPlan = loadTableauPlan;
