@@ -13,7 +13,7 @@ The label for a tree node is taken from the first defined property among "operat
 
 */
 
-var common = require('./common');
+import * as common from './common';
 
 // Convert Hyper JSON to a D3 tree
 function convertHyper(node, parentKey) {
@@ -280,7 +280,7 @@ function addCrosslinks(root) {
 }
 
 // Loads a Hyper query plan
-function loadHyperPlan(graphString, graphCollapse) {
+export function loadHyperPlan(graphString, graphCollapse) {
     // Parse the plan as JSON
     var json;
     try {
@@ -307,5 +307,3 @@ function loadHyperPlan(graphString, graphCollapse) {
     var crosslinks = addCrosslinks(root);
     return {root: root, crosslinks: crosslinks, properties: properties};
 }
-
-exports.loadHyperPlan = loadHyperPlan;

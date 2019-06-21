@@ -4,3 +4,5 @@ html, body {
   height: 100%;
   overflow: hidden;
 }
+
+@import "~query-graphs/style/query-graphs.css"

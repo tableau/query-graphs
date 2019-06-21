@@ -1,20 +1,28 @@
-// Require node.js modules
-var path = require('path');
+// Load css (through the style-loader of webpack)
+import './app.css';
+
+// Import node.js modules
+import * as path from 'path';
+import fetchText from 'd3-fetch/src/text';
+import * as Spinner from 'spin';
+import * as querystring from 'querystring';
+
 
 // Require local modules
-var treeRendering = require('query-graphs/lib/tree-rendering');
+import * as treeRendering from 'query-graphs/lib/tree-rendering';
+import * as hyperLoader from 'query-graphs/lib/hyper';
+import * as tableauLoader from 'query-graphs/lib/tableau';
+import * as jsonLoader from 'query-graphs/lib/json';
+import * as tqlLoader from 'query-graphs/lib/tql';
+import * as xmlLoader from 'query-graphs/lib/xml';
 var knownLoaders = {
-    hyper: require('query-graphs/lib/hyper').loadHyperPlan,
-    tableau: require('query-graphs/lib/tableau').loadTableauPlan,
-    json: require('query-graphs/lib/json').loadJson,
-    tql: require('query-graphs/lib/tql').loadTQLPlan,
-    xml: require('query-graphs/lib/xml').loadXml,
+    hyper: hyperLoader.loadHyperPlan,
+    tableau: tableauLoader.loadTableauPlan,
+    json: jsonLoader.loadJson,
+    tql: tqlLoader.loadTQLPlan,
+    xml: xmlLoader.loadXml,
     raw: JSON.parse
 };
-
-// Require node modules
-var d3Fetch = require('d3-fetch');
-var Spinner = require('spin');
 
 // Get query parameters from current url
 var paramErrors = [];
@@ -22,7 +30,6 @@ var currentSearch = window.location.search;
 currentSearch = currentSearch.substring(1);
 
 // Parse using querystring from jquery
-var querystring = require('querystring');
 var queryObject = querystring.parse(currentSearch);
 
 // Get the debug flag
@@ -168,7 +175,7 @@ if (paramErrors.length) {
     if (inlineString) {
         displayTree(inlineString);
     } else {
-        d3Fetch.text(directory + graphFile)
+        fetchText(directory + graphFile)
             .then(displayTree, function(err) {
                 document.write("Request for '" + directory + graphFile + "' failed with '" + err + "'.");
             });

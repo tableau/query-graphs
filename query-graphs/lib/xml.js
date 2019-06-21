@@ -10,7 +10,7 @@ in the tooltips.
 */
 
 // Require node modules
-var XmlParser = require('xml2js/lib/parser').Parser;
+import { Parser as XmlParser } from 'xml2js/lib/parser';
 
 // Convert JSON as returned by xml2js parser to d3 tree format
 function convertJSON(node) {
@@ -39,7 +39,7 @@ function convertJSON(node) {
     };
 }
 
-function loadXml(graphString, _graphCollapse) {
+export function loadXml(graphString, _graphCollapse) {
     var result;
     var parser = new XmlParser({
         explicitRoot: false,
@@ -57,5 +57,3 @@ function loadXml(graphString, _graphCollapse) {
     });
     return result;
 }
-
-exports.loadXml = loadXml;

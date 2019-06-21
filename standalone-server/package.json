@@ -27,32 +27,31 @@
   "style": "app.css",
   "dependencies": {
     "body-parser": "^1.15.0",
-    "browserify": "^16.0.0",
     "compression": "^1.7.1",
     "crypto": "0.0.3",
+    "css-loader": "^3.0.0",
     "d3-fetch": "^1.1.2",
     "express": "^4.13.4",
     "fs": "0.0.2",
     "multer": "^1.1.0",
-    "parcelify": "^2.2.1",
     "query-graphs": "file:../query-graphs",
     "recursive-readdir": "^2.2.1",
     "spin": "0.0.1",
-    "uglify-js": "^2.7.0"
+    "style-loader": "^0.23.1",
+    "webpack": "^4.35.0"
   },
   "devDependencies": {
     "eslint": "^2.2.0",
-    "eslint-config-google": "^0.4.0"
+    "eslint-config-google": "^0.4.0",
+    "webpack-cli": "^3.3.4"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "bundle": "browserify app.js -d -o webroot/query-graphs.bundle.js -p [ parcelify -o webroot/query-graphs.bundle.css ]",
-    "bundle-list": "browserify app.js --list",
-    "prebundle-uglify": "npm run bundle",
-    "bundle-uglify": "uglifyjs --compress --mangle -- webroot/query-graphs.bundle.js > webroot/query-graphs.min.js",
-    "prebundle-tlv": "npm run bundle-uglify",
-    "bundle-tlv": "tar -czf query-graphs-tlv-qt-$npm_package_version.tgz -C webroot query-graphs.tlv.html query-graphs.bundle.css query-graphs.min.js",
-    "postinstall": "npm run bundle-uglify",
+    "bundle": "webpack --mode production",
+    "bundle-dev": "webpack --mode development",
+    "prebundle-tlv": "npm run bundle",
+    "bundle-tlv": "tar -czf query-graphs-tlv-qt-$npm_package_version.tgz -C webroot query-graphs.tlv.html query-graphs.min.js",
+    "postinstall": "npm run bundle",
     "lint": "eslint ."
   }
 }

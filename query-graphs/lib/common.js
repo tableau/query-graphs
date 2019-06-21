@@ -1,6 +1,6 @@
 
 // A recursive helper function for walking through all nodes
-function visit(parent, visitFn, childrenFn) {
+export function visit(parent, visitFn, childrenFn) {
     if (!parent) {
         return;
     }
@@ -17,14 +17,14 @@ function visit(parent, visitFn, childrenFn) {
 }
 
 // Returns all children of a node, including collapsed children
-function allChildren(n) {
+export function allChildren(n) {
     var childrenLength = n.children ? n.children.length : 0;
     var _childrenLength = n._children ? n._children.length : 0;
     return _childrenLength > childrenLength ? n._children : n.children;
 }
 
 // Create parent links
-function createParentLinks(tree) {
+export function createParentLinks(tree) {
     visit(tree, function() {}, function(d) {
         if (d.children) {
             var children = allChildren(d);
@@ -39,7 +39,7 @@ function createParentLinks(tree) {
 }
 
 // Collapse all children regardless of the current state
-function collapseAllChildren(d) {
+export function collapseAllChildren(d) {
     var children = (d.children) ? d.children : [];
     var _children = (d._children) ? d._children : [];
     d.children = [];
@@ -48,7 +48,7 @@ function collapseAllChildren(d) {
 }
 
 // Expand all children regardless of the current state
-function expandAllChildren(d) {
+export function expandAllChildren(d) {
     var children = (d.children) ? d.children : [];
     var _children = (d._children) ? d._children : [];
     d.children = children.length > _children.length ? children : _children;
@@ -57,7 +57,7 @@ function expandAllChildren(d) {
 }
 // Collapse the given node in its parent node
 // Requires parent links to be present (e.g., created by `createParentLinks`)
-function streamline(d) {
+export function streamline(d) {
     if (d.parent) {
         if (d.parent._children && d.parent._children.length > 0) {
             // save all of the original children in _children one time only
@@ -70,7 +70,7 @@ function streamline(d) {
 }
 
 // Convert to string. Return undefined if not supported.
-function toString(d) {
+export function toString(d) {
     if (typeof (d) === "string") {
         return d;
     } else if (typeof (d) === "number") {
@@ -86,7 +86,7 @@ function toString(d) {
 }
 
 // Convert to string. Returns the JSON serialization if not supported.
-function forceToString(d) {
+export function forceToString(d) {
     var str = toString(d);
     if (str === undefined) {
         str = JSON.stringify(d);
@@ -95,7 +95,7 @@ function forceToString(d) {
 }
 
 // Format a number using metric suffixes
-function formatMetric(x) {
+export function formatMetric(x) {
     var sizes = ["", "k", "M", "G", "T", "P", "E", "Z", "Y"];
     var idx = 0;
     while (x > 1000 && idx < (sizes.length - 1)) {
@@ -104,13 +104,3 @@ function formatMetric(x) {
     }
     return x.toFixed(0) + sizes[idx];
 }
-
-exports.visit = visit;
-exports.allChildren = allChildren;
-exports.createParentLinks = createParentLinks;
-exports.collapseAllChildren = collapseAllChildren;
-exports.expandAllChildren = expandAllChildren;
-exports.streamline = streamline;
-exports.toString = toString;
-exports.forceToString = forceToString;
-exports.formatMetric = formatMetric;

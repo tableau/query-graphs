@@ -54,5 +54,6 @@
   "scripts": {
     "test": "mocha --watch --recursive",
     "lint": "eslint ."
-  }
+  },
+  "sideEffects": false
 }
