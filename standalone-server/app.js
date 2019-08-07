@@ -7,7 +7,6 @@ import fetchText from 'd3-fetch/src/text';
 import * as Spinner from 'spin';
 import * as querystring from 'querystring';
 
-
 // Require local modules
 import * as treeRendering from 'query-graphs/lib/tree-rendering';
 import * as hyperLoader from 'query-graphs/lib/hyper';
