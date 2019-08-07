@@ -32,17 +32,17 @@ function defineSymbols(baseSvg, ooo) {
     // Build the default symbol. Use this symbol if there is not a better fit
     defs.append("circle")
       .attr("id", "default-symbol")
-      .attr("class", "nodeCircle")
+      .attr("class", "qg-node-circle")
       .attr("r", 5);
 
     // Build the run query symbol
     var runQueryGroup = defs.append("g")
       .attr("id", "run-query-symbol");
     runQueryGroup.append("circle")
-      .attr("class", "nodeCircle")
+      .attr("class", "qg-node-circle")
       .attr("r", 6);
     runQueryGroup.append("path")
-      .attr("class", "run-query")
+      .attr("class", "qg-run-query")
       .attr("d", "M-2.5,-3.5L4,0L-2.5,3.5 z");
 
     // Build the Join symbols. They are just 2 overlapped circles for the most part.
@@ -53,45 +53,45 @@ function defineSymbols(baseSvg, ooo) {
     var leftJoinGroup = defs.append("g")
       .attr("id", "left-join-symbol");
     leftJoinGroup.append("circle")
-      .attr("class", "empty-join")
+      .attr("class", "qg-empty-join")
       .attr("r", radius)
       .attr("cx", rightOffset);
     leftJoinGroup.append("circle")
-      .attr("class", "fill-join")
+      .attr("class", "qg-fill-join")
       .attr("r", radius)
       .attr("cx", leftOffset);
     leftJoinGroup.append("circle")
-      .attr("class", "only-stroke-join")
+      .attr("class", "qg-only-stroke-join")
       .attr("r", radius)
       .attr("cx", rightOffset);
 
     var rightJoinGroup = defs.append("g")
       .attr("id", "right-join-symbol");
     rightJoinGroup.append("circle")
-      .attr("class", "empty-join")
+      .attr("class", "qg-empty-join")
       .attr("r", radius)
       .attr("cx", leftOffset);
     rightJoinGroup.append("circle")
-      .attr("class", "fill-join")
+      .attr("class", "qg-fill-join")
       .attr("r", radius)
       .attr("cx", rightOffset);
     rightJoinGroup.append("circle")
-      .attr("class", "only-stroke-join")
+      .attr("class", "qg-only-stroke-join")
       .attr("r", radius)
       .attr("cx", leftOffset);
 
     var fullJoinGroup = defs.append("g")
       .attr("id", "full-join-symbol");
     fullJoinGroup.append("circle")
-      .attr("class", "fill-join no-stroke")
+      .attr("class", "qg-fill-join qg-no-stroke")
       .attr("r", radius)
       .attr("cx", rightOffset);
     fullJoinGroup.append("circle")
-      .attr("class", "fill-join")
+      .attr("class", "qg-fill-join")
       .attr("r", radius)
       .attr("cx", leftOffset);
     fullJoinGroup.append("circle")
-      .attr("class", "only-stroke-join")
+      .attr("class", "qg-only-stroke-join")
       .attr("r", radius)
       .attr("cx", rightOffset);
 
@@ -99,31 +99,31 @@ function defineSymbols(baseSvg, ooo) {
     defs.append("clipPath")
       .attr("id", "join-clip")
       .append("circle")
-        .attr("class", "empty-join")
+        .attr("class", "qg-empty-join")
         .attr("r", radius)
         .attr("cx", leftOffset);
 
     var innerJoinGroup = defs.append("g")
       .attr("id", "inner-join-symbol");
     innerJoinGroup.append("circle")
-      .attr("class", "empty-join")
+      .attr("class", "qg-empty-join")
       .attr("r", radius)
       .attr("cx", leftOffset);
     innerJoinGroup.append("circle")
-      .attr("class", "empty-join")
+      .attr("class", "qg-empty-join")
       .attr("r", radius)
       .attr("cx", rightOffset);
     innerJoinGroup.append("circle")
-      .attr("class", "fill-join no-stroke")
+      .attr("class", "qg-fill-join qg-no-stroke")
       .attr("clip-path", "url(#join-clip)")
       .attr("r", radius)
       .attr("cx", rightOffset);
     innerJoinGroup.append("circle")
-      .attr("class", "only-stroke-join")
+      .attr("class", "qg-only-stroke-join")
       .attr("r", radius)
       .attr("cx", leftOffset);
     innerJoinGroup.append("circle")
-      .attr("class", "only-stroke-join")
+      .attr("class", "qg-only-stroke-join")
       .attr("r", radius)
       .attr("cx", rightOffset);
 
@@ -138,25 +138,25 @@ function defineSymbols(baseSvg, ooo) {
     var tableGroup = defs.append("g")
       .attr("id", "table-symbol");
     tableGroup.append("rect")
-      .attr("class", "table-background")
+      .attr("class", "qg-table-background")
       .attr("x", tableStartLeft)
       .attr("width", tableWidth)
       .attr("y", tableStartTop)
       .attr("height", tableHeight);
     tableGroup.append("rect")
-      .attr("class", "table-header")
+      .attr("class", "qg-table-header")
       .attr("x", tableStartLeft)
       .attr("width", tableWidth)
       .attr("y", tableStartTop)
       .attr("height", tableRowHeight);
     tableGroup.append("rect")
-      .attr("class", "table-border")
+      .attr("class", "qg-table-border")
       .attr("x", tableStartLeft)
       .attr("width", tableWidth)
       .attr("y", 0)
       .attr("height", tableRowHeight);
     tableGroup.append("rect")
-      .attr("class", "table-border")
+      .attr("class", "qg-table-border")
       .attr("x", -tableRowWidth / 2)
       .attr("width", tableRowWidth)
       .attr("y", tableStartTop + tableRowHeight)
@@ -166,19 +166,19 @@ function defineSymbols(baseSvg, ooo) {
     var tempTableGroup = defs.append("g")
       .attr("id", "temp-table-symbol");
     tempTableGroup.append("rect")
-      .attr("class", "table-background")
+      .attr("class", "qg-table-background")
       .attr("x", tableStartLeft)
       .attr("width", tableWidth)
       .attr("y", tableStartTop)
       .attr("height", tableHeight);
     tempTableGroup.append("rect")
-      .attr("class", "table-header")
+      .attr("class", "qg-table-header")
       .attr("x", tableStartLeft)
       .attr("width", tableWidth)
       .attr("y", tableStartTop)
       .attr("height", tableRowHeight);
     tempTableGroup.append("text")
-      .attr("class", "table-text")
+      .attr("class", "qg-table-text")
       .attr("y", tableRowHeight + 0.8/* stroke-width */ / 2)
       .text("tmp");
 }
@@ -450,7 +450,7 @@ export function drawQueryTree(target, treeData) {
 
     // Build a HTML list of properties to be displayed in a tooltip
     function buildPropertyList(properties, cssClass) {
-        cssClass = cssClass === undefined ? "prop-name" : cssClass;
+        cssClass = cssClass === undefined ? "qg-prop-name" : cssClass;
         var html = "";
         Object.getOwnPropertyNames(properties).forEach(function(key) {
             html += "<span class='" + cssClass + "'>" + escapeHtml(key) + ": </span>";
@@ -486,12 +486,12 @@ export function drawQueryTree(target, treeData) {
 
     // Initialize tooltip
     var tip = d3tip()
-        .attr('class', 'd3-tip')
+        .attr('class', 'qg-tooltip')
         .offset([-10, 0])
         .html(function(d) {
             var nameText = "<span style='text-decoration: underline'>" + escapeHtml(d.data.name) + "</span><br />";
-            var debugPropsText = DEBUG ? buildPropertyList(getDebugProperties(d), "prop-name2") : "";
-            var directPropsText = buildPropertyList(getDirectProperties(d.data), "prop-name2");
+            var debugPropsText = DEBUG ? buildPropertyList(getDebugProperties(d), "qg-prop-name2") : "";
+            var directPropsText = buildPropertyList(getDirectProperties(d.data), "qg-prop-name2");
             var propertiesText = d.data.hasOwnProperty("properties") ? buildPropertyList(d.data.properties) : "";
             return nameText + debugPropsText + directPropsText + propertiesText;
         });
@@ -512,7 +512,7 @@ export function drawQueryTree(target, treeData) {
     var baseSvg = d3selection.select(target).append("svg")
         .attr("viewBox", "0 0 " + viewerWidth + " " + viewerHeight)
         .attr("height", viewerHeight)
-        .attr("class", "overlay")
+        .attr("class", "qg-overlay")
         .call(zoomBehavior);
 
     defineSymbols(baseSvg, ooo);
@@ -632,7 +632,7 @@ export function drawQueryTree(target, treeData) {
     // Handler builder for crosslink highlighting
     var crosslinkHighlightHandler = function(transition) {
         return function(d) {
-            var crosslinks = svgGroup.selectAll("path.crosslink-highlighted");
+            var crosslinks = svgGroup.selectAll("path.qg-crosslink-highlighted");
 
             // Filter the edges to those connected to the current node
             crosslinks.filter(function(dd) {
@@ -652,7 +652,7 @@ export function drawQueryTree(target, treeData) {
         var links = layout.links();
 
         // Update the nodes…
-        var node = svgGroup.selectAll("g.node")
+        var node = svgGroup.selectAll("g.qg-node")
             .data(nodes, function(d) {
                 return d.id || (d.id = ++nextId);
             });
@@ -660,7 +660,7 @@ export function drawQueryTree(target, treeData) {
         // Enter any new nodes at the parent's previous position.
         var nodeEnter = node.enter().append("g")
             .attr("class", function(d) {
-                return d.data.hasOwnProperty("nodeClass") ? d.data.nodeClass + " node" : "node";
+                return d.data.hasOwnProperty("nodeClass") ? d.data.nodeClass + " qg-node" : "qg-node";
             })
             .attr("transform", function(_d) {
                 return "translate(" + source.x0 + "," + source.y0 + ")";
@@ -680,7 +680,6 @@ export function drawQueryTree(target, treeData) {
                 return ooo.textdimensionoffset(d);
             })
             .attr("dy", ".35em")
-            .attr('class', 'nodeText')
             .attr("text-anchor", function(d) {
                 return ooo.textanchor(d);
             })
@@ -704,7 +703,7 @@ export function drawQueryTree(target, treeData) {
         // Change the symbol style class depending on whether it has children and is collapsed
         nodeUpdate.select("use")
             .attr("class", function(d) {
-                return collapsed(d) ? "collapsed" : "expanded";
+                return collapsed(d) ? "qg-collapsed" : "qg-expanded";
             });
 
         // Add tooltips
@@ -744,7 +743,7 @@ export function drawQueryTree(target, treeData) {
             .style("fill-opacity", 0);
 
         // Update the links…
-        var link = svgGroup.selectAll("path.link")
+        var link = svgGroup.selectAll("path.qg-link")
             .data(links, function(d) {
                 return d.target.id;
             });
@@ -753,9 +752,9 @@ export function drawQueryTree(target, treeData) {
         var linkEnter = link.enter().insert("path", "g")
             .attr("class", function(d) {
                 if (d.target.data.hasOwnProperty("edgeClass")) {
-                    return "link " + d.target.data.edgeClass;
+                    return "qg-link " + d.target.data.edgeClass;
                 }
-                return "link";
+                return "qg-link";
             })
             .attr("d", function(_d) {
                 var o = {
@@ -798,14 +797,14 @@ export function drawQueryTree(target, treeData) {
         var linksWithLabels = links.filter(function(d) {
             return d.target.data.edgeLabel !== undefined && d.target.data.edgeLabel.length;
         });
-        var linkLabel = svgGroup.selectAll("text.link-label")
+        var linkLabel = svgGroup.selectAll("text.qg-link-label")
             .data(linksWithLabels, function(d) {
                 return d.target.id;
             });
 
         // Enter new link labels
         var linkLabelEnter = linkLabel.enter().insert("text")
-            .classed("link-label", true)
+            .classed("qg-link-label", true)
             .attr("text-anchor", "middle")
             .text(function(d) {
                 return d.target.data.edgeLabel;
@@ -880,13 +879,12 @@ export function drawQueryTree(target, treeData) {
                 .remove();
         };
 
-        updateCrosslinkPaths("crosslink", 1/* opacity */);
-        updateCrosslinkPaths("crosslink-highlighted", 0/* opacity */);
+        updateCrosslinkPaths("qg-crosslink", 1/* opacity */);
+        updateCrosslinkPaths("qg-crosslink-highlighted", 0/* opacity */);
     }
 
     // Append a group which holds all nodes and which the zoom Listener can act upon.
-    svgGroup = baseSvg.append("g")
-        .attr("class", "main");
+    svgGroup = baseSvg.append("g");
     // Define the root
     var origin = {x: 0, y: 0};
     root.x0 = ooo.x(origin);
@@ -917,10 +915,10 @@ export function drawQueryTree(target, treeData) {
     if (crosslinks !== undefined && crosslinks.length) {
         treeText += buildPropertyList({crosslinks: crosslinks.length});
     }
-    d3selection.select(target).append("div").classed("tree-label", true).html(treeText);
+    d3selection.select(target).append("div").classed("qg-tree-label", true).html(treeText);
 
     function expandOneLevel() {
-        svgGroup.selectAll("g.node")
+        svgGroup.selectAll("g.qg-node")
             .each(function(d) {
                 if (collapsed(d)) {
                     toggleChildren(d);

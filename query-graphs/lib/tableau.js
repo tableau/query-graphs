@@ -350,12 +350,12 @@ function assignSymbolsAndClasses(treeData) {
         // Assign classes for incoming edge
         if (n.tag === "binding" || n.class === "createtemptable") {
             n.children.forEach(function(c) {
-                c.edgeClass = "link-and-arrow";
+                c.edgeClass = "qg-link-and-arrow";
             });
         } else if (n.name === "runquery") {
             n.children.forEach(function(c) {
                 if (c.class === "createtemptable") {
-                    c.edgeClass = "dotted-link";
+                    c.edgeClass = "qg-dotted-link";
                 }
             });
         }

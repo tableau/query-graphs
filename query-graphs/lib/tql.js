@@ -939,7 +939,7 @@ function assignSymbols(
               case 'orderbys':
               case 'renames':
               case 'schema':
-                n.children.forEach( function( c ) { c.edgeClass = "link-and-arrow"; } );
+                n.children.forEach( function( c ) { c.edgeClass = "qg-link-and-arrow"; } );
                 break;
 
               default:
