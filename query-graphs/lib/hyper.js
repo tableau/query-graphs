@@ -191,7 +191,7 @@ function generateDisplayNames(treeData) {
             case "temp":
                 node.name = node.tag;
                 node.symbol = "temp-table-symbol";
-                node.edgeClass = "link-and-arrow";
+                node.edgeClass = "qg-link-and-arrow";
                 break;
             case "comparison":
                 node.name = node.properties.mode ? node.properties.mode : node.tag;

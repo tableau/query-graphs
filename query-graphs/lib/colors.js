@@ -8,11 +8,11 @@ export function colorFederated(treeData) {
         if (d.tag && d.tag === 'fed-op') {
             if (d.properties && d.properties.connection) {
                 d.federated = d.properties.connection.split(".")[0];
-                d.nodeClass = d.properties.connection.split(".")[0];
+                d.nodeClass = "qg-" + d.properties.connection.split(".")[0];
             }
         } else if (d.parent && d.parent.federated) {
             d.federated = d.parent.federated;
-            d.nodeClass = d.parent.federated;
+            d.nodeClass = "qg-" + d.parent.federated;
         }
     }, common.allChildren);
 }
