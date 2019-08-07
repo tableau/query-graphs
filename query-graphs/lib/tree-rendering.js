@@ -504,13 +504,13 @@ export function drawQueryTree(target, treeData) {
     // Define the zoomBehavior which calls the zoom function on the "zoom" event constrained within the scaleExtents
     var zoomBehavior = d3zoom.zoom()
         .extent(function() {
-            return [[0, 0], [target.clientWidth, target.clientHeight]];
+            return [[0, 0], [viewerWidth, viewerHeight]];
         })
         .scaleExtent([0.1, 5]).on("zoom", zoom);
 
     // Define the baseSvg, attaching a class for styling and the zoomBehavior
     var baseSvg = d3selection.select(target).append("svg")
-        .attr("viewBox", "0 0 " + target.clientWidth + " " + target.clientHeight)
+        .attr("viewBox", "0 0 " + viewerWidth + " " + viewerHeight)
         .attr("height", viewerHeight)
         .attr("class", "overlay")
         .call(zoomBehavior);
@@ -930,16 +930,18 @@ export function drawQueryTree(target, treeData) {
         orientRoot();
     }
 
-    function resize() {
+    function resize(newWidth, newHeight) {
+        viewerWidth = newWidth === undefined ? target.clientWidth : newWidth;
+        viewerHeight = newHeight === undefined ? target.clientHeight : newHeight;
         // Adjust the view box
-        baseSvg.setAttribute("viewBox", "0 0 " +
-            target.clientWidth + " " + target.clientHeight);
+        baseSvg.attr("viewBox", "0 0 " + viewerWidth + " " + viewerHeight);
         // Adjust the height (necessary in Internet Explorer)
-        baseSvg.setAttribute("height", target.clientHeight);
+        baseSvg.attr("height", viewerHeight);
     }
 
     return {
         expandOneLevel: expandOneLevel,
-        resize: resize
+        resize: resize,
+        orientRoot: orientRoot
     };
 }
