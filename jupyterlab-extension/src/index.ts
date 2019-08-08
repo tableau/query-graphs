@@ -1,10 +1,12 @@
 import { IRenderMime } from '@jupyterlab/rendermime-interfaces';
-
-
 import { JSONObject } from '@phosphor/coreutils';
-
-
 import { Widget } from '@phosphor/widgets';
+import { Message } from '@phosphor/messaging';
+
+//@ts-ignore
+let querygraphsRendering = require("@tableau/query-graphs/lib/tree-rendering");
+//@ts-ignore
+let querygraphsHyper = require("@tableau/query-graphs/lib/hyper");
 
 /**
  * The default mime type for the extension.
@@ -33,14 +35,43 @@ export class OutputWidget extends Widget implements IRenderMime.IRenderer {
    * Render hyper_queryplan into this widget's node.
    */
   renderModel(model: IRenderMime.IMimeModel): Promise<void> {
-    
     let data = model.data[this._mimeType] as JSONObject;
-    this.node.textContent = JSON.stringify(data);
-    
+    let treeData = querygraphsHyper.loadHyperPlan(data);
+    this._queryGraph = querygraphsRendering.drawQueryTree(this.node, treeData);
+    this.update();
+
     return Promise.resolve();
   }
 
+
+  /**
+   * A message handler invoked on a `'resize'` message.
+   */
+  protected onResize(msg: Widget.ResizeMessage): void {
+    this.update();
+  }
+
+  /**
+   * A message handler invoked on a `'after-show'` message.
+   */
+  protected onAfterShow(msg: Message): void {
+    this.update();
+  }
+
+  /**
+   * A message handler invoked on an `'update-request'` message.
+   */
+  protected onUpdateRequest(msg: Message): void {
+    if (this._queryGraph) {
+      // Use a minimum height. This is particularly necessary for query-graphs
+      // rendered within, e.g., notebooks or interactive consoles.
+      this._queryGraph.resize(undefined, Math.max(this.node.clientHeight, 300));
+      this._queryGraph.orientRoot();
+    }
+  }
+
   private _mimeType: string;
+  private _queryGraph: any;
 }
 
 /**
@@ -63,8 +94,10 @@ const extension: IRenderMime.IExtension = {
   fileTypes: [
     {
       name: 'hyper_queryplan',
+      displayName: "Hyper Query Plan",
       mimeTypes: [MIME_TYPE],
-      extensions: ['.plan.json']
+      extensions: ['.plan.json'],
+      iconClass: "jp-MaterialIcon qg-querygraphs-icon"
     }
   ],
   documentWidgetFactoryOptions: {
