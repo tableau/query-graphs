@@ -1,5 +1,6 @@
 {
   "name": "@tableau/query-graphs-jupyterlab-extension",
+  "private": true,
   "version": "0.1.0",
   "description": "A JupyterLab extension for rendering query plans using the QueryGraphs viewer.",
   "author": {
@@ -16,6 +17,7 @@
       "email": "lenciso@tableau.com"
     }
   ],
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/tableau/query-graphs.git",
@@ -48,7 +50,8 @@
   },
   "dependencies": {
     "@jupyterlab/rendermime-interfaces": "^1.3.0",
-    "@phosphor/widgets": "^1.5.0"
+    "@phosphor/widgets": "^1.5.0",
+    "@tableau/query-graphs": "^2.0.0"
   },
   "devDependencies": {
     "rimraf": "^2.6.3",

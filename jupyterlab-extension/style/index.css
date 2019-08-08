@@ -1,0 +1,6 @@
+@import "~@tableau/query-graphs/style/query-graphs.css";
+
+.qg-querygraphs-icon {
+   background-image: url("query-graphs-logo.png");
+   background-size: contain;
+}
