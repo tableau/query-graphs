@@ -8,12 +8,12 @@ import * as Spinner from 'spin';
 import * as querystring from 'querystring';
 
 // Require local modules
-import * as treeRendering from 'query-graphs/lib/tree-rendering';
-import * as hyperLoader from 'query-graphs/lib/hyper';
-import * as tableauLoader from 'query-graphs/lib/tableau';
-import * as jsonLoader from 'query-graphs/lib/json';
-import * as tqlLoader from 'query-graphs/lib/tql';
-import * as xmlLoader from 'query-graphs/lib/xml';
+import * as treeRendering from '@tableau/query-graphs/lib/tree-rendering';
+import * as hyperLoader from '@tableau/query-graphs/lib/hyper';
+import * as tableauLoader from '@tableau/query-graphs/lib/tableau';
+import * as jsonLoader from '@tableau/query-graphs/lib/json';
+import * as tqlLoader from '@tableau/query-graphs/lib/tql';
+import * as xmlLoader from '@tableau/query-graphs/lib/xml';
 var knownLoaders = {
     hyper: hyperLoader.loadHyperPlanFromText,
     tableau: tableauLoader.loadTableauPlan,

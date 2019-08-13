@@ -34,7 +34,7 @@
     "express": "^4.13.4",
     "fs": "0.0.2",
     "multer": "^1.1.0",
-    "query-graphs": "file:../query-graphs",
+    "@tableau/query-graphs": "^2.0.0",
     "recursive-readdir": "^2.2.1",
     "spin": "0.0.1",
     "style-loader": "^0.23.1",
