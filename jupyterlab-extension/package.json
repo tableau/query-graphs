@@ -1,6 +1,5 @@
 {
   "name": "@tableau/query-graphs-jupyterlab-extension",
-  "private": true,
   "version": "0.1.0",
   "description": "A JupyterLab extension for rendering query plans using the QueryGraphs viewer.",
   "author": {
@@ -29,7 +28,9 @@
   "keywords": [
     "jupyter",
     "jupyterlab",
-    "jupyterlab-extension"
+    "jupyterlab-extension",
+    "query plan",
+    "visualization"
   ],
   "files": [
     "lib/**/*.{d.ts,eot,gif,html,jpg,js,js.map,json,png,svg,woff2,ttf}",
