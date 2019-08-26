@@ -229,6 +229,26 @@ var generateDisplayNames = (function() {
         }
     }
 
+    // Function to display node's name.
+    function displayNodeName (node) {
+        if (node.properties && node.properties.name) {
+            node.name = node.properties.name;
+        } else {
+            node.name = node.tag;
+        }
+    }
+
+    // Function to eliminate node
+    function eliminateNode(node, parent) {
+        if (!node || !node.children) {
+            return;
+        }
+        parent.children.splice(parent.children.indexOf(node), 1);
+        for (var i = 0; i < node.children.length; i++) {
+            parent.children.push(node.children[i]);
+        }
+    }
+
     function generateDisplayNames(node) {
         // In-order traversal. Leaf node don't have children
         if (node.children) {
@@ -237,6 +257,19 @@ var generateDisplayNames = (function() {
             }
         }
         switch (node.tag) {
+            case "table-parameters":
+                eliminateNode(node, node.parent);
+                break;
+            case "arguments":
+                eliminateNode(node, node.parent);
+                break;
+            case "expression":
+                if (node.properties && !node.properties.name) {
+                    eliminateNode(node, node.parent);
+                } else {
+                    node.name = node.properties.name;
+                }
+                break;
             case "logical-expression":
                 handleLogicalExpression(node);
                 break;
@@ -419,9 +452,10 @@ function prepareTreeData(treeData, graphCollapse) {
     if (!treeData.tag) {
         treeData.tag = "result";
     }
+    common.createParentLinks(treeData);
     generateDisplayNames(treeData);
     assignSymbolsAndClasses(treeData);
-    common.createParentLinks(treeData);
+
     colors.colorFederated(treeData);
     collapseNodes(treeData, graphCollapse);
     return treeData;
