@@ -31,7 +31,8 @@ node upload-server.js
 ```
 
 After local installation and server start, you should be able to open the example
-query visualization at <http://localhost:3000/query-graphs.html?file=tableau/joins.xml>.
+for logical query visualization at <http://localhost:3000/query-graphs.html?file=tableau/joins.xml>, and example for 
+aql table query visualization at <http://localhost:3000/query-graphs.html?file=tableau/aql-table-query-example.xml>.
 
 You can get a complete list of all example visualizations on <http://localhost:3000/favorites>.
 Feel free to explore them.

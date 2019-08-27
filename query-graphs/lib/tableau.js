@@ -245,6 +245,7 @@ var generateDisplayNames = (function() {
         }
         parent.children.splice(parent.children.indexOf(node), 1);
         for (var i = 0; i < node.children.length; i++) {
+            node.children[i].parent = parent;
             parent.children.push(node.children[i]);
         }
     }
