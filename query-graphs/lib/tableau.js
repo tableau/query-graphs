@@ -225,7 +225,7 @@ var generateDisplayNames = (function() {
         } else if (node.properties && node.properties.class) {
             node.name = node.properties.class;
         } else {
-            node.name = node.tag;
+            eliminateNode(node, node.parent);
         }
     }
 
@@ -262,13 +262,6 @@ var generateDisplayNames = (function() {
                 break;
             case "arguments":
                 eliminateNode(node, node.parent);
-                break;
-            case "expression":
-                if (node.properties && !node.properties.name) {
-                    eliminateNode(node, node.parent);
-                } else {
-                    node.name = node.properties.name;
-                }
                 break;
             case "logical-expression":
                 handleLogicalExpression(node);
@@ -309,6 +302,9 @@ var generateDisplayNames = (function() {
                 handleBinding(node);
                 break;
             case "relation":
+                node.name = node.properties.name;
+                node.class = "relation";
+                break;
             case "column":
             case "runquery-column":
                 node.name = node.properties.name;
@@ -337,6 +333,15 @@ var generateDisplayNames = (function() {
                 } else {
                     node.name = node.tag;
                 }
+                break;
+            case "function":
+                displayNodeName(node);
+                break;
+            case "identifier":
+                displayNodeName(node);
+                break;
+            case "literal":
+                node.name = node.properties.type + ":" + node.properties.value;
                 break;
             default:
                 if (node.properties && node.properties.class) {
@@ -411,11 +416,18 @@ function collapseNodes(treeData, graphCollapse) {
                     case 'expressions':
                     case 'field':
                     case 'groupbys':
+                    case 'group-bys':
                     case 'imports':
                     case 'measures':
+                    case 'column-names':
+                    case 'replaced-columns':
+                    case 'rename-columns':
+                    case 'new-columns':
                     case 'metadata-record':
                     case 'metadata-records':
                     case 'orderbys':
+                    case 'order-bys':
+                    case 'filter':
                     case 'predicate':
                     case 'restrictions':
                     case 'runquery-columns':
@@ -423,6 +435,11 @@ function collapseNodes(treeData, graphCollapse) {
                     case 'schema':
                     case 'tid':
                     case 'top':
+                    case 'aggregates':
+                    case 'join-conditions':
+                    case 'arguments':
+                    case 'function-node':
+                    case 'type':
                     case 'tuples':
                         streamline(d);
                         return;
