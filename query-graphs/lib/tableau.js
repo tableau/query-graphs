@@ -225,7 +225,28 @@ var generateDisplayNames = (function() {
         } else if (node.properties && node.properties.class) {
             node.name = node.properties.class;
         } else {
+            eliminateNode(node, node.parent);
+        }
+    }
+
+    // Function to display node's name.
+    function displayNodeName (node) {
+        if (node.properties && node.properties.name) {
+            node.name = node.properties.name;
+        } else {
             node.name = node.tag;
+        }
+    }
+
+    // Function to eliminate node
+    function eliminateNode(node, parent) {
+        if (!node || !node.children) {
+            return;
+        }
+        parent.children.splice(parent.children.indexOf(node), 1);
+        for (var i = 0; i < node.children.length; i++) {
+            node.children[i].parent = parent;
+            parent.children.push(node.children[i]);
         }
     }
 
@@ -237,6 +258,12 @@ var generateDisplayNames = (function() {
             }
         }
         switch (node.tag) {
+            case "table-parameters":
+                eliminateNode(node, node.parent);
+                break;
+            case "arguments":
+                eliminateNode(node, node.parent);
+                break;
             case "logical-expression":
                 handleLogicalExpression(node);
                 break;
@@ -276,6 +303,9 @@ var generateDisplayNames = (function() {
                 handleBinding(node);
                 break;
             case "relation":
+                node.name = node.properties.name;
+                node.class = "relation";
+                break;
             case "column":
             case "runquery-column":
                 node.name = node.properties.name;
@@ -304,6 +334,15 @@ var generateDisplayNames = (function() {
                 } else {
                     node.name = node.tag;
                 }
+                break;
+            case "function":
+                displayNodeName(node);
+                break;
+            case "identifier":
+                displayNodeName(node);
+                break;
+            case "literal":
+                node.name = node.properties.type + ":" + node.properties.value;
                 break;
             default:
                 if (node.properties && node.properties.class) {
@@ -378,11 +417,18 @@ function collapseNodes(treeData, graphCollapse) {
                     case 'expressions':
                     case 'field':
                     case 'groupbys':
+                    case 'group-bys':
                     case 'imports':
                     case 'measures':
+                    case 'column-names':
+                    case 'replaced-columns':
+                    case 'rename-columns':
+                    case 'new-columns':
                     case 'metadata-record':
                     case 'metadata-records':
                     case 'orderbys':
+                    case 'order-bys':
+                    case 'filter':
                     case 'predicate':
                     case 'restrictions':
                     case 'runquery-columns':
@@ -390,6 +436,11 @@ function collapseNodes(treeData, graphCollapse) {
                     case 'schema':
                     case 'tid':
                     case 'top':
+                    case 'aggregates':
+                    case 'join-conditions':
+                    case 'arguments':
+                    case 'function-node':
+                    case 'type':
                     case 'tuples':
                         streamline(d);
                         return;
@@ -419,9 +470,10 @@ function prepareTreeData(treeData, graphCollapse) {
     if (!treeData.tag) {
         treeData.tag = "result";
     }
+    common.createParentLinks(treeData);
     generateDisplayNames(treeData);
     assignSymbolsAndClasses(treeData);
-    common.createParentLinks(treeData);
+
     colors.colorFederated(treeData);
     collapseNodes(treeData, graphCollapse);
     return treeData;

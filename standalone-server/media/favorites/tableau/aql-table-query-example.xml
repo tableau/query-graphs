@@ -1,0 +1,1468 @@
+
+<aql-table>
+  <replace-columns>
+    <replaced-columns>
+      <expression name='[County]'>
+        <function name='$COLLATE_REMOTE$'>
+          <identifier name='[County]' type='string' />
+          <literal type='string' value='&quot;LEN_RUS&quot;' />
+        </function>
+      </expression>
+      <expression name='[Region]'>
+        <function name='$COLLATE_REMOTE$'>
+          <identifier name='[Region]' type='string' />
+          <literal type='string' value='&quot;LEN_RUS&quot;' />
+        </function>
+      </expression>
+      <expression name='[State]'>
+        <function name='$COLLATE_REMOTE$'>
+          <identifier name='[State]' type='string' />
+          <literal type='string' value='&quot;LEN_RUS&quot;' />
+        </function>
+      </expression>
+      <expression name='[TEMP(attr:Calculation_547187368111697921:nk)(1468337582)(0)]'>
+        <function name='$COLLATE_REMOTE$'>
+          <identifier name='[TEMP(attr:Calculation_547187368111697921:nk)(1468337582)(0)]' type='string' />
+          <literal type='string' value='&quot;binary&quot;' />
+        </function>
+      </expression>
+      <expression name='[TEMP(attr:Calculation_547187368111697921:nk)(553610841)(0)]'>
+        <function name='$COLLATE_REMOTE$'>
+          <identifier name='[TEMP(attr:Calculation_547187368111697921:nk)(553610841)(0)]' type='string' />
+          <literal type='string' value='&quot;binary&quot;' />
+        </function>
+      </expression>
+    </replaced-columns>
+    <table-parameters>
+      <keep-columns>
+        <column-names>
+          <field name='[County]' />
+          <field name='[Region]' />
+          <field name='[State]' />
+          <field name='[TEMP(attr:Calculation_547187368111697921:nk)(1468337582)(0)]' />
+          <field name='[TEMP(attr:Calculation_547187368111697921:nk)(553610841)(0)]' />
+          <field name='[avg:Adult Obesity (% of pop):ok]' />
+          <field name='[avg:Adult Smokers (% of pop):ok]' />
+          <field name='[avg:Calculation_547187368111550464:ok]' />
+          <field name='[avg:Food Insecure (% of pop):ok]' />
+          <field name='[avg:Physically Inactive (% of pop):ok]' />
+        </column-names>
+        <table-parameters>
+          <add-columns>
+            <new-columns>
+              <expression name='[TEMP(attr:Calculation_547187368111697921:nk)(1468337582)(0)]'>
+                <function name='casewhenthen'>
+                  <literal type='boolean' value='true' />
+                  <function name='eq'>
+                    <function name='round'>
+                      <lookup-value lookup-value-domain='total' type='real'>
+                        <external-table-indices>
+                          <identifier name='[Region]' type='string' />
+                        </external-table-indices>
+                        <input-table-indices>
+                          <identifier name='[Region]' type='string' />
+                        </input-table-indices>
+                        <input-table-value>
+                          <identifier name='[__measure__0]' type='real' />
+                        </input-table-value>
+                        <default-value>
+                          <literal type='real' value='%null%' />
+                        </default-value>
+                        <input-table>
+                          <aql-table>
+                            <aggregate>
+                              <aggregates>
+                                <expression name='[__measure__0]'>
+                                  <function name='avg'>
+                                    <identifier name='[Adult Obesity (% of pop)]' type='real' />
+                                  </function>
+                                </expression>
+                              </aggregates>
+                              <group-bys>
+                                <expression name='[Region]'>
+                                  <identifier name='[Region]' type='string' />
+                                </expression>
+                              </group-bys>
+                              <table-parameters>
+                                <replace-columns>
+                                  <replaced-columns>
+                                    <expression name='[County]'>
+                                      <identifier name='[County]' type='string' />
+                                    </expression>
+                                    <expression name='[Region]'>
+                                      <identifier name='[Region]' type='string' />
+                                    </expression>
+                                    <expression name='[State]'>
+                                      <identifier name='[State]' type='string' />
+                                    </expression>
+                                  </replaced-columns>
+                                  <table-parameters>
+                                    <relation name='[hyper.1809jb10jua5bq1cweope10h9n10].[Extract]'>
+                                      <tupleType>
+                                        <field name='[Adult Obesity (% of pop)]' type='real' />
+                                        <field name='[Adult Smokers (% of pop)]' type='real' />
+                                        <field name='[Children in Poverty (% of pop)]' type='real' />
+                                        <field name='[County]' type='string' />
+                                        <field name='[Diabetic (% of pop)]' type='real' />
+                                        <field name='[Food Insecure (% of pop)]' type='real' />
+                                        <field name='[Physically Inactive (% of pop)]' type='real' />
+                                        <field name='[Region]' type='string' />
+                                        <field name='[State]' type='string' />
+                                      </tupleType>
+                                    </relation>
+                                  </table-parameters>
+                                </replace-columns>
+                              </table-parameters>
+                            </aggregate>
+                          </aql-table>
+                        </input-table>
+                      </lookup-value>
+                      <literal type='integer' value='2' />
+                    </function>
+                    <function name='round'>
+                      <lookup-value lookup-value-domain='total' type='real'>
+                        <external-table-indices>
+                          <identifier name='[County]' type='string' />
+                          <identifier name='[State]' type='string' />
+                        </external-table-indices>
+                        <input-table-indices>
+                          <identifier name='[County]' type='string' />
+                          <identifier name='[State]' type='string' />
+                        </input-table-indices>
+                        <input-table-value>
+                          <identifier name='[__measure__1]' type='real' />
+                        </input-table-value>
+                        <default-value>
+                          <literal type='real' value='%null%' />
+                        </default-value>
+                        <input-table>
+                          <aql-table>
+                            <aggregate>
+                              <aggregates>
+                                <expression name='[__measure__1]'>
+                                  <function name='avg'>
+                                    <identifier name='[Adult Obesity (% of pop)]' type='real' />
+                                  </function>
+                                </expression>
+                              </aggregates>
+                              <group-bys>
+                                <expression name='[County]'>
+                                  <identifier name='[County]' type='string' />
+                                </expression>
+                                <expression name='[State]'>
+                                  <identifier name='[State]' type='string' />
+                                </expression>
+                              </group-bys>
+                              <table-parameters>
+                                <replace-columns>
+                                  <replaced-columns>
+                                    <expression name='[County]'>
+                                      <identifier name='[County]' type='string' />
+                                    </expression>
+                                    <expression name='[Region]'>
+                                      <identifier name='[Region]' type='string' />
+                                    </expression>
+                                    <expression name='[State]'>
+                                      <identifier name='[State]' type='string' />
+                                    </expression>
+                                  </replaced-columns>
+                                  <table-parameters>
+                                    <relation name='[hyper.1809jb10jua5bq1cweope10h9n10].[Extract]'>
+                                      <tupleType>
+                                        <field name='[Adult Obesity (% of pop)]' type='real' />
+                                        <field name='[Adult Smokers (% of pop)]' type='real' />
+                                        <field name='[Children in Poverty (% of pop)]' type='real' />
+                                        <field name='[County]' type='string' />
+                                        <field name='[Diabetic (% of pop)]' type='real' />
+                                        <field name='[Food Insecure (% of pop)]' type='real' />
+                                        <field name='[Physically Inactive (% of pop)]' type='real' />
+                                        <field name='[Region]' type='string' />
+                                        <field name='[State]' type='string' />
+                                      </tupleType>
+                                    </relation>
+                                  </table-parameters>
+                                </replace-columns>
+                              </table-parameters>
+                            </aggregate>
+                          </aql-table>
+                        </input-table>
+                      </lookup-value>
+                      <literal type='integer' value='2' />
+                    </function>
+                  </function>
+                  <literal type='string' value='&quot;on par with&quot;' />
+                  <function name='lt'>
+                    <function name='round'>
+                      <lookup-value lookup-value-domain='total' type='real'>
+                        <external-table-indices>
+                          <identifier name='[Region]' type='string' />
+                        </external-table-indices>
+                        <input-table-indices>
+                          <identifier name='[Region]' type='string' />
+                        </input-table-indices>
+                        <input-table-value>
+                          <identifier name='[__measure__0]' type='real' />
+                        </input-table-value>
+                        <default-value>
+                          <literal type='real' value='%null%' />
+                        </default-value>
+                        <input-table>
+                          <aql-table>
+                            <aggregate>
+                              <aggregates>
+                                <expression name='[__measure__0]'>
+                                  <function name='avg'>
+                                    <identifier name='[Adult Obesity (% of pop)]' type='real' />
+                                  </function>
+                                </expression>
+                              </aggregates>
+                              <group-bys>
+                                <expression name='[Region]'>
+                                  <identifier name='[Region]' type='string' />
+                                </expression>
+                              </group-bys>
+                              <table-parameters>
+                                <replace-columns>
+                                  <replaced-columns>
+                                    <expression name='[County]'>
+                                      <identifier name='[County]' type='string' />
+                                    </expression>
+                                    <expression name='[Region]'>
+                                      <identifier name='[Region]' type='string' />
+                                    </expression>
+                                    <expression name='[State]'>
+                                      <identifier name='[State]' type='string' />
+                                    </expression>
+                                  </replaced-columns>
+                                  <table-parameters>
+                                    <relation name='[hyper.1809jb10jua5bq1cweope10h9n10].[Extract]'>
+                                      <tupleType>
+                                        <field name='[Adult Obesity (% of pop)]' type='real' />
+                                        <field name='[Adult Smokers (% of pop)]' type='real' />
+                                        <field name='[Children in Poverty (% of pop)]' type='real' />
+                                        <field name='[County]' type='string' />
+                                        <field name='[Diabetic (% of pop)]' type='real' />
+                                        <field name='[Food Insecure (% of pop)]' type='real' />
+                                        <field name='[Physically Inactive (% of pop)]' type='real' />
+                                        <field name='[Region]' type='string' />
+                                        <field name='[State]' type='string' />
+                                      </tupleType>
+                                    </relation>
+                                  </table-parameters>
+                                </replace-columns>
+                              </table-parameters>
+                            </aggregate>
+                          </aql-table>
+                        </input-table>
+                      </lookup-value>
+                      <literal type='integer' value='2' />
+                    </function>
+                    <function name='round'>
+                      <lookup-value lookup-value-domain='total' type='real'>
+                        <external-table-indices>
+                          <identifier name='[County]' type='string' />
+                          <identifier name='[State]' type='string' />
+                        </external-table-indices>
+                        <input-table-indices>
+                          <identifier name='[County]' type='string' />
+                          <identifier name='[State]' type='string' />
+                        </input-table-indices>
+                        <input-table-value>
+                          <identifier name='[__measure__2]' type='real' />
+                        </input-table-value>
+                        <default-value>
+                          <literal type='real' value='%null%' />
+                        </default-value>
+                        <input-table>
+                          <aql-table>
+                            <aggregate>
+                              <aggregates>
+                                <expression name='[__measure__2]'>
+                                  <function name='avg'>
+                                    <identifier name='[Adult Obesity (% of pop)]' type='real' />
+                                  </function>
+                                </expression>
+                              </aggregates>
+                              <group-bys>
+                                <expression name='[County]'>
+                                  <identifier name='[County]' type='string' />
+                                </expression>
+                                <expression name='[State]'>
+                                  <identifier name='[State]' type='string' />
+                                </expression>
+                              </group-bys>
+                              <table-parameters>
+                                <replace-columns>
+                                  <replaced-columns>
+                                    <expression name='[County]'>
+                                      <identifier name='[County]' type='string' />
+                                    </expression>
+                                    <expression name='[Region]'>
+                                      <identifier name='[Region]' type='string' />
+                                    </expression>
+                                    <expression name='[State]'>
+                                      <identifier name='[State]' type='string' />
+                                    </expression>
+                                  </replaced-columns>
+                                  <table-parameters>
+                                    <relation name='[hyper.1809jb10jua5bq1cweope10h9n10].[Extract]'>
+                                      <tupleType>
+                                        <field name='[Adult Obesity (% of pop)]' type='real' />
+                                        <field name='[Adult Smokers (% of pop)]' type='real' />
+                                        <field name='[Children in Poverty (% of pop)]' type='real' />
+                                        <field name='[County]' type='string' />
+                                        <field name='[Diabetic (% of pop)]' type='real' />
+                                        <field name='[Food Insecure (% of pop)]' type='real' />
+                                        <field name='[Physically Inactive (% of pop)]' type='real' />
+                                        <field name='[Region]' type='string' />
+                                        <field name='[State]' type='string' />
+                                      </tupleType>
+                                    </relation>
+                                  </table-parameters>
+                                </replace-columns>
+                              </table-parameters>
+                            </aggregate>
+                          </aql-table>
+                        </input-table>
+                      </lookup-value>
+                      <literal type='integer' value='2' />
+                    </function>
+                  </function>
+                  <function name='+'>
+                    <function name='str'>
+                      <function name='round'>
+                        <function name='*'>
+                          <function name='abs'>
+                            <function name='-'>
+                              <function name='round'>
+                                <lookup-value lookup-value-domain='total' type='real'>
+                                  <external-table-indices>
+                                    <identifier name='[County]' type='string' />
+                                    <identifier name='[State]' type='string' />
+                                  </external-table-indices>
+                                  <input-table-indices>
+                                    <identifier name='[County]' type='string' />
+                                    <identifier name='[State]' type='string' />
+                                  </input-table-indices>
+                                  <input-table-value>
+                                    <identifier name='[__measure__3]' type='real' />
+                                  </input-table-value>
+                                  <default-value>
+                                    <literal type='real' value='%null%' />
+                                  </default-value>
+                                  <input-table>
+                                    <aql-table>
+                                      <aggregate>
+                                        <aggregates>
+                                          <expression name='[__measure__3]'>
+                                            <function name='avg'>
+                                              <identifier name='[Adult Obesity (% of pop)]' type='real' />
+                                            </function>
+                                          </expression>
+                                        </aggregates>
+                                        <group-bys>
+                                          <expression name='[County]'>
+                                            <identifier name='[County]' type='string' />
+                                          </expression>
+                                          <expression name='[State]'>
+                                            <identifier name='[State]' type='string' />
+                                          </expression>
+                                        </group-bys>
+                                        <table-parameters>
+                                          <replace-columns>
+                                            <replaced-columns>
+                                              <expression name='[County]'>
+                                                <identifier name='[County]' type='string' />
+                                              </expression>
+                                              <expression name='[Region]'>
+                                                <identifier name='[Region]' type='string' />
+                                              </expression>
+                                              <expression name='[State]'>
+                                                <identifier name='[State]' type='string' />
+                                              </expression>
+                                            </replaced-columns>
+                                            <table-parameters>
+                                              <relation name='[hyper.1809jb10jua5bq1cweope10h9n10].[Extract]'>
+                                                <tupleType>
+                                                  <field name='[Adult Obesity (% of pop)]' type='real' />
+                                                  <field name='[Adult Smokers (% of pop)]' type='real' />
+                                                  <field name='[Children in Poverty (% of pop)]' type='real' />
+                                                  <field name='[County]' type='string' />
+                                                  <field name='[Diabetic (% of pop)]' type='real' />
+                                                  <field name='[Food Insecure (% of pop)]' type='real' />
+                                                  <field name='[Physically Inactive (% of pop)]' type='real' />
+                                                  <field name='[Region]' type='string' />
+                                                  <field name='[State]' type='string' />
+                                                </tupleType>
+                                              </relation>
+                                            </table-parameters>
+                                          </replace-columns>
+                                        </table-parameters>
+                                      </aggregate>
+                                    </aql-table>
+                                  </input-table>
+                                </lookup-value>
+                                <literal type='integer' value='2' />
+                              </function>
+                              <function name='round'>
+                                <lookup-value lookup-value-domain='total' type='real'>
+                                  <external-table-indices>
+                                    <identifier name='[Region]' type='string' />
+                                  </external-table-indices>
+                                  <input-table-indices>
+                                    <identifier name='[Region]' type='string' />
+                                  </input-table-indices>
+                                  <input-table-value>
+                                    <identifier name='[__measure__0]' type='real' />
+                                  </input-table-value>
+                                  <default-value>
+                                    <literal type='real' value='%null%' />
+                                  </default-value>
+                                  <input-table>
+                                    <aql-table>
+                                      <aggregate>
+                                        <aggregates>
+                                          <expression name='[__measure__0]'>
+                                            <function name='avg'>
+                                              <identifier name='[Adult Obesity (% of pop)]' type='real' />
+                                            </function>
+                                          </expression>
+                                        </aggregates>
+                                        <group-bys>
+                                          <expression name='[Region]'>
+                                            <identifier name='[Region]' type='string' />
+                                          </expression>
+                                        </group-bys>
+                                        <table-parameters>
+                                          <replace-columns>
+                                            <replaced-columns>
+                                              <expression name='[County]'>
+                                                <identifier name='[County]' type='string' />
+                                              </expression>
+                                              <expression name='[Region]'>
+                                                <identifier name='[Region]' type='string' />
+                                              </expression>
+                                              <expression name='[State]'>
+                                                <identifier name='[State]' type='string' />
+                                              </expression>
+                                            </replaced-columns>
+                                            <table-parameters>
+                                              <relation name='[hyper.1809jb10jua5bq1cweope10h9n10].[Extract]'>
+                                                <tupleType>
+                                                  <field name='[Adult Obesity (% of pop)]' type='real' />
+                                                  <field name='[Adult Smokers (% of pop)]' type='real' />
+                                                  <field name='[Children in Poverty (% of pop)]' type='real' />
+                                                  <field name='[County]' type='string' />
+                                                  <field name='[Diabetic (% of pop)]' type='real' />
+                                                  <field name='[Food Insecure (% of pop)]' type='real' />
+                                                  <field name='[Physically Inactive (% of pop)]' type='real' />
+                                                  <field name='[Region]' type='string' />
+                                                  <field name='[State]' type='string' />
+                                                </tupleType>
+                                              </relation>
+                                            </table-parameters>
+                                          </replace-columns>
+                                        </table-parameters>
+                                      </aggregate>
+                                    </aql-table>
+                                  </input-table>
+                                </lookup-value>
+                                <literal type='integer' value='2' />
+                              </function>
+                            </function>
+                          </function>
+                          <literal type='integer' value='100' />
+                        </function>
+                        <literal type='integer' value='2' />
+                      </function>
+                    </function>
+                    <literal type='string' value='&quot;\% above&quot;' />
+                  </function>
+                  <function name='+'>
+                    <function name='str'>
+                      <function name='round'>
+                        <function name='*'>
+                          <function name='abs'>
+                            <function name='-'>
+                              <function name='round'>
+                                <lookup-value lookup-value-domain='total' type='real'>
+                                  <external-table-indices>
+                                    <identifier name='[County]' type='string' />
+                                    <identifier name='[State]' type='string' />
+                                  </external-table-indices>
+                                  <input-table-indices>
+                                    <identifier name='[County]' type='string' />
+                                    <identifier name='[State]' type='string' />
+                                  </input-table-indices>
+                                  <input-table-value>
+                                    <identifier name='[__measure__3]' type='real' />
+                                  </input-table-value>
+                                  <default-value>
+                                    <literal type='real' value='%null%' />
+                                  </default-value>
+                                  <input-table>
+                                    <aql-table>
+                                      <aggregate>
+                                        <aggregates>
+                                          <expression name='[__measure__3]'>
+                                            <function name='avg'>
+                                              <identifier name='[Adult Obesity (% of pop)]' type='real' />
+                                            </function>
+                                          </expression>
+                                        </aggregates>
+                                        <group-bys>
+                                          <expression name='[County]'>
+                                            <identifier name='[County]' type='string' />
+                                          </expression>
+                                          <expression name='[State]'>
+                                            <identifier name='[State]' type='string' />
+                                          </expression>
+                                        </group-bys>
+                                        <table-parameters>
+                                          <replace-columns>
+                                            <replaced-columns>
+                                              <expression name='[County]'>
+                                                <identifier name='[County]' type='string' />
+                                              </expression>
+                                              <expression name='[Region]'>
+                                                <identifier name='[Region]' type='string' />
+                                              </expression>
+                                              <expression name='[State]'>
+                                                <identifier name='[State]' type='string' />
+                                              </expression>
+                                            </replaced-columns>
+                                            <table-parameters>
+                                              <relation name='[hyper.1809jb10jua5bq1cweope10h9n10].[Extract]'>
+                                                <tupleType>
+                                                  <field name='[Adult Obesity (% of pop)]' type='real' />
+                                                  <field name='[Adult Smokers (% of pop)]' type='real' />
+                                                  <field name='[Children in Poverty (% of pop)]' type='real' />
+                                                  <field name='[County]' type='string' />
+                                                  <field name='[Diabetic (% of pop)]' type='real' />
+                                                  <field name='[Food Insecure (% of pop)]' type='real' />
+                                                  <field name='[Physically Inactive (% of pop)]' type='real' />
+                                                  <field name='[Region]' type='string' />
+                                                  <field name='[State]' type='string' />
+                                                </tupleType>
+                                              </relation>
+                                            </table-parameters>
+                                          </replace-columns>
+                                        </table-parameters>
+                                      </aggregate>
+                                    </aql-table>
+                                  </input-table>
+                                </lookup-value>
+                                <literal type='integer' value='2' />
+                              </function>
+                              <function name='round'>
+                                <lookup-value lookup-value-domain='total' type='real'>
+                                  <external-table-indices>
+                                    <identifier name='[Region]' type='string' />
+                                  </external-table-indices>
+                                  <input-table-indices>
+                                    <identifier name='[Region]' type='string' />
+                                  </input-table-indices>
+                                  <input-table-value>
+                                    <identifier name='[__measure__0]' type='real' />
+                                  </input-table-value>
+                                  <default-value>
+                                    <literal type='real' value='%null%' />
+                                  </default-value>
+                                  <input-table>
+                                    <aql-table>
+                                      <aggregate>
+                                        <aggregates>
+                                          <expression name='[__measure__0]'>
+                                            <function name='avg'>
+                                              <identifier name='[Adult Obesity (% of pop)]' type='real' />
+                                            </function>
+                                          </expression>
+                                        </aggregates>
+                                        <group-bys>
+                                          <expression name='[Region]'>
+                                            <identifier name='[Region]' type='string' />
+                                          </expression>
+                                        </group-bys>
+                                        <table-parameters>
+                                          <replace-columns>
+                                            <replaced-columns>
+                                              <expression name='[County]'>
+                                                <identifier name='[County]' type='string' />
+                                              </expression>
+                                              <expression name='[Region]'>
+                                                <identifier name='[Region]' type='string' />
+                                              </expression>
+                                              <expression name='[State]'>
+                                                <identifier name='[State]' type='string' />
+                                              </expression>
+                                            </replaced-columns>
+                                            <table-parameters>
+                                              <relation name='[hyper.1809jb10jua5bq1cweope10h9n10].[Extract]'>
+                                                <tupleType>
+                                                  <field name='[Adult Obesity (% of pop)]' type='real' />
+                                                  <field name='[Adult Smokers (% of pop)]' type='real' />
+                                                  <field name='[Children in Poverty (% of pop)]' type='real' />
+                                                  <field name='[County]' type='string' />
+                                                  <field name='[Diabetic (% of pop)]' type='real' />
+                                                  <field name='[Food Insecure (% of pop)]' type='real' />
+                                                  <field name='[Physically Inactive (% of pop)]' type='real' />
+                                                  <field name='[Region]' type='string' />
+                                                  <field name='[State]' type='string' />
+                                                </tupleType>
+                                              </relation>
+                                            </table-parameters>
+                                          </replace-columns>
+                                        </table-parameters>
+                                      </aggregate>
+                                    </aql-table>
+                                  </input-table>
+                                </lookup-value>
+                                <literal type='integer' value='2' />
+                              </function>
+                            </function>
+                          </function>
+                          <literal type='integer' value='100' />
+                        </function>
+                        <literal type='integer' value='2' />
+                      </function>
+                    </function>
+                    <literal type='string' value='&quot;\% below&quot;' />
+                  </function>
+                </function>
+              </expression>
+              <expression name='[TEMP(attr:Calculation_547187368111697921:nk)(553610841)(0)]'>
+                <function name='casewhenthen'>
+                  <literal type='boolean' value='true' />
+                  <function name='eq'>
+                    <function name='round'>
+                      <lookup-value lookup-value-domain='total' type='real'>
+                        <external-table-indices>
+                          <identifier name='[Region]' type='string' />
+                        </external-table-indices>
+                        <input-table-indices>
+                          <identifier name='[Region]' type='string' />
+                        </input-table-indices>
+                        <input-table-value>
+                          <identifier name='[__measure__4]' type='real' />
+                        </input-table-value>
+                        <default-value>
+                          <literal type='real' value='%null%' />
+                        </default-value>
+                        <input-table>
+                          <aql-table>
+                            <aggregate>
+                              <aggregates>
+                                <expression name='[__measure__4]'>
+                                  <function name='avg'>
+                                    <identifier name='[Adult Obesity (% of pop)]' type='real' />
+                                  </function>
+                                </expression>
+                              </aggregates>
+                              <group-bys>
+                                <expression name='[Region]'>
+                                  <identifier name='[Region]' type='string' />
+                                </expression>
+                              </group-bys>
+                              <table-parameters>
+                                <replace-columns>
+                                  <replaced-columns>
+                                    <expression name='[County]'>
+                                      <identifier name='[County]' type='string' />
+                                    </expression>
+                                    <expression name='[Region]'>
+                                      <identifier name='[Region]' type='string' />
+                                    </expression>
+                                    <expression name='[State]'>
+                                      <identifier name='[State]' type='string' />
+                                    </expression>
+                                  </replaced-columns>
+                                  <table-parameters>
+                                    <relation name='[hyper.1809jb10jua5bq1cweope10h9n10].[Extract]'>
+                                      <tupleType>
+                                        <field name='[Adult Obesity (% of pop)]' type='real' />
+                                        <field name='[Adult Smokers (% of pop)]' type='real' />
+                                        <field name='[Children in Poverty (% of pop)]' type='real' />
+                                        <field name='[County]' type='string' />
+                                        <field name='[Diabetic (% of pop)]' type='real' />
+                                        <field name='[Food Insecure (% of pop)]' type='real' />
+                                        <field name='[Physically Inactive (% of pop)]' type='real' />
+                                        <field name='[Region]' type='string' />
+                                        <field name='[State]' type='string' />
+                                      </tupleType>
+                                    </relation>
+                                  </table-parameters>
+                                </replace-columns>
+                              </table-parameters>
+                            </aggregate>
+                          </aql-table>
+                        </input-table>
+                      </lookup-value>
+                      <literal type='integer' value='2' />
+                    </function>
+                    <function name='round'>
+                      <lookup-value lookup-value-domain='total' type='real'>
+                        <external-table-indices>
+                          <identifier name='[County]' type='string' />
+                          <identifier name='[State]' type='string' />
+                        </external-table-indices>
+                        <input-table-indices>
+                          <identifier name='[County]' type='string' />
+                          <identifier name='[State]' type='string' />
+                        </input-table-indices>
+                        <input-table-value>
+                          <identifier name='[__measure__5]' type='real' />
+                        </input-table-value>
+                        <default-value>
+                          <literal type='real' value='%null%' />
+                        </default-value>
+                        <input-table>
+                          <aql-table>
+                            <aggregate>
+                              <aggregates>
+                                <expression name='[__measure__5]'>
+                                  <function name='avg'>
+                                    <identifier name='[Adult Obesity (% of pop)]' type='real' />
+                                  </function>
+                                </expression>
+                              </aggregates>
+                              <group-bys>
+                                <expression name='[County]'>
+                                  <identifier name='[County]' type='string' />
+                                </expression>
+                                <expression name='[State]'>
+                                  <identifier name='[State]' type='string' />
+                                </expression>
+                              </group-bys>
+                              <table-parameters>
+                                <replace-columns>
+                                  <replaced-columns>
+                                    <expression name='[County]'>
+                                      <identifier name='[County]' type='string' />
+                                    </expression>
+                                    <expression name='[Region]'>
+                                      <identifier name='[Region]' type='string' />
+                                    </expression>
+                                    <expression name='[State]'>
+                                      <identifier name='[State]' type='string' />
+                                    </expression>
+                                  </replaced-columns>
+                                  <table-parameters>
+                                    <relation name='[hyper.1809jb10jua5bq1cweope10h9n10].[Extract]'>
+                                      <tupleType>
+                                        <field name='[Adult Obesity (% of pop)]' type='real' />
+                                        <field name='[Adult Smokers (% of pop)]' type='real' />
+                                        <field name='[Children in Poverty (% of pop)]' type='real' />
+                                        <field name='[County]' type='string' />
+                                        <field name='[Diabetic (% of pop)]' type='real' />
+                                        <field name='[Food Insecure (% of pop)]' type='real' />
+                                        <field name='[Physically Inactive (% of pop)]' type='real' />
+                                        <field name='[Region]' type='string' />
+                                        <field name='[State]' type='string' />
+                                      </tupleType>
+                                    </relation>
+                                  </table-parameters>
+                                </replace-columns>
+                              </table-parameters>
+                            </aggregate>
+                          </aql-table>
+                        </input-table>
+                      </lookup-value>
+                      <literal type='integer' value='2' />
+                    </function>
+                  </function>
+                  <literal type='string' value='&quot;on par with&quot;' />
+                  <function name='lt'>
+                    <function name='round'>
+                      <lookup-value lookup-value-domain='total' type='real'>
+                        <external-table-indices>
+                          <identifier name='[Region]' type='string' />
+                        </external-table-indices>
+                        <input-table-indices>
+                          <identifier name='[Region]' type='string' />
+                        </input-table-indices>
+                        <input-table-value>
+                          <identifier name='[__measure__4]' type='real' />
+                        </input-table-value>
+                        <default-value>
+                          <literal type='real' value='%null%' />
+                        </default-value>
+                        <input-table>
+                          <aql-table>
+                            <aggregate>
+                              <aggregates>
+                                <expression name='[__measure__4]'>
+                                  <function name='avg'>
+                                    <identifier name='[Adult Obesity (% of pop)]' type='real' />
+                                  </function>
+                                </expression>
+                              </aggregates>
+                              <group-bys>
+                                <expression name='[Region]'>
+                                  <identifier name='[Region]' type='string' />
+                                </expression>
+                              </group-bys>
+                              <table-parameters>
+                                <replace-columns>
+                                  <replaced-columns>
+                                    <expression name='[County]'>
+                                      <identifier name='[County]' type='string' />
+                                    </expression>
+                                    <expression name='[Region]'>
+                                      <identifier name='[Region]' type='string' />
+                                    </expression>
+                                    <expression name='[State]'>
+                                      <identifier name='[State]' type='string' />
+                                    </expression>
+                                  </replaced-columns>
+                                  <table-parameters>
+                                    <relation name='[hyper.1809jb10jua5bq1cweope10h9n10].[Extract]'>
+                                      <tupleType>
+                                        <field name='[Adult Obesity (% of pop)]' type='real' />
+                                        <field name='[Adult Smokers (% of pop)]' type='real' />
+                                        <field name='[Children in Poverty (% of pop)]' type='real' />
+                                        <field name='[County]' type='string' />
+                                        <field name='[Diabetic (% of pop)]' type='real' />
+                                        <field name='[Food Insecure (% of pop)]' type='real' />
+                                        <field name='[Physically Inactive (% of pop)]' type='real' />
+                                        <field name='[Region]' type='string' />
+                                        <field name='[State]' type='string' />
+                                      </tupleType>
+                                    </relation>
+                                  </table-parameters>
+                                </replace-columns>
+                              </table-parameters>
+                            </aggregate>
+                          </aql-table>
+                        </input-table>
+                      </lookup-value>
+                      <literal type='integer' value='2' />
+                    </function>
+                    <function name='round'>
+                      <lookup-value lookup-value-domain='total' type='real'>
+                        <external-table-indices>
+                          <identifier name='[County]' type='string' />
+                          <identifier name='[State]' type='string' />
+                        </external-table-indices>
+                        <input-table-indices>
+                          <identifier name='[County]' type='string' />
+                          <identifier name='[State]' type='string' />
+                        </input-table-indices>
+                        <input-table-value>
+                          <identifier name='[__measure__6]' type='real' />
+                        </input-table-value>
+                        <default-value>
+                          <literal type='real' value='%null%' />
+                        </default-value>
+                        <input-table>
+                          <aql-table>
+                            <aggregate>
+                              <aggregates>
+                                <expression name='[__measure__6]'>
+                                  <function name='avg'>
+                                    <identifier name='[Adult Obesity (% of pop)]' type='real' />
+                                  </function>
+                                </expression>
+                              </aggregates>
+                              <group-bys>
+                                <expression name='[County]'>
+                                  <identifier name='[County]' type='string' />
+                                </expression>
+                                <expression name='[State]'>
+                                  <identifier name='[State]' type='string' />
+                                </expression>
+                              </group-bys>
+                              <table-parameters>
+                                <replace-columns>
+                                  <replaced-columns>
+                                    <expression name='[County]'>
+                                      <identifier name='[County]' type='string' />
+                                    </expression>
+                                    <expression name='[Region]'>
+                                      <identifier name='[Region]' type='string' />
+                                    </expression>
+                                    <expression name='[State]'>
+                                      <identifier name='[State]' type='string' />
+                                    </expression>
+                                  </replaced-columns>
+                                  <table-parameters>
+                                    <relation name='[hyper.1809jb10jua5bq1cweope10h9n10].[Extract]'>
+                                      <tupleType>
+                                        <field name='[Adult Obesity (% of pop)]' type='real' />
+                                        <field name='[Adult Smokers (% of pop)]' type='real' />
+                                        <field name='[Children in Poverty (% of pop)]' type='real' />
+                                        <field name='[County]' type='string' />
+                                        <field name='[Diabetic (% of pop)]' type='real' />
+                                        <field name='[Food Insecure (% of pop)]' type='real' />
+                                        <field name='[Physically Inactive (% of pop)]' type='real' />
+                                        <field name='[Region]' type='string' />
+                                        <field name='[State]' type='string' />
+                                      </tupleType>
+                                    </relation>
+                                  </table-parameters>
+                                </replace-columns>
+                              </table-parameters>
+                            </aggregate>
+                          </aql-table>
+                        </input-table>
+                      </lookup-value>
+                      <literal type='integer' value='2' />
+                    </function>
+                  </function>
+                  <function name='+'>
+                    <function name='str'>
+                      <function name='round'>
+                        <function name='*'>
+                          <function name='abs'>
+                            <function name='-'>
+                              <function name='round'>
+                                <lookup-value lookup-value-domain='total' type='real'>
+                                  <external-table-indices>
+                                    <identifier name='[County]' type='string' />
+                                    <identifier name='[State]' type='string' />
+                                  </external-table-indices>
+                                  <input-table-indices>
+                                    <identifier name='[County]' type='string' />
+                                    <identifier name='[State]' type='string' />
+                                  </input-table-indices>
+                                  <input-table-value>
+                                    <identifier name='[__measure__7]' type='real' />
+                                  </input-table-value>
+                                  <default-value>
+                                    <literal type='real' value='%null%' />
+                                  </default-value>
+                                  <input-table>
+                                    <aql-table>
+                                      <aggregate>
+                                        <aggregates>
+                                          <expression name='[__measure__7]'>
+                                            <function name='avg'>
+                                              <identifier name='[Adult Obesity (% of pop)]' type='real' />
+                                            </function>
+                                          </expression>
+                                        </aggregates>
+                                        <group-bys>
+                                          <expression name='[County]'>
+                                            <identifier name='[County]' type='string' />
+                                          </expression>
+                                          <expression name='[State]'>
+                                            <identifier name='[State]' type='string' />
+                                          </expression>
+                                        </group-bys>
+                                        <table-parameters>
+                                          <replace-columns>
+                                            <replaced-columns>
+                                              <expression name='[County]'>
+                                                <identifier name='[County]' type='string' />
+                                              </expression>
+                                              <expression name='[Region]'>
+                                                <identifier name='[Region]' type='string' />
+                                              </expression>
+                                              <expression name='[State]'>
+                                                <identifier name='[State]' type='string' />
+                                              </expression>
+                                            </replaced-columns>
+                                            <table-parameters>
+                                              <relation name='[hyper.1809jb10jua5bq1cweope10h9n10].[Extract]'>
+                                                <tupleType>
+                                                  <field name='[Adult Obesity (% of pop)]' type='real' />
+                                                  <field name='[Adult Smokers (% of pop)]' type='real' />
+                                                  <field name='[Children in Poverty (% of pop)]' type='real' />
+                                                  <field name='[County]' type='string' />
+                                                  <field name='[Diabetic (% of pop)]' type='real' />
+                                                  <field name='[Food Insecure (% of pop)]' type='real' />
+                                                  <field name='[Physically Inactive (% of pop)]' type='real' />
+                                                  <field name='[Region]' type='string' />
+                                                  <field name='[State]' type='string' />
+                                                </tupleType>
+                                              </relation>
+                                            </table-parameters>
+                                          </replace-columns>
+                                        </table-parameters>
+                                      </aggregate>
+                                    </aql-table>
+                                  </input-table>
+                                </lookup-value>
+                                <literal type='integer' value='2' />
+                              </function>
+                              <function name='round'>
+                                <lookup-value lookup-value-domain='total' type='real'>
+                                  <external-table-indices>
+                                    <identifier name='[Region]' type='string' />
+                                  </external-table-indices>
+                                  <input-table-indices>
+                                    <identifier name='[Region]' type='string' />
+                                  </input-table-indices>
+                                  <input-table-value>
+                                    <identifier name='[__measure__4]' type='real' />
+                                  </input-table-value>
+                                  <default-value>
+                                    <literal type='real' value='%null%' />
+                                  </default-value>
+                                  <input-table>
+                                    <aql-table>
+                                      <aggregate>
+                                        <aggregates>
+                                          <expression name='[__measure__4]'>
+                                            <function name='avg'>
+                                              <identifier name='[Adult Obesity (% of pop)]' type='real' />
+                                            </function>
+                                          </expression>
+                                        </aggregates>
+                                        <group-bys>
+                                          <expression name='[Region]'>
+                                            <identifier name='[Region]' type='string' />
+                                          </expression>
+                                        </group-bys>
+                                        <table-parameters>
+                                          <replace-columns>
+                                            <replaced-columns>
+                                              <expression name='[County]'>
+                                                <identifier name='[County]' type='string' />
+                                              </expression>
+                                              <expression name='[Region]'>
+                                                <identifier name='[Region]' type='string' />
+                                              </expression>
+                                              <expression name='[State]'>
+                                                <identifier name='[State]' type='string' />
+                                              </expression>
+                                            </replaced-columns>
+                                            <table-parameters>
+                                              <relation name='[hyper.1809jb10jua5bq1cweope10h9n10].[Extract]'>
+                                                <tupleType>
+                                                  <field name='[Adult Obesity (% of pop)]' type='real' />
+                                                  <field name='[Adult Smokers (% of pop)]' type='real' />
+                                                  <field name='[Children in Poverty (% of pop)]' type='real' />
+                                                  <field name='[County]' type='string' />
+                                                  <field name='[Diabetic (% of pop)]' type='real' />
+                                                  <field name='[Food Insecure (% of pop)]' type='real' />
+                                                  <field name='[Physically Inactive (% of pop)]' type='real' />
+                                                  <field name='[Region]' type='string' />
+                                                  <field name='[State]' type='string' />
+                                                </tupleType>
+                                              </relation>
+                                            </table-parameters>
+                                          </replace-columns>
+                                        </table-parameters>
+                                      </aggregate>
+                                    </aql-table>
+                                  </input-table>
+                                </lookup-value>
+                                <literal type='integer' value='2' />
+                              </function>
+                            </function>
+                          </function>
+                          <literal type='integer' value='100' />
+                        </function>
+                        <literal type='integer' value='2' />
+                      </function>
+                    </function>
+                    <literal type='string' value='&quot;\% above&quot;' />
+                  </function>
+                  <function name='+'>
+                    <function name='str'>
+                      <function name='round'>
+                        <function name='*'>
+                          <function name='abs'>
+                            <function name='-'>
+                              <function name='round'>
+                                <lookup-value lookup-value-domain='total' type='real'>
+                                  <external-table-indices>
+                                    <identifier name='[County]' type='string' />
+                                    <identifier name='[State]' type='string' />
+                                  </external-table-indices>
+                                  <input-table-indices>
+                                    <identifier name='[County]' type='string' />
+                                    <identifier name='[State]' type='string' />
+                                  </input-table-indices>
+                                  <input-table-value>
+                                    <identifier name='[__measure__7]' type='real' />
+                                  </input-table-value>
+                                  <default-value>
+                                    <literal type='real' value='%null%' />
+                                  </default-value>
+                                  <input-table>
+                                    <aql-table>
+                                      <aggregate>
+                                        <aggregates>
+                                          <expression name='[__measure__7]'>
+                                            <function name='avg'>
+                                              <identifier name='[Adult Obesity (% of pop)]' type='real' />
+                                            </function>
+                                          </expression>
+                                        </aggregates>
+                                        <group-bys>
+                                          <expression name='[County]'>
+                                            <identifier name='[County]' type='string' />
+                                          </expression>
+                                          <expression name='[State]'>
+                                            <identifier name='[State]' type='string' />
+                                          </expression>
+                                        </group-bys>
+                                        <table-parameters>
+                                          <replace-columns>
+                                            <replaced-columns>
+                                              <expression name='[County]'>
+                                                <identifier name='[County]' type='string' />
+                                              </expression>
+                                              <expression name='[Region]'>
+                                                <identifier name='[Region]' type='string' />
+                                              </expression>
+                                              <expression name='[State]'>
+                                                <identifier name='[State]' type='string' />
+                                              </expression>
+                                            </replaced-columns>
+                                            <table-parameters>
+                                              <relation name='[hyper.1809jb10jua5bq1cweope10h9n10].[Extract]'>
+                                                <tupleType>
+                                                  <field name='[Adult Obesity (% of pop)]' type='real' />
+                                                  <field name='[Adult Smokers (% of pop)]' type='real' />
+                                                  <field name='[Children in Poverty (% of pop)]' type='real' />
+                                                  <field name='[County]' type='string' />
+                                                  <field name='[Diabetic (% of pop)]' type='real' />
+                                                  <field name='[Food Insecure (% of pop)]' type='real' />
+                                                  <field name='[Physically Inactive (% of pop)]' type='real' />
+                                                  <field name='[Region]' type='string' />
+                                                  <field name='[State]' type='string' />
+                                                </tupleType>
+                                              </relation>
+                                            </table-parameters>
+                                          </replace-columns>
+                                        </table-parameters>
+                                      </aggregate>
+                                    </aql-table>
+                                  </input-table>
+                                </lookup-value>
+                                <literal type='integer' value='2' />
+                              </function>
+                              <function name='round'>
+                                <lookup-value lookup-value-domain='total' type='real'>
+                                  <external-table-indices>
+                                    <identifier name='[Region]' type='string' />
+                                  </external-table-indices>
+                                  <input-table-indices>
+                                    <identifier name='[Region]' type='string' />
+                                  </input-table-indices>
+                                  <input-table-value>
+                                    <identifier name='[__measure__4]' type='real' />
+                                  </input-table-value>
+                                  <default-value>
+                                    <literal type='real' value='%null%' />
+                                  </default-value>
+                                  <input-table>
+                                    <aql-table>
+                                      <aggregate>
+                                        <aggregates>
+                                          <expression name='[__measure__4]'>
+                                            <function name='avg'>
+                                              <identifier name='[Adult Obesity (% of pop)]' type='real' />
+                                            </function>
+                                          </expression>
+                                        </aggregates>
+                                        <group-bys>
+                                          <expression name='[Region]'>
+                                            <identifier name='[Region]' type='string' />
+                                          </expression>
+                                        </group-bys>
+                                        <table-parameters>
+                                          <replace-columns>
+                                            <replaced-columns>
+                                              <expression name='[County]'>
+                                                <identifier name='[County]' type='string' />
+                                              </expression>
+                                              <expression name='[Region]'>
+                                                <identifier name='[Region]' type='string' />
+                                              </expression>
+                                              <expression name='[State]'>
+                                                <identifier name='[State]' type='string' />
+                                              </expression>
+                                            </replaced-columns>
+                                            <table-parameters>
+                                              <relation name='[hyper.1809jb10jua5bq1cweope10h9n10].[Extract]'>
+                                                <tupleType>
+                                                  <field name='[Adult Obesity (% of pop)]' type='real' />
+                                                  <field name='[Adult Smokers (% of pop)]' type='real' />
+                                                  <field name='[Children in Poverty (% of pop)]' type='real' />
+                                                  <field name='[County]' type='string' />
+                                                  <field name='[Diabetic (% of pop)]' type='real' />
+                                                  <field name='[Food Insecure (% of pop)]' type='real' />
+                                                  <field name='[Physically Inactive (% of pop)]' type='real' />
+                                                  <field name='[Region]' type='string' />
+                                                  <field name='[State]' type='string' />
+                                                </tupleType>
+                                              </relation>
+                                            </table-parameters>
+                                          </replace-columns>
+                                        </table-parameters>
+                                      </aggregate>
+                                    </aql-table>
+                                  </input-table>
+                                </lookup-value>
+                                <literal type='integer' value='2' />
+                              </function>
+                            </function>
+                          </function>
+                          <literal type='integer' value='100' />
+                        </function>
+                        <literal type='integer' value='2' />
+                      </function>
+                    </function>
+                    <literal type='string' value='&quot;\% below&quot;' />
+                  </function>
+                </function>
+              </expression>
+              <expression name='[avg:Calculation_547187368111550464:ok]'>
+                <function name='float'>
+                  <lookup-value lookup-value-domain='total' type='real'>
+                    <external-table-indices>
+                      <identifier name='[Region]' type='string' />
+                    </external-table-indices>
+                    <input-table-indices>
+                      <identifier name='[Region]' type='string' />
+                    </input-table-indices>
+                    <input-table-value>
+                      <identifier name='[__measure__10]' type='real' />
+                    </input-table-value>
+                    <default-value>
+                      <literal type='real' value='%null%' />
+                    </default-value>
+                    <input-table>
+                      <aql-table>
+                        <aggregate>
+                          <aggregates>
+                            <expression name='[__measure__10]'>
+                              <function name='avg'>
+                                <identifier name='[Adult Obesity (% of pop)]' type='real' />
+                              </function>
+                            </expression>
+                          </aggregates>
+                          <group-bys>
+                            <expression name='[Region]'>
+                              <identifier name='[Region]' type='string' />
+                            </expression>
+                          </group-bys>
+                          <table-parameters>
+                            <replace-columns>
+                              <replaced-columns>
+                                <expression name='[County]'>
+                                  <identifier name='[County]' type='string' />
+                                </expression>
+                                <expression name='[Region]'>
+                                  <identifier name='[Region]' type='string' />
+                                </expression>
+                                <expression name='[State]'>
+                                  <identifier name='[State]' type='string' />
+                                </expression>
+                              </replaced-columns>
+                              <table-parameters>
+                                <relation name='[hyper.1809jb10jua5bq1cweope10h9n10].[Extract]'>
+                                  <tupleType>
+                                    <field name='[Adult Obesity (% of pop)]' type='real' />
+                                    <field name='[Adult Smokers (% of pop)]' type='real' />
+                                    <field name='[Children in Poverty (% of pop)]' type='real' />
+                                    <field name='[County]' type='string' />
+                                    <field name='[Diabetic (% of pop)]' type='real' />
+                                    <field name='[Food Insecure (% of pop)]' type='real' />
+                                    <field name='[Physically Inactive (% of pop)]' type='real' />
+                                    <field name='[Region]' type='string' />
+                                    <field name='[State]' type='string' />
+                                  </tupleType>
+                                </relation>
+                              </table-parameters>
+                            </replace-columns>
+                          </table-parameters>
+                        </aggregate>
+                      </aql-table>
+                    </input-table>
+                  </lookup-value>
+                </function>
+              </expression>
+            </new-columns>
+            <table-parameters>
+              <aggregate>
+                <aggregates>
+                  <expression name='[avg:Adult Obesity (% of pop):ok]'>
+                    <function name='avg'>
+                      <identifier name='[Adult Obesity (% of pop)]' type='real' />
+                    </function>
+                  </expression>
+                  <expression name='[avg:Adult Smokers (% of pop):ok]'>
+                    <function name='avg'>
+                      <identifier name='[Adult Smokers (% of pop)]' type='real' />
+                    </function>
+                  </expression>
+                  <expression name='[avg:Food Insecure (% of pop):ok]'>
+                    <function name='avg'>
+                      <identifier name='[Food Insecure (% of pop)]' type='real' />
+                    </function>
+                  </expression>
+                  <expression name='[avg:Physically Inactive (% of pop):ok]'>
+                    <function name='avg'>
+                      <identifier name='[Physically Inactive (% of pop)]' type='real' />
+                    </function>
+                  </expression>
+                </aggregates>
+                <group-bys>
+                  <expression name='[County]'>
+                    <identifier name='[County]' type='string' />
+                  </expression>
+                  <expression name='[Region]'>
+                    <identifier name='[Region]' type='string' />
+                  </expression>
+                  <expression name='[State]'>
+                    <identifier name='[State]' type='string' />
+                  </expression>
+                </group-bys>
+                <table-parameters>
+                  <keep-rows>
+                    <filter>
+                      <expression>
+                        <function name='isnull'>
+                          <lookup-value lookup-value-domain='partial' type='integer'>
+                            <external-table-indices>
+                              <identifier name='[County]' type='string' />
+                              <identifier name='[Region]' type='string' />
+                              <identifier name='[State]' type='string' />
+                            </external-table-indices>
+                            <input-table-indices>
+                              <identifier name='[County]' type='string' />
+                              <identifier name='[Region]' type='string' />
+                              <identifier name='[State]' type='string' />
+                            </input-table-indices>
+                            <input-table-value>
+                              <identifier name='[_Tableau_join_flag]' type='integer' />
+                            </input-table-value>
+                            <default-value>
+                              <literal type='integer' value='%null%' />
+                            </default-value>
+                            <input-table>
+                              <aql-table>
+                                <literal-table unique-name-hint='Filter'>
+                                  <tupleType>
+                                    <field name='[County]' type='string' />
+                                    <field name='[Region]' type='string' />
+                                    <field name='[State]' type='string' />
+                                    <field name='[_Tableau_join_flag]' type='integer' />
+                                  </tupleType>
+                                  <tuples>
+                                    <tuple>(&quot;Aleutians East&quot;,&quot;West&quot;,&quot;Alaska&quot;,1)</tuple>
+                                    <tuple>(&quot;Aleutians West&quot;,&quot;West&quot;,&quot;Alaska&quot;,1)</tuple>
+                                    <tuple>(&quot;Anchorage&quot;,&quot;West&quot;,&quot;Alaska&quot;,1)</tuple>
+                                    <tuple>(&quot;Bethel&quot;,&quot;West&quot;,&quot;Alaska&quot;,1)</tuple>
+                                    <tuple>(&quot;Bristol Bay&quot;,&quot;West&quot;,&quot;Alaska&quot;,1)</tuple>
+                                    <tuple>(&quot;Denali&quot;,&quot;West&quot;,&quot;Alaska&quot;,1)</tuple>
+                                    <tuple>(&quot;Dillingham&quot;,&quot;West&quot;,&quot;Alaska&quot;,1)</tuple>
+                                    <tuple>(&quot;Fairbanks North Star&quot;,&quot;West&quot;,&quot;Alaska&quot;,1)</tuple>
+                                    <tuple>(&quot;Haines&quot;,&quot;West&quot;,&quot;Alaska&quot;,1)</tuple>
+                                    <tuple>(&quot;Juneau&quot;,&quot;West&quot;,&quot;Alaska&quot;,1)</tuple>
+                                    <tuple>(&quot;Kenai Peninsula&quot;,&quot;West&quot;,&quot;Alaska&quot;,1)</tuple>
+                                    <tuple>(&quot;Ketchikan Gateway&quot;,&quot;West&quot;,&quot;Alaska&quot;,1)</tuple>
+                                    <tuple>(&quot;Kodiak Island&quot;,&quot;West&quot;,&quot;Alaska&quot;,1)</tuple>
+                                    <tuple>(&quot;Lake and Peninsula&quot;,&quot;West&quot;,&quot;Alaska&quot;,1)</tuple>
+                                    <tuple>(&quot;Matanuska-Susitna&quot;,&quot;West&quot;,&quot;Alaska&quot;,1)</tuple>
+                                    <tuple>(&quot;Nome&quot;,&quot;West&quot;,&quot;Alaska&quot;,1)</tuple>
+                                    <tuple>(&quot;North Slope&quot;,&quot;West&quot;,&quot;Alaska&quot;,1)</tuple>
+                                    <tuple>(&quot;Northwest Arctic&quot;,&quot;West&quot;,&quot;Alaska&quot;,1)</tuple>
+                                    <tuple>(&quot;Petersburg Borough&quot;,&quot;West&quot;,&quot;Alaska&quot;,1)</tuple>
+                                    <tuple>(&quot;Prince of Wales-Hyder&quot;,&quot;West&quot;,&quot;Alaska&quot;,1)</tuple>
+                                    <tuple>(&quot;Prince of Wales-Outer Ketchikan&quot;,&quot;West&quot;,&quot;Alaska&quot;,1)</tuple>
+                                    <tuple>(&quot;Sitka&quot;,&quot;West&quot;,&quot;Alaska&quot;,1)</tuple>
+                                    <tuple>(&quot;Skagway&quot;,&quot;West&quot;,&quot;Alaska&quot;,1)</tuple>
+                                    <tuple>(&quot;Skagway-Hoonah-Angoon&quot;,&quot;West&quot;,&quot;Alaska&quot;,1)</tuple>
+                                    <tuple>(&quot;Southeast Fairbanks&quot;,&quot;West&quot;,&quot;Alaska&quot;,1)</tuple>
+                                    <tuple>(&quot;Valdez-Cordova&quot;,&quot;West&quot;,&quot;Alaska&quot;,1)</tuple>
+                                    <tuple>(&quot;Wade Hampton&quot;,&quot;West&quot;,&quot;Alaska&quot;,1)</tuple>
+                                    <tuple>(&quot;Wrangell-Petersburg&quot;,&quot;West&quot;,&quot;Alaska&quot;,1)</tuple>
+                                    <tuple>(&quot;Yakutat&quot;,&quot;West&quot;,&quot;Alaska&quot;,1)</tuple>
+                                    <tuple>(&quot;Yukon-Koyukuk&quot;,&quot;West&quot;,&quot;Alaska&quot;,1)</tuple>
+                                    <tuple>(&quot;Hawaii&quot;,&quot;West&quot;,&quot;Hawaii&quot;,1)</tuple>
+                                    <tuple>(&quot;Honolulu&quot;,&quot;West&quot;,&quot;Hawaii&quot;,1)</tuple>
+                                    <tuple>(&quot;Kalawao&quot;,&quot;West&quot;,&quot;Hawaii&quot;,1)</tuple>
+                                    <tuple>(&quot;Kauai&quot;,&quot;West&quot;,&quot;Hawaii&quot;,1)</tuple>
+                                    <tuple>(&quot;Maui&quot;,&quot;West&quot;,&quot;Hawaii&quot;,1)</tuple>
+                                  </tuples>
+                                  <table-parameters>
+                                    <replace-columns>
+                                      <replaced-columns>
+                                        <expression name='[County]'>
+                                          <identifier name='[County]' type='string' />
+                                        </expression>
+                                        <expression name='[Region]'>
+                                          <identifier name='[Region]' type='string' />
+                                        </expression>
+                                        <expression name='[State]'>
+                                          <identifier name='[State]' type='string' />
+                                        </expression>
+                                      </replaced-columns>
+                                      <table-parameters>
+                                        <add-columns>
+                                          <new-columns>
+                                            <expression name='[_Tableau_join_flag]'>
+                                              <literal type='integer' value='1' />
+                                            </expression>
+                                          </new-columns>
+                                          <table-parameters>
+                                            <relation name='[hyper.1809jb10jua5bq1cweope10h9n10].[Extract]'>
+                                              <tupleType>
+                                                <field name='[Adult Obesity (% of pop)]' type='real' />
+                                                <field name='[Adult Smokers (% of pop)]' type='real' />
+                                                <field name='[Children in Poverty (% of pop)]' type='real' />
+                                                <field name='[County]' type='string' />
+                                                <field name='[Diabetic (% of pop)]' type='real' />
+                                                <field name='[Food Insecure (% of pop)]' type='real' />
+                                                <field name='[Physically Inactive (% of pop)]' type='real' />
+                                                <field name='[Region]' type='string' />
+                                                <field name='[State]' type='string' />
+                                              </tupleType>
+                                            </relation>
+                                          </table-parameters>
+                                        </add-columns>
+                                      </table-parameters>
+                                    </replace-columns>
+                                  </table-parameters>
+                                </literal-table>
+                              </aql-table>
+                            </input-table>
+                          </lookup-value>
+                        </function>
+                      </expression>
+                    </filter>
+                    <table-parameters>
+                      <replace-columns>
+                        <replaced-columns>
+                          <expression name='[County]'>
+                            <identifier name='[County]' type='string' />
+                          </expression>
+                          <expression name='[Region]'>
+                            <identifier name='[Region]' type='string' />
+                          </expression>
+                          <expression name='[State]'>
+                            <identifier name='[State]' type='string' />
+                          </expression>
+                        </replaced-columns>
+                        <table-parameters>
+                          <relation name='[hyper.1809jb10jua5bq1cweope10h9n10].[Extract]'>
+                            <tupleType>
+                              <field name='[Adult Obesity (% of pop)]' type='real' />
+                              <field name='[Adult Smokers (% of pop)]' type='real' />
+                              <field name='[Children in Poverty (% of pop)]' type='real' />
+                              <field name='[County]' type='string' />
+                              <field name='[Diabetic (% of pop)]' type='real' />
+                              <field name='[Food Insecure (% of pop)]' type='real' />
+                              <field name='[Physically Inactive (% of pop)]' type='real' />
+                              <field name='[Region]' type='string' />
+                              <field name='[State]' type='string' />
+                            </tupleType>
+                          </relation>
+                        </table-parameters>
+                      </replace-columns>
+                    </table-parameters>
+                  </keep-rows>
+                </table-parameters>
+              </aggregate>
+            </table-parameters>
+          </add-columns>
+        </table-parameters>
+      </keep-columns>
+    </table-parameters>
+  </replace-columns>
+</aql-table>
