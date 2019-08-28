@@ -243,10 +243,11 @@ var generateDisplayNames = (function() {
         if (!node || !node.children) {
             return;
         }
-        parent.children.splice(parent.children.indexOf(node), 1);
+        var nodeIndex = parent.children.indexOf(node);
+        parent.children.splice(nodeIndex, 1);
         for (var i = 0; i < node.children.length; i++) {
             node.children[i].parent = parent;
-            parent.children.push(node.children[i]);
+            parent.children.splice(nodeIndex++, 0, node.children[i]);
         }
     }
 
@@ -379,6 +380,14 @@ function assignSymbolsAndClasses(treeData) {
         // Assign symbols
         if (n.properties && n.properties.join && n.class && n.class === "join") {
             n.symbol = n.properties.join + "-join-symbol";
+        } else if (n.tag === "join-inner") {
+           n.symbol =  "inner-join-symbol";
+        } else if (n.tag === "join-left") {
+            n.symbol =  "left-join-symbol";
+        } else if (n.tag === "join-right") {
+            n.symbol =  "right-join-symbol";
+        } else if (n.tag === "join-full") {
+            n.symbol =  "full-join-symbol";
         } else if (n.class && n.class === "relation") {
             n.symbol = "table-symbol";
         } else if (n.class && n.class === "createtemptable") {
@@ -387,7 +396,7 @@ function assignSymbolsAndClasses(treeData) {
             n.symbol = "run-query-symbol";
         }
         // Assign classes for incoming edge
-        if (n.tag === "binding" || n.class === "createtemptable") {
+        if (n.tag === "binding" || n.class === "createtemptable" || (n.tag === "expression" && n.properties && n.properties.name)) {
             n.children.forEach(function(c) {
                 c.edgeClass = "qg-link-and-arrow";
             });
@@ -438,6 +447,7 @@ function collapseNodes(treeData, graphCollapse) {
                     case 'top':
                     case 'aggregates':
                     case 'join-conditions':
+                    case 'join-condition':
                     case 'arguments':
                     case 'function-node':
                     case 'type':
