@@ -431,7 +431,7 @@ function collapseNodes(treeData, graphCollapse) {
                     case 'measures':
                     case 'column-names':
                     case 'replaced-columns':
-                    case 'rename-columns':
+                    case 'renamed-columns':
                     case 'new-columns':
                     case 'metadata-record':
                     case 'metadata-records':
