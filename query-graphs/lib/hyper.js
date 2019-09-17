@@ -177,7 +177,12 @@ function generateDisplayNames(treeData) {
                 node.symbol = "full-join-symbol";
                 break;
             case "tablescan":
+                node.name = node.properties.from ? node.properties.from : node.tag;
+                node.symbol = 'table-symbol';
+                break;
+            case "binaryscan":
             case "cursorscan":
+            case "csvscan":
             case "tdescan":
             case "tableconstruction":
             case "virtualtable":
