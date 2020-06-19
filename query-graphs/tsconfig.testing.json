@@ -1,0 +1,9 @@
+{
+    "$schema": "http://json.schemastore.org/tsconfig",
+    "extends": "../tsconfigbase",
+    "compilerOptions": {
+      "rootDir": "src",
+      "module": "CommonJS"
+    },
+    "include": ["src/**/*"]
+}

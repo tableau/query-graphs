@@ -14,7 +14,7 @@ import { Parser as XmlParser } from 'xml2js/lib/parser';
 
 // Convert JSON as returned by xml2js parser to d3 tree format
 function convertJSON(node) {
-    var children = [];
+    var children = [] as any[];
     var properties = {};
     var text;
     var tag = node["#name"];

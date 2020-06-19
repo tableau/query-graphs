@@ -213,7 +213,7 @@ function linkCrossLinks(root, crosslinks) {
             return h.data === d;
         });
     }
-    var linked = [];
+    var linked: any[] = [];
     crosslinks.forEach(function(l) {
         linked.push({source: map(l.source), target: map(l.target)});
     });
@@ -449,8 +449,7 @@ export function drawQueryTree(target, treeData) {
        });
 
     // Build a HTML list of properties to be displayed in a tooltip
-    function buildPropertyList(properties, cssClass) {
-        cssClass = cssClass === undefined ? "qg-prop-name" : cssClass;
+    function buildPropertyList(properties, cssClass: string = "qg-prop-name") {
         var html = "";
         Object.getOwnPropertyNames(properties).forEach(function(key) {
             html += "<span class='" + cssClass + "'>" + escapeHtml(key) + ": </span>";
@@ -586,7 +585,7 @@ export function drawQueryTree(target, treeData) {
 
     // Curve crosslink path appropriate for source and target node directionality
     var diagonalRawCrosslink = function(d) {
-        var points = [];
+        var points: any[] = [];
         points.push({x: d.source.x, y: d.source.y});
         points.push(ooo.sourcecrosslink(d));
         points.push(ooo.targetcrosslink(d));

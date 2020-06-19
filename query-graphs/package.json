@@ -29,6 +29,7 @@
   "license": "MIT",
   "files": [
     "lib/*.js",
+    "lib/*.d.ts",
     "style/*.*"
   ],
   "directories": {
@@ -46,14 +47,20 @@
     "xml2js": "^0.4.16"
   },
   "devDependencies": {
+    "@types/chai": "^4.2.11",
+    "@types/mocha": "^7.0.2",
     "chai": "^4.2.0",
     "eslint": "^6.6.0",
     "eslint-config-google": "^0.4.0",
-    "mocha": "^6.0.2"
+    "mocha": "^8.0.1",
+    "ts-node": "^8.10.2",
+    "typescript": "^3.8.3"
   },
   "scripts": {
-    "test": "mocha --watch --recursive",
-    "lint": "eslint ."
+    "build": "tsc --build",
+    "test": "env TS_NODE_PROJECT=\"tsconfig.testing.json\" mocha -r ts-node/register --recursive src/**/*.test.ts",
+    "lint": "eslint .",
+    "typescript": "^3.8.3"
   },
   "sideEffects": false
 }

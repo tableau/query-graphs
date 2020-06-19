@@ -23,8 +23,8 @@ function convertHyper(node, parentKey) {
         };
     } else if (typeof (node) === "object" && !Array.isArray(node)) {
         // "Object" nodes
-        var explicitChildren = [];
-        var additionalChildren = [];
+        var explicitChildren: any[] = [];
+        var additionalChildren: any[] = [];
         var properties = {};
 
         // Take the first present tagKey as the new tag. Add all others as properties
@@ -139,7 +139,7 @@ function convertHyper(node, parentKey) {
         return convertedNode;
     } else if (Array.isArray(node)) {
         // "Array" nodes
-        var listOfObjects = [];
+        var listOfObjects: any[] = [];
         node.forEach(function(value, index) {
             var innerNode = convertHyper(value, parentKey + "." + String(index));
             // objectify nested arrays
@@ -238,9 +238,9 @@ function generateDisplayNames(treeData) {
 
 // Function to add crosslinks between related nodes
 function addCrosslinks(root) {
-    var crosslinks = [];
-    var sourcenodes = [];
-    var operatorsById = [];
+    var crosslinks: any[] = [];
+    var sourcenodes: any[] = [];
+    var operatorsById: any[] = [];
     var optimizerStep = 0;
 
     common.visit(root, function(node) {
@@ -251,7 +251,7 @@ function addCrosslinks(root) {
 
         // Build map from operatorId to node
         if (node.hasOwnProperty("properties") && node.properties.hasOwnProperty("operatorId")) {
-            operatorsById[[parseInt(node.properties.operatorId, 10), optimizerStep]] = node;
+            operatorsById[[parseInt(node.properties.operatorId, 10), optimizerStep].toString()] = node;
         }
 
         // Identify source operators
@@ -276,7 +276,7 @@ function addCrosslinks(root) {
 
     // Add crosslinks from source to matching target node
     sourcenodes.forEach(function(source) {
-        var targetnode = operatorsById[[source.operatorId, source.optimizerStep]];
+        var targetnode = operatorsById[[source.operatorId, source.optimizerStep].toString()];
         var entry = {source: source.node, target: targetnode};
         crosslinks.push(entry);
     });
@@ -287,7 +287,7 @@ function addCrosslinks(root) {
 // Loads a Hyper query plan
 export function loadHyperPlan(json, graphCollapse) {
     // Extract top-level meta data
-    var properties = {};
+    var properties: any = {};
     if (json.hasOwnProperty("plan") && json.plan.hasOwnProperty("header")) {
         properties.columns = json.plan.header.length / 2;
     }

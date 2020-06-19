@@ -1,0 +1,11 @@
+{
+    "$schema": "http://json.schemastore.org/tsconfig",
+    "extends": "../tsconfigbase",
+    "compilerOptions": {
+      "rootDir": "src",
+      "outDir": "lib",
+      "esModuleInterop": true
+    },
+    "include": ["src/**/*"],
+    "exclude": ["src/**/*.test.*"]
+}

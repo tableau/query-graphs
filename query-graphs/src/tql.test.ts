@@ -1,17 +1,15 @@
 // -----------------------------------------------------------------------------
 // test/tql-test.js
 // -----------------------------------------------------------------------------
-'use strict';
 
 /* eslint-disable spaced-comment */
 /* eslint-disable space-in-parens, computed-property-spacing, object-curly-spacing, array-bracket-spacing */
 /* eslint-disable no-multi-spaces, key-spacing */
 /* eslint-disable brace-style, comma-dangle, indent, yoda */
 
-const chai = require('chai');
-const expect = chai.expect;
-
-const TQL = require('../lib/tql');
+import 'mocha';
+import {expect} from 'chai';
+import * as TQL from './tql';
 
 ///////////////////////////////////////////////////////////////////////////
 
