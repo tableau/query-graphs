@@ -8,6 +8,9 @@
 npm-debug.log
 node_modules
 package-lock.json
+yarn.lock
+tsconfig.tsbuildinfo
+query-graphs/lib
 standalone-server/media/uploads/*
 standalone-server/media/uploads/
 !standalone-server/media/uploads/3d5c935c.xml

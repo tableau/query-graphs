@@ -1,14 +1,13 @@
 // -----------------------------------------------------------------------------
 // d3/tql.js
 // -----------------------------------------------------------------------------
-'use strict';
 
 /* eslint-disable spaced-comment */
 /* eslint-disable space-in-parens, computed-property-spacing, object-curly-spacing, array-bracket-spacing */
 /* eslint-disable no-multi-spaces, key-spacing */
 /* eslint-disable brace-style, comma-dangle, indent, yoda */
 
-const common = require('./common');
+import * as common from './common';
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -22,7 +21,7 @@ function fail(
     loc )
 
 {
-    const   error = new Error( msg );
+    const   error = new Error( msg ) as any;
     error.start = loc.start;
     error.end = loc.end;
 
@@ -49,7 +48,7 @@ const types = {
 
 const whitespace = /^\s+|^;[^\n]*\n/;
 
-module.exports.token = function(
+export function token(
 
    string,
    pos )
@@ -66,7 +65,7 @@ module.exports.token = function(
         pos += ws[0].length;
     }
 
-    var token = Object.keys( types )
+    var token: any = Object.keys( types )
         .reduce( function( token, type ) {
             const   match = sub.match( types[ type ] );
             if ( !match ) { return token; }
@@ -98,22 +97,19 @@ module.exports.token = function(
   tokenise
 
   ---------------------------------------------------------------------------*/
-module.exports.tokenise = function(
+export function tokenise(
 
-   string,
-   pos )
+   string: string,
+   pos: number = 0 )
 
 {
-    //  Default arguments...
-    pos = pos || 0;
-
-    var tokens = [];
+    var tokens: any[] = [];
     while ( pos < string.length ) {
-        const   token = module.exports.token( string, pos );
-        if ( !( 'end' in token ) ) { break; }
+        const   tok = token( string, pos );
+        if ( !( 'end' in tok ) ) { break; }
 
-        tokens.push( token );
-        pos = token.end;
+        tokens.push( tok );
+        pos = tok.end;
     }
 
     return tokens;
@@ -129,9 +125,6 @@ function Parser(
 
     tokens )
 {
-    if ( !(this instanceof Parser ) )
-        { return new Parser( tokens ); }
-
     this._tokens = tokens;
     this._index = 0;
 }
@@ -206,7 +199,7 @@ Parser.prototype._fields = function(
 
     name )
 {
-    const   result = { name: name || 'fields', class: 'fields', children: [] };
+    const   result = { name: name || 'fields', class: 'fields', children: [] as any[] };
 
     this._expect( '(' );
     while ( ')' !== this._peek().value )
@@ -240,7 +233,7 @@ Parser.prototype._groups = function(
 
     name )
 {
-    const   result = { name: name || 'groups', class: 'groups', children: [] };
+    const   result = { name: name || 'groups', class: 'groups', children: [] as any[] };
 
     this._expect( '(' );
 
@@ -259,7 +252,7 @@ Parser.prototype._groups = function(
 Parser.prototype._identifier = function()
 {
     //  Really an array of dot-separated values
-    const   result = [];
+    const   result: any[] = [];
 
     for ( ;; ) {
         const   field = this._field();
@@ -335,7 +328,7 @@ Parser.prototype._call = function()
 {
     const name = this._next().value;
 
-    const children = [];
+    const children: any[] = [];
     while ( ')' !== this._peek().value )
        { children.push( this._expr() ); }
 
@@ -350,7 +343,7 @@ Parser.prototype._call = function()
   ---------------------------------------------------------------------------*/
 Parser.prototype._expr = function()
 {
-    var     result = null;
+    var     result: any = null;
 
     const   token = this._next();
     switch ( token.type ) {
@@ -400,7 +393,7 @@ Parser.prototype._exprs = function(
 
     name )
 {
-    const   result = { name: name || 'expressions', class: 'expressions', children: [] };
+    const   result = { name: name || 'expressions', class: 'expressions', children: [] as any[] };
 
     this._expect( '(' );
 
@@ -436,7 +429,7 @@ Parser.prototype._bindings = function(
 
     name )
 {
-    const   result = { name: name || 'expressions', class: 'bindings', children: [] };
+    const   result = { name: name || 'expressions', class: 'bindings', children: [] as any[] };
 
     this._expect( '(' );
 
@@ -472,7 +465,7 @@ Parser.prototype._renames = function(
 
     name )
 {
-    const   result = { name: name || 'renames', class: 'renames', children: [], };
+    const   result = { name: name || 'renames', class: 'renames', children: [] as any[], };
 
     this._expect( '(' );
 
@@ -490,7 +483,7 @@ Parser.prototype._renames = function(
   ---------------------------------------------------------------------------*/
 Parser.prototype._orderby = function()
 {
-    const   result = { class: 'orderby' };
+    const   result: any = { class: 'orderby' };
 
     this._expect( '(' );
 
@@ -512,7 +505,7 @@ Parser.prototype._orderbys = function(
 
     name )
 {
-    const   result = { name: name || 'orderbys', class: 'orderbys', children: [] };
+    const   result = { name: name || 'orderbys', class: 'orderbys', children: [] as any[] };
 
     this._expect( '(' );
 
@@ -571,7 +564,7 @@ Parser.prototype._schema = function(
 
     name )
 {
-    const   result = { name: name || 'schema', class: 'schema', children: [] };
+    const   result = { name: name || 'schema', class: 'schema', children: [] as any };
 
     this._expect( '(' );
 
@@ -628,8 +621,8 @@ Parser.prototype._operator = function()
     const   result = {
         name:           token.value,    //  e.g. join
         class:          'reference',
-        children:       [],
-        properties:     {},
+        children:       [] as any[],
+        properties:     {} as any,
     };
 
     switch ( result.name ) {
@@ -877,7 +870,7 @@ Parser.prototype._operator = function()
   ---------------------------------------------------------------------------*/
 Parser.prototype.parse = function()
 {
-    const result = [];
+    const result: any[] = [];
 
     while ( !this._done() )
         { result.push( this._operator() ); }
@@ -891,16 +884,13 @@ Parser.prototype.parse = function()
   parse
 
   ---------------------------------------------------------------------------*/
-module.exports.parse = function(
+export function parse(
 
-    text,
-    pos )
+    text: string,
+    pos: number = 0 )
 
 {
-    //  Default arguments...
-    pos = pos || 0;
-
-    const parser = new Parser( module.exports.tokenise( text, pos ) );
+    const parser = new Parser( tokenise( text, pos ) );
 
     return parser.parse();
 };
@@ -993,7 +983,7 @@ function collapseNodes(
   loadTQLPlan
 
   ---------------------------------------------------------------------------*/
-module.exports.loadTQLPlan = function(
+export function loadTQLPlan(
 
     text,
     collapse )
@@ -1003,7 +993,7 @@ module.exports.loadTQLPlan = function(
     collapse = collapse || 'n';
 
     try {
-        const   parser = new Parser( module.exports.tokenise( text ) );
+        const   parser = new Parser( tokenise( text ) );
         const   root = { name: 'plans', class: 'forest', children: parser.parse() };
 
         assignSymbols( root );

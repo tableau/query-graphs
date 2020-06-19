@@ -1,0 +1,26 @@
+{
+    "$schema": "http://json.schemastore.org/tsconfig",
+    "compilerOptions": {
+        "target": "es5",
+        "module": "es6",
+        "lib": ["dom", "ES6"],
+        "allowJs": false,
+        "alwaysStrict": true,
+        "composite": true,
+        "declaration": true,
+        "declarationMap": true,
+        "downlevelIteration": true,
+        "forceConsistentCasingInFileNames": true,
+        "incremental": true,
+        "moduleResolution": "node",
+        "noEmitOnError": true,
+        "noImplicitAny": false, // TODO: change
+        "noImplicitReturns": false,  // TODO: change
+        "noImplicitThis": false, // TODO: change
+        "strict": false, // TODO: change
+        "strictBindCallApply": true,
+        "strictFunctionTypes": true,
+        "strictNullChecks": true,
+        "strictPropertyInitialization": true,
+    }
+}

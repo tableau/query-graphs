@@ -1,4 +1,3 @@
-
 // Require local modules
 import * as common from './common';
 

@@ -16,8 +16,8 @@ import { Parser as XmlParser } from 'xml2js/lib/parser';
 
 // Convert JSON as returned by xml2js parser to d3 tree format
 function convertJSON(node) {
-    var children = [];
-    var properties = {};
+    var children: any[] = [];
+    var properties: any = {};
     var text;
     var tag = node["#name"];
 
@@ -491,9 +491,9 @@ function prepareTreeData(treeData, graphCollapse) {
 
 // Function to add crosslinks between related nodes
 function addCrosslinks(root) {
-    var crosslinks = [];
-    var sourcenodes = [];
-    var operatorsByName = [];
+    var crosslinks: any[] = [];
+    var sourcenodes: any[] = [];
+    var operatorsByName: any[] = [];
 
     common.visit(root, function(node) {
         // Build map from potential target operator name/ref to node
