@@ -46,10 +46,9 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "bundle": "webpack --mode production",
-    "bundle-dev": "webpack --mode development",
-    "prebundle-tlv": "npm run bundle",
-    "bundle-tlv": "tar -czf query-graphs-tlv-qt-$npm_package_version.tgz -C webroot query-graphs.tlv.html query-graphs.min.js",
-    "postinstall": "npm run bundle"
+    "build": "webpack --mode production",
+    "build:dev": "webpack --mode development",
+    "prebuild:tlv": "npm run build",
+    "build:tlv": "tar -czf query-graphs-tlv-qt-$npm_package_version.tgz -C webroot query-graphs.tlv.html query-graphs.min.js"
   }
 }
