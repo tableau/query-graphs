@@ -1,20 +1,20 @@
-var express = require("express");
+const express = require("express");
 
-var http = require("http");
+const http = require("http");
 console.log("http.globalAgent.maxSockets = %d", http.globalAgent.maxSockets);
 
-var crypto = require("crypto");
-var compression = require("compression");
-var bodyParser = require("body-parser");
-var multer = require("multer");
-var fs = require("fs");
-var path = require("path");
-var readdirrec = require("recursive-readdir");
-var app = express();
+const crypto = require("crypto");
+const compression = require("compression");
+const bodyParser = require("body-parser");
+const multer = require("multer");
+const fs = require("fs");
+const path = require("path");
+const readdirrec = require("recursive-readdir");
+const app = express();
 
-var UPLOAD_DIR = "media/uploads/";
-var FAVORITES_DIR = "media/favorites/";
-var KEEP_FILES = 50;
+const UPLOAD_DIR = "media/uploads/";
+const FAVORITES_DIR = "media/favorites/";
+const KEEP_FILES = 50;
 
 app.use(compression());
 app.use(bodyParser.urlencoded({extended: false, limit: "2mb"}));
@@ -32,7 +32,7 @@ function generateRandomFilename(extname) {
     return crypto.randomBytes(4).toString("hex") + extname;
 }
 
-var storage = multer.diskStorage({
+const storage = multer.diskStorage({
     destination: function(req, file, cb) {
         cb(null, UPLOAD_DIR);
     },
@@ -41,7 +41,7 @@ var storage = multer.diskStorage({
     },
 });
 
-var upload = multer({
+const upload = multer({
     storage: storage,
     limits: {
         fileSize: 1024 * 20000, // 20MB
@@ -53,9 +53,9 @@ function deleteOldFiles() {
         if (err) {
             throw err;
         }
-        var fileTimes = [];
+        const fileTimes = [];
         files.forEach(function(file, _index) {
-            var stats;
+            let stats;
 
             // Handle race condition
             try {
@@ -77,7 +77,7 @@ function deleteOldFiles() {
             return a.mtime.getTime() - b.mtime.getTime();
         });
         // Only the keep the most recent files, delete the older ones
-        for (var i = 0; i < fileTimes.length - KEEP_FILES; i++) {
+        for (let i = 0; i < fileTimes.length - KEEP_FILES; i++) {
             console.log("Removing old file: %s", fileTimes[i].filepath);
 
             // Handle race condition
@@ -97,7 +97,7 @@ function deleteOldFiles() {
 app.post("/file-upload", upload.single("queryfile"), function(req, res, _next) {
     console.log("/file-upload called");
     deleteOldFiles();
-    var visualizationUrl = "http://" + req.get("host") + "/query-graphs.html?upload=y&file=" + req.file.filename;
+    const visualizationUrl = "http://" + req.get("host") + "/query-graphs.html?upload=y&file=" + req.file.filename;
     console.log(req.body);
     if (req.body && req.body.redirect && req.body.redirect === "yes") {
         // Redirect to the Visualization URL
@@ -110,8 +110,8 @@ app.post("/file-upload", upload.single("queryfile"), function(req, res, _next) {
 
 app.post("/text-upload", function(req, res) {
     console.log("/text-upload called");
-    var querytext = req.body.querytext;
-    var filename = generateRandomFilename(".txt");
+    const querytext = req.body.querytext;
+    const filename = generateRandomFilename(".txt");
     // Write the query text to a file in the upload directory
     fs.writeFileSync(UPLOAD_DIR + filename, querytext);
     deleteOldFiles();
@@ -137,20 +137,20 @@ app.get("/favorites", function(req, res) {
             return;
         }
         files.sort();
-        var html = "<html><head><title>Favorites</title></head><body><h1>Favorites</h1><ul>";
-        var lastPath = [];
+        let html = "<html><head><title>Favorites</title></head><body><h1>Favorites</h1><ul>";
+        let lastPath = [];
         files.forEach(function(name) {
-            var relName = path.relative(FAVORITES_DIR, name);
-            var relPath = relName.split(path.sep);
-            var fileName = relPath.pop();
-            var commonLen = 0;
+            const relName = path.relative(FAVORITES_DIR, name);
+            const relPath = relName.split(path.sep);
+            const fileName = relPath.pop();
+            let commonLen = 0;
             while (commonLen < Math.min(lastPath.length, relPath.length) && relPath[commonLen] === lastPath[commonLen]) {
                 ++commonLen;
             }
-            for (var i = lastPath.length; i > commonLen; --i) {
+            for (let i = lastPath.length; i > commonLen; --i) {
                 html += "</ul></li>";
             }
-            for (var j = commonLen; j < relPath.length; ++j) {
+            for (let j = commonLen; j < relPath.length; ++j) {
                 html += "<li>" + escapeHtml(relPath[j]) + "<ul>";
             }
             html +=
@@ -163,9 +163,9 @@ app.get("/favorites", function(req, res) {
     });
 });
 
-var server = app.listen(3000, function() {
-    var host = server.address().address;
-    var port = server.address().port;
+const server = app.listen(3000, function() {
+    const host = server.address().address;
+    const port = server.address().port;
     console.log("Upload server listening at http://%s:%s", host, port);
 });
 console.log("server.maxConnections = %d", server.maxConnections);

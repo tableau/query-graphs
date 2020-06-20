@@ -6,10 +6,10 @@ export function visit(parent, visitFn, childrenFn) {
 
     visitFn(parent);
 
-    var children = childrenFn(parent);
+    const children = childrenFn(parent);
     if (children) {
-        var count = children.length;
-        for (var i = 0; i < count; i++) {
+        const count = children.length;
+        for (let i = 0; i < count; i++) {
             visit(children[i], visitFn, childrenFn);
         }
     }
@@ -17,8 +17,8 @@ export function visit(parent, visitFn, childrenFn) {
 
 // Returns all children of a node, including collapsed children
 export function allChildren(n) {
-    var childrenLength = n.children ? n.children.length : 0;
-    var _childrenLength = n._children ? n._children.length : 0;
+    const childrenLength = n.children ? n.children.length : 0;
+    const _childrenLength = n._children ? n._children.length : 0;
     return _childrenLength > childrenLength ? n._children : n.children;
 }
 
@@ -29,9 +29,9 @@ export function createParentLinks(tree) {
         function() {},
         function(d) {
             if (d.children) {
-                var children = allChildren(d);
-                var count = children.length;
-                for (var i = 0; i < count; i++) {
+                const children = allChildren(d);
+                const count = children.length;
+                for (let i = 0; i < count; i++) {
                     children[i].parent = d;
                 }
                 return children;
@@ -43,8 +43,8 @@ export function createParentLinks(tree) {
 
 // Collapse all children regardless of the current state
 export function collapseAllChildren(d) {
-    var children = d.children ? d.children : [];
-    var _children = d._children ? d._children : [];
+    const children = d.children ? d.children : [];
+    const _children = d._children ? d._children : [];
     d.children = [];
     d._children = children.length > _children.length ? children : _children;
     return d;
@@ -52,8 +52,8 @@ export function collapseAllChildren(d) {
 
 // Expand all children regardless of the current state
 export function expandAllChildren(d) {
-    var children = d.children ? d.children : [];
-    var _children = d._children ? d._children : [];
+    const children = d.children ? d.children : [];
+    const _children = d._children ? d._children : [];
     d.children = children.length > _children.length ? children : _children;
     d._children = [];
     return d;
@@ -67,7 +67,7 @@ export function streamline(d) {
         } else {
             d.parent._children = d.parent.children.slice(0);
         }
-        var index = d.parent.children.indexOf(d);
+        const index = d.parent.children.indexOf(d);
         d.parent.children.splice(index, 1);
     }
 }
@@ -90,7 +90,7 @@ export function toString(d) {
 
 // Convert to string. Returns the JSON serialization if not supported.
 export function forceToString(d) {
-    var str = toString(d);
+    let str = toString(d);
     if (str === undefined) {
         str = JSON.stringify(d);
     }
@@ -99,8 +99,8 @@ export function forceToString(d) {
 
 // Format a number using metric suffixes
 export function formatMetric(x) {
-    var sizes = ["", "k", "M", "G", "T", "P", "E", "Z", "Y"];
-    var idx = 0;
+    const sizes = ["", "k", "M", "G", "T", "P", "E", "Z", "Y"];
+    let idx = 0;
     while (x > 1000 && idx < sizes.length - 1) {
         x /= 1000;
         ++idx;

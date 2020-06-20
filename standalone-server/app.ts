@@ -14,7 +14,7 @@ import * as tableauLoader from "@tableau/query-graphs/lib/tableau";
 import * as jsonLoader from "@tableau/query-graphs/lib/json";
 import * as tqlLoader from "@tableau/query-graphs/lib/tql";
 import * as xmlLoader from "@tableau/query-graphs/lib/xml";
-var knownLoaders = {
+const knownLoaders = {
     hyper: hyperLoader.loadHyperPlanFromText,
     tableau: tableauLoader.loadTableauPlan,
     json: jsonLoader.loadJsonFromText,
@@ -24,29 +24,29 @@ var knownLoaders = {
 };
 
 // Get query parameters from current url
-var paramErrors = [] as any[];
-var currentSearch = window.location.search;
+const paramErrors = [] as any[];
+let currentSearch = window.location.search;
 currentSearch = currentSearch.substring(1);
 
 // Parse using querystring from jquery
-var queryObject = querystring.parse(currentSearch);
+const queryObject = querystring.parse(currentSearch);
 
 // Get the debug flag
-var DEBUG = queryObject.debug ? queryObject.debug : false;
+let DEBUG = queryObject.debug ? queryObject.debug : false;
 DEBUG = DEBUG !== false;
 
 // Get file name
-var graphFile = queryObject.file ? queryObject.file : "logicalquery.xml";
+let graphFile = queryObject.file ? queryObject.file : "logicalquery.xml";
 
 // Get file from upload directory?
-var isUploadedFile = queryObject.upload ? queryObject.upload : "n";
+let isUploadedFile = queryObject.upload ? queryObject.upload : "n";
 isUploadedFile = isUploadedFile === "y";
 
 // Generate the query directory
-var directory = isUploadedFile ? "../media/uploads/" : "../media/favorites/";
+let directory = isUploadedFile ? "../media/uploads/" : "../media/favorites/";
 
 // Get absolute path file name and directory
-var isAbsolutePath = queryObject.absolute ? queryObject.absolute : "n";
+let isAbsolutePath = queryObject.absolute ? queryObject.absolute : "n";
 isAbsolutePath = isAbsolutePath === "y";
 if (isAbsolutePath) {
     directory = path.dirname(graphFile) + "/";
@@ -54,20 +54,20 @@ if (isAbsolutePath) {
 }
 
 // Get inline graph string
-var inlineString;
+let inlineString;
 if (queryObject.inline) {
     inlineString = queryObject.inline;
     graphFile = "";
 }
 
 // Get file format
-var fileFormat = queryObject.format;
+const fileFormat = queryObject.format;
 if (fileFormat !== undefined && !knownLoaders.hasOwnProperty(fileFormat)) {
     paramErrors.push("File format '" + fileFormat + "' not supported.");
 }
 
 // Get orientation name
-var graphOrientation = queryObject.orientation ? queryObject.orientation : "top-to-bottom";
+const graphOrientation = queryObject.orientation ? queryObject.orientation : "top-to-bottom";
 switch (graphOrientation) {
     case "top-to-bottom":
     case "right-to-left":
@@ -80,7 +80,7 @@ switch (graphOrientation) {
 }
 
 // Get node collapse mode 'n' - no/none, 'y' - yes/some, 's' - streamline all secondary nodes
-var graphCollapse = queryObject.collapse ? queryObject.collapse : "s";
+const graphCollapse = queryObject.collapse ? queryObject.collapse : "s";
 switch (graphCollapse) {
     case "n":
     case "y":
@@ -92,7 +92,7 @@ switch (graphCollapse) {
 }
 
 // Get properties to be rendered in the toplevel info card
-var toplevelProperties = {} as any;
+let toplevelProperties = {} as any;
 if (queryObject.properties) {
     try {
         toplevelProperties = JSON.parse(queryObject.properties);
@@ -106,8 +106,8 @@ if (!inlineString) {
     toplevelProperties.file = graphFile;
 }
 
-var delay = (function() {
-    var timer = 0;
+const delay = (function() {
+    let timer = 0;
     return function(callback, ms) {
         clearTimeout(timer);
         timer = setTimeout(callback, ms);
@@ -145,7 +145,7 @@ function registerEventHandlers(widget) {
 //
 // Kick it off
 //
-var spinner = new Spinner().spin(document.body);
+const spinner = new Spinner().spin(document.body);
 if (paramErrors.length) {
     spinner.stop();
     document.write("invalid parameters!<br>");
@@ -155,11 +155,11 @@ if (paramErrors.length) {
         }),
     );
 } else {
-    var displayTree = function(graphString) {
+    const displayTree = function(graphString) {
         // Remove explicit newlines
         graphString = graphString.replace(/\\n/gm, " ");
         // Detect file type
-        var loaders;
+        let loaders;
         if (fileFormat !== undefined) {
             loaders = [knownLoaders[fileFormat]];
         } else if (path.extname(graphFile) === ".json") {
@@ -177,10 +177,10 @@ if (paramErrors.length) {
         }
 
         // Try to load the data with the available loaders
-        var errors: string[] = [];
-        var loadedTree: any = null;
+        const errors: string[] = [];
+        let loadedTree: any = null;
         function tryLoad(loader) {
-            var result: any = loader(graphString, graphCollapse);
+            const result: any = loader(graphString, graphCollapse);
             if ("error" in result) {
                 errors.push(result.error);
                 return false;
@@ -198,10 +198,10 @@ if (paramErrors.length) {
             loadedTree.graphOrientation = graphOrientation;
             loadedTree.DEBUG = DEBUG;
             spinner.stop();
-            var treeContainer = document.createElement("div");
+            const treeContainer = document.createElement("div");
             treeContainer.className = "tree-container";
             document.body.appendChild(treeContainer);
-            var widget = treeRendering.drawQueryTree(treeContainer, loadedTree);
+            const widget = treeRendering.drawQueryTree(treeContainer, loadedTree);
             registerEventHandlers(widget);
         } else {
             spinner.stop();

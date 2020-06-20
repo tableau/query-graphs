@@ -14,10 +14,10 @@ import {Parser as XmlParser} from "xml2js/lib/parser";
 
 // Convert JSON as returned by xml2js parser to d3 tree format
 function convertJSON(node) {
-    var children = [] as any[];
-    var properties = {};
-    var text;
-    var tag = node["#name"];
+    const children = [] as any[];
+    let properties = {};
+    let text;
+    const tag = node["#name"];
 
     if (node.$) {
         properties = node.$;
@@ -40,8 +40,8 @@ function convertJSON(node) {
 }
 
 export function loadXml(graphString, _graphCollapse) {
-    var result;
-    var parser = new XmlParser({
+    let result;
+    const parser = new XmlParser({
         explicitRoot: false,
         explicitChildren: true,
         preserveChildrenOrder: true,

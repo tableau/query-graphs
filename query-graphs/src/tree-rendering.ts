@@ -9,14 +9,14 @@ import * as d3zoom from "d3-zoom";
 import * as d3interpolate from "d3-interpolate";
 import d3tip from "d3-tip";
 
-var MAX_DISPLAY_LENGTH = 15;
+const MAX_DISPLAY_LENGTH = 15;
 
 //
 // Create the symbols
 //
 function defineSymbols(baseSvg, ooo) {
     baseSvg.append("svg:defs");
-    var defs = baseSvg.select("defs");
+    const defs = baseSvg.select("defs");
     // Build the arrow
     defs.append("svg:marker")
         .attr("id", "arrow")
@@ -36,7 +36,7 @@ function defineSymbols(baseSvg, ooo) {
         .attr("r", 5);
 
     // Build the run query symbol
-    var runQueryGroup = defs.append("g").attr("id", "run-query-symbol");
+    const runQueryGroup = defs.append("g").attr("id", "run-query-symbol");
     runQueryGroup
         .append("circle")
         .attr("class", "qg-node-circle")
@@ -47,11 +47,11 @@ function defineSymbols(baseSvg, ooo) {
         .attr("d", "M-2.5,-3.5L4,0L-2.5,3.5 z");
 
     // Build the Join symbols. They are just 2 overlapped circles for the most part.
-    var radius = 6.0;
-    var leftOffset = -3.0;
-    var rightOffset = 3.0;
+    const radius = 6.0;
+    const leftOffset = -3.0;
+    const rightOffset = 3.0;
 
-    var leftJoinGroup = defs.append("g").attr("id", "left-join-symbol");
+    const leftJoinGroup = defs.append("g").attr("id", "left-join-symbol");
     leftJoinGroup
         .append("circle")
         .attr("class", "qg-empty-join")
@@ -68,7 +68,7 @@ function defineSymbols(baseSvg, ooo) {
         .attr("r", radius)
         .attr("cx", rightOffset);
 
-    var rightJoinGroup = defs.append("g").attr("id", "right-join-symbol");
+    const rightJoinGroup = defs.append("g").attr("id", "right-join-symbol");
     rightJoinGroup
         .append("circle")
         .attr("class", "qg-empty-join")
@@ -85,7 +85,7 @@ function defineSymbols(baseSvg, ooo) {
         .attr("r", radius)
         .attr("cx", leftOffset);
 
-    var fullJoinGroup = defs.append("g").attr("id", "full-join-symbol");
+    const fullJoinGroup = defs.append("g").attr("id", "full-join-symbol");
     fullJoinGroup
         .append("circle")
         .attr("class", "qg-fill-join qg-no-stroke")
@@ -110,7 +110,7 @@ function defineSymbols(baseSvg, ooo) {
         .attr("r", radius)
         .attr("cx", leftOffset);
 
-    var innerJoinGroup = defs.append("g").attr("id", "inner-join-symbol");
+    const innerJoinGroup = defs.append("g").attr("id", "inner-join-symbol");
     innerJoinGroup
         .append("circle")
         .attr("class", "qg-empty-join")
@@ -139,14 +139,14 @@ function defineSymbols(baseSvg, ooo) {
         .attr("cx", rightOffset);
 
     // Build the table symbol. Made out of several rectangles.
-    var tableRowWidth = 5.2;
-    var tableRowHeight = 2.8;
-    var tableWidth = tableRowWidth * 3;
-    var tableHeight = tableRowHeight * 4;
-    var tableStartLeft = -tableWidth / 2;
-    var tableStartTop = -tableHeight / 2;
+    const tableRowWidth = 5.2;
+    const tableRowHeight = 2.8;
+    const tableWidth = tableRowWidth * 3;
+    const tableHeight = tableRowHeight * 4;
+    const tableStartLeft = -tableWidth / 2;
+    const tableStartTop = -tableHeight / 2;
 
-    var tableGroup = defs.append("g").attr("id", "table-symbol");
+    const tableGroup = defs.append("g").attr("id", "table-symbol");
     tableGroup
         .append("rect")
         .attr("class", "qg-table-background")
@@ -177,7 +177,7 @@ function defineSymbols(baseSvg, ooo) {
         .attr("height", tableHeight - tableRowHeight);
 
     // Build the temp table symbol, very similar to the regular table symbol
-    var tempTableGroup = defs.append("g").attr("id", "temp-table-symbol");
+    const tempTableGroup = defs.append("g").attr("id", "temp-table-symbol");
     tempTableGroup
         .append("rect")
         .attr("class", "qg-table-background")
@@ -226,13 +226,13 @@ function linkCrossLinks(root, crosslinks) {
     if (!crosslinks) {
         return [];
     }
-    var descendants = root.descendants();
+    const descendants = root.descendants();
     function map(d) {
         return descendants.find(function(h) {
             return h.data === d;
         });
     }
-    var linked: any[] = [];
+    const linked: any[] = [];
     crosslinks.forEach(function(l) {
         linked.push({source: map(l.source), target: map(l.target)});
     });
@@ -263,14 +263,14 @@ function linkCrossLinks(root, crosslinks) {
 //   * _children: an array containing all child nodes, including hidden nodes
 //   * <most other>: displayed as part of the tooltip
 export function drawQueryTree(target, treeData) {
-    var root = d3hierarchy.hierarchy(treeData.root, common.allChildren);
-    var crosslinks = linkCrossLinks(root, treeData.crosslinks);
-    var graphOrientation = treeData.graphOrientation ? treeData.graphOrientation : "top-to-bottom";
-    var DEBUG = treeData.DEBUG ? treeData.DEBUG : false;
+    const root = d3hierarchy.hierarchy(treeData.root, common.allChildren);
+    const crosslinks = linkCrossLinks(root, treeData.crosslinks);
+    const graphOrientation = treeData.graphOrientation ? treeData.graphOrientation : "top-to-bottom";
+    const DEBUG = treeData.DEBUG ? treeData.DEBUG : false;
 
     // Call visit function to establish maxLabelLength
-    var totalNodes = 0;
-    var maxLabelLength = 0;
+    let totalNodes = 0;
+    let maxLabelLength = 0;
     common.visit(
         treeData.root,
         function(d) {
@@ -286,19 +286,18 @@ export function drawQueryTree(target, treeData) {
     maxLabelLength = Math.min(maxLabelLength, MAX_DISPLAY_LENGTH);
 
     // Misc. variables
-    var svgGroup;
-    var nextId = 0;
-    var duration = 750;
+    let nextId = 0;
+    const duration = 750;
 
     // Size of the diagram
-    var viewerWidth = target.clientWidth;
-    var viewerHeight = target.clientHeight;
+    let viewerWidth = target.clientWidth;
+    let viewerHeight = target.clientHeight;
 
     // Crosslink spacing to preserve source and target directionality
-    var crosslinkRawSpacing = {direction: 11.2 * 2, offset: 11.2 * 2};
+    const crosslinkRawSpacing = {direction: 11.2 * 2, offset: 11.2 * 2};
 
     // Orientation mapping
-    var orientations = {
+    const orientations = {
         "top-to-bottom": {
             link: d3shape.linkVertical,
             x: function(d) {
@@ -473,15 +472,15 @@ export function drawQueryTree(target, treeData) {
         },
     };
 
-    var ooo = orientations[graphOrientation];
+    const ooo = orientations[graphOrientation];
 
-    var treelayout = d3hierarchy
+    const treelayout = d3hierarchy
         .tree()
         .nodeSize(ooo.nodesize())
         .separation(ooo.nodesep);
 
     // Define a d3 diagonal projection for use by the node paths later on.
-    var diagonal = ooo
+    const diagonal = ooo
         .link()
         .x(function(d) {
             return ooo.x(d);
@@ -489,7 +488,7 @@ export function drawQueryTree(target, treeData) {
         .y(function(d) {
             return ooo.y(d);
         });
-    var diagonalRaw = ooo
+    const diagonalRaw = ooo
         .link()
         .x(function(d) {
             return d.x;
@@ -500,7 +499,7 @@ export function drawQueryTree(target, treeData) {
 
     // Build a HTML list of properties to be displayed in a tooltip
     function buildPropertyList(properties, cssClass = "qg-prop-name") {
-        var html = "";
+        let html = "";
         Object.getOwnPropertyNames(properties).forEach(function(key) {
             html += "<span class='" + cssClass + "'>" + escapeHtml(key) + ": </span>";
             html += "<span style='prop-value'>" + escapeHtml(properties[key]) + "</span><br />";
@@ -509,9 +508,9 @@ export function drawQueryTree(target, treeData) {
     }
 
     // Helper function to retrieve all properties of the node object which should be rendered in the tooltip
-    var debugTooltipKeys = ["height", "depth", "id", "x", "x0", "y", "y0"];
+    const debugTooltipKeys = ["height", "depth", "id", "x", "x0", "y", "y0"];
     function getDebugProperties(d) {
-        var props = {};
+        const props = {};
         debugTooltipKeys.forEach(function(key) {
             if (d[key]) {
                 // only show non-empty data
@@ -520,7 +519,7 @@ export function drawQueryTree(target, treeData) {
         });
         return props;
     }
-    var alwaysSuppressedKeys = [
+    const alwaysSuppressedKeys = [
         "_children",
         "children",
         "name",
@@ -533,7 +532,7 @@ export function drawQueryTree(target, treeData) {
         "edgeLabel",
     ];
     function getDirectProperties(d) {
-        var props = {};
+        const props = {};
         Object.getOwnPropertyNames(d).forEach(function(key) {
             if (alwaysSuppressedKeys.indexOf(key) >= 0) {
                 // suppress some of the d3 data
@@ -547,14 +546,14 @@ export function drawQueryTree(target, treeData) {
     }
 
     // Initialize tooltip
-    var tip = d3tip()
+    const tip = d3tip()
         .attr("class", "qg-tooltip")
         .offset([-10, 0])
         .html(function(d) {
-            var nameText = "<span style='text-decoration: underline'>" + escapeHtml(d.data.name) + "</span><br />";
-            var debugPropsText = DEBUG ? buildPropertyList(getDebugProperties(d), "qg-prop-name2") : "";
-            var directPropsText = buildPropertyList(getDirectProperties(d.data), "qg-prop-name2");
-            var propertiesText = d.data.hasOwnProperty("properties") ? buildPropertyList(d.data.properties) : "";
+            const nameText = "<span style='text-decoration: underline'>" + escapeHtml(d.data.name) + "</span><br />";
+            const debugPropsText = DEBUG ? buildPropertyList(getDebugProperties(d), "qg-prop-name2") : "";
+            const directPropsText = buildPropertyList(getDirectProperties(d.data), "qg-prop-name2");
+            const propertiesText = d.data.hasOwnProperty("properties") ? buildPropertyList(d.data.properties) : "";
             return nameText + debugPropsText + directPropsText + propertiesText;
         });
 
@@ -564,7 +563,7 @@ export function drawQueryTree(target, treeData) {
     }
 
     // Define the zoomBehavior which calls the zoom function on the "zoom" event constrained within the scaleExtents
-    var zoomBehavior = d3zoom
+    const zoomBehavior = d3zoom
         .zoom()
         .extent(function() {
             return [
@@ -576,7 +575,7 @@ export function drawQueryTree(target, treeData) {
         .on("zoom", zoom);
 
     // Define the baseSvg, attaching a class for styling and the zoomBehavior
-    var baseSvg = d3selection
+    const baseSvg = d3selection
         .select(target)
         .append("svg")
         .attr("viewBox", "0 0 " + viewerWidth + " " + viewerHeight)
@@ -593,7 +592,7 @@ export function drawQueryTree(target, treeData) {
                 if (!n.data._children) {
                     return;
                 }
-                var allChildren = common.allChildren(n);
+                const allChildren = common.allChildren(n);
                 if (!allChildren) {
                     return;
                 }
@@ -635,8 +634,8 @@ export function drawQueryTree(target, treeData) {
 
     // Toggle children function, streamlined nodes are partially collapsed
     function toggleChildren(d) {
-        var children = d.children ? d.children : null;
-        var _children = d._children ? d._children : null;
+        const children = d.children ? d.children : null;
+        const _children = d._children ? d._children : null;
         d._children = children;
         d.children = _children;
         return d;
@@ -649,26 +648,26 @@ export function drawQueryTree(target, treeData) {
     }
 
     // Dash tween to make the highlighted edges animate from start node to end node
-    var tweenDash = function() {
-        var l = this.getTotalLength();
-        var i = d3interpolate.interpolateString("0," + l, l + "," + l);
+    const tweenDash = function() {
+        const l = this.getTotalLength();
+        const i = d3interpolate.interpolateString("0," + l, l + "," + l);
         return function(t) {
             return i(t);
         };
     };
 
     // Curve crosslink path appropriate for source and target node directionality
-    var diagonalRawCrosslink = function(d) {
-        var points: any[] = [];
+    const diagonalRawCrosslink = function(d) {
+        const points: any[] = [];
         points.push({x: d.source.x, y: d.source.y});
         points.push(ooo.sourcecrosslink(d));
         points.push(ooo.targetcrosslink(d));
         points.push({x: d.target.x, y: d.target.y});
-        var path = "M" + points[0].x + "," + points[0].y;
-        var i;
+        let path = "M" + points[0].x + "," + points[0].y;
+        let i;
         for (i = 1; i < points.length - 2; i++) {
-            var xc = (points[i].x + points[i + 1].x) / 2;
-            var yc = (points[i].y + points[i + 1].y) / 2;
+            const xc = (points[i].x + points[i + 1].x) / 2;
+            const yc = (points[i].y + points[i + 1].y) / 2;
             path += "Q" + points[i].x + "," + points[i].y + " " + xc + "," + yc;
         }
         path += "Q" + points[i].x + "," + points[i].y + " " + points[i + 1].x + "," + points[i + 1].y;
@@ -676,7 +675,7 @@ export function drawQueryTree(target, treeData) {
     };
 
     // Transition used to highlight edges on mouseover
-    var edgeTransitionIn = function(path) {
+    const edgeTransitionIn = function(path) {
         path.transition()
             .duration(DEBUG ? duration : 0)
             .attr("opacity", 1)
@@ -690,7 +689,7 @@ export function drawQueryTree(target, treeData) {
     };
 
     // Transition to unhighlight edges on mouseout
-    var edgeTransitionOut = function(path) {
+    const edgeTransitionOut = function(path) {
         path.transition()
             .duration(DEBUG ? duration : 0)
             .attr("opacity", 0)
@@ -703,9 +702,9 @@ export function drawQueryTree(target, treeData) {
     };
 
     // Handler builder for crosslink highlighting
-    var crosslinkHighlightHandler = function(transition) {
+    const crosslinkHighlightHandler = function(transition) {
         return function(d) {
-            var crosslinks = svgGroup.selectAll("path.qg-crosslink-highlighted");
+            const crosslinks = svgGroup.selectAll("path.qg-crosslink-highlighted");
 
             // Filter the edges to those connected to the current node
             crosslinks
@@ -721,17 +720,17 @@ export function drawQueryTree(target, treeData) {
     //
     function update(source) {
         // Compute the new tree layout.
-        var layout = treelayout(root);
-        var nodes = layout.descendants().reverse();
-        var links = layout.links();
+        const layout = treelayout(root);
+        const nodes = layout.descendants().reverse();
+        const links = layout.links();
 
         // Update the nodes…
-        var node = svgGroup.selectAll("g.qg-node").data(nodes, function(d) {
+        const node = svgGroup.selectAll("g.qg-node").data(nodes, function(d) {
             return d.id || (d.id = ++nextId);
         });
 
         // Enter any new nodes at the parent's previous position.
-        var nodeEnter = node
+        const nodeEnter = node
             .enter()
             .append("g")
             .attr("class", function(d) {
@@ -763,8 +762,8 @@ export function drawQueryTree(target, treeData) {
             })
             .style("fill-opacity", 0);
 
-        var nodeUpdate = node.merge(nodeEnter);
-        var nodeTransition = nodeUpdate.transition().duration(duration);
+        const nodeUpdate = node.merge(nodeEnter);
+        const nodeTransition = nodeUpdate.transition().duration(duration);
 
         // Update the text position to reflect whether node has children or not.
         nodeUpdate
@@ -805,7 +804,7 @@ export function drawQueryTree(target, treeData) {
         nodeTransition.select("text").style("fill-opacity", 1);
 
         // Transition exiting nodes to the parent's new position.
-        var nodeExit = node
+        const nodeExit = node
             .exit()
             .transition()
             .duration(duration)
@@ -819,12 +818,12 @@ export function drawQueryTree(target, treeData) {
         nodeExit.select("text").style("fill-opacity", 0);
 
         // Update the links…
-        var link = svgGroup.selectAll("path.qg-link").data(links, function(d) {
+        const link = svgGroup.selectAll("path.qg-link").data(links, function(d) {
             return d.target.id;
         });
 
         // Enter any new links at the parent's previous position.
-        var linkEnter = link
+        const linkEnter = link
             .enter()
             .insert("path", "g")
             .attr("class", function(d) {
@@ -834,7 +833,7 @@ export function drawQueryTree(target, treeData) {
                 return "qg-link";
             })
             .attr("d", function(_d) {
-                var o = {
+                const o = {
                     x: source.x0,
                     y: source.y0,
                 };
@@ -855,7 +854,7 @@ export function drawQueryTree(target, treeData) {
             .transition()
             .duration(duration)
             .attr("d", function(_d) {
-                var o = {
+                const o = {
                     x: source.x,
                     y: source.y,
                 };
@@ -873,15 +872,15 @@ export function drawQueryTree(target, treeData) {
         });
 
         // Select the link labels
-        var linksWithLabels = links.filter(function(d) {
+        const linksWithLabels = links.filter(function(d) {
             return d.target.data.edgeLabel !== undefined && d.target.data.edgeLabel.length;
         });
-        var linkLabel = svgGroup.selectAll("text.qg-link-label").data(linksWithLabels, function(d) {
+        const linkLabel = svgGroup.selectAll("text.qg-link-label").data(linksWithLabels, function(d) {
             return d.target.id;
         });
 
         // Enter new link labels
-        var linkLabelEnter = linkLabel
+        const linkLabelEnter = linkLabel
             .enter()
             .insert("text")
             .classed("qg-link-label", true)
@@ -893,8 +892,8 @@ export function drawQueryTree(target, treeData) {
             .attr("y", source.y0)
             .style("fill-opacity", 0);
 
-        var linkLabelUpdate = linkLabel.merge(linkLabelEnter);
-        var linkLabelTransition = linkLabelUpdate.transition().duration(duration);
+        const linkLabelUpdate = linkLabel.merge(linkLabelEnter);
+        const linkLabelTransition = linkLabelUpdate.transition().duration(duration);
 
         // Update position for existing & new labels
         linkLabelTransition
@@ -917,20 +916,20 @@ export function drawQueryTree(target, treeData) {
             .remove();
 
         // Update crosslinks
-        var visibleCrosslinks = crosslinks.filter(function(d) {
+        const visibleCrosslinks = crosslinks.filter(function(d) {
             return nodes.indexOf(d.source) !== -1 && nodes.indexOf(d.target) !== -1;
         });
 
         // Helper function to update crosslink paths
-        var updateCrosslinkPaths = function(cssClass, opacity) {
-            var crossLink = svgGroup.selectAll("path." + cssClass).data(visibleCrosslinks);
-            var crossLinkEnter = crossLink
+        const updateCrosslinkPaths = function(cssClass, opacity) {
+            const crossLink = svgGroup.selectAll("path." + cssClass).data(visibleCrosslinks);
+            const crossLinkEnter = crossLink
                 .enter()
                 .insert("path", "g")
                 .attr("class", cssClass)
                 .attr("opacity", opacity)
                 .attr("d", function(_d) {
-                    var o = {
+                    const o = {
                         x: source.x0,
                         y: source.y0,
                     };
@@ -954,7 +953,7 @@ export function drawQueryTree(target, treeData) {
                 .transition()
                 .duration(duration)
                 .attr("d", function(_d) {
-                    var o = {
+                    const o = {
                         x: source.x0,
                         y: source.y0,
                     };
@@ -971,9 +970,9 @@ export function drawQueryTree(target, treeData) {
     }
 
     // Append a group which holds all nodes and which the zoom Listener can act upon.
-    svgGroup = baseSvg.append("g");
+    const svgGroup = baseSvg.append("g");
     // Define the root
-    var origin = {x: 0, y: 0};
+    const origin = {x: 0, y: 0};
     root.x0 = ooo.x(origin);
     root.y0 = ooo.y(origin);
 
@@ -983,9 +982,9 @@ export function drawQueryTree(target, treeData) {
 
     // Place root node into quandrant appropriate to orientation
     function orientRoot() {
-        var scale = d3zoom.zoomTransform(baseSvg.node()).k;
-        var x = ooo.rootx(scale);
-        var y = ooo.rooty(scale);
+        const scale = d3zoom.zoomTransform(baseSvg.node()).k;
+        const x = ooo.rootx(scale);
+        const y = ooo.rooty(scale);
         zoomBehavior.translateTo(baseSvg, x, y);
     }
 
@@ -995,8 +994,8 @@ export function drawQueryTree(target, treeData) {
     orientRoot();
 
     // Add metrics card
-    var treeText = "";
-    var properties = treeData.properties ? treeData.properties : {};
+    let treeText = "";
+    const properties = treeData.properties ? treeData.properties : {};
     treeText += buildPropertyList(properties);
     treeText += buildPropertyList({nodes: totalNodes});
     if (crosslinks !== undefined && crosslinks.length) {
