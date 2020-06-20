@@ -1,10 +1,10 @@
 var path = require("path");
 
 module.exports = {
-    entry: './app.ts',
+    entry: "./app.ts",
     output: {
-        path: path.resolve(__dirname, 'webroot'),
-        filename: 'query-graphs.min.js'
+        path: path.resolve(__dirname, "webroot"),
+        filename: "query-graphs.min.js",
     },
     module: {
         rules: [
@@ -15,9 +15,9 @@ module.exports = {
             },
             {
                 test: /\.css$/,
-                use: ['style-loader', 'css-loader']
-            }
-        ]
+                use: ["style-loader", "css-loader"],
+            },
+        ],
     },
-    devtool: "source-map"
+    devtool: "source-map",
 };

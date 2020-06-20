@@ -1,5 +1,5 @@
 // Import local modules
-import * as common from './common';
+import * as common from "./common";
 
 // Third-party dependencies
 import * as d3selection from "d3-selection";
@@ -7,7 +7,7 @@ import * as d3hierarchy from "d3-hierarchy";
 import * as d3shape from "d3-shape";
 import * as d3zoom from "d3-zoom";
 import * as d3interpolate from "d3-interpolate";
-import d3tip from 'd3-tip';
+import d3tip from "d3-tip";
 
 var MAX_DISPLAY_LENGTH = 15;
 
@@ -26,106 +26,117 @@ function defineSymbols(baseSvg, ooo) {
         .attr("markerWidth", 5)
         .attr("markerHeight", 5)
         .attr("orient", ooo.arrowRotation)
-      .append("svg:path")
+        .append("svg:path")
         .attr("d", "M0,-5L10,0L0,5");
 
     // Build the default symbol. Use this symbol if there is not a better fit
     defs.append("circle")
-      .attr("id", "default-symbol")
-      .attr("class", "qg-node-circle")
-      .attr("r", 5);
+        .attr("id", "default-symbol")
+        .attr("class", "qg-node-circle")
+        .attr("r", 5);
 
     // Build the run query symbol
-    var runQueryGroup = defs.append("g")
-      .attr("id", "run-query-symbol");
-    runQueryGroup.append("circle")
-      .attr("class", "qg-node-circle")
-      .attr("r", 6);
-    runQueryGroup.append("path")
-      .attr("class", "qg-run-query")
-      .attr("d", "M-2.5,-3.5L4,0L-2.5,3.5 z");
+    var runQueryGroup = defs.append("g").attr("id", "run-query-symbol");
+    runQueryGroup
+        .append("circle")
+        .attr("class", "qg-node-circle")
+        .attr("r", 6);
+    runQueryGroup
+        .append("path")
+        .attr("class", "qg-run-query")
+        .attr("d", "M-2.5,-3.5L4,0L-2.5,3.5 z");
 
     // Build the Join symbols. They are just 2 overlapped circles for the most part.
     var radius = 6.0;
     var leftOffset = -3.0;
     var rightOffset = 3.0;
 
-    var leftJoinGroup = defs.append("g")
-      .attr("id", "left-join-symbol");
-    leftJoinGroup.append("circle")
-      .attr("class", "qg-empty-join")
-      .attr("r", radius)
-      .attr("cx", rightOffset);
-    leftJoinGroup.append("circle")
-      .attr("class", "qg-fill-join")
-      .attr("r", radius)
-      .attr("cx", leftOffset);
-    leftJoinGroup.append("circle")
-      .attr("class", "qg-only-stroke-join")
-      .attr("r", radius)
-      .attr("cx", rightOffset);
+    var leftJoinGroup = defs.append("g").attr("id", "left-join-symbol");
+    leftJoinGroup
+        .append("circle")
+        .attr("class", "qg-empty-join")
+        .attr("r", radius)
+        .attr("cx", rightOffset);
+    leftJoinGroup
+        .append("circle")
+        .attr("class", "qg-fill-join")
+        .attr("r", radius)
+        .attr("cx", leftOffset);
+    leftJoinGroup
+        .append("circle")
+        .attr("class", "qg-only-stroke-join")
+        .attr("r", radius)
+        .attr("cx", rightOffset);
 
-    var rightJoinGroup = defs.append("g")
-      .attr("id", "right-join-symbol");
-    rightJoinGroup.append("circle")
-      .attr("class", "qg-empty-join")
-      .attr("r", radius)
-      .attr("cx", leftOffset);
-    rightJoinGroup.append("circle")
-      .attr("class", "qg-fill-join")
-      .attr("r", radius)
-      .attr("cx", rightOffset);
-    rightJoinGroup.append("circle")
-      .attr("class", "qg-only-stroke-join")
-      .attr("r", radius)
-      .attr("cx", leftOffset);
+    var rightJoinGroup = defs.append("g").attr("id", "right-join-symbol");
+    rightJoinGroup
+        .append("circle")
+        .attr("class", "qg-empty-join")
+        .attr("r", radius)
+        .attr("cx", leftOffset);
+    rightJoinGroup
+        .append("circle")
+        .attr("class", "qg-fill-join")
+        .attr("r", radius)
+        .attr("cx", rightOffset);
+    rightJoinGroup
+        .append("circle")
+        .attr("class", "qg-only-stroke-join")
+        .attr("r", radius)
+        .attr("cx", leftOffset);
 
-    var fullJoinGroup = defs.append("g")
-      .attr("id", "full-join-symbol");
-    fullJoinGroup.append("circle")
-      .attr("class", "qg-fill-join qg-no-stroke")
-      .attr("r", radius)
-      .attr("cx", rightOffset);
-    fullJoinGroup.append("circle")
-      .attr("class", "qg-fill-join")
-      .attr("r", radius)
-      .attr("cx", leftOffset);
-    fullJoinGroup.append("circle")
-      .attr("class", "qg-only-stroke-join")
-      .attr("r", radius)
-      .attr("cx", rightOffset);
+    var fullJoinGroup = defs.append("g").attr("id", "full-join-symbol");
+    fullJoinGroup
+        .append("circle")
+        .attr("class", "qg-fill-join qg-no-stroke")
+        .attr("r", radius)
+        .attr("cx", rightOffset);
+    fullJoinGroup
+        .append("circle")
+        .attr("class", "qg-fill-join")
+        .attr("r", radius)
+        .attr("cx", leftOffset);
+    fullJoinGroup
+        .append("circle")
+        .attr("class", "qg-only-stroke-join")
+        .attr("r", radius)
+        .attr("cx", rightOffset);
 
     // Drawing inner joins is more complex. We'll clip a circle (with another circle) to get the intersection shape
     defs.append("clipPath")
-      .attr("id", "join-clip")
-      .append("circle")
+        .attr("id", "join-clip")
+        .append("circle")
         .attr("class", "qg-empty-join")
         .attr("r", radius)
         .attr("cx", leftOffset);
 
-    var innerJoinGroup = defs.append("g")
-      .attr("id", "inner-join-symbol");
-    innerJoinGroup.append("circle")
-      .attr("class", "qg-empty-join")
-      .attr("r", radius)
-      .attr("cx", leftOffset);
-    innerJoinGroup.append("circle")
-      .attr("class", "qg-empty-join")
-      .attr("r", radius)
-      .attr("cx", rightOffset);
-    innerJoinGroup.append("circle")
-      .attr("class", "qg-fill-join qg-no-stroke")
-      .attr("clip-path", "url(#join-clip)")
-      .attr("r", radius)
-      .attr("cx", rightOffset);
-    innerJoinGroup.append("circle")
-      .attr("class", "qg-only-stroke-join")
-      .attr("r", radius)
-      .attr("cx", leftOffset);
-    innerJoinGroup.append("circle")
-      .attr("class", "qg-only-stroke-join")
-      .attr("r", radius)
-      .attr("cx", rightOffset);
+    var innerJoinGroup = defs.append("g").attr("id", "inner-join-symbol");
+    innerJoinGroup
+        .append("circle")
+        .attr("class", "qg-empty-join")
+        .attr("r", radius)
+        .attr("cx", leftOffset);
+    innerJoinGroup
+        .append("circle")
+        .attr("class", "qg-empty-join")
+        .attr("r", radius)
+        .attr("cx", rightOffset);
+    innerJoinGroup
+        .append("circle")
+        .attr("class", "qg-fill-join qg-no-stroke")
+        .attr("clip-path", "url(#join-clip)")
+        .attr("r", radius)
+        .attr("cx", rightOffset);
+    innerJoinGroup
+        .append("circle")
+        .attr("class", "qg-only-stroke-join")
+        .attr("r", radius)
+        .attr("cx", leftOffset);
+    innerJoinGroup
+        .append("circle")
+        .attr("class", "qg-only-stroke-join")
+        .attr("r", radius)
+        .attr("cx", rightOffset);
 
     // Build the table symbol. Made out of several rectangles.
     var tableRowWidth = 5.2;
@@ -135,52 +146,57 @@ function defineSymbols(baseSvg, ooo) {
     var tableStartLeft = -tableWidth / 2;
     var tableStartTop = -tableHeight / 2;
 
-    var tableGroup = defs.append("g")
-      .attr("id", "table-symbol");
-    tableGroup.append("rect")
-      .attr("class", "qg-table-background")
-      .attr("x", tableStartLeft)
-      .attr("width", tableWidth)
-      .attr("y", tableStartTop)
-      .attr("height", tableHeight);
-    tableGroup.append("rect")
-      .attr("class", "qg-table-header")
-      .attr("x", tableStartLeft)
-      .attr("width", tableWidth)
-      .attr("y", tableStartTop)
-      .attr("height", tableRowHeight);
-    tableGroup.append("rect")
-      .attr("class", "qg-table-border")
-      .attr("x", tableStartLeft)
-      .attr("width", tableWidth)
-      .attr("y", 0)
-      .attr("height", tableRowHeight);
-    tableGroup.append("rect")
-      .attr("class", "qg-table-border")
-      .attr("x", -tableRowWidth / 2)
-      .attr("width", tableRowWidth)
-      .attr("y", tableStartTop + tableRowHeight)
-      .attr("height", tableHeight - tableRowHeight);
+    var tableGroup = defs.append("g").attr("id", "table-symbol");
+    tableGroup
+        .append("rect")
+        .attr("class", "qg-table-background")
+        .attr("x", tableStartLeft)
+        .attr("width", tableWidth)
+        .attr("y", tableStartTop)
+        .attr("height", tableHeight);
+    tableGroup
+        .append("rect")
+        .attr("class", "qg-table-header")
+        .attr("x", tableStartLeft)
+        .attr("width", tableWidth)
+        .attr("y", tableStartTop)
+        .attr("height", tableRowHeight);
+    tableGroup
+        .append("rect")
+        .attr("class", "qg-table-border")
+        .attr("x", tableStartLeft)
+        .attr("width", tableWidth)
+        .attr("y", 0)
+        .attr("height", tableRowHeight);
+    tableGroup
+        .append("rect")
+        .attr("class", "qg-table-border")
+        .attr("x", -tableRowWidth / 2)
+        .attr("width", tableRowWidth)
+        .attr("y", tableStartTop + tableRowHeight)
+        .attr("height", tableHeight - tableRowHeight);
 
     // Build the temp table symbol, very similar to the regular table symbol
-    var tempTableGroup = defs.append("g")
-      .attr("id", "temp-table-symbol");
-    tempTableGroup.append("rect")
-      .attr("class", "qg-table-background")
-      .attr("x", tableStartLeft)
-      .attr("width", tableWidth)
-      .attr("y", tableStartTop)
-      .attr("height", tableHeight);
-    tempTableGroup.append("rect")
-      .attr("class", "qg-table-header")
-      .attr("x", tableStartLeft)
-      .attr("width", tableWidth)
-      .attr("y", tableStartTop)
-      .attr("height", tableRowHeight);
-    tempTableGroup.append("text")
-      .attr("class", "qg-table-text")
-      .attr("y", tableRowHeight + 0.8/* stroke-width */ / 2)
-      .text("tmp");
+    var tempTableGroup = defs.append("g").attr("id", "temp-table-symbol");
+    tempTableGroup
+        .append("rect")
+        .attr("class", "qg-table-background")
+        .attr("x", tableStartLeft)
+        .attr("width", tableWidth)
+        .attr("y", tableStartTop)
+        .attr("height", tableHeight);
+    tempTableGroup
+        .append("rect")
+        .attr("class", "qg-table-header")
+        .attr("x", tableStartLeft)
+        .attr("width", tableWidth)
+        .attr("y", tableStartTop)
+        .attr("height", tableRowHeight);
+    tempTableGroup
+        .append("text")
+        .attr("class", "qg-table-text")
+        .attr("y", tableRowHeight + 0.8 /* stroke-width */ / 2)
+        .text("tmp");
 }
 
 //
@@ -197,9 +213,12 @@ function abbreviateName(name) {
 // Escapes a string for HTML
 //
 function escapeHtml(unsafe) {
-    return (String(unsafe)).replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;").replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    return String(unsafe)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 }
 
 // Link cross-links against a d3 hierarchy
@@ -252,12 +271,16 @@ export function drawQueryTree(target, treeData) {
     // Call visit function to establish maxLabelLength
     var totalNodes = 0;
     var maxLabelLength = 0;
-    common.visit(treeData.root, function(d) {
-        totalNodes++;
-        if (d.name) {
-            maxLabelLength = Math.max(d.name.length, maxLabelLength);
-        }
-    }, common.allChildren);
+    common.visit(
+        treeData.root,
+        function(d) {
+            totalNodes++;
+            if (d.name) {
+                maxLabelLength = Math.max(d.name.length, maxLabelLength);
+            }
+        },
+        common.allChildren,
+    );
 
     // Limit maximum label length and keep layout tight for short names
     maxLabelLength = Math.min(maxLabelLength, MAX_DISPLAY_LENGTH);
@@ -294,7 +317,7 @@ export function drawQueryTree(target, treeData) {
                 return d.children || d._children ? "middle" : "middle";
             },
             nodesize: function() {
-                return [maxLabelLength * 6, maxLabelLength * 6 / 2];
+                return [maxLabelLength * 6, (maxLabelLength * 6) / 2];
             },
             nodesep: function(a, b) {
                 return a.parent === b.parent ? 1 : 1;
@@ -306,12 +329,18 @@ export function drawQueryTree(target, treeData) {
                 return root.y0 + (viewerHeight / 2 - 100) / scale;
             },
             sourcecrosslink: function(d) {
-                return {x: d.source.x - crosslinkRawSpacing.offset, y: d.source.y + crosslinkRawSpacing.direction};
+                return {
+                    x: d.source.x - crosslinkRawSpacing.offset,
+                    y: d.source.y + crosslinkRawSpacing.direction,
+                };
             },
             targetcrosslink: function(d) {
-                return {x: d.target.x + crosslinkRawSpacing.offset, y: d.target.y - crosslinkRawSpacing.direction};
+                return {
+                    x: d.target.x + crosslinkRawSpacing.offset,
+                    y: d.target.y - crosslinkRawSpacing.direction,
+                };
             },
-            arrowRotation: "270deg"
+            arrowRotation: "270deg",
         },
         "right-to-left": {
             link: d3shape.linkHorizontal,
@@ -328,10 +357,10 @@ export function drawQueryTree(target, treeData) {
                 return d.children || d._children ? 10 : -10;
             },
             textanchor: function(d) {
-                return (d.children || d._children) ? "start" : "end";
+                return d.children || d._children ? "start" : "end";
             },
             nodesize: function() {
-                return [11.2/* table node diameter */ + 2, maxLabelLength * 6 + 10/* textdimensionoffset */];
+                return [11.2 /* table node diameter */ + 2, maxLabelLength * 6 + 10 /* textdimensionoffset */];
             },
             nodesep: function(a, b) {
                 return a.parent === b.parent ? 1 : 1.5;
@@ -343,12 +372,18 @@ export function drawQueryTree(target, treeData) {
                 return root.y0;
             },
             sourcecrosslink: function(d) {
-                return {x: d.source.x - crosslinkRawSpacing.direction, y: d.source.y - crosslinkRawSpacing.offset};
+                return {
+                    x: d.source.x - crosslinkRawSpacing.direction,
+                    y: d.source.y - crosslinkRawSpacing.offset,
+                };
             },
             targetcrosslink: function(d) {
-                return {x: d.target.x + crosslinkRawSpacing.direction, y: d.target.y + crosslinkRawSpacing.offset};
+                return {
+                    x: d.target.x + crosslinkRawSpacing.direction,
+                    y: d.target.y + crosslinkRawSpacing.offset,
+                };
             },
-            arrowRotation: "0deg"
+            arrowRotation: "0deg",
         },
         "bottom-to-top": {
             link: d3shape.linkVertical,
@@ -368,7 +403,7 @@ export function drawQueryTree(target, treeData) {
                 return d.children || d._children ? "middle" : "middle";
             },
             nodesize: function() {
-                return [maxLabelLength * 6, maxLabelLength * 6 / 2];
+                return [maxLabelLength * 6, (maxLabelLength * 6) / 2];
             },
             nodesep: function(a, b) {
                 return a.parent === b.parent ? 1 : 1;
@@ -380,12 +415,18 @@ export function drawQueryTree(target, treeData) {
                 return root.y0 - (viewerHeight / 2 - 50) / scale;
             },
             sourcecrosslink: function(d) {
-                return {x: d.source.x - crosslinkRawSpacing.offset, y: d.source.y - crosslinkRawSpacing.direction};
+                return {
+                    x: d.source.x - crosslinkRawSpacing.offset,
+                    y: d.source.y - crosslinkRawSpacing.direction,
+                };
             },
             targetcrosslink: function(d) {
-                return {x: d.target.x + crosslinkRawSpacing.offset, y: d.target.y + crosslinkRawSpacing.direction};
+                return {
+                    x: d.target.x + crosslinkRawSpacing.offset,
+                    y: d.target.y + crosslinkRawSpacing.direction,
+                };
             },
-            arrowRotation: "90deg"
+            arrowRotation: "90deg",
         },
         "left-to-right": {
             link: d3shape.linkHorizontal,
@@ -405,7 +446,7 @@ export function drawQueryTree(target, treeData) {
                 return d.children || d._children ? "end" : "start";
             },
             nodesize: function() {
-                return [11.2/* table node diameter */ + 2, maxLabelLength * 6 + 10/* textdimensionoffset */];
+                return [11.2 /* table node diameter */ + 2, maxLabelLength * 6 + 10 /* textdimensionoffset */];
             },
             nodesep: function(a, b) {
                 return a.parent === b.parent ? 1 : 2;
@@ -417,36 +458,45 @@ export function drawQueryTree(target, treeData) {
                 return root.y0;
             },
             sourcecrosslink: function(d) {
-                return {x: d.source.x + crosslinkRawSpacing.direction, y: d.source.y - crosslinkRawSpacing.offset};
+                return {
+                    x: d.source.x + crosslinkRawSpacing.direction,
+                    y: d.source.y - crosslinkRawSpacing.offset,
+                };
             },
             targetcrosslink: function(d) {
-                return {x: d.target.x - crosslinkRawSpacing.direction, y: d.target.y + crosslinkRawSpacing.offset};
+                return {
+                    x: d.target.x - crosslinkRawSpacing.direction,
+                    y: d.target.y + crosslinkRawSpacing.offset,
+                };
             },
-            arrowRotation: "180deg"
-        }
+            arrowRotation: "180deg",
+        },
     };
 
     var ooo = orientations[graphOrientation];
 
-    var treelayout = d3hierarchy.tree()
+    var treelayout = d3hierarchy
+        .tree()
         .nodeSize(ooo.nodesize())
         .separation(ooo.nodesep);
 
     // Define a d3 diagonal projection for use by the node paths later on.
-    var diagonal = ooo.link()
-       .x(function(d) {
-           return ooo.x(d);
-       })
-       .y(function(d) {
-           return ooo.y(d);
-       });
-    var diagonalRaw = ooo.link()
-       .x(function(d) {
-           return d.x;
-       })
-       .y(function(d) {
-           return d.y;
-       });
+    var diagonal = ooo
+        .link()
+        .x(function(d) {
+            return ooo.x(d);
+        })
+        .y(function(d) {
+            return ooo.y(d);
+        });
+    var diagonalRaw = ooo
+        .link()
+        .x(function(d) {
+            return d.x;
+        })
+        .y(function(d) {
+            return d.y;
+        });
 
     // Build a HTML list of properties to be displayed in a tooltip
     function buildPropertyList(properties, cssClass: string = "qg-prop-name") {
@@ -463,20 +513,33 @@ export function drawQueryTree(target, treeData) {
     function getDebugProperties(d) {
         var props = {};
         debugTooltipKeys.forEach(function(key) {
-            if (d[key]) { // only show non-empty data
+            if (d[key]) {
+                // only show non-empty data
                 props[key] = d[key];
             }
         });
         return props;
     }
-    var alwaysSuppressedKeys = ["_children", "children", "name", "properties", "parent", "properties",
-                                "symbol", "nodeClass", "edgeClass", "edgeLabel"];
+    var alwaysSuppressedKeys = [
+        "_children",
+        "children",
+        "name",
+        "properties",
+        "parent",
+        "properties",
+        "symbol",
+        "nodeClass",
+        "edgeClass",
+        "edgeLabel",
+    ];
     function getDirectProperties(d) {
         var props = {};
         Object.getOwnPropertyNames(d).forEach(function(key) {
-            if (alwaysSuppressedKeys.indexOf(key) >= 0) { // suppress some of the d3 data
+            if (alwaysSuppressedKeys.indexOf(key) >= 0) {
+                // suppress some of the d3 data
                 return;
-            } else if (d[key]) { // only show non-empty data
+            } else if (d[key]) {
+                // only show non-empty data
                 props[key] = d[key];
             }
         });
@@ -485,7 +548,7 @@ export function drawQueryTree(target, treeData) {
 
     // Initialize tooltip
     var tip = d3tip()
-        .attr('class', 'qg-tooltip')
+        .attr("class", "qg-tooltip")
         .offset([-10, 0])
         .html(function(d) {
             var nameText = "<span style='text-decoration: underline'>" + escapeHtml(d.data.name) + "</span><br />";
@@ -501,14 +564,21 @@ export function drawQueryTree(target, treeData) {
     }
 
     // Define the zoomBehavior which calls the zoom function on the "zoom" event constrained within the scaleExtents
-    var zoomBehavior = d3zoom.zoom()
+    var zoomBehavior = d3zoom
+        .zoom()
         .extent(function() {
-            return [[0, 0], [viewerWidth, viewerHeight]];
+            return [
+                [0, 0],
+                [viewerWidth, viewerHeight],
+            ];
         })
-        .scaleExtent([0.1, 5]).on("zoom", zoom);
+        .scaleExtent([0.1, 5])
+        .on("zoom", zoom);
 
     // Define the baseSvg, attaching a class for styling and the zoomBehavior
-    var baseSvg = d3selection.select(target).append("svg")
+    var baseSvg = d3selection
+        .select(target)
+        .append("svg")
         .attr("viewBox", "0 0 " + viewerWidth + " " + viewerHeight)
         .attr("height", viewerHeight)
         .attr("class", "qg-overlay")
@@ -517,31 +587,35 @@ export function drawQueryTree(target, treeData) {
     defineSymbols(baseSvg, ooo);
 
     function collapseDefault(r) {
-        common.visit(r, function(n) {
-            if (!n.data._children) {
-                return;
-            }
-            var allChildren = common.allChildren(n);
-            if (!allChildren) {
-                return;
-            }
-            n._children = [];
-            n.children = [];
-            allChildren.forEach(function(c) {
-                if (n.data.children.indexOf(c.data) !== -1) {
-                    n.children.push(c);
+        common.visit(
+            r,
+            function(n) {
+                if (!n.data._children) {
+                    return;
                 }
-                if (n.data._children.indexOf(c.data) !== -1) {
-                    n._children.push(c);
+                var allChildren = common.allChildren(n);
+                if (!allChildren) {
+                    return;
                 }
-            });
-            if (!n.children.length) {
-                n.children = null;
-            }
-            if (!n._children.length) {
-                n._children = null;
-            }
-        }, common.allChildren);
+                n._children = [];
+                n.children = [];
+                allChildren.forEach(function(c) {
+                    if (n.data.children.indexOf(c.data) !== -1) {
+                        n.children.push(c);
+                    }
+                    if (n.data._children.indexOf(c.data) !== -1) {
+                        n._children.push(c);
+                    }
+                });
+                if (!n.children.length) {
+                    n.children = null;
+                }
+                if (!n._children.length) {
+                    n._children = null;
+                }
+            },
+            common.allChildren,
+        );
     }
 
     // Return true if node is collapsed
@@ -561,8 +635,8 @@ export function drawQueryTree(target, treeData) {
 
     // Toggle children function, streamlined nodes are partially collapsed
     function toggleChildren(d) {
-        var children = (d.children) ? d.children : null;
-        var _children = (d._children) ? d._children : null;
+        var children = d.children ? d.children : null;
+        var _children = d._children ? d._children : null;
         d._children = children;
         d.children = _children;
         return d;
@@ -610,7 +684,7 @@ export function drawQueryTree(target, treeData) {
             .attr("d", function(d) {
                 return diagonalRawCrosslink({
                     source: {x: d.source.x0, y: d.source.y0},
-                    target: {x: d.target.x0, y: d.target.y0}
+                    target: {x: d.target.x0, y: d.target.y0},
                 });
             });
     };
@@ -623,7 +697,7 @@ export function drawQueryTree(target, treeData) {
             .attr("d", function(d) {
                 return diagonalRawCrosslink({
                     source: {x: d.source.x0, y: d.source.y0},
-                    target: {x: d.target.x0, y: d.target.y0}
+                    target: {x: d.target.x0, y: d.target.y0},
                 });
             });
     };
@@ -634,10 +708,11 @@ export function drawQueryTree(target, treeData) {
             var crosslinks = svgGroup.selectAll("path.qg-crosslink-highlighted");
 
             // Filter the edges to those connected to the current node
-            crosslinks.filter(function(dd) {
-                return d === dd.source || d === dd.target;
-            })
-            .call(transition);
+            crosslinks
+                .filter(function(dd) {
+                    return d === dd.source || d === dd.target;
+                })
+                .call(transition);
         };
     };
 
@@ -651,30 +726,31 @@ export function drawQueryTree(target, treeData) {
         var links = layout.links();
 
         // Update the nodes…
-        var node = svgGroup.selectAll("g.qg-node")
-            .data(nodes, function(d) {
-                return d.id || (d.id = ++nextId);
-            });
+        var node = svgGroup.selectAll("g.qg-node").data(nodes, function(d) {
+            return d.id || (d.id = ++nextId);
+        });
 
         // Enter any new nodes at the parent's previous position.
-        var nodeEnter = node.enter().append("g")
+        var nodeEnter = node
+            .enter()
+            .append("g")
             .attr("class", function(d) {
                 return d.data.hasOwnProperty("nodeClass") ? d.data.nodeClass + " qg-node" : "qg-node";
             })
             .attr("transform", function(_d) {
                 return "translate(" + source.x0 + "," + source.y0 + ")";
             })
-            .on('click', click);
+            .on("click", click);
 
-        nodeEnter.append("use")
-            .attr("xlink:href", function(d) {
-                if (d.data.symbol) {
-                    return "#" + d.data.symbol;
-                }
-                return "#default-symbol";
-            });
+        nodeEnter.append("use").attr("xlink:href", function(d) {
+            if (d.data.symbol) {
+                return "#" + d.data.symbol;
+            }
+            return "#default-symbol";
+        });
 
-        nodeEnter.append("text")
+        nodeEnter
+            .append("text")
             .attr(ooo.textdimension(), function(d) {
                 return ooo.textdimensionoffset(d);
             })
@@ -691,7 +767,8 @@ export function drawQueryTree(target, treeData) {
         var nodeTransition = nodeUpdate.transition().duration(duration);
 
         // Update the text position to reflect whether node has children or not.
-        nodeUpdate.select('text')
+        nodeUpdate
+            .select("text")
             .attr(ooo.textdimension(), function(d) {
                 return ooo.textdimensionoffset(d);
             })
@@ -700,55 +777,56 @@ export function drawQueryTree(target, treeData) {
             });
 
         // Change the symbol style class depending on whether it has children and is collapsed
-        nodeUpdate.select("use")
-            .attr("class", function(d) {
-                return collapsed(d) ? "qg-collapsed" : "qg-expanded";
-            });
+        nodeUpdate.select("use").attr("class", function(d) {
+            return collapsed(d) ? "qg-collapsed" : "qg-expanded";
+        });
 
         // Add tooltips
-        nodeUpdate.filter(function(d) {
-                return Object.getOwnPropertyNames(getDirectProperties(d)).length || // eslint-disable-line indent
-                       (d.data.hasOwnProperty("properties") && Object.getOwnPropertyNames(d.data.properties).length);
+        nodeUpdate
+            .filter(function(d) {
+                return (
+                    Object.getOwnPropertyNames(getDirectProperties(d)).length || // eslint-disable-line indent
+                    (d.data.hasOwnProperty("properties") && Object.getOwnPropertyNames(d.data.properties).length)
+                );
             }) // eslint-disable-line indent
             .call(tip) // invoke tooltip
             .select("use")
-            .on('mouseover.tooltip', tip.show)
-            .on('mouseout.tooltip', tip.hide)
-            .on('mouseover.crosslinks', crosslinkHighlightHandler(edgeTransitionIn))
-            .on('mouseout.crosslinks', crosslinkHighlightHandler(edgeTransitionOut));
+            .on("mouseover.tooltip", tip.show)
+            .on("mouseout.tooltip", tip.hide)
+            .on("mouseover.crosslinks", crosslinkHighlightHandler(edgeTransitionIn))
+            .on("mouseout.crosslinks", crosslinkHighlightHandler(edgeTransitionOut));
 
         // Transition nodes to their new position.
-        nodeTransition
-            .attr("transform", function(d) {
-                return "translate(" + ooo.x(d) + "," + ooo.y(d) + ")";
-            });
+        nodeTransition.attr("transform", function(d) {
+            return "translate(" + ooo.x(d) + "," + ooo.y(d) + ")";
+        });
 
         // Fade the text in
-        nodeTransition.select("text")
-            .style("fill-opacity", 1);
+        nodeTransition.select("text").style("fill-opacity", 1);
 
         // Transition exiting nodes to the parent's new position.
-        var nodeExit = node.exit().transition()
+        var nodeExit = node
+            .exit()
+            .transition()
             .duration(duration)
             .attr("transform", function(_d) {
                 return "translate(" + ooo.x(source) + "," + ooo.y(source) + ")";
             })
             .remove();
 
-        nodeExit.select("circle")
-            .attr("r", 0);
+        nodeExit.select("circle").attr("r", 0);
 
-        nodeExit.select("text")
-            .style("fill-opacity", 0);
+        nodeExit.select("text").style("fill-opacity", 0);
 
         // Update the links…
-        var link = svgGroup.selectAll("path.qg-link")
-            .data(links, function(d) {
-                return d.target.id;
-            });
+        var link = svgGroup.selectAll("path.qg-link").data(links, function(d) {
+            return d.target.id;
+        });
 
         // Enter any new links at the parent's previous position.
-        var linkEnter = link.enter().insert("path", "g")
+        var linkEnter = link
+            .enter()
+            .insert("path", "g")
             .attr("class", function(d) {
                 if (d.target.data.hasOwnProperty("edgeClass")) {
                     return "qg-link " + d.target.data.edgeClass;
@@ -758,30 +836,32 @@ export function drawQueryTree(target, treeData) {
             .attr("d", function(_d) {
                 var o = {
                     x: source.x0,
-                    y: source.y0
+                    y: source.y0,
                 };
                 return diagonalRaw({
                     source: o,
-                    target: o
+                    target: o,
                 });
             });
 
         // Transition links to their new position.
-        link.merge(linkEnter).transition()
+        link.merge(linkEnter)
+            .transition()
             .duration(duration)
             .attr("d", diagonal);
 
         // Transition exiting nodes to the parent's new position.
-        link.exit().transition()
+        link.exit()
+            .transition()
             .duration(duration)
             .attr("d", function(_d) {
                 var o = {
                     x: source.x,
-                    y: source.y
+                    y: source.y,
                 };
                 return diagonal({
                     source: o,
-                    target: o
+                    target: o,
                 });
             })
             .remove();
@@ -796,13 +876,14 @@ export function drawQueryTree(target, treeData) {
         var linksWithLabels = links.filter(function(d) {
             return d.target.data.edgeLabel !== undefined && d.target.data.edgeLabel.length;
         });
-        var linkLabel = svgGroup.selectAll("text.qg-link-label")
-            .data(linksWithLabels, function(d) {
-                return d.target.id;
-            });
+        var linkLabel = svgGroup.selectAll("text.qg-link-label").data(linksWithLabels, function(d) {
+            return d.target.id;
+        });
 
         // Enter new link labels
-        var linkLabelEnter = linkLabel.enter().insert("text")
+        var linkLabelEnter = linkLabel
+            .enter()
+            .insert("text")
             .classed("qg-link-label", true)
             .attr("text-anchor", "middle")
             .text(function(d) {
@@ -826,7 +907,9 @@ export function drawQueryTree(target, treeData) {
             });
 
         // Remove labels
-        linkLabel.exit().transition()
+        linkLabel
+            .exit()
+            .transition()
             .duration(duration)
             .attr("x", source.x0)
             .attr("y", source.y0)
@@ -840,46 +923,51 @@ export function drawQueryTree(target, treeData) {
 
         // Helper function to update crosslink paths
         var updateCrosslinkPaths = function(cssClass, opacity) {
-            var crossLink = svgGroup.selectAll("path." + cssClass)
-                .data(visibleCrosslinks);
-            var crossLinkEnter = crossLink.enter().insert("path", "g")
+            var crossLink = svgGroup.selectAll("path." + cssClass).data(visibleCrosslinks);
+            var crossLinkEnter = crossLink
+                .enter()
+                .insert("path", "g")
                 .attr("class", cssClass)
                 .attr("opacity", opacity)
                 .attr("d", function(_d) {
                     var o = {
                         x: source.x0,
-                        y: source.y0
+                        y: source.y0,
                     };
                     return diagonalRawCrosslink({
                         source: o,
-                        target: o
+                        target: o,
                     });
                 });
-            crossLink.merge(crossLinkEnter).transition()
+            crossLink
+                .merge(crossLinkEnter)
+                .transition()
                 .duration(duration)
                 .attr("d", function(d) {
                     return diagonalRawCrosslink({
                         source: {x: d.source.x0, y: d.source.y0},
-                        target: {x: d.target.x0, y: d.target.y0}
+                        target: {x: d.target.x0, y: d.target.y0},
                     });
                 });
-            crossLink.exit().transition()
+            crossLink
+                .exit()
+                .transition()
                 .duration(duration)
                 .attr("d", function(_d) {
                     var o = {
                         x: source.x0,
-                        y: source.y0
+                        y: source.y0,
                     };
                     return diagonalRawCrosslink({
                         source: o,
-                        target: o
+                        target: o,
                     });
                 })
                 .remove();
         };
 
-        updateCrosslinkPaths("qg-crosslink", 1/* opacity */);
-        updateCrosslinkPaths("qg-crosslink-highlighted", 0/* opacity */);
+        updateCrosslinkPaths("qg-crosslink", 1 /* opacity */);
+        updateCrosslinkPaths("qg-crosslink-highlighted", 0 /* opacity */);
     }
 
     // Append a group which holds all nodes and which the zoom Listener can act upon.
@@ -914,15 +1002,18 @@ export function drawQueryTree(target, treeData) {
     if (crosslinks !== undefined && crosslinks.length) {
         treeText += buildPropertyList({crosslinks: crosslinks.length});
     }
-    d3selection.select(target).append("div").classed("qg-tree-label", true).html(treeText);
+    d3selection
+        .select(target)
+        .append("div")
+        .classed("qg-tree-label", true)
+        .html(treeText);
 
     function expandOneLevel() {
-        svgGroup.selectAll("g.qg-node")
-            .each(function(d) {
-                if (collapsed(d)) {
-                    toggleChildren(d);
-                }
-            });
+        svgGroup.selectAll("g.qg-node").each(function(d) {
+            if (collapsed(d)) {
+                toggleChildren(d);
+            }
+        });
         update(root);
         orientRoot();
     }
@@ -939,6 +1030,6 @@ export function drawQueryTree(target, treeData) {
     return {
         expandOneLevel: expandOneLevel,
         resize: resize,
-        orientRoot: orientRoot
+        orientRoot: orientRoot,
     };
 }

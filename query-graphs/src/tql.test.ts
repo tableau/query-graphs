@@ -1,100 +1,95 @@
 // -----------------------------------------------------------------------------
-// test/tql-test.js
+// tql.test.js
 // -----------------------------------------------------------------------------
 
-/* eslint-disable spaced-comment */
-/* eslint-disable space-in-parens, computed-property-spacing, object-curly-spacing, array-bracket-spacing */
-/* eslint-disable no-multi-spaces, key-spacing */
-/* eslint-disable brace-style, comma-dangle, indent, yoda */
-
-import 'mocha';
-import {expect} from 'chai';
-import * as TQL from './tql';
+import "mocha";
+import {expect} from "chai";
+import * as TQL from "./tql";
 
 ///////////////////////////////////////////////////////////////////////////
 
-describe('TQL parsing', function() {
-    it('should ignore comments', function() {
-        const   setup = [
-            '; comment ',
-            ' ; comment with leading whitespace',
-            ';',
+describe("TQL parsing", function() {
+    it("should ignore comments", function() {
+        const setup = [
+            "; comment ",
+            " ; comment with leading whitespace",
+            ";",
             '(database "BlackBox/Window")',
-            '; comment between plans',
+            "; comment between plans",
             '; (database "commented/out")',
-            '(table [tpcds].[catalog_sales]) ; comment at the end of a line',
-            '; comment at the end\n',
-        ].join( '\n' );
+            "(table [tpcds].[catalog_sales]) ; comment at the end of a line",
+            "; comment at the end\n",
+        ].join("\n");
 
-        const   expected = [
+        const expected = [
             {
-                name:   'database',
-                class:  'command',
+                name: "database",
+                class: "command",
                 children: [
                     {
-                        name:   'BlackBox/Window',
-                        class:  'string',
+                        name: "BlackBox/Window",
+                        class: "string",
                     },
                 ],
                 properties: {},
             },
             {
-                name: '[catalog_sales]',
-                class:  'table',
+                name: "[catalog_sales]",
+                class: "table",
                 children: [],
                 properties: {
-                    schema: '[tpcds]',
-                    table: '[catalog_sales]',
+                    schema: "[tpcds]",
+                    table: "[catalog_sales]",
                 },
             },
         ];
 
-        const   actual = TQL.parse( setup );
-        expect( actual ).to.deep.equal( expected );
+        const actual = TQL.parse(setup);
+        expect(actual).to.deep.equal(expected);
     });
 
-    it('should parse aggregate', function() {
-        const   setup =
-            '(aggregate ' +
-            '  (table [tpcds].[catalog_sales]) ' +
-            '  ( [cs_ship_date_sk] [cs_sold_date_sk] ) ' +
-            '  ( ( [count] (total [count] ) ) ) )';
+    it("should parse aggregate", function() {
+        const setup =
+            "(aggregate " +
+            "  (table [tpcds].[catalog_sales]) " +
+            "  ( [cs_ship_date_sk] [cs_sold_date_sk] ) " +
+            "  ( ( [count] (total [count] ) ) ) )";
 
-        const   expected = [
+        const expected = [
             {
-                name:   'aggregate',
-                class:  'reference',
+                name: "aggregate",
+                class: "reference",
                 children: [
                     {
-                        name: '[catalog_sales]',
-                        class:  'table',
+                        name: "[catalog_sales]",
+                        class: "table",
                         children: [],
                         properties: {
-                            schema: '[tpcds]',
-                            table: '[catalog_sales]',
+                            schema: "[tpcds]",
+                            table: "[catalog_sales]",
                         },
                     },
                     {
-                        name:   'groupbys',
-                        class:  'fields',
+                        name: "groupbys",
+                        class: "fields",
                         children: [
-                            { name: '[cs_ship_date_sk]', class: 'field' },
-                            { name: '[cs_sold_date_sk]', class: 'field' },
+                            {name: "[cs_ship_date_sk]", class: "field"},
+                            {name: "[cs_sold_date_sk]", class: "field"},
                         ],
                     },
                     {
-                        name:   'measures',
-                        class:  'bindings',
+                        name: "measures",
+                        class: "bindings",
                         children: [
                             {
-                                name: '[count]',
-                                class: 'binding',
+                                name: "[count]",
+                                class: "binding",
                                 children: [
                                     {
-                                        class: 'function',
-                                        name: 'total',
-                                        children: [ { class: 'field', name: '[count]' } ]
-                                    }
+                                        class: "function",
+                                        name: "total",
+                                        children: [{class: "field", name: "[count]"}],
+                                    },
                                 ],
                             },
                         ],
@@ -104,151 +99,148 @@ describe('TQL parsing', function() {
             },
         ];
 
-        const   actual = TQL.parse( setup );
-        expect( actual ).to.deep.equal( expected );
+        const actual = TQL.parse(setup);
+        expect(actual).to.deep.equal(expected);
     });
 
-    it('should parse cartprod', function() {
-        const   setup =
-            '(cartprod ' +
-            '  (table [tpcds].[catalog_sales]) ' +
-            '  (table [tpcds].[date_dim]) ' +
-            '  ( ([d_date_sk] [d_date_sk]) ) ' +
-            '  ) '
-            ;
+    it("should parse cartprod", function() {
+        const setup =
+            "(cartprod " +
+            "  (table [tpcds].[catalog_sales]) " +
+            "  (table [tpcds].[date_dim]) " +
+            "  ( ([d_date_sk] [d_date_sk]) ) " +
+            "  ) ";
 
-        const   expected = [
+        const expected = [
             {
-                name:   'cartprod',
-                class:  'join',
+                name: "cartprod",
+                class: "join",
                 children: [
                     {
-                        name: '[catalog_sales]',
-                        class:  'table',
+                        name: "[catalog_sales]",
+                        class: "table",
                         children: [],
                         properties: {
-                            schema: '[tpcds]',
-                            table: '[catalog_sales]',
+                            schema: "[tpcds]",
+                            table: "[catalog_sales]",
                         },
                     },
                     {
-                        name: '[date_dim]',
-                        class:  'table',
+                        name: "[date_dim]",
+                        class: "table",
                         children: [],
                         properties: {
-                            schema: '[tpcds]',
-                            table: '[date_dim]',
+                            schema: "[tpcds]",
+                            table: "[date_dim]",
                         },
                     },
                     {
-                        name:   'imports',
-                        class:  'renames',
-                        children: [
-                            { name: '[d_date_sk]', class: 'rename', source: '[d_date_sk]', },
-                        ],
+                        name: "imports",
+                        class: "renames",
+                        children: [{name: "[d_date_sk]", class: "rename", source: "[d_date_sk]"}],
                     },
                 ],
                 properties: {},
             },
         ];
 
-        const   actual = TQL.parse( setup );
-        expect( actual ).to.deep.equal( expected );
+        const actual = TQL.parse(setup);
+        expect(actual).to.deep.equal(expected);
     });
 
-    it('should parse database', function() {
-        const   setup = '(database "BlackBox/Window")';
+    it("should parse database", function() {
+        const setup = '(database "BlackBox/Window")';
 
-        const   expected = [
+        const expected = [
             {
-                name:   'database',
-                class:  'command',
+                name: "database",
+                class: "command",
                 children: [
                     {
-                        name:   'BlackBox/Window',
-                        class:  'string',
+                        name: "BlackBox/Window",
+                        class: "string",
                     },
                 ],
                 properties: {},
             },
         ];
 
-        const   actual = TQL.parse( setup );
-        expect( actual ).to.deep.equal( expected );
+        const actual = TQL.parse(setup);
+        expect(actual).to.deep.equal(expected);
     });
 
-    it('should parse dict', function() {
-        const   setup = '(dict [d_date_sk] (table [tpcds].[date_dim]) )';
+    it("should parse dict", function() {
+        const setup = "(dict [d_date_sk] (table [tpcds].[date_dim]) )";
 
-        const   expected = [
+        const expected = [
             {
-                name:   'dict',
-                class:  'reference',
+                name: "dict",
+                class: "reference",
                 children: [
                     {
-                        name: '[date_dim]',
-                        class:  'table',
+                        name: "[date_dim]",
+                        class: "table",
                         children: [],
                         properties: {
-                            schema: '[tpcds]',
-                            table: '[date_dim]',
+                            schema: "[tpcds]",
+                            table: "[date_dim]",
                         },
                     },
                 ],
                 properties: {
-                    name: '[d_date_sk]',
+                    name: "[d_date_sk]",
                 },
             },
         ];
 
-        const   actual = TQL.parse( setup );
-        expect( actual ).to.deep.equal( expected );
+        const actual = TQL.parse(setup);
+        expect(actual).to.deep.equal(expected);
     });
 
-    it('should parse exchange', function() {
-        const   setup = '(exchange (table [tpcds].[catalog_sales]) 4 [] false )';
-        const   expected = [
+    it("should parse exchange", function() {
+        const setup = "(exchange (table [tpcds].[catalog_sales]) 4 [] false )";
+        const expected = [
             {
-                name:   'exchange',
-                class:  'reference',
+                name: "exchange",
+                class: "reference",
                 children: [
                     {
-                        name: '[catalog_sales]',
-                        class:  'table',
+                        name: "[catalog_sales]",
+                        class: "table",
                         children: [],
                         properties: {
-                            schema: '[tpcds]',
-                            table: '[catalog_sales]',
+                            schema: "[tpcds]",
+                            table: "[catalog_sales]",
                         },
                     },
                 ],
                 properties: {
                     concurrency: 4,
-                    ordered:     false,
-                    affinity:    "[]",
-                    thread:      0,
+                    ordered: false,
+                    affinity: "[]",
+                    thread: 0,
                 },
             },
         ];
 
-        const   actual = TQL.parse( setup );
-        expect( actual ).to.deep.equal( expected );
+        const actual = TQL.parse(setup);
+        expect(actual).to.deep.equal(expected);
     });
 
-    it('should parse flowtable', function() {
-        const   setup = '(flowtable (table [tpcds].[catalog_sales]) none )';
-        const   expected = [
+    it("should parse flowtable", function() {
+        const setup = "(flowtable (table [tpcds].[catalog_sales]) none )";
+        const expected = [
             {
-                name:   'flowtable',
-                class:  'reference',
+                name: "flowtable",
+                class: "reference",
                 children: [
                     {
-                        name: '[catalog_sales]',
-                        class:  'table',
+                        name: "[catalog_sales]",
+                        class: "table",
                         children: [],
                         properties: {
-                            schema: '[tpcds]',
-                            table: '[catalog_sales]',
+                            schema: "[tpcds]",
+                            table: "[catalog_sales]",
                         },
                     },
                 ],
@@ -258,106 +250,107 @@ describe('TQL parsing', function() {
             },
         ];
 
-        const   actual = TQL.parse( setup );
-        expect( actual ).to.deep.equal( expected );
+        const actual = TQL.parse(setup);
+        expect(actual).to.deep.equal(expected);
     });
 
-    it('should parse fraction', function() {
-        const   setup = '(fraction (table [tpcds].[catalog_sales]) 4 0 () )';
-        const   expected = [
+    it("should parse fraction", function() {
+        const setup = "(fraction (table [tpcds].[catalog_sales]) 4 0 () )";
+        const expected = [
             {
-                name:   'fraction',
-                class:  'reference',
+                name: "fraction",
+                class: "reference",
                 children: [
                     {
-                        name: '[catalog_sales]',
-                        class:  'table',
+                        name: "[catalog_sales]",
+                        class: "table",
                         children: [],
                         properties: {
-                            schema: '[tpcds]',
-                            table: '[catalog_sales]',
+                            schema: "[tpcds]",
+                            table: "[catalog_sales]",
                         },
                     },
                     {
-                        name:       'clustering',
-                        class:      'fields',
-                        children:   [],
+                        name: "clustering",
+                        class: "fields",
+                        children: [],
                     },
                 ],
                 properties: {
                     concurrency: 4,
-                    thread:     0,
+                    thread: 0,
                 },
             },
         ];
 
-        const   actual = TQL.parse( setup );
-        expect( actual ).to.deep.equal( expected );
+        const actual = TQL.parse(setup);
+        expect(actual).to.deep.equal(expected);
     });
 
-    it('should parse groupjoin', function() {
-        const   setup =
-            '(groupjoin ' +
-            '  (table [tpcds].[catalog_sales]) ' +
-            '  (table [tpcds].[date_dim]) ' +
-            '  ( ( [cs_ship_date_sk] [d_date_sk] ) ) ' +
-            '  ( ( [sum] [sum] ) ) ' +
-            '  ( ( [sum] (total [d_date_sk] ) ) ) )';
+    it("should parse groupjoin", function() {
+        const setup =
+            "(groupjoin " +
+            "  (table [tpcds].[catalog_sales]) " +
+            "  (table [tpcds].[date_dim]) " +
+            "  ( ( [cs_ship_date_sk] [d_date_sk] ) ) " +
+            "  ( ( [sum] [sum] ) ) " +
+            "  ( ( [sum] (total [d_date_sk] ) ) ) )";
 
-        const   expected = [
+        const expected = [
             {
-                name:   'groupjoin',
-                class:  'join',
+                name: "groupjoin",
+                class: "join",
                 children: [
                     {
-                        name: '[catalog_sales]',
-                        class:  'table',
+                        name: "[catalog_sales]",
+                        class: "table",
                         children: [],
                         properties: {
-                            schema: '[tpcds]',
-                            table: '[catalog_sales]',
+                            schema: "[tpcds]",
+                            table: "[catalog_sales]",
                         },
                     },
                     {
-                        name: '[date_dim]',
-                        class:  'table',
+                        name: "[date_dim]",
+                        class: "table",
                         children: [],
                         properties: {
-                            schema: '[tpcds]',
-                            table: '[date_dim]',
+                            schema: "[tpcds]",
+                            table: "[date_dim]",
                         },
                     },
                     {
-                        name:   'conditions',
-                        class:  'expressions',
+                        name: "conditions",
+                        class: "expressions",
                         children: [
-                            { class: 'function', name: 'isnotdistinct', children: [
-                                { name: '[d_date_sk]', class: 'field',  },
-                                { name: '[cs_ship_date_sk]', class: 'field',  },
-                                ]
+                            {
+                                class: "function",
+                                name: "isnotdistinct",
+                                children: [
+                                    {name: "[d_date_sk]", class: "field"},
+                                    {name: "[cs_ship_date_sk]", class: "field"},
+                                ],
                             },
                         ],
                     },
                     {
-                        name:   'imports',
-                        class:  'renames',
-                        children: [
-                            { name: '[sum]', class: 'rename', source: '[sum]' },
-                        ],
+                        name: "imports",
+                        class: "renames",
+                        children: [{name: "[sum]", class: "rename", source: "[sum]"}],
                     },
                     {
-                        name:   'measures',
-                        class:  'bindings',
+                        name: "measures",
+                        class: "bindings",
                         children: [
                             {
-                                name: '[sum]',
-                                class: 'binding',
+                                name: "[sum]",
+                                class: "binding",
                                 children: [
                                     {
-                                        class: 'function',
-                                        name: 'total',
-                                        children: [ { class: 'field', name: '[d_date_sk]' } ]
-                                    }
+                                        class: "function",
+                                        name: "total",
+                                        children: [{class: "field", name: "[d_date_sk]"}],
+                                    },
                                 ],
                             },
                         ],
@@ -367,303 +360,304 @@ describe('TQL parsing', function() {
             },
         ];
 
-        const   actual = TQL.parse( setup );
-        expect( actual ).to.deep.equal( expected );
+        const actual = TQL.parse(setup);
+        expect(actual).to.deep.equal(expected);
     });
 
-    it('should parse iejoin', function() {
-        const   setup =
-            '(iejoin ' +
-            '  (table [tpcds].[catalog_sales]) ' +
-            '  (table [tpcds].[date_dim]) ' +
-            '  ( ( <= [cs_sold_date_sk] [d_date_sk] ) ( >= [cs_ship_date_sk] [d_date_sk] ) ) ' +
-            '  ( ([d_date_sk] [d_date_sk]) ) ' +
-            '  inner 4 ) '
-            ;
+    it("should parse iejoin", function() {
+        const setup =
+            "(iejoin " +
+            "  (table [tpcds].[catalog_sales]) " +
+            "  (table [tpcds].[date_dim]) " +
+            "  ( ( <= [cs_sold_date_sk] [d_date_sk] ) ( >= [cs_ship_date_sk] [d_date_sk] ) ) " +
+            "  ( ([d_date_sk] [d_date_sk]) ) " +
+            "  inner 4 ) ";
 
-        const   expected = [
+        const expected = [
             {
-                name:   'iejoin',
-                class:  'join',
+                name: "iejoin",
+                class: "join",
                 children: [
                     {
-                        name: '[catalog_sales]',
-                        class:  'table',
+                        name: "[catalog_sales]",
+                        class: "table",
                         children: [],
                         properties: {
-                            schema: '[tpcds]',
-                            table: '[catalog_sales]',
+                            schema: "[tpcds]",
+                            table: "[catalog_sales]",
                         },
                     },
                     {
-                        name: '[date_dim]',
-                        class:  'table',
+                        name: "[date_dim]",
+                        class: "table",
                         children: [],
                         properties: {
-                            schema: '[tpcds]',
-                            table: '[date_dim]',
+                            schema: "[tpcds]",
+                            table: "[date_dim]",
                         },
                     },
                     {
-                        name:   'conditions',
-                        class:  'expressions',
+                        name: "conditions",
+                        class: "expressions",
                         children: [
-                            { class: 'function', name: '<=', children: [
-                                { class: 'field', name: '[cs_sold_date_sk]' },
-                                { class: 'field', name: '[d_date_sk]' },
-                                ]
+                            {
+                                class: "function",
+                                name: "<=",
+                                children: [
+                                    {class: "field", name: "[cs_sold_date_sk]"},
+                                    {class: "field", name: "[d_date_sk]"},
+                                ],
                             },
-                            { class: 'function', name: '>=', children: [
-                                { class: 'field', name: '[cs_ship_date_sk]' },
-                                { class: 'field', name: '[d_date_sk]' },
-                                ]
+                            {
+                                class: "function",
+                                name: ">=",
+                                children: [
+                                    {class: "field", name: "[cs_ship_date_sk]"},
+                                    {class: "field", name: "[d_date_sk]"},
+                                ],
                             },
                         ],
                     },
                     {
-                        name:   'imports',
-                        class:  'renames',
-                        children: [
-                            { name: '[d_date_sk]', class: 'rename', source: '[d_date_sk]', },
-                        ],
+                        name: "imports",
+                        class: "renames",
+                        children: [{name: "[d_date_sk]", class: "rename", source: "[d_date_sk]"}],
                     },
                 ],
                 properties: {
-                    join:       'inner',
+                    join: "inner",
                     concurrency: 4,
                 },
             },
         ];
 
-        const   actual = TQL.parse( setup );
-        expect( actual ).to.deep.equal( expected );
+        const actual = TQL.parse(setup);
+        expect(actual).to.deep.equal(expected);
     });
 
-    it('should parse indextable', function() {
-        const   setup = '(indextable [d_date_sk] (table [tpcds].[date_dim]) )';
+    it("should parse indextable", function() {
+        const setup = "(indextable [d_date_sk] (table [tpcds].[date_dim]) )";
 
-        const   expected = [
+        const expected = [
             {
-                name:   'indextable',
-                class:  'reference',
+                name: "indextable",
+                class: "reference",
                 children: [
                     {
-                        name: '[date_dim]',
-                        class:  'table',
+                        name: "[date_dim]",
+                        class: "table",
                         children: [],
                         properties: {
-                            schema: '[tpcds]',
-                            table: '[date_dim]',
+                            schema: "[tpcds]",
+                            table: "[date_dim]",
                         },
                     },
                 ],
                 properties: {
-                    name: '[d_date_sk]',
+                    name: "[d_date_sk]",
                 },
             },
         ];
 
-        const   actual = TQL.parse( setup );
-        expect( actual ).to.deep.equal( expected );
+        const actual = TQL.parse(setup);
+        expect(actual).to.deep.equal(expected);
     });
 
-    it('should parse indexjoin', function() {
-        const   setup =
-            '(indexjoin ' +
-            '  (table [tpcds].[catalog_sales]) ' +
-            '  (indextable [cs_sold_date_sk] (table [tpcds].[catalog_sales]) ) ' +
-            '  ( [cs_ship_date_sk] [cs_sold_date_sk] ) ' +
-            '  ( ([cs_sold_date_sk] [cs_sold_date_sk]) ) ' +
-            '  ( [.RANK] [.COUNT]) ) '
-            ;
+    it("should parse indexjoin", function() {
+        const setup =
+            "(indexjoin " +
+            "  (table [tpcds].[catalog_sales]) " +
+            "  (indextable [cs_sold_date_sk] (table [tpcds].[catalog_sales]) ) " +
+            "  ( [cs_ship_date_sk] [cs_sold_date_sk] ) " +
+            "  ( ([cs_sold_date_sk] [cs_sold_date_sk]) ) " +
+            "  ( [.RANK] [.COUNT]) ) ";
 
-        const   expected = [
+        const expected = [
             {
-                name:   'indexjoin',
-                class:  'join',
+                name: "indexjoin",
+                class: "join",
                 children: [
                     {
-                        name: '[catalog_sales]',
-                        class:  'table',
+                        name: "[catalog_sales]",
+                        class: "table",
                         children: [],
                         properties: {
-                            schema: '[tpcds]',
-                            table: '[catalog_sales]',
+                            schema: "[tpcds]",
+                            table: "[catalog_sales]",
                         },
                     },
                     {
-                        name:   'indextable',
-                        class:  'reference',
+                        name: "indextable",
+                        class: "reference",
                         children: [
                             {
-                                name: '[catalog_sales]',
-                                class:  'table',
+                                name: "[catalog_sales]",
+                                class: "table",
                                 children: [],
                                 properties: {
-                                    schema: '[tpcds]',
-                                    table: '[catalog_sales]',
+                                    schema: "[tpcds]",
+                                    table: "[catalog_sales]",
                                 },
-                            }
+                            },
                         ],
                         properties: {
-                            name: '[cs_sold_date_sk]',
+                            name: "[cs_sold_date_sk]",
                         },
                     },
                     {
-                        name:   'restrictions',
-                        class:  'fields',
+                        name: "restrictions",
+                        class: "fields",
                         children: [
-                            { class: 'field', name: '[cs_ship_date_sk]' },
-                            { class: 'field', name: '[cs_sold_date_sk]' },
+                            {class: "field", name: "[cs_ship_date_sk]"},
+                            {class: "field", name: "[cs_sold_date_sk]"},
                         ],
                     },
                     {
-                        name:   'imports',
-                        class:  'renames',
+                        name: "imports",
+                        class: "renames",
                         children: [
-                            { name: '[cs_sold_date_sk]', class: 'rename', source: '[cs_sold_date_sk]', },
+                            {
+                                name: "[cs_sold_date_sk]",
+                                class: "rename",
+                                source: "[cs_sold_date_sk]",
+                            },
                         ],
                     },
                 ],
                 properties: {
-                    index:  { name: "[.COUNT]", source: "[.RANK]", class: 'rename', },
-                    join:   'inner',
+                    index: {name: "[.COUNT]", source: "[.RANK]", class: "rename"},
+                    join: "inner",
                 },
             },
         ];
 
-        const   actual = TQL.parse( setup );
-        expect( actual ).to.deep.equal( expected );
+        const actual = TQL.parse(setup);
+        expect(actual).to.deep.equal(expected);
     });
 
-    it('should parse iterate', function() {
-        const   setup =
-            '(iterate ' +
-            '  (table [tpcds].[catalog_sales]) ' +
-            '  (table [tpcds].[date_dim]) ' +
-            '  [Iterate] ) '
-            ;
+    it("should parse iterate", function() {
+        const setup = "(iterate " + "  (table [tpcds].[catalog_sales]) " + "  (table [tpcds].[date_dim]) " + "  [Iterate] ) ";
 
-        const   expected = [
+        const expected = [
             {
-                name:   'iterate',
-                class:  'reference',
+                name: "iterate",
+                class: "reference",
                 children: [
                     {
-                        name: '[catalog_sales]',
-                        class:  'table',
+                        name: "[catalog_sales]",
+                        class: "table",
                         children: [],
                         properties: {
-                            schema: '[tpcds]',
-                            table: '[catalog_sales]',
+                            schema: "[tpcds]",
+                            table: "[catalog_sales]",
                         },
                     },
                     {
-                        name: '[date_dim]',
-                        class:  'table',
+                        name: "[date_dim]",
+                        class: "table",
                         children: [],
                         properties: {
-                            schema: '[tpcds]',
-                            table: '[date_dim]',
+                            schema: "[tpcds]",
+                            table: "[date_dim]",
                         },
                     },
                 ],
                 properties: {
-                    name:  "[Iterate]",
+                    name: "[Iterate]",
                 },
             },
         ];
 
-        const   actual = TQL.parse( setup );
-        expect( actual ).to.deep.equal( expected );
+        const actual = TQL.parse(setup);
+        expect(actual).to.deep.equal(expected);
     });
 
-    it('should parse join', function() {
-        const   setup =
-            '(join ' +
-            '  (table [tpcds].[catalog_sales]) ' +
-            '  (table [tpcds].[date_dim]) ' +
-            '  ( ( [cs_sold_date_sk] [d_date_sk] ) ) ' +
-            '  ( ([d_date_sk] [d_date_sk]) ) ' +
-            '  left ) '
-            ;
+    it("should parse join", function() {
+        const setup =
+            "(join " +
+            "  (table [tpcds].[catalog_sales]) " +
+            "  (table [tpcds].[date_dim]) " +
+            "  ( ( [cs_sold_date_sk] [d_date_sk] ) ) " +
+            "  ( ([d_date_sk] [d_date_sk]) ) " +
+            "  left ) ";
 
-        const   expected = [
+        const expected = [
             {
-                name:   'join',
-                class:  'join',
+                name: "join",
+                class: "join",
                 children: [
                     {
-                        name: '[catalog_sales]',
-                        class:  'table',
+                        name: "[catalog_sales]",
+                        class: "table",
                         children: [],
                         properties: {
-                            schema: '[tpcds]',
-                            table: '[catalog_sales]',
+                            schema: "[tpcds]",
+                            table: "[catalog_sales]",
                         },
                     },
                     {
-                        name: '[date_dim]',
-                        class:  'table',
+                        name: "[date_dim]",
+                        class: "table",
                         children: [],
                         properties: {
-                            schema: '[tpcds]',
-                            table: '[date_dim]',
+                            schema: "[tpcds]",
+                            table: "[date_dim]",
                         },
                     },
                     {
-                        name:   'conditions',
-                        class:  'expressions',
+                        name: "conditions",
+                        class: "expressions",
                         children: [
-                            { class: 'function', name: '=', children: [
-                                { class: 'field', name: '[d_date_sk]' },
-                                { class: 'field', name: '[cs_sold_date_sk]' },
-                                ]
+                            {
+                                class: "function",
+                                name: "=",
+                                children: [
+                                    {class: "field", name: "[d_date_sk]"},
+                                    {class: "field", name: "[cs_sold_date_sk]"},
+                                ],
                             },
                         ],
                     },
                     {
-                        name:   'imports',
-                        class:  'renames',
-                        children: [
-                            { name: '[d_date_sk]', class: 'rename', source: '[d_date_sk]', },
-                        ],
+                        name: "imports",
+                        class: "renames",
+                        children: [{name: "[d_date_sk]", class: "rename", source: "[d_date_sk]"}],
                     },
                 ],
                 properties: {
-                    join:       'left',
+                    join: "left",
                 },
             },
         ];
 
-        const   actual = TQL.parse( setup );
-        expect( actual ).to.deep.equal( expected );
+        const actual = TQL.parse(setup);
+        expect(actual).to.deep.equal(expected);
     });
 
-    it('should parse order', function() {
-        const   setup = '(order (table [tpcds].[date_dim]) ( ( [d_date_sk] asc ) ) )';
-        const   expected = [
+    it("should parse order", function() {
+        const setup = "(order (table [tpcds].[date_dim]) ( ( [d_date_sk] asc ) ) )";
+        const expected = [
             {
-                name:   'order',
-                class:  'reference',
+                name: "order",
+                class: "reference",
                 children: [
                     {
-                        name: '[date_dim]',
-                        class:  'table',
+                        name: "[date_dim]",
+                        class: "table",
                         children: [],
                         properties: {
-                            schema: '[tpcds]',
-                            table: '[date_dim]',
+                            schema: "[tpcds]",
+                            table: "[date_dim]",
                         },
                     },
                     {
-                        name:   'orderbys',
-                        class:  'orderbys',
+                        name: "orderbys",
+                        class: "orderbys",
                         children: [
                             {
-                                name: '[d_date_sk]',
-                                class:  'orderby',
-                                sense:  'asc',
+                                name: "[d_date_sk]",
+                                class: "orderby",
+                                sense: "asc",
                             },
                         ],
                     },
@@ -672,24 +666,24 @@ describe('TQL parsing', function() {
             },
         ];
 
-        const   actual = TQL.parse( setup );
-        expect( actual ).to.deep.equal( expected );
+        const actual = TQL.parse(setup);
+        expect(actual).to.deep.equal(expected);
     });
 
-    it('should parse partition-restart', function() {
-        const   setup = '(partition-restart (table [tpcds].[date_dim]) )';
-        const   expected = [
+    it("should parse partition-restart", function() {
+        const setup = "(partition-restart (table [tpcds].[date_dim]) )";
+        const expected = [
             {
-                name:   'partition-restart',
-                class:  'reference',
+                name: "partition-restart",
+                class: "reference",
                 children: [
                     {
-                        name: '[date_dim]',
-                        class:  'table',
+                        name: "[date_dim]",
+                        class: "table",
                         children: [],
                         properties: {
-                            schema: '[tpcds]',
-                            table: '[date_dim]',
+                            schema: "[tpcds]",
+                            table: "[date_dim]",
                         },
                     },
                 ],
@@ -697,192 +691,111 @@ describe('TQL parsing', function() {
             },
         ];
 
-        const   actual = TQL.parse( setup );
-        expect( actual ).to.deep.equal( expected );
+        const actual = TQL.parse(setup);
+        expect(actual).to.deep.equal(expected);
     });
 
-    it('should parse partition-split', function() {
-        const   setup = '(partition-split [d_date_sk] (table [tpcds].[date_dim]) )';
-        const   expected = [
+    it("should parse partition-split", function() {
+        const setup = "(partition-split [d_date_sk] (table [tpcds].[date_dim]) )";
+        const expected = [
             {
-                name:   'partition-split',
-                class:  'reference',
+                name: "partition-split",
+                class: "reference",
                 children: [
                     {
-                        name: '[date_dim]',
-                        class:  'table',
+                        name: "[date_dim]",
+                        class: "table",
                         children: [],
                         properties: {
-                            schema: '[tpcds]',
-                            table: '[date_dim]',
+                            schema: "[tpcds]",
+                            table: "[date_dim]",
                         },
                     },
                 ],
                 properties: {
-                    name: '[d_date_sk]',
+                    name: "[d_date_sk]",
                 },
             },
         ];
 
-        const   actual = TQL.parse( setup );
-        expect( actual ).to.deep.equal( expected );
+        const actual = TQL.parse(setup);
+        expect(actual).to.deep.equal(expected);
     });
 
-    it('should parse pivot', function() {
-        const   setup =
-            '(pivot (table [TestV1].[Calcs] ) ' +
-            ' ( [index] ( [0] [1] [2] [3] ) ) ' +
-            ' ( ( [bool] ( [bool0] [bool1] [bool2] [bool3] ) ) ' +
-            '   ( [int]  ( [int0]  [int1]  [int2]  [int3]  ) ) ' +
-            '   ( [num]  ( [num0]  [num1]  [num2]  [num3]  ) ) ' +
-            '   ( [str]  ( [str0]  [str1]  [str2]  [str3]  ) ) ) )';
-        const   expected = [
+    it("should parse pivot", function() {
+        const setup =
+            "(pivot (table [TestV1].[Calcs] ) " +
+            " ( [index] ( [0] [1] [2] [3] ) ) " +
+            " ( ( [bool] ( [bool0] [bool1] [bool2] [bool3] ) ) " +
+            "   ( [int]  ( [int0]  [int1]  [int2]  [int3]  ) ) " +
+            "   ( [num]  ( [num0]  [num1]  [num2]  [num3]  ) ) " +
+            "   ( [str]  ( [str0]  [str1]  [str2]  [str3]  ) ) ) )";
+        const expected = [
             {
-                name:   'pivot',
-                class:  'reference',
+                name: "pivot",
+                class: "reference",
                 children: [
                     {
-                        name:   '[Calcs]',
-                        class:  'table',
+                        name: "[Calcs]",
+                        class: "table",
                         children: [],
                         properties: {
-                            schema: '[TestV1]',
-                            table: '[Calcs]',
+                            schema: "[TestV1]",
+                            table: "[Calcs]",
                         },
                     },
                     {
-                        name:   '[index]',
-                        class:  'fields',
+                        name: "[index]",
+                        class: "fields",
                         children: [
-                            { name: '[0]', class: 'field', },
-                            { name: '[1]', class: 'field', },
-                            { name: '[2]', class: 'field', },
-                            { name: '[3]', class: 'field', },
+                            {name: "[0]", class: "field"},
+                            {name: "[1]", class: "field"},
+                            {name: "[2]", class: "field"},
+                            {name: "[3]", class: "field"},
                         ],
                     },
                     {
-                        name:   'groups',
-                        class:  'groups',
+                        name: "groups",
+                        class: "groups",
                         children: [
                             {
-                                name:   '[bool]',
-                                class:  'fields',
+                                name: "[bool]",
+                                class: "fields",
                                 children: [
-                                    { name: '[bool0]', class: 'field', },
-                                    { name: '[bool1]', class: 'field', },
-                                    { name: '[bool2]', class: 'field', },
-                                    { name: '[bool3]', class: 'field', },
+                                    {name: "[bool0]", class: "field"},
+                                    {name: "[bool1]", class: "field"},
+                                    {name: "[bool2]", class: "field"},
+                                    {name: "[bool3]", class: "field"},
                                 ],
                             },
                             {
-                                name:   '[int]',
-                                class:  'fields',
+                                name: "[int]",
+                                class: "fields",
                                 children: [
-                                    { name: '[int0]', class: 'field', },
-                                    { name: '[int1]', class: 'field', },
-                                    { name: '[int2]', class: 'field', },
-                                    { name: '[int3]', class: 'field', },
+                                    {name: "[int0]", class: "field"},
+                                    {name: "[int1]", class: "field"},
+                                    {name: "[int2]", class: "field"},
+                                    {name: "[int3]", class: "field"},
                                 ],
                             },
                             {
-                                name:   '[num]',
-                                class:  'fields',
+                                name: "[num]",
+                                class: "fields",
                                 children: [
-                                    { name: '[num0]', class: 'field', },
-                                    { name: '[num1]', class: 'field', },
-                                    { name: '[num2]', class: 'field', },
-                                    { name: '[num3]', class: 'field', },
+                                    {name: "[num0]", class: "field"},
+                                    {name: "[num1]", class: "field"},
+                                    {name: "[num2]", class: "field"},
+                                    {name: "[num3]", class: "field"},
                                 ],
                             },
                             {
-                                name:   '[str]',
-                                class:  'fields',
+                                name: "[str]",
+                                class: "fields",
                                 children: [
-                                    { name: '[str0]', class: 'field', },
-                                    { name: '[str1]', class: 'field', },
-                                    { name: '[str2]', class: 'field', },
-                                    { name: '[str3]', class: 'field', },
-                                ],
-                            },
-                        ],
-                    },
-                ],
-                properties: {},
-            },
-        ];
-
-        const   actual = TQL.parse( setup );
-        expect( actual ).to.deep.equal( expected );
-    });
-
-    it('should parse positionaljoin', function() {
-        const   setup =
-            '(positionaljoin ' +
-            '  (table [tpcds].[catalog_sales]) ' +
-            '  (table [tpcds].[date_dim]) )'
-            ;
-
-        const   expected = [
-            {
-                name:   'positionaljoin',
-                class:  'join',
-                children: [
-                    {
-                        name: '[catalog_sales]',
-                        class:  'table',
-                        children: [],
-                        properties: {
-                            schema: '[tpcds]',
-                            table: '[catalog_sales]',
-                        },
-                    },
-                    {
-                        name: '[date_dim]',
-                        class:  'table',
-                        children: [],
-                        properties: {
-                            schema: '[tpcds]',
-                            table: '[date_dim]',
-                        },
-                    },
-                ],
-                properties: { join: 'inner' },
-            },
-        ];
-
-        const   actual = TQL.parse( setup );
-        expect( actual ).to.deep.equal( expected );
-    });
-
-    it('should parse project', function() {
-        const   setup =
-            '(project ' +
-            '  (table [tpcds].[catalog_sales]) ' +
-            '  ( ( [count] (abs [count] ) ) ) )';
-
-        const   expected = [
-            {
-                name:   'project',
-                class:  'reference',
-                children: [
-                    {
-                        name: '[catalog_sales]',
-                        class:  'table',
-                        children: [],
-                        properties: {
-                            schema: '[tpcds]',
-                            table: '[catalog_sales]',
-                        },
-                    },
-                    {
-                        name:   'expressions',
-                        class:  'bindings',
-                        children: [
-                            {
-                                name: '[count]',
-                                class:  'binding',
-                                children: [
-                                    { name: 'abs', class: 'function',  children: [ { class: 'field', name: '[count]' } ] },
+                                    {name: "[str0]", class: "field"},
+                                    {name: "[str1]", class: "field"},
+                                    {name: "[str2]", class: "field"},
+                                    {name: "[str3]", class: "field"},
                                 ],
                             },
                         ],
@@ -892,138 +805,75 @@ describe('TQL parsing', function() {
             },
         ];
 
-        const   actual = TQL.parse( setup );
-        expect( actual ).to.deep.equal( expected );
+        const actual = TQL.parse(setup);
+        expect(actual).to.deep.equal(expected);
     });
 
-    it('should parse radix-sort', function() {
-        const   setup = '(radix-sort (table [tpcds].[date_dim]) ( ( [d_date_sk] asc ) ) )';
-        const   expected = [
+    it("should parse positionaljoin", function() {
+        const setup = "(positionaljoin " + "  (table [tpcds].[catalog_sales]) " + "  (table [tpcds].[date_dim]) )";
+
+        const expected = [
             {
-                name:   'radix-sort',
-                class:  'reference',
+                name: "positionaljoin",
+                class: "join",
                 children: [
                     {
-                        name: '[date_dim]',
-                        class:  'table',
+                        name: "[catalog_sales]",
+                        class: "table",
                         children: [],
                         properties: {
-                            schema: '[tpcds]',
-                            table: '[date_dim]',
+                            schema: "[tpcds]",
+                            table: "[catalog_sales]",
                         },
                     },
                     {
-                        name:   'orderbys',
-                        class:  'orderbys',
-                        children: [
-                            {
-                                name: '[d_date_sk]',
-                                class:  'orderby',
-                                sense:  'asc',
-                            },
-                        ],
+                        name: "[date_dim]",
+                        class: "table",
+                        children: [],
+                        properties: {
+                            schema: "[tpcds]",
+                            table: "[date_dim]",
+                        },
                     },
                 ],
-                properties: {},
+                properties: {join: "inner"},
             },
         ];
 
-        const   actual = TQL.parse( setup );
-        expect( actual ).to.deep.equal( expected );
+        const actual = TQL.parse(setup);
+        expect(actual).to.deep.equal(expected);
     });
 
-    it('should parse restrict', function() {
-        const   setup = '(restrict (table [tpcds].[catalog_sales]) ( [cs_ship_date_sk] [cs_sold_date_sk] ) )';
-        const   expected = [
+    it("should parse project", function() {
+        const setup = "(project " + "  (table [tpcds].[catalog_sales]) " + "  ( ( [count] (abs [count] ) ) ) )";
+
+        const expected = [
             {
-                name:   'restrict',
-                class:  'reference',
+                name: "project",
+                class: "reference",
                 children: [
                     {
-                        name: '[catalog_sales]',
-                        class:  'table',
+                        name: "[catalog_sales]",
+                        class: "table",
                         children: [],
                         properties: {
-                            schema: '[tpcds]',
-                            table: '[catalog_sales]',
+                            schema: "[tpcds]",
+                            table: "[catalog_sales]",
                         },
                     },
                     {
-                        name:   'restrictions',
-                        class:  'fields',
-                        children: [
-                            { name: '[cs_ship_date_sk]', class: 'field', },
-                            { name: '[cs_sold_date_sk]', class: 'field', },
-                        ],
-                    },
-                ],
-                properties: {},
-            },
-        ];
-
-        const   actual = TQL.parse( setup );
-        expect( actual ).to.deep.equal( expected );
-    });
-
-    it('should parse scan', function() {
-        const   setup = '(scan (table [tpcds].[catalog_sales]) ( [cs_ship_date_sk] [cs_sold_date_sk] ) )';
-        const   expected = [
-            {
-                name:   'scan',
-                class:  'reference',
-                children: [
-                    {
-                        name: '[catalog_sales]',
-                        class:  'table',
-                        children: [],
-                        properties: {
-                            schema: '[tpcds]',
-                            table: '[catalog_sales]',
-                        },
-                    },
-                    {
-                        name:   'restrictions',
-                        class:  'fields',
-                        children: [
-                            { name: '[cs_ship_date_sk]', class: 'field', },
-                            { name: '[cs_sold_date_sk]', class: 'field', },
-                        ],
-                    },
-                ],
-                properties: {},
-           },
-        ];
-
-        const   actual = TQL.parse( setup );
-        expect( actual ).to.deep.equal( expected );
-    });
-
-    it('should parse select', function() {
-        const   setup = '(select (table [tpcds].[date_dim]) (>= [d_date_sk] 2450815 ) )';
-        const   expected = [
-            {
-                name:   'select',
-                class:  'reference',
-                children: [
-                    {
-                        name: '[date_dim]',
-                        class:  'table',
-                        children: [],
-                        properties: {
-                            schema: '[tpcds]',
-                            table: '[date_dim]',
-                        },
-                    },
-                    {
-                        name:   'predicate',
-                        class:  'expressions',
+                        name: "expressions",
+                        class: "bindings",
                         children: [
                             {
-                                name:   ">=",
-                                class:  'function',
+                                name: "[count]",
+                                class: "binding",
                                 children: [
-                                    { name: '[d_date_sk]', class: 'field' },
-                                    { name: "2450815",     class: 'integer' },
+                                    {
+                                        name: "abs",
+                                        class: "function",
+                                        children: [{class: "field", name: "[count]"}],
+                                    },
                                 ],
                             },
                         ],
@@ -1033,24 +883,165 @@ describe('TQL parsing', function() {
             },
         ];
 
-        const   actual = TQL.parse( setup );
-        expect( actual ).to.deep.equal( expected );
+        const actual = TQL.parse(setup);
+        expect(actual).to.deep.equal(expected);
     });
 
-    it('should parse shared', function() {
-        const   setup = '(shared (table [tpcds].[catalog_sales]) "0")';
-        const   expected = [
+    it("should parse radix-sort", function() {
+        const setup = "(radix-sort (table [tpcds].[date_dim]) ( ( [d_date_sk] asc ) ) )";
+        const expected = [
             {
-                name:   'shared',
-                class:  'reference',
+                name: "radix-sort",
+                class: "reference",
                 children: [
                     {
-                        name: '[catalog_sales]',
-                        class:  'table',
+                        name: "[date_dim]",
+                        class: "table",
                         children: [],
                         properties: {
-                            schema: '[tpcds]',
-                            table: '[catalog_sales]',
+                            schema: "[tpcds]",
+                            table: "[date_dim]",
+                        },
+                    },
+                    {
+                        name: "orderbys",
+                        class: "orderbys",
+                        children: [
+                            {
+                                name: "[d_date_sk]",
+                                class: "orderby",
+                                sense: "asc",
+                            },
+                        ],
+                    },
+                ],
+                properties: {},
+            },
+        ];
+
+        const actual = TQL.parse(setup);
+        expect(actual).to.deep.equal(expected);
+    });
+
+    it("should parse restrict", function() {
+        const setup = "(restrict (table [tpcds].[catalog_sales]) ( [cs_ship_date_sk] [cs_sold_date_sk] ) )";
+        const expected = [
+            {
+                name: "restrict",
+                class: "reference",
+                children: [
+                    {
+                        name: "[catalog_sales]",
+                        class: "table",
+                        children: [],
+                        properties: {
+                            schema: "[tpcds]",
+                            table: "[catalog_sales]",
+                        },
+                    },
+                    {
+                        name: "restrictions",
+                        class: "fields",
+                        children: [
+                            {name: "[cs_ship_date_sk]", class: "field"},
+                            {name: "[cs_sold_date_sk]", class: "field"},
+                        ],
+                    },
+                ],
+                properties: {},
+            },
+        ];
+
+        const actual = TQL.parse(setup);
+        expect(actual).to.deep.equal(expected);
+    });
+
+    it("should parse scan", function() {
+        const setup = "(scan (table [tpcds].[catalog_sales]) ( [cs_ship_date_sk] [cs_sold_date_sk] ) )";
+        const expected = [
+            {
+                name: "scan",
+                class: "reference",
+                children: [
+                    {
+                        name: "[catalog_sales]",
+                        class: "table",
+                        children: [],
+                        properties: {
+                            schema: "[tpcds]",
+                            table: "[catalog_sales]",
+                        },
+                    },
+                    {
+                        name: "restrictions",
+                        class: "fields",
+                        children: [
+                            {name: "[cs_ship_date_sk]", class: "field"},
+                            {name: "[cs_sold_date_sk]", class: "field"},
+                        ],
+                    },
+                ],
+                properties: {},
+            },
+        ];
+
+        const actual = TQL.parse(setup);
+        expect(actual).to.deep.equal(expected);
+    });
+
+    it("should parse select", function() {
+        const setup = "(select (table [tpcds].[date_dim]) (>= [d_date_sk] 2450815 ) )";
+        const expected = [
+            {
+                name: "select",
+                class: "reference",
+                children: [
+                    {
+                        name: "[date_dim]",
+                        class: "table",
+                        children: [],
+                        properties: {
+                            schema: "[tpcds]",
+                            table: "[date_dim]",
+                        },
+                    },
+                    {
+                        name: "predicate",
+                        class: "expressions",
+                        children: [
+                            {
+                                name: ">=",
+                                class: "function",
+                                children: [
+                                    {name: "[d_date_sk]", class: "field"},
+                                    {name: "2450815", class: "integer"},
+                                ],
+                            },
+                        ],
+                    },
+                ],
+                properties: {},
+            },
+        ];
+
+        const actual = TQL.parse(setup);
+        expect(actual).to.deep.equal(expected);
+    });
+
+    it("should parse shared", function() {
+        const setup = '(shared (table [tpcds].[catalog_sales]) "0")';
+        const expected = [
+            {
+                name: "shared",
+                class: "reference",
+                children: [
+                    {
+                        name: "[catalog_sales]",
+                        class: "table",
+                        children: [],
+                        properties: {
+                            schema: "[tpcds]",
+                            table: "[catalog_sales]",
                         },
                     },
                 ],
@@ -1060,83 +1051,91 @@ describe('TQL parsing', function() {
             },
         ];
 
-        const   actual = TQL.parse( setup );
-        expect( actual ).to.deep.equal( expected );
+        const actual = TQL.parse(setup);
+        expect(actual).to.deep.equal(expected);
     });
 
-    it('should parse table', function() {
-        const   setup = '(table [tpcds].[catalog_sales])';
-        const   expected = [
+    it("should parse table", function() {
+        const setup = "(table [tpcds].[catalog_sales])";
+        const expected = [
             {
-                name: '[catalog_sales]',
-                class:  'table',
+                name: "[catalog_sales]",
+                class: "table",
                 children: [],
                 properties: {
-                    schema: '[tpcds]',
-                    table: '[catalog_sales]',
+                    schema: "[tpcds]",
+                    table: "[catalog_sales]",
                 },
             },
         ];
 
-        const   actual = TQL.parse( setup );
-        expect( actual ).to.deep.equal( expected );
+        const actual = TQL.parse(setup);
+        expect(actual).to.deep.equal(expected);
     });
 
-    it('should parse text', function() {
-        const   setup =
+    it("should parse text", function() {
+        const setup =
             '(text "DebugBlackBox/tpcds/cs_date_sk.csv" ( ' +
             '  ( ( "name" "cs_sold_date_sk" ) ( "factory" "builtin" ) ("builtin" "long" ) ) ' +
             '  ( ( "name" "cs_ship_date_sk" ) ( "factory" "builtin" ) ("builtin" "long" ) ) ) ' +
             '  ( ( "field-separator" "|" ) ( "header-row" "false" ) ) )';
-        const   expected = [
+        const expected = [
             {
-                name:   'DebugBlackBox/tpcds/cs_date_sk.csv',
-                class:  'table',
+                name: "DebugBlackBox/tpcds/cs_date_sk.csv",
+                class: "table",
                 children: [
                     {
-                        name:  'schema',
-                        class: 'schema',
+                        name: "schema",
+                        class: "schema",
                         children: [
-                            { name: '[cs_sold_date_sk]', class: 'properties', properties: { factory: 'builtin', builtin: 'long' } },
-                            { name: '[cs_ship_date_sk]', class: 'properties', properties: { factory: 'builtin', builtin: 'long' } },
+                            {
+                                name: "[cs_sold_date_sk]",
+                                class: "properties",
+                                properties: {factory: "builtin", builtin: "long"},
+                            },
+                            {
+                                name: "[cs_ship_date_sk]",
+                                class: "properties",
+                                properties: {factory: "builtin", builtin: "long"},
+                            },
                         ],
                     },
                 ],
                 properties: {
-                    'field-separator': '|',
-                    'header-row': 'false',
+                    "field-separator": "|",
+                    "header-row": "false",
                 },
             },
         ];
 
-        const   actual = TQL.parse( setup );
-        expect( actual ).to.deep.equal( expected );
+        const actual = TQL.parse(setup);
+        expect(actual).to.deep.equal(expected);
     });
 
-    it('should parse top', function() {
-        const   setup = '(top (table [tpcds].[date_dim]) ( ( [d_date_sk] asc ) ) 10 )';
-        const   expected = [
+    it("should parse top", function() {
+        const setup = "(top (table [tpcds].[date_dim]) ( ( [d_date_sk] asc ) ) 10 )";
+        const expected = [
             {
-                name:   'top',
-                class:  'reference',
+                name: "top",
+                class: "reference",
                 children: [
                     {
-                        name: '[date_dim]',
-                        class:  'table',
+                        name: "[date_dim]",
+                        class: "table",
                         children: [],
                         properties: {
-                            schema: '[tpcds]',
-                            table: '[date_dim]',
+                            schema: "[tpcds]",
+                            table: "[date_dim]",
                         },
                     },
                     {
-                        name:   'orderbys',
-                        class:  'orderbys',
+                        name: "orderbys",
+                        class: "orderbys",
                         children: [
                             {
-                                name: '[d_date_sk]',
-                                class:  'orderby',
-                                sense:  'asc',
+                                name: "[d_date_sk]",
+                                class: "orderby",
+                                sense: "asc",
                             },
                         ],
                     },
@@ -1147,93 +1146,35 @@ describe('TQL parsing', function() {
             },
         ];
 
-        const   actual = TQL.parse( setup );
-        expect( actual ).to.deep.equal( expected );
+        const actual = TQL.parse(setup);
+        expect(actual).to.deep.equal(expected);
     });
 
-    it('should parse update', function() {
-        const   setup =
-            '(update ' +
-            '  (table [tpcds].[catalog_sales]) ' +
-            '  ( ([cs_ship_date_sk] [cs_sold_date_sk]) ) ' +
-            '  ) '
-            ;
+    it("should parse update", function() {
+        const setup = "(update " + "  (table [tpcds].[catalog_sales]) " + "  ( ([cs_ship_date_sk] [cs_sold_date_sk]) ) " + "  ) ";
 
-        const   expected = [
+        const expected = [
             {
-                name:   'update',
-                class:  'reference',
+                name: "update",
+                class: "reference",
                 children: [
                     {
-                        name: '[catalog_sales]',
-                        class:  'table',
+                        name: "[catalog_sales]",
+                        class: "table",
                         children: [],
                         properties: {
-                            schema: '[tpcds]',
-                            table: '[catalog_sales]',
+                            schema: "[tpcds]",
+                            table: "[catalog_sales]",
                         },
                     },
                     {
-                        name:   'updates',
-                        class:  'renames',
-                        children: [
-                            { name: '[cs_sold_date_sk]', class: 'rename', source: '[cs_ship_date_sk]', },
-                        ],
-                    },
-                ],
-                properties: {},
-            },
-        ];
-
-        const   actual = TQL.parse( setup );
-        expect( actual ).to.deep.equal( expected );
-    });
-
-    it('should parse window', function() {
-        const   setup =
-            '(window ' +
-            '  (table [tpcds].[catalog_sales]) ' +
-            '  ( [cs_ship_date_sk] ) ' +
-            '  ( ( [cs_sold_date_sk] asc ) ) ' +
-            '  ( ([Length] (rowno) ) ) ) '
-            ;
-
-        const   expected = [
-            {
-                name:   'window',
-                class:  'reference',
-                children: [
-                    {
-                        name:   '[catalog_sales]',
-                        class:  'table',
-                        children: [],
-                        properties: {
-                            schema: '[tpcds]',
-                            table: '[catalog_sales]',
-                        },
-                    },
-                    {
-                        name:   'partitionbys',
-                        class:  'fields',
-                        children: [
-                            { name: '[cs_ship_date_sk]', class: 'field' },
-                        ],
-                    },
-                    {
-                        name:   'orderbys',
-                        class:  'orderbys',
-                        children: [
-                            { name: '[cs_sold_date_sk]', class: 'orderby', sense: 'asc' },
-                        ],
-                    },
-                    {
-                        name:   'expressions',
-                        class:  'bindings',
+                        name: "updates",
+                        class: "renames",
                         children: [
                             {
-                                name: '[Length]',
-                                class: 'binding',
-                                children: [ { class: 'function', name: 'rowno', children: [] } ],
+                                name: "[cs_sold_date_sk]",
+                                class: "rename",
+                                source: "[cs_ship_date_sk]",
                             },
                         ],
                     },
@@ -1242,7 +1183,59 @@ describe('TQL parsing', function() {
             },
         ];
 
-        const   actual = TQL.parse( setup );
-        expect( actual ).to.deep.equal( expected );
+        const actual = TQL.parse(setup);
+        expect(actual).to.deep.equal(expected);
+    });
+
+    it("should parse window", function() {
+        const setup =
+            "(window " +
+            "  (table [tpcds].[catalog_sales]) " +
+            "  ( [cs_ship_date_sk] ) " +
+            "  ( ( [cs_sold_date_sk] asc ) ) " +
+            "  ( ([Length] (rowno) ) ) ) ";
+
+        const expected = [
+            {
+                name: "window",
+                class: "reference",
+                children: [
+                    {
+                        name: "[catalog_sales]",
+                        class: "table",
+                        children: [],
+                        properties: {
+                            schema: "[tpcds]",
+                            table: "[catalog_sales]",
+                        },
+                    },
+                    {
+                        name: "partitionbys",
+                        class: "fields",
+                        children: [{name: "[cs_ship_date_sk]", class: "field"}],
+                    },
+                    {
+                        name: "orderbys",
+                        class: "orderbys",
+                        children: [{name: "[cs_sold_date_sk]", class: "orderby", sense: "asc"}],
+                    },
+                    {
+                        name: "expressions",
+                        class: "bindings",
+                        children: [
+                            {
+                                name: "[Length]",
+                                class: "binding",
+                                children: [{class: "function", name: "rowno", children: []}],
+                            },
+                        ],
+                    },
+                ],
+                properties: {},
+            },
+        ];
+
+        const actual = TQL.parse(setup);
+        expect(actual).to.deep.equal(expected);
     });
 });
