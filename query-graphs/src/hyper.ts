@@ -305,7 +305,7 @@ function addCrosslinks(root) {
 }
 
 // Loads a Hyper query plan
-export function loadHyperPlan(json, graphCollapse) {
+export function loadHyperPlan(json, graphCollapse: any = undefined) {
     // Extract top-level meta data
     const properties: any = {};
     if (json.hasOwnProperty("plan") && json.plan.hasOwnProperty("header")) {
