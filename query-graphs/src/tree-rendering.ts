@@ -499,7 +499,7 @@ export function drawQueryTree(target, treeData) {
         });
 
     // Build a HTML list of properties to be displayed in a tooltip
-    function buildPropertyList(properties, cssClass: string = "qg-prop-name") {
+    function buildPropertyList(properties, cssClass = "qg-prop-name") {
         var html = "";
         Object.getOwnPropertyNames(properties).forEach(function(key) {
             html += "<span class='" + cssClass + "'>" + escapeHtml(key) + ": </span>";
