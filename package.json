@@ -1,6 +1,11 @@
 {
     "private": true,
     "name": "query-graphs",
+    "workspaces": [
+        "query-graphs",
+        "standalone-server",
+        "jupyterlab-extension"
+    ],
     "scripts": {
         "lint": "eslint . --ignore-path .gitignore --ext .ts,.tsx,.js --fix",
         "lint-test": "eslint . --ignore-path .gitignore --ext .ts,.tsx,.js"

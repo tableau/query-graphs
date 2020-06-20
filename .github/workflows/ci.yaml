@@ -1,0 +1,35 @@
+name: Test and publish
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - uses: actions/cache@v1
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-yarn-
+
+      - name: Install
+        run: yarn install
+
+      - name: Lint
+        run: yarn run lint-test
+
+      - name: Build query-graphs
+        run: yarn run --cwd=query-graphs build
+
+      - name: Build jupyterlab-extension
+        run: yarn run --cwd=jupyterlab-extension build
+
+      - name: Build standalone-server
+        run: yarn run --cwd=standalone-server build
