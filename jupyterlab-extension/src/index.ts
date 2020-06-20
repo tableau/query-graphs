@@ -3,10 +3,8 @@ import { JSONObject } from '@phosphor/coreutils';
 import { Widget } from '@phosphor/widgets';
 import { Message } from '@phosphor/messaging';
 
-//@ts-ignore
-let querygraphsRendering = require("@tableau/query-graphs/lib/tree-rendering");
-//@ts-ignore
-let querygraphsHyper = require("@tableau/query-graphs/lib/hyper");
+import {drawQueryTree} from "@tableau/query-graphs/lib/tree-rendering";
+import {loadHyperPlan} from "@tableau/query-graphs/lib/hyper";
 
 /**
  * The default mime type for the extension.
@@ -36,8 +34,8 @@ export class OutputWidget extends Widget implements IRenderMime.IRenderer {
    */
   renderModel(model: IRenderMime.IMimeModel): Promise<void> {
     let data = model.data[this._mimeType] as JSONObject;
-    let treeData = querygraphsHyper.loadHyperPlan(data);
-    this._queryGraph = querygraphsRendering.drawQueryTree(this.node, treeData);
+    let treeData = loadHyperPlan(data);
+    this._queryGraph = drawQueryTree(this.node, treeData);
     this.update();
 
     return Promise.resolve();
