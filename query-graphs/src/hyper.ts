@@ -23,13 +23,13 @@ function convertHyper(node, parentKey) {
         };
     } else if (typeof node === "object" && !Array.isArray(node)) {
         // "Object" nodes
-        var explicitChildren: any[] = [];
-        var additionalChildren: any[] = [];
-        var properties = {};
+        let explicitChildren: any[] = [];
+        const additionalChildren: any[] = [];
+        const properties = {};
 
         // Take the first present tagKey as the new tag. Add all others as properties
-        var tagKeys = ["operator", "expression", "mode"];
-        var tag;
+        const tagKeys = ["operator", "expression", "mode"];
+        let tag;
         tagKeys.forEach(function(key) {
             if (!node.hasOwnProperty(key)) {
                 return;
@@ -45,12 +45,12 @@ function convertHyper(node, parentKey) {
         }
 
         // Add the following keys as children
-        var childKeys = ["input", "left", "right", "arguments", "value", "valueForComparison"];
+        const childKeys = ["input", "left", "right", "arguments", "value", "valueForComparison"];
         childKeys.forEach(function(key) {
             if (!node.hasOwnProperty(key)) {
                 return;
             }
-            var child = convertHyper(node[key], key);
+            const child = convertHyper(node[key], key);
             if (Array.isArray(child)) {
                 explicitChildren = explicitChildren.concat(child);
             } else {
@@ -59,7 +59,7 @@ function convertHyper(node, parentKey) {
         });
 
         // Add the following keys as children only when they refer to objects and display as properties if not
-        var objectKeys = ["source"];
+        const objectKeys = ["source"];
         objectKeys.forEach(function(key) {
             if (!node.hasOwnProperty(key)) {
                 return;
@@ -68,7 +68,7 @@ function convertHyper(node, parentKey) {
                 properties[key] = common.forceToString(node[key]);
                 return;
             }
-            var child = convertHyper(node[key], key);
+            const child = convertHyper(node[key], key);
             if (Array.isArray(child)) {
                 explicitChildren = explicitChildren.concat(child);
             } else {
@@ -77,7 +77,7 @@ function convertHyper(node, parentKey) {
         });
 
         // Display these properties always as properties, even if they are more complex
-        var propertyKeys = ["analyze"];
+        const propertyKeys = ["analyze"];
         propertyKeys.forEach(function(key) {
             if (!node.hasOwnProperty(key)) {
                 return;
@@ -86,21 +86,21 @@ function convertHyper(node, parentKey) {
         });
 
         // Display all other properties adaptively: simple expressions are displayed as properties, all others as part of the tree
-        var handledKeys = tagKeys.concat(childKeys, objectKeys, propertyKeys);
+        const handledKeys = tagKeys.concat(childKeys, objectKeys, propertyKeys);
         Object.getOwnPropertyNames(node).forEach(function(key, _index) {
             if (handledKeys.indexOf(key) !== -1) {
                 return;
             }
 
             // Try to display as string property
-            var str = common.toString(node[key]);
+            const str = common.toString(node[key]);
             if (str !== undefined) {
                 properties[key] = str;
                 return;
             }
 
             // Display as part of the tree
-            var innerNodes = convertHyper(node[key], key);
+            let innerNodes = convertHyper(node[key], key);
             if (!Array.isArray(innerNodes)) {
                 innerNodes = [innerNodes];
             }
@@ -109,14 +109,14 @@ function convertHyper(node, parentKey) {
         });
 
         // Display the cardinality on the links between the nodes
-        var edgeLabel = node.hasOwnProperty("cardinality") ? common.formatMetric(node.cardinality) : undefined;
+        const edgeLabel = node.hasOwnProperty("cardinality") ? common.formatMetric(node.cardinality) : undefined;
         // Collapse nodes as appropriate
-        var children;
-        var _children;
+        let children;
+        let _children;
         if (node.hasOwnProperty("plan")) {
             // The top-level plan element needs special attention: we want to hide the `header` by default
             _children = explicitChildren.concat(additionalChildren);
-            var planIdx = _children.findIndex(function(n) {
+            const planIdx = _children.findIndex(function(n) {
                 return n.tag === "plan";
             });
             children = [_children[planIdx]];
@@ -129,7 +129,7 @@ function convertHyper(node, parentKey) {
             children = explicitChildren.concat(additionalChildren);
         }
         // Build the converted node
-        var convertedNode = {
+        const convertedNode = {
             tag: tag,
             properties: properties,
             children: children,
@@ -139,9 +139,9 @@ function convertHyper(node, parentKey) {
         return convertedNode;
     } else if (Array.isArray(node)) {
         // "Array" nodes
-        var listOfObjects: any[] = [];
+        const listOfObjects: any[] = [];
         node.forEach(function(value, index) {
-            var innerNode = convertHyper(value, parentKey + "." + String(index));
+            const innerNode = convertHyper(value, parentKey + "." + String(index));
             // objectify nested arrays
             if (Array.isArray(innerNode)) {
                 innerNode.forEach(function(value, _index) {
@@ -242,10 +242,10 @@ function generateDisplayNames(treeData) {
 
 // Function to add crosslinks between related nodes
 function addCrosslinks(root) {
-    var crosslinks: any[] = [];
-    var sourcenodes: any[] = [];
-    var operatorsById: any[] = [];
-    var optimizerStep = 0;
+    const crosslinks: any[] = [];
+    const sourcenodes: any[] = [];
+    const operatorsById: any[] = [];
+    let optimizerStep = 0;
 
     common.visit(
         root,
@@ -296,8 +296,8 @@ function addCrosslinks(root) {
 
     // Add crosslinks from source to matching target node
     sourcenodes.forEach(function(source) {
-        var targetnode = operatorsById[[source.operatorId, source.optimizerStep].toString()];
-        var entry = {source: source.node, target: targetnode};
+        const targetnode = operatorsById[[source.operatorId, source.optimizerStep].toString()];
+        const entry = {source: source.node, target: targetnode};
         crosslinks.push(entry);
     });
 
@@ -307,12 +307,12 @@ function addCrosslinks(root) {
 // Loads a Hyper query plan
 export function loadHyperPlan(json, graphCollapse) {
     // Extract top-level meta data
-    var properties: any = {};
+    const properties: any = {};
     if (json.hasOwnProperty("plan") && json.plan.hasOwnProperty("header")) {
         properties.columns = json.plan.header.length / 2;
     }
     // Load the graph with the nodes collapsed in an automatic way
-    var root = convertHyper(json, "result");
+    const root = convertHyper(json, "result");
     generateDisplayNames(root);
     common.createParentLinks(root);
     // Adjust the graph so it is collapsed as requested by the user
@@ -322,14 +322,14 @@ export function loadHyperPlan(json, graphCollapse) {
         common.visit(root, common.expandAllChildren, common.allChildren);
     }
     // Add crosslinks
-    var crosslinks = addCrosslinks(root);
+    const crosslinks = addCrosslinks(root);
     return {root: root, crosslinks: crosslinks, properties: properties};
 }
 
 // Load a JSON tree from text
 export function loadHyperPlanFromText(graphString, graphCollapse) {
     // Parse the plan as JSON
-    var json;
+    let json;
     try {
         json = JSON.parse(graphString);
     } catch (err) {

@@ -16,10 +16,10 @@ import {Parser as XmlParser} from "xml2js/lib/parser";
 
 // Convert JSON as returned by xml2js parser to d3 tree format
 function convertJSON(node) {
-    var children: any[] = [];
-    var properties: any = {};
-    var text;
-    var tag = node["#name"];
+    const children: any[] = [];
+    let properties: any = {};
+    let text;
+    const tag = node["#name"];
 
     if (node.$) {
         properties = node.$;
@@ -42,7 +42,7 @@ function convertJSON(node) {
 }
 
 // Function to generate nodes' display names based on their properties
-var generateDisplayNames = (function() {
+const generateDisplayNames = (function() {
     // properties.class are the expressions
     function handleLogicalExpression(node) {
         switch (node.properties.class) {
@@ -243,9 +243,9 @@ var generateDisplayNames = (function() {
         if (!node || !node.children) {
             return;
         }
-        var nodeIndex = parent.children.indexOf(node);
+        let nodeIndex = parent.children.indexOf(node);
         parent.children.splice(nodeIndex, 1);
-        for (var i = 0; i < node.children.length; i++) {
+        for (let i = 0; i < node.children.length; i++) {
             node.children[i].parent = parent;
             parent.children.splice(nodeIndex++, 0, node.children[i]);
         }
@@ -254,7 +254,7 @@ var generateDisplayNames = (function() {
     function generateDisplayNames(node) {
         // In-order traversal. Leaf node don't have children
         if (node.children) {
-            for (var i = 0; i < node.children.length; i++) {
+            for (let i = 0; i < node.children.length; i++) {
                 generateDisplayNames(node.children[i]);
             }
         }
@@ -421,14 +421,14 @@ function assignSymbolsAndClasses(treeData) {
 }
 
 function collapseNodes(treeData, graphCollapse) {
-    var streamline = graphCollapse === "s" ? common.streamline : common.collapseAllChildren;
-    var collapseAllChildren = common.collapseAllChildren;
+    const streamline = graphCollapse === "s" ? common.streamline : common.collapseAllChildren;
+    const collapseAllChildren = common.collapseAllChildren;
     if (graphCollapse !== "n") {
         common.visit(
             treeData,
             function(d) {
                 if (d.name) {
-                    var _name = d.fullName ? d.fullName : d.name;
+                    const _name = d.fullName ? d.fullName : d.name;
                     switch (_name) {
                         case "condition":
                         case "conditions":
@@ -503,9 +503,9 @@ function prepareTreeData(treeData, graphCollapse) {
 
 // Function to add crosslinks between related nodes
 function addCrosslinks(root) {
-    var crosslinks: any[] = [];
-    var sourcenodes: any[] = [];
-    var operatorsByName: any[] = [];
+    const crosslinks: any[] = [];
+    const sourcenodes: any[] = [];
+    const operatorsByName: any[] = [];
 
     common.visit(
         root,
@@ -552,8 +552,8 @@ function addCrosslinks(root) {
 
     // Add crosslinks from source to matching target node
     sourcenodes.forEach(function(source) {
-        var targetnode = operatorsByName[source.operatorName];
-        var entry = {source: source.node, target: targetnode};
+        const targetnode = operatorsByName[source.operatorName];
+        const entry = {source: source.node, target: targetnode};
         crosslinks.push(entry);
     });
 
@@ -561,8 +561,8 @@ function addCrosslinks(root) {
 }
 
 export function loadTableauPlan(graphString, graphCollapse) {
-    var result;
-    var parser = new XmlParser({
+    let result;
+    const parser = new XmlParser({
         explicitRoot: false,
         explicitChildren: true,
         preserveChildrenOrder: true,
@@ -573,8 +573,8 @@ export function loadTableauPlan(graphString, graphCollapse) {
         if (err) {
             result = {error: "XML parse failed with '" + err + "'."};
         } else {
-            var root = prepareTreeData(parsed, graphCollapse);
-            var crosslinks = addCrosslinks(root);
+            const root = prepareTreeData(parsed, graphCollapse);
+            const crosslinks = addCrosslinks(root);
             result = {root: root, crosslinks: crosslinks};
         }
     });

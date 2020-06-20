@@ -42,7 +42,7 @@ export function token(string, pos) {
     //  Default arguments...
     pos = pos || 0;
 
-    var sub = string.substr(pos);
+    let sub = string.substr(pos);
     for (; ; sub = string.substr(pos)) {
         const ws = sub.match(whitespace);
         if (!ws) {
@@ -52,7 +52,7 @@ export function token(string, pos) {
         pos += ws[0].length;
     }
 
-    var token: any = Object.keys(types).reduce(function(token, type) {
+    const token: any = Object.keys(types).reduce(function(token, type) {
         const match = sub.match(types[type]);
         if (!match) {
             return token;
@@ -90,7 +90,7 @@ export function token(string, pos) {
 
   ---------------------------------------------------------------------------*/
 export function tokenise(string: string, pos = 0) {
-    var tokens: any[] = [];
+    const tokens: any[] = [];
     while (pos < string.length) {
         const tok = token(string, pos);
         if (!("end" in tok)) {
@@ -328,7 +328,7 @@ Parser.prototype._call = function() {
 
   ---------------------------------------------------------------------------*/
 Parser.prototype._expr = function() {
-    var result: any = null;
+    let result: any = null;
 
     const token = this._next();
     switch (token.type) {

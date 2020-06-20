@@ -10,7 +10,7 @@ Map the JSON tree directly to a D3 tree, without any modifications
 import * as common from "./common";
 
 function convertChildren(node) {
-    var children;
+    let children;
     if (common.toString(node) !== undefined) {
         return [
             {
@@ -47,13 +47,13 @@ function convertChildren(node) {
 
 // Load a JSON tree
 export function loadJson(json) {
-    var root = {name: "root", children: convertChildren(json)};
+    const root = {name: "root", children: convertChildren(json)};
     return {root: root};
 }
 
 // Load a JSON tree from text
 export function loadJsonFromText(graphString, _graphCollapse) {
-    var json;
+    let json;
     try {
         json = JSON.parse(graphString);
     } catch (err) {

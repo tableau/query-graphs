@@ -33,8 +33,8 @@ export class OutputWidget extends Widget implements IRenderMime.IRenderer {
      * Render hyper_queryplan into this widget's node.
      */
     renderModel(model: IRenderMime.IMimeModel): Promise<void> {
-        let data = model.data[this._mimeType] as JSONObject;
-        let treeData = loadHyperPlan(data);
+        const data = model.data[this._mimeType] as JSONObject;
+        const treeData = loadHyperPlan(data);
         this._queryGraph = drawQueryTree(this.node, treeData);
         this.update();
 

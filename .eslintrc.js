@@ -18,8 +18,6 @@ module.exports = {
         "@typescript-eslint/no-unused-vars": ["error", {vars: "all", argsIgnorePattern: "^_"}],
         // The following rules should be enabled, but aren't yet due to legacy code which still needs
         // to be adapted
-        "no-var": "off",
-        "prefer-const": "off",
         "@typescript-eslint/no-explicit-any": "off",
         "@typescript-eslint/no-use-before-define": "off",
     },
