@@ -13,15 +13,15 @@ The label for a tree node is taken from the first defined property among "operat
 
 */
 
-import * as common from './common';
+import * as common from "./common";
 
 // Convert Hyper JSON to a D3 tree
 function convertHyper(node, parentKey) {
     if (common.toString(node) !== undefined) {
         return {
-            text: common.toString(node)
+            text: common.toString(node),
         };
-    } else if (typeof (node) === "object" && !Array.isArray(node)) {
+    } else if (typeof node === "object" && !Array.isArray(node)) {
         // "Object" nodes
         var explicitChildren: any[] = [];
         var additionalChildren: any[] = [];
@@ -134,7 +134,7 @@ function convertHyper(node, parentKey) {
             properties: properties,
             children: children,
             _children: _children,
-            edgeLabel: edgeLabel
+            edgeLabel: edgeLabel,
         };
         return convertedNode;
     } else if (Array.isArray(node)) {
@@ -158,82 +158,86 @@ function convertHyper(node, parentKey) {
 
 // Function to generate nodes' display names based on their properties
 function generateDisplayNames(treeData) {
-    common.visit(treeData, function(node) {
-        switch (node.tag) {
-            case "join":
-                node.name = node.tag;
-                node.symbol = "inner-join-symbol";
-                break;
-            case "leftouterjoin":
-                node.name = node.tag;
-                node.symbol = "left-join-symbol";
-                break;
-            case "rightouterjoin":
-                node.name = node.tag;
-                node.symbol = "right-join-symbol";
-                break;
-            case "fullouterjoin":
-                node.name = node.tag;
-                node.symbol = "full-join-symbol";
-                break;
-            case "tablescan":
-                node.name = node.properties.from ? node.properties.from : node.tag;
-                node.symbol = 'table-symbol';
-                break;
-            case "binaryscan":
-            case "cursorscan":
-            case "csvscan":
-            case "tdescan":
-            case "tableconstruction":
-            case "virtualtable":
-                node.name = node.tag;
-                node.symbol = 'table-symbol';
-                break;
-            case "explicitscan":
-                node.name = node.tag;
-                node.symbol = "temp-table-symbol";
-                break;
-            case "temp":
-                node.name = node.tag;
-                node.symbol = "temp-table-symbol";
-                node.edgeClass = "qg-link-and-arrow";
-                break;
-            case "comparison":
-                node.name = node.properties.mode ? node.properties.mode : node.tag;
-                break;
-            case "iuref":
-                node.name = node.properties.iu ? node.properties.iu : node.tag;
-                break;
-            case "attribute":
-            case "condition":
-            case "header":
-            case "iu":
-            case "name":
-            case "operation":
-            case "source":
-            case "tableOid":
-            case "tid":
-            case "tupleFlags":
-            case "unique":
-            case "unnormalizedNames":
-            case "output":
-                if (node.text) {
-                    node.name = node.tag + ":" + node.text;
-                } else {
+    common.visit(
+        treeData,
+        function(node) {
+            switch (node.tag) {
+                case "join":
                     node.name = node.tag;
-                }
-                break;
-            default:
-                if (node.tag) {
+                    node.symbol = "inner-join-symbol";
+                    break;
+                case "leftouterjoin":
                     node.name = node.tag;
-                } else if (node.text) {
-                    node.name = node.text;
-                } else {
-                    node.name = "";
-                }
-                break;
-        }
-    }, common.allChildren);
+                    node.symbol = "left-join-symbol";
+                    break;
+                case "rightouterjoin":
+                    node.name = node.tag;
+                    node.symbol = "right-join-symbol";
+                    break;
+                case "fullouterjoin":
+                    node.name = node.tag;
+                    node.symbol = "full-join-symbol";
+                    break;
+                case "tablescan":
+                    node.name = node.properties.from ? node.properties.from : node.tag;
+                    node.symbol = "table-symbol";
+                    break;
+                case "binaryscan":
+                case "cursorscan":
+                case "csvscan":
+                case "tdescan":
+                case "tableconstruction":
+                case "virtualtable":
+                    node.name = node.tag;
+                    node.symbol = "table-symbol";
+                    break;
+                case "explicitscan":
+                    node.name = node.tag;
+                    node.symbol = "temp-table-symbol";
+                    break;
+                case "temp":
+                    node.name = node.tag;
+                    node.symbol = "temp-table-symbol";
+                    node.edgeClass = "qg-link-and-arrow";
+                    break;
+                case "comparison":
+                    node.name = node.properties.mode ? node.properties.mode : node.tag;
+                    break;
+                case "iuref":
+                    node.name = node.properties.iu ? node.properties.iu : node.tag;
+                    break;
+                case "attribute":
+                case "condition":
+                case "header":
+                case "iu":
+                case "name":
+                case "operation":
+                case "source":
+                case "tableOid":
+                case "tid":
+                case "tupleFlags":
+                case "unique":
+                case "unnormalizedNames":
+                case "output":
+                    if (node.text) {
+                        node.name = node.tag + ":" + node.text;
+                    } else {
+                        node.name = node.tag;
+                    }
+                    break;
+                default:
+                    if (node.tag) {
+                        node.name = node.tag;
+                    } else if (node.text) {
+                        node.name = node.text;
+                    } else {
+                        node.name = "";
+                    }
+                    break;
+            }
+        },
+        common.allChildren,
+    );
 }
 
 // Function to add crosslinks between related nodes
@@ -243,36 +247,52 @@ function addCrosslinks(root) {
     var operatorsById: any[] = [];
     var optimizerStep = 0;
 
-    common.visit(root, function(node) {
-        // Operators are only unique within an optimizer step
-        if (node.tag !== undefined && node.tag.startsWith("optimizersteps")) {
-            optimizerStep = parseInt(node.tag.split(".")[1], 10);
-        }
+    common.visit(
+        root,
+        function(node) {
+            // Operators are only unique within an optimizer step
+            if (node.tag !== undefined && node.tag.startsWith("optimizersteps")) {
+                optimizerStep = parseInt(node.tag.split(".")[1], 10);
+            }
 
-        // Build map from operatorId to node
-        if (node.hasOwnProperty("properties") && node.properties.hasOwnProperty("operatorId")) {
-            operatorsById[[parseInt(node.properties.operatorId, 10), optimizerStep].toString()] = node;
-        }
+            // Build map from operatorId to node
+            if (node.hasOwnProperty("properties") && node.properties.hasOwnProperty("operatorId")) {
+                operatorsById[[parseInt(node.properties.operatorId, 10), optimizerStep].toString()] = node;
+            }
 
-        // Identify source operators
-        switch (node.tag) {
-            case "explicitscan":
-                if (node.hasOwnProperty("properties") && node.properties.hasOwnProperty("source")) {
-                    sourcenodes.push({node: node, operatorId: parseInt(node.properties.source, 10), optimizerStep: optimizerStep});
-                }
-                break;
-            case "earlyprobe":
-                if (node.hasOwnProperty("properties") && node.properties.hasOwnProperty("builder")) {
-                    sourcenodes.push({node: node, operatorId: parseInt(node.properties.builder, 10), optimizerStep: optimizerStep});
-                }
-                break;
-            default:
-                if (node.hasOwnProperty("properties") && node.properties.hasOwnProperty("magic")) {
-                    sourcenodes.push({node: node, operatorId: parseInt(node.properties.magic, 10), optimizerStep: optimizerStep});
-                }
-                break;
-        }
-    }, common.allChildren);
+            // Identify source operators
+            switch (node.tag) {
+                case "explicitscan":
+                    if (node.hasOwnProperty("properties") && node.properties.hasOwnProperty("source")) {
+                        sourcenodes.push({
+                            node: node,
+                            operatorId: parseInt(node.properties.source, 10),
+                            optimizerStep: optimizerStep,
+                        });
+                    }
+                    break;
+                case "earlyprobe":
+                    if (node.hasOwnProperty("properties") && node.properties.hasOwnProperty("builder")) {
+                        sourcenodes.push({
+                            node: node,
+                            operatorId: parseInt(node.properties.builder, 10),
+                            optimizerStep: optimizerStep,
+                        });
+                    }
+                    break;
+                default:
+                    if (node.hasOwnProperty("properties") && node.properties.hasOwnProperty("magic")) {
+                        sourcenodes.push({
+                            node: node,
+                            operatorId: parseInt(node.properties.magic, 10),
+                            optimizerStep: optimizerStep,
+                        });
+                    }
+                    break;
+            }
+        },
+        common.allChildren,
+    );
 
     // Add crosslinks from source to matching target node
     sourcenodes.forEach(function(source) {
@@ -296,9 +316,9 @@ export function loadHyperPlan(json, graphCollapse) {
     generateDisplayNames(root);
     common.createParentLinks(root);
     // Adjust the graph so it is collapsed as requested by the user
-    if (graphCollapse === 'y') {
+    if (graphCollapse === "y") {
         common.visit(root, common.collapseAllChildren, common.allChildren);
-    } else if (graphCollapse === 'n') {
+    } else if (graphCollapse === "n") {
         common.visit(root, common.expandAllChildren, common.allChildren);
     }
     // Add crosslinks

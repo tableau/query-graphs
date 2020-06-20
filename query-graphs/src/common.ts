@@ -1,4 +1,3 @@
-
 // A recursive helper function for walking through all nodes
 export function visit(parent, visitFn, childrenFn) {
     if (!parent) {
@@ -25,23 +24,27 @@ export function allChildren(n) {
 
 // Create parent links
 export function createParentLinks(tree) {
-    visit(tree, function() {}, function(d) {
-        if (d.children) {
-            var children = allChildren(d);
-            var count = children.length;
-            for (var i = 0; i < count; i++) {
-                children[i].parent = d;
+    visit(
+        tree,
+        function() {},
+        function(d) {
+            if (d.children) {
+                var children = allChildren(d);
+                var count = children.length;
+                for (var i = 0; i < count; i++) {
+                    children[i].parent = d;
+                }
+                return children;
             }
-            return children;
-        }
-        return [];
-    });
+            return [];
+        },
+    );
 }
 
 // Collapse all children regardless of the current state
 export function collapseAllChildren(d) {
-    var children = (d.children) ? d.children : [];
-    var _children = (d._children) ? d._children : [];
+    var children = d.children ? d.children : [];
+    var _children = d._children ? d._children : [];
     d.children = [];
     d._children = children.length > _children.length ? children : _children;
     return d;
@@ -49,8 +52,8 @@ export function collapseAllChildren(d) {
 
 // Expand all children regardless of the current state
 export function expandAllChildren(d) {
-    var children = (d.children) ? d.children : [];
-    var _children = (d._children) ? d._children : [];
+    var children = d.children ? d.children : [];
+    var _children = d._children ? d._children : [];
     d.children = children.length > _children.length ? children : _children;
     d._children = [];
     return d;
@@ -71,11 +74,11 @@ export function streamline(d) {
 
 // Convert to string. Return undefined if not supported.
 export function toString(d) {
-    if (typeof (d) === "string") {
+    if (typeof d === "string") {
         return d;
-    } else if (typeof (d) === "number") {
+    } else if (typeof d === "number") {
         return d.toString();
-    } else if (typeof (d) === "boolean") {
+    } else if (typeof d === "boolean") {
         return d.toString();
     } else if (d === null) {
         return "null";
@@ -98,7 +101,7 @@ export function forceToString(d) {
 export function formatMetric(x) {
     var sizes = ["", "k", "M", "G", "T", "P", "E", "Z", "Y"];
     var idx = 0;
-    while (x > 1000 && idx < (sizes.length - 1)) {
+    while (x > 1000 && idx < sizes.length - 1) {
         x /= 1000;
         ++idx;
     }

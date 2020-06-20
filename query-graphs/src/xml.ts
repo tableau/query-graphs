@@ -10,7 +10,7 @@ in the tooltips.
 */
 
 // Require node modules
-import { Parser as XmlParser } from 'xml2js/lib/parser';
+import {Parser as XmlParser} from "xml2js/lib/parser";
 
 // Convert JSON as returned by xml2js parser to d3 tree format
 function convertJSON(node) {
@@ -35,7 +35,7 @@ function convertJSON(node) {
         name: tag,
         properties: properties,
         text: text,
-        children: children
+        children: children,
     };
 }
 
@@ -46,7 +46,7 @@ export function loadXml(graphString, _graphCollapse) {
         explicitChildren: true,
         preserveChildrenOrder: true,
         // Don't merge attributes. XML attributes will be stored in node["$"]
-        mergeAttrs: false
+        mergeAttrs: false,
     });
     parser.parseString(graphString, function(err, parsed) {
         if (err) {

@@ -10,9 +10,9 @@ already provides us the structure of the rendered tree.
 */
 
 // Require node modules
-import * as common from './common';
-import * as colors from './colors';
-import { Parser as XmlParser } from 'xml2js/lib/parser';
+import * as common from "./common";
+import * as colors from "./colors";
+import {Parser as XmlParser} from "xml2js/lib/parser";
 
 // Convert JSON as returned by xml2js parser to d3 tree format
 function convertJSON(node) {
@@ -37,7 +37,7 @@ function convertJSON(node) {
         tag: tag,
         properties: properties,
         text: text,
-        children: children
+        children: children,
     };
 }
 
@@ -82,7 +82,7 @@ var generateDisplayNames = (function() {
                 node.class = "reference";
                 break;
             default:
-                node.name = node.tag.replace(/Exp$/, '');
+                node.name = node.tag.replace(/Exp$/, "");
                 break;
         }
     }
@@ -146,7 +146,7 @@ var generateDisplayNames = (function() {
     function handleLogicalOperator2(node) {
         switch (node.tag) {
             case "joinOp":
-                node.name = node.tag.replace(/Op$/, '');
+                node.name = node.tag.replace(/Op$/, "");
                 node.class = "join";
                 break;
             case "referenceOp":
@@ -159,13 +159,13 @@ var generateDisplayNames = (function() {
                 break;
             case "tuplesOp":
                 if (node.properties.alias) {
-                    node.name = node.tag.replace(/Op$/, '') + ":" + node.properties.alias;
+                    node.name = node.tag.replace(/Op$/, "") + ":" + node.properties.alias;
                 } else {
-                    node.name = node.tag.replace(/Op$/, '');
+                    node.name = node.tag.replace(/Op$/, "");
                 }
                 break;
             default:
-                node.name = node.tag.replace(/Op$/, '');
+                node.name = node.tag.replace(/Op$/, "");
                 break;
         }
     }
@@ -230,7 +230,7 @@ var generateDisplayNames = (function() {
     }
 
     // Function to display node's name.
-    function displayNodeName (node) {
+    function displayNodeName(node) {
         if (node.properties && node.properties.name) {
             node.name = node.properties.name;
         } else {
@@ -376,100 +376,112 @@ var generateDisplayNames = (function() {
 
 // Assign symbols & classes to the nodes
 function assignSymbolsAndClasses(treeData) {
-    common.visit(treeData, function(n) {
-        // Assign symbols
-        if (n.properties && n.properties.join && n.class && n.class === "join") {
-            n.symbol = n.properties.join + "-join-symbol";
-        } else if (n.tag === "join-inner") {
-           n.symbol =  "inner-join-symbol";
-        } else if (n.tag === "join-left") {
-            n.symbol =  "left-join-symbol";
-        } else if (n.tag === "join-right") {
-            n.symbol =  "right-join-symbol";
-        } else if (n.tag === "join-full") {
-            n.symbol =  "full-join-symbol";
-        } else if (n.class && n.class === "relation") {
-            n.symbol = "table-symbol";
-        } else if (n.class && n.class === "createtemptable") {
-            n.symbol = "temp-table-symbol";
-        } else if (n.name && n.name === "runquery") {
-            n.symbol = "run-query-symbol";
-        }
-        // Assign classes for incoming edge
-        if (n.tag === "binding" || n.class === "createtemptable" || (n.tag === "expression" && n.properties && n.properties.name)) {
-            n.children.forEach(function(c) {
-                c.edgeClass = "qg-link-and-arrow";
-            });
-        } else if (n.name === "runquery") {
-            n.children.forEach(function(c) {
-                if (c.class === "createtemptable") {
-                    c.edgeClass = "qg-dotted-link";
-                }
-            });
-        }
-    }, function(d) {
-        return d.children && d.children.length > 0 ? d.children : null;
-    });
+    common.visit(
+        treeData,
+        function(n) {
+            // Assign symbols
+            if (n.properties && n.properties.join && n.class && n.class === "join") {
+                n.symbol = n.properties.join + "-join-symbol";
+            } else if (n.tag === "join-inner") {
+                n.symbol = "inner-join-symbol";
+            } else if (n.tag === "join-left") {
+                n.symbol = "left-join-symbol";
+            } else if (n.tag === "join-right") {
+                n.symbol = "right-join-symbol";
+            } else if (n.tag === "join-full") {
+                n.symbol = "full-join-symbol";
+            } else if (n.class && n.class === "relation") {
+                n.symbol = "table-symbol";
+            } else if (n.class && n.class === "createtemptable") {
+                n.symbol = "temp-table-symbol";
+            } else if (n.name && n.name === "runquery") {
+                n.symbol = "run-query-symbol";
+            }
+            // Assign classes for incoming edge
+            if (
+                n.tag === "binding" ||
+                n.class === "createtemptable" ||
+                (n.tag === "expression" && n.properties && n.properties.name)
+            ) {
+                n.children.forEach(function(c) {
+                    c.edgeClass = "qg-link-and-arrow";
+                });
+            } else if (n.name === "runquery") {
+                n.children.forEach(function(c) {
+                    if (c.class === "createtemptable") {
+                        c.edgeClass = "qg-dotted-link";
+                    }
+                });
+            }
+        },
+        function(d) {
+            return d.children && d.children.length > 0 ? d.children : null;
+        },
+    );
 }
 
 function collapseNodes(treeData, graphCollapse) {
     var streamline = graphCollapse === "s" ? common.streamline : common.collapseAllChildren;
     var collapseAllChildren = common.collapseAllChildren;
-    if (graphCollapse !== 'n') {
-        common.visit(treeData, function(d) {
-            if (d.name) {
-                var _name = d.fullName ? d.fullName : d.name;
-                switch (_name) {
-                    case 'condition':
-                    case 'conditions':
-                    case 'datasource':
-                    case 'expressions':
-                    case 'field':
-                    case 'groupbys':
-                    case 'group-bys':
-                    case 'imports':
-                    case 'measures':
-                    case 'column-names':
-                    case 'replaced-columns':
-                    case 'renamed-columns':
-                    case 'new-columns':
-                    case 'metadata-record':
-                    case 'metadata-records':
-                    case 'orderbys':
-                    case 'order-bys':
-                    case 'filter':
-                    case 'predicate':
-                    case 'restrictions':
-                    case 'runquery-columns':
-                    case 'selects':
-                    case 'schema':
-                    case 'tid':
-                    case 'top':
-                    case 'aggregates':
-                    case 'join-conditions':
-                    case 'join-condition':
-                    case 'arguments':
-                    case 'function-node':
-                    case 'type':
-                    case 'tuples':
-                        streamline(d);
-                        return;
-                    default:
-                        break;
+    if (graphCollapse !== "n") {
+        common.visit(
+            treeData,
+            function(d) {
+                if (d.name) {
+                    var _name = d.fullName ? d.fullName : d.name;
+                    switch (_name) {
+                        case "condition":
+                        case "conditions":
+                        case "datasource":
+                        case "expressions":
+                        case "field":
+                        case "groupbys":
+                        case "group-bys":
+                        case "imports":
+                        case "measures":
+                        case "column-names":
+                        case "replaced-columns":
+                        case "renamed-columns":
+                        case "new-columns":
+                        case "metadata-record":
+                        case "metadata-records":
+                        case "orderbys":
+                        case "order-bys":
+                        case "filter":
+                        case "predicate":
+                        case "restrictions":
+                        case "runquery-columns":
+                        case "selects":
+                        case "schema":
+                        case "tid":
+                        case "top":
+                        case "aggregates":
+                        case "join-conditions":
+                        case "join-condition":
+                        case "arguments":
+                        case "function-node":
+                        case "type":
+                        case "tuples":
+                            streamline(d);
+                            return;
+                        default:
+                            break;
+                    }
                 }
-            }
-            if (d.class) {
-                switch (d.class) {
-                    case 'relation':
-                        collapseAllChildren(d);
-                        return;
-                    default:
-                        break;
+                if (d.class) {
+                    switch (d.class) {
+                        case "relation":
+                            collapseAllChildren(d);
+                            return;
+                        default:
+                            break;
+                    }
                 }
-            }
-        }, function(d) {
-            return d.children && d.children.length > 0 ? d.children.slice(0) : null;
-        });
+            },
+            function(d) {
+                return d.children && d.children.length > 0 ? d.children.slice(0) : null;
+            },
+        );
     }
 }
 
@@ -495,35 +507,48 @@ function addCrosslinks(root) {
     var sourcenodes: any[] = [];
     var operatorsByName: any[] = [];
 
-    common.visit(root, function(node) {
-        // Build map from potential target operator name/ref to node
-        if (node.hasOwnProperty("federated") && node.federated === "fedeval_dataengine_connection" &&
-            node.hasOwnProperty("class") && node.class === "relation" &&
-            node.hasOwnProperty("name")) {
-            operatorsByName[node.name] = node;
-        } else if (node.tag === "binding" &&
-            node.hasOwnProperty("properties") && node.properties.hasOwnProperty("ref")) {
-            operatorsByName[node.properties.ref] = node;
-        }
+    common.visit(
+        root,
+        function(node) {
+            // Build map from potential target operator name/ref to node
+            if (
+                node.hasOwnProperty("federated") &&
+                node.federated === "fedeval_dataengine_connection" &&
+                node.hasOwnProperty("class") &&
+                node.class === "relation" &&
+                node.hasOwnProperty("name")
+            ) {
+                operatorsByName[node.name] = node;
+            } else if (node.tag === "binding" && node.hasOwnProperty("properties") && node.properties.hasOwnProperty("ref")) {
+                operatorsByName[node.properties.ref] = node;
+            }
 
-        // Identify source operators
-        switch (node.tag) {
-            case "fed-op":
-                if (node.hasOwnProperty("properties") && node.properties.hasOwnProperty("class") &&
-                    node.properties.class === "createtemptable") {
-                    sourcenodes.push({node: node, operatorName: node.properties.table});
-                }
-                break;
-            case "referenceOp":
-            case "referenceExp":
-                if (node.hasOwnProperty("properties") && node.properties.hasOwnProperty("ref")) {
-                    sourcenodes.push({node: node, operatorName: node.properties.ref});
-                }
-                break;
-            default:
-                break;
-        }
-    }, common.allChildren);
+            // Identify source operators
+            switch (node.tag) {
+                case "fed-op":
+                    if (
+                        node.hasOwnProperty("properties") &&
+                        node.properties.hasOwnProperty("class") &&
+                        node.properties.class === "createtemptable"
+                    ) {
+                        sourcenodes.push({
+                            node: node,
+                            operatorName: node.properties.table,
+                        });
+                    }
+                    break;
+                case "referenceOp":
+                case "referenceExp":
+                    if (node.hasOwnProperty("properties") && node.properties.hasOwnProperty("ref")) {
+                        sourcenodes.push({node: node, operatorName: node.properties.ref});
+                    }
+                    break;
+                default:
+                    break;
+            }
+        },
+        common.allChildren,
+    );
 
     // Add crosslinks from source to matching target node
     sourcenodes.forEach(function(source) {
@@ -542,7 +567,7 @@ export function loadTableauPlan(graphString, graphCollapse) {
         explicitChildren: true,
         preserveChildrenOrder: true,
         // Don't merge attributes. XML attributes will be stored in node["$"]
-        mergeAttrs: false
+        mergeAttrs: false,
     });
     parser.parseString(graphString, function(err, parsed) {
         if (err) {

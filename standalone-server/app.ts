@@ -1,26 +1,26 @@
 // Load css (through the style-loader of webpack)
-import './app.css';
+import "./app.css";
 
 // Import node.js modules
-import * as path from 'path';
-import fetchText from 'd3-fetch/src/text';
-import * as Spinner from 'spin';
-import * as querystring from 'querystring';
+import * as path from "path";
+import fetchText from "d3-fetch/src/text";
+import * as Spinner from "spin";
+import * as querystring from "querystring";
 
 // Require local modules
-import * as treeRendering from '@tableau/query-graphs/lib/tree-rendering';
-import * as hyperLoader from '@tableau/query-graphs/lib/hyper';
-import * as tableauLoader from '@tableau/query-graphs/lib/tableau';
-import * as jsonLoader from '@tableau/query-graphs/lib/json';
-import * as tqlLoader from '@tableau/query-graphs/lib/tql';
-import * as xmlLoader from '@tableau/query-graphs/lib/xml';
+import * as treeRendering from "@tableau/query-graphs/lib/tree-rendering";
+import * as hyperLoader from "@tableau/query-graphs/lib/hyper";
+import * as tableauLoader from "@tableau/query-graphs/lib/tableau";
+import * as jsonLoader from "@tableau/query-graphs/lib/json";
+import * as tqlLoader from "@tableau/query-graphs/lib/tql";
+import * as xmlLoader from "@tableau/query-graphs/lib/xml";
 var knownLoaders = {
     hyper: hyperLoader.loadHyperPlanFromText,
     tableau: tableauLoader.loadTableauPlan,
     json: jsonLoader.loadJsonFromText,
     tql: tqlLoader.loadTQLPlan,
     xml: xmlLoader.loadXml,
-    raw: JSON.parse
+    raw: JSON.parse,
 };
 
 // Get query parameters from current url
@@ -40,14 +40,14 @@ var graphFile = queryObject.file ? queryObject.file : "logicalquery.xml";
 
 // Get file from upload directory?
 var isUploadedFile = queryObject.upload ? queryObject.upload : "n";
-isUploadedFile = (isUploadedFile === "y");
+isUploadedFile = isUploadedFile === "y";
 
 // Generate the query directory
 var directory = isUploadedFile ? "../media/uploads/" : "../media/favorites/";
 
 // Get absolute path file name and directory
 var isAbsolutePath = queryObject.absolute ? queryObject.absolute : "n";
-isAbsolutePath = (isAbsolutePath === "y");
+isAbsolutePath = isAbsolutePath === "y";
 if (isAbsolutePath) {
     directory = path.dirname(graphFile) + "/";
     graphFile = path.basename(graphFile);
@@ -106,7 +106,6 @@ if (!inlineString) {
     toplevelProperties.file = graphFile;
 }
 
-
 var delay = (function() {
     var timer = 0;
     return function(callback, ms) {
@@ -119,22 +118,28 @@ var delay = (function() {
 // Register event listeners not already handled by the query-graphs core
 //
 function registerEventHandlers(widget) {
-    document.body.addEventListener("keydown", function(e) {
-       // Emit event key codes for debugging
-       if (DEBUG) {
-           console.log("pressed key " + e.keyCode);
-       }
+    document.body.addEventListener(
+        "keydown",
+        function(e) {
+            // Emit event key codes for debugging
+            if (DEBUG) {
+                console.log("pressed key " + e.keyCode);
+            }
 
-       // On space, expand all currently visible collapsed nodes, that is all for now
-       // Subsequent uses may expand additional visible nodes that are now visible
-       // Refresh browser window to get back to baseline
-       if (e.keyCode === 32) {
-          widget.expandOneLevel()
-       }
-   }, false);
-   window.addEventListener("resize", function() {
-       delay(function() { widget.resize(); }, 500);
-   });
+            // On space, expand all currently visible collapsed nodes, that is all for now
+            // Subsequent uses may expand additional visible nodes that are now visible
+            // Refresh browser window to get back to baseline
+            if (e.keyCode === 32) {
+                widget.expandOneLevel();
+            }
+        },
+        false,
+    );
+    window.addEventListener("resize", function() {
+        delay(function() {
+            widget.resize();
+        }, 500);
+    });
 }
 
 //
@@ -144,9 +149,11 @@ var spinner = new Spinner().spin(document.body);
 if (paramErrors.length) {
     spinner.stop();
     document.write("invalid parameters!<br>");
-    document.write(paramErrors.reduce(function(a, b) {
-        return a + "<br/>" + b;
-    }));
+    document.write(
+        paramErrors.reduce(function(a, b) {
+            return a + "<br/>" + b;
+        }),
+    );
 } else {
     var displayTree = function(graphString) {
         // Remove explicit newlines
@@ -155,15 +162,15 @@ if (paramErrors.length) {
         var loaders;
         if (fileFormat !== undefined) {
             loaders = [knownLoaders[fileFormat]];
-        } else if (path.extname(graphFile) === '.json') {
+        } else if (path.extname(graphFile) === ".json") {
             loaders = [knownLoaders.hyper, knownLoaders.json];
-        } else if (path.extname(graphFile) === '.xml') {
+        } else if (path.extname(graphFile) === ".xml") {
             loaders = [knownLoaders.tableau, knownLoaders.xml];
-        } else if (path.extname(graphFile) === '.twb') {
+        } else if (path.extname(graphFile) === ".twb") {
             loaders = [knownLoaders.xml];
-        } else if (path.extname(graphFile) === '.tql') {
+        } else if (path.extname(graphFile) === ".tql") {
             loaders = [knownLoaders.tql];
-        } else if (path.extname(graphFile) === '.log') {
+        } else if (path.extname(graphFile) === ".log") {
             loaders = [knownLoaders.tql];
         } else {
             loaders = [knownLoaders.tableau, knownLoaders.hyper, knownLoaders.xml, knownLoaders.json, knownLoaders.tql];
@@ -191,24 +198,25 @@ if (paramErrors.length) {
             loadedTree.graphOrientation = graphOrientation;
             loadedTree.DEBUG = DEBUG;
             spinner.stop();
-            var treeContainer = document.createElement('div');
+            var treeContainer = document.createElement("div");
             treeContainer.className = "tree-container";
             document.body.appendChild(treeContainer);
             var widget = treeRendering.drawQueryTree(treeContainer, loadedTree);
             registerEventHandlers(widget);
         } else {
             spinner.stop();
-            document.write(errors.reduce(function(a, b) {
-                return a + "<br/>" + b;
-            }));
+            document.write(
+                errors.reduce(function(a, b) {
+                    return a + "<br/>" + b;
+                }),
+            );
         }
     };
     if (inlineString) {
         displayTree(inlineString);
     } else {
-        fetchText(directory + graphFile)
-            .then(displayTree, function(err) {
-                document.write("Request for '" + directory + graphFile + "' failed with '" + err + "'.");
-            });
+        fetchText(directory + graphFile).then(displayTree, function(err) {
+            document.write("Request for '" + directory + graphFile + "' failed with '" + err + "'.");
+        });
     }
 }
