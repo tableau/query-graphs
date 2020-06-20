@@ -286,6 +286,7 @@ export function drawQueryTree(target, treeData) {
     maxLabelLength = Math.min(maxLabelLength, MAX_DISPLAY_LENGTH);
 
     // Misc. variables
+    let svgGroup = null as any;
     let nextId = 0;
     const duration = 750;
 
@@ -970,7 +971,7 @@ export function drawQueryTree(target, treeData) {
     }
 
     // Append a group which holds all nodes and which the zoom Listener can act upon.
-    const svgGroup = baseSvg.append("g");
+    svgGroup = baseSvg.append("g");
     // Define the root
     const origin = {x: 0, y: 0};
     root.x0 = ooo.x(origin);

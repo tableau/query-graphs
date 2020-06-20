@@ -19,7 +19,6 @@ module.exports = {
         // The following rules should be enabled, but aren't yet due to legacy code which still needs
         // to be adapted
         "@typescript-eslint/no-explicit-any": "off",
-        "@typescript-eslint/no-use-before-define": "off",
     },
     overrides: [
         {

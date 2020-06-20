@@ -43,6 +43,19 @@ function convertJSON(node) {
 
 // Function to generate nodes' display names based on their properties
 const generateDisplayNames = (function() {
+    // Function to eliminate node
+    function eliminateNode(node, parent) {
+        if (!node || !node.children) {
+            return;
+        }
+        let nodeIndex = parent.children.indexOf(node);
+        parent.children.splice(nodeIndex, 1);
+        for (let i = 0; i < node.children.length; i++) {
+            node.children[i].parent = parent;
+            parent.children.splice(nodeIndex++, 0, node.children[i]);
+        }
+    }
+
     // properties.class are the expressions
     function handleLogicalExpression(node) {
         switch (node.properties.class) {
@@ -235,19 +248,6 @@ const generateDisplayNames = (function() {
             node.name = node.properties.name;
         } else {
             node.name = node.tag;
-        }
-    }
-
-    // Function to eliminate node
-    function eliminateNode(node, parent) {
-        if (!node || !node.children) {
-            return;
-        }
-        let nodeIndex = parent.children.indexOf(node);
-        parent.children.splice(nodeIndex, 1);
-        for (let i = 0; i < node.children.length; i++) {
-            node.children[i].parent = parent;
-            parent.children.splice(nodeIndex++, 0, node.children[i]);
         }
     }
 
