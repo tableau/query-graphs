@@ -6,7 +6,6 @@
         "lib": ["dom", "ES6"],
         "allowJs": false,
         "alwaysStrict": true,
-        "composite": true,
         "declaration": true,
         "declarationMap": true,
         "downlevelIteration": true,
