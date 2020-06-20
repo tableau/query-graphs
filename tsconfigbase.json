@@ -21,5 +21,6 @@
         "strictFunctionTypes": true,
         "strictNullChecks": true,
         "strictPropertyInitialization": true,
+        "preserveWatchOutput": true,
     }
 }
