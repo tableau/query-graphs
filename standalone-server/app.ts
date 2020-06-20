@@ -24,7 +24,7 @@ var knownLoaders = {
 };
 
 // Get query parameters from current url
-var paramErrors = [];
+var paramErrors = [] as any[];
 var currentSearch = window.location.search;
 currentSearch = currentSearch.substring(1);
 
@@ -92,7 +92,7 @@ switch (graphCollapse) {
 }
 
 // Get properties to be rendered in the toplevel info card
-var toplevelProperties = {};
+var toplevelProperties = {} as any;
 if (queryObject.properties) {
     try {
         toplevelProperties = JSON.parse(queryObject.properties);
@@ -122,13 +122,13 @@ function registerEventHandlers(widget) {
     document.body.addEventListener("keydown", function(e) {
        // Emit event key codes for debugging
        if (DEBUG) {
-           console.log("pressed key " + event.keyCode);
+           console.log("pressed key " + e.keyCode);
        }
 
        // On space, expand all currently visible collapsed nodes, that is all for now
        // Subsequent uses may expand additional visible nodes that are now visible
        // Refresh browser window to get back to baseline
-       if (event.keyCode === 32) {
+       if (e.keyCode === 32) {
           widget.expandOneLevel()
        }
    }, false);
@@ -170,10 +170,10 @@ if (paramErrors.length) {
         }
 
         // Try to load the data with the available loaders
-        var errors = [];
-        var loadedTree = null;
+        var errors: string[] = [];
+        var loadedTree: any = null;
         function tryLoad(loader) {
-            var result = loader(graphString, graphCollapse);
+            var result: any = loader(graphString, graphCollapse);
             if ("error" in result) {
                 errors.push(result.error);
                 return false;

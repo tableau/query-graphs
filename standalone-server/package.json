@@ -26,6 +26,7 @@
   "main": "./upload-server.js",
   "style": "app.css",
   "dependencies": {
+    "@tableau/query-graphs": "^2.0.0",
     "body-parser": "^1.15.0",
     "compression": "^1.7.1",
     "crypto": "0.0.3",
@@ -34,16 +35,18 @@
     "express": "^4.13.4",
     "fs": "0.0.2",
     "multer": "^1.1.0",
-    "@tableau/query-graphs": "^2.0.0",
+    "path": "^0.12.7",
     "recursive-readdir": "^2.2.1",
     "spin": "0.0.1",
     "style-loader": "^0.23.1",
-    "webpack": "^4.35.0"
+    "ts-loader": "^7.0.5",
+    "typescript": "^3.9.5",
+    "webpack": "^4.35.0",
+    "webpack-cli": "^3.3.4"
   },
   "devDependencies": {
     "eslint": "^6.6.0",
-    "eslint-config-google": "^0.4.0",
-    "webpack-cli": "^3.3.4"
+    "eslint-config-google": "^0.4.0"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
