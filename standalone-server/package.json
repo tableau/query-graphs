@@ -44,17 +44,12 @@
     "webpack": "^4.35.0",
     "webpack-cli": "^3.3.4"
   },
-  "devDependencies": {
-    "eslint": "^6.6.0",
-    "eslint-config-google": "^0.4.0"
-  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "bundle": "webpack --mode production",
     "bundle-dev": "webpack --mode development",
     "prebundle-tlv": "npm run bundle",
     "bundle-tlv": "tar -czf query-graphs-tlv-qt-$npm_package_version.tgz -C webroot query-graphs.tlv.html query-graphs.min.js",
-    "postinstall": "npm run bundle",
-    "lint": "eslint ."
+    "postinstall": "npm run bundle"
   }
 }
