@@ -2,8 +2,8 @@
     "private": true,
     "name": "query-graphs",
     "scripts": {
-        "lint": "eslint .  --ignore-path .gitignore --ext .ts,.tsx,.js --fix",
-        "lint-test": "eslint .  --ignore-path .gitignore --ext .ts,.tsx,.js"
+        "lint": "eslint . --ignore-path .gitignore --ext .ts,.tsx,.js --fix",
+        "lint-test": "eslint . --ignore-path .gitignore --ext .ts,.tsx,.js"
     },
     "devDependencies": {
         "@typescript-eslint/eslint-plugin": "^3.3.0",

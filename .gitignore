@@ -1,19 +1,26 @@
-*.md.html
+# Editors/file browsers/...
 *.swp
-*.tgz
 .DS_Store
 .project
 .settings
 .vscode
+
+# Package manager
 npm-debug.log
 node_modules
 package-lock.json
 yarn.lock
+
+# Build files
+*.tgz
+*.bundle.*
+*.egg-info/
 tsconfig.tsbuildinfo
+jupyterlab-extension/lib
 query-graphs/lib
+standalone-server/webroot/query-graphs.min.js.map
+
+# Uploads (from running the upload-server directly inside the repository)
 standalone-server/media/uploads/*
 standalone-server/media/uploads/
 !standalone-server/media/uploads/3d5c935c.xml
-standalone-server/webroot/query-graphs.min.js.map
-jupyterlab-extension/yarn.lock
-jupyterlab-extension/tsconfig.tsbuildinfo

@@ -89,7 +89,7 @@ export function token(string, pos) {
   tokenise
 
   ---------------------------------------------------------------------------*/
-export function tokenise(string: string, pos: number = 0) {
+export function tokenise(string: string, pos = 0) {
     var tokens: any[] = [];
     while (pos < string.length) {
         const tok = token(string, pos);
@@ -880,7 +880,7 @@ Parser.prototype.parse = function() {
   parse
 
   ---------------------------------------------------------------------------*/
-export function parse(text: string, pos: number = 0) {
+export function parse(text: string, pos = 0) {
     const parser = new Parser(tokenise(text, pos));
 
     return parser.parse();

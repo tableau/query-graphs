@@ -44,21 +44,21 @@ export class OutputWidget extends Widget implements IRenderMime.IRenderer {
     /**
      * A message handler invoked on a `'resize'` message.
      */
-    protected onResize(msg: Widget.ResizeMessage): void {
+    protected onResize(_msg: Widget.ResizeMessage): void {
         this.update();
     }
 
     /**
      * A message handler invoked on a `'after-show'` message.
      */
-    protected onAfterShow(msg: Message): void {
+    protected onAfterShow(_msg: Message): void {
         this.update();
     }
 
     /**
      * A message handler invoked on an `'update-request'` message.
      */
-    protected onUpdateRequest(msg: Message): void {
+    protected onUpdateRequest(_msg: Message): void {
         if (this._queryGraph) {
             // Use a minimum height. This is particularly necessary for query-graphs
             // rendered within, e.g., notebooks or interactive consoles.
