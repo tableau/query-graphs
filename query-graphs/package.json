@@ -50,8 +50,6 @@
     "@types/chai": "^4.2.11",
     "@types/mocha": "^7.0.2",
     "chai": "^4.2.0",
-    "eslint": "^6.6.0",
-    "eslint-config-google": "^0.4.0",
     "mocha": "^8.0.1",
     "ts-node": "^8.10.2",
     "typescript": "^3.8.3"
