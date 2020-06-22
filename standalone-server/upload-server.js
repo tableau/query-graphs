@@ -12,9 +12,13 @@ const path = require("path");
 const readdirrec = require("recursive-readdir");
 const app = express();
 
-const UPLOAD_DIR = "media/uploads/";
-const FAVORITES_DIR = "media/favorites/";
+const WEBROOT_DIR = "webroot/";
+const UPLOAD_DIR = path.join(WEBROOT_DIR, "uploads");
+const FAVORITES_DIR = path.join(WEBROOT_DIR, "favorites");
 const KEEP_FILES = 50;
+
+fs.mkdirSync(UPLOAD_DIR, {recursive: true});
+fs.mkdirSync(FAVORITES_DIR, {recursive: true});
 
 app.use(compression());
 app.use(bodyParser.urlencoded({extended: false, limit: "2mb"}));
@@ -24,8 +28,7 @@ app.get("/", function(req, res) {
     res.end();
 });
 
-app.use("/", express.static("webroot"));
-app.use("/media", express.static("media"));
+app.use("/", express.static(WEBROOT_DIR));
 
 function generateRandomFilename(extname) {
     // 4 bytes for strings of length 8
@@ -59,7 +62,7 @@ function deleteOldFiles() {
 
             // Handle race condition
             try {
-                stats = fs.statSync(UPLOAD_DIR + file);
+                stats = fs.statSync(path.join(UPLOAD_DIR, file));
             } catch (err) {
                 if (err && (err.code === "ENOENT" || err.code === "EPERM")) {
                     console.log("Continue from fs.statSync() %s: %s", err.code, UPLOAD_DIR + file);
@@ -69,7 +72,7 @@ function deleteOldFiles() {
             }
 
             fileTimes.push({
-                filepath: UPLOAD_DIR + file,
+                filepath: path.join(UPLOAD_DIR, file),
                 mtime: stats.mtime,
             });
         });
@@ -94,10 +97,14 @@ function deleteOldFiles() {
     });
 }
 
+function getVisualizationURL(filePath) {
+    return "/query-graphs.html?file=" + encodeURIComponent(path.relative(WEBROOT_DIR, filePath));
+}
+
 app.post("/file-upload", upload.single("queryfile"), function(req, res, _next) {
     console.log("/file-upload called");
     deleteOldFiles();
-    const visualizationUrl = "http://" + req.get("host") + "/query-graphs.html?upload=y&file=" + req.file.filename;
+    const visualizationUrl = getVisualizationURL(path.join(UPLOAD_DIR, req.file.filename));
     console.log(req.body);
     if (req.body && req.body.redirect && req.body.redirect === "yes") {
         // Redirect to the Visualization URL
@@ -111,12 +118,12 @@ app.post("/file-upload", upload.single("queryfile"), function(req, res, _next) {
 app.post("/text-upload", function(req, res) {
     console.log("/text-upload called");
     const querytext = req.body.querytext;
-    const filename = generateRandomFilename(".txt");
+    const filename = path.join(UPLOAD_DIR, generateRandomFilename(".txt"));
     // Write the query text to a file in the upload directory
-    fs.writeFileSync(UPLOAD_DIR + filename, querytext);
+    fs.writeFileSync(filename, querytext);
     deleteOldFiles();
     // Redirect to the Visualization URL
-    res.redirect("http://" + req.get("host") + "/query-graphs.html?upload=y&file=" + filename);
+    res.redirect(getVisualizationURL(filename));
 });
 
 function escapeHtml(unsafe) {
@@ -153,8 +160,7 @@ app.get("/favorites", function(req, res) {
             for (let j = commonLen; j < relPath.length; ++j) {
                 html += "<li>" + escapeHtml(relPath[j]) + "<ul>";
             }
-            html +=
-                "<li><a href='/query-graphs.html?file=" + encodeURIComponent(relName) + "'>" + escapeHtml(fileName) + "</a></li>";
+            html += "<li><a href='" + escapeHtml(getVisualizationURL(name)) + "'>" + escapeHtml(fileName) + "</a></li>";
             lastPath = relPath;
         });
         html += "</ul></body></html>";

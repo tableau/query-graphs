@@ -2,7 +2,6 @@
 import "./app.css";
 
 // Import node.js modules
-import * as path from "path";
 import fetchText from "d3-fetch/src/text";
 import * as Spinner from "spin";
 import * as querystring from "querystring";
@@ -35,23 +34,8 @@ const queryObject = querystring.parse(currentSearch);
 let DEBUG = queryObject.debug ? queryObject.debug : false;
 DEBUG = DEBUG !== false;
 
-// Get file name
-let graphFile = queryObject.file ? queryObject.file : "logicalquery.xml";
-
-// Get file from upload directory?
-let isUploadedFile = queryObject.upload ? queryObject.upload : "n";
-isUploadedFile = isUploadedFile === "y";
-
-// Generate the query directory
-let directory = isUploadedFile ? "../media/uploads/" : "../media/favorites/";
-
-// Get absolute path file name and directory
-let isAbsolutePath = queryObject.absolute ? queryObject.absolute : "n";
-isAbsolutePath = isAbsolutePath === "y";
-if (isAbsolutePath) {
-    directory = path.dirname(graphFile) + "/";
-    graphFile = path.basename(graphFile);
-}
+// Get file path
+let graphFile = queryObject.file ?? "favorites/logicalquery.xml";
 
 // Get inline graph string
 let inlineString;
@@ -162,15 +146,15 @@ if (paramErrors.length) {
         let loaders;
         if (fileFormat !== undefined) {
             loaders = [knownLoaders[fileFormat]];
-        } else if (path.extname(graphFile) === ".json") {
+        } else if (graphFile.endsWith(".json")) {
             loaders = [knownLoaders.hyper, knownLoaders.json];
-        } else if (path.extname(graphFile) === ".xml") {
+        } else if (graphFile.endsWith(".xml")) {
             loaders = [knownLoaders.tableau, knownLoaders.xml];
-        } else if (path.extname(graphFile) === ".twb") {
+        } else if (graphFile.endsWith(".twb")) {
             loaders = [knownLoaders.xml];
-        } else if (path.extname(graphFile) === ".tql") {
+        } else if (graphFile.endsWith(".tql")) {
             loaders = [knownLoaders.tql];
-        } else if (path.extname(graphFile) === ".log") {
+        } else if (graphFile.endsWith(".log")) {
             loaders = [knownLoaders.tql];
         } else {
             loaders = [knownLoaders.tableau, knownLoaders.hyper, knownLoaders.xml, knownLoaders.json, knownLoaders.tql];
@@ -215,8 +199,8 @@ if (paramErrors.length) {
     if (inlineString) {
         displayTree(inlineString);
     } else {
-        fetchText(directory + graphFile).then(displayTree, function(err) {
-            document.write("Request for '" + directory + graphFile + "' failed with '" + err + "'.");
+        fetchText(graphFile).then(displayTree, function(err) {
+            document.write("Request for '" + graphFile + "' failed with '" + err + "'.");
         });
     }
 }
