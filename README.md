@@ -4,7 +4,7 @@ Query Graphs
 
 Helping people see and understand queries.
 
-![Query Visualization](https://tableau.github.io/query-graphs/standalone-server/media/sample_graph.png "Sample Graph")
+![Query Visualization](https://tableau.github.io/query-graphs/standalone-server/webroot/media/sample_graph.png "Sample Graph")
 
 Description
 -----------
@@ -15,12 +15,12 @@ Current visualizations are tailored for artifacts from Tableau's query ecosystem
 LogicalQuery XML, QueryFunction XML, and Hyper query-plan JSON.
 
 You can view example query visualizations online:
-* <https://tableau.github.io/query-graphs/standalone-server/webroot/query-graphs.tlv.html?file=tableau/joins.xml>,
-* <https://tableau.github.io/query-graphs/standalone-server/webroot/query-graphs.tlv.html?file=tableau/query-function.xml&collapse=n>,
-* <https://tableau.github.io/query-graphs/standalone-server/webroot/query-graphs.tlv.html?file=tableau/dint4.xml>,
-* <https://tableau.github.io/query-graphs/standalone-server/webroot/query-graphs.tlv.html?file=hyper/query2.plan.json>,
-* <https://tableau.github.io/query-graphs/standalone-server/webroot/query-graphs.tlv.html?file=hyper/steps2.plan.json&orientation=left-to-right>, or
-* <https://tableau.github.io/query-graphs/standalone-server/webroot/query-graphs.tlv.html?file=tql/iejoin.tql>
+* <https://tableau.github.io/query-graphs/standalone-server/webroot/query-graphs.tlv.html?file=favorites/tableau/joins.xml>,
+* <https://tableau.github.io/query-graphs/standalone-server/webroot/query-graphs.tlv.html?file=favorites/tableau/query-function.xml&collapse=n>,
+* <https://tableau.github.io/query-graphs/standalone-server/webroot/query-graphs.tlv.html?file=favorites/tableau/dint4.xml>,
+* <https://tableau.github.io/query-graphs/standalone-server/webroot/query-graphs.tlv.html?file=favorites/hyper/query2.plan.json>,
+* <https://tableau.github.io/query-graphs/standalone-server/webroot/query-graphs.tlv.html?file=favorites/hyper/steps2.plan.json&orientation=left-to-right>, or
+* <https://tableau.github.io/query-graphs/standalone-server/webroot/query-graphs.tlv.html?file=favorites/tql/iejoin.tql>
 
 Installation
 ------------
