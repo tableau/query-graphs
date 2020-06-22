@@ -4,7 +4,7 @@ Query Graphs JupyterLab extension
 
 A JupyterLab extension helping people see and understand queries.
 
-![Screenshot of the JupyterLab extension in action](https://tableau.github.io/query-graphs/jupyterlab-extension/media/jupyterlab-screenshot.png)
+![Screenshot of the JupyterLab extension in action](https://tableau.github.io/query-graphs/media/jupyterlab-screenshot.png)
 
 
 ## Prerequisites
