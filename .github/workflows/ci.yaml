@@ -33,3 +33,10 @@ jobs:
 
       - name: Build standalone-server
         run: yarn run --cwd=standalone-server build
+
+      - name: Deploy
+        if: github.ref == 'refs/heads/master'
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./standalone-server/webroot/

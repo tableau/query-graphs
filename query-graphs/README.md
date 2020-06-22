@@ -4,7 +4,7 @@ Query Graphs
 
 Helping people see and understand queries.
 
-![Query Visualization](https://tableau.github.io/query-graphs/standalone-server/webroot/media/sample_graph.png "Sample Graph")
+![Query Visualization](https://tableau.github.io/query-graphs/media/sample_graph.png "Sample Graph")
 
 Description
 -----------
