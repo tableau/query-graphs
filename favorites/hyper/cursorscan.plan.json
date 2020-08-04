@@ -1,0 +1,24 @@
+{
+    "id": 6,
+    "plan": {
+        "header": [
+            "lc_collate",
+            "lc_collate"
+        ],
+        "plan": {
+            "     values": [
+                {
+                    "iu": [
+                        "lc_collate",
+                        [
+                            "Varchar"
+                        ]
+                    ],
+                    "name": "lc_collate"
+                }
+            ],
+            "operator": "cursorscan",
+            "operatorId": 1
+        }
+    }
+}

@@ -1,0 +1,359 @@
+<fed-op aggregation='true' caching='nowrite' class='runquery' connection='fedeval_dataengine_connection' include-empty='false'>
+  <runquery-columns>
+    <runquery-column charset='0' collation='binary' expr-type='str' name='[Airline Name]'>[Airline Name]</runquery-column>
+    <runquery-column charset='0' collation='LEN_RUS' expr-type='str' name='[F4]'>[F4]</runquery-column>
+    <runquery-column expr-type='real' name='[avg:cancelled:ok]'>[avg:cancelled:ok]</runquery-column>
+  </runquery-columns>
+  <logical-query>
+    <selects>
+      <field>[Airline Name]</field>
+      <field>[F4]</field>
+      <field>[avg:cancelled:ok]</field>
+    </selects>
+    <selectOp class='logical-operator'>
+      <predicate>
+        <funcallExp class='logical-expression' function='$SYS_NARY_AND$' shape='scalar'>
+          <funcallExp class='logical-expression' function='&gt;=' shape='scalar'>
+            <identifierExp class='logical-expression' identifier='[__measure__0]'>
+            </identifierExp>
+            <literalExp class='logical-expression' datatype='real' value='0.049999999999999503'>
+            </literalExp>
+          </funcallExp>
+          <funcallExp class='logical-expression' function='&lt;=' shape='scalar'>
+            <identifierExp class='logical-expression' identifier='[__measure__1]'>
+            </identifierExp>
+            <literalExp class='logical-expression' datatype='real' value='0.33333333333333665'>
+            </literalExp>
+          </funcallExp>
+        </funcallExp>
+      </predicate>
+      <aggregateOp class='logical-operator'>
+        <measures>
+          <binding name='[__measure__0]'>
+            <funcallExp class='logical-expression' function='AVG' shape='aggregate'>
+              <identifierExp class='logical-expression' identifier='[cancelled]'>
+              </identifierExp>
+            </funcallExp>
+          </binding>
+          <binding name='[__measure__1]'>
+            <funcallExp class='logical-expression' function='AVG' shape='aggregate'>
+              <identifierExp class='logical-expression' identifier='[cancelled]'>
+              </identifierExp>
+            </funcallExp>
+          </binding>
+          <binding name='[avg:cancelled:ok]'>
+            <funcallExp class='logical-expression' function='AVG' shape='aggregate'>
+              <identifierExp class='logical-expression' identifier='[cancelled]'>
+              </identifierExp>
+            </funcallExp>
+          </binding>
+        </measures>
+        <groupbys>
+          <binding name='[Airline Name]'>
+            <identifierExp class='logical-expression' identifier='[Airline Name]'>
+            </identifierExp>
+          </binding>
+          <binding name='[F4]'>
+            <identifierExp class='logical-expression' identifier='[F4]'>
+            </identifierExp>
+          </binding>
+        </groupbys>
+        <joinOp class='logical-operator' comparison='equal-to' join='inner' join-constraints='none'>
+          <relationOp class='logical-operator' connection='fedeval_dataengine_connection' name='[FQ_Temp_1]'>
+            <relation name='FQ_Temp_1' type='table' />
+            <cols>
+            </cols>
+            <type>
+              <schema>
+              </schema>
+            </type>
+          </relationOp>
+          <relationOp class='logical-operator' connection='fedeval_dataengine_connection' name='[FQ_Temp_2]'>
+            <relation name='FQ_Temp_2' type='table' />
+            <cols>
+            </cols>
+            <type>
+              <schema>
+              </schema>
+            </type>
+          </relationOp>
+          <conditions>
+            <condition op='=='>
+              <identifierExp class='logical-expression' identifier='[statefips]'>
+              </identifierExp>
+              <identifierExp class='logical-expression' identifier='[F3]'>
+              </identifierExp>
+            </condition>
+          </conditions>
+          <imports>
+            <binding name='[F4]'>
+              <identifierExp class='logical-expression' identifier='[F4]'>
+              </identifierExp>
+            </binding>
+          </imports>
+        </joinOp>
+      </aggregateOp>
+    </selectOp>
+  </logical-query>
+  <fed-op alias='FQ_Temp_1' caching='normal' class='createtemptable' connection='fedeval_dataengine_connection' table='[FQ_Temp_1]'>
+    <metadata-records>
+      <metadata-record class='column'>
+        <remote-name>Airline Name</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[Airline Name]</local-name>
+        <parent-name>[FQ_Temp_1]</parent-name>
+        <remote-alias>Airline Name</remote-alias>
+        <ordinal>18</ordinal>
+        <family>airline</family>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <contains-null>true</contains-null>
+        <collation name='binary' />
+        <attributes>
+          <attribute datatype='integer' name='field-type'>2</attribute>
+          <attribute datatype='integer' name='role'>0</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class='measure'>
+        <remote-name>cancelled</remote-name>
+        <remote-type>5</remote-type>
+        <local-name>[cancelled]</local-name>
+        <parent-name>[FQ_Temp_1]</parent-name>
+        <remote-alias>cancelled</remote-alias>
+        <ordinal>12</ordinal>
+        <family>flightinformation_since2013</family>
+        <local-type>real</local-type>
+        <aggregation>Sum</aggregation>
+        <contains-null>true</contains-null>
+        <collation name='LROOT' />
+        <attributes>
+          <attribute datatype='integer' name='field-type'>0</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class='measure'>
+        <remote-name>statefips</remote-name>
+        <remote-type>3</remote-type>
+        <local-name>[statefips]</local-name>
+        <parent-name>[FQ_Temp_1]</parent-name>
+        <remote-alias>statefips</remote-alias>
+        <ordinal>23</ordinal>
+        <family>city</family>
+        <local-type>integer</local-type>
+        <aggregation>Sum</aggregation>
+        <contains-null>true</contains-null>
+        <collation name='LROOT' />
+        <attributes>
+          <attribute datatype='integer' name='field-type'>0</attribute>
+        </attributes>
+      </metadata-record>
+    </metadata-records>
+    <fed-op aggregation='true' caching='normal' class='runquery' connection='hyper.1207xh21cncs1h1ayoh8z080it7q' include-empty='false'>
+      <runquery-columns>
+        <runquery-column charset='0' collation='binary' expr-type='str' name='[Airline Name]'>[Airline Name]</runquery-column>
+        <runquery-column expr-type='real' name='[cancelled]'>[cancelled]</runquery-column>
+        <runquery-column expr-type='int' name='[statefips]'>[statefips]</runquery-column>
+      </runquery-columns>
+      <logical-query>
+        <selects>
+          <field>[Airline Name]</field>
+          <field>[cancelled]</field>
+          <field>[statefips]</field>
+        </selects>
+        <joinOp class='logical-operator' comparison='equal-to' join='inner' join-constraints='none'>
+          <joinOp class='logical-operator' comparison='equal-to' join='inner' join-constraints='none'>
+            <relationOp class='logical-operator' connection='hyper.1207xh21cncs1h1ayoh8z080it7q' name='[public].[flightinformation_since2013]'>
+              <relation name='flightinformation_since2013' type='table' />
+              <cols>
+              </cols>
+              <type>
+                <schema>
+                  <field name='[airlineid]'>
+                    <type name='top' />
+                  </field>
+                  <field name='[arrdelay]'>
+                    <type name='top' />
+                  </field>
+                  <field name='[arrdelayminutes]'>
+                    <type name='top' />
+                  </field>
+                  <field name='[arrivaldatetime]'>
+                    <type name='top' />
+                  </field>
+                  <field name='[cancelled]'>
+                    <type name='top' />
+                  </field>
+                  <field name='[depdelay]'>
+                    <type name='top' />
+                  </field>
+                  <field name='[destcityid]'>
+                    <type name='top' />
+                  </field>
+                  <field name='[deststateid]'>
+                    <type name='top' />
+                  </field>
+                  <field name='[flightdate]'>
+                    <type name='top' />
+                  </field>
+                  <field name='[flightid]'>
+                    <type name='nonnull' />
+                  </field>
+                  <field name='[flightmonth]'>
+                    <type name='top' />
+                  </field>
+                  <field name='[flights]'>
+                    <type name='top' />
+                  </field>
+                  <field name='[origincityid]'>
+                    <type name='top' />
+                  </field>
+                  <field name='[originstateid]'>
+                    <type name='top' />
+                  </field>
+                </schema>
+              </type>
+            </relationOp>
+            <relationOp class='logical-operator' connection='hyper.1207xh21cncs1h1ayoh8z080it7q' name='[public].[airline]'>
+              <relation name='airline' type='table' />
+              <cols>
+              </cols>
+              <type>
+                <schema>
+                  <field name='[Airline Name]'>
+                    <type name='top' />
+                  </field>
+                  <field name='[airlineid]'>
+                    <type name='nonnull' />
+                  </field>
+                  <field name='[description]'>
+                    <type name='nonnull' />
+                  </field>
+                </schema>
+              </type>
+            </relationOp>
+            <conditions>
+              <condition op='=='>
+                <identifierExp class='logical-expression' identifier='[airlineid]'>
+                </identifierExp>
+                <identifierExp class='logical-expression' identifier='[airlineid]'>
+                </identifierExp>
+              </condition>
+            </conditions>
+            <imports>
+              <binding name='[Airline Name]'>
+                <identifierExp class='logical-expression' identifier='[Airline Name]'>
+                </identifierExp>
+              </binding>
+            </imports>
+          </joinOp>
+          <relationOp class='logical-operator' connection='hyper.1207xh21cncs1h1ayoh8z080it7q' name='[public].[city]'>
+            <relation name='city' type='table' />
+            <cols>
+            </cols>
+            <type>
+              <schema>
+                <field name='[City Name]'>
+                  <type name='top' />
+                </field>
+                <field name='[City and State]'>
+                  <type name='top' />
+                </field>
+                <field name='[cityid]'>
+                  <type name='nonnull' />
+                </field>
+                <field name='[statefips]'>
+                  <type name='top' />
+                </field>
+              </schema>
+            </type>
+          </relationOp>
+          <conditions>
+            <condition op='=='>
+              <identifierExp class='logical-expression' identifier='[origincityid]'>
+              </identifierExp>
+              <identifierExp class='logical-expression' identifier='[cityid]'>
+              </identifierExp>
+            </condition>
+          </conditions>
+          <imports>
+            <binding name='[statefips]'>
+              <identifierExp class='logical-expression' identifier='[statefips]'>
+              </identifierExp>
+            </binding>
+          </imports>
+        </joinOp>
+      </logical-query>
+    </fed-op>
+  </fed-op>
+  <fed-op alias='FQ_Temp_2' caching='normal' class='createtemptable' connection='fedeval_dataengine_connection' table='[FQ_Temp_2]'>
+    <metadata-records>
+      <metadata-record class='measure'>
+        <remote-name>F3</remote-name>
+        <remote-type>20</remote-type>
+        <local-name>[F3]</local-name>
+        <parent-name>[FQ_Temp_2]</parent-name>
+        <remote-alias>F3</remote-alias>
+        <ordinal>26</ordinal>
+        <family>state.csv</family>
+        <local-type>integer</local-type>
+        <aggregation>Sum</aggregation>
+        <contains-null>true</contains-null>
+        <collation name='LROOT' />
+        <attributes>
+          <attribute datatype='integer' name='field-type'>0</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>F4</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[F4]</local-name>
+        <parent-name>[FQ_Temp_2]</parent-name>
+        <remote-alias>F4</remote-alias>
+        <ordinal>27</ordinal>
+        <family>state.csv</family>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <scale>1</scale>
+        <width>1073741823</width>
+        <contains-null>true</contains-null>
+        <collation name='LEN_RUS' />
+        <attributes>
+          <attribute datatype='integer' name='field-type'>2</attribute>
+          <attribute datatype='integer' name='role'>0</attribute>
+        </attributes>
+      </metadata-record>
+    </metadata-records>
+    <fed-op aggregation='true' caching='normal' class='runquery' connection='textscan.0p4ia610vuyhqx15t4jpf01uefy5' include-empty='false'>
+      <runquery-columns>
+        <runquery-column expr-type='int' name='[F3]'>[F3]</runquery-column>
+        <runquery-column charset='0' collation='LEN_RUS' expr-type='str' name='[F4]'>[F4]</runquery-column>
+      </runquery-columns>
+      <logical-query>
+        <selects>
+          <field>[F3]</field>
+          <field>[F4]</field>
+        </selects>
+        <relationOp class='logical-operator' connection='textscan.0p4ia610vuyhqx15t4jpf01uefy5' name='[state#csv]'>
+          <relation name='state.csv' type='table' />
+          <cols>
+          </cols>
+          <type>
+            <schema>
+              <field name='[F1]'>
+                <type name='top' />
+              </field>
+              <field name='[F2]'>
+                <type name='top' />
+              </field>
+              <field name='[F3]'>
+                <type name='top' />
+              </field>
+              <field name='[F4]'>
+                <type name='top' />
+              </field>
+            </schema>
+          </type>
+        </relationOp>
+      </logical-query>
+    </fed-op>
+  </fed-op>
+</fed-op>

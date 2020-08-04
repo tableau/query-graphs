@@ -1,0 +1,545 @@
+{
+    "id": 17,
+    "plan": {
+        "header": [
+            "Airline Name",
+            "v23",
+            "City and State",
+            "v24",
+            "avg:cancelled:ok",
+            "v26"
+        ],
+        "plan": {
+            "input": {
+                "cardinality": 5168,
+                "condition": {
+                    "arguments": [
+                        {
+                            "expression": "iuref",
+                            "iu": "v26"
+                        },
+                        {
+                            "expression": "const",
+                            "value": {
+                                "type": [
+                                    "Double"
+                                ],
+                                "value": 4587366580439587154
+                            }
+                        },
+                        {
+                            "expression": "const",
+                            "value": {
+                                "type": [
+                                    "Double"
+                                ],
+                                "value": 4599676419421066641
+                            }
+                        }
+                    ],
+                    "expression": "between"
+                },
+                "input": {
+                    "aggregates": [
+                        {
+                            "iu": [
+                                "v23",
+                                [
+                                    "Varchar"
+                                ]
+                            ],
+                            "operation": "keep",
+                            "source": 0
+                        },
+                        {
+                            "iu": [
+                                "v24",
+                                [
+                                    "Varchar"
+                                ]
+                            ],
+                            "operation": "keep",
+                            "source": 1
+                        },
+                        {
+                            "iu": [
+                                "v25",
+                                [
+                                    "Double"
+                                ]
+                            ],
+                            "operation": "sum",
+                            "source": 2
+                        },
+                        {
+                            "iu": [
+                                "v26",
+                                [
+                                    "Double"
+                                ]
+                            ],
+                            "operation": "avg",
+                            "source": 2
+                        },
+                        {
+                            "iu": [
+                                "v27",
+                                [
+                                    "BigInt"
+                                ]
+                            ],
+                            "operation": "count",
+                            "source": 4294967295
+                        }
+                    ],
+                    "cardinality": 20672,
+                    "input": {
+                        "cardinality": 8758568,
+                        "columns": [
+                            {
+                                "iu": [
+                                    "v",
+                                    [
+                                        "Varchar"
+                                    ]
+                                ],
+                                "name": "Airline Name",
+                                "type": [
+                                    "Varchar"
+                                ]
+                            },
+                            {
+                                "iu": [
+                                    "v2",
+                                    [
+                                        "Varchar"
+                                    ]
+                                ],
+                                "name": "City Name",
+                                "type": [
+                                    "Varchar"
+                                ]
+                            },
+                            {
+                                "iu": [
+                                    "v3",
+                                    [
+                                        "Varchar"
+                                    ]
+                                ],
+                                "name": "City and State",
+                                "type": [
+                                    "Varchar"
+                                ]
+                            },
+                            {
+                                "iu": [
+                                    "v4",
+                                    [
+                                        "SmallInt"
+                                    ]
+                                ],
+                                "name": "Number of Records",
+                                "type": [
+                                    "SmallInt"
+                                ]
+                            },
+                            {
+                                "iu": [
+                                    "v5",
+                                    [
+                                        "SmallInt"
+                                    ]
+                                ],
+                                "name": "airlineid",
+                                "type": [
+                                    "SmallInt"
+                                ]
+                            },
+                            {
+                                "iu": [
+                                    "v6",
+                                    [
+                                        "SmallInt"
+                                    ]
+                                ],
+                                "name": "airlineid1",
+                                "type": [
+                                    "SmallInt"
+                                ]
+                            },
+                            {
+                                "iu": [
+                                    "v7",
+                                    [
+                                        "Double",
+                                        "nullable"
+                                    ]
+                                ],
+                                "name": "arrdelay",
+                                "type": [
+                                    "Double",
+                                    "nullable"
+                                ]
+                            },
+                            {
+                                "iu": [
+                                    "v8",
+                                    [
+                                        "Double",
+                                        "nullable"
+                                    ]
+                                ],
+                                "name": "arrdelayminutes",
+                                "type": [
+                                    "Double",
+                                    "nullable"
+                                ]
+                            },
+                            {
+                                "iu": [
+                                    "v9",
+                                    [
+                                        "Timestamp"
+                                    ]
+                                ],
+                                "name": "arrivaldatetime",
+                                "type": [
+                                    "Timestamp"
+                                ]
+                            },
+                            {
+                                "iu": [
+                                    "v10",
+                                    [
+                                        "Double"
+                                    ]
+                                ],
+                                "name": "cancelled",
+                                "type": [
+                                    "Double"
+                                ]
+                            },
+                            {
+                                "iu": [
+                                    "v11",
+                                    [
+                                        "SmallInt"
+                                    ]
+                                ],
+                                "name": "cityid",
+                                "type": [
+                                    "SmallInt"
+                                ]
+                            },
+                            {
+                                "iu": [
+                                    "v12",
+                                    [
+                                        "Double",
+                                        "nullable"
+                                    ]
+                                ],
+                                "name": "depdelay",
+                                "type": [
+                                    "Double",
+                                    "nullable"
+                                ]
+                            },
+                            {
+                                "iu": [
+                                    "v13",
+                                    [
+                                        "Varchar"
+                                    ]
+                                ],
+                                "name": "description",
+                                "type": [
+                                    "Varchar"
+                                ]
+                            },
+                            {
+                                "iu": [
+                                    "v14",
+                                    [
+                                        "SmallInt"
+                                    ]
+                                ],
+                                "name": "destcityid",
+                                "type": [
+                                    "SmallInt"
+                                ]
+                            },
+                            {
+                                "iu": [
+                                    "v15",
+                                    [
+                                        "SmallInt"
+                                    ]
+                                ],
+                                "name": "deststateid",
+                                "type": [
+                                    "SmallInt"
+                                ]
+                            },
+                            {
+                                "iu": [
+                                    "v16",
+                                    [
+                                        "Date"
+                                    ]
+                                ],
+                                "name": "flightdate",
+                                "type": [
+                                    "Date"
+                                ]
+                            },
+                            {
+                                "iu": [
+                                    "v17",
+                                    [
+                                        "Integer"
+                                    ]
+                                ],
+                                "name": "flightid",
+                                "type": [
+                                    "Integer"
+                                ]
+                            },
+                            {
+                                "iu": [
+                                    "v18",
+                                    [
+                                        "Timestamp"
+                                    ]
+                                ],
+                                "name": "flightmonth",
+                                "type": [
+                                    "Timestamp"
+                                ]
+                            },
+                            {
+                                "iu": [
+                                    "v19",
+                                    [
+                                        "Double"
+                                    ]
+                                ],
+                                "name": "flights",
+                                "type": [
+                                    "Double"
+                                ]
+                            },
+                            {
+                                "iu": [
+                                    "v20",
+                                    [
+                                        "SmallInt"
+                                    ]
+                                ],
+                                "name": "origincityid",
+                                "type": [
+                                    "SmallInt"
+                                ]
+                            },
+                            {
+                                "iu": [
+                                    "v21",
+                                    [
+                                        "SmallInt"
+                                    ]
+                                ],
+                                "name": "originstateid",
+                                "type": [
+                                    "SmallInt"
+                                ]
+                            },
+                            {
+                                "iu": [
+                                    "v22",
+                                    [
+                                        "SmallInt"
+                                    ]
+                                ],
+                                "name": "statefips",
+                                "type": [
+                                    "SmallInt"
+                                ]
+                            }
+                        ],
+                        "copy": false,
+                        "from": "/Users/ricole/Documents/My Tableau Repository (Beta)/Datasources/flightinformation_since2013 (public.flightinformation_since2013)+ (ricole).tde",
+                        "operator": "tdescan",
+                        "operatorId": 4,
+                        "options": {
+                            "limit": -1,
+                            "offset": 0,
+                            "omitNumberOfRecords": false,
+                            "schema": "Extract",
+                            "table": "Extract",
+                            "unnormalizedNames": [
+                                "Airline Name",
+                                "City Name",
+                                "City and State",
+                                "Number of Records",
+                                "airlineid",
+                                "airlineid1",
+                                "arrdelay",
+                                "arrdelayminutes",
+                                "arrivaldatetime",
+                                "cancelled",
+                                "cityid",
+                                "depdelay",
+                                "description",
+                                "destcityid",
+                                "deststateid",
+                                "flightdate",
+                                "flightid",
+                                "flightmonth",
+                                "flights",
+                                "origincityid",
+                                "originstateid",
+                                "statefips"
+                            ]
+                        },
+                        "statistics": {
+                            "cardinality": 8758568,
+                            "columns": [
+                                {
+                                    "distinctValues": 16,
+                                    "unique": false
+                                },
+                                {
+                                    "distinctValues": 310,
+                                    "unique": false
+                                },
+                                {
+                                    "distinctValues": 323,
+                                    "unique": false
+                                },
+                                {
+                                    "distinctValues": 1,
+                                    "unique": false
+                                },
+                                {
+                                    "distinctValues": 16,
+                                    "unique": false
+                                },
+                                {
+                                    "distinctValues": 16,
+                                    "unique": false
+                                },
+                                {
+                                    "distinctValues": 1292,
+                                    "unique": false
+                                },
+                                {
+                                    "distinctValues": 1204,
+                                    "unique": false
+                                },
+                                {
+                                    "distinctValues": 611763,
+                                    "unique": false
+                                },
+                                {
+                                    "distinctValues": 2,
+                                    "unique": false
+                                },
+                                {
+                                    "distinctValues": 323,
+                                    "unique": false
+                                },
+                                {
+                                    "distinctValues": 1273,
+                                    "unique": false
+                                },
+                                {
+                                    "distinctValues": 16,
+                                    "unique": false
+                                },
+                                {
+                                    "distinctValues": 321,
+                                    "unique": false
+                                },
+                                {
+                                    "distinctValues": 53,
+                                    "unique": false
+                                },
+                                {
+                                    "distinctValues": 516,
+                                    "unique": false
+                                },
+                                {
+                                    "distinctValues": 0,
+                                    "unique": true
+                                },
+                                {
+                                    "distinctValues": 17,
+                                    "unique": false
+                                },
+                                {
+                                    "distinctValues": 1,
+                                    "unique": false
+                                },
+                                {
+                                    "distinctValues": 323,
+                                    "unique": false
+                                },
+                                {
+                                    "distinctValues": 53,
+                                    "unique": false
+                                },
+                                {
+                                    "distinctValues": 53,
+                                    "unique": false
+                                }
+                            ],
+                            "timestamp": 1476159857,
+                            "valid": true
+                        }
+                    },
+                    "operator": "groupby",
+                    "operatorId": 3,
+                    "values": [
+                        {
+                            "value": {
+                                "expression": "iuref",
+                                "iu": "v"
+                            }
+                        },
+                        {
+                            "value": {
+                                "expression": "iuref",
+                                "iu": "v3"
+                            }
+                        },
+                        {
+                            "value": {
+                                "expression": "iuref",
+                                "iu": "v10"
+                            }
+                        }
+                    ]
+                },
+                "operator": "select",
+                "operatorId": 2
+            },
+            "operator": "cursorcreate",
+            "operatorId": 1,
+            "values": [
+                {
+                    "expression": "iuref",
+                    "iu": "v23"
+                },
+                {
+                    "expression": "iuref",
+                    "iu": "v24"
+                },
+                {
+                    "expression": "iuref",
+                    "iu": "v26"
+                }
+            ]
+        }
+    }
+}

@@ -1,0 +1,65 @@
+{
+  "query": "SELECT a, (SELECT SUM(b) FROM b WHERE b < a) FROM a",
+  "plan": {
+    "operator": "leftouterjoin",
+    "operatorId": 1,
+    "cardinality": 2000,
+    "method": "hash",
+    "left": {
+      "operator": "tablescan",
+      "operatorId": 2,
+      "cardinality": 2000,
+      "relationId": 0,
+      "from": "a",
+      "values": [{"name": "a", "type": ["Integer"], "iu": ["scan_a", ["Integer"]]}],
+      "tid": null,
+      "tableOid": null,
+      "tupleFlags": null,
+      "restrictions": []
+    },
+    "right": {
+      "operator": "groupby",
+      "operatorId": 3,
+      "cardinality": 100,
+      "input": {
+        "operator": "join",
+        "operatorId": 4,
+        "cardinality": 100000,
+        "method": "bnl",
+        "left": {
+          "operator": "explicitscan",
+          "operatorId": 5,
+          "cardinality": 100,
+          "output": [{"source": ["keep", ["Integer"]], "target": ["keep2", ["Integer"]]}],
+          "source": {
+            "operator": "groupby",
+            "operatorId": 6,
+            "cardinality": 100,
+            "behavior": "regular",
+            "values": [{"value": {"expression": "iuref", "iu": "scan_a"}}],
+            "aggregates": [{"source": 0, "operation": "keep", "iu": ["keep", ["Integer"]]}]
+          }
+        },
+        "right": {
+          "operator": "tablescan",
+          "operatorId": 7,
+          "cardinality": 2000,
+          "relationId": 1,
+          "from": "b",
+          "values": [{"name": "b", "type": ["Integer"], "iu": ["scan_b", ["Integer"]]}],
+          "tid": null,
+          "tableOid": null,
+          "tupleFlags": null,
+          "restrictions": []
+        },
+        "condition": {"expression": "comparison", "mode": "<", "left": {"expression": "iuref", "iu": "scan_b"}, "right": {"expression": "iuref", "iu": "keep2"}}
+      },
+      "behavior": "regular",
+      "values": [{"value": {"expression": "iuref", "iu": "scan_b"}}, {"value": {"expression": "iuref", "iu": "keep2"}}],
+      "aggregates": [{"source": 1, "operation": "keep", "iu": ["keep3", ["Integer"]]}, {"source": 0, "operation": "sum", "iu": ["sum", ["BigInt", "nullable"]]}]
+    },
+    "condition": {"expression": "comparison", "mode": "is", "left": {"expression": "iuref", "iu": "scan_a"}, "right": {"expression": "iuref", "iu": "keep3"}},
+    "magic": 6
+  },
+  "header": ["a", "scan_a", "2", "sum"]
+}

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Query Upload</title>
+
+    <!-- http://realfavicongenerator.net/ -->
+    <link rel="apple-touch-icon" sizes="57x57" href="icons/apple-touch-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="icons/apple-touch-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="icons/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="icons/apple-touch-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="icons/apple-touch-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="icons/apple-touch-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="icons/apple-touch-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="icons/apple-touch-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon-180x180.png">
+    <link rel="icon" type="image/png" href="icons/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="icons/android-chrome-192x192.png" sizes="192x192">
+    <link rel="icon" type="image/png" href="icons/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/png" href="icons/favicon-16x16.png" sizes="16x16">
+    <link rel="manifest" href="icons/manifest.json">
+    <link rel="mask-icon" href="icons/safari-pinned-tab.svg" color="#4682b4">
+    <link rel="shortcut icon" href="icons/favicon.ico">
+    <meta name="msapplication-TileColor" content="#eeeeee">
+    <meta name="msapplication-TileImage" content="icons/mstile-144x144.png">
+    <meta name="msapplication-config" content="icons/browserconfig.xml">
+    <meta name="theme-color" content="#ffffff">
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Query visualization upload service</h1>
+        <p>Upload queries and visualize them!</p>
+        <img class="center-block" src="/media/sample_graph.png" style="max-width: 100%" />
+        <h2>Direct file upload</h2>
+        <form role="form" method="post" enctype="multipart/form-data" action="/file-upload">
+            <div class="form-group">
+                <input type="hidden" name="redirect" value="yes">
+                <label for="queryfile">Choose a file and submit:</label>
+                <input type="file" id="queryfile" name="queryfile">
+                <p class="help-block">File containing a logical query, query function, or Hyper query plan (20MB limit)</p>
+                <button type="submit" class="btn btn-default">Submit</button>
+            <div>
+        </form>
+        
+        <center><h1>&mdash;or&mdash;</h1></center>
+        <h2>Copy & paste upload</h2>
+        <form role="form" method="post" action="/text-upload">
+            <div class="form-group">
+                <label for="querytext">Paste a logical query, query function, or Hyper query plan (2MB limit) in the following box and submit:</label>
+                <textarea class="form-control" rows="15" id="querytext" name="querytext"></textarea>
+            </div>
+            <button type="submit" class="btn btn-default">Submit</button>
+        </form>
+    </div>
+</body>
+</html>

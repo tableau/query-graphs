@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Query Compare</title>
+
+    <!-- http://realfavicongenerator.net/ -->
+    <link rel="apple-touch-icon" sizes="57x57" href="../icons/apple-touch-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="../icons/apple-touch-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="../icons/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="../icons/apple-touch-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="../icons/apple-touch-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="../icons/apple-touch-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="../icons/apple-touch-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="../icons/apple-touch-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="../icons/apple-touch-icon-180x180.png">
+    <link rel="icon" type="image/png" href="../icons/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="../icons/android-chrome-192x192.png" sizes="192x192">
+    <link rel="icon" type="image/png" href="../icons/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/png" href="../icons/favicon-16x16.png" sizes="16x16">
+    <link rel="manifest" href="../icons/manifest.json">
+    <link rel="mask-icon" href="../icons/safari-pinned-tab.svg" color="#4682b4">
+    <link rel="shortcut icon" href="../icons/favicon.ico">
+    <meta name="msapplication-TileColor" content="#eeeeee">
+    <meta name="msapplication-TileImage" content="../icons/mstile-144x144.png">
+    <meta name="msapplication-config" content="../icons/browserconfig.xml">
+    <meta name="theme-color" content="#ffffff">
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+    <!-- CSS -->
+    <style>
+    html, body {
+       height: 100%;
+    }
+    .container-fluid.content {
+        height: 100%;
+    }
+    .container-fluid.content>.row {
+        height: 100%;
+    }
+    .subview {
+        height: 100%;
+        padding: 2px;
+        overflow: hidden;
+    }
+    .subview h3 {
+        position: absolute;
+        margin-left: 10px;
+        background: #eee;
+        opacity: 0.7;
+    }
+    iframe {
+        width: 100%;
+        height:100%;
+        border: 0;
+    }
+    </style>
+</head>
+<body>
+    <div class="container-fluid content">
+        <!-- Example row of columns -->
+        <div class="row">
+            <div class="col-xs-6 subview">
+                <h3 id="left-label">Before rewrites</h3>
+                <iframe id="left-frame"></iframe>
+            </div>
+            <div class="col-xs-6 subview">
+                <h3 id="right-label">After rewrites</h3>
+                <iframe id="right-frame"></iframe>
+            </div>
+        </div>
+    </div>
+    <script>
+    function getParameterByName(name) {
+        name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+        var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+            results = regex.exec(location.search);
+        return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+    }
+    function getVisualizationURL(parameter) {
+        var file = getParameterByName(parameter);
+        var baseURL = window.location.origin;
+        if (file) {
+            return baseURL + "/query-graphs.html?upload=y&file=" + file;
+        }
+        else {
+            // Return a known visualization if the parameter is not specified
+            return baseURL + "/query-graphs.html?file=tableau/dint1.xml";
+        }
+    }
+    function setLabels() {
+        var leftLabel = getParameterByName("left-label") || "A";
+        var rightLabel = getParameterByName("right-label") || "B";
+        document.getElementById("left-label").innerText = leftLabel;
+        document.getElementById("right-label").innerText = rightLabel;
+    }
+
+    document.getElementById("left-frame").src = getVisualizationURL("left");
+    document.getElementById("right-frame").src = getVisualizationURL("right");
+    setLabels();
+    </script>
+</body>
+</html>
