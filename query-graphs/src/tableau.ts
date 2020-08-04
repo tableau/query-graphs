@@ -11,7 +11,6 @@ already provides us the structure of the rendered tree.
 
 // Require node modules
 import * as common from "./common";
-import * as colors from "./colors";
 import {Parser as XmlParser} from "xml2js/lib/parser";
 
 // Convert JSON as returned by xml2js parser to d3 tree format
@@ -485,6 +484,25 @@ function collapseNodes(treeData, graphCollapse) {
     }
 }
 
+// Color graph per federated connections
+function colorFederated(treeData) {
+    common.visit(
+        treeData,
+        function(d) {
+            if (d.tag && d.tag === "fed-op") {
+                if (d.properties && d.properties.connection) {
+                    d.federated = d.properties.connection.split(".")[0];
+                    d.nodeClass = "qg-" + d.properties.connection.split(".")[0];
+                }
+            } else if (d.parent && d.parent.federated) {
+                d.federated = d.parent.federated;
+                d.nodeClass = "qg-" + d.parent.federated;
+            }
+        },
+        common.allChildren,
+    );
+}
+
 // Prepare the loaded data for visualization
 function prepareTreeData(treeData, graphCollapse) {
     treeData = convertJSON(treeData);
@@ -496,7 +514,7 @@ function prepareTreeData(treeData, graphCollapse) {
     generateDisplayNames(treeData);
     assignSymbolsAndClasses(treeData);
 
-    colors.colorFederated(treeData);
+    colorFederated(treeData);
     collapseNodes(treeData, graphCollapse);
     return treeData;
 }
