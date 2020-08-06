@@ -580,7 +580,7 @@ function addCrosslinks(root) {
 }
 
 export function loadTableauPlan(graphString: string, graphCollapse): TreeDescription {
-    let result: TreeDescription;
+    let result;
     const parser = new XmlParser({
         explicitRoot: false,
         explicitChildren: true,

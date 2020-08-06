@@ -5,7 +5,11 @@
     "declaration": true,
     "module": "esnext",
     "outDir": "lib",
-    "rootDir": "src"
+    "rootDir": "src",
+    "noImplicitAny": false, // TODO: change
+    "noImplicitReturns": false,  // TODO: change
+    "noImplicitThis": false, // TODO: change
+    "strict": false // TODO: change
   },
   "include": ["src/*"]
 }
