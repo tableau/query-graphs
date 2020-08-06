@@ -1,5 +1,5 @@
 // A recursive helper function for walking through all nodes
-export function visit(parent, visitFn, childrenFn) {
+export function visit<T>(parent: T, visitFn: (n: T) => void, childrenFn: (n: T) => T[]) {
     if (!parent) {
         return;
     }
@@ -7,19 +7,22 @@ export function visit(parent, visitFn, childrenFn) {
     visitFn(parent);
 
     const children = childrenFn(parent);
-    if (children) {
-        const count = children.length;
-        for (let i = 0; i < count; i++) {
-            visit(children[i], visitFn, childrenFn);
-        }
+    for (const child of children) {
+        visit(child, visitFn, childrenFn);
     }
 }
 
+interface TreeLike<T extends TreeLike<T>> {
+    children?: T[];
+    _children?: T[];
+}
+
 // Returns all children of a node, including collapsed children
-export function allChildren(n) {
-    const childrenLength = n.children ? n.children.length : 0;
-    const _childrenLength = n._children ? n._children.length : 0;
-    return _childrenLength > childrenLength ? n._children : n.children;
+export function allChildren<T extends TreeLike<T>>(n: T): T[] {
+    const childrenLength = n.children?.length ?? 0;
+    const _childrenLength = n._children?.length ?? 0;
+    const largerArray = _childrenLength > childrenLength ? n._children : n.children;
+    return largerArray ?? [];
 }
 
 // Create parent links
@@ -73,7 +76,7 @@ export function streamline(d) {
 }
 
 // Convert to string. Return undefined if not supported.
-export function toString(d) {
+export function toString(d: unknown): string | undefined {
     if (typeof d === "string") {
         return d;
     } else if (typeof d === "number") {

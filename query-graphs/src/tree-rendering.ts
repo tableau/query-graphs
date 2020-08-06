@@ -8,6 +8,7 @@ import * as d3shape from "d3-shape";
 import * as d3zoom from "d3-zoom";
 import * as d3interpolate from "d3-interpolate";
 import d3tip from "d3-tip";
+import {TreeDescription, Crosslink} from "./tree-description";
 
 const MAX_DISPLAY_LENGTH = 15;
 
@@ -202,7 +203,7 @@ function defineSymbols(baseSvg, ooo) {
 //
 // Abbreviate all names if they are too long
 //
-function abbreviateName(name) {
+function abbreviateName(name: string) {
     if (name && name.length > MAX_DISPLAY_LENGTH) {
         return name.substring(0, MAX_DISPLAY_LENGTH) + "…";
     }
@@ -222,10 +223,7 @@ function escapeHtml(unsafe) {
 }
 
 // Link cross-links against a d3 hierarchy
-function linkCrossLinks(root, crosslinks) {
-    if (!crosslinks) {
-        return [];
-    }
+function linkCrossLinks(root, crosslinks: Crosslink[]) {
     const descendants = root.descendants();
     function map(d) {
         return descendants.find(function(h) {
@@ -244,29 +242,11 @@ function linkCrossLinks(root, crosslinks) {
 //
 // Creates an `svg` element below the `target` DOM node and draws the query
 // tree within it.
-//
-// The treeData is an object with the following properties:
-//   * root: the root node; its format is described below
-//   * crosslinks: additional links between indirectly related nodes
-//   * properties: displayed in the top-level tree label
-//   * graphOrientation: one of "top-to-bottom", "right-to-left", "bottom-to-top" or "bottom-to-top". Defaults to "top-to-bottom"
-//   * DEBUG: enables debugging annotations in the tree
-//
-// Each root node has the following properies:
-//   * name: the displayed node name
-//   * symbol: the id of the symbol for this node
-//   * nodeClass: additional CSS classes applied to the node
-//   * edgeClass: additional CSS classes applied to the incoming link
-//   * edgeLabel: label placed on the incoming edge
-//   * properties: rendered in the tooltip
-//   * children: an array containing all currently visible child nodes
-//   * _children: an array containing all child nodes, including hidden nodes
-//   * <most other>: displayed as part of the tooltip
-export function drawQueryTree(target, treeData) {
+export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
     const root = d3hierarchy.hierarchy(treeData.root, common.allChildren);
-    const crosslinks = linkCrossLinks(root, treeData.crosslinks);
-    const graphOrientation = treeData.graphOrientation ? treeData.graphOrientation : "top-to-bottom";
-    const DEBUG = treeData.DEBUG ? treeData.DEBUG : false;
+    const crosslinks = linkCrossLinks(root, treeData.crosslinks ?? []);
+    const graphOrientation = treeData.graphOrientation ?? "top-to-bottom";
+    const DEBUG = treeData.DEBUG ?? false;
 
     // Call visit function to establish maxLabelLength
     let totalNodes = 0;

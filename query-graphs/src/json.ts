@@ -8,6 +8,7 @@ Map the JSON tree directly to a D3 tree, without any modifications
 */
 
 import * as common from "./common";
+import {TreeDescription} from "./tree-description";
 
 function convertChildren(node) {
     let children;
@@ -46,18 +47,18 @@ function convertChildren(node) {
 }
 
 // Load a JSON tree
-export function loadJson(json) {
+export function loadJson(json): TreeDescription {
     const root = {name: "root", children: convertChildren(json)};
     return {root: root};
 }
 
 // Load a JSON tree from text
-export function loadJsonFromText(graphString, _graphCollapse) {
+export function loadJsonFromText(graphString: string, _graphCollapse): TreeDescription {
     let json;
     try {
         json = JSON.parse(graphString);
     } catch (err) {
-        return {error: "JSON parse failed with '" + err + "'."};
+        throw new Error("JSON parse failed with '" + err + "'.");
     }
     return loadJson(json);
 }

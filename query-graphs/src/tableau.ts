@@ -12,6 +12,7 @@ already provides us the structure of the rendered tree.
 // Require node modules
 import * as common from "./common";
 import {Parser as XmlParser} from "xml2js/lib/parser";
+import {TreeDescription} from "./tree-description";
 
 // Convert JSON as returned by xml2js parser to d3 tree format
 function convertJSON(node) {
@@ -578,8 +579,8 @@ function addCrosslinks(root) {
     return crosslinks;
 }
 
-export function loadTableauPlan(graphString, graphCollapse) {
-    let result;
+export function loadTableauPlan(graphString: string, graphCollapse): TreeDescription {
+    let result: TreeDescription;
     const parser = new XmlParser({
         explicitRoot: false,
         explicitChildren: true,
@@ -589,7 +590,7 @@ export function loadTableauPlan(graphString, graphCollapse) {
     });
     parser.parseString(graphString, function(err, parsed) {
         if (err) {
-            result = {error: "XML parse failed with '" + err + "'."};
+            throw new Error("XML parse failed with '" + err + "'.");
         } else {
             const root = prepareTreeData(parsed, graphCollapse);
             const crosslinks = addCrosslinks(root);
