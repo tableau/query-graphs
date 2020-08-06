@@ -13,10 +13,10 @@
         "incremental": true,
         "moduleResolution": "node",
         "noEmitOnError": true,
-        "noImplicitAny": false, // TODO: change
-        "noImplicitReturns": false,  // TODO: change
-        "noImplicitThis": false, // TODO: change
-        "strict": false, // TODO: change
+        "noImplicitAny": true,
+        "noImplicitReturns": true,
+        "noImplicitThis": true,
+        "strict": true,
         "strictBindCallApply": true,
         "strictFunctionTypes": true,
         "strictNullChecks": true,

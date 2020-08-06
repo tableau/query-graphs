@@ -3,7 +3,7 @@
     "extends": "../tsconfigbase",
     "compilerOptions": {
       "declaration": false,
-      "declarationMap": false,
+      "declarationMap": false
     },
     "include": ["app.ts"]
 }

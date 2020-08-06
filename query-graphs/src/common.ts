@@ -91,6 +91,28 @@ export function toString(d: unknown): string | undefined {
     return undefined;
 }
 
+export function jsonToStringMap(json: string): Map<string, string> {
+    let parsedJSON;
+    try {
+        parsedJSON = JSON.parse(json);
+    } catch (err) {
+        throw new Error("JSON parse failed with '" + err + "'.");
+    }
+    if (typeof parsedJSON !== "object") {
+        throw new Error("Expected a JSON object, got " + typeof parsedJSON);
+    }
+    const result = new Map<string, string>();
+    for (const key of Object.keys(parsedJSON)) {
+        const value = parsedJSON[key];
+        const strValue = toString(value);
+        if (strValue === undefined) {
+            throw new Error("Expected a string value, got " + typeof value);
+        }
+        result.set(key, value);
+    }
+    return result;
+}
+
 // Convert to string. Returns the JSON serialization if not supported.
 export function forceToString(d) {
     let str = toString(d);
@@ -109,4 +131,12 @@ export function formatMetric(x) {
         ++idx;
     }
     return x.toFixed(0) + sizes[idx];
+}
+
+export function assert(value: boolean): asserts value {
+    if (!value) {
+        // eslint-disable-next-line no-debugger
+        debugger;
+        throw new Error("Assertion violated");
+    }
 }
