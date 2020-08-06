@@ -14,9 +14,10 @@ The label for a tree node is taken from the first defined property among "operat
 */
 
 import * as common from "./common";
+import {TreeNode, TreeDescription} from "./tree-description";
 
 // Convert Hyper JSON to a D3 tree
-function convertHyper(node, parentKey) {
+function convertHyper(node, parentKey): TreeNode {
     if (common.toString(node) !== undefined) {
         return {
             text: common.toString(node),
@@ -153,13 +154,13 @@ function convertHyper(node, parentKey) {
         });
         return listOfObjects;
     }
-    console.warn("Convert to JSON case not implemented");
+    throw new Error("Invalid Hyper query plan");
 }
 
 // Function to generate nodes' display names based on their properties
-function generateDisplayNames(treeData) {
+function generateDisplayNames(treeRoot: TreeNode) {
     common.visit(
-        treeData,
+        treeRoot,
         function(node) {
             switch (node.tag) {
                 case "join":
@@ -305,7 +306,7 @@ function addCrosslinks(root) {
 }
 
 // Loads a Hyper query plan
-export function loadHyperPlan(json, graphCollapse: any = undefined) {
+export function loadHyperPlan(json, graphCollapse: any = undefined): TreeDescription {
     // Extract top-level meta data
     const properties: any = {};
     if (json.hasOwnProperty("plan") && json.plan.hasOwnProperty("header")) {
@@ -327,13 +328,13 @@ export function loadHyperPlan(json, graphCollapse: any = undefined) {
 }
 
 // Load a JSON tree from text
-export function loadHyperPlanFromText(graphString, graphCollapse) {
+export function loadHyperPlanFromText(graphString: string, graphCollapse): TreeDescription {
     // Parse the plan as JSON
     let json;
     try {
         json = JSON.parse(graphString);
     } catch (err) {
-        return {error: "JSON parse failed with '" + err + "'."};
+        throw new Error("JSON parse failed with '" + err + "'.");
     }
     return loadHyperPlan(json, graphCollapse);
 }

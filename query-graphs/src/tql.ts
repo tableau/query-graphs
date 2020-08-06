@@ -3,6 +3,7 @@
 // -----------------------------------------------------------------------------
 
 import * as common from "./common";
+import {TreeDescription} from "./tree-description";
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -974,7 +975,7 @@ function collapseNodes(treeData, graphCollapse) {
   loadTQLPlan
 
   ---------------------------------------------------------------------------*/
-export function loadTQLPlan(text, collapse) {
+export function loadTQLPlan(text: string, collapse): TreeDescription {
     //  Default arguments...
     collapse = collapse || "n";
 
@@ -989,8 +990,6 @@ export function loadTQLPlan(text, collapse) {
         return {root: root, crosslinks: [], properties: {}};
     } catch (e) {
         console.log(e);
-        return {
-            error: "TQL parse failed with '" + e + "' at (" + e.start + ", " + e.end + ").",
-        };
+        throw new Error("TQL parse failed with '" + e + "' at (" + e.start + ", " + e.end + ").");
     }
 }
