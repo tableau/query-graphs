@@ -1,5 +1,5 @@
 // Import local modules
-import * as common from "./common";
+import * as treeDescription from "./tree-description";
 
 // Third-party dependencies
 import * as d3selection from "d3-selection";
@@ -243,7 +243,7 @@ function linkCrossLinks(root, crosslinks: Crosslink[]) {
 // Creates an `svg` element below the `target` DOM node and draws the query
 // tree within it.
 export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
-    const root = d3hierarchy.hierarchy(treeData.root, common.allChildren);
+    const root = d3hierarchy.hierarchy(treeData.root, treeDescription.allChildren);
     const crosslinks = linkCrossLinks(root, treeData.crosslinks ?? []);
     const graphOrientation = treeData.graphOrientation ?? "top-to-bottom";
     const DEBUG = treeData.DEBUG ?? false;
@@ -251,7 +251,7 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
     // Call visit function to establish maxLabelLength
     let totalNodes = 0;
     let maxLabelLength = 0;
-    common.visit(
+    treeDescription.visitTreeNodes(
         treeData.root,
         function(d) {
             totalNodes++;
@@ -259,7 +259,7 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
                 maxLabelLength = Math.max(d.name.length, maxLabelLength);
             }
         },
-        common.allChildren,
+        treeDescription.allChildren,
     );
 
     // Limit maximum label length and keep layout tight for short names
@@ -567,13 +567,13 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
     defineSymbols(baseSvg, ooo);
 
     function collapseDefault(r) {
-        common.visit(
+        treeDescription.visitTreeNodes(
             r,
             function(n) {
                 if (!n.data._children) {
                     return;
                 }
-                const allChildren = common.allChildren(n);
+                const allChildren = treeDescription.allChildren(n);
                 if (!allChildren) {
                     return;
                 }
@@ -594,7 +594,7 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
                     n._children = null;
                 }
             },
-            common.allChildren,
+            treeDescription.allChildren,
         );
     }
 

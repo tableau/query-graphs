@@ -7,17 +7,17 @@ Map the JSON tree directly to a D3 tree, without any modifications
 
 */
 
-import * as common from "./common";
+import {tryToString} from "./loader-utils";
 import {TreeDescription} from "./tree-description";
 
 function convertChildren(node) {
     let children;
-    if (common.toString(node) !== undefined) {
+    if (tryToString(node) !== undefined) {
         return [
             {
-                name: common.toString(node) + ":" + typeof node,
+                name: tryToString(node) + ":" + typeof node,
                 properties: {
-                    value: common.toString(node),
+                    value: tryToString(node),
                     type: typeof node,
                 },
             },
@@ -47,7 +47,7 @@ function convertChildren(node) {
 }
 
 // Load a JSON tree
-export function loadJson(json): TreeDescription {
+export function loadJson(json: any): TreeDescription {
     const root = {name: "root", children: convertChildren(json)};
     return {root: root};
 }
