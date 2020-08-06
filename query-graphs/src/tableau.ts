@@ -10,7 +10,7 @@ already provides us the structure of the rendered tree.
 */
 
 // Require node modules
-import * as common from "./common";
+import * as treeDescription from "./tree-description";
 import {Parser as XmlParser} from "xml2js/lib/parser";
 import {TreeDescription} from "./tree-description";
 
@@ -376,7 +376,7 @@ const generateDisplayNames = (function() {
 
 // Assign symbols & classes to the nodes
 function assignSymbolsAndClasses(treeData) {
-    common.visit(
+    treeDescription.visitTreeNodes(
         treeData,
         function(n) {
             // Assign symbols
@@ -421,10 +421,10 @@ function assignSymbolsAndClasses(treeData) {
 }
 
 function collapseNodes(treeData, graphCollapse) {
-    const streamline = graphCollapse === "s" ? common.streamline : common.collapseAllChildren;
-    const collapseAllChildren = common.collapseAllChildren;
+    const streamline = graphCollapse === "s" ? treeDescription.streamline : treeDescription.collapseAllChildren;
+    const collapseAllChildren = treeDescription.collapseAllChildren;
     if (graphCollapse !== "n") {
-        common.visit(
+        treeDescription.visitTreeNodes(
             treeData,
             function(d) {
                 if (d.name) {
@@ -487,7 +487,7 @@ function collapseNodes(treeData, graphCollapse) {
 
 // Color graph per federated connections
 function colorFederated(treeData) {
-    common.visit(
+    treeDescription.visitTreeNodes(
         treeData,
         function(d) {
             if (d.tag && d.tag === "fed-op") {
@@ -500,7 +500,7 @@ function colorFederated(treeData) {
                 d.nodeClass = "qg-" + d.parent.federated;
             }
         },
-        common.allChildren,
+        treeDescription.allChildren,
     );
 }
 
@@ -511,7 +511,7 @@ function prepareTreeData(treeData, graphCollapse) {
     if (!treeData.tag) {
         treeData.tag = "result";
     }
-    common.createParentLinks(treeData);
+    treeDescription.createParentLinks(treeData);
     generateDisplayNames(treeData);
     assignSymbolsAndClasses(treeData);
 
@@ -526,7 +526,7 @@ function addCrosslinks(root) {
     const sourcenodes: any[] = [];
     const operatorsByName: any[] = [];
 
-    common.visit(
+    treeDescription.visitTreeNodes(
         root,
         function(node) {
             // Build map from potential target operator name/ref to node
@@ -566,7 +566,7 @@ function addCrosslinks(root) {
                     break;
             }
         },
-        common.allChildren,
+        treeDescription.allChildren,
     );
 
     // Add crosslinks from source to matching target node

@@ -2,7 +2,7 @@
 // d3/tql.js
 // -----------------------------------------------------------------------------
 
-import * as common from "./common";
+import * as treeDescription from "./tree-description";
 import {TreeDescription} from "./tree-description";
 
 ///////////////////////////////////////////////////////////////////////////
@@ -892,7 +892,7 @@ export function parse(text: string, pos = 0) {
 
   ---------------------------------------------------------------------------*/
 function assignSymbols(root) {
-    common.visit(
+    treeDescription.visitTreeNodes(
         root,
 
         function(n) {
@@ -946,8 +946,8 @@ function collapseNodes(treeData, graphCollapse) {
         return;
     }
 
-    const streamline = "s" === graphCollapse ? common.streamline : common.collapseAllChildren;
-    common.visit(
+    const streamline = "s" === graphCollapse ? treeDescription.streamline : treeDescription.collapseAllChildren;
+    treeDescription.visitTreeNodes(
         treeData,
 
         function(d) {
@@ -984,7 +984,7 @@ export function loadTQLPlan(text: string, collapse): TreeDescription {
         const root = {name: "plans", class: "forest", children: parser.parse()};
 
         assignSymbols(root);
-        common.createParentLinks(root);
+        treeDescription.createParentLinks(root);
         collapseNodes(root, collapse);
 
         return {root: root, crosslinks: [], properties: {}};

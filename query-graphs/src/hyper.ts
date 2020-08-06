@@ -13,14 +13,15 @@ The label for a tree node is taken from the first defined property among "operat
 
 */
 
-import * as common from "./common";
+import * as treeDescription from "./tree-description";
 import {TreeNode, TreeDescription} from "./tree-description";
+import {forceToString, tryToString, formatMetric} from "./loader-utils";
 
 // Convert Hyper JSON to a D3 tree
 function convertHyper(node, parentKey): TreeNode {
-    if (common.toString(node) !== undefined) {
+    if (tryToString(node) !== undefined) {
         return {
-            text: common.toString(node),
+            text: tryToString(node),
         };
     } else if (typeof node === "object" && !Array.isArray(node)) {
         // "Object" nodes
@@ -38,7 +39,7 @@ function convertHyper(node, parentKey): TreeNode {
             if (tag === undefined) {
                 tag = node[key];
             } else {
-                properties[key] = common.forceToString(node[key]);
+                properties[key] = forceToString(node[key]);
             }
         });
         if (tag === undefined) {
@@ -66,7 +67,7 @@ function convertHyper(node, parentKey): TreeNode {
                 return;
             }
             if (typeof node[key] !== "object") {
-                properties[key] = common.forceToString(node[key]);
+                properties[key] = forceToString(node[key]);
                 return;
             }
             const child = convertHyper(node[key], key);
@@ -83,7 +84,7 @@ function convertHyper(node, parentKey): TreeNode {
             if (!node.hasOwnProperty(key)) {
                 return;
             }
-            properties[key] = common.forceToString(node[key]);
+            properties[key] = forceToString(node[key]);
         });
 
         // Display all other properties adaptively: simple expressions are displayed as properties, all others as part of the tree
@@ -94,7 +95,7 @@ function convertHyper(node, parentKey): TreeNode {
             }
 
             // Try to display as string property
-            const str = common.toString(node[key]);
+            const str = tryToString(node[key]);
             if (str !== undefined) {
                 properties[key] = str;
                 return;
@@ -110,7 +111,7 @@ function convertHyper(node, parentKey): TreeNode {
         });
 
         // Display the cardinality on the links between the nodes
-        const edgeLabel = node.hasOwnProperty("cardinality") ? common.formatMetric(node.cardinality) : undefined;
+        const edgeLabel = node.hasOwnProperty("cardinality") ? formatMetric(node.cardinality) : undefined;
         // Collapse nodes as appropriate
         let children;
         let _children;
@@ -159,7 +160,7 @@ function convertHyper(node, parentKey): TreeNode {
 
 // Function to generate nodes' display names based on their properties
 function generateDisplayNames(treeRoot: TreeNode) {
-    common.visit(
+    treeDescription.visitTreeNodes(
         treeRoot,
         function(node) {
             switch (node.tag) {
@@ -237,7 +238,7 @@ function generateDisplayNames(treeRoot: TreeNode) {
                     break;
             }
         },
-        common.allChildren,
+        treeDescription.allChildren,
     );
 }
 
@@ -248,7 +249,7 @@ function addCrosslinks(root) {
     const operatorsById: any[] = [];
     let optimizerStep = 0;
 
-    common.visit(
+    treeDescription.visitTreeNodes(
         root,
         function(node) {
             // Operators are only unique within an optimizer step
@@ -292,7 +293,7 @@ function addCrosslinks(root) {
                     break;
             }
         },
-        common.allChildren,
+        treeDescription.allChildren,
     );
 
     // Add crosslinks from source to matching target node
@@ -315,12 +316,12 @@ export function loadHyperPlan(json, graphCollapse: any = undefined): TreeDescrip
     // Load the graph with the nodes collapsed in an automatic way
     const root = convertHyper(json, "result");
     generateDisplayNames(root);
-    common.createParentLinks(root);
+    treeDescription.createParentLinks(root);
     // Adjust the graph so it is collapsed as requested by the user
     if (graphCollapse === "y") {
-        common.visit(root, common.collapseAllChildren, common.allChildren);
+        treeDescription.visitTreeNodes(root, treeDescription.collapseAllChildren, treeDescription.allChildren);
     } else if (graphCollapse === "n") {
-        common.visit(root, common.expandAllChildren, common.allChildren);
+        treeDescription.visitTreeNodes(root, treeDescription.expandAllChildren, treeDescription.allChildren);
     }
     // Add crosslinks
     const crosslinks = addCrosslinks(root);
