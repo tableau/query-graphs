@@ -7,11 +7,10 @@ Map the JSON tree directly to a D3 tree, without any modifications
 
 */
 
-import {tryToString} from "./loader-utils";
-import {TreeDescription} from "./tree-description";
+import {Json, tryToString} from "./loader-utils";
+import {TreeDescription, TreeNode} from "./tree-description";
 
-function convertChildren(node) {
-    let children;
+function convertChildren(node: Json): TreeNode[] {
     if (tryToString(node) !== undefined) {
         return [
             {
@@ -24,22 +23,21 @@ function convertChildren(node) {
         ];
     } else if (typeof node === "object" && !Array.isArray(node)) {
         // "Object" nodes
-        children = [];
-        Object.getOwnPropertyNames(node)
-            .sort()
-            .forEach(function(key) {
-                children.push({name: key, children: convertChildren(node[key])});
-            });
+        const children = [] as TreeNode[];
+        const propNames = Object.getOwnPropertyNames(node).sort();
+        for (const key of propNames) {
+            children.push({name: key, children: convertChildren(node[key])});
+        }
         return children;
     } else if (Array.isArray(node)) {
         // "Array" nodes
-        children = [];
-        node.forEach(function(value, index) {
+        const children = [] as TreeNode[];
+        for (let index = 0; index < node.length; ++index) {
             children.push({
-                name: String(index),
+                name: index.toString(),
                 children: convertChildren(node[index]),
             });
-        });
+        }
         return children;
     }
     console.warn("Unhandled JSON type");
@@ -47,14 +45,14 @@ function convertChildren(node) {
 }
 
 // Load a JSON tree
-export function loadJson(json: any): TreeDescription {
+export function loadJson(json: Json): TreeDescription {
     const root = {name: "root", children: convertChildren(json)};
     return {root: root};
 }
 
 // Load a JSON tree from text
 export function loadJsonFromText(graphString: string, _graphCollapse): TreeDescription {
-    let json;
+    let json: Json;
     try {
         json = JSON.parse(graphString);
     } catch (err) {

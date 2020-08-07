@@ -1,3 +1,10 @@
+// Stricter type for JSON data
+export type Json = string | number | boolean | Date | JsonObject | JsonArray;
+interface JsonObject {
+    [x: string]: string | number | boolean | Date | JsonObject | JsonArray;
+}
+type JsonArray = Array<Json>;
+
 // Try to convert to string. Return undefined if not succesful.
 export function tryToString(d: unknown): string | undefined {
     if (typeof d === "string") {
