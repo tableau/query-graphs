@@ -9,14 +9,25 @@ in the tooltips.
 
 */
 
-// Require node modules
 import {Parser as XmlParser} from "xml2js/lib/parser";
+import {TreeDescription, TreeNode} from "./tree-description";
 
-// Convert JSON as returned by xml2js parser to d3 tree format
-function convertJSON(node) {
+interface ParsedXML {
+    // Tag name
+    "#name": string;
+    // Text content
+    _?: string;
+    // Attributes
+    $?: string[];
+    // Children
+    $$?: ParsedXML[];
+}
+
+// Convert JS objects as returned by xml2js parser to tree description format
+function convertXML(node: ParsedXML): TreeNode {
     const children = [] as any[];
     let properties = {};
-    let text;
+    let text: string | undefined;
     const tag = node["#name"];
 
     if (node.$) {
@@ -26,9 +37,9 @@ function convertJSON(node) {
         text = node._;
     }
     if (node.$$) {
-        node.$$.forEach(function(child) {
-            children.push(convertJSON(child));
-        });
+        for (const child of node.$$) {
+            children.push(convertXML(child));
+        }
     }
 
     return {
@@ -39,8 +50,8 @@ function convertJSON(node) {
     };
 }
 
-export function loadXml(graphString, _graphCollapse) {
-    let result;
+export function loadXml(graphString: string, _graphCollapse): TreeDescription {
+    let result!: TreeDescription;
     const parser = new XmlParser({
         explicitRoot: false,
         explicitChildren: true,
@@ -48,11 +59,11 @@ export function loadXml(graphString, _graphCollapse) {
         // Don't merge attributes. XML attributes will be stored in node["$"]
         mergeAttrs: false,
     });
-    parser.parseString(graphString, function(err, parsed) {
+    parser.parseString(graphString, function(err: any, parsed: ParsedXML) {
         if (err) {
-            result = {error: "XML parse failed with '" + err + "'."};
+            throw new Error("XML parse failed with '" + err + "'.");
         } else {
-            result = {root: convertJSON(parsed)};
+            result = {root: convertXML(parsed)};
         }
     });
     return result;
