@@ -14,43 +14,43 @@ The label for a tree node is taken from the first defined property among "operat
 */
 
 import * as treeDescription from "./tree-description";
-import {TreeNode, TreeDescription} from "./tree-description";
-import {forceToString, tryToString, formatMetric} from "./loader-utils";
+import {TreeNode, TreeDescription, Crosslink} from "./tree-description";
+import {Json, forceToString, tryToString, formatMetric, hasOwnProperty, hasSubOject} from "./loader-utils";
 
 // Convert Hyper JSON to a D3 tree
-function convertHyper(node, parentKey): TreeNode {
+function convertHyper(node: Json, parentKey: string): TreeNode | TreeNode[] {
     if (tryToString(node) !== undefined) {
         return {
             text: tryToString(node),
         };
     } else if (typeof node === "object" && !Array.isArray(node)) {
         // "Object" nodes
-        let explicitChildren: any[] = [];
-        const additionalChildren: any[] = [];
+        let explicitChildren = [] as TreeNode[];
+        const additionalChildren = [] as TreeNode[];
         const properties = {};
 
         // Take the first present tagKey as the new tag. Add all others as properties
         const tagKeys = ["operator", "expression", "mode"];
-        let tag;
-        tagKeys.forEach(function(key) {
-            if (!node.hasOwnProperty(key)) {
-                return;
+        let tag: string | undefined;
+        for (const tagKey of tagKeys) {
+            if (!node.hasOwnProperty(tagKey)) {
+                continue;
             }
             if (tag === undefined) {
-                tag = node[key];
+                tag = node[tagKey];
             } else {
-                properties[key] = forceToString(node[key]);
+                properties[tagKey] = forceToString(node[tagKey]);
             }
-        });
+        }
         if (tag === undefined) {
             tag = parentKey;
         }
 
         // Add the following keys as children
         const childKeys = ["input", "left", "right", "arguments", "value", "valueForComparison"];
-        childKeys.forEach(function(key) {
+        for (const key of childKeys) {
             if (!node.hasOwnProperty(key)) {
-                return;
+                continue;
             }
             const child = convertHyper(node[key], key);
             if (Array.isArray(child)) {
@@ -58,17 +58,17 @@ function convertHyper(node, parentKey): TreeNode {
             } else {
                 explicitChildren.push(child);
             }
-        });
+        }
 
         // Add the following keys as children only when they refer to objects and display as properties if not
         const objectKeys = ["source"];
-        objectKeys.forEach(function(key) {
+        for (const key of objectKeys) {
             if (!node.hasOwnProperty(key)) {
-                return;
+                continue;
             }
             if (typeof node[key] !== "object") {
                 properties[key] = forceToString(node[key]);
-                return;
+                continue;
             }
             const child = convertHyper(node[key], key);
             if (Array.isArray(child)) {
@@ -76,45 +76,48 @@ function convertHyper(node, parentKey): TreeNode {
             } else {
                 explicitChildren.push(child);
             }
-        });
+        }
 
         // Display these properties always as properties, even if they are more complex
         const propertyKeys = ["analyze"];
-        propertyKeys.forEach(function(key) {
+        for (const key of propertyKeys) {
             if (!node.hasOwnProperty(key)) {
-                return;
+                continue;
             }
             properties[key] = forceToString(node[key]);
-        });
+        }
 
         // Display all other properties adaptively: simple expressions are displayed as properties, all others as part of the tree
         const handledKeys = tagKeys.concat(childKeys, objectKeys, propertyKeys);
-        Object.getOwnPropertyNames(node).forEach(function(key, _index) {
+        for (const key of Object.getOwnPropertyNames(node)) {
             if (handledKeys.indexOf(key) !== -1) {
-                return;
+                continue;
             }
 
             // Try to display as string property
             const str = tryToString(node[key]);
             if (str !== undefined) {
                 properties[key] = str;
-                return;
+                continue;
             }
 
             // Display as part of the tree
-            let innerNodes = convertHyper(node[key], key);
-            if (!Array.isArray(innerNodes)) {
-                innerNodes = [innerNodes];
+            const innerNodes = convertHyper(node[key], key);
+            if (Array.isArray(innerNodes)) {
+                additionalChildren.push({tag: key, children: innerNodes});
+            } else {
+                additionalChildren.push({tag: key, children: [innerNodes]});
             }
-            additionalChildren.push({tag: key, children: innerNodes});
-            return;
-        });
+        }
 
         // Display the cardinality on the links between the nodes
-        const edgeLabel = node.hasOwnProperty("cardinality") ? formatMetric(node.cardinality) : undefined;
+        let edgeLabel: string | undefined = undefined;
+        if (hasOwnProperty(node, "cardinality") && typeof node.cardinality === "number") {
+            edgeLabel = formatMetric(node.cardinality);
+        }
         // Collapse nodes as appropriate
-        let children;
-        let _children;
+        let children: TreeNode[];
+        let _children: TreeNode[];
         if (node.hasOwnProperty("plan")) {
             // The top-level plan element needs special attention: we want to hide the `header` by default
             _children = explicitChildren.concat(additionalChildren);
@@ -129,6 +132,7 @@ function convertHyper(node, parentKey): TreeNode {
         } else {
             // Everything else (usually expressions): display uncollapsed
             children = explicitChildren.concat(additionalChildren);
+            _children = [];
         }
         // Build the converted node
         const convertedNode = {
@@ -141,9 +145,10 @@ function convertHyper(node, parentKey): TreeNode {
         return convertedNode;
     } else if (Array.isArray(node)) {
         // "Array" nodes
-        const listOfObjects: any[] = [];
-        node.forEach(function(value, index) {
-            const innerNode = convertHyper(value, parentKey + "." + String(index));
+        const listOfObjects = [] as TreeNode[];
+        for (let index = 0; index < node.length; ++index) {
+            const value = node[index];
+            const innerNode = convertHyper(value, parentKey + "." + index.toString());
             // objectify nested arrays
             if (Array.isArray(innerNode)) {
                 innerNode.forEach(function(value, _index) {
@@ -152,7 +157,7 @@ function convertHyper(node, parentKey): TreeNode {
             } else {
                 listOfObjects.push(innerNode);
             }
-        });
+        }
         return listOfObjects;
     }
     throw new Error("Invalid Hyper query plan");
@@ -243,10 +248,15 @@ function generateDisplayNames(treeRoot: TreeNode) {
 }
 
 // Function to add crosslinks between related nodes
-function addCrosslinks(root) {
-    const crosslinks: any[] = [];
-    const sourcenodes: any[] = [];
-    const operatorsById: any[] = [];
+function addCrosslinks(root: TreeNode) {
+    interface UnresolvedCrosslink {
+        source: TreeNode;
+        optimizerStep: number;
+        targetOpId: number;
+    }
+
+    const unresolvedLinks = [] as UnresolvedCrosslink[];
+    const operatorsById = new Map<string, TreeNode>();
     let optimizerStep = 0;
 
     treeDescription.visitTreeNodes(
@@ -259,34 +269,35 @@ function addCrosslinks(root) {
 
             // Build map from operatorId to node
             if (node.hasOwnProperty("properties") && node.properties.hasOwnProperty("operatorId")) {
-                operatorsById[[parseInt(node.properties.operatorId, 10), optimizerStep].toString()] = node;
+                const key = [parseInt(node.properties.operatorId, 10), optimizerStep].toString();
+                operatorsById.set(key, node);
             }
 
             // Identify source operators
             switch (node.tag) {
                 case "explicitscan":
                     if (node.hasOwnProperty("properties") && node.properties.hasOwnProperty("source")) {
-                        sourcenodes.push({
-                            node: node,
-                            operatorId: parseInt(node.properties.source, 10),
+                        unresolvedLinks.push({
+                            source: node,
+                            targetOpId: parseInt(node.properties.source, 10),
                             optimizerStep: optimizerStep,
                         });
                     }
                     break;
                 case "earlyprobe":
                     if (node.hasOwnProperty("properties") && node.properties.hasOwnProperty("builder")) {
-                        sourcenodes.push({
-                            node: node,
-                            operatorId: parseInt(node.properties.builder, 10),
+                        unresolvedLinks.push({
+                            source: node,
+                            targetOpId: parseInt(node.properties.builder, 10),
                             optimizerStep: optimizerStep,
                         });
                     }
                     break;
                 default:
                     if (node.hasOwnProperty("properties") && node.properties.hasOwnProperty("magic")) {
-                        sourcenodes.push({
-                            node: node,
-                            operatorId: parseInt(node.properties.magic, 10),
+                        unresolvedLinks.push({
+                            source: node,
+                            targetOpId: parseInt(node.properties.magic, 10),
                             optimizerStep: optimizerStep,
                         });
                     }
@@ -297,24 +308,29 @@ function addCrosslinks(root) {
     );
 
     // Add crosslinks from source to matching target node
-    sourcenodes.forEach(function(source) {
-        const targetnode = operatorsById[[source.operatorId, source.optimizerStep].toString()];
-        const entry = {source: source.node, target: targetnode};
+    const crosslinks = [] as Crosslink[];
+    for (const link of unresolvedLinks) {
+        const targetnode = operatorsById.get([link.targetOpId, link.optimizerStep].toString());
+        const entry = {source: link.source, target: targetnode};
         crosslinks.push(entry);
-    });
-
+    }
     return crosslinks;
 }
 
 // Loads a Hyper query plan
-export function loadHyperPlan(json, graphCollapse: any = undefined): TreeDescription {
+export function loadHyperPlan(json: Json, graphCollapse: any = undefined): TreeDescription {
     // Extract top-level meta data
     const properties: any = {};
-    if (json.hasOwnProperty("plan") && json.plan.hasOwnProperty("header")) {
-        properties.columns = json.plan.header.length / 2;
+    if (hasSubOject(json, "plan")) {
+        if (hasOwnProperty(json.plan, "header") && Array.isArray(json.plan.header)) {
+            properties.columns = json.plan.header.length / 2;
+        }
     }
     // Load the graph with the nodes collapsed in an automatic way
     const root = convertHyper(json, "result");
+    if (Array.isArray(root)) {
+        throw new Error("Invalid Hyper query plan");
+    }
     generateDisplayNames(root);
     treeDescription.createParentLinks(root);
     // Adjust the graph so it is collapsed as requested by the user
@@ -331,7 +347,7 @@ export function loadHyperPlan(json, graphCollapse: any = undefined): TreeDescrip
 // Load a JSON tree from text
 export function loadHyperPlanFromText(graphString: string, graphCollapse): TreeDescription {
     // Parse the plan as JSON
-    let json;
+    let json: Json;
     try {
         json = JSON.parse(graphString);
     } catch (err) {
