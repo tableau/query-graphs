@@ -5,6 +5,18 @@ interface JsonObject {
 }
 type JsonArray = Array<Json>;
 
+// Checks if an object has a given key
+// In contrast to a raw call, this function
+// a) adds the necessary type narrowing, and
+// b) calls `hasOwnProperty` over its prototype, thereby making sure no-one overwrote it
+export function hasOwnProperty<X extends unknown, Y extends PropertyKey>(o: X, key: Y): o is X & Record<Y, unknown> {
+    return Object.prototype.hasOwnProperty.call(o, key);
+}
+
+export function hasSubOject<X extends unknown, Y extends PropertyKey>(o: X, key: Y): o is X & Record<Y, Record<string, unknown>> {
+    return hasOwnProperty(o, key) && typeof o[key] === "object" && o[key] !== null;
+}
+
 // Try to convert to string. Return undefined if not succesful.
 export function tryToString(d: unknown): string | undefined {
     if (typeof d === "string") {
