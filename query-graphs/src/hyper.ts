@@ -23,7 +23,7 @@ function convertHyper(node: Json, parentKey: string): TreeNode | TreeNode[] {
         return {
             text: tryToString(node),
         };
-    } else if (typeof node === "object" && !Array.isArray(node)) {
+    } else if (typeof node === "object" && !Array.isArray(node) && node !== null) {
         // "Object" nodes
         let explicitChildren = [] as TreeNode[];
         const additionalChildren = [] as TreeNode[];
@@ -37,7 +37,7 @@ function convertHyper(node: Json, parentKey: string): TreeNode | TreeNode[] {
                 continue;
             }
             if (tag === undefined) {
-                tag = node[tagKey].toString();
+                tag = tryToString(node[tagKey]);
             } else {
                 properties[tagKey] = forceToString(node[tagKey]);
             }

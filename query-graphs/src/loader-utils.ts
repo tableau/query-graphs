@@ -1,7 +1,8 @@
 // Stricter type for JSON data
-export type Json = string | number | boolean | JsonObject | JsonArray;
+type JsonPrimitive = string | number | boolean | null;
+export type Json = JsonPrimitive | JsonObject | JsonArray;
 interface JsonObject {
-    [x: string]: string | number | boolean | JsonObject | JsonArray;
+    [x: string]: JsonPrimitive | JsonObject | JsonArray;
 }
 type JsonArray = Array<Json>;
 
@@ -49,7 +50,7 @@ export function jsonToStringMap(json: string): Map<string, string> {
     } catch (err) {
         throw new Error("JSON parse failed with '" + err + "'.");
     }
-    if (typeof parsedJSON !== "object" && !Array.isArray(parsedJSON)) {
+    if (typeof parsedJSON !== "object" || !Array.isArray(parsedJSON) || parsedJSON === null) {
         throw new Error("Expected a JSON object");
     }
     const result = new Map<string, string>();
