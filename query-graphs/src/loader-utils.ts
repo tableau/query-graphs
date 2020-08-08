@@ -34,7 +34,7 @@ export function tryToString(d: unknown): string | undefined {
 }
 
 // Convert to string. Returns the JSON serialization if not supported.
-export function forceToString(d) {
+export function forceToString(d: unknown): string {
     let str = tryToString(d);
     if (str === undefined) {
         str = JSON.stringify(d);
@@ -43,14 +43,14 @@ export function forceToString(d) {
 }
 
 export function json2stringmap(json: string): Map<string, string> {
-    let parsedJSON;
+    let parsedJSON: Json;
     try {
         parsedJSON = JSON.parse(json);
     } catch (err) {
         throw new Error("JSON parse failed with '" + err + "'.");
     }
-    if (typeof parsedJSON !== "object") {
-        throw new Error("Expected a JSON object, got " + typeof parsedJSON);
+    if (typeof parsedJSON !== "object" && !Array.isArray(parsedJSON)) {
+        throw new Error("Expected a JSON object");
     }
     const result = new Map<string, string>();
     for (const key of Object.keys(parsedJSON)) {
@@ -65,7 +65,7 @@ export function json2stringmap(json: string): Map<string, string> {
 }
 
 // Format a number using metric suffixes
-export function formatMetric(x) {
+export function formatMetric(x: number): string {
     const sizes = ["", "k", "M", "G", "T", "P", "E", "Z", "Y"];
     let idx = 0;
     while (x > 1000 && idx < sizes.length - 1) {
