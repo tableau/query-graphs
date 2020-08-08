@@ -12,7 +12,7 @@ in the tooltips.
 import {Parser as XmlParser} from "xml2js/lib/parser";
 import {TreeDescription, TreeNode} from "./tree-description";
 
-interface ParsedXML {
+export interface ParsedXML {
     // Tag name
     "#name": string;
     // Text content
@@ -21,6 +21,25 @@ interface ParsedXML {
     $?: string[];
     // Children
     $$?: ParsedXML[];
+}
+
+export function typesafeXMLParse(str: string): ParsedXML {
+    let result!: ParsedXML;
+    const parser = new XmlParser({
+        explicitRoot: false,
+        explicitChildren: true,
+        preserveChildrenOrder: true,
+        // Don't merge attributes. XML attributes will be stored in node["$"]
+        mergeAttrs: false,
+    });
+    parser.parseString(str, function(err: any, parsed: ParsedXML) {
+        if (err) {
+            throw new Error("XML parse failed with '" + err + "'.");
+        } else {
+            result = parsed;
+        }
+    });
+    return result;
 }
 
 // Convert JS objects as returned by xml2js parser to tree description format
@@ -51,20 +70,6 @@ function convertXML(node: ParsedXML): TreeNode {
 }
 
 export function loadXml(graphString: string, _graphCollapse): TreeDescription {
-    let result!: TreeDescription;
-    const parser = new XmlParser({
-        explicitRoot: false,
-        explicitChildren: true,
-        preserveChildrenOrder: true,
-        // Don't merge attributes. XML attributes will be stored in node["$"]
-        mergeAttrs: false,
-    });
-    parser.parseString(graphString, function(err: any, parsed: ParsedXML) {
-        if (err) {
-            throw new Error("XML parse failed with '" + err + "'.");
-        } else {
-            result = {root: convertXML(parsed)};
-        }
-    });
-    return result;
+    const xml = typesafeXMLParse(graphString);
+    return {root: convertXML(xml)};
 }

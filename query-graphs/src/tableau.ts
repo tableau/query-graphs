@@ -11,24 +11,25 @@ already provides us the structure of the rendered tree.
 
 // Require node modules
 import * as treeDescription from "./tree-description";
-import {Parser as XmlParser} from "xml2js/lib/parser";
-import {TreeDescription} from "./tree-description";
+import {TreeDescription, TreeNode, Crosslink, collapseAllChildren, streamline} from "./tree-description";
+import {typesafeXMLParse, ParsedXML} from "./xml";
+import {assert} from "./loader-utils";
 
 // Convert JSON as returned by xml2js parser to d3 tree format
-function convertJSON(node) {
+function convertJSON(xml: ParsedXML) {
     const children: any[] = [];
     let properties: any = {};
-    let text;
-    const tag = node["#name"];
+    let text: string | undefined;
+    const tag = xml["#name"];
 
-    if (node.$) {
-        properties = node.$;
+    if (xml.$) {
+        properties = xml.$;
     }
-    if (node._) {
-        text = node._;
+    if (xml._) {
+        text = xml._;
     }
-    if (node.$$) {
-        node.$$.forEach(function(child) {
+    if (xml.$$) {
+        xml.$$.forEach(function(child) {
             children.push(convertJSON(child));
         });
     }
@@ -44,10 +45,11 @@ function convertJSON(node) {
 // Function to generate nodes' display names based on their properties
 const generateDisplayNames = (function() {
     // Function to eliminate node
-    function eliminateNode(node, parent) {
+    function eliminateNode(node: TreeNode, parent: TreeNode) {
         if (!node || !node.children) {
             return;
         }
+        assert(parent.children !== undefined);
         let nodeIndex = parent.children.indexOf(node);
         parent.children.splice(nodeIndex, 1);
         for (let i = 0; i < node.children.length; i++) {
@@ -57,7 +59,7 @@ const generateDisplayNames = (function() {
     }
 
     // properties.class are the expressions
-    function handleLogicalExpression(node) {
+    function handleLogicalExpression(node: TreeNode) {
         switch (node.properties.class) {
             case "identifier":
                 node.name = node.text;
@@ -77,7 +79,7 @@ const generateDisplayNames = (function() {
     }
 
     // tags are the expressions
-    function handleLogicalExpression2(node) {
+    function handleLogicalExpression2(node: TreeNode) {
         switch (node.tag) {
             case "identifierExp":
                 node.name = node.properties.identifier;
@@ -100,7 +102,7 @@ const generateDisplayNames = (function() {
         }
     }
 
-    function handleQueryExpression(node) {
+    function handleQueryExpression(node: TreeNode) {
         switch (node.properties.class) {
             case "identifier":
                 node.name = node.text;
@@ -119,7 +121,7 @@ const generateDisplayNames = (function() {
         }
     }
 
-    function handleQueryFunction(node) {
+    function handleQueryFunction(node: TreeNode) {
         switch (node.properties.class) {
             case "table":
                 node.name = node.properties.table;
@@ -132,7 +134,7 @@ const generateDisplayNames = (function() {
     }
 
     // properties.class are the operators
-    function handleLogicalOperator(node) {
+    function handleLogicalOperator(node: TreeNode) {
         switch (node.properties.class) {
             case "join":
                 node.name = node.properties.name;
@@ -156,7 +158,7 @@ const generateDisplayNames = (function() {
     }
 
     // tags are the operators
-    function handleLogicalOperator2(node) {
+    function handleLogicalOperator2(node: TreeNode) {
         switch (node.tag) {
             case "joinOp":
                 node.name = node.tag.replace(/Op$/, "");
@@ -184,7 +186,7 @@ const generateDisplayNames = (function() {
     }
 
     // properties.class are the operators
-    function handleFedOp(node) {
+    function handleFedOp(node: TreeNode) {
         switch (node.properties.class) {
             case "createtemptable":
             case "createtemptablefromquery":
@@ -202,7 +204,7 @@ const generateDisplayNames = (function() {
         }
     }
 
-    function handleBinding(node) {
+    function handleBinding(node: TreeNode) {
         if (node.properties && node.properties.name) {
             node.name = node.properties.name;
         } else if (node.properties && node.properties.ref) {
@@ -213,7 +215,7 @@ const generateDisplayNames = (function() {
     }
 
     // for calculation-language expression trees
-    function handleDimensions(node) {
+    function handleDimensions(node: TreeNode) {
         if (node.text) {
             node.name = node.text;
         } else if (node.properties && node.properties.type) {
@@ -224,7 +226,7 @@ const generateDisplayNames = (function() {
     }
 
     // extensions for calculation-language expression trees
-    function handleExpression(node) {
+    function handleExpression(node: TreeNode) {
         if (node.text) {
             node.name = node.text;
         } else if (node.properties && node.properties.name) {
@@ -243,7 +245,7 @@ const generateDisplayNames = (function() {
     }
 
     // Function to display node's name.
-    function displayNodeName(node) {
+    function displayNodeName(node: TreeNode) {
         if (node.properties && node.properties.name) {
             node.name = node.properties.name;
         } else {
@@ -251,9 +253,9 @@ const generateDisplayNames = (function() {
         }
     }
 
-    function generateDisplayNames(node) {
+    function generateDisplayNames(node: TreeNode) {
         // In-order traversal. Leaf node don't have children
-        if (node.children) {
+        if (node.children !== undefined) {
             for (let i = 0; i < node.children.length; i++) {
                 generateDisplayNames(node.children[i]);
             }
@@ -375,9 +377,9 @@ const generateDisplayNames = (function() {
 })();
 
 // Assign symbols & classes to the nodes
-function assignSymbolsAndClasses(treeData) {
+function assignSymbolsAndClasses(root: TreeNode) {
     treeDescription.visitTreeNodes(
-        treeData,
+        root,
         function(n) {
             // Assign symbols
             if (n.properties && n.properties.join && n.class && n.class === "join") {
@@ -403,10 +405,12 @@ function assignSymbolsAndClasses(treeData) {
                 n.class === "createtemptable" ||
                 (n.tag === "expression" && n.properties && n.properties.name)
             ) {
+                assert(n.children !== undefined);
                 n.children.forEach(function(c) {
                     c.edgeClass = "qg-link-and-arrow";
                 });
             } else if (n.name === "runquery") {
+                assert(n.children !== undefined);
                 n.children.forEach(function(c) {
                     if (c.class === "createtemptable") {
                         c.edgeClass = "qg-dotted-link";
@@ -414,18 +418,15 @@ function assignSymbolsAndClasses(treeData) {
                 });
             }
         },
-        function(d) {
-            return d.children && d.children.length > 0 ? d.children : null;
-        },
+        treeDescription.allChildren,
     );
 }
 
-function collapseNodes(treeData, graphCollapse) {
-    const streamline = graphCollapse === "s" ? treeDescription.streamline : treeDescription.collapseAllChildren;
-    const collapseAllChildren = treeDescription.collapseAllChildren;
+function collapseNodes(root: TreeNode, graphCollapse) {
+    const streamlineOrCollapse = graphCollapse === "s" ? streamline : collapseAllChildren;
     if (graphCollapse !== "n") {
         treeDescription.visitTreeNodes(
-            treeData,
+            root,
             function(d) {
                 if (d.name) {
                     const _name = d.fullName ? d.fullName : d.name;
@@ -462,7 +463,7 @@ function collapseNodes(treeData, graphCollapse) {
                         case "function-node":
                         case "type":
                         case "tuples":
-                            streamline(d);
+                            streamlineOrCollapse(d);
                             return;
                         default:
                             break;
@@ -478,17 +479,15 @@ function collapseNodes(treeData, graphCollapse) {
                     }
                 }
             },
-            function(d) {
-                return d.children && d.children.length > 0 ? d.children.slice(0) : null;
-            },
+            treeDescription.allChildren,
         );
     }
 }
 
 // Color graph per federated connections
-function colorFederated(treeData) {
+function colorFederated(root: TreeNode) {
     treeDescription.visitTreeNodes(
-        treeData,
+        root,
         function(d) {
             if (d.tag && d.tag === "fed-op") {
                 if (d.properties && d.properties.connection) {
@@ -505,8 +504,8 @@ function colorFederated(treeData) {
 }
 
 // Prepare the loaded data for visualization
-function prepareTreeData(treeData, graphCollapse) {
-    treeData = convertJSON(treeData);
+function prepareTreeData(xml: ParsedXML, graphCollapse): TreeNode {
+    const treeData = convertJSON(xml);
     // Tag the tree root
     if (!treeData.tag) {
         treeData.tag = "result";
@@ -521,10 +520,14 @@ function prepareTreeData(treeData, graphCollapse) {
 }
 
 // Function to add crosslinks between related nodes
-function addCrosslinks(root) {
-    const crosslinks: any[] = [];
-    const sourcenodes: any[] = [];
-    const operatorsByName: any[] = [];
+function addCrosslinks(root: TreeNode): Crosslink[] {
+    interface UnresolvedCrosslink {
+        source: TreeNode;
+        targetName: string;
+    }
+
+    const unresolvedLinks: UnresolvedCrosslink[] = [];
+    const operatorsByName = new Map<string, TreeNode>();
 
     treeDescription.visitTreeNodes(
         root,
@@ -537,7 +540,8 @@ function addCrosslinks(root) {
                 node.class === "relation" &&
                 node.hasOwnProperty("name")
             ) {
-                operatorsByName[node.name] = node;
+                assert(node.name !== undefined);
+                operatorsByName.set(node.name, node);
             } else if (node.tag === "binding" && node.hasOwnProperty("properties") && node.properties.hasOwnProperty("ref")) {
                 operatorsByName[node.properties.ref] = node;
             }
@@ -550,16 +554,16 @@ function addCrosslinks(root) {
                         node.properties.hasOwnProperty("class") &&
                         node.properties.class === "createtemptable"
                     ) {
-                        sourcenodes.push({
-                            node: node,
-                            operatorName: node.properties.table,
+                        unresolvedLinks.push({
+                            source: node,
+                            targetName: node.properties.table,
                         });
                     }
                     break;
                 case "referenceOp":
                 case "referenceExp":
                     if (node.hasOwnProperty("properties") && node.properties.hasOwnProperty("ref")) {
-                        sourcenodes.push({node: node, operatorName: node.properties.ref});
+                        unresolvedLinks.push({source: node, targetName: node.properties.ref});
                     }
                     break;
                 default:
@@ -570,32 +574,19 @@ function addCrosslinks(root) {
     );
 
     // Add crosslinks from source to matching target node
-    sourcenodes.forEach(function(source) {
-        const targetnode = operatorsByName[source.operatorName];
-        const entry = {source: source.node, target: targetnode};
+    const crosslinks = [] as Crosslink[];
+    for (const link of unresolvedLinks) {
+        const targetnode = operatorsByName.get(link.targetName);
+        const entry = {source: link.source, target: targetnode};
         crosslinks.push(entry);
-    });
+    }
 
     return crosslinks;
 }
 
 export function loadTableauPlan(graphString: string, graphCollapse): TreeDescription {
-    let result;
-    const parser = new XmlParser({
-        explicitRoot: false,
-        explicitChildren: true,
-        preserveChildrenOrder: true,
-        // Don't merge attributes. XML attributes will be stored in node["$"]
-        mergeAttrs: false,
-    });
-    parser.parseString(graphString, function(err, parsed) {
-        if (err) {
-            throw new Error("XML parse failed with '" + err + "'.");
-        } else {
-            const root = prepareTreeData(parsed, graphCollapse);
-            const crosslinks = addCrosslinks(root);
-            result = {root: root, crosslinks: crosslinks};
-        }
-    });
-    return result;
+    const xml = typesafeXMLParse(graphString);
+    const root = prepareTreeData(xml, graphCollapse);
+    const crosslinks = addCrosslinks(root);
+    return {root: root, crosslinks: crosslinks};
 }
