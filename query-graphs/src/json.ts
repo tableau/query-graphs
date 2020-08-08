@@ -21,7 +21,7 @@ function convertChildren(node: Json): TreeNode[] {
                 },
             },
         ];
-    } else if (typeof node === "object" && !Array.isArray(node)) {
+    } else if (typeof node === "object" && !Array.isArray(node) && node !== null) {
         // "Object" nodes
         const children = [] as TreeNode[];
         const propNames = Object.getOwnPropertyNames(node).sort();
