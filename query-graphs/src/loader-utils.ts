@@ -42,7 +42,7 @@ export function forceToString(d: unknown): string {
     return str;
 }
 
-export function json2stringmap(json: string): Map<string, string> {
+export function jsonToStringMap(json: string): Map<string, string> {
     let parsedJSON: Json;
     try {
         parsedJSON = JSON.parse(json);
