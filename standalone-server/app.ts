@@ -12,7 +12,7 @@ import {loadTableauPlan} from "@tableau/query-graphs/lib/tableau";
 import {loadJsonFromText} from "@tableau/query-graphs/lib/json";
 import {loadTQLPlan} from "@tableau/query-graphs/lib/tql";
 import {loadXml} from "@tableau/query-graphs/lib/xml";
-import {assert, jsonToStringMap} from "@tableau/query-graphs/lib/common";
+import {assert, jsonToStringMap} from "@tableau/query-graphs/lib/loader-utils";
 import {TreeDescription, GraphOrientation} from "@tableau/query-graphs/lib/tree-description";
 const knownLoaders = new Map<string, any>([
     ["hyper", loadHyperPlanFromText],
