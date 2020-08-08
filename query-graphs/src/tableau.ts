@@ -576,9 +576,10 @@ function addCrosslinks(root: TreeNode): Crosslink[] {
     // Add crosslinks from source to matching target node
     const crosslinks = [] as Crosslink[];
     for (const link of unresolvedLinks) {
-        const targetnode = operatorsByName.get(link.targetName);
-        const entry = {source: link.source, target: targetnode};
-        crosslinks.push(entry);
+        const target = operatorsByName.get(link.targetName);
+        if (target !== undefined) {
+            crosslinks.push({source: link.source, target: target});
+        }
     }
 
     return crosslinks;

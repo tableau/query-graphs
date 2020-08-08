@@ -37,7 +37,7 @@ function convertHyper(node: Json, parentKey: string): TreeNode | TreeNode[] {
                 continue;
             }
             if (tag === undefined) {
-                tag = node[tagKey];
+                tag = node[tagKey].toString();
             } else {
                 properties[tagKey] = forceToString(node[tagKey]);
             }
@@ -310,9 +310,10 @@ function addCrosslinks(root: TreeNode) {
     // Add crosslinks from source to matching target node
     const crosslinks = [] as Crosslink[];
     for (const link of unresolvedLinks) {
-        const targetnode = operatorsById.get([link.targetOpId, link.optimizerStep].toString());
-        const entry = {source: link.source, target: targetnode};
-        crosslinks.push(entry);
+        const target = operatorsById.get([link.targetOpId, link.optimizerStep].toString());
+        if (target !== undefined) {
+            crosslinks.push({source: link.source, target: target});
+        }
     }
     return crosslinks;
 }
