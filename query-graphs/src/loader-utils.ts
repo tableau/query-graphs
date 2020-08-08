@@ -1,7 +1,7 @@
 // Stricter type for JSON data
-export type Json = string | number | boolean | Date | JsonObject | JsonArray;
+export type Json = string | number | boolean | JsonObject | JsonArray;
 interface JsonObject {
-    [x: string]: string | number | boolean | Date | JsonObject | JsonArray;
+    [x: string]: string | number | boolean | JsonObject | JsonArray;
 }
 type JsonArray = Array<Json>;
 

@@ -976,7 +976,7 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
 
     // Add metrics card
     let treeText = "";
-    const properties = treeData.properties ? treeData.properties : {};
+    const properties = treeData.properties ?? {};
     treeText += buildPropertyList(properties);
     treeText += buildPropertyList({nodes: totalNodes});
     if (crosslinks !== undefined && crosslinks.length) {

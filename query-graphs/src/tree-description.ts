@@ -6,9 +6,9 @@ export interface TreeNode {
     /// The id of the symbol rendered for this node
     symbol?: string;
     // Additional CSS classes applied to the node
-    nodeClass?: any;
+    nodeClass?: string;
     // Additional CSS classes applied to the incoming link
-    edgeClass?: any;
+    edgeClass?: string;
     // EdgeLabel: label placed on the incoming edge
     edgeLabel?: string;
     // Rendered in the tooltip
@@ -22,8 +22,8 @@ export interface TreeNode {
 }
 
 export interface Crosslink {
-    source: any;
-    target: any;
+    source: TreeNode;
+    target: TreeNode;
 }
 
 export interface TreeDescription {
@@ -36,7 +36,7 @@ export interface TreeDescription {
     /// Displayed in the top-level tree label
     properties?: any;
     /// Additional links between indirectly related nodes
-    crosslinks?: any[];
+    crosslinks?: Crosslink[];
 }
 
 // A recursive helper function for walking through all nodes
