@@ -765,7 +765,7 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
         nodeUpdate
             .filter(function(d) {
                 return (
-                    Object.getOwnPropertyNames(getDirectProperties(d)).length || // eslint-disable-line indent
+                    Object.getOwnPropertyNames(getDirectProperties(d.data)).length || // eslint-disable-line indent
                     (d.data.hasOwnProperty("properties") && Object.getOwnPropertyNames(d.data.properties).length)
                 );
             }) // eslint-disable-line indent
