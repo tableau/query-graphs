@@ -976,17 +976,18 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
 
     // Add metrics card
     let treeText = "";
-    const properties = treeData.properties ?? {};
-    treeText += buildPropertyList(properties);
-    treeText += buildPropertyList({nodes: totalNodes});
-    if (crosslinks !== undefined && crosslinks.length) {
-        treeText += buildPropertyList({crosslinks: crosslinks.length});
+    treeText += buildPropertyList(treeData.properties ?? {});
+    if (DEBUG) {
+        const debugProps = {nodes: totalNodes, crosslinks: crosslinks.length};
+        treeText += buildPropertyList(debugProps, "qg-prop-name2");
     }
-    d3selection
-        .select(target)
-        .append("div")
-        .classed("qg-tree-label", true)
-        .html(treeText);
+    if (treeText != "") {
+        d3selection
+            .select(target)
+            .append("div")
+            .classed("qg-tree-label", true)
+            .html(treeText);
+    }
 
     function expandOneLevel() {
         svgGroup.selectAll("g.qg-node").each(function(d) {
