@@ -1,18 +1,23 @@
 {
-  "plan": {
+  "operator": "executiontarget",
+  "operatorId": 1,
+  "cardinality": 10,
+  "producesRows": true,
+  "output": [{"expression": "iuref", "iu": ["v", ["Integer"]]}],
+  "outputNames": ["generate_series"],
+  "input": {
     "operator": "tablefunction",
-    "operatorId": 1,
+    "operatorId": 2,
     "cardinality": 10,
     "input": {
       "operator": "tableconstruction",
-      "operatorId": 2,
+      "operatorId": 3,
       "cardinality": 1,
       "output": [],
       "values": [[]]
     },
     "function": "sequence",
-    "args": [{"expression": "const", "value": {"type": ["Integer"], "value": 1}}, {"expression": "const", "value": {"type": ["Integer"], "value": 10}}],
+    "args": [{"expression": "const", "value": {"type": ["Integer"], "value": 1}}, {"expression": "const", "value": {"type": ["Integer"], "value": 10}}, {"expression": "const", "value": {"type": ["Integer"], "value": 1}}],
     "ius": [["v", ["Integer"]]]
-  },
-  "header": ["generate_series", "v"]
+  }
 }
