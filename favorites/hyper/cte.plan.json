@@ -1,36 +1,40 @@
 {
-  "query": "WITH t1 AS (VALUES(1),(2),(3)) SELECT * FROM t1 ta,t1 tb",
-  "plan": {
+  "operator": "executiontarget",
+  "operatorId": 1,
+  "cardinality": 9,
+  "producesRows": true,
+  "output": [{"expression": "iuref", "iu": ["v", ["Integer"]]}, {"expression": "iuref", "iu": ["v2", ["Integer"]]}],
+  "outputNames": ["1", "1"],
+  "input": {
     "operator": "join",
-    "operatorId": 1,
+    "operatorId": 2,
     "cardinality": 9,
     "method": "bnl",
     "left": {
       "operator": "explicitscan",
-      "operatorId": 2,
+      "operatorId": 3,
       "cardinality": 3,
-      "output": [{"source": ["v", ["Integer"]], "target": ["v2", ["Integer"]]}],
+      "output": [{"source": {"expression": "iuref", "iu": ["v3", ["Integer"]]}, "target": ["v2", ["Integer"]]}],
       "source": {
         "operator": "temp",
-        "operatorId": 3,
+        "operatorId": 4,
         "cardinality": 3,
         "input": {
           "operator": "tableconstruction",
-          "operatorId": 4,
+          "operatorId": 5,
           "cardinality": 3,
-          "output": [["v", ["Integer"]]],
+          "output": [["v3", ["Integer"]]],
           "values": [[{"expression": "const", "value": {"type": ["Integer"], "value": 1}}], [{"expression": "const", "value": {"type": ["Integer"], "value": 2}}], [{"expression": "const", "value": {"type": ["Integer"], "value": 3}}]]
         }
       }
     },
     "right": {
       "operator": "explicitscan",
-      "operatorId": 5,
+      "operatorId": 6,
       "cardinality": 3,
-      "output": [{"source": "v", "target": ["v3", ["Integer"]]}],
-      "source": 3
+      "output": [{"source": {"expression": "iuref", "iu": "v3"}, "target": ["v", ["Integer"]]}],
+      "source": 4
     },
     "condition": {"expression": "const", "value": {"type": ["Bool"], "value": true}}
-  },
-  "header": ["1", "v3", "1", "v2"]
+  }
 }
