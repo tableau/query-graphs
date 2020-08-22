@@ -489,7 +489,13 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
         const linkLabelEnter = linkLabel
             .enter()
             .insert("text")
-            .classed("qg-link-label", true)
+            .attr("class", function(d) {
+                if (d.target.data.edgeLabel.includes(";")) {
+                    return "qg-link-label qg-link-label-highlighted";
+                } else {
+                    return "qg-link-label";
+                }
+            })
             .attr("text-anchor", "middle")
             .text(d => d.target.data.edgeLabel)
             .attr("x", ooo.x(source.prevPos))

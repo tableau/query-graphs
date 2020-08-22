@@ -7,6 +7,7 @@ import {Spinner} from "spin.js";
 
 // Require local modules
 import {drawQueryTree} from "@tableau/query-graphs/lib/tree-rendering";
+import {loadPostgresPlanFromText} from "@tableau/query-graphs/lib/postgres";
 import {loadHyperPlanFromText} from "@tableau/query-graphs/lib/hyper";
 import {loadTableauPlan} from "@tableau/query-graphs/lib/tableau";
 import {loadJsonFromText} from "@tableau/query-graphs/lib/json";
@@ -15,6 +16,7 @@ import {loadXml} from "@tableau/query-graphs/lib/xml";
 import {assert, jsonToStringMap} from "@tableau/query-graphs/lib/loader-utils";
 import {TreeDescription, GraphOrientation} from "@tableau/query-graphs/lib/tree-description";
 const knownLoaders = new Map<string, any>([
+    ["postgres", loadPostgresPlanFromText],
     ["hyper", loadHyperPlanFromText],
     ["tableau", loadTableauPlan],
     ["json", loadJsonFromText],
@@ -146,7 +148,8 @@ if (paramErrors.length) {
         if (fileFormat !== null) {
             loaders = [knownLoaders.get(fileFormat)];
         } else if (graphFile.endsWith(".json")) {
-            loaders = [loadHyperPlanFromText, loadJsonFromText];
+            // Try Postgres before Hyper so to differentiate between them
+            loaders = [loadPostgresPlanFromText, loadHyperPlanFromText, loadJsonFromText];
         } else if (graphFile.endsWith(".xml")) {
             loaders = [loadTableauPlan, loadXml];
         } else if (graphFile.endsWith(".twb")) {
@@ -171,13 +174,17 @@ if (paramErrors.length) {
                 return false;
             }
         }
-        if (loaders.some(tryLoad)) {
+        const loaderIdx = loaders.findIndex(tryLoad);
+        if (loaderIdx > -1) {
             assert(loadedTree !== undefined);
             if (loadedTree.properties === undefined) {
                 loadedTree.properties = {};
             }
             for (const [key, value] of toplevelProperties) {
                 loadedTree.properties[key] = value;
+            }
+            if (DEBUG) {
+                loadedTree.properties["loader"] = loaders[loaderIdx].name;
             }
             loadedTree.graphOrientation = graphOrientation;
             loadedTree.DEBUG = DEBUG;

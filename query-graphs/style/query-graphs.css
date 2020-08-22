@@ -278,6 +278,35 @@ marker#arrow {
   fill: none;
 }
 
+.qg-link-label-highlighted {
+  fill: hsl(309, 84%, 36%);
+}
+
+/* Favorite Foreign Scans (Jewel Bright color palette) */
+.qg-dtinglinux .qg-expanded {
+  color: hsl(189, 72%, 92%)
+}
+
+.qg-dtinglinux .qg-collapsed {
+  color: hsl(189, 72%, 76%)
+}
+
+.qg-lxulx .qg-expanded {
+  color: hsl(23, 100%, 86%)
+}
+
+.qg-lxulx .qg-collapsed {
+  color: hsl(23, 100%, 57%)
+}
+
+.qg-ricolelx .qg-expanded {
+  color: hsl(357, 89%, 84%)
+}
+
+.qg-ricolelx .qg-collapsed {
+  color: hsl(357, 89%, 53%)
+}
+
 /* Run Query */
 path.qg-run-query {
   fill: #fff;
