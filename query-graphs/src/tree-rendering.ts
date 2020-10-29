@@ -15,7 +15,7 @@ const MAX_DISPLAY_LENGTH = 15;
 //
 // Create the symbols
 //
-function defineSymbols(baseSvg, ooo) {
+function defineSymbols(baseSvg) {
     baseSvg.append("svg:defs");
     const defs = baseSvg.select("defs");
     // Build the arrow
@@ -26,7 +26,7 @@ function defineSymbols(baseSvg, ooo) {
         .attr("refY", 0)
         .attr("markerWidth", 5)
         .attr("markerHeight", 5)
-        .attr("orient", ooo.arrowRotation)
+        .attr("orient", "auto-start-reverse")
         .append("svg:path")
         .attr("d", "M0,-5L10,0L0,5");
 
@@ -320,7 +320,6 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
                     y: d.target.y - crosslinkRawSpacing.direction,
                 };
             },
-            arrowRotation: "270deg",
         },
         "right-to-left": {
             link: d3shape.linkHorizontal,
@@ -363,7 +362,6 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
                     y: d.target.y + crosslinkRawSpacing.offset,
                 };
             },
-            arrowRotation: "0deg",
         },
         "bottom-to-top": {
             link: d3shape.linkVertical,
@@ -406,7 +404,6 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
                     y: d.target.y + crosslinkRawSpacing.direction,
                 };
             },
-            arrowRotation: "90deg",
         },
         "left-to-right": {
             link: d3shape.linkHorizontal,
@@ -449,7 +446,6 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
                     y: d.target.y + crosslinkRawSpacing.offset,
                 };
             },
-            arrowRotation: "180deg",
         },
     };
 
@@ -564,7 +560,7 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
         .attr("class", "qg-overlay")
         .call(zoomBehavior);
 
-    defineSymbols(baseSvg, ooo);
+    defineSymbols(baseSvg);
 
     function collapseDefault(r) {
         treeDescription.visitTreeNodes(
