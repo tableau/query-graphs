@@ -33,14 +33,14 @@ function defineSymbols(baseSvg) {
     // Build the default symbol. Use this symbol if there is not a better fit
     defs.append("circle")
         .attr("id", "default-symbol")
-        .attr("class", "qg-node-circle")
+        .attr("class", "qg-symbol-filled")
         .attr("r", 5);
 
     // Build the run query symbol
     const runQueryGroup = defs.append("g").attr("id", "run-query-symbol");
     runQueryGroup
         .append("circle")
-        .attr("class", "qg-node-circle")
+        .attr("class", "qg-symbol-filled")
         .attr("r", 6);
     runQueryGroup
         .append("path")
@@ -177,27 +177,37 @@ function defineSymbols(baseSvg) {
         .attr("y", tableStartTop + tableRowHeight)
         .attr("height", tableHeight - tableRowHeight);
 
-    // Build the temp table symbol, very similar to the regular table symbol
-    const tempTableGroup = defs.append("g").attr("id", "temp-table-symbol");
-    tempTableGroup
-        .append("rect")
-        .attr("class", "qg-table-background")
-        .attr("x", tableStartLeft)
-        .attr("width", tableWidth)
-        .attr("y", tableStartTop)
-        .attr("height", tableHeight);
-    tempTableGroup
-        .append("rect")
-        .attr("class", "qg-table-header")
-        .attr("x", tableStartLeft)
-        .attr("width", tableWidth)
-        .attr("y", tableStartTop)
-        .attr("height", tableRowHeight);
-    tempTableGroup
-        .append("text")
-        .attr("class", "qg-table-text")
-        .attr("y", tableRowHeight + 0.8 /* stroke-width */ / 2)
-        .text("tmp");
+    defs.append("path")
+        .attr("id", "filter-symbol")
+        .attr("class", "qg-symbol-filled")
+        .attr("d", "M-6,-6 L6,-6 L0.8,0 L0.8,5 L-0.8,7 L-0.8,0 Z");
+
+    // Build the additional table symbol, very similar to the regular table symbol
+    function createLabeledTableSymbol(id: string, label: string) {
+        const labeledTableGroup = defs.append("g").attr("id", id);
+        labeledTableGroup
+            .append("rect")
+            .attr("class", "qg-table-background")
+            .attr("x", tableStartLeft)
+            .attr("width", tableWidth)
+            .attr("y", tableStartTop)
+            .attr("height", tableHeight);
+        labeledTableGroup
+            .append("rect")
+            .attr("class", "qg-table-header")
+            .attr("x", tableStartLeft)
+            .attr("width", tableWidth)
+            .attr("y", tableStartTop)
+            .attr("height", tableRowHeight);
+        labeledTableGroup
+            .append("text")
+            .attr("class", "qg-table-text")
+            .attr("y", tableRowHeight + 0.8 /* stroke-width */ / 2)
+            .text(label);
+    }
+    createLabeledTableSymbol("temp-table-symbol", "tmp");
+    createLabeledTableSymbol("virtual-table-symbol", "dmv");
+    createLabeledTableSymbol("const-table-symbol", "cnst");
 }
 
 //

@@ -396,6 +396,8 @@ function assignSymbolsAndClasses(root: TreeNode) {
                 n.symbol = "table-symbol";
             } else if (n.class && n.class === "createtemptable") {
                 n.symbol = "temp-table-symbol";
+            } else if (n.tag == "selectOp") {
+                n.symbol = "filter-symbol";
             } else if (n.name && n.name === "runquery") {
                 n.symbol = "run-query-symbol";
             }

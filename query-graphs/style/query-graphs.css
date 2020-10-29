@@ -49,7 +49,7 @@
 .qg-collapsed {
   stroke: hsl(0, 0%, 40%);
   stroke-width: 0.8;
-  color: hsl(0, 0%, 50%);
+  color: hsl(0, 0%, 60%);
 }
 
 /*
@@ -129,10 +129,6 @@
   color: hsl(317, 25%, 58%)
 }
 
-.qg-node-circle {
-  fill: currentColor;
-}
-
 .qg-node text {
   font-size: 9px;
   font-weight: bold;
@@ -203,6 +199,12 @@ marker#arrow {
   fill: #aaa;
 }
 
+/* Symbols */
+
+.qg-symbol-filled {
+  fill: currentColor;
+}
+
 /* Run Query */
 path.qg-run-query {
   fill: #fff;
@@ -238,6 +240,7 @@ rect.qg-table-header {
 rect.qg-table-border {
   fill: none;
 }
+
 text.qg-table-text {
   text-anchor: middle;
   font-size: 7px;
