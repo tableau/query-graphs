@@ -168,35 +168,40 @@ function generateDisplayNames(treeRoot: TreeNode) {
     treeDescription.visitTreeNodes(
         treeRoot,
         function(node) {
+            node.name = node.tag ?? node.text ?? "";
             switch (node.tag) {
                 case "join":
-                    node.name = node.tag;
                     node.symbol = "inner-join-symbol";
                     break;
                 case "leftouterjoin":
-                    node.name = node.tag;
                     node.symbol = "left-join-symbol";
                     break;
                 case "rightouterjoin":
-                    node.name = node.tag;
                     node.symbol = "right-join-symbol";
                     break;
                 case "fullouterjoin":
-                    node.name = node.tag;
                     node.symbol = "full-join-symbol";
                     break;
                 case "tablescan":
-                    node.name = node.properties.from ? node.properties.from : node.tag;
+                    node.name = node.properties.from ?? node.tag;
                     node.symbol = "table-symbol";
+                    break;
+                case "virtualtable":
+                    node.name = node.properties.name ?? node.tag;
+                    node.symbol = "virtual-table-symbol";
+                    break;
+                case "tableconstruction":
+                    node.symbol = "const-table-symbol";
                     break;
                 case "binaryscan":
                 case "cursorscan":
                 case "csvscan":
                 case "tdescan":
-                case "tableconstruction":
-                case "virtualtable":
-                    node.name = node.tag;
                     node.symbol = "table-symbol";
+                    break;
+                case "select":
+                case "earlyprobe":
+                    node.symbol = "filter-symbol";
                     break;
                 case "explicitscan":
                     node.name = node.tag;
@@ -208,14 +213,13 @@ function generateDisplayNames(treeRoot: TreeNode) {
                     node.edgeClass = "qg-link-and-arrow";
                     break;
                 case "comparison":
-                    node.name = node.properties.mode ? node.properties.mode : node.tag;
+                    node.name = node.properties.mode ?? node.tag;
                     break;
                 case "iuref":
-                    node.name = node.properties.iu ? node.properties.iu : node.tag;
+                    node.name = node.properties.iu ?? node.tag;
                     break;
                 case "attribute":
                 case "condition":
-                case "header":
                 case "iu":
                 case "name":
                 case "operation":
@@ -223,8 +227,6 @@ function generateDisplayNames(treeRoot: TreeNode) {
                 case "tableOid":
                 case "tid":
                 case "tupleFlags":
-                case "unique":
-                case "unnormalizedNames":
                 case "output":
                     if (node.text) {
                         node.name = node.tag + ":" + node.text;
