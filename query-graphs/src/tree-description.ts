@@ -70,8 +70,8 @@ export function allChildren<T extends TreeLike<T>>(n: T): T[] {
 export function createParentLinks(tree) {
     visitTreeNodes(
         tree,
-        function() {},
-        function(d) {
+        () => {},
+        d => {
             if (d.children) {
                 const children = allChildren(d);
                 const count = children.length;

@@ -29,7 +29,7 @@ function convertJSON(xml: ParsedXML) {
         text = xml._;
     }
     if (xml.$$) {
-        xml.$$.forEach(function(child) {
+        xml.$$.forEach(child => {
             children.push(convertJSON(child));
         });
     }
@@ -380,7 +380,7 @@ const generateDisplayNames = (function() {
 function assignSymbolsAndClasses(root: TreeNode) {
     treeDescription.visitTreeNodes(
         root,
-        function(n) {
+        n => {
             // Assign symbols
             if (n.properties && n.properties.join && n.class && n.class === "join") {
                 n.symbol = n.properties.join + "-join-symbol";
@@ -408,12 +408,12 @@ function assignSymbolsAndClasses(root: TreeNode) {
                 (n.tag === "expression" && n.properties && n.properties.name)
             ) {
                 assert(n.children !== undefined);
-                n.children.forEach(function(c) {
+                n.children.forEach(c => {
                     c.edgeClass = "qg-link-and-arrow";
                 });
             } else if (n.name === "runquery") {
                 assert(n.children !== undefined);
-                n.children.forEach(function(c) {
+                n.children.forEach(c => {
                     if (c.class === "createtemptable") {
                         c.edgeClass = "qg-dotted-link";
                     }
@@ -429,7 +429,7 @@ function collapseNodes(root: TreeNode, graphCollapse) {
     if (graphCollapse !== "n") {
         treeDescription.visitTreeNodes(
             root,
-            function(d) {
+            d => {
                 if (d.name) {
                     const _name = d.fullName ? d.fullName : d.name;
                     switch (_name) {
@@ -490,7 +490,7 @@ function collapseNodes(root: TreeNode, graphCollapse) {
 function colorFederated(root: TreeNode) {
     treeDescription.visitTreeNodes(
         root,
-        function(d) {
+        d => {
             if (d.tag && d.tag === "fed-op") {
                 if (d.properties && d.properties.connection) {
                     d.federated = d.properties.connection.split(".")[0];
@@ -533,7 +533,7 @@ function addCrosslinks(root: TreeNode): Crosslink[] {
 
     treeDescription.visitTreeNodes(
         root,
-        function(node) {
+        node => {
             // Build map from potential target operator name/ref to node
             if (
                 node.hasOwnProperty("federated") &&

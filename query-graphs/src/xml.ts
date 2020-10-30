@@ -32,7 +32,7 @@ export function typesafeXMLParse(str: string): ParsedXML {
         // Don't merge attributes. XML attributes will be stored in node["$"]
         mergeAttrs: false,
     });
-    parser.parseString(str, function(err: any, parsed: ParsedXML) {
+    parser.parseString(str, (err: any, parsed: ParsedXML) => {
         if (err) {
             throw new Error("XML parse failed with '" + err + "'.");
         } else {

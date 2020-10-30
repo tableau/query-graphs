@@ -97,7 +97,7 @@ if (!inlineString) {
 
 const delay = (function() {
     let timer = 0;
-    return function(callback: CallableFunction, ms: number) {
+    return (callback: CallableFunction, ms: number) => {
         clearTimeout(timer);
         timer = setTimeout(callback, ms);
     };
@@ -109,7 +109,7 @@ const delay = (function() {
 function registerEventHandlers(widget: any) {
     document.body.addEventListener(
         "keydown",
-        function(e) {
+        e => {
             // Emit event key codes for debugging
             if (DEBUG) {
                 console.log("pressed key " + e.keyCode);
@@ -124,10 +124,8 @@ function registerEventHandlers(widget: any) {
         },
         false,
     );
-    window.addEventListener("resize", function() {
-        delay(function() {
-            widget.resize();
-        }, 500);
+    window.addEventListener("resize", () => {
+        delay(() => widget.resize(), 500);
     });
 }
 
@@ -138,13 +136,9 @@ const spinner = new Spinner().spin(document.body);
 if (paramErrors.length) {
     spinner.stop();
     document.write("invalid parameters!<br>");
-    document.write(
-        paramErrors.reduce(function(a, b) {
-            return a + "<br/>" + b;
-        }),
-    );
+    document.write(paramErrors.reduce((a, b) => a + "<br/>" + b));
 } else {
-    const displayTree = function(graphString: string) {
+    const displayTree = (graphString: string) => {
         // Remove explicit newlines
         graphString = graphString.replace(/\\n/gm, " ");
         // Detect file type
@@ -195,25 +189,21 @@ if (paramErrors.length) {
             registerEventHandlers(widget);
         } else {
             spinner.stop();
-            document.write(
-                errors.reduce(function(a, b) {
-                    return a + "<br/>" + b;
-                }),
-            );
+            document.write(errors.reduce((a, b) => a + "<br/>" + b));
         }
     };
     if (inlineString) {
         displayTree(inlineString);
     } else {
         fetch(graphFile)
-            .then(function(response) {
+            .then(response => {
                 if (!response.ok)
                     throw new Error(
                         "Request for '" + graphFile + "' failed with '" + response.status + " " + response.statusText + "'.",
                     );
                 return response.text();
             })
-            .then(displayTree, function(err) {
+            .then(displayTree, err => {
                 document.write(err);
             });
     }

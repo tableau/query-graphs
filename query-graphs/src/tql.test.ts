@@ -8,8 +8,8 @@ import * as TQL from "./tql";
 
 ///////////////////////////////////////////////////////////////////////////
 
-describe("TQL parsing", function() {
-    it("should ignore comments", function() {
+describe("TQL parsing", () => {
+    it("should ignore comments", () => {
         const setup = [
             "; comment ",
             " ; comment with leading whitespace",
@@ -48,7 +48,7 @@ describe("TQL parsing", function() {
         expect(actual).to.deep.equal(expected);
     });
 
-    it("should parse aggregate", function() {
+    it("should parse aggregate", () => {
         const setup =
             "(aggregate " +
             "  (table [tpcds].[catalog_sales]) " +
@@ -103,7 +103,7 @@ describe("TQL parsing", function() {
         expect(actual).to.deep.equal(expected);
     });
 
-    it("should parse cartprod", function() {
+    it("should parse cartprod", () => {
         const setup =
             "(cartprod " +
             "  (table [tpcds].[catalog_sales]) " +
@@ -148,7 +148,7 @@ describe("TQL parsing", function() {
         expect(actual).to.deep.equal(expected);
     });
 
-    it("should parse database", function() {
+    it("should parse database", () => {
         const setup = '(database "BlackBox/Window")';
 
         const expected = [
@@ -169,7 +169,7 @@ describe("TQL parsing", function() {
         expect(actual).to.deep.equal(expected);
     });
 
-    it("should parse dict", function() {
+    it("should parse dict", () => {
         const setup = "(dict [d_date_sk] (table [tpcds].[date_dim]) )";
 
         const expected = [
@@ -197,7 +197,7 @@ describe("TQL parsing", function() {
         expect(actual).to.deep.equal(expected);
     });
 
-    it("should parse exchange", function() {
+    it("should parse exchange", () => {
         const setup = "(exchange (table [tpcds].[catalog_sales]) 4 [] false )";
         const expected = [
             {
@@ -227,7 +227,7 @@ describe("TQL parsing", function() {
         expect(actual).to.deep.equal(expected);
     });
 
-    it("should parse flowtable", function() {
+    it("should parse flowtable", () => {
         const setup = "(flowtable (table [tpcds].[catalog_sales]) none )";
         const expected = [
             {
@@ -254,7 +254,7 @@ describe("TQL parsing", function() {
         expect(actual).to.deep.equal(expected);
     });
 
-    it("should parse fraction", function() {
+    it("should parse fraction", () => {
         const setup = "(fraction (table [tpcds].[catalog_sales]) 4 0 () )";
         const expected = [
             {
@@ -287,7 +287,7 @@ describe("TQL parsing", function() {
         expect(actual).to.deep.equal(expected);
     });
 
-    it("should parse groupjoin", function() {
+    it("should parse groupjoin", () => {
         const setup =
             "(groupjoin " +
             "  (table [tpcds].[catalog_sales]) " +
@@ -364,7 +364,7 @@ describe("TQL parsing", function() {
         expect(actual).to.deep.equal(expected);
     });
 
-    it("should parse iejoin", function() {
+    it("should parse iejoin", () => {
         const setup =
             "(iejoin " +
             "  (table [tpcds].[catalog_sales]) " +
@@ -435,7 +435,7 @@ describe("TQL parsing", function() {
         expect(actual).to.deep.equal(expected);
     });
 
-    it("should parse indextable", function() {
+    it("should parse indextable", () => {
         const setup = "(indextable [d_date_sk] (table [tpcds].[date_dim]) )";
 
         const expected = [
@@ -463,7 +463,7 @@ describe("TQL parsing", function() {
         expect(actual).to.deep.equal(expected);
     });
 
-    it("should parse indexjoin", function() {
+    it("should parse indexjoin", () => {
         const setup =
             "(indexjoin " +
             "  (table [tpcds].[catalog_sales]) " +
@@ -535,7 +535,7 @@ describe("TQL parsing", function() {
         expect(actual).to.deep.equal(expected);
     });
 
-    it("should parse iterate", function() {
+    it("should parse iterate", () => {
         const setup = "(iterate " + "  (table [tpcds].[catalog_sales]) " + "  (table [tpcds].[date_dim]) " + "  [Iterate] ) ";
 
         const expected = [
@@ -572,7 +572,7 @@ describe("TQL parsing", function() {
         expect(actual).to.deep.equal(expected);
     });
 
-    it("should parse join", function() {
+    it("should parse join", () => {
         const setup =
             "(join " +
             "  (table [tpcds].[catalog_sales]) " +
@@ -634,7 +634,7 @@ describe("TQL parsing", function() {
         expect(actual).to.deep.equal(expected);
     });
 
-    it("should parse order", function() {
+    it("should parse order", () => {
         const setup = "(order (table [tpcds].[date_dim]) ( ( [d_date_sk] asc ) ) )";
         const expected = [
             {
@@ -670,7 +670,7 @@ describe("TQL parsing", function() {
         expect(actual).to.deep.equal(expected);
     });
 
-    it("should parse partition-restart", function() {
+    it("should parse partition-restart", () => {
         const setup = "(partition-restart (table [tpcds].[date_dim]) )";
         const expected = [
             {
@@ -695,7 +695,7 @@ describe("TQL parsing", function() {
         expect(actual).to.deep.equal(expected);
     });
 
-    it("should parse partition-split", function() {
+    it("should parse partition-split", () => {
         const setup = "(partition-split [d_date_sk] (table [tpcds].[date_dim]) )";
         const expected = [
             {
@@ -722,7 +722,7 @@ describe("TQL parsing", function() {
         expect(actual).to.deep.equal(expected);
     });
 
-    it("should parse pivot", function() {
+    it("should parse pivot", () => {
         const setup =
             "(pivot (table [TestV1].[Calcs] ) " +
             " ( [index] ( [0] [1] [2] [3] ) ) " +
@@ -809,7 +809,7 @@ describe("TQL parsing", function() {
         expect(actual).to.deep.equal(expected);
     });
 
-    it("should parse positionaljoin", function() {
+    it("should parse positionaljoin", () => {
         const setup = "(positionaljoin " + "  (table [tpcds].[catalog_sales]) " + "  (table [tpcds].[date_dim]) )";
 
         const expected = [
@@ -844,7 +844,7 @@ describe("TQL parsing", function() {
         expect(actual).to.deep.equal(expected);
     });
 
-    it("should parse project", function() {
+    it("should parse project", () => {
         const setup = "(project " + "  (table [tpcds].[catalog_sales]) " + "  ( ( [count] (abs [count] ) ) ) )";
 
         const expected = [
@@ -887,7 +887,7 @@ describe("TQL parsing", function() {
         expect(actual).to.deep.equal(expected);
     });
 
-    it("should parse radix-sort", function() {
+    it("should parse radix-sort", () => {
         const setup = "(radix-sort (table [tpcds].[date_dim]) ( ( [d_date_sk] asc ) ) )";
         const expected = [
             {
@@ -923,7 +923,7 @@ describe("TQL parsing", function() {
         expect(actual).to.deep.equal(expected);
     });
 
-    it("should parse restrict", function() {
+    it("should parse restrict", () => {
         const setup = "(restrict (table [tpcds].[catalog_sales]) ( [cs_ship_date_sk] [cs_sold_date_sk] ) )";
         const expected = [
             {
@@ -956,7 +956,7 @@ describe("TQL parsing", function() {
         expect(actual).to.deep.equal(expected);
     });
 
-    it("should parse scan", function() {
+    it("should parse scan", () => {
         const setup = "(scan (table [tpcds].[catalog_sales]) ( [cs_ship_date_sk] [cs_sold_date_sk] ) )";
         const expected = [
             {
@@ -989,7 +989,7 @@ describe("TQL parsing", function() {
         expect(actual).to.deep.equal(expected);
     });
 
-    it("should parse select", function() {
+    it("should parse select", () => {
         const setup = "(select (table [tpcds].[date_dim]) (>= [d_date_sk] 2450815 ) )";
         const expected = [
             {
@@ -1028,7 +1028,7 @@ describe("TQL parsing", function() {
         expect(actual).to.deep.equal(expected);
     });
 
-    it("should parse shared", function() {
+    it("should parse shared", () => {
         const setup = '(shared (table [tpcds].[catalog_sales]) "0")';
         const expected = [
             {
@@ -1055,7 +1055,7 @@ describe("TQL parsing", function() {
         expect(actual).to.deep.equal(expected);
     });
 
-    it("should parse table", function() {
+    it("should parse table", () => {
         const setup = "(table [tpcds].[catalog_sales])";
         const expected = [
             {
@@ -1073,7 +1073,7 @@ describe("TQL parsing", function() {
         expect(actual).to.deep.equal(expected);
     });
 
-    it("should parse text", function() {
+    it("should parse text", () => {
         const setup =
             '(text "DebugBlackBox/tpcds/cs_date_sk.csv" ( ' +
             '  ( ( "name" "cs_sold_date_sk" ) ( "factory" "builtin" ) ("builtin" "long" ) ) ' +
@@ -1112,7 +1112,7 @@ describe("TQL parsing", function() {
         expect(actual).to.deep.equal(expected);
     });
 
-    it("should parse top", function() {
+    it("should parse top", () => {
         const setup = "(top (table [tpcds].[date_dim]) ( ( [d_date_sk] asc ) ) 10 )";
         const expected = [
             {
@@ -1150,7 +1150,7 @@ describe("TQL parsing", function() {
         expect(actual).to.deep.equal(expected);
     });
 
-    it("should parse update", function() {
+    it("should parse update", () => {
         const setup = "(update " + "  (table [tpcds].[catalog_sales]) " + "  ( ([cs_ship_date_sk] [cs_sold_date_sk]) ) " + "  ) ";
 
         const expected = [
@@ -1187,7 +1187,7 @@ describe("TQL parsing", function() {
         expect(actual).to.deep.equal(expected);
     });
 
-    it("should parse window", function() {
+    it("should parse window", () => {
         const setup =
             "(window " +
             "  (table [tpcds].[catalog_sales]) " +

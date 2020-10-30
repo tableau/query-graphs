@@ -236,12 +236,10 @@ function escapeHtml(unsafe) {
 function linkCrossLinks(root, crosslinks: Crosslink[]) {
     const descendants = root.descendants();
     function map(d) {
-        return descendants.find(function(h) {
-            return h.data === d;
-        });
+        return descendants.find(h => h.data === d);
     }
     const linked: any[] = [];
-    crosslinks.forEach(function(l) {
+    crosslinks.forEach(l => {
         linked.push({source: map(l.source), target: map(l.target)});
     });
     return linked;
@@ -263,7 +261,7 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
     let maxLabelLength = 0;
     treeDescription.visitTreeNodes(
         treeData.root,
-        function(d) {
+        d => {
             totalNodes++;
             if (d.name) {
                 maxLabelLength = Math.max(d.name.length, maxLabelLength);
@@ -291,40 +289,22 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
     const orientations = {
         "top-to-bottom": {
             link: d3shape.linkVertical,
-            x: function(d) {
-                return d.x;
-            },
-            y: function(d) {
-                return d.y;
-            },
-            textdimension: function() {
-                return "y";
-            },
-            textdimensionoffset: function(d) {
-                return d.children || d._children ? -13 : 13;
-            },
-            textanchor: function(d) {
-                return d.children || d._children ? "middle" : "middle";
-            },
-            nodesize: function() {
-                return [maxLabelLength * 6, (maxLabelLength * 6) / 2];
-            },
-            nodesep: function(a, b) {
-                return a.parent === b.parent ? 1 : 1;
-            },
-            rootx: function(_scale) {
-                return root.x0;
-            },
-            rooty: function(scale) {
-                return root.y0 + (viewerHeight / 2 - 100) / scale;
-            },
-            sourcecrosslink: function(d) {
+            x: d => d.x,
+            y: d => d.y,
+            textdimension: () => "y",
+            textdimensionoffset: d => (d.children || d._children ? -13 : 13),
+            textanchor: d => (d.children || d._children ? "middle" : "middle"),
+            nodesize: () => [maxLabelLength * 6, (maxLabelLength * 6) / 2],
+            nodesep: (a, b) => (a.parent === b.parent ? 1 : 1),
+            rootx: _scale => root.x0,
+            rooty: scale => root.y0 + (viewerHeight / 2 - 100) / scale,
+            sourcecrosslink: d => {
                 return {
                     x: d.source.x - crosslinkRawSpacing.offset,
                     y: d.source.y + crosslinkRawSpacing.direction,
                 };
             },
-            targetcrosslink: function(d) {
+            targetcrosslink: d => {
                 return {
                     x: d.target.x + crosslinkRawSpacing.offset,
                     y: d.target.y - crosslinkRawSpacing.direction,
@@ -333,40 +313,24 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
         },
         "right-to-left": {
             link: d3shape.linkHorizontal,
-            x: function(d) {
-                return viewerWidth - d.y;
-            },
-            y: function(d) {
-                return d.x;
-            },
-            textdimension: function() {
-                return "x";
-            },
-            textdimensionoffset: function(d) {
-                return d.children || d._children ? 10 : -10;
-            },
-            textanchor: function(d) {
-                return d.children || d._children ? "start" : "end";
-            },
-            nodesize: function() {
+            x: d => viewerWidth - d.y,
+            y: d => d.x,
+            textdimension: () => "x",
+            textdimensionoffset: d => (d.children || d._children ? 10 : -10),
+            textanchor: d => (d.children || d._children ? "start" : "end"),
+            nodesize: () => {
                 return [11.2 /* table node diameter */ + 2, maxLabelLength * 6 + 10 /* textdimensionoffset */];
             },
-            nodesep: function(a, b) {
-                return a.parent === b.parent ? 1 : 1.5;
-            },
-            rootx: function(scale) {
-                return root.x0 - (viewerWidth / 2 - maxLabelLength * 6) / scale;
-            },
-            rooty: function(_scale) {
-                return root.y0;
-            },
-            sourcecrosslink: function(d) {
+            nodesep: (a, b) => (a.parent === b.parent ? 1 : 1.5),
+            rootx: scale => root.x0 - (viewerWidth / 2 - maxLabelLength * 6) / scale,
+            rooty: _scale => root.y0,
+            sourcecrosslink: d => {
                 return {
                     x: d.source.x - crosslinkRawSpacing.direction,
                     y: d.source.y - crosslinkRawSpacing.offset,
                 };
             },
-            targetcrosslink: function(d) {
+            targetcrosslink: d => {
                 return {
                     x: d.target.x + crosslinkRawSpacing.direction,
                     y: d.target.y + crosslinkRawSpacing.offset,
@@ -375,40 +339,22 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
         },
         "bottom-to-top": {
             link: d3shape.linkVertical,
-            x: function(d) {
-                return d.x;
-            },
-            y: function(d) {
-                return viewerHeight - d.y;
-            },
-            textdimension: function() {
-                return "y";
-            },
-            textdimensionoffset: function(d) {
-                return d.children || d._children ? 13 : -13;
-            },
-            textanchor: function(d) {
-                return d.children || d._children ? "middle" : "middle";
-            },
-            nodesize: function() {
-                return [maxLabelLength * 6, (maxLabelLength * 6) / 2];
-            },
-            nodesep: function(a, b) {
-                return a.parent === b.parent ? 1 : 1;
-            },
-            rootx: function(_scale) {
-                return root.x0;
-            },
-            rooty: function(scale) {
-                return root.y0 - (viewerHeight / 2 - 50) / scale;
-            },
-            sourcecrosslink: function(d) {
+            x: d => d.x,
+            y: d => viewerHeight - d.y,
+            textdimension: () => "y",
+            textdimensionoffset: d => (d.children || d._children ? 13 : -13),
+            textanchor: d => (d.children || d._children ? "middle" : "middle"),
+            nodesize: () => [maxLabelLength * 6, (maxLabelLength * 6) / 2],
+            nodesep: (a, b) => (a.parent === b.parent ? 1 : 1),
+            rootx: _scale => root.x0,
+            rooty: scale => root.y0 - (viewerHeight / 2 - 50) / scale,
+            sourcecrosslink: d => {
                 return {
                     x: d.source.x - crosslinkRawSpacing.offset,
                     y: d.source.y - crosslinkRawSpacing.direction,
                 };
             },
-            targetcrosslink: function(d) {
+            targetcrosslink: d => {
                 return {
                     x: d.target.x + crosslinkRawSpacing.offset,
                     y: d.target.y + crosslinkRawSpacing.direction,
@@ -417,40 +363,24 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
         },
         "left-to-right": {
             link: d3shape.linkHorizontal,
-            x: function(d) {
-                return d.y;
-            },
-            y: function(d) {
-                return d.x;
-            },
-            textdimension: function() {
-                return "x";
-            },
-            textdimensionoffset: function(d) {
-                return d.children || d._children ? -10 : 10;
-            },
-            textanchor: function(d) {
-                return d.children || d._children ? "end" : "start";
-            },
-            nodesize: function() {
+            x: d => d.y,
+            y: d => d.x,
+            textdimension: () => "x",
+            textdimensionoffset: d => (d.children || d._children ? -10 : 10),
+            textanchor: d => (d.children || d._children ? "end" : "start"),
+            nodesize: () => {
                 return [11.2 /* table node diameter */ + 2, maxLabelLength * 6 + 10 /* textdimensionoffset */];
             },
-            nodesep: function(a, b) {
-                return a.parent === b.parent ? 1 : 2;
-            },
-            rootx: function(scale) {
-                return root.y0 + (viewerWidth / 2 - maxLabelLength * 6) / scale;
-            },
-            rooty: function(_scale) {
-                return root.y0;
-            },
-            sourcecrosslink: function(d) {
+            nodesep: (a, b) => (a.parent === b.parent ? 1 : 2),
+            rootx: scale => root.y0 + (viewerWidth / 2 - maxLabelLength * 6) / scale,
+            rooty: _scale => root.y0,
+            sourcecrosslink: d => {
                 return {
                     x: d.source.x + crosslinkRawSpacing.direction,
                     y: d.source.y - crosslinkRawSpacing.offset,
                 };
             },
-            targetcrosslink: function(d) {
+            targetcrosslink: d => {
                 return {
                     x: d.target.x - crosslinkRawSpacing.direction,
                     y: d.target.y + crosslinkRawSpacing.offset,
@@ -469,25 +399,17 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
     // Define a d3 diagonal projection for use by the node paths later on.
     const diagonal = ooo
         .link()
-        .x(function(d) {
-            return ooo.x(d);
-        })
-        .y(function(d) {
-            return ooo.y(d);
-        });
+        .x(d => ooo.x(d))
+        .y(d => ooo.y(d));
     const diagonalRaw = ooo
         .link()
-        .x(function(d) {
-            return d.x;
-        })
-        .y(function(d) {
-            return d.y;
-        });
+        .x(d => d.x)
+        .y(d => d.y);
 
     // Build a HTML list of properties to be displayed in a tooltip
     function buildPropertyList(properties, cssClass = "qg-prop-name") {
         let html = "";
-        Object.getOwnPropertyNames(properties).forEach(function(key) {
+        Object.getOwnPropertyNames(properties).forEach(key => {
             html += "<span class='" + cssClass + "'>" + escapeHtml(key) + ": </span>";
             html += "<span style='prop-value'>" + escapeHtml(properties[key]) + "</span><br />";
         });
@@ -498,7 +420,7 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
     const debugTooltipKeys = ["height", "depth", "id", "x", "x0", "y", "y0"];
     function getDebugProperties(d) {
         const props = {};
-        debugTooltipKeys.forEach(function(key) {
+        debugTooltipKeys.forEach(key => {
             if (d[key]) {
                 // only show non-empty data
                 props[key] = d[key];
@@ -520,7 +442,7 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
     ];
     function getDirectProperties(d) {
         const props = {};
-        Object.getOwnPropertyNames(d).forEach(function(key) {
+        Object.getOwnPropertyNames(d).forEach(key => {
             if (alwaysSuppressedKeys.indexOf(key) >= 0) {
                 // suppress some of the d3 data
                 return;
@@ -536,7 +458,7 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
     const tip = d3tip()
         .attr("class", "qg-tooltip")
         .offset([-10, 0])
-        .html(function(d) {
+        .html(d => {
             const nameText = "<span style='text-decoration: underline'>" + escapeHtml(d.data.name) + "</span><br />";
             const debugPropsText = DEBUG ? buildPropertyList(getDebugProperties(d), "qg-prop-name2") : "";
             const directPropsText = buildPropertyList(getDirectProperties(d.data), "qg-prop-name2");
@@ -552,12 +474,10 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
     // Define the zoomBehavior which calls the zoom function on the "zoom" event constrained within the scaleExtents
     const zoomBehavior = d3zoom
         .zoom()
-        .extent(function() {
-            return [
-                [0, 0],
-                [viewerWidth, viewerHeight],
-            ];
-        })
+        .extent([
+            [0, 0],
+            [viewerWidth, viewerHeight],
+        ])
         .scaleExtent([0.1, 5])
         .on("zoom", zoom);
 
@@ -565,7 +485,7 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
     const baseSvg = d3selection
         .select(target)
         .append("svg")
-        .attr("viewBox", "0 0 " + viewerWidth + " " + viewerHeight)
+        .attr("viewBox", `0 0 ${viewerWidth} ${viewerHeight}`)
         .attr("height", viewerHeight)
         .attr("class", "qg-overlay")
         .call(zoomBehavior);
@@ -575,7 +495,7 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
     function collapseDefault(r) {
         treeDescription.visitTreeNodes(
             r,
-            function(n) {
+            n => {
                 if (!n.data._children) {
                     return;
                 }
@@ -585,7 +505,7 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
                 }
                 n._children = [];
                 n.children = [];
-                allChildren.forEach(function(c) {
+                allChildren.forEach(c => {
                     if (n.data.children.indexOf(c.data) !== -1) {
                         n.children.push(c);
                     }
@@ -638,13 +558,11 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
     const tweenDash = function() {
         const l = this.getTotalLength();
         const i = d3interpolate.interpolateString("0," + l, l + "," + l);
-        return function(t) {
-            return i(t);
-        };
+        return t => i(t);
     };
 
     // Curve crosslink path appropriate for source and target node directionality
-    const diagonalRawCrosslink = function(d) {
+    const diagonalRawCrosslink = d => {
         const points: any[] = [];
         points.push({x: d.source.x, y: d.source.y});
         points.push(ooo.sourcecrosslink(d));
@@ -662,12 +580,12 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
     };
 
     // Transition used to highlight edges on mouseover
-    const edgeTransitionIn = function(path) {
+    const edgeTransitionIn = path => {
         path.transition()
             .duration(DEBUG ? duration : 0)
             .attr("opacity", 1)
             .attrTween("stroke-dasharray", tweenDash)
-            .attr("d", function(d) {
+            .attr("d", d => {
                 return diagonalRawCrosslink({
                     source: {x: d.source.x0, y: d.source.y0},
                     target: {x: d.target.x0, y: d.target.y0},
@@ -676,11 +594,11 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
     };
 
     // Transition to unhighlight edges on mouseout
-    const edgeTransitionOut = function(path) {
+    const edgeTransitionOut = path => {
         path.transition()
             .duration(DEBUG ? duration : 0)
             .attr("opacity", 0)
-            .attr("d", function(d) {
+            .attr("d", d => {
                 return diagonalRawCrosslink({
                     source: {x: d.source.x0, y: d.source.y0},
                     target: {x: d.target.x0, y: d.target.y0},
@@ -689,15 +607,11 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
     };
 
     // Handler builder for crosslink highlighting
-    const crosslinkHighlightHandler = function(transition) {
-        return function(d) {
-            const crosslinks = svgGroup.selectAll("path.qg-crosslink-highlighted");
-
-            // Filter the edges to those connected to the current node
-            crosslinks
-                .filter(function(dd) {
-                    return d === dd.source || d === dd.target;
-                })
+    const crosslinkHighlightHandler = transition => {
+        return d => {
+            svgGroup
+                .selectAll("path.qg-crosslink-highlighted")
+                .filter(dd => d === dd.source || d === dd.target)
                 .call(transition);
         };
     };
@@ -712,7 +626,7 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
         const links = layout.links();
 
         // Update the nodes…
-        const node = svgGroup.selectAll("g.qg-node").data(nodes, function(d) {
+        const node = svgGroup.selectAll("g.qg-node").data(nodes, d => {
             return d.id || (d.id = ++nextId);
         });
 
@@ -720,33 +634,17 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
         const nodeEnter = node
             .enter()
             .append("g")
-            .attr("class", function(d) {
-                return d.data.hasOwnProperty("nodeClass") ? d.data.nodeClass + " qg-node" : "qg-node";
-            })
-            .attr("transform", function(_d) {
-                return "translate(" + source.x0 + "," + source.y0 + ")";
-            })
+            .attr("class", d => "qg-node " + (d.data.nodeClass ?? ""))
+            .attr("transform", `translate(${source.x0},${source.y0})`)
             .on("click", click);
 
-        nodeEnter.append("use").attr("xlink:href", function(d) {
-            if (d.data.symbol) {
-                return "#" + d.data.symbol;
-            }
-            return "#default-symbol";
-        });
-
+        nodeEnter.append("use").attr("xlink:href", d => "#" + (d.data.symbol ?? "default-symbol"));
         nodeEnter
             .append("text")
-            .attr(ooo.textdimension(), function(d) {
-                return ooo.textdimensionoffset(d);
-            })
+            .attr(ooo.textdimension(), d => ooo.textdimensionoffset(d))
             .attr("dy", ".35em")
-            .attr("text-anchor", function(d) {
-                return ooo.textanchor(d);
-            })
-            .text(function(d) {
-                return abbreviateName(d.data.name);
-            })
+            .attr("text-anchor", d => ooo.textanchor(d))
+            .text(d => abbreviateName(d.data.name))
             .style("fill-opacity", 0);
 
         const nodeUpdate = node.merge(nodeEnter);
@@ -755,21 +653,15 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
         // Update the text position to reflect whether node has children or not.
         nodeUpdate
             .select("text")
-            .attr(ooo.textdimension(), function(d) {
-                return ooo.textdimensionoffset(d);
-            })
-            .attr("text-anchor", function(d) {
-                return ooo.textanchor(d);
-            });
+            .attr(ooo.textdimension(), d => ooo.textdimensionoffset(d))
+            .attr("text-anchor", d => ooo.textanchor(d));
 
         // Change the symbol style class depending on whether it has children and is collapsed
-        nodeUpdate.select("use").attr("class", function(d) {
-            return collapsed(d) ? "qg-collapsed" : "qg-expanded";
-        });
+        nodeUpdate.select("use").attr("class", d => (collapsed(d) ? "qg-collapsed" : "qg-expanded"));
 
         // Add tooltips
         nodeUpdate
-            .filter(function(d) {
+            .filter(d => {
                 return (
                     Object.getOwnPropertyNames(getDirectProperties(d)).length || // eslint-disable-line indent
                     (d.data.hasOwnProperty("properties") && Object.getOwnPropertyNames(d.data.properties).length)
@@ -783,9 +675,7 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
             .on("mouseout.crosslinks", crosslinkHighlightHandler(edgeTransitionOut));
 
         // Transition nodes to their new position.
-        nodeTransition.attr("transform", function(d) {
-            return "translate(" + ooo.x(d) + "," + ooo.y(d) + ")";
-        });
+        nodeTransition.attr("transform", d => `translate(${ooo.x(d)},${ooo.y(d)})`);
 
         // Fade the text in
         nodeTransition.select("text").style("fill-opacity", 1);
@@ -795,9 +685,7 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
             .exit()
             .transition()
             .duration(duration)
-            .attr("transform", function(_d) {
-                return "translate(" + ooo.x(source) + "," + ooo.y(source) + ")";
-            })
+            .attr("transform", `translate(${ooo.x(source)},${ooo.y(source)})`)
             .remove();
 
         nodeExit.select("circle").attr("r", 0);
@@ -805,21 +693,14 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
         nodeExit.select("text").style("fill-opacity", 0);
 
         // Update the links…
-        const link = svgGroup.selectAll("path.qg-link").data(links, function(d) {
-            return d.target.id;
-        });
+        const link = svgGroup.selectAll("path.qg-link").data(links, d => d.target.id);
 
         // Enter any new links at the parent's previous position.
         const linkEnter = link
             .enter()
             .insert("path", "g")
-            .attr("class", function(d) {
-                if (d.target.data.hasOwnProperty("edgeClass")) {
-                    return "qg-link " + d.target.data.edgeClass;
-                }
-                return "qg-link";
-            })
-            .attr("d", function(_d) {
+            .attr("class", d => "qg-link " + (d.target.data.edgeClass ?? ""))
+            .attr("d", _d => {
                 const o = {
                     x: source.x0,
                     y: source.y0,
@@ -840,7 +721,7 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
         link.exit()
             .transition()
             .duration(duration)
-            .attr("d", function(_d) {
+            .attr("d", _d => {
                 const o = {
                     x: source.x,
                     y: source.y,
@@ -853,18 +734,16 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
             .remove();
 
         // Stash the old positions for transition.
-        nodes.forEach(function(d) {
+        nodes.forEach(d => {
             d.x0 = ooo.x(d);
             d.y0 = ooo.y(d);
         });
 
         // Select the link labels
-        const linksWithLabels = links.filter(function(d) {
+        const linksWithLabels = links.filter(d => {
             return d.target.data.edgeLabel !== undefined && d.target.data.edgeLabel.length;
         });
-        const linkLabel = svgGroup.selectAll("text.qg-link-label").data(linksWithLabels, function(d) {
-            return d.target.id;
-        });
+        const linkLabel = svgGroup.selectAll("text.qg-link-label").data(linksWithLabels, d => d.target.id);
 
         // Enter new link labels
         const linkLabelEnter = linkLabel
@@ -872,9 +751,7 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
             .insert("text")
             .classed("qg-link-label", true)
             .attr("text-anchor", "middle")
-            .text(function(d) {
-                return d.target.data.edgeLabel;
-            })
+            .text(d => d.target.data.edgeLabel)
             .attr("x", source.x0)
             .attr("y", source.y0)
             .style("fill-opacity", 0);
@@ -885,12 +762,8 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
         // Update position for existing & new labels
         linkLabelTransition
             .style("fill-opacity", 1)
-            .attr("x", function(d) {
-                return (d.source.x0 + d.target.x0) / 2;
-            })
-            .attr("y", function(d) {
-                return (d.source.y0 + d.target.y0) / 2;
-            });
+            .attr("x", d => (d.source.x0 + d.target.x0) / 2)
+            .attr("y", d => (d.source.y0 + d.target.y0) / 2);
 
         // Remove labels
         linkLabel
@@ -903,19 +776,19 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
             .remove();
 
         // Update crosslinks
-        const visibleCrosslinks = crosslinks.filter(function(d) {
+        const visibleCrosslinks = crosslinks.filter(d => {
             return nodes.indexOf(d.source) !== -1 && nodes.indexOf(d.target) !== -1;
         });
 
         // Helper function to update crosslink paths
-        const updateCrosslinkPaths = function(cssClass, opacity) {
+        const updateCrosslinkPaths = (cssClass, opacity) => {
             const crossLink = svgGroup.selectAll("path." + cssClass).data(visibleCrosslinks);
             const crossLinkEnter = crossLink
                 .enter()
                 .insert("path", "g")
                 .attr("class", cssClass)
                 .attr("opacity", opacity)
-                .attr("d", function(_d) {
+                .attr("d", _d => {
                     const o = {
                         x: source.x0,
                         y: source.y0,
@@ -929,7 +802,7 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
                 .merge(crossLinkEnter)
                 .transition()
                 .duration(duration)
-                .attr("d", function(d) {
+                .attr("d", d => {
                     return diagonalRawCrosslink({
                         source: {x: d.source.x0, y: d.source.y0},
                         target: {x: d.target.x0, y: d.target.y0},
@@ -939,7 +812,7 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
                 .exit()
                 .transition()
                 .duration(duration)
-                .attr("d", function(_d) {
+                .attr("d", _d => {
                     const o = {
                         x: source.x0,
                         y: source.y0,
@@ -995,7 +868,7 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
         .html(treeText);
 
     function expandOneLevel() {
-        svgGroup.selectAll("g.qg-node").each(function(d) {
+        svgGroup.selectAll("g.qg-node").each(d => {
             if (collapsed(d)) {
                 toggleChildren(d);
             }
@@ -1008,7 +881,7 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
         viewerWidth = newWidth === undefined ? target.clientWidth : newWidth;
         viewerHeight = newHeight === undefined ? target.clientHeight : newHeight;
         // Adjust the view box
-        baseSvg.attr("viewBox", "0 0 " + viewerWidth + " " + viewerHeight);
+        baseSvg.attr("viewBox", `0 0 ${viewerWidth} ${viewerHeight}`);
         // Adjust the height (necessary in Internet Explorer)
         baseSvg.attr("height", viewerHeight);
     }

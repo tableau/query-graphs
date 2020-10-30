@@ -498,7 +498,7 @@ class Parser {
 
     _conditions(renames: TreeNode, op: string): TreeNode {
         assert(renames.children !== undefined);
-        const children = renames.children.map(function(rename) {
+        const children = renames.children.map(rename => {
             return {
                 name: op,
                 class: "function",
@@ -800,7 +800,7 @@ function assignSymbols(root: TreeNode) {
     treeDescription.visitTreeNodes(
         root,
 
-        function(n) {
+        n => {
             switch (n.class) {
                 case "join":
                     if (n.properties && n.properties.join) {
@@ -827,7 +827,7 @@ function assignSymbols(root: TreeNode) {
                 case "renames":
                 case "schema":
                     assert(n.children !== undefined);
-                    n.children.forEach(function(c) {
+                    n.children.forEach(c => {
                         c.edgeClass = "qg-link-and-arrow";
                     });
                     break;
@@ -837,7 +837,7 @@ function assignSymbols(root: TreeNode) {
             }
         },
 
-        function(d) {
+        d => {
             return d.children && d.children.length > 0 ? d.children : [];
         },
     );
@@ -852,7 +852,7 @@ function collapseNodes(treeData: TreeNode, graphCollapse) {
     treeDescription.visitTreeNodes(
         treeData,
 
-        function(d) {
+        d => {
             switch (d.class) {
                 case "bindings":
                 case "expressions":
@@ -867,7 +867,7 @@ function collapseNodes(treeData: TreeNode, graphCollapse) {
             }
         },
 
-        function(d) {
+        d => {
             return d.children && d.children.length > 0 ? d.children.slice(0) : [];
         },
     );
