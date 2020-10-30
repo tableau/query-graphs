@@ -121,7 +121,7 @@ function convertHyper(node: Json, parentKey = "result"): TreeNode | TreeNode[] {
         if (node.hasOwnProperty("plan")) {
             // The top-level plan element needs special attention: we want to hide the `header` by default
             _children = explicitChildren.concat(additionalChildren);
-            const planIdx = _children.findIndex(function(n) {
+            const planIdx = _children.findIndex(n => {
                 return n.tag === "plan";
             });
             children = [_children[planIdx]];
@@ -151,7 +151,7 @@ function convertHyper(node: Json, parentKey = "result"): TreeNode | TreeNode[] {
             const innerNode = convertHyper(value, parentKey + "." + index.toString());
             // objectify nested arrays
             if (Array.isArray(innerNode)) {
-                innerNode.forEach(function(value, _index) {
+                innerNode.forEach(value => {
                     listOfObjects.push(value);
                 });
             } else {
@@ -167,7 +167,7 @@ function convertHyper(node: Json, parentKey = "result"): TreeNode | TreeNode[] {
 function generateDisplayNames(treeRoot: TreeNode) {
     treeDescription.visitTreeNodes(
         treeRoot,
-        function(node) {
+        node => {
             node.name = node.name ?? node.tag ?? node.text ?? "";
             switch (node.tag) {
                 case "executiontarget":
@@ -257,7 +257,7 @@ function addCrosslinks(root: TreeNode) {
 
     treeDescription.visitTreeNodes(
         root,
-        function(node) {
+        node => {
             // Operators are only unique within an optimizer step
             if (node.tag !== undefined && node.tag.startsWith("optimizersteps")) {
                 optimizerStep = parseInt(node.tag.split(".")[1], 10);
