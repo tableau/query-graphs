@@ -18,8 +18,8 @@ You can view example query visualizations online:
 * <https://tableau.github.io/query-graphs/query-graphs.html?file=favorites/tableau/joins.xml>,
 * <https://tableau.github.io/query-graphs/query-graphs.html?file=favorites/tableau/query-function.xml&collapse=n>,
 * <https://tableau.github.io/query-graphs/query-graphs.html?file=favorites/tableau/dint4.xml>,
-* <https://tableau.github.io/query-graphs/query-graphs.html?file=favorites/hyper/query2.plan.json>,
-* <https://tableau.github.io/query-graphs/query-graphs.html?file=favorites/hyper/steps2.plan.json&orientation=left-to-right>, or
+* <https://tableau.github.io/query-graphs/query-graphs.html?file=favorites/hyper/tpch-q1.plan.json>,
+* <https://tableau.github.io/query-graphs/query-graphs.html?file=favorites/hyper/tpch-q2-steps.plan.json&orientation=left-to-right>, or
 * <https://tableau.github.io/query-graphs/query-graphs.html?file=favorites/tql/iejoin.tql>
 
 Installation

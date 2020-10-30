@@ -1,0 +1,33 @@
+{
+  "operator": "executiontarget",
+  "operatorId": 1,
+  "cardinality": 6,
+  "producesRows": true,
+  "output": [{"expression": "iuref", "iu": ["v", ["Char1"]]}, {"expression": "iuref", "iu": ["v2", ["Char1"]]}, {"expression": "iuref", "iu": ["v3", ["Numeric", 12, 2]]}, {"expression": "iuref", "iu": ["v4", ["Numeric", 12, 2]]}, {"expression": "iuref", "iu": ["v5", ["Numeric", 14, 4]]}, {"expression": "iuref", "iu": ["v6", ["Numeric", 16, 6]]}, {"expression": "iuref", "iu": ["v7", ["Numeric", 14, 4]]}, {"expression": "iuref", "iu": ["v8", ["Numeric", 14, 4]]}, {"expression": "iuref", "iu": ["v9", ["Numeric", 14, 4]]}, {"expression": "iuref", "iu": ["v10", ["BigInt"]]}],
+  "outputNames": ["l_returnflag", "l_linestatus", "sum_qty", "sum_base_price", "sum_disc_price", "sum_charge", "avg_qty", "avg_price", "avg_disc", "count_order"],
+  "input": {
+    "operator": "sort",
+    "operatorId": 2,
+    "cardinality": 6,
+    "criterion": [{"value": {"expression": "iuref", "iu": "v"}, "descending": false, "nullFirst": false}, {"value": {"expression": "iuref", "iu": "v2"}, "descending": false, "nullFirst": false}],
+    "input": {
+      "operator": "groupby",
+      "operatorId": 3,
+      "cardinality": 6,
+      "input": {
+        "operator": "tablescan",
+        "operatorId": 4,
+        "cardinality": 568,
+        "relationId": 7,
+        "schema": {"type":"sessionschema"},
+        "from": "lineitem",
+        "values": [{"name": "l_orderkey", "type": ["Integer"], "iu": null}, {"name": "l_partkey", "type": ["Integer"], "iu": null}, {"name": "l_suppkey", "type": ["Integer"], "iu": null}, {"name": "l_linenumber", "type": ["Integer"], "iu": null}, {"name": "l_quantity", "type": ["Numeric", 12, 2], "iu": ["v11", ["Numeric", 12, 2]]}, {"name": "l_extendedprice", "type": ["Numeric", 12, 2], "iu": ["v12", ["Numeric", 12, 2]]}, {"name": "l_discount", "type": ["Numeric", 12, 2], "iu": ["v13", ["Numeric", 12, 2]]}, {"name": "l_tax", "type": ["Numeric", 12, 2], "iu": ["v14", ["Numeric", 12, 2]]}, {"name": "l_returnflag", "type": ["Char1"], "iu": ["v15", ["Char1"]]}, {"name": "l_linestatus", "type": ["Char1"], "iu": ["v16", ["Char1"]]}, {"name": "l_shipdate", "type": ["Date"], "iu": ["v17", ["Date"]]}, {"name": "l_commitdate", "type": ["Date"], "iu": null}, {"name": "l_receiptdate", "type": ["Date"], "iu": null}, {"name": "l_shipinstruct", "type": ["Char", 25], "iu": null}, {"name": "l_shipmode", "type": ["Char", 10], "iu": null}, {"name": "l_comment", "type": ["Varchar", 44], "iu": null}],
+        "restrictions": [{"attribute": 10, "mode": "<=", "value": {"expression": "const", "value": {"type": ["Date"], "value": 2451059}}}],
+        "selectivity": 0.993007
+      },
+      "behavior": "regular",
+      "values": [{"value": {"expression": "iuref", "iu": "v15"}}, {"value": {"expression": "iuref", "iu": "v16"}}, {"value": {"expression": "iuref", "iu": "v11"}}, {"value": {"expression": "iuref", "iu": "v12"}}, {"value": {"expression": "mul", "left": {"expression": "iuref", "iu": "v12"}, "right": {"expression": "sub", "left": {"expression": "const", "value": {"type": ["Integer"], "value": 1}}, "right": {"expression": "iuref", "iu": "v13"}}}}, {"value": {"expression": "mul", "left": {"expression": "mul", "left": {"expression": "iuref", "iu": "v12"}, "right": {"expression": "sub", "left": {"expression": "const", "value": {"type": ["Integer"], "value": 1}}, "right": {"expression": "iuref", "iu": "v13"}}}, "right": {"expression": "add", "left": {"expression": "const", "value": {"type": ["Integer"], "value": 1}}, "right": {"expression": "iuref", "iu": "v14"}}}}, {"value": {"expression": "iuref", "iu": "v13"}}],
+      "aggregates": [{"source": 4294967295, "operation": {"aggregate": "count"}, "iu": ["v10", ["BigInt"]]}, {"source": 6, "operation": {"aggregate": "avg"}, "iu": ["v9", ["Numeric", 14, 4]]}, {"source": 2, "operation": {"aggregate": "avg"}, "iu": ["v7", ["Numeric", 14, 4]]}, {"source": 3, "operation": {"aggregate": "avg"}, "iu": ["v8", ["Numeric", 14, 4]]}, {"source": 3, "operation": {"aggregate": "sum"}, "iu": ["v4", ["Numeric", 12, 2]]}, {"source": 2, "operation": {"aggregate": "sum"}, "iu": ["v3", ["Numeric", 12, 2]]}, {"source": 5, "operation": {"aggregate": "sum"}, "iu": ["v6", ["Numeric", 16, 6]]}, {"source": 0, "operation": {"aggregate": "keep"}, "iu": ["v", ["Char1"]]}, {"source": 4, "operation": {"aggregate": "sum"}, "iu": ["v5", ["Numeric", 14, 4]]}, {"source": 1, "operation": {"aggregate": "keep"}, "iu": ["v2", ["Char1"]]}]
+    }
+  }
+}

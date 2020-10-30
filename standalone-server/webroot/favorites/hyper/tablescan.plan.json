@@ -1,0 +1,18 @@
+{
+  "operator": "executiontarget",
+  "operatorId": 1,
+  "cardinality": 5,
+  "producesRows": true,
+  "output": [{"expression": "iuref", "iu": ["v", ["Char", 25]]}],
+  "outputNames": ["r_name"],
+  "input": {
+    "operator": "tablescan",
+    "operatorId": 2,
+    "cardinality": 5,
+    "relationId": 9,
+    "schema": {"type":"sessionschema"},
+    "from": "region",
+    "values": [{"name": "r_regionkey", "type": ["Integer"], "iu": null}, {"name": "r_name", "type": ["Char", 25], "iu": ["v", ["Char", 25]]}, {"name": "r_comment", "type": ["Varchar", 152], "iu": null}],
+    "selectivity": 1
+  }
+}
