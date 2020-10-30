@@ -15,10 +15,10 @@ The label for a tree node is taken from the first defined property among "operat
 
 import * as treeDescription from "./tree-description";
 import {TreeNode, TreeDescription, Crosslink} from "./tree-description";
-import {Json, forceToString, tryToString, formatMetric, hasOwnProperty, hasSubOject} from "./loader-utils";
+import {Json, forceToString, tryToString, formatMetric, hasOwnProperty} from "./loader-utils";
 
 // Convert Hyper JSON to a D3 tree
-function convertHyper(node: Json, parentKey: string): TreeNode | TreeNode[] {
+function convertHyper(node: Json, parentKey = "result"): TreeNode | TreeNode[] {
     if (tryToString(node) !== undefined) {
         return {
             text: tryToString(node),
@@ -168,8 +168,11 @@ function generateDisplayNames(treeRoot: TreeNode) {
     treeDescription.visitTreeNodes(
         treeRoot,
         function(node) {
-            node.name = node.tag ?? node.text ?? "";
+            node.name = node.name ?? node.tag ?? node.text ?? "";
             switch (node.tag) {
+                case "executiontarget":
+                    node.symbol = "run-query-symbol";
+                    break;
                 case "join":
                     node.symbol = "inner-join-symbol";
                     break;
@@ -232,15 +235,6 @@ function generateDisplayNames(treeRoot: TreeNode) {
                         node.name = node.tag + ":" + node.text;
                     } else {
                         node.name = node.tag;
-                    }
-                    break;
-                default:
-                    if (node.tag) {
-                        node.name = node.tag;
-                    } else if (node.text) {
-                        node.name = node.text;
-                    } else {
-                        node.name = "";
                     }
                     break;
             }
@@ -320,17 +314,37 @@ function addCrosslinks(root: TreeNode) {
     return crosslinks;
 }
 
+function convertOptimizerSteps(node: Json): TreeNode | undefined {
+    // Check if we have a top-level object with a single key "optimizersteps" containing an array
+    if (typeof node !== "object" || Array.isArray(node) || node === null) return undefined;
+    if (Object.getOwnPropertyNames(node).length != 1) return undefined;
+    if (!node.hasOwnProperty("optimizersteps")) return undefined;
+    const steps = node["optimizersteps"];
+    if (!Array.isArray(steps)) return undefined;
+
+    // Transform the optimizer steps
+    const children: TreeNode[] = [];
+    for (let i = 0; i < steps.length; ++i) {
+        const step = steps[i];
+        // Check that our step has two subproperties: "name" and "plan"
+        if (typeof step !== "object" || Array.isArray(step) || step === null) return undefined;
+        if (Object.getOwnPropertyNames(step).length != 2) return undefined;
+        if (!step.hasOwnProperty("name")) return undefined;
+        if (!step.hasOwnProperty("plan")) return undefined;
+        const name = step["name"];
+        const plan = step["plan"];
+        if (typeof name !== "string") return undefined;
+
+        // Add the child
+        children.push({name: name, children: [convertHyper(plan)]});
+    }
+    return {name: "optimizersteps", children: children};
+}
+
 // Loads a Hyper query plan
 export function loadHyperPlan(json: Json, graphCollapse: any = undefined): TreeDescription {
-    // Extract top-level meta data
-    const properties: any = {};
-    if (hasSubOject(json, "plan")) {
-        if (hasOwnProperty(json.plan, "header") && Array.isArray(json.plan.header)) {
-            properties.columns = json.plan.header.length / 2;
-        }
-    }
     // Load the graph with the nodes collapsed in an automatic way
-    const root = convertHyper(json, "result");
+    const root: TreeNode = convertOptimizerSteps(json) ?? convertHyper(json);
     if (Array.isArray(root)) {
         throw new Error("Invalid Hyper query plan");
     }
@@ -344,7 +358,7 @@ export function loadHyperPlan(json: Json, graphCollapse: any = undefined): TreeD
     }
     // Add crosslinks
     const crosslinks = addCrosslinks(root);
-    return {root: root, crosslinks: crosslinks, properties: properties};
+    return {root: root, crosslinks: crosslinks};
 }
 
 // Load a JSON tree from text

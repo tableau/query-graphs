@@ -90,7 +90,7 @@ CREATE TEMP TABLE region (
    r_comment varchar(152) not null
 );
 
--- We also laod some data into the tpv-h schema because our query plans depend on cardinality estimates and we want meaningful numbers there
+-- We also load some data into the TPC-H schema because our query plans depend on cardinality estimates and we want meaningful numbers there.
 -- Unfortunately, I am not sure about the license of the TPC-H data and hence can't add it to the repository.
 -- You will have to downloade the data on your own or just comment out the following lines and use an empty schema instead.
 copy customer from './tpch-data-tiny/customer.tbl' delimiter '|';
