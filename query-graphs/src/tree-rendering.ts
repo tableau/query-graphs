@@ -296,8 +296,8 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
             textanchor: d => (d.children || d._children ? "middle" : "middle"),
             nodesize: () => [maxLabelLength * 6, (maxLabelLength * 6) / 2],
             nodesep: (a, b) => (a.parent === b.parent ? 1 : 1),
-            rootx: _scale => root.x0,
-            rooty: scale => root.y0 + (viewerHeight / 2 - 100) / scale,
+            rootx: _scale => 0,
+            rooty: scale => (viewerHeight / 2 - 100) / scale,
             sourcecrosslink: d => {
                 return {
                     x: d.source.x - crosslinkRawSpacing.offset,
@@ -322,8 +322,8 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
                 return [11.2 /* table node diameter */ + 2, maxLabelLength * 6 + 10 /* textdimensionoffset */];
             },
             nodesep: (a, b) => (a.parent === b.parent ? 1 : 1.5),
-            rootx: scale => root.x0 - (viewerWidth / 2 - maxLabelLength * 6) / scale,
-            rooty: _scale => root.y0,
+            rootx: scale => -(viewerWidth / 2 - maxLabelLength * 6) / scale,
+            rooty: _scale => 0,
             sourcecrosslink: d => {
                 return {
                     x: d.source.x - crosslinkRawSpacing.direction,
@@ -346,8 +346,8 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
             textanchor: d => (d.children || d._children ? "middle" : "middle"),
             nodesize: () => [maxLabelLength * 6, (maxLabelLength * 6) / 2],
             nodesep: (a, b) => (a.parent === b.parent ? 1 : 1),
-            rootx: _scale => root.x0,
-            rooty: scale => root.y0 - (viewerHeight / 2 - 50) / scale,
+            rootx: _scale => 0,
+            rooty: scale => -(viewerHeight / 2 - 50) / scale,
             sourcecrosslink: d => {
                 return {
                     x: d.source.x - crosslinkRawSpacing.offset,
@@ -372,8 +372,8 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
                 return [11.2 /* table node diameter */ + 2, maxLabelLength * 6 + 10 /* textdimensionoffset */];
             },
             nodesep: (a, b) => (a.parent === b.parent ? 1 : 2),
-            rootx: scale => root.y0 + (viewerWidth / 2 - maxLabelLength * 6) / scale,
-            rooty: _scale => root.y0,
+            rootx: scale => (viewerWidth / 2 - maxLabelLength * 6) / scale,
+            rooty: _scale => 0,
             sourcecrosslink: d => {
                 return {
                     x: d.source.x + crosslinkRawSpacing.direction,
@@ -584,26 +584,14 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
         path.transition()
             .duration(DEBUG ? duration : 0)
             .attr("opacity", 1)
-            .attrTween("stroke-dasharray", tweenDash)
-            .attr("d", d => {
-                return diagonalRawCrosslink({
-                    source: {x: d.source.x0, y: d.source.y0},
-                    target: {x: d.target.x0, y: d.target.y0},
-                });
-            });
+            .attrTween("stroke-dasharray", tweenDash);
     };
 
     // Transition to unhighlight edges on mouseout
     const edgeTransitionOut = path => {
         path.transition()
             .duration(DEBUG ? duration : 0)
-            .attr("opacity", 0)
-            .attr("d", d => {
-                return diagonalRawCrosslink({
-                    source: {x: d.source.x0, y: d.source.y0},
-                    target: {x: d.target.x0, y: d.target.y0},
-                });
-            });
+            .attr("opacity", 0);
     };
 
     // Handler builder for crosslink highlighting
