@@ -201,8 +201,16 @@ marker#arrow {
 
 /* Symbols */
 
-.qg-symbol-filled {
+.qg-symbol-fill-fg {
   fill: currentColor;
+}
+
+.qg-symbol-fill-bg {
+  fill: #fff;
+}
+
+.qg-symbol-no-stroke {
+  stroke: none;
 }
 
 /* Run Query */
@@ -213,10 +221,6 @@ path.qg-run-query {
 /* Joins */
 circle.qg-fill-join {
   fill: currentColor;
-}
-
-circle.qg-fill-join.qg-no-stroke {
-  stroke: none;
 }
 
 circle.qg-empty-join {

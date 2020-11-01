@@ -6,6 +6,7 @@ const symbols = [
     {name: "Table", symbol: "table-symbol"},
     {name: "Run Query", symbol: "run-query-symbol"},
     {name: "Filter", symbol: "filter-symbol"},
+    {name: "Sort", symbol: "sort-symbol"},
     {name: "Inner Join", symbol: "inner-join-symbol"},
     {name: "Left Join", symbol: "left-join-symbol"},
     {name: "Right Join", symbol: "right-join-symbol"},
