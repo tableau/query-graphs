@@ -1,10 +1,13 @@
 const path = require("path");
 
 module.exports = {
-    entry: "./app.ts",
+    entry: {
+        "query-graphs": "./app.ts",
+        legend: "./legend.ts",
+    },
     output: {
         path: path.resolve(__dirname, "webroot"),
-        filename: "query-graphs.min.js",
+        filename: "[name].min.js",
     },
     module: {
         rules: [

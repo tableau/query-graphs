@@ -1,9 +1,10 @@
+import {select} from "d3-selection";
+
 //
 // Create the symbols
 //
-export function defineSymbols(baseSvg) {
-    baseSvg.append("svg:defs");
-    const defs = baseSvg.select("defs");
+export function defineSymbols(baseSvg: SVGElement) {
+    const defs = select(baseSvg).append("defs");
     // Build the arrow
     defs.append("svg:marker")
         .attr("id", "arrow")
