@@ -770,7 +770,7 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
 
         // Helper function to update crosslink paths
         const updateCrosslinkPaths = (cssClass, opacity) => {
-            const crossLink = svgGroup.selectAll("path." + cssClass).data(visibleCrosslinks);
+            const crossLink = svgGroup.selectAll("path." + cssClass).data(visibleCrosslinks, d => d.source.id + ":" + d.target.id);
             const crossLinkEnter = crossLink
                 .enter()
                 .insert("path", "g")
