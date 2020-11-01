@@ -13,6 +13,16 @@ import d3tip from "d3-tip";
 
 const MAX_DISPLAY_LENGTH = 15;
 
+interface xyPos {
+    x: number;
+    y: number;
+}
+
+interface xyLink {
+    source: xyPos;
+    target: xyPos;
+}
+
 //
 // Abbreviate all names if they are too long
 //
@@ -85,9 +95,6 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
     let viewerWidth = target.clientWidth;
     let viewerHeight = target.clientHeight;
 
-    // Crosslink spacing to preserve source and target directionality
-    const crosslinkRawSpacing = {direction: 11.2 * 2, offset: 11.2 * 2};
-
     // Orientation mapping
     const orientations = {
         "top-to-bottom": {
@@ -101,18 +108,6 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
             nodesep: (a, b) => (a.parent === b.parent ? 1 : 1),
             rootx: _scale => 0,
             rooty: scale => (viewerHeight / 2 - 100) / scale,
-            sourcecrosslink: d => {
-                return {
-                    x: d.source.x - crosslinkRawSpacing.offset,
-                    y: d.source.y + crosslinkRawSpacing.direction,
-                };
-            },
-            targetcrosslink: d => {
-                return {
-                    x: d.target.x + crosslinkRawSpacing.offset,
-                    y: d.target.y - crosslinkRawSpacing.direction,
-                };
-            },
         },
         "right-to-left": {
             link: d3shape.linkHorizontal,
@@ -127,18 +122,6 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
             nodesep: (a, b) => (a.parent === b.parent ? 1 : 1.5),
             rootx: scale => -(viewerWidth / 2 - maxLabelLength * 6) / scale,
             rooty: _scale => 0,
-            sourcecrosslink: d => {
-                return {
-                    x: d.source.x - crosslinkRawSpacing.direction,
-                    y: d.source.y - crosslinkRawSpacing.offset,
-                };
-            },
-            targetcrosslink: d => {
-                return {
-                    x: d.target.x + crosslinkRawSpacing.direction,
-                    y: d.target.y + crosslinkRawSpacing.offset,
-                };
-            },
         },
         "bottom-to-top": {
             link: d3shape.linkVertical,
@@ -151,18 +134,6 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
             nodesep: (a, b) => (a.parent === b.parent ? 1 : 1),
             rootx: _scale => 0,
             rooty: scale => -(viewerHeight / 2 - 50) / scale,
-            sourcecrosslink: d => {
-                return {
-                    x: d.source.x - crosslinkRawSpacing.offset,
-                    y: d.source.y - crosslinkRawSpacing.direction,
-                };
-            },
-            targetcrosslink: d => {
-                return {
-                    x: d.target.x + crosslinkRawSpacing.offset,
-                    y: d.target.y + crosslinkRawSpacing.direction,
-                };
-            },
         },
         "left-to-right": {
             link: d3shape.linkHorizontal,
@@ -177,18 +148,6 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
             nodesep: (a, b) => (a.parent === b.parent ? 1 : 2),
             rootx: scale => (viewerWidth / 2 - maxLabelLength * 6) / scale,
             rooty: _scale => 0,
-            sourcecrosslink: d => {
-                return {
-                    x: d.source.x + crosslinkRawSpacing.direction,
-                    y: d.source.y - crosslinkRawSpacing.offset,
-                };
-            },
-            targetcrosslink: d => {
-                return {
-                    x: d.target.x - crosslinkRawSpacing.direction,
-                    y: d.target.y + crosslinkRawSpacing.offset,
-                };
-            },
         },
     };
 
@@ -204,10 +163,6 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
         .link()
         .x(d => ooo.x(d))
         .y(d => ooo.y(d));
-    const diagonalRaw = ooo
-        .link()
-        .x(d => d.x)
-        .y(d => d.y);
 
     // Build a HTML list of properties to be displayed in a tooltip
     function buildPropertyList(properties, cssClass = "qg-prop-name") {
@@ -220,7 +175,7 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
     }
 
     // Helper function to retrieve all properties of the node object which should be rendered in the tooltip
-    const debugTooltipKeys = ["height", "depth", "id", "x", "x0", "y", "y0"];
+    const debugTooltipKeys = ["height", "depth", "id", "x", "y"];
     function getDebugProperties(d) {
         const props = {};
         debugTooltipKeys.forEach(key => {
@@ -365,20 +320,22 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
     };
 
     // Curve crosslink path appropriate for source and target node directionality
-    const diagonalRawCrosslink = d => {
-        const points: any[] = [];
+    const diagonalCrosslink = (d: xyLink) => {
+        const crosslinkSpacing = {direction: 11.2 * 2, offset: 11.2 * 2};
+        let points: xyPos[] = [];
         points.push({x: d.source.x, y: d.source.y});
-        points.push(ooo.sourcecrosslink(d));
-        points.push(ooo.targetcrosslink(d));
+        points.push({x: d.source.x - crosslinkSpacing.offset, y: d.source.y + crosslinkSpacing.direction});
+        points.push({x: d.target.x + crosslinkSpacing.offset, y: d.target.y - crosslinkSpacing.direction});
         points.push({x: d.target.x, y: d.target.y});
-        let path = "M" + points[0].x + "," + points[0].y;
+        points = points.map(d => ({x: ooo.x(d), y: ooo.y(d)}));
+        let path = `M${points[0].x},${points[0].y}`;
         let i;
         for (i = 1; i < points.length - 2; i++) {
             const xc = (points[i].x + points[i + 1].x) / 2;
             const yc = (points[i].y + points[i + 1].y) / 2;
-            path += "Q" + points[i].x + "," + points[i].y + " " + xc + "," + yc;
+            path += `Q${points[i].x},${points[i].y} ${xc},${yc}`;
         }
-        path += "Q" + points[i].x + "," + points[i].y + " " + points[i + 1].x + "," + points[i + 1].y;
+        path += `Q${points[i].x},${points[i].y} ${points[i + 1].x},${points[i + 1].y}`;
         return path;
     };
 
@@ -426,7 +383,7 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
             .enter()
             .append("g")
             .attr("class", d => "qg-node " + (d.data.nodeClass ?? ""))
-            .attr("transform", `translate(${source.x0},${source.y0})`)
+            .attr("transform", `translate(${ooo.x(source.prevPos)},${ooo.y(source.prevPos)})`)
             .on("click", click);
 
         nodeEnter.append("use").attr("xlink:href", d => "#" + (d.data.symbol ?? "default-symbol"));
@@ -492,13 +449,9 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
             .insert("path", "g")
             .attr("class", d => "qg-link " + (d.target.data.edgeClass ?? ""))
             .attr("d", _d => {
-                const o = {
-                    x: source.x0,
-                    y: source.y0,
-                };
-                return diagonalRaw({
-                    source: o,
-                    target: o,
+                return diagonal({
+                    source: source.prevPos,
+                    target: source.prevPos,
                 });
             });
 
@@ -524,12 +477,6 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
             })
             .remove();
 
-        // Stash the old positions for transition.
-        nodes.forEach(d => {
-            d.x0 = ooo.x(d);
-            d.y0 = ooo.y(d);
-        });
-
         // Select the link labels
         const linksWithLabels = links.filter(d => {
             return d.target.data.edgeLabel !== undefined && d.target.data.edgeLabel.length;
@@ -543,8 +490,8 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
             .classed("qg-link-label", true)
             .attr("text-anchor", "middle")
             .text(d => d.target.data.edgeLabel)
-            .attr("x", source.x0)
-            .attr("y", source.y0)
+            .attr("x", ooo.x(source.prevPos))
+            .attr("y", ooo.y(source.prevPos))
             .style("fill-opacity", 0);
 
         const linkLabelUpdate = linkLabel.merge(linkLabelEnter);
@@ -553,16 +500,16 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
         // Update position for existing & new labels
         linkLabelTransition
             .style("fill-opacity", 1)
-            .attr("x", d => (d.source.x0 + d.target.x0) / 2)
-            .attr("y", d => (d.source.y0 + d.target.y0) / 2);
+            .attr("x", d => (ooo.x(d.source) + ooo.x(d.target)) / 2)
+            .attr("y", d => (ooo.y(d.source) + ooo.y(d.target)) / 2);
 
         // Remove labels
         linkLabel
             .exit()
             .transition()
             .duration(duration)
-            .attr("x", source.x0)
-            .attr("y", source.y0)
+            .attr("x", ooo.x(source))
+            .attr("y", ooo.y(source))
             .style("fill-opacity", 0)
             .remove();
 
@@ -580,13 +527,9 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
                 .attr("class", cssClass)
                 .attr("opacity", opacity)
                 .attr("d", _d => {
-                    const o = {
-                        x: source.x0,
-                        y: source.y0,
-                    };
-                    return diagonalRawCrosslink({
-                        source: o,
-                        target: o,
+                    return diagonalCrosslink({
+                        source: source.prevPos,
+                        target: source.prevPos,
                     });
                 });
             crossLink
@@ -594,9 +537,9 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
                 .transition()
                 .duration(duration)
                 .attr("d", d => {
-                    return diagonalRawCrosslink({
-                        source: {x: d.source.x0, y: d.source.y0},
-                        target: {x: d.target.x0, y: d.target.y0},
+                    return diagonalCrosslink({
+                        source: d.source,
+                        target: d.target,
                     });
                 });
             crossLink
@@ -604,13 +547,9 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
                 .transition()
                 .duration(duration)
                 .attr("d", _d => {
-                    const o = {
-                        x: source.x0,
-                        y: source.y0,
-                    };
-                    return diagonalRawCrosslink({
-                        source: o,
-                        target: o,
+                    return diagonalCrosslink({
+                        source: source,
+                        target: source,
                     });
                 })
                 .remove();
@@ -618,14 +557,18 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
 
         updateCrosslinkPaths("qg-crosslink", 1 /* opacity */);
         updateCrosslinkPaths("qg-crosslink-highlighted", 0 /* opacity */);
+
+        // Stash the old positions for transition.
+        nodes.forEach(d => {
+            d.prevPos = {x: d.x, y: d.y};
+        });
     }
 
     // Append a group which holds all nodes and which the zoom Listener can act upon.
     svgGroup = baseSvg.append("g");
-    // Define the root
-    const origin = {x: 0, y: 0};
-    root.x0 = ooo.x(origin);
-    root.y0 = ooo.y(origin);
+
+    // We don't want to animate the source node, so set its initial position to 0
+    root.prevPos = {x: 0, y: 0};
 
     // Layout the tree initially and center on the root node.
     collapseDefault(root);
