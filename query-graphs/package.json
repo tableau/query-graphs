@@ -56,8 +56,7 @@
   },
   "scripts": {
     "build": "tsc --build",
-    "test": "env TS_NODE_PROJECT=\"tsconfig.testing.json\" mocha -r ts-node/register --recursive src/**/*.test.ts",
-    "lint": "eslint ."
+    "test": "env TS_NODE_PROJECT=\"tsconfig.testing.json\" mocha -r ts-node/register --recursive src/**/*.test.ts"
   },
   "sideEffects": false
 }
