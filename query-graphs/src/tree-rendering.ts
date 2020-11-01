@@ -87,7 +87,6 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
     maxLabelLength = Math.min(maxLabelLength, MAX_DISPLAY_LENGTH);
 
     // Misc. variables
-    let svgGroup = null as any;
     let nextId = 0;
     const duration = 750;
 
@@ -224,6 +223,19 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
             return nameText + debugPropsText + directPropsText + propertiesText;
         });
 
+    // Define the baseSvg, attaching a class for styling and the zoomBehavior
+    const baseSvg = d3selection
+        .select(target)
+        .append("svg")
+        .attr("viewBox", `0 0 ${viewerWidth} ${viewerHeight}`)
+        .attr("height", viewerHeight)
+        .attr("class", "qg-overlay");
+
+    defineSymbols(baseSvg);
+
+    // Append a group which holds all nodes and which the zoom Listener can act upon.
+    const svgGroup = baseSvg.append("g");
+
     // Define the zoom function for the zoomable tree
     function zoom() {
         svgGroup.attr("transform", d3selection.event.transform);
@@ -238,17 +250,7 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
         ])
         .scaleExtent([0.1, 5])
         .on("zoom", zoom);
-
-    // Define the baseSvg, attaching a class for styling and the zoomBehavior
-    const baseSvg = d3selection
-        .select(target)
-        .append("svg")
-        .attr("viewBox", `0 0 ${viewerWidth} ${viewerHeight}`)
-        .attr("height", viewerHeight)
-        .attr("class", "qg-overlay")
-        .call(zoomBehavior);
-
-    defineSymbols(baseSvg);
+    baseSvg.call(zoomBehavior);
 
     function collapseDefault(r) {
         treeDescription.visitTreeNodes(
@@ -563,9 +565,6 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
             d.prevPos = {x: d.x, y: d.y};
         });
     }
-
-    // Append a group which holds all nodes and which the zoom Listener can act upon.
-    svgGroup = baseSvg.append("g");
 
     // We don't want to animate the source node, so set its initial position to 0
     root.prevPos = {x: 0, y: 0};
