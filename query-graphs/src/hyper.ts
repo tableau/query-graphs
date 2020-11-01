@@ -206,6 +206,9 @@ function generateDisplayNames(treeRoot: TreeNode) {
                 case "earlyprobe":
                     node.symbol = "filter-symbol";
                     break;
+                case "sort":
+                    node.symbol = "sort-symbol";
+                    break;
                 case "explicitscan":
                     node.name = node.tag;
                     node.symbol = "temp-table-symbol";
