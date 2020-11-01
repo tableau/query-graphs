@@ -231,7 +231,7 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
         .attr("height", viewerHeight)
         .attr("class", "qg-overlay");
 
-    defineSymbols(baseSvg);
+    defineSymbols(baseSvg.node());
 
     // Append a group which holds all nodes and which the zoom Listener can act upon.
     const svgGroup = baseSvg.append("g");
