@@ -18,7 +18,7 @@ import {TreeNode, TreeDescription, Crosslink} from "./tree-description";
 import {Json, forceToString, tryToString, formatMetric, hasOwnProperty} from "./loader-utils";
 
 // Convert Hyper JSON to a D3 tree
-function convertHyper(node: Json, parentKey = "result"): TreeNode | TreeNode[] {
+function convertHyperNode(node: Json, parentKey = "result"): TreeNode | TreeNode[] {
     if (tryToString(node) !== undefined) {
         return {
             text: tryToString(node),
@@ -52,7 +52,7 @@ function convertHyper(node: Json, parentKey = "result"): TreeNode | TreeNode[] {
             if (!node.hasOwnProperty(key)) {
                 continue;
             }
-            const child = convertHyper(node[key], key);
+            const child = convertHyperNode(node[key], key);
             if (Array.isArray(child)) {
                 explicitChildren = explicitChildren.concat(child);
             } else {
@@ -70,7 +70,7 @@ function convertHyper(node: Json, parentKey = "result"): TreeNode | TreeNode[] {
                 properties[key] = forceToString(node[key]);
                 continue;
             }
-            const child = convertHyper(node[key], key);
+            const child = convertHyperNode(node[key], key);
             if (Array.isArray(child)) {
                 explicitChildren = explicitChildren.concat(child);
             } else {
@@ -102,7 +102,7 @@ function convertHyper(node: Json, parentKey = "result"): TreeNode | TreeNode[] {
             }
 
             // Display as part of the tree
-            const innerNodes = convertHyper(node[key], key);
+            const innerNodes = convertHyperNode(node[key], key);
             if (Array.isArray(innerNodes)) {
                 additionalChildren.push({tag: key, children: innerNodes});
             } else {
@@ -148,7 +148,7 @@ function convertHyper(node: Json, parentKey = "result"): TreeNode | TreeNode[] {
         const listOfObjects = [] as TreeNode[];
         for (let index = 0; index < node.length; ++index) {
             const value = node[index];
-            const innerNode = convertHyper(value, parentKey + "." + index.toString());
+            const innerNode = convertHyperNode(value, parentKey + "." + index.toString());
             // objectify nested arrays
             if (Array.isArray(innerNode)) {
                 innerNode.forEach(value => {
@@ -247,25 +247,18 @@ function generateDisplayNames(treeRoot: TreeNode) {
 function addCrosslinks(root: TreeNode) {
     interface UnresolvedCrosslink {
         source: TreeNode;
-        optimizerStep: number;
         targetOpId: number;
     }
 
     const unresolvedLinks = [] as UnresolvedCrosslink[];
-    const operatorsById = new Map<string, TreeNode>();
-    let optimizerStep = 0;
+    const operatorsById = new Map<number, TreeNode>();
 
     treeDescription.visitTreeNodes(
         root,
         node => {
-            // Operators are only unique within an optimizer step
-            if (node.tag !== undefined && node.tag.startsWith("optimizersteps")) {
-                optimizerStep = parseInt(node.tag.split(".")[1], 10);
-            }
-
             // Build map from operatorId to node
             if (node.hasOwnProperty("properties") && node.properties.hasOwnProperty("operatorId")) {
-                const key = [parseInt(node.properties.operatorId, 10), optimizerStep].toString();
+                const key = parseInt(node.properties.operatorId, 10);
                 operatorsById.set(key, node);
             }
 
@@ -276,7 +269,6 @@ function addCrosslinks(root: TreeNode) {
                         unresolvedLinks.push({
                             source: node,
                             targetOpId: parseInt(node.properties.source, 10),
-                            optimizerStep: optimizerStep,
                         });
                     }
                     break;
@@ -285,7 +277,6 @@ function addCrosslinks(root: TreeNode) {
                         unresolvedLinks.push({
                             source: node,
                             targetOpId: parseInt(node.properties.builder, 10),
-                            optimizerStep: optimizerStep,
                         });
                     }
                     break;
@@ -294,7 +285,6 @@ function addCrosslinks(root: TreeNode) {
                         unresolvedLinks.push({
                             source: node,
                             targetOpId: parseInt(node.properties.magic, 10),
-                            optimizerStep: optimizerStep,
                         });
                     }
                     break;
@@ -306,7 +296,7 @@ function addCrosslinks(root: TreeNode) {
     // Add crosslinks from source to matching target node
     const crosslinks = [] as Crosslink[];
     for (const link of unresolvedLinks) {
-        const target = operatorsById.get([link.targetOpId, link.optimizerStep].toString());
+        const target = operatorsById.get(link.targetOpId);
         if (target !== undefined) {
             crosslinks.push({source: link.source, target: target});
         }
@@ -314,7 +304,22 @@ function addCrosslinks(root: TreeNode) {
     return crosslinks;
 }
 
-function convertOptimizerSteps(node: Json): TreeNode | undefined {
+interface LinkedNodes {
+    root: TreeNode;
+    crosslinks: Crosslink[];
+}
+
+function convertHyperPlan(node: Json): LinkedNodes {
+    const root = convertHyperNode(node);
+    if (Array.isArray(root)) {
+        throw new Error("Invalid Hyper query plan");
+    }
+    generateDisplayNames(root);
+    const crosslinks = addCrosslinks(root);
+    return {root, crosslinks};
+}
+
+function convertOptimizerSteps(node: Json): LinkedNodes | undefined {
     // Check if we have a top-level object with a single key "optimizersteps" containing an array
     if (typeof node !== "object" || Array.isArray(node) || node === null) return undefined;
     if (Object.getOwnPropertyNames(node).length != 1) return undefined;
@@ -323,6 +328,7 @@ function convertOptimizerSteps(node: Json): TreeNode | undefined {
     if (!Array.isArray(steps)) return undefined;
 
     // Transform the optimizer steps
+    const crosslinks: Crosslink[] = [];
     const children: TreeNode[] = [];
     for (let i = 0; i < steps.length; ++i) {
         const step = steps[i];
@@ -336,19 +342,18 @@ function convertOptimizerSteps(node: Json): TreeNode | undefined {
         if (typeof name !== "string") return undefined;
 
         // Add the child
-        children.push({name: name, children: [convertHyper(plan)]});
+        const {root: childRoot, crosslinks: newCrosslinks} = convertHyperPlan(plan);
+        crosslinks.push(...newCrosslinks);
+        children.push({name: name, children: [childRoot]});
     }
-    return {name: "optimizersteps", children: children};
+    const root = {name: "optimizersteps", children: children};
+    return {root, crosslinks};
 }
 
 // Loads a Hyper query plan
 export function loadHyperPlan(json: Json, graphCollapse: any = undefined): TreeDescription {
     // Load the graph with the nodes collapsed in an automatic way
-    const root: TreeNode = convertOptimizerSteps(json) ?? convertHyper(json);
-    if (Array.isArray(root)) {
-        throw new Error("Invalid Hyper query plan");
-    }
-    generateDisplayNames(root);
+    const {root, crosslinks} = convertOptimizerSteps(json) ?? convertHyperPlan(json);
     treeDescription.createParentLinks(root);
     // Adjust the graph so it is collapsed as requested by the user
     if (graphCollapse === "y") {
@@ -356,9 +361,7 @@ export function loadHyperPlan(json: Json, graphCollapse: any = undefined): TreeD
     } else if (graphCollapse === "n") {
         treeDescription.visitTreeNodes(root, treeDescription.expandAllChildren, treeDescription.allChildren);
     }
-    // Add crosslinks
-    const crosslinks = addCrosslinks(root);
-    return {root: root, crosslinks: crosslinks};
+    return {root, crosslinks};
 }
 
 // Load a JSON tree from text
