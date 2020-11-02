@@ -26,13 +26,23 @@ window.addEventListener("DOMContentLoaded", () => {
         group.setAttribute("class", "qg-expanded");
         group.setAttribute("transform", `translate(0, ${idx * 32})`);
 
-        const use = document.createElementNS("http://www.w3.org/2000/svg", "use");
-        use.setAttribute("href", "#" + s.symbol);
-        use.setAttribute("transform", "scale(2) translate(12, 8)");
-        group.append(use);
+        const use1 = document.createElementNS("http://www.w3.org/2000/svg", "use");
+        use1.setAttribute("href", "#" + s.symbol);
+        use1.setAttribute("transform", "translate(16, 16) scale(1)");
+        group.append(use1);
+
+        const use2 = document.createElementNS("http://www.w3.org/2000/svg", "use");
+        use2.setAttribute("href", "#" + s.symbol);
+        use2.setAttribute("transform", "translate(48, 16) scale(1.5)");
+        group.append(use2);
+
+        const use3 = document.createElementNS("http://www.w3.org/2000/svg", "use");
+        use3.setAttribute("href", "#" + s.symbol);
+        use3.setAttribute("transform", "translate(96, 16) scale(2)");
+        group.append(use3);
 
         const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-        text.setAttribute("x", "56");
+        text.setAttribute("x", "128");
         text.setAttribute("y", "22");
         text.setAttribute("style", "font-size: 14px");
         text.append(document.createTextNode(s.name));
