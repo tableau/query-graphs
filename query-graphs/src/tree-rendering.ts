@@ -213,7 +213,6 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
 
     // Initialize tooltip
     const tip = d3tip()
-        .attr("id", "tooltip")
         .attr("class", "qg-tooltip")
         .offset([-10, 0])
         .html(d => {
@@ -602,7 +601,6 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
         // Add some padding so that the graph is not touching the edges
         const paddingPercent = 0.9;
         scaleFactor = scaleFactor * paddingPercent;
-        console.log("Scale factor", scaleFactor);
         zoomBehavior.scaleBy(baseSvg, scaleFactor);
     }
 
@@ -611,10 +609,8 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
         // Find the Bounding box center, then translate to it
         // In other words, put the bbox center in the center of the screen
         const bbox = svgGroup.node().getBBox();
-        console.log("BBox", bbox);
         const cx = bbox.x + bbox.width / 2;
         const cy = bbox.y + bbox.height / 2;
-        console.log("BBox center: ", cx, cy);
         zoomBehavior.translateTo(baseSvg, cx, cy);
     }
 
@@ -626,7 +622,6 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
     const infoCard = d3selection
         .select(target)
         .append("div")
-        .attr("id", "info-card")
         .attr("class", "qg-info-card");
     // Add metrics card
     let treeText = "";
@@ -642,35 +637,25 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
         .html(treeText);
 
     // Add toolbar
-    function buildToolbarButton(id: string, description: string) {
-        return `<div id='${id}-button' class='qg-toolbar-button'>
-  <span class="qg-toolbar-icon" id="zoom-in-button">
+    const toolbar = infoCard.append("div").classed("qg-toolbar", true);
+    function addToolbarButton(id: string, description: string, action : () => void) {
+        toolbar
+            .append("div")
+            .classed("qg-toolbar-button", true)
+            .on("click", action)
+            .html(`<span class="qg-toolbar-icon">
     <svg viewbox='-8 -8 16 16' width='20px' height='20px'>
       <use href='#${id}-symbol' class="qg-collapsed" />
     </svg>
   </span>
-  <span class="qg-toolbar-tooltip">${description}</span>
-</div>`;
+  <span class="qg-toolbar-tooltip">${description}</span>`);
     }
-    // Toolbar
-    let buttonsText = "";
-    buttonsText += buildToolbarButton("zoom-in", "Zoom In");
-    buttonsText += buildToolbarButton("zoom-out", "Zoom Out");
-    buttonsText += buildToolbarButton("rotate-left", "Rotate 90° Left");
-    buttonsText += buildToolbarButton("rotate-right", "Rotate 90° Right");
-    buttonsText += buildToolbarButton("recenter", "Center root");
-    buttonsText += buildToolbarButton("fit-screen", "Fit to screen");
-    infoCard
-        .append("div")
-        .classed("qg-toolbar", true)
-        .html(buttonsText);
-
     // Zoom toolbar buttons
     const zoomFactor = 1.4;
-    d3selection.select("#zoom-in-button").on("click", () => {
+    addToolbarButton("zoom-in", "Zoom In", () => {
         zoomBehavior.scaleBy(baseSvg.transition().duration(200), zoomFactor);
     });
-    d3selection.select("#zoom-out-button").on("click", () => {
+    addToolbarButton("zoom-out", "Zoom Out", () => {
         zoomBehavior.scaleBy(baseSvg.transition().duration(200), 1.0 / zoomFactor);
     });
 
@@ -686,32 +671,29 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
         return orientationList[newIndex];
     }
     function clearQueryGraph() {
-        // Removes the QueryGrpah elements. This function is useful if we want to call `drawQueryTree` again
+        // Removes the QueryGraph elements. This function is useful if we want to call `drawQueryTree` again
         // Clear the main tree
         target.innerHTML = "";
         // Clear the tooltip element (which is not under the main tree DOM)
         d3selection.select("#tooltip").remove();
     }
-    d3selection.select("#rotate-left-button").on("click", () => {
-        console.log("Rotating left...");
+    addToolbarButton("rotate-left", "Rotate 90° Left", () => {
         clearQueryGraph();
         treeData.graphOrientation = getNewOrientation(graphOrientation, 1);
         drawQueryTree(target, treeData);
     });
-    d3selection.select("#rotate-right-button").on("click", () => {
-        console.log("Rotating right...");
+    addToolbarButton("rotate-right", "Rotate 90° Right", () => {
         clearQueryGraph();
         treeData.graphOrientation = getNewOrientation(graphOrientation, -1);
         drawQueryTree(target, treeData);
     });
 
     // Recenter toolbar button
-    d3selection.select("#recenter-button").on("click", () => {
+    addToolbarButton("recenter", "Center root", () => {
         orientRoot();
     });
-
-    // Fit to screen button
-    d3selection.select("#fit-screen-button").on("click", () => {
+    // Fit to screen toolbar button
+    addToolbarButton("fit-screen", "Fit to screen", () => {
         fitGraphScale();
         centerGraph();
     });
