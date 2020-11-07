@@ -14,6 +14,12 @@ const symbols = [
     {name: "Const Table", symbol: "const-table-symbol"},
     {name: "Virtual Table", symbol: "virtual-table-symbol"},
     {name: "Temp Table", symbol: "temp-table-symbol"},
+    {name: "Zoom In", symbol: "zoom-in-symbol"},
+    {name: "Zoom Out", symbol: "zoom-out-symbol"},
+    {name: "Rotate Left", symbol: "rotate-left-symbol"},
+    {name: "Rotate Right", symbol: "rotate-right-symbol"},
+    {name: "Recenter", symbol: "recenter-symbol"},
+    {name: "Fit to screen", symbol: "fit-screen-symbol"},
 ];
 
 window.addEventListener("DOMContentLoaded", () => {

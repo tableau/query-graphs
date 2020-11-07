@@ -222,4 +222,98 @@ export function defineSymbols(baseSvg: SVGElement) {
     createLabeledTableSymbol("temp-table-symbol", "tmp");
     createLabeledTableSymbol("virtual-table-symbol", "dmv");
     createLabeledTableSymbol("const-table-symbol", "cnst");
+
+    // -- TOOLBAR SYMBOLS --
+    // Zoom In Symbol
+    const zoomInGroup = defs.append("g").attr("id", "zoom-in-symbol");
+    zoomInGroup
+        .append("circle")
+        .attr("class", "qg-symbol-fill-bg")
+        .attr("r", 5)
+        .attr("cx", 2)
+        .attr("cy", -2);
+    zoomInGroup
+        .append("path")
+        .attr("class", "qg-magnifier-handle")
+        .attr("d", "M-5,5 -2,2");
+    zoomInGroup
+        .append("path")
+        .attr("class", "")
+        .attr("d", "m 2,-4.5 v 5 m -2.5,-2.5 h 5");
+
+    // Zoom Out Symbol
+    const zoomOutGroup = defs.append("g").attr("id", "zoom-out-symbol");
+    zoomOutGroup
+        .append("circle")
+        .attr("class", "qg-symbol-fill-bg")
+        .attr("r", 5)
+        .attr("cx", 2)
+        .attr("cy", -2);
+    zoomOutGroup
+        .append("path")
+        .attr("class", "qg-magnifier-handle")
+        .attr("d", "M-5,5 -2,2");
+    zoomOutGroup
+        .append("path")
+        .attr("class", "")
+        .attr("d", "m -0.5,-2 h 5");
+
+    // Rotate 90 degrees left
+    const rotateLeftGroup = defs.append("g").attr("id", "rotate-left-symbol");
+    rotateLeftGroup
+        .append("path")
+        .attr("class", "qg-symbol-stroke-only")
+        .attr("d", "m -3.53 3.53 a 5 5 0 1 1 7.08 0");
+    rotateLeftGroup
+        .append("path")
+        .attr("class", "qg-symbol-stroke-only")
+        .attr("d", "m -3.25 0.80 v 2.6 h -2.6");
+
+    // Rotate 90 degrees right
+    const rotateRightGroup = defs.append("g").attr("id", "rotate-right-symbol");
+    rotateRightGroup
+        .append("path")
+        .attr("class", "qg-symbol-stroke-only")
+        .attr("d", "m -3.53 3.53 a 5 5 0 1 1 7.08 0");
+    rotateRightGroup
+        .append("path")
+        .attr("class", "qg-symbol-stroke-only")
+        .attr("d", "m 3.25 0.80 v 2.6 h 2.6");
+
+    // Recenter symbol
+    const recenterGroup = defs.append("g").attr("id", "recenter-symbol");
+    recenterGroup
+        .append("circle")
+        .attr("class", "qg-symbol-fill-fg")
+        .attr("r", 2);
+    recenterGroup
+        .append("circle")
+        .attr("class", "qg-symbol-stroke-only")
+        .attr("r", 4);
+    recenterGroup
+        .append("path")
+        .attr("class", "qg-symbol-stroke-only")
+        .attr("d", "m -4 0 h -3");
+    recenterGroup
+        .append("path")
+        .attr("class", "qg-symbol-stroke-only")
+        .attr("d", "m 4 0 h 3");
+    recenterGroup
+        .append("path")
+        .attr("class", "qg-symbol-stroke-only")
+        .attr("d", "m 0 -4 v -3");
+    recenterGroup
+        .append("path")
+        .attr("class", "qg-symbol-stroke-only")
+        .attr("d", "m 0 4 v 3");
+
+    // Fit to screen symbol
+    const fitScreenGroup = defs.append("g").attr("id", "fit-screen-symbol");
+    fitScreenGroup
+        .append("path")
+        .attr("class", "qg-symbol-stroke-only")
+        .attr(
+            "d",
+            "m -5 -2 v -3 h 3 m 4 0 h 3 v 3 m 0 4 v 3 h -3 m -4 0 h -3 v -3 M -5 -5 l 3 3 M -5 5 l 3 -3 M 5 -5 l -3 3 M 5 5 l -3 -3",
+        );
 }
