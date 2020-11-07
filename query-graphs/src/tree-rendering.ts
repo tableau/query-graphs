@@ -638,12 +638,11 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
 
     // Add toolbar
     const toolbar = infoCard.append("div").classed("qg-toolbar", true);
-    function addToolbarButton(id: string, description: string, action : () => void) {
+    function addToolbarButton(id: string, description: string, action: () => void) {
         toolbar
             .append("div")
             .classed("qg-toolbar-button", true)
-            .on("click", action)
-            .html(`<span class="qg-toolbar-icon">
+            .on("click", action).html(`<span class="qg-toolbar-icon">
     <svg viewbox='-8 -8 16 16' width='20px' height='20px'>
       <use href='#${id}-symbol' class="qg-collapsed" />
     </svg>
