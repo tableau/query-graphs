@@ -481,7 +481,9 @@ function collapseNodes(root: TreeNode, graphCollapse) {
                     }
                 }
             },
-            treeDescription.allChildren,
+            function(d): TreeNode[] {
+                return d.children && d.children.length > 0 ? d.children.slice(0) : [];
+            },
         );
     }
 }
