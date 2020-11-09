@@ -6,19 +6,79 @@
   margin: 0 auto;
 }
 
-.qg-tree-label {
-  margin: 0 auto;
+.qg-info-card {
   position: absolute;
   top: 3px;
   right: 3px;
+  background-color: rgba(255, 255, 255, 0.85);
+  border: thin solid #ccc;
+  border-radius: 5px;
+  box-shadow: 2px 2px 2px #888;
+}
+
+.qg-tree-label {
   font-size: 13px;
   font-weight: bold;
   font-family: Monaco, Consolas, monospace;
-  background-color: rgba(255, 255, 255, 0.85);
-  padding: 12px;
-  border: thin solid #eee;
+  padding: 12px 12px 0 12px;
+}
+
+.qg-toolbar {
+  float: right;
+  display: inline-block;
+  padding: 2px;
+}
+
+.qg-toolbar-button {
+  position: relative;
+  display: inline-block;
+  vertical-align: bottom;
+  border: thin solid hsl(0 0% 60%);
+  border-width: 1px 1px 1px 0;
+  padding: 3px;
+  font-family: Monaco, Consolas, monospace;
+  user-select: none;
+}
+
+.qg-toolbar-button:hover {
+  background: #eee;
+  cursor: pointer;
+}
+
+.qg-toolbar-button:first-child {
+  border-width: 1px;
+}
+
+.qg-toolbar-tooltip {
+  visibility: hidden;
+  text-align: center;
   border-radius: 5px;
-  box-shadow: 2px 2px 2px #888;
+  padding: 8px;
+  position: absolute;
+  z-index: 1;
+  top: 150%;
+  right: 0;
+  width: 125px;
+  background: #ccc;
+  font-size: 11px;
+}
+
+.qg-toolbar-tooltip::after {
+  content: " ";
+  top: -10px;
+  right: 8px;
+  border-color: transparent transparent #ccc transparent;
+  border-width: 5px;
+  position: absolute;
+  border-style: solid;
+}
+
+.qg-toolbar-icon > svg {
+  display: block;
+}
+
+.qg-toolbar-button:hover .qg-toolbar-tooltip {
+  visibility: visible;
 }
 
 .qg-node {
@@ -213,6 +273,11 @@ marker#arrow {
   stroke: none;
 }
 
+.qg-symbol-stroke-only {
+  stroke-width: 1.2;
+  fill: none;
+}
+
 /* Run Query */
 path.qg-run-query {
   fill: #fff;
@@ -252,4 +317,9 @@ text.qg-table-text {
   font-family: Monaco, Consolas, monospace;
   stroke: none;
   fill: hsl(0, 0%, 40%);
+}
+
+.qg-magnifier-handle {
+  stroke-width: 1.5;
+  stroke-linecap: round;
 }

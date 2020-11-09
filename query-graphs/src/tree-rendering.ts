@@ -1,6 +1,6 @@
 // Import local modules
 import * as treeDescription from "./tree-description";
-import {TreeDescription, Crosslink} from "./tree-description";
+import {TreeDescription, Crosslink, GraphOrientation} from "./tree-description";
 import {defineSymbols} from "./symbols";
 
 // Third-party dependencies
@@ -119,7 +119,7 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
                 return [11.2 /* table node diameter */ + 2, maxLabelLength * 6 + 10 /* textdimensionoffset */];
             },
             nodesep: (a, b) => (a.parent === b.parent ? 1 : 1.5),
-            rootx: scale => -(viewerWidth / 2 - maxLabelLength * 6) / scale,
+            rootx: scale => viewerWidth - (viewerWidth / 2 - maxLabelLength * 6) / scale,
             rooty: _scale => 0,
         },
         "bottom-to-top": {
@@ -132,7 +132,7 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
             nodesize: () => [maxLabelLength * 6, (maxLabelLength * 6) / 2],
             nodesep: (a, b) => (a.parent === b.parent ? 1 : 1),
             rootx: _scale => 0,
-            rooty: scale => -(viewerHeight / 2 - 50) / scale,
+            rooty: scale => viewerHeight - (viewerHeight / 2 - 50) / scale,
         },
         "left-to-right": {
             link: d3shape.linkHorizontal,
@@ -581,11 +581,48 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
         zoomBehavior.translateTo(baseSvg, x, y);
     }
 
+    // Scale the graph so that it can fit nicely on the screen
+    function fitGraphScale() {
+        // Get the bounding box of the main SVG element, we are interested in the width and height
+        const bounds = baseSvg.node().getBBox();
+        // Get the size of the container of the main SVG element
+        const parent = baseSvg.node().parentElement;
+        const fullWidth = parent.clientWidth;
+        const fullHeight = parent.clientHeight;
+        // Let's find the scale factor
+        // Thinking of only the X dimension, we need to make the width match the fullWidth, Equation:
+        //   width * xfactor = fullWidth
+        // Solving for `xfactor` we have: xfactor = fullWidth/width
+        const xfactor: number = fullWidth / bounds.width;
+        // Similarly, we would find out that: yfactor = fullHeight/height;
+        const yfactor: number = fullHeight / bounds.height;
+        // Most likely, the X and Y factor are different. We use the minimum of them to avoid cropping
+        let scaleFactor: number = Math.min(xfactor, yfactor);
+        // Add some padding so that the graph is not touching the edges
+        const paddingPercent = 0.9;
+        scaleFactor = scaleFactor * paddingPercent;
+        zoomBehavior.scaleBy(baseSvg, scaleFactor);
+    }
+
+    // Center the graph (without scaling)
+    function centerGraph() {
+        // Find the Bounding box center, then translate to it
+        // In other words, put the bbox center in the center of the screen
+        const bbox = svgGroup.node().getBBox();
+        const cx = bbox.x + bbox.width / 2;
+        const cy = bbox.y + bbox.height / 2;
+        zoomBehavior.translateTo(baseSvg, cx, cy);
+    }
+
     // Scale for readability by a fixed amount due to problematic .getBBox() above
     zoomBehavior.scaleBy(baseSvg, 1.5);
 
     orientRoot();
 
+    const infoCard = d3selection
+        .select(target)
+        .append("div")
+        .attr("class", "qg-info-card");
     // Add metrics card
     let treeText = "";
     const properties = treeData.properties ?? {};
@@ -594,11 +631,71 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
     if (crosslinks !== undefined && crosslinks.length) {
         treeText += buildPropertyList({crosslinks: crosslinks.length});
     }
-    d3selection
-        .select(target)
+    infoCard
         .append("div")
         .classed("qg-tree-label", true)
         .html(treeText);
+
+    // Add toolbar
+    const toolbar = infoCard.append("div").classed("qg-toolbar", true);
+    function addToolbarButton(id: string, description: string, action: () => void) {
+        toolbar
+            .append("div")
+            .classed("qg-toolbar-button", true)
+            .on("click", action).html(`<span class="qg-toolbar-icon">
+    <svg viewbox='-8 -8 16 16' width='20px' height='20px'>
+      <use href='#${id}-symbol' class="qg-collapsed" />
+    </svg>
+  </span>
+  <span class="qg-toolbar-tooltip">${description}</span>`);
+    }
+    // Zoom toolbar buttons
+    const zoomFactor = 1.4;
+    addToolbarButton("zoom-in", "Zoom In", () => {
+        zoomBehavior.scaleBy(baseSvg.transition().duration(200), zoomFactor);
+    });
+    addToolbarButton("zoom-out", "Zoom Out", () => {
+        zoomBehavior.scaleBy(baseSvg.transition().duration(200), 1.0 / zoomFactor);
+    });
+
+    // Rotate toolbar buttons
+    function getNewOrientation(orientation: GraphOrientation, shift: number): GraphOrientation {
+        // Gets a new orientation from a given one. 1 unit = 90 degrees
+        // Positive number: clockwise rotation
+        // Negative number: counter-clockwise rotation
+        const orientationList: GraphOrientation[] = ["top-to-bottom", "left-to-right", "bottom-to-top", "right-to-left"];
+        const index: number = orientationList.indexOf(orientation);
+        let newIndex: number = (index + shift) % 4;
+        newIndex = newIndex < 0 ? newIndex + 4 : newIndex;
+        return orientationList[newIndex];
+    }
+    function clearQueryGraph() {
+        // Removes the QueryGraph elements. This function is useful if we want to call `drawQueryTree` again
+        // Clear the main tree
+        target.innerHTML = "";
+        // Clear the tooltip element (which is not under the main tree DOM)
+        d3selection.select("#tooltip").remove();
+    }
+    addToolbarButton("rotate-left", "Rotate 90° Left", () => {
+        clearQueryGraph();
+        treeData.graphOrientation = getNewOrientation(graphOrientation, 1);
+        drawQueryTree(target, treeData);
+    });
+    addToolbarButton("rotate-right", "Rotate 90° Right", () => {
+        clearQueryGraph();
+        treeData.graphOrientation = getNewOrientation(graphOrientation, -1);
+        drawQueryTree(target, treeData);
+    });
+
+    // Recenter toolbar button
+    addToolbarButton("recenter", "Center root", () => {
+        orientRoot();
+    });
+    // Fit to screen toolbar button
+    addToolbarButton("fit-screen", "Fit to screen", () => {
+        fitGraphScale();
+        centerGraph();
+    });
 
     function expandOneLevel() {
         svgGroup.selectAll("g.qg-node").each(d => {
