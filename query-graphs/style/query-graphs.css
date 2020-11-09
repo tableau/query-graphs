@@ -20,7 +20,7 @@
   font-size: 13px;
   font-weight: bold;
   font-family: Monaco, Consolas, monospace;
-  padding: 12px;
+  padding: 12px 12px 0 12px;
 }
 
 .qg-toolbar {
@@ -31,11 +31,13 @@
 
 .qg-toolbar-button {
   position: relative;
-  display: inline-grid;
+  display: inline-block;
+  vertical-align: bottom;
   border: thin solid hsl(0 0% 60%);
   border-width: 1px 1px 1px 0;
   padding: 3px;
   font-family: Monaco, Consolas, monospace;
+  user-select: none;
 }
 
 .qg-toolbar-button:hover {
