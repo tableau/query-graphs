@@ -98,7 +98,9 @@ function deleteOldFiles() {
 }
 
 function getVisualizationURL(req, filePath) {
-    return "http://" + req.get("host") + "/query-graphs.html?file=" + encodeURIComponent(path.relative(WEBROOT_DIR, filePath));
+    const relpath = path.relative(WEBROOT_DIR, filePath);
+    const properties = encodeURIComponent(JSON.stringify({file: relpath}));
+    return "http://" + req.get("host") + "/query-graphs.html?file=" + encodeURIComponent(relpath) + "&properties=" + properties;
 }
 
 app.post("/file-upload", upload.single("queryfile"), function(req, res, _next) {
