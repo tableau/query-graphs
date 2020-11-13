@@ -90,11 +90,6 @@ if (propertiesParam !== null) {
     }
 }
 
-// Add the file name to the displayed properties
-if (!inlineString) {
-    toplevelProperties.set("file", graphFile);
-}
-
 const delay = (function() {
     let timer = 0;
     return (callback: CallableFunction, ms: number) => {
