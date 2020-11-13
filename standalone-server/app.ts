@@ -35,14 +35,7 @@ const searchParams = new URLSearchParams(currentSearch);
 const DEBUG = searchParams.has("debug");
 
 // Get file path
-let graphFile = searchParams.get("file") ?? "favorites/logicalquery.xml";
-
-// Get inline graph string
-let inlineString;
-if (searchParams.has("inline")) {
-    inlineString = searchParams.get("inline");
-    graphFile = "";
-}
+const graphFile = searchParams.get("file") ?? "favorites/logicalquery.xml";
 
 // Get file format
 const fileFormat = searchParams.get("format");
@@ -188,19 +181,15 @@ if (paramErrors.length) {
             document.write(errors.reduce((a, b) => a + "<br/>" + b));
         }
     };
-    if (inlineString) {
-        displayTree(inlineString);
-    } else {
-        fetch(graphFile)
-            .then(response => {
-                if (!response.ok)
-                    throw new Error(
-                        "Request for '" + graphFile + "' failed with '" + response.status + " " + response.statusText + "'.",
-                    );
-                return response.text();
-            })
-            .then(displayTree, err => {
-                document.write(err);
-            });
-    }
+    fetch(graphFile)
+        .then(response => {
+            if (!response.ok)
+                throw new Error(
+                    "Request for '" + graphFile + "' failed with '" + response.status + " " + response.statusText + "'.",
+                );
+            return response.text();
+        })
+        .then(displayTree, err => {
+            document.write(err);
+        });
 }
