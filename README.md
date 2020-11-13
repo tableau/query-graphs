@@ -15,13 +15,11 @@ Current visualizations are tailored for artifacts from Tableau's query ecosystem
 LogicalQuery XML, QueryFunction XML, and Hyper query-plan JSON.
 Postgres EXPLAIN (FORMAT JSON) is also supported.
 
-You can view example query visualizations online:
-* <https://tableau.github.io/query-graphs/query-graphs.html?file=favorites/tableau/joins.xml>,
-* <https://tableau.github.io/query-graphs/query-graphs.html?file=favorites/tableau/query-function.xml&collapse=n>,
-* <https://tableau.github.io/query-graphs/query-graphs.html?file=favorites/tableau/dint4.xml>,
-* <https://tableau.github.io/query-graphs/query-graphs.html?file=favorites/hyper/tpch-q1.plan.json>,
-* <https://tableau.github.io/query-graphs/query-graphs.html?file=favorites/hyper/tpch-q2-steps.plan.json&orientation=left-to-right>, or
-* <https://tableau.github.io/query-graphs/query-graphs.html?file=favorites/postgres/ctescan.json>
+You can view a few example query visualizations online:
+* [Tableau Logical Query joining 3 tables](https://tableau.github.io/query-graphs/query-graphs.html?file=favorites/tableau/joins.xml&properties={"title":"Tableau%20Logical%20Query"}),
+* [Federated query](https://tableau.github.io/query-graphs/query-graphs.html?file=favorites/tableau/dint4.xml&properties={"title":"Federated%20Query"}),
+* [Hyper query plan for TPC-H Q1](https://tableau.github.io/query-graphs/query-graphs.html?file=favorites/hyper/tpch-q1.plan.json&properties={"title":"TPC-H%20Q1%20in%20Hyper"}),
+* [Optimizer steps of Hyper for TPC-H Q2](https://tableau.github.io/query-graphs/query-graphs.html?file=favorites/hyper/tpch-q2-steps.plan.json&orientation=left-to-right&properties={"title":"Optimizer%20steps%20for%20TPC-H%20Q2"}),
 
 Installation
 ------------
