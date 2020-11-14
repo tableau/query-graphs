@@ -97,14 +97,14 @@ function deleteOldFiles() {
     });
 }
 
-function getVisualizationURL(filePath) {
-    return "/query-graphs.html?file=" + encodeURIComponent(path.relative(WEBROOT_DIR, filePath));
+function getVisualizationURL(req, filePath) {
+    return "http://" + req.get("host") + "/query-graphs.html?file=" + encodeURIComponent(path.relative(WEBROOT_DIR, filePath));
 }
 
 app.post("/file-upload", upload.single("queryfile"), function(req, res, _next) {
     console.log("/file-upload called");
     deleteOldFiles();
-    const visualizationUrl = getVisualizationURL(path.join(UPLOAD_DIR, req.file.filename));
+    const visualizationUrl = getVisualizationURL(req, path.join(UPLOAD_DIR, req.file.filename));
     console.log(req.body);
     if (req.body && req.body.redirect && req.body.redirect === "yes") {
         // Redirect to the Visualization URL
@@ -123,7 +123,7 @@ app.post("/text-upload", function(req, res) {
     fs.writeFileSync(filename, querytext);
     deleteOldFiles();
     // Redirect to the Visualization URL
-    res.redirect(getVisualizationURL(filename));
+    res.redirect(getVisualizationURL(req, filename));
 });
 
 function escapeHtml(unsafe) {
@@ -160,7 +160,7 @@ app.get("/favorites", function(req, res) {
             for (let j = commonLen; j < relPath.length; ++j) {
                 html += "<li>" + escapeHtml(relPath[j]) + "<ul>";
             }
-            html += "<li><a href='" + escapeHtml(getVisualizationURL(name)) + "'>" + escapeHtml(fileName) + "</a></li>";
+            html += "<li><a href='" + escapeHtml(getVisualizationURL(req, name)) + "'>" + escapeHtml(fileName) + "</a></li>";
             lastPath = relPath;
         });
         html += "</ul></body></html>";
