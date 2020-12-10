@@ -12,7 +12,8 @@ Description
 Query Graphs is an investigation into graph visualization for query processing, such as for logical queries and their physical
 query evaluation plans.
 Current visualizations are tailored for artifacts from Tableau's query ecosystem:
-LogicalQuery XML, QueryFunction XML, and Hyper query-plan JSON.
+LogicalQuery XML, QueryFunction XML, Data Engine TQL, and Hyper query-plan JSON.
+Postgres EXPLAIN (FORMAT JSON) is also supported.
 
 You can view example query visualizations online:
 * <https://tableau.github.io/query-graphs/query-graphs.html?file=favorites/tableau/joins.xml>,

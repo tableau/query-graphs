@@ -54,7 +54,7 @@ Parameter       | Description
 collapse        | node collapse style: n - no/none, y - yes/some, s - streamline all secondary nodes (default)
 debug           | debug mode: any setting will enable (disabled by default)
 file            | name of file to display
-format          | format of the file: 'tableau', 'hyper', 'xml', 'json' (default: file format will be inferred)
+format          | format of the file: 'tableau', 'hyper', 'xml', 'tql', 'postgres', 'json' (default: file format will be inferred)
 orientation     | graph orientation: top-to-bottom (default), right-to-left, bottom-to-top, left-to-right
 properties      | JSON object with additional properties to be displayed in the tree label
 ```

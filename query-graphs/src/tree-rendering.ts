@@ -196,6 +196,7 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
         "nodeClass",
         "edgeClass",
         "edgeLabel",
+        "edgeLabelClass",
     ];
     function getDirectProperties(d) {
         const props = {};
@@ -489,7 +490,7 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
         const linkLabelEnter = linkLabel
             .enter()
             .insert("text")
-            .classed("qg-link-label", true)
+            .attr("class", d => "qg-link-label " + (d.target.data.edgeLabelClass ?? ""))
             .attr("text-anchor", "middle")
             .text(d => d.target.data.edgeLabel)
             .attr("x", ooo.x(source.prevPos))

@@ -1,0 +1,57 @@
+[
+  {
+    "Plan": {
+      "Node Type": "Nested Loop",
+      "Parallel Aware": false,
+      "Join Type": "Inner",
+      "Startup Cost": 10000000001.15,
+      "Total Cost": 10000000001.20,
+      "Plan Rows": 1,
+      "Plan Width": 172,
+      "Output": ["w1.id", "w1.role", "w2.id", "w2.role"],
+      "Inner Unique": false,
+      "Join Filter": "(w1.id < w2.id)",
+      "Plans": [
+        {
+          "Node Type": "Seq Scan",
+          "Parent Relationship": "InitPlan",
+          "Subplan Name": "CTE w",
+          "Parallel Aware": false,
+          "Relation Name": "role_type",
+          "Schema": "public",
+          "Alias": "role_type",
+          "Startup Cost": 0.00,
+          "Total Cost": 1.15,
+          "Plan Rows": 1,
+          "Plan Width": 15,
+          "Output": ["role_type.id", "role_type.role"],
+          "Filter": "((role_type.role)::text ~~ 'act%'::text)"
+        },
+        {
+          "Node Type": "CTE Scan",
+          "Parent Relationship": "Outer",
+          "Parallel Aware": false,
+          "CTE Name": "w",
+          "Alias": "w1",
+          "Startup Cost": 0.00,
+          "Total Cost": 0.02,
+          "Plan Rows": 1,
+          "Plan Width": 86,
+          "Output": ["w1.id", "w1.role"]
+        },
+        {
+          "Node Type": "CTE Scan",
+          "Parent Relationship": "Inner",
+          "Parallel Aware": false,
+          "CTE Name": "w",
+          "Alias": "w2",
+          "Startup Cost": 0.00,
+          "Total Cost": 0.02,
+          "Plan Rows": 1,
+          "Plan Width": 86,
+          "Output": ["w2.id", "w2.role"]
+        }
+      ]
+    }
+  }
+]
