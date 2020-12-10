@@ -86,10 +86,16 @@ export function computeOrder(x: number): number {
     return idx;
 }
 
-export function assert(value: boolean): asserts value {
+export function assert(value: boolean, errorMsg = "Assertion violated"): asserts value {
     if (!value) {
         // eslint-disable-next-line no-debugger
         debugger;
-        throw new Error("Assertion violated");
+        throw new Error(errorMsg);
     }
+}
+
+export function assertNotNull<T>(v: T | null | undefined): T {
+    assert(v !== null, "Unexpected null value");
+    assert(v !== undefined, "Unexpected undefined value");
+    return v;
 }
