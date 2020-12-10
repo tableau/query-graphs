@@ -46,6 +46,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack --mode production",
     "build:dev": "webpack --mode development",
+    "build:watch": "webpack --mode development --watch",
     "prebuild:tlv": "npm run build",
     "build:tlv": "tar -czf query-graphs-tlv-qt-$npm_package_version.tgz -C webroot query-graphs.tlv.html query-graphs.min.js"
   }
