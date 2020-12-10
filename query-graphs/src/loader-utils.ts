@@ -76,16 +76,6 @@ export function formatMetric(x: number): string {
     return x.toFixed(0) + sizes[idx];
 }
 
-// Compute order of magnitude
-export function computeOrder(x: number): number {
-    let idx = 0;
-    while (x >= 10) {
-        x /= 10;
-        ++idx;
-    }
-    return idx;
-}
-
 export function assert(value: boolean, errorMsg = "Assertion violated"): asserts value {
     if (!value) {
         // eslint-disable-next-line no-debugger
