@@ -196,6 +196,7 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
         "nodeClass",
         "edgeClass",
         "edgeLabel",
+        "edgeLabelClass",
     ];
     function getDirectProperties(d) {
         const props = {};
@@ -489,13 +490,7 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
         const linkLabelEnter = linkLabel
             .enter()
             .insert("text")
-            .attr("class", function(d) {
-                if (d.target.data.edgeLabel.includes(";")) {
-                    return "qg-link-label qg-link-label-highlighted";
-                } else {
-                    return "qg-link-label";
-                }
-            })
+            .attr("class", d => "qg-link-label " + (d.target.data.edgeLabelClass ?? ""))
             .attr("text-anchor", "middle")
             .text(d => d.target.data.edgeLabel)
             .attr("x", ooo.x(source.prevPos))

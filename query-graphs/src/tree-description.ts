@@ -11,6 +11,8 @@ export interface TreeNode {
     edgeClass?: string;
     // EdgeLabel: label placed on the incoming edge
     edgeLabel?: string;
+    // Additional CSS classes applied to the label on the incoming edge
+    edgeLabelClass?: string;
     // Rendered in the tooltip
     properties?: any;
     // an array containing all currently visible child nodes

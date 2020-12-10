@@ -148,7 +148,7 @@ if (paramErrors.length) {
         if (fileFormat !== null) {
             loaders = [knownLoaders.get(fileFormat)];
         } else if (graphFile.endsWith(".json")) {
-            // Try Postgres before Hyper so to differentiate between them
+            // Try Postgres before Hyper to differentiate between them
             loaders = [loadPostgresPlanFromText, loadHyperPlanFromText, loadJsonFromText];
         } else if (graphFile.endsWith(".xml")) {
             loaders = [loadTableauPlan, loadXml];

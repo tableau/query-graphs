@@ -15,7 +15,7 @@ The label for a tree node is taken from the first defined property among several
 
 import * as treeDescription from "./tree-description";
 import {TreeNode, TreeDescription, Crosslink} from "./tree-description";
-import {Json, forceToString, tryToString, formatMetric, computeOrder, hasOwnProperty, hasSubOject} from "./loader-utils";
+import {Json, forceToString, tryToString, formatMetric, hasOwnProperty, hasSubOject} from "./loader-utils";
 
 // Convert Postgres JSON to a D3 tree
 function convertPostgres(node: Json, parentKey: string): TreeNode | TreeNode[] {
@@ -112,20 +112,17 @@ function convertPostgres(node: Json, parentKey: string): TreeNode | TreeNode[] {
 
         // Display the cardinality on the links between the nodes
         let edgeLabel: string | undefined = undefined;
+        let edgeLabelClass: string | undefined = undefined;
         if (node.hasOwnProperty("Plan Rows") && typeof node["Plan Rows"] === "number") {
             edgeLabel = formatMetric(node["Plan Rows"]);
             if (node.hasOwnProperty("Actual Rows") && typeof node["Actual Rows"] === "number") {
-                //const num0 = Number(node["Plan Rows"]);
-                //const num1 = Number(node["Actual Rows"]);
-                //if (num0 > num1 * 10 || num0 * 10 < num1) {
-                const order0 = computeOrder(Number(node["Plan Rows"]));
-                const order1 = computeOrder(Number(node["Actual Rows"]));
-                if (order0 !== order1) {
-                    edgeLabel = edgeLabel + ";";
-                } else {
-                    edgeLabel = edgeLabel + ",";
+                edgeLabel += "," + formatMetric(node["Actual Rows"]);
+                // Highlight significant differences between planned and actual rows
+                const num0 = Number(node["Plan Rows"]);
+                const num1 = Number(node["Actual Rows"]);
+                if (num0 > num1 * 10 || num0 * 10 < num1) {
+                    edgeLabelClass = "qg-link-label-highlighted";
                 }
-                edgeLabel = edgeLabel + formatMetric(node["Actual Rows"]);
             }
         }
 
@@ -154,6 +151,7 @@ function convertPostgres(node: Json, parentKey: string): TreeNode | TreeNode[] {
             children: children,
             _children: _children,
             edgeLabel: edgeLabel,
+            edgeLabelClass: edgeLabelClass,
         };
         return convertedNode;
     } else if (Array.isArray(node)) {
@@ -185,32 +183,33 @@ function generateDisplayNames(treeRoot: TreeNode) {
                 case "Hash Join":
                 case "Nested Loop":
                 case "Merge Join":
-                    switch (node["Join Type"]) {
-                        case "Inner":
-                            node.name = node.tag;
-                            node.symbol = "inner-join-symbol";
-                            break;
-                        case "Full Outer":
-                            node.name = node.tag;
-                            node.symbol = "full-join-symbol";
-                            break;
-                        case "Left Outer":
-                            node.name = node.tag;
-                            node.symbol = "left-join-symbol";
-                            break;
-                        case "Right Outer":
-                            node.name = node.tag;
-                            node.symbol = "right-join-symbol";
-                            break;
-                        default:
-                            node.name = node.tag;
-                            node.symbol = "inner-join-symbol";
-                            break;
+                    if (node.hasOwnProperty("properties")) {
+                        switch (node.properties["Join Type"]) {
+                            case "Inner":
+                                node.name = node.tag;
+                                node.symbol = "inner-join-symbol";
+                                break;
+                            case "Full Outer":
+                                node.name = node.tag;
+                                node.symbol = "full-join-symbol";
+                                break;
+                            case "Left Outer":
+                                node.name = node.tag;
+                                node.symbol = "left-join-symbol";
+                                break;
+                            case "Right Outer":
+                                node.name = node.tag;
+                                node.symbol = "right-join-symbol";
+                                break;
+                            default:
+                                node.name = node.tag;
+                                node.symbol = "inner-join-symbol";
+                                break;
+                        }
                     }
                     break;
                 case "Bitmap Heap Scan":
                 case "Bitmap Index Scan":
-                case "CTE Scan":
                 case "Custom Scan":
                 case "Foreign Scan":
                 case "Function Scan":
@@ -218,18 +217,39 @@ function generateDisplayNames(treeRoot: TreeNode) {
                 case "Index Scan":
                 case "Named Tuplestore Scan":
                 case "Sample Scan":
-                case "Seq Scan":
                 case "Subquery Scan":
                 case "Table Function Scan":
                 case "Tid Scan":
                 case "Values Scan":
-                case "WorkTable Scan":
                     node.name = node.tag;
                     node.symbol = "table-symbol";
                     break;
+                case "Seq Scan":
+                    if (node.hasOwnProperty("properties")) {
+                        node.name = node.properties["Relation Name"];
+                    } else {
+                        node.name = node.tag;
+                    }
+                    node.symbol = "table-symbol";
+                    break;
+                case "CTE Scan":
                 case "Materialize":
+                case "WorkTable Scan":
                     node.name = node.tag;
                     node.symbol = "temp-table-symbol";
+                    break;
+                case "Incremental Sort":
+                case "Sort":
+                    node.name = node.tag;
+                    node.symbol = "sort-symbol";
+                    break;
+                case "Result":
+                    node.name = node.tag;
+                    node.symbol = "const-table-symbol";
+                    break;
+                case "Limit":
+                    node.name = node.tag;
+                    node.symbol = "filter-symbol";
                     break;
                 default:
                     if (node.tag) {
