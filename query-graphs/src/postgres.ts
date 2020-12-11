@@ -27,7 +27,7 @@ function convertPostgres(node: Json, parentKey: string): TreeNode | TreeNode[] {
         // "Object" nodes
         let explicitChildren = [] as TreeNode[];
         const additionalChildren = [] as TreeNode[];
-        const properties = {};
+        const properties = new Map<string, string>();
 
         // Take the first present tagKey as the new tag. Add all others as properties
         const tagKeys = ["Node Type"];
@@ -39,7 +39,7 @@ function convertPostgres(node: Json, parentKey: string): TreeNode | TreeNode[] {
             if (tag === undefined) {
                 tag = tryToString(node[tagKey]);
             } else {
-                properties[tagKey] = forceToString(node[tagKey]);
+                properties.set(tagKey, forceToString(node[tagKey]));
             }
         }
         if (tag === undefined) {
@@ -67,7 +67,7 @@ function convertPostgres(node: Json, parentKey: string): TreeNode | TreeNode[] {
                 continue;
             }
             if (typeof node[key] !== "object") {
-                properties[key] = forceToString(node[key]);
+                properties.set(key, forceToString(node[key]));
                 continue;
             }
             const child = convertPostgres(node[key], key);
@@ -81,10 +81,9 @@ function convertPostgres(node: Json, parentKey: string): TreeNode | TreeNode[] {
         // Display these properties always as properties, even if they are more complex
         const propertyKeys = [""];
         for (const key of propertyKeys) {
-            if (!node.hasOwnProperty(key)) {
-                continue;
+            if (node.hasOwnProperty(key)) {
+                properties.set(key, forceToString(node[key]));
             }
-            properties[key] = forceToString(node[key]);
         }
 
         // Display all other properties adaptively: simple expressions are displayed as properties, all others as part of the tree
@@ -97,7 +96,7 @@ function convertPostgres(node: Json, parentKey: string): TreeNode | TreeNode[] {
             // Try to display as string property
             const str = tryToString(node[key]);
             if (str !== undefined) {
-                properties[key] = str;
+                properties.set(key, str);
                 continue;
             }
 
@@ -140,12 +139,13 @@ function convertPostgres(node: Json, parentKey: string): TreeNode | TreeNode[] {
         }
 
         // Sort properties by key
-        const sortedProperties = Object.keys(properties)
-            .sort()
-            .reduce((a, c) => ((a[c] = properties[c]), a), {});
+        const sortedProperties = new Map<string, string>();
+        for (const k of Array.from(properties.keys()).sort()) {
+            sortedProperties.set(k, properties.get(k) as string);
+        }
 
         // Build the converted node
-        const convertedNode = {
+        return {
             tag: tag,
             properties: sortedProperties,
             children: children,
@@ -153,7 +153,6 @@ function convertPostgres(node: Json, parentKey: string): TreeNode | TreeNode[] {
             edgeLabel: edgeLabel,
             edgeLabelClass: edgeLabelClass,
         };
-        return convertedNode;
     } else if (Array.isArray(node)) {
         // "Array" nodes
         const listOfObjects = [] as TreeNode[];
@@ -184,7 +183,7 @@ function generateDisplayNames(treeRoot: TreeNode) {
                 case "Nested Loop":
                 case "Merge Join":
                     if (node.hasOwnProperty("properties")) {
-                        switch (node.properties["Join Type"]) {
+                        switch (node.properties?.get("Join Type")) {
                             case "Inner":
                                 node.name = node.tag;
                                 node.symbol = "inner-join-symbol";
@@ -225,11 +224,7 @@ function generateDisplayNames(treeRoot: TreeNode) {
                     node.symbol = "table-symbol";
                     break;
                 case "Seq Scan":
-                    if (node.hasOwnProperty("properties")) {
-                        node.name = node.properties["Relation Name"];
-                    } else {
-                        node.name = node.tag;
-                    }
+                    node.name = node.properties?.get("Relation Name") ?? node.tag;
                     node.symbol = "table-symbol";
                     break;
                 case "CTE Scan":
@@ -267,26 +262,23 @@ function generateDisplayNames(treeRoot: TreeNode) {
 }
 
 // Color graph per Foreign Scan relations
-function colorForeignScan(root: TreeNode) {
-    treeDescription.visitTreeNodes(
-        root,
-        function(d) {
-            if (d.tag && d.tag === "Foreign Scan") {
-                // A Foreign Scan of one relation has a Schema or a Relations if multiple
-                if (d.properties && d.properties.Schema) {
-                    d.foreignscan = "qg-" + d.properties.Schema;
-                    d.nodeClass = d.foreignscan;
-                } else {
-                    d.foreignscan = "qg-" + d.properties.Relations.split(/[(.]/).find(token => token !== "");
-                    d.nodeClass = d.foreignscan;
-                }
-            } else if (d.parent && d.parent.foreignscan) {
-                d.foreignscan = d.parent.foreignscan;
-                d.nodeClass = d.parent.foreignscan;
-            }
-        },
-        treeDescription.allChildren,
-    );
+function colorForeignScan(node: TreeNode, foreignScan?: string) {
+    if (node.tag === "Foreign Scan") {
+        // A Foreign Scan of one relation has a Schema or a Relations if multiple
+        const schema = node.properties?.get("Schema");
+        const relations = node.properties?.get("Relations");
+        if (schema) {
+            foreignScan = schema;
+        } else if (relations) {
+            foreignScan = relations.split(/[(.]/).find(token => token !== "");
+        }
+    }
+    if (foreignScan !== undefined) {
+        node.nodeClass = "qg-" + foreignScan;
+    }
+    for (const child of treeDescription.allChildren(node)) {
+        colorForeignScan(child, foreignScan);
+    }
 }
 
 // Function to add crosslinks between related nodes
@@ -301,18 +293,15 @@ function addCrosslinks(root: TreeNode): Crosslink[] {
         root,
         function(node) {
             // Build map from potential target operator Subplan Name to node
-            if (
-                node.hasOwnProperty("properties") &&
-                node.properties.hasOwnProperty("Subplan Name") &&
-                node.properties["Subplan Name"].split(" ")[0] === "CTE"
-            ) {
-                operatorsByName.set(node.properties["Subplan Name"], node);
+            const subplanName = node.properties?.get("Subplan Name");
+            if (subplanName?.startsWith("CTE ")) {
+                operatorsByName.set(subplanName, node);
             }
             // Identify source operators
-            if (node.tag === "CTE Scan" && node.hasOwnProperty("properties") && node.properties.hasOwnProperty("CTE Name")) {
+            if (node.tag === "CTE Scan" && node.properties?.has("CTE Name")) {
                 unresolvedLinks.push({
                     source: node,
-                    targetName: "CTE " + node.properties["CTE Name"],
+                    targetName: "CTE " + node.properties.get("CTE Name"),
                 });
             }
         },
@@ -331,8 +320,6 @@ function addCrosslinks(root: TreeNode): Crosslink[] {
 
 // Loads a Postgres query plan
 export function loadPostgresPlan(json: Json, graphCollapse: any = undefined): TreeDescription {
-    // Extract top-level meta data
-    const properties: any = {};
     // Skip initial array containing a single "Plan"
     if (Array.isArray(json) && json.length === 1) {
         json = json[0];
@@ -357,7 +344,7 @@ export function loadPostgresPlan(json: Json, graphCollapse: any = undefined): Tr
     }
     // Add crosslinks
     const crosslinks = addCrosslinks(root);
-    return {root: root, crosslinks: crosslinks, properties: properties};
+    return {root: root, crosslinks: crosslinks};
 }
 
 // Load a JSON tree from text

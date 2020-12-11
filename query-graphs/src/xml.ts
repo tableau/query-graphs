@@ -43,20 +43,22 @@ export function typesafeXMLParse(str: string): ParsedXML {
 }
 
 // Convert JS objects as returned by xml2js parser to tree description format
-function convertXML(node: ParsedXML): TreeNode {
+function convertXML(xml: ParsedXML): TreeNode {
     const children = [] as any[];
-    let properties = {};
+    const properties = new Map<string, string>();
     let text: string | undefined;
-    const tag = node["#name"];
+    const tag = xml["#name"];
 
-    if (node.$) {
-        properties = node.$;
+    if (xml.$) {
+        for (const key of Object.getOwnPropertyNames(xml.$)) {
+            properties.set(key, xml.$[key]);
+        }
     }
-    if (node._) {
-        text = node._;
+    if (xml._) {
+        text = xml._;
     }
-    if (node.$$) {
-        for (const child of node.$$) {
+    if (xml.$$) {
+        for (const child of xml.$$) {
             children.push(convertXML(child));
         }
     }

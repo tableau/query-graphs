@@ -172,13 +172,13 @@ if (paramErrors.length) {
         if (loaderIdx > -1) {
             assert(loadedTree !== undefined);
             if (loadedTree.properties === undefined) {
-                loadedTree.properties = {};
+                loadedTree.properties = new Map<string, string>();
             }
             for (const [key, value] of toplevelProperties) {
-                loadedTree.properties[key] = value;
+                loadedTree.properties.set(key, value);
             }
             if (DEBUG) {
-                loadedTree.properties["loader"] = loaders[loaderIdx].name;
+                loadedTree.properties.set("loader", loaders[loaderIdx].name);
             }
             loadedTree.graphOrientation = graphOrientation;
             loadedTree.DEBUG = DEBUG;

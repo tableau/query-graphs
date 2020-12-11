@@ -11,14 +11,15 @@ import {Json, tryToString} from "./loader-utils";
 import {TreeDescription, TreeNode} from "./tree-description";
 
 function convertChildren(node: Json): TreeNode[] {
-    if (tryToString(node) !== undefined) {
+    const strRep = tryToString(node);
+    if (strRep !== undefined) {
         return [
             {
-                name: tryToString(node) + ":" + typeof node,
-                properties: {
-                    value: tryToString(node),
-                    type: typeof node,
-                },
+                name: strRep + ":" + typeof node,
+                properties: new Map([
+                    ["value", strRep],
+                    ["type", typeof node],
+                ]),
             },
         ];
     } else if (typeof node === "object" && !Array.isArray(node) && node !== null) {
