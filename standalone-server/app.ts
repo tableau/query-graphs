@@ -11,7 +11,6 @@ import {loadPostgresPlanFromText} from "@tableau/query-graphs/lib/postgres";
 import {loadHyperPlanFromText} from "@tableau/query-graphs/lib/hyper";
 import {loadTableauPlan} from "@tableau/query-graphs/lib/tableau";
 import {loadJsonFromText} from "@tableau/query-graphs/lib/json";
-import {loadTQLPlan} from "@tableau/query-graphs/lib/tql";
 import {loadXml} from "@tableau/query-graphs/lib/xml";
 import {assert, jsonToStringMap} from "@tableau/query-graphs/lib/loader-utils";
 import {TreeDescription, GraphOrientation} from "@tableau/query-graphs/lib/tree-description";
@@ -21,7 +20,6 @@ const knownLoaders = new Map<string, any>([
     ["tableau", loadTableauPlan],
     ["json", loadJsonFromText],
     ["xml", loadXml],
-    ["tql", loadTQLPlan],
     ["raw", JSON.parse],
 ]);
 
@@ -154,10 +152,6 @@ if (paramErrors.length) {
             loaders = [loadTableauPlan, loadXml];
         } else if (graphFile.endsWith(".twb")) {
             loaders = [loadXml];
-        } else if (graphFile.endsWith(".tql")) {
-            loaders = [loadTQLPlan];
-        } else if (graphFile.endsWith(".log")) {
-            loaders = [loadTQLPlan];
         } else {
             loaders = Array.from(knownLoaders.values());
         }
