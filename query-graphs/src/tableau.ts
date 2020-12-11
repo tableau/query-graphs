@@ -16,22 +16,24 @@ import {typesafeXMLParse, ParsedXML} from "./xml";
 import {assert} from "./loader-utils";
 
 // Convert JSON as returned by xml2js parser to d3 tree format
-function convertJSON(xml: ParsedXML) {
-    const children: any[] = [];
-    let properties: any = {};
+function convertXML(xml: ParsedXML) {
+    const children = [] as any[];
+    const properties = new Map<string, string>();
     let text: string | undefined;
     const tag = xml["#name"];
 
     if (xml.$) {
-        properties = xml.$;
+        for (const key of Object.getOwnPropertyNames(xml.$)) {
+            properties.set(key, xml.$[key]);
+        }
     }
     if (xml._) {
         text = xml._;
     }
     if (xml.$$) {
-        xml.$$.forEach(child => {
-            children.push(convertJSON(child));
-        });
+        for (const child of xml.$$) {
+            children.push(convertXML(child));
+        }
     }
 
     return {
@@ -44,36 +46,49 @@ function convertJSON(xml: ParsedXML) {
 
 // Function to generate nodes' display names based on their properties
 const generateDisplayNames = (function() {
+    // Get the first non-null, non-empty string
+    function fallback(...args: (string | undefined)[]) {
+        for (const arg of args) {
+            if (arg !== undefined && arg.length !== 0) {
+                return arg;
+            }
+        }
+    }
+
     // Function to eliminate node
-    function eliminateNode(node: TreeNode, parent: TreeNode) {
-        if (!node || !node.children) {
+    function eliminateNode(node: TreeNode) {
+        const parent = node.parent;
+        if (!parent) {
             return;
         }
         assert(parent.children !== undefined);
         let nodeIndex = parent.children.indexOf(node);
         parent.children.splice(nodeIndex, 1);
-        for (let i = 0; i < node.children.length; i++) {
-            node.children[i].parent = parent;
-            parent.children.splice(nodeIndex++, 0, node.children[i]);
+        if (node.children) {
+            for (let i = 0; i < node.children.length; i++) {
+                node.children[i].parent = parent;
+                parent.children.splice(nodeIndex++, 0, node.children[i]);
+            }
         }
     }
 
     // properties.class are the expressions
     function handleLogicalExpression(node: TreeNode) {
-        switch (node.properties.class) {
+        const clazz = node.properties?.get("class");
+        switch (clazz) {
             case "identifier":
                 node.name = node.text;
                 node.class = "identifier";
                 break;
             case "funcall":
-                node.name = node.properties.function;
+                node.name = node.properties?.get("function");
                 node.class = "function";
                 break;
             case "literal":
-                node.name = node.properties.datatype + ":" + node.text;
+                node.name = node.properties?.get("datatype") + ":" + node.text;
                 break;
             default:
-                node.name = node.properties.class;
+                node.name = clazz;
                 break;
         }
     }
@@ -82,77 +97,82 @@ const generateDisplayNames = (function() {
     function handleLogicalExpression2(node: TreeNode) {
         switch (node.tag) {
             case "identifierExp":
-                node.name = node.properties.identifier;
+                node.name = node.properties?.get("identifier");
                 node.class = "identifier";
                 break;
             case "funcallExp":
-                node.name = node.properties.function;
+                node.name = node.properties?.get("function");
                 node.class = "function";
                 break;
             case "literalExp":
-                node.name = node.properties.datatype + ":" + node.properties.value;
+                node.name = node.properties?.get("datatype") + ":" + node.properties?.get("value");
                 break;
             case "referenceExp":
-                node.name = "ref:" + node.properties.ref;
+                node.name = "ref:" + node.properties?.get("ref");
                 node.class = "reference";
                 break;
             default:
-                node.name = node.tag.replace(/Exp$/, "");
+                node.name = node.tag?.replace(/Exp$/, "");
                 break;
         }
     }
 
     function handleQueryExpression(node: TreeNode) {
-        switch (node.properties.class) {
+        const clazz = node.properties?.get("class");
+        switch (clazz) {
             case "identifier":
                 node.name = node.text;
                 node.class = "identifier";
                 break;
             case "funcall":
-                node.name = node.properties.function;
+                node.name = node.properties?.get("function");
                 node.class = "function";
                 break;
             case "literal":
-                node.name = node.properties.datatype + ":" + node.text;
+                node.name = node.properties?.get("datatype") + ":" + node.text;
                 break;
             default:
-                node.name = node.properties.class;
+                node.name = clazz;
                 break;
         }
     }
 
     function handleQueryFunction(node: TreeNode) {
-        switch (node.properties.class) {
+        const clazz = node.properties?.get("class");
+        switch (clazz) {
             case "table":
-                node.name = node.properties.table;
+                node.name = node.properties?.get("table");
                 node.class = "relation";
                 break;
             default:
-                node.name = node.properties.class;
+                node.name = clazz;
                 break;
         }
     }
 
     // properties.class are the operators
     function handleLogicalOperator(node: TreeNode) {
-        switch (node.properties.class) {
+        const clazz = node.properties?.get("class");
+        switch (clazz) {
             case "join":
-                node.name = node.properties.name;
+                node.name = node.properties?.get("name");
                 node.class = "join";
                 break;
             case "relation":
-                node.name = node.properties.name;
+                node.name = node.properties?.get("name");
                 node.class = "relation";
                 break;
-            case "tuples":
-                if (node.properties.alias) {
-                    node.name = node.properties.class + ":" + node.properties.alias;
+            case "tuples": {
+                const alias = node.properties?.get("alias");
+                if (alias) {
+                    node.name = clazz + ":" + alias;
                 } else {
-                    node.name = node.properties.class;
+                    node.name = clazz;
                 }
                 break;
+            }
             default:
-                node.name = node.properties.class;
+                node.name = clazz;
                 break;
         }
     }
@@ -165,63 +185,41 @@ const generateDisplayNames = (function() {
                 node.class = "join";
                 break;
             case "referenceOp":
-                node.name = "ref:" + node.properties.ref;
+                node.name = "ref:" + node.properties?.get("ref");
                 node.class = "reference";
                 break;
             case "relationOp":
-                node.name = node.properties.name;
+                node.name = node.properties?.get("name");
                 node.class = "relation";
                 break;
-            case "tuplesOp":
-                if (node.properties.alias) {
-                    node.name = node.tag.replace(/Op$/, "") + ":" + node.properties.alias;
+            case "tuplesOp": {
+                const alias = node.properties?.get("alias");
+                if (alias) {
+                    node.name = node.tag.replace(/Op$/, "") + ":" + alias;
                 } else {
                     node.name = node.tag.replace(/Op$/, "");
                 }
                 break;
+            }
             default:
-                node.name = node.tag.replace(/Op$/, "");
+                node.name = node.tag?.replace(/Op$/, "");
                 break;
         }
     }
 
     // properties.class are the operators
     function handleFedOp(node: TreeNode) {
-        switch (node.properties.class) {
+        const clazz = node.properties?.get("class");
+        switch (clazz) {
             case "createtemptable":
             case "createtemptablefromquery":
             case "createtemptablefromtuples":
-                if (node.properties.table) {
-                    node.name = node.properties.table;
-                } else {
-                    node.name = node.properties.class;
-                }
+                node.name = fallback(node.properties?.get("table"), clazz);
                 node.class = "createtemptable";
                 break;
             default:
-                node.name = node.properties.class;
+                node.name = clazz;
                 break;
-        }
-    }
-
-    function handleBinding(node: TreeNode) {
-        if (node.properties && node.properties.name) {
-            node.name = node.properties.name;
-        } else if (node.properties && node.properties.ref) {
-            node.name = node.properties.ref;
-        } else {
-            node.name = node.tag;
-        }
-    }
-
-    // for calculation-language expression trees
-    function handleDimensions(node: TreeNode) {
-        if (node.text) {
-            node.name = node.text;
-        } else if (node.properties && node.properties.type) {
-            node.name = node.properties.type;
-        } else {
-            node.name = node.tag;
         }
     }
 
@@ -229,27 +227,17 @@ const generateDisplayNames = (function() {
     function handleExpression(node: TreeNode) {
         if (node.text) {
             node.name = node.text;
-        } else if (node.properties && node.properties.name) {
-            node.name = node.properties.name;
-        } else if (node.properties && node.properties.value) {
-            if (node.properties.type === "string") {
-                node.name = "'" + node.properties.value + "'";
-            } else {
-                node.name = node.properties.value;
+        } else if (node.properties?.has("name")) {
+            node.name = node.properties.get("name");
+        } else if (node.properties?.has("value")) {
+            node.name = node.properties.get("value");
+            if (node.properties.get("type") === "string") {
+                node.name = "'" + node.name + "'";
             }
-        } else if (node.properties && node.properties.class) {
-            node.name = node.properties.class;
+        } else if (node.properties?.has("class")) {
+            node.name = node.properties.get("class");
         } else {
-            eliminateNode(node, node.parent);
-        }
-    }
-
-    // Function to display node's name.
-    function displayNodeName(node: TreeNode) {
-        if (node.properties && node.properties.name) {
-            node.name = node.properties.name;
-        } else {
-            node.name = node.tag;
+            eliminateNode(node);
         }
     }
 
@@ -262,10 +250,10 @@ const generateDisplayNames = (function() {
         }
         switch (node.tag) {
             case "table-parameters":
-                eliminateNode(node, node.parent);
+                eliminateNode(node);
                 break;
             case "arguments":
-                eliminateNode(node, node.parent);
+                eliminateNode(node);
                 break;
             case "logical-expression":
                 handleLogicalExpression(node);
@@ -283,91 +271,68 @@ const generateDisplayNames = (function() {
                 handleLogicalOperator(node);
                 break;
             case "calculation":
-                node.name = node.properties.formula;
+                node.name = node.properties?.get("formula");
                 break;
             case "condition":
-                if (node.properties) {
-                    node.name = node.properties.op;
-                } else {
-                    node.name = node.tag;
-                }
+                node.name = fallback(node.properties?.get("op"), node.tag);
                 break;
             case "field":
-                if (node.text) {
-                    node.name = node.text;
-                    break;
-                } else if (node.properties) {
-                    node.name = node.properties.name;
-                } else {
-                    node.name = "field{}";
-                }
+                node.name = fallback(node.text, node.properties?.get("name"), "field{}");
                 break;
             case "binding":
-                handleBinding(node);
+                node.name = fallback(node.properties?.get("name"), node.properties?.get("ref"), node.tag);
                 break;
             case "relation":
-                node.name = node.properties.name;
+                node.name = fallback(node.properties?.get("name"), node.tag);
                 node.class = "relation";
                 break;
             case "column":
             case "runquery-column":
-                node.name = node.properties.name;
+                node.name = fallback(node.properties?.get("name"), node.tag);
                 break;
             case "dimensions":
-                handleDimensions(node);
+                node.name = fallback(node.text, node.properties?.get("type"), node.tag);
                 break;
             case "expression":
                 handleExpression(node);
                 break;
             case "tuple":
             case "value":
-                if (node.text) {
-                    node.name = node.text;
-                } else {
-                    node.name = node.tag;
-                }
+                node.name = fallback(node.text, node.tag);
                 break;
             case "attribute":
             case "table":
             case "type":
                 if (node.text) {
                     node.name = node.tag + ":" + node.text;
-                } else if (node.properties && node.properties.name) {
-                    node.name = node.tag + ":" + node.properties.name;
+                } else if (node.properties?.get("name")) {
+                    node.name = node.tag + ":" + node.properties.get("name");
                 } else {
                     node.name = node.tag;
                 }
                 break;
             case "function":
-                displayNodeName(node);
-                break;
             case "identifier":
-                displayNodeName(node);
+                fallback(node.properties?.get("name"), node.tag);
                 break;
             case "literal":
-                node.name = node.properties.type + ":" + node.properties.value;
+                node.name = node.properties?.get("type") + ":" + node.properties?.get("value");
                 break;
             default:
-                if (node.properties && node.properties.class) {
-                    switch (node.properties.class) {
-                        case "logical-expression":
-                            handleLogicalExpression2(node);
-                            break;
-                        case "logical-operator":
-                            handleLogicalOperator2(node);
-                            break;
-                        default:
-                            if (node.tag) {
-                                node.name = node.tag;
-                            } else {
-                                node.name = JSON.stringify(node);
-                            }
-                            break;
-                    }
-                } else if (node.tag) {
-                    node.name = node.tag;
-                } else {
-                    node.name = JSON.stringify(node);
+                switch (node.properties?.get("class")) {
+                    case "logical-expression":
+                        handleLogicalExpression2(node);
+                        break;
+                    case "logical-operator":
+                        handleLogicalOperator2(node);
+                        break;
+                    default:
+                        if (node.tag) {
+                            node.name = node.tag;
+                        } else {
+                            node.name = JSON.stringify(node);
+                        }
+                        break;
                 }
                 break;
         }
@@ -380,10 +345,10 @@ const generateDisplayNames = (function() {
 function assignSymbolsAndClasses(root: TreeNode) {
     treeDescription.visitTreeNodes(
         root,
-        n => {
+        (n: TreeNode) => {
             // Assign symbols
-            if (n.properties && n.properties.join && n.class && n.class === "join") {
-                n.symbol = n.properties.join + "-join-symbol";
+            if (n.class === "join" && n.properties?.has("join")) {
+                n.symbol = n.properties.get("join") + "-join-symbol";
             } else if (n.tag === "join-inner") {
                 n.symbol = "inner-join-symbol";
             } else if (n.tag === "join-left") {
@@ -402,11 +367,7 @@ function assignSymbolsAndClasses(root: TreeNode) {
                 n.symbol = "run-query-symbol";
             }
             // Assign classes for incoming edge
-            if (
-                n.tag === "binding" ||
-                n.class === "createtemptable" ||
-                (n.tag === "expression" && n.properties && n.properties.name)
-            ) {
+            if (n.tag === "binding" || n.class === "createtemptable" || (n.tag === "expression" && n.properties?.has("name"))) {
                 assert(n.children !== undefined);
                 n.children.forEach(c => {
                     c.edgeClass = "qg-link-and-arrow";
@@ -430,55 +391,46 @@ function collapseNodes(root: TreeNode, graphCollapse) {
         treeDescription.visitTreeNodes(
             root,
             d => {
-                if (d.name) {
-                    const _name = d.fullName ? d.fullName : d.name;
-                    switch (_name) {
-                        case "condition":
-                        case "conditions":
-                        case "datasource":
-                        case "expressions":
-                        case "field":
-                        case "groupbys":
-                        case "group-bys":
-                        case "imports":
-                        case "measures":
-                        case "column-names":
-                        case "replaced-columns":
-                        case "renamed-columns":
-                        case "new-columns":
-                        case "metadata-record":
-                        case "metadata-records":
-                        case "orderbys":
-                        case "order-bys":
-                        case "filter":
-                        case "predicate":
-                        case "restrictions":
-                        case "runquery-columns":
-                        case "selects":
-                        case "schema":
-                        case "tid":
-                        case "top":
-                        case "aggregates":
-                        case "join-conditions":
-                        case "join-condition":
-                        case "arguments":
-                        case "function-node":
-                        case "type":
-                        case "tuples":
-                            streamlineOrCollapse(d);
-                            return;
-                        default:
-                            break;
-                    }
+                switch (d.name) {
+                    case "condition":
+                    case "conditions":
+                    case "datasource":
+                    case "expressions":
+                    case "field":
+                    case "groupbys":
+                    case "group-bys":
+                    case "imports":
+                    case "measures":
+                    case "column-names":
+                    case "replaced-columns":
+                    case "renamed-columns":
+                    case "new-columns":
+                    case "metadata-record":
+                    case "metadata-records":
+                    case "orderbys":
+                    case "order-bys":
+                    case "filter":
+                    case "predicate":
+                    case "restrictions":
+                    case "runquery-columns":
+                    case "selects":
+                    case "schema":
+                    case "tid":
+                    case "top":
+                    case "aggregates":
+                    case "join-conditions":
+                    case "join-condition":
+                    case "arguments":
+                    case "function-node":
+                    case "type":
+                    case "tuples":
+                        streamlineOrCollapse(d);
+                        return;
                 }
-                if (d.class) {
-                    switch (d.class) {
-                        case "relation":
-                            collapseAllChildren(d);
-                            return;
-                        default:
-                            break;
-                    }
+                switch (d.class) {
+                    case "relation":
+                        collapseAllChildren(d);
+                        return;
                 }
             },
             function(d): TreeNode[] {
@@ -488,28 +440,27 @@ function collapseNodes(root: TreeNode, graphCollapse) {
     }
 }
 
+function getFederationConnectionType(node: TreeNode) {
+    const connection = node.properties?.get("connection");
+    return connection ? connection.split(".")[0] : undefined;
+}
+
 // Color graph per federated connections
-function colorFederated(root: TreeNode) {
-    treeDescription.visitTreeNodes(
-        root,
-        d => {
-            if (d.tag && d.tag === "fed-op") {
-                if (d.properties && d.properties.connection) {
-                    d.federated = d.properties.connection.split(".")[0];
-                    d.nodeClass = "qg-" + d.properties.connection.split(".")[0];
-                }
-            } else if (d.parent && d.parent.federated) {
-                d.federated = d.parent.federated;
-                d.nodeClass = "qg-" + d.parent.federated;
-            }
-        },
-        treeDescription.allChildren,
-    );
+function colorFederated(node: TreeNode, federatedType?: string) {
+    if (node.tag === "fed-op") {
+        federatedType = getFederationConnectionType(node) ?? federatedType;
+    }
+    if (federatedType !== undefined) {
+        node.nodeClass = "qg-" + federatedType;
+    }
+    for (const child of treeDescription.allChildren(node)) {
+        colorFederated(child, federatedType);
+    }
 }
 
 // Prepare the loaded data for visualization
 function prepareTreeData(xml: ParsedXML, graphCollapse): TreeNode {
-    const treeData = convertJSON(xml);
+    const treeData = convertXML(xml);
     // Tag the tree root
     if (!treeData.tag) {
         treeData.tag = "result";
@@ -537,39 +488,30 @@ function addCrosslinks(root: TreeNode): Crosslink[] {
         root,
         node => {
             // Build map from potential target operator name/ref to node
-            if (
-                node.hasOwnProperty("federated") &&
-                node.federated === "fedeval_dataengine_connection" &&
-                node.hasOwnProperty("class") &&
-                node.class === "relation" &&
-                node.hasOwnProperty("name")
-            ) {
-                assert(node.name !== undefined);
+            const ref = node.properties?.get("ref");
+            if (getFederationConnectionType(node) === "fedeval_dataengine_connection" && node.class === "relation" && node.name) {
                 operatorsByName.set(node.name, node);
-            } else if (node.tag === "binding" && node.hasOwnProperty("properties") && node.properties.hasOwnProperty("ref")) {
-                operatorsByName[node.properties.ref] = node;
+            } else if (node.tag === "binding" && ref !== undefined) {
+                operatorsByName.set("ref", node);
             }
 
             // Identify source operators
             switch (node.tag) {
-                case "fed-op":
-                    if (
-                        node.hasOwnProperty("properties") &&
-                        node.properties.hasOwnProperty("class") &&
-                        node.properties.class === "createtemptable"
-                    ) {
-                        unresolvedLinks.push({
-                            source: node,
-                            targetName: node.properties.table,
-                        });
+                case "fed-op": {
+                    const table = node.properties?.get("table");
+                    if (node.properties?.get("class") === "createtemptable" && table !== undefined) {
+                        unresolvedLinks.push({source: node, targetName: table});
                     }
                     break;
+                }
                 case "referenceOp":
-                case "referenceExp":
-                    if (node.hasOwnProperty("properties") && node.properties.hasOwnProperty("ref")) {
-                        unresolvedLinks.push({source: node, targetName: node.properties.ref});
+                case "referenceExp": {
+                    const ref = node.properties?.get("ref");
+                    if (ref !== undefined) {
+                        unresolvedLinks.push({source: node, targetName: ref});
                     }
                     break;
+                }
                 default:
                     break;
             }

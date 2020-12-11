@@ -1,26 +1,40 @@
+import {assert} from "./loader-utils";
+
 export type GraphOrientation = "left-to-right" | "top-to-bottom" | "right-to-left" | "bottom-to-top";
 
 export interface TreeNode {
-    /// The displayed node name
+    // The displayed node name
     name?: string;
-    /// The id of the symbol rendered for this node
+    // The id of the symbol rendered for this node
     symbol?: string;
     // Additional CSS classes applied to the node
     nodeClass?: string;
+    // Rendered in the tooltip
+    properties?: Map<string, string>;
+
     // Additional CSS classes applied to the incoming link
     edgeClass?: string;
     // EdgeLabel: label placed on the incoming edge
     edgeLabel?: string;
     // Additional CSS classes applied to the label on the incoming edge
     edgeLabelClass?: string;
-    // Rendered in the tooltip
-    properties?: any;
-    // an array containing all currently visible child nodes
+
+    // An array containing all currently visible child nodes
     children?: TreeNode[];
     // An array containing all child nodes, including hidden nodes
     _children?: TreeNode[];
-    // <most other>: displayed as part of the tooltip
-    [k: string]: any;
+    // The parent node
+    parent?: TreeNode;
+
+    // The text
+    // TODO: get rid of this
+    text?: string;
+    // The tag
+    // TODO: get rid of this
+    tag?: string;
+    // The "class"; Intermediate value used by the Tableau loader
+    // TODO: get rid of this
+    class?: string;
 }
 
 export interface Crosslink {
@@ -36,7 +50,7 @@ export interface TreeDescription {
     /// The orientation of the graph
     graphOrientation?: GraphOrientation;
     /// Displayed in the top-level tree label
-    properties?: any;
+    properties?: Map<string, string>;
     /// Additional links between indirectly related nodes
     crosslinks?: Crosslink[];
 }
@@ -46,11 +60,8 @@ export function visitTreeNodes<T>(parent: T, visitFn: (n: T) => void, childrenFn
     if (!parent) {
         return;
     }
-
     visitFn(parent);
-
-    const children = childrenFn(parent);
-    for (const child of children) {
+    for (const child of childrenFn(parent)) {
         visitTreeNodes(child, visitFn, childrenFn);
     }
 }
@@ -69,7 +80,7 @@ export function allChildren<T extends TreeLike<T>>(n: T): T[] {
 }
 
 // Create parent links
-export function createParentLinks(tree) {
+export function createParentLinks(tree: TreeNode) {
     visitTreeNodes(
         tree,
         () => {},
@@ -88,7 +99,7 @@ export function createParentLinks(tree) {
 }
 
 // Collapse all children regardless of the current state
-export function collapseAllChildren(d) {
+export function collapseAllChildren(d: TreeNode) {
     const children = d.children ? d.children : [];
     const _children = d._children ? d._children : [];
     d.children = [];
@@ -97,7 +108,7 @@ export function collapseAllChildren(d) {
 }
 
 // Expand all children regardless of the current state
-export function expandAllChildren(d) {
+export function expandAllChildren(d: TreeNode) {
     const children = d.children ? d.children : [];
     const _children = d._children ? d._children : [];
     d.children = children.length > _children.length ? children : _children;
@@ -107,11 +118,11 @@ export function expandAllChildren(d) {
 
 // Collapse the given node in its parent node
 // Requires parent links to be present (e.g., created by `createParentLinks`)
-export function streamline(d) {
+export function streamline(d: TreeNode) {
     if (d.parent) {
-        if (d.parent._children && d.parent._children.length > 0) {
-            // save all of the original children in _children one time only
-        } else {
+        assert(d.parent.children !== undefined);
+        if (!d.parent._children) {
+            // Save all of the original children in _children one time only
             d.parent._children = d.parent.children.slice(0);
         }
         const index = d.parent.children.indexOf(d);

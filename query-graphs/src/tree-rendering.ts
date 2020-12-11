@@ -1,7 +1,7 @@
 // Import local modules
 import * as treeDescription from "./tree-description";
 import {TreeNode, TreeDescription, Crosslink, GraphOrientation} from "./tree-description";
-import {assertNotNull} from "./loader-utils";
+import {assertNotNull, hasOwnProperty} from "./loader-utils";
 import {defineSymbols} from "./symbols";
 
 // Third-party dependencies
@@ -166,51 +166,40 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
         .y(d => ooo.y(d));
 
     // Build a HTML list of properties to be displayed in a tooltip
-    function buildPropertyList(properties, cssClass = "qg-prop-name") {
+    function buildPropertyList(properties: Map<string, string>, cssClass = "qg-prop-name") {
         let html = "";
-        Object.getOwnPropertyNames(properties).forEach(key => {
+        for (const [key, value] of properties.entries()) {
             html += "<span class='" + cssClass + "'>" + escapeHtml(key) + ": </span>";
-            html += "<span style='prop-value'>" + escapeHtml(properties[key]) + "</span><br />";
-        });
+            html += "<span style='prop-value'>" + escapeHtml(value) + "</span><br />";
+        }
         return html;
     }
 
-    // Helper function to retrieve all properties of the node object which should be rendered in the tooltip
-    const debugTooltipKeys = ["height", "depth", "id", "x", "y"];
-    function getDebugProperties(d) {
-        const props = {};
-        debugTooltipKeys.forEach(key => {
-            if (d[key]) {
-                // only show non-empty data
-                props[key] = d[key];
-            }
-        });
-        return props;
+    // Get additional properties which should be rendered in the tooltip
+    function getTooltipProperties(d: TreeNode) {
+        const properties = new Map<string, string>();
+        if (d.text) {
+            properties.set("text", d.text);
+        }
+        if (d.tag) {
+            properties.set("tag", d.tag);
+        }
+        if (d.class) {
+            properties.set("class", d.class);
+        }
+        return properties;
     }
-    const alwaysSuppressedKeys = [
-        "_children",
-        "children",
-        "name",
-        "properties",
-        "parent",
-        "properties",
-        "symbol",
-        "nodeClass",
-        "edgeClass",
-        "edgeLabel",
-        "edgeLabelClass",
-    ];
-    function getDirectProperties(d) {
-        const props = {};
-        Object.getOwnPropertyNames(d).forEach(key => {
-            if (alwaysSuppressedKeys.indexOf(key) >= 0) {
-                // suppress some of the d3 data
-                return;
-            } else if (d[key]) {
+
+    // Retrieve all properties of the node object which should be rendered in the tooltip for debugging
+    function getDebugProperties(d): Map<string, string> {
+        const debugTooltipKeys = ["height", "depth", "id", "x", "y"];
+        const props = new Map<string, string>();
+        for (const key of debugTooltipKeys) {
+            if (hasOwnProperty(d, key)) {
                 // only show non-empty data
-                props[key] = d[key];
+                props.set(key, d[key].toString());
             }
-        });
+        }
         return props;
     }
 
@@ -218,12 +207,16 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
     const tip = d3tip()
         .attr("class", "qg-tooltip")
         .offset([-10, 0])
-        .html((_e, d: d3hierarchy.HierarchyNode<TreeNode>) => {
-            const nameText = "<span style='text-decoration: underline'>" + escapeHtml(d.data.name) + "</span><br />";
-            const debugPropsText = DEBUG ? buildPropertyList(getDebugProperties(d), "qg-prop-name2") : "";
-            const directPropsText = buildPropertyList(getDirectProperties(d.data), "qg-prop-name2");
-            const propertiesText = d.data.hasOwnProperty("properties") ? buildPropertyList(d.data.properties) : "";
-            return nameText + debugPropsText + directPropsText + propertiesText;
+        .html((_e: unknown, d: d3hierarchy.HierarchyNode<TreeNode>) => {
+            let text = "<span style='text-decoration: underline'>" + escapeHtml(d.data.name) + "</span><br />";
+            if (DEBUG) {
+                text += buildPropertyList(getDebugProperties(d), "qg-prop-name2");
+            }
+            text += buildPropertyList(getTooltipProperties(d.data), "qg-prop-name2");
+            if (d.data.properties !== undefined) {
+                text += buildPropertyList(d.data.properties);
+            }
+            return text;
         });
 
     // Define the baseSvg, attaching a class for styling and the zoomBehavior
@@ -408,12 +401,7 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
 
         // Add tooltips
         nodeUpdate
-            .filter(d => {
-                return (
-                    Object.getOwnPropertyNames(getDirectProperties(d.data)).length != 0 || // eslint-disable-line indent
-                    (d.data.hasOwnProperty("properties") && Object.getOwnPropertyNames(d.data.properties).length != 0)
-                );
-            }) // eslint-disable-line indent
+            .filter(d => d.data.properties?.size != 0 || getTooltipProperties(d.data).size != 0)
             .call(tip) // invoke tooltip
             .select("use")
             .on("mouseover.tooltip", tip.show)
@@ -596,11 +584,16 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
         .attr("class", "qg-info-card");
     // Add metrics card
     let treeText = "";
-    const properties = treeData.properties ?? {};
-    treeText += buildPropertyList(properties);
-    treeText += buildPropertyList({nodes: totalNodes});
-    if (crosslinks !== undefined && crosslinks.length) {
-        treeText += buildPropertyList({crosslinks: crosslinks.length});
+    if (treeData.properties) {
+        treeText += buildPropertyList(treeData.properties);
+    }
+    if (DEBUG) {
+        const debugProps = new Map();
+        debugProps.set("nodes", totalNodes.toString());
+        if (crosslinks !== undefined && crosslinks.length) {
+            debugProps.set("crosslinks", crosslinks.length.toString());
+        }
+        treeText += buildPropertyList(debugProps);
     }
     infoCard
         .append("div")

@@ -27,7 +27,7 @@ function convertHyperNode(node: Json, parentKey = "result"): TreeNode | TreeNode
         // "Object" nodes
         let explicitChildren = [] as TreeNode[];
         const additionalChildren = [] as TreeNode[];
-        const properties = {};
+        const properties = new Map<string, string>();
 
         // Take the first present tagKey as the new tag. Add all others as properties
         const tagKeys = ["operator", "expression", "mode"];
@@ -39,7 +39,7 @@ function convertHyperNode(node: Json, parentKey = "result"): TreeNode | TreeNode
             if (tag === undefined) {
                 tag = tryToString(node[tagKey]);
             } else {
-                properties[tagKey] = forceToString(node[tagKey]);
+                properties.set(tagKey, forceToString(node[tagKey]));
             }
         }
         if (tag === undefined) {
@@ -67,7 +67,7 @@ function convertHyperNode(node: Json, parentKey = "result"): TreeNode | TreeNode
                 continue;
             }
             if (typeof node[key] !== "object") {
-                properties[key] = forceToString(node[key]);
+                properties.set(key, forceToString(node[key]));
                 continue;
             }
             const child = convertHyperNode(node[key], key);
@@ -84,7 +84,7 @@ function convertHyperNode(node: Json, parentKey = "result"): TreeNode | TreeNode
             if (!node.hasOwnProperty(key)) {
                 continue;
             }
-            properties[key] = forceToString(node[key]);
+            properties.set(key, forceToString(node[key]));
         }
 
         // Display all other properties adaptively: simple expressions are displayed as properties, all others as part of the tree
@@ -97,7 +97,7 @@ function convertHyperNode(node: Json, parentKey = "result"): TreeNode | TreeNode
             // Try to display as string property
             const str = tryToString(node[key]);
             if (str !== undefined) {
-                properties[key] = str;
+                properties.set(key, str);
                 continue;
             }
 
@@ -186,11 +186,11 @@ function generateDisplayNames(treeRoot: TreeNode) {
                     node.symbol = "full-join-symbol";
                     break;
                 case "tablescan":
-                    node.name = node.properties.from ?? node.tag;
+                    node.name = node.properties?.get("from") ?? node.tag;
                     node.symbol = "table-symbol";
                     break;
                 case "virtualtable":
-                    node.name = node.properties.name ?? node.tag;
+                    node.name = node.properties?.get("name") ?? node.tag;
                     node.symbol = "virtual-table-symbol";
                     break;
                 case "tableconstruction":
@@ -219,10 +219,10 @@ function generateDisplayNames(treeRoot: TreeNode) {
                     node.edgeClass = "qg-link-and-arrow";
                     break;
                 case "comparison":
-                    node.name = node.properties.mode ?? node.tag;
+                    node.name = node.properties?.get("mode") ?? node.tag;
                     break;
                 case "iuref":
-                    node.name = node.properties.iu ?? node.tag;
+                    node.name = node.properties?.get("iu") ?? node.tag;
                     break;
                 case "attribute":
                 case "condition":
@@ -260,37 +260,33 @@ function addCrosslinks(root: TreeNode) {
         root,
         node => {
             // Build map from operatorId to node
-            if (node.hasOwnProperty("properties") && node.properties.hasOwnProperty("operatorId")) {
-                const key = parseInt(node.properties.operatorId, 10);
+            const operatorId = node.properties?.get("operatorId");
+            if (operatorId !== undefined) {
+                const key = parseInt(operatorId, 10);
                 operatorsById.set(key, node);
             }
 
             // Identify source operators
+            let sourceKey: string;
             switch (node.tag) {
                 case "explicitscan":
-                    if (node.hasOwnProperty("properties") && node.properties.hasOwnProperty("source")) {
-                        unresolvedLinks.push({
-                            source: node,
-                            targetOpId: parseInt(node.properties.source, 10),
-                        });
-                    }
+                    sourceKey = "source";
                     break;
                 case "earlyprobe":
-                    if (node.hasOwnProperty("properties") && node.properties.hasOwnProperty("builder")) {
-                        unresolvedLinks.push({
-                            source: node,
-                            targetOpId: parseInt(node.properties.builder, 10),
-                        });
-                    }
+                    sourceKey = "builder";
                     break;
                 default:
-                    if (node.hasOwnProperty("properties") && node.properties.hasOwnProperty("magic")) {
-                        unresolvedLinks.push({
-                            source: node,
-                            targetOpId: parseInt(node.properties.magic, 10),
-                        });
-                    }
+                    sourceKey = "magic";
                     break;
+            }
+            if (sourceKey !== undefined) {
+                const sourceId = node.properties?.get(sourceKey);
+                if (sourceId !== undefined) {
+                    unresolvedLinks.push({
+                        source: node,
+                        targetOpId: parseInt(sourceId, 10),
+                    });
+                }
             }
         },
         treeDescription.allChildren,
