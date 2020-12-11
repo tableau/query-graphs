@@ -319,7 +319,7 @@ function addCrosslinks(root: TreeNode): Crosslink[] {
 }
 
 // Loads a Postgres query plan
-export function loadPostgresPlan(json: Json, graphCollapse: any = undefined): TreeDescription {
+export function loadPostgresPlan(json: Json, graphCollapse: unknown = undefined): TreeDescription {
     // Skip initial array containing a single "Plan"
     if (Array.isArray(json) && json.length === 1) {
         json = json[0];
@@ -348,7 +348,7 @@ export function loadPostgresPlan(json: Json, graphCollapse: any = undefined): Tr
 }
 
 // Load a JSON tree from text
-export function loadPostgresPlanFromText(graphString: string, graphCollapse): TreeDescription {
+export function loadPostgresPlanFromText(graphString: string, graphCollapse?: unknown): TreeDescription {
     // Parse the plan as JSON
     let json: Json;
     try {

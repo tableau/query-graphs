@@ -1,7 +1,7 @@
 // Import local modules
 import * as treeDescription from "./tree-description";
 import {TreeNode, TreeDescription, Crosslink, GraphOrientation} from "./tree-description";
-import {assertNotNull, hasOwnProperty} from "./loader-utils";
+import {assertNotNull} from "./loader-utils";
 import {defineSymbols} from "./symbols";
 
 // Third-party dependencies
@@ -39,7 +39,7 @@ function abbreviateName(name: string) {
 //
 // Escapes a string for HTML
 //
-function escapeHtml(unsafe) {
+function escapeHtml(unsafe: string) {
     return String(unsafe)
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
@@ -49,11 +49,9 @@ function escapeHtml(unsafe) {
 }
 
 // Link cross-links against a d3 hierarchy
-function linkCrossLinks(root, crosslinks: Crosslink[]) {
+function linkCrossLinks(root: d3hierarchy.HierarchyNode<treeDescription.TreeNode>, crosslinks: Crosslink[]) {
     const descendants = root.descendants();
-    function map(d) {
-        return descendants.find(h => h.data === d);
-    }
+    const map = (d: treeDescription.TreeNode) => descendants.find(h => h.data === d);
     const linked: any[] = [];
     crosslinks.forEach(l => {
         linked.push({source: map(l.source), target: map(l.target)});
@@ -191,15 +189,12 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
     }
 
     // Retrieve all properties of the node object which should be rendered in the tooltip for debugging
-    function getDebugProperties(d): Map<string, string> {
-        const debugTooltipKeys = ["height", "depth", "id", "x", "y"];
+    function getDebugProperties(d: d3hierarchy.HierarchyPointNode<TreeNode>): Map<string, string> {
         const props = new Map<string, string>();
-        for (const key of debugTooltipKeys) {
-            if (hasOwnProperty(d, key)) {
-                // only show non-empty data
-                props.set(key, d[key].toString());
-            }
-        }
+        props.set("height", d.height.toString());
+        props.set("depth", d.depth.toString());
+        props.set("x", d.x.toString());
+        props.set("y", d.y.toString());
         return props;
     }
 
@@ -207,8 +202,8 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
     const tip = d3tip()
         .attr("class", "qg-tooltip")
         .offset([-10, 0])
-        .html((_e: unknown, d: d3hierarchy.HierarchyNode<TreeNode>) => {
-            let text = "<span style='text-decoration: underline'>" + escapeHtml(d.data.name) + "</span><br />";
+        .html((_e: unknown, d: d3hierarchy.HierarchyPointNode<TreeNode>) => {
+            let text = "<span style='text-decoration: underline'>" + escapeHtml(d.data.name ?? "") + "</span><br />";
             if (DEBUG) {
                 text += buildPropertyList(getDebugProperties(d), "qg-prop-name2");
             }
@@ -301,8 +296,7 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
     // Dash tween to make the highlighted edges animate from start node to end node
     const tweenDash = function() {
         const l = this.getTotalLength();
-        const i = d3interpolate.interpolateString("0," + l, l + "," + l);
-        return t => i(t);
+        return d3interpolate.interpolateString("0," + l, l + "," + l);
     };
 
     // Curve crosslink path appropriate for source and target node directionality
@@ -325,29 +319,27 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
         return path;
     };
 
+    const selectCrosslink = (d: d3hierarchy.HierarchyPointNode<unknown>) => {
+        return svgGroup
+            .selectAll<SVGPathElement, d3hierarchy.HierarchyPointLink<TreeNode>>("path.qg-crosslink-highlighted")
+            .filter(dd => d === dd.source || d === dd.target);
+    };
+
     // Transition used to highlight edges on mouseover
-    const edgeTransitionIn = path => {
-        path.transition()
+    const edgeTransitionIn = (_e: unknown, d: d3hierarchy.HierarchyPointNode<unknown>) => {
+        selectCrosslink(d)
+            .transition()
             .duration(DEBUG ? duration : 0)
             .attr("opacity", 1)
             .attrTween("stroke-dasharray", tweenDash);
     };
 
     // Transition to unhighlight edges on mouseout
-    const edgeTransitionOut = path => {
-        path.transition()
+    const edgeTransitionOut = (_e: unknown, d: d3hierarchy.HierarchyPointNode<unknown>) => {
+        selectCrosslink(d)
+            .transition()
             .duration(DEBUG ? duration : 0)
             .attr("opacity", 0);
-    };
-
-    // Handler builder for crosslink highlighting
-    const crosslinkHighlightHandler = transition => {
-        return (_e, d) => {
-            svgGroup
-                .selectAll<SVGPathElement, d3hierarchy.HierarchyPointLink<TreeNode>>("path.qg-crosslink-highlighted")
-                .filter(dd => d === dd.source || d === dd.target)
-                .call(transition);
-        };
     };
 
     //
@@ -406,8 +398,8 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
             .select("use")
             .on("mouseover.tooltip", tip.show)
             .on("mouseout.tooltip", tip.hide)
-            .on("mouseover.crosslinks", crosslinkHighlightHandler(edgeTransitionIn))
-            .on("mouseout.crosslinks", crosslinkHighlightHandler(edgeTransitionOut));
+            .on("mouseover.crosslinks", edgeTransitionIn)
+            .on("mouseout.crosslinks", edgeTransitionOut);
 
         // Transition nodes to their new position.
         nodeTransition.attr("transform", d => `translate(${ooo.x(d)},${ooo.y(d)})`);
@@ -494,7 +486,7 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
         });
 
         // Helper function to update crosslink paths
-        const updateCrosslinkPaths = (cssClass, opacity) => {
+        const updateCrosslinkPaths = (cssClass: string, opacity: number) => {
             const crossLink = svgGroup
                 .selectAll<SVGPathElement, d3hierarchy.HierarchyNode<TreeNode>>("path." + cssClass)
                 .data(visibleCrosslinks, d => nodeIds.get(d.source) + ":" + nodeIds.get(d.target));
@@ -671,7 +663,7 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
         orientRoot();
     }
 
-    function resize(newWidth, newHeight) {
+    function resize(newWidth: number, newHeight: number) {
         viewerWidth = newWidth === undefined ? target.clientWidth : newWidth;
         viewerHeight = newHeight === undefined ? target.clientHeight : newHeight;
         // Adjust the view box

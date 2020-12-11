@@ -350,7 +350,7 @@ function convertOptimizerSteps(node: Json): LinkedNodes | undefined {
 }
 
 // Loads a Hyper query plan
-export function loadHyperPlan(json: Json, graphCollapse: any = undefined): TreeDescription {
+export function loadHyperPlan(json: Json, graphCollapse?: unknown): TreeDescription {
     // Load the graph with the nodes collapsed in an automatic way
     const {root, crosslinks} = convertOptimizerSteps(json) ?? convertHyperPlan(json);
     treeDescription.createParentLinks(root);
@@ -364,7 +364,7 @@ export function loadHyperPlan(json: Json, graphCollapse: any = undefined): TreeD
 }
 
 // Load a JSON tree from text
-export function loadHyperPlanFromText(graphString: string, graphCollapse): TreeDescription {
+export function loadHyperPlanFromText(graphString: string, graphCollapse?: unknown): TreeDescription {
     // Parse the plan as JSON
     let json: Json;
     try {

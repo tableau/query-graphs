@@ -50,7 +50,7 @@ export function jsonToStringMap(json: string): Map<string, string> {
     } catch (err) {
         throw new Error("JSON parse failed with '" + err + "'.");
     }
-    if (typeof parsedJSON !== "object" || !Array.isArray(parsedJSON) || parsedJSON === null) {
+    if (typeof parsedJSON !== "object" || Array.isArray(parsedJSON) || parsedJSON === null) {
         throw new Error("Expected a JSON object");
     }
     const result = new Map<string, string>();
@@ -60,7 +60,7 @@ export function jsonToStringMap(json: string): Map<string, string> {
         if (strValue === undefined) {
             throw new Error("Expected a string value, got " + typeof value);
         }
-        result.set(key, value);
+        result.set(key, strValue);
     }
     return result;
 }

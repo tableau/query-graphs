@@ -52,7 +52,7 @@ export function loadJson(json: Json): TreeDescription {
 }
 
 // Load a JSON tree from text
-export function loadJsonFromText(graphString: string, _graphCollapse): TreeDescription {
+export function loadJsonFromText(graphString: string, _graphCollapse?: unknown): TreeDescription {
     let json: Json;
     try {
         json = JSON.parse(graphString);

@@ -385,7 +385,7 @@ function assignSymbolsAndClasses(root: TreeNode) {
     );
 }
 
-function collapseNodes(root: TreeNode, graphCollapse) {
+function collapseNodes(root: TreeNode, graphCollapse?: unknown) {
     const streamlineOrCollapse = graphCollapse === "s" ? streamline : collapseAllChildren;
     if (graphCollapse !== "n") {
         treeDescription.visitTreeNodes(
@@ -459,7 +459,7 @@ function colorFederated(node: TreeNode, federatedType?: string) {
 }
 
 // Prepare the loaded data for visualization
-function prepareTreeData(xml: ParsedXML, graphCollapse): TreeNode {
+function prepareTreeData(xml: ParsedXML, graphCollapse?: unknown): TreeNode {
     const treeData = convertXML(xml);
     // Tag the tree root
     if (!treeData.tag) {
@@ -531,7 +531,7 @@ function addCrosslinks(root: TreeNode): Crosslink[] {
     return crosslinks;
 }
 
-export function loadTableauPlan(graphString: string, graphCollapse): TreeDescription {
+export function loadTableauPlan(graphString: string, graphCollapse?: unknown): TreeDescription {
     const xml = typesafeXMLParse(graphString);
     const root = prepareTreeData(xml, graphCollapse);
     const crosslinks = addCrosslinks(root);

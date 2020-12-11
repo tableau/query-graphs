@@ -18,7 +18,7 @@ export interface ParsedXML {
     // Text content
     _?: string;
     // Attributes
-    $?: string[];
+    $?: Record<string, string>;
     // Children
     $$?: ParsedXML[];
 }
@@ -32,7 +32,7 @@ export function typesafeXMLParse(str: string): ParsedXML {
         // Don't merge attributes. XML attributes will be stored in node["$"]
         mergeAttrs: false,
     });
-    parser.parseString(str, (err: any, parsed: ParsedXML) => {
+    parser.parseString(str, (err: unknown, parsed: ParsedXML) => {
         if (err) {
             throw new Error("XML parse failed with '" + err + "'.");
         } else {
@@ -71,7 +71,7 @@ function convertXML(xml: ParsedXML): TreeNode {
     };
 }
 
-export function loadXml(graphString: string, _graphCollapse): TreeDescription {
+export function loadXml(graphString: string, _graphCollapse?: unknown): TreeDescription {
     const xml = typesafeXMLParse(graphString);
     return {root: convertXML(xml)};
 }
