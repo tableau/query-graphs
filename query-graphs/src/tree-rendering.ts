@@ -26,6 +26,73 @@ interface xyLink {
     target: xyPos;
 }
 
+interface Orientation {
+    link: typeof d3shape.linkVertical;
+    x: (d: xyPos, viewSize: xyPos) => number;
+    y: (d: xyPos, viewSize: xyPos) => number;
+    textdimension: "y" | "x";
+    textdimensionoffset: (d: any) => number;
+    textanchor: (d: any) => string;
+    nodesize: (maxLabelLength: number) => d3point;
+    nodesep: (a: any, b: any) => number;
+    rootx: (viewSize: xyPos, scale: number, maxLabelLength: number) => number;
+    rooty: (viewSize: xyPos, scale: number, maxLabelLength: number) => number;
+}
+
+// Orientation mapping
+const orientations: {[k in GraphOrientation]: Orientation} = {
+    "top-to-bottom": {
+        link: d3shape.linkVertical,
+        x: (d, _viewSize) => d.x,
+        y: (d, _viewSize) => d.y,
+        textdimension: "y",
+        textdimensionoffset: d => (d.children || d._children ? -13 : 13),
+        textanchor: d => (d.children || d._children ? "middle" : "middle"),
+        nodesize: maxLabelLength => [maxLabelLength * 6, (maxLabelLength * 6) / 2] as d3point,
+        nodesep: (a, b) => (a.parent === b.parent ? 1 : 1),
+        rootx: (_viewSize, _scale, _maxLabelLength) => 0,
+        rooty: (viewSize, scale, _maxLabelLength) => (viewSize.y / 2 - 100) / scale,
+    },
+    "right-to-left": {
+        link: d3shape.linkHorizontal,
+        x: (d, viewSize) => viewSize.y - d.y,
+        y: (d, _viewSize) => d.x,
+        textdimension: "x",
+        textdimensionoffset: d => (d.children || d._children ? 10 : -10),
+        textanchor: d => (d.children || d._children ? "start" : "end"),
+        nodesize: maxLabelLength =>
+            [11.2 /* table node diameter */ + 2, maxLabelLength * 6 + 10 /* textdimensionoffset */] as d3point,
+        nodesep: (a, b) => (a.parent === b.parent ? 1 : 1.5),
+        rootx: (viewSize, scale, maxLabelLength) => viewSize.x - (viewSize.x / 2 - maxLabelLength * 6) / scale,
+        rooty: (_viewSize, _scale, _maxLabelLength) => 0,
+    },
+    "bottom-to-top": {
+        link: d3shape.linkVertical,
+        x: (d, _viewSize) => d.x,
+        y: (d, viewSize) => viewSize.y - d.y,
+        textdimension: "y",
+        textdimensionoffset: d => (d.children || d._children ? 13 : -13),
+        textanchor: d => (d.children || d._children ? "middle" : "middle"),
+        nodesize: maxLabelLength => [maxLabelLength * 6, (maxLabelLength * 6) / 2] as d3point,
+        nodesep: (a, b) => (a.parent === b.parent ? 1 : 1),
+        rootx: (_viewSize, _scale, _maxLabelLength) => 0,
+        rooty: (viewSize, scale, _maxLabelLength) => viewSize.y - (viewSize.y / 2 - 50) / scale,
+    },
+    "left-to-right": {
+        link: d3shape.linkHorizontal,
+        x: (d, _viewSize) => d.y,
+        y: (d, _viewSize) => d.x,
+        textdimension: "x",
+        textdimensionoffset: d => (d.children || d._children ? -10 : 10),
+        textanchor: d => (d.children || d._children ? "end" : "start"),
+        nodesize: maxLabelLength =>
+            [11.2 /* table node diameter */ + 2, maxLabelLength * 6 + 10 /* textdimensionoffset */] as d3point,
+        nodesep: (a, b) => (a.parent === b.parent ? 1 : 2),
+        rootx: (viewSize, scale, maxLabelLength) => (viewSize.x / 2 - maxLabelLength * 6) / scale,
+        rooty: (_viewSize, _scale, _maxLabelLength) => 0,
+    },
+};
+
 //
 // Abbreviate all names if they are too long
 //
@@ -95,73 +162,19 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
     const duration = 750;
 
     // Size of the diagram
-    let viewerWidth = target.clientWidth;
-    let viewerHeight = target.clientHeight;
-
-    // Orientation mapping
-    const orientations = {
-        "top-to-bottom": {
-            link: d3shape.linkVertical,
-            x: d => d.x,
-            y: d => d.y,
-            textdimension: () => "y",
-            textdimensionoffset: d => (d.children || d._children ? -13 : 13),
-            textanchor: d => (d.children || d._children ? "middle" : "middle"),
-            nodesize: () => [maxLabelLength * 6, (maxLabelLength * 6) / 2] as d3point,
-            nodesep: (a, b) => (a.parent === b.parent ? 1 : 1),
-            rootx: _scale => 0,
-            rooty: scale => (viewerHeight / 2 - 100) / scale,
-        },
-        "right-to-left": {
-            link: d3shape.linkHorizontal,
-            x: d => viewerWidth - d.y,
-            y: d => d.x,
-            textdimension: () => "x",
-            textdimensionoffset: d => (d.children || d._children ? 10 : -10),
-            textanchor: d => (d.children || d._children ? "start" : "end"),
-            nodesize: () => [11.2 /* table node diameter */ + 2, maxLabelLength * 6 + 10 /* textdimensionoffset */] as d3point,
-            nodesep: (a, b) => (a.parent === b.parent ? 1 : 1.5),
-            rootx: scale => viewerWidth - (viewerWidth / 2 - maxLabelLength * 6) / scale,
-            rooty: _scale => 0,
-        },
-        "bottom-to-top": {
-            link: d3shape.linkVertical,
-            x: d => d.x,
-            y: d => viewerHeight - d.y,
-            textdimension: () => "y",
-            textdimensionoffset: d => (d.children || d._children ? 13 : -13),
-            textanchor: d => (d.children || d._children ? "middle" : "middle"),
-            nodesize: () => [maxLabelLength * 6, (maxLabelLength * 6) / 2] as d3point,
-            nodesep: (a, b) => (a.parent === b.parent ? 1 : 1),
-            rootx: _scale => 0,
-            rooty: scale => viewerHeight - (viewerHeight / 2 - 50) / scale,
-        },
-        "left-to-right": {
-            link: d3shape.linkHorizontal,
-            x: d => d.y,
-            y: d => d.x,
-            textdimension: () => "x",
-            textdimensionoffset: d => (d.children || d._children ? -10 : 10),
-            textanchor: d => (d.children || d._children ? "end" : "start"),
-            nodesize: () => [11.2 /* table node diameter */ + 2, maxLabelLength * 6 + 10 /* textdimensionoffset */] as d3point,
-            nodesep: (a, b) => (a.parent === b.parent ? 1 : 2),
-            rootx: scale => (viewerWidth / 2 - maxLabelLength * 6) / scale,
-            rooty: _scale => 0,
-        },
-    };
-
+    const viewSize = {x: target.clientWidth, y: target.clientHeight};
     const ooo = orientations[graphOrientation];
 
     const treelayout = d3hierarchy
         .tree<treeDescription.TreeNode>()
-        .nodeSize(ooo.nodesize())
+        .nodeSize(ooo.nodesize(maxLabelLength))
         .separation(ooo.nodesep);
 
     // Define a d3 diagonal projection for use by the node paths later on.
     const diagonal = ooo
         .link<xyLink, xyPos>()
-        .x(d => ooo.x(d))
-        .y(d => ooo.y(d));
+        .x(d => ooo.x(d, viewSize))
+        .y(d => ooo.y(d, viewSize));
 
     // Build a HTML list of properties to be displayed in a tooltip
     function buildPropertyList(properties: Map<string, string>, cssClass = "qg-prop-name") {
@@ -218,8 +231,8 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
     const baseSvg = d3selection
         .select(target)
         .append("svg")
-        .attr("viewBox", `0 0 ${viewerWidth} ${viewerHeight}`)
-        .attr("height", viewerHeight)
+        .attr("viewBox", `0 0 ${viewSize.x} ${viewSize.y}`)
+        .attr("height", viewSize.y)
         .attr("class", "qg-overlay");
     const baseSvgElem = baseSvg.node() as SVGSVGElement;
     defineSymbols(baseSvgElem);
@@ -232,7 +245,7 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
         .zoom<SVGSVGElement, unknown>()
         .extent([
             [0, 0],
-            [viewerWidth, viewerHeight],
+            [viewSize.x, viewSize.y],
         ] as [d3point, d3point])
         .scaleExtent([0.1, 5])
         .on("zoom", e => svgGroup.attr("transform", e.transform));
@@ -307,9 +320,9 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
         points.push({x: d.source.x - crosslinkSpacing.offset, y: d.source.y + crosslinkSpacing.direction});
         points.push({x: d.target.x + crosslinkSpacing.offset, y: d.target.y - crosslinkSpacing.direction});
         points.push({x: d.target.x, y: d.target.y});
-        points = points.map(d => ({x: ooo.x(d), y: ooo.y(d)}));
+        points = points.map(d => ({x: ooo.x(d, viewSize), y: ooo.y(d, viewSize)}));
         let path = `M${points[0].x},${points[0].y}`;
-        let i;
+        let i: number;
         for (i = 1; i < points.length - 2; i++) {
             const xc = (points[i].x + points[i + 1].x) / 2;
             const yc = (points[i].y + points[i + 1].y) / 2;
@@ -363,7 +376,7 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
             .enter()
             .append("g")
             .attr("class", d => "qg-node " + (d.data.nodeClass ?? ""))
-            .attr("transform", `translate(${ooo.x(prevSourcePos)},${ooo.y(prevSourcePos)})`)
+            .attr("transform", `translate(${ooo.x(prevSourcePos, viewSize)},${ooo.y(prevSourcePos, viewSize)})`)
             .on("click", (_e, d) => {
                 // Toggle children on click.
                 toggleChildren(d);
@@ -373,7 +386,7 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
         nodeEnter.append("use").attr("xlink:href", d => "#" + (d.data.symbol ?? "default-symbol"));
         nodeEnter
             .append("text")
-            .attr(ooo.textdimension(), d => ooo.textdimensionoffset(d))
+            .attr(ooo.textdimension, d => ooo.textdimensionoffset(d))
             .attr("dy", ".35em")
             .attr("text-anchor", d => ooo.textanchor(d))
             .text(d => abbreviateName(d.data.name ?? ""))
@@ -385,7 +398,7 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
         // Update the text position to reflect whether node has children or not.
         nodeUpdate
             .select("text")
-            .attr(ooo.textdimension(), d => ooo.textdimensionoffset(d))
+            .attr(ooo.textdimension, d => ooo.textdimensionoffset(d))
             .attr("text-anchor", d => ooo.textanchor(d));
 
         // Change the symbol style class depending on whether it has children and is collapsed
@@ -402,7 +415,7 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
             .on("mouseout.crosslinks", edgeTransitionOut);
 
         // Transition nodes to their new position.
-        nodeTransition.attr("transform", d => `translate(${ooo.x(d)},${ooo.y(d)})`);
+        nodeTransition.attr("transform", d => `translate(${ooo.x(d, viewSize)},${ooo.y(d, viewSize)})`);
 
         // Fade the text in
         nodeTransition.select("text").style("fill-opacity", 1);
@@ -412,7 +425,7 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
             .exit()
             .transition()
             .duration(duration)
-            .attr("transform", `translate(${ooo.x(newSourcePos)},${ooo.y(newSourcePos)})`)
+            .attr("transform", `translate(${ooo.x(newSourcePos, viewSize)},${ooo.y(newSourcePos, viewSize)})`)
             .remove();
 
         nodeExit.select("circle").attr("r", 0);
@@ -457,8 +470,8 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
             .attr("class", d => "qg-link-label " + (d.target.data.edgeLabelClass ?? ""))
             .attr("text-anchor", "middle")
             .text(d => d.target.data.edgeLabel ?? "")
-            .attr("x", ooo.x(prevSourcePos))
-            .attr("y", ooo.y(prevSourcePos))
+            .attr("x", ooo.x(prevSourcePos, viewSize))
+            .attr("y", ooo.y(prevSourcePos, viewSize))
             .style("fill-opacity", 0);
 
         const linkLabelUpdate = linkLabel.merge(linkLabelEnter);
@@ -467,16 +480,16 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
         // Update position for existing & new labels
         linkLabelTransition
             .style("fill-opacity", 1)
-            .attr("x", d => (ooo.x(d.source) + ooo.x(d.target)) / 2)
-            .attr("y", d => (ooo.y(d.source) + ooo.y(d.target)) / 2);
+            .attr("x", d => (ooo.x(d.source, viewSize) + ooo.x(d.target, viewSize)) / 2)
+            .attr("y", d => (ooo.y(d.source, viewSize) + ooo.y(d.target, viewSize)) / 2);
 
         // Remove labels
         linkLabel
             .exit()
             .transition()
             .duration(duration)
-            .attr("x", ooo.x(newSourcePos))
-            .attr("y", ooo.y(newSourcePos))
+            .attr("x", ooo.x(newSourcePos, viewSize))
+            .attr("y", ooo.y(newSourcePos, viewSize))
             .style("fill-opacity", 0)
             .remove();
 
@@ -527,8 +540,8 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
     // Place root node into quandrant appropriate to orientation
     function orientRoot() {
         const scale = d3zoom.zoomTransform(baseSvgElem).k;
-        const x = ooo.rootx(scale);
-        const y = ooo.rooty(scale);
+        const x = ooo.rootx(viewSize, scale, maxLabelLength);
+        const y = ooo.rooty(viewSize, scale, maxLabelLength);
         zoomBehavior.translateTo(baseSvg, x, y);
     }
 
@@ -663,13 +676,13 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
         orientRoot();
     }
 
-    function resize(newWidth: number, newHeight: number) {
-        viewerWidth = newWidth === undefined ? target.clientWidth : newWidth;
-        viewerHeight = newHeight === undefined ? target.clientHeight : newHeight;
+    function resize(newWidth?: number, newHeight?: number) {
+        viewSize.x = newWidth ?? target.clientWidth;
+        viewSize.y = newHeight ?? target.clientHeight;
         // Adjust the view box
-        baseSvg.attr("viewBox", `0 0 ${viewerWidth} ${viewerHeight}`);
+        baseSvg.attr("viewBox", `0 0 ${viewSize.x} ${viewSize.y}`);
         // Adjust the height (necessary in Internet Explorer)
-        baseSvg.attr("height", viewerHeight);
+        baseSvg.attr("height", viewSize.y);
     }
 
     return {
