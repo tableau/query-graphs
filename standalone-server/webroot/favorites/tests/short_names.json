@@ -1,0 +1,15 @@
+{
+    "operator": "op1",
+    "input": {
+        "operator": "op2",
+        "left": { "operator": "l1" },
+        "right": {
+            "operator": "op3",
+            "input": {
+                "operator": "op4",
+                "left": { "operator": "x" },
+                "right": { "operator": "y" }
+            }
+        }
+    }
+}
