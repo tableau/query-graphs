@@ -63,7 +63,7 @@ const orientations: {[k in GraphOrientation]: Orientation} = {
         nodesize: maxLabelLength =>
             [11.2 /* table node diameter */ + 2, maxLabelLength * 6 + 10 /* textdimensionoffset */] as d3point,
         nodesep: (a, b) => (a.parent === b.parent ? 1 : 1.5),
-        rootx: (viewSize, scale, maxLabelLength) => viewSize.x - (viewSize.x / 2 - maxLabelLength * 6) / scale,
+        rootx: (viewSize, scale, maxLabelLength) => (viewSize.x / 2 - maxLabelLength * 6) / scale,
         rooty: (_viewSize, _scale, _maxLabelLength) => 0,
     },
     "bottom-to-top": {
