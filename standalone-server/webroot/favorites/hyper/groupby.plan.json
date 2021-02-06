@@ -11,6 +11,7 @@
     "cardinality": 100,
     "input": {
       "operator": "tablescan",
+      "querylocs": [[51, 53]],
       "operatorId": 3,
       "cardinality": 2000,
       "relationId": 0,
@@ -21,6 +22,6 @@
     },
     "behavior": "regular",
     "values": [{"value": {"expression": "iuref", "iu": "v4"}}, {"value": {"expression": "iuref", "iu": "v5"}}, {"value": {"expression": "iuref", "iu": "v6"}}],
-    "aggregates": [{"source": 0, "operation": {"aggregate": "keep"}, "iu": ["v", ["Integer"]]}, {"source": 2, "operation": {"aggregate": "avg"}, "iu": ["v3", ["Numeric", 14, 4]]}, {"source": 1, "operation": {"aggregate": "sum"}, "iu": ["v2", ["BigInt"]]}]
+    "aggregates": [{"source": 2, "operation": {"aggregate": "avg"}, "iu": ["v3", ["Numeric", 14, 4]]}, {"source": 1, "operation": {"aggregate": "sum"}, "iu": ["v2", ["BigInt"]]}, {"source": 0, "operation": {"aggregate": "keep"}, "iu": ["v", ["Integer"]]}]
   }
 }

@@ -79,7 +79,7 @@ function convertHyperNode(node: Json, parentKey = "result"): TreeNode | TreeNode
         }
 
         // Display these properties always as properties, even if they are more complex
-        const propertyKeys = ["analyze"];
+        const propertyKeys = ["analyze", "querylocs"];
         for (const key of propertyKeys) {
             if (!node.hasOwnProperty(key)) {
                 continue;
