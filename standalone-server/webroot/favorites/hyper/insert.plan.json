@@ -24,6 +24,7 @@
         "method": "bnl",
         "left": {
           "operator": "tableconstruction",
+          "querylocs": [[67, 76]],
           "operatorId": 5,
           "cardinality": 2,
           "output": [["v7", ["Integer"]]],
@@ -31,6 +32,7 @@
         },
         "right": {
           "operator": "tablescan",
+          "querylocs": [[62, 64]],
           "operatorId": 6,
           "cardinality": 2000,
           "relationId": 0,

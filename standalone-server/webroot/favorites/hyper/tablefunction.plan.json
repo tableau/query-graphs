@@ -7,6 +7,7 @@
   "outputNames": ["generate_series"],
   "input": {
     "operator": "tablefunction",
+    "querylocs": [[32, 47]],
     "operatorId": 2,
     "cardinality": 10,
     "input": {
