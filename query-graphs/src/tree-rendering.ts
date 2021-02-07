@@ -61,7 +61,7 @@ const orientations: {[k in GraphOrientation]: Orientation} = {
         textdimensionoffset: d => (d.children ? 10 : -10),
         textanchor: d => (d.children ? "start" : "end"),
         nodesize: maxLabelLength =>
-            [11.2 /* table node diameter */ + 2, maxLabelLength * 6 + 10 /* textdimensionoffset */] as d3point,
+            [11.2 /* table node diameter */ + 2, Math.max(90, maxLabelLength * 6 + 10 /* textdimensionoffset */)] as d3point,
         nodesep: (a, b) => (a.parent === b.parent ? 1 : 1.5),
         rootx: (viewSize, scale, maxLabelLength) => (viewSize.x / 2 - maxLabelLength * 6) / scale,
         rooty: (_viewSize, _scale, _maxLabelLength) => 0,
@@ -86,7 +86,7 @@ const orientations: {[k in GraphOrientation]: Orientation} = {
         textdimensionoffset: d => (d.children ? -10 : 10),
         textanchor: d => (d.children ? "end" : "start"),
         nodesize: maxLabelLength =>
-            [11.2 /* table node diameter */ + 2, maxLabelLength * 6 + 10 /* textdimensionoffset */] as d3point,
+            [11.2 /* table node diameter */ + 2, Math.max(90, maxLabelLength * 6 + 10 /* textdimensionoffset */)] as d3point,
         nodesep: (a, b) => (a.parent === b.parent ? 1 : 2),
         rootx: (viewSize, scale, maxLabelLength) => (viewSize.x / 2 - maxLabelLength * 6) / scale,
         rooty: (_viewSize, _scale, _maxLabelLength) => 0,
