@@ -15,6 +15,7 @@
       "cardinality": 2000,
       "input": {
         "operator": "tablescan",
+        "querylocs": [[139, 141]],
         "operatorId": 4,
         "cardinality": 2000,
         "relationId": 0,

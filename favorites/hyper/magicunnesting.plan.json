@@ -12,6 +12,7 @@
     "method": "hash",
     "left": {
       "operator": "tablescan",
+      "querylocs": [[73, 75]],
       "operatorId": 3,
       "cardinality": 2000,
       "relationId": 0,
@@ -45,6 +46,7 @@
         },
         "right": {
           "operator": "tablescan",
+          "querylocs": [[50, 52]],
           "operatorId": 8,
           "cardinality": 2000,
           "relationId": 1,

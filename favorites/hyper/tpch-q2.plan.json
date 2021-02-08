@@ -18,6 +18,7 @@
       "method": "hash",
       "left": {
         "operator": "tablescan",
+        "querylocs": [[347, 353]],
         "operatorId": 4,
         "cardinality": 1,
         "relationId": 9,
@@ -49,6 +50,7 @@
               "method": "hash",
               "left": {
                 "operator": "tablescan",
+                "querylocs": [[281, 285]],
                 "operatorId": 9,
                 "cardinality": 6,
                 "relationId": 2,
@@ -79,6 +81,7 @@
                       "method": "hash",
                       "left": {
                         "operator": "tablescan",
+                        "querylocs": [[830, 836]],
                         "operatorId": 14,
                         "cardinality": 1,
                         "relationId": 9,
@@ -90,6 +93,7 @@
                       },
                       "right": {
                         "operator": "tablescan",
+                        "querylocs": [[798, 804]],
                         "operatorId": 15,
                         "cardinality": 25,
                         "relationId": 8,
@@ -102,6 +106,7 @@
                     },
                     "right": {
                       "operator": "tablescan",
+                      "querylocs": [[764, 772]],
                       "operatorId": 16,
                       "cardinality": 518,
                       "relationId": 3,
@@ -117,6 +122,7 @@
                     "operatorId": 17,
                     "input": {
                       "operator": "tablescan",
+                      "querylocs": [[730, 738]],
                       "operatorId": 18,
                       "cardinality": 537,
                       "relationId": 4,
@@ -138,6 +144,7 @@
             },
             "right": {
               "operator": "tablescan",
+              "querylocs": [[313, 321]],
               "operatorId": 19,
               "cardinality": 537,
               "relationId": 4,
@@ -150,6 +157,7 @@
           },
           "right": {
             "operator": "tablescan",
+            "querylocs": [[295, 303]],
             "operatorId": 20,
             "cardinality": 518,
             "relationId": 3,
@@ -162,6 +170,7 @@
         },
         "right": {
           "operator": "tablescan",
+          "querylocs": [[331, 337]],
           "operatorId": 21,
           "cardinality": 25,
           "relationId": 8,

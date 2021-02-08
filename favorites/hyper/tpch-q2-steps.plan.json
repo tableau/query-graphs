@@ -34,6 +34,7 @@
                   "operatorId": 9,
                   "left": {
                     "operator": "tablescan",
+                    "querylocs": [[297, 301]],
                     "operatorId": 10,
                     "relationId": 2,
                     "schema": {"type":"sessionschema"},
@@ -46,6 +47,7 @@
                   },
                   "right": {
                     "operator": "tablescan",
+                    "querylocs": [[311, 319]],
                     "operatorId": 11,
                     "relationId": 3,
                     "schema": {"type":"sessionschema"},
@@ -60,6 +62,7 @@
                 },
                 "right": {
                   "operator": "tablescan",
+                  "querylocs": [[329, 337]],
                   "operatorId": 12,
                   "relationId": 4,
                   "schema": {"type":"sessionschema"},
@@ -74,6 +77,7 @@
               },
               "right": {
                 "operator": "tablescan",
+                "querylocs": [[347, 353]],
                 "operatorId": 13,
                 "relationId": 8,
                 "schema": {"type":"sessionschema"},
@@ -88,6 +92,7 @@
             },
             "right": {
               "operator": "tablescan",
+              "querylocs": [[363, 369]],
               "operatorId": 14,
               "relationId": 9,
               "schema": {"type":"sessionschema"},
@@ -120,6 +125,7 @@
                       "operatorId": 20,
                       "left": {
                         "operator": "tablescan",
+                        "querylocs": [[746, 754]],
                         "operatorId": 21,
                         "relationId": 4,
                         "schema": {"type":"sessionschema"},
@@ -132,6 +138,7 @@
                       },
                       "right": {
                         "operator": "tablescan",
+                        "querylocs": [[780, 788]],
                         "operatorId": 22,
                         "relationId": 3,
                         "schema": {"type":"sessionschema"},
@@ -146,6 +153,7 @@
                     },
                     "right": {
                       "operator": "tablescan",
+                      "querylocs": [[814, 820]],
                       "operatorId": 23,
                       "relationId": 8,
                       "schema": {"type":"sessionschema"},
@@ -160,6 +168,7 @@
                   },
                   "right": {
                     "operator": "tablescan",
+                    "querylocs": [[846, 852]],
                     "operatorId": 24,
                     "relationId": 9,
                     "schema": {"type":"sessionschema"},
@@ -221,6 +230,7 @@
                 "operatorId": 8,
                 "left": {
                   "operator": "tablescan",
+                  "querylocs": [[297, 301]],
                   "operatorId": 9,
                   "relationId": 2,
                   "schema": {"type":"sessionschema"},
@@ -230,6 +240,7 @@
                 },
                 "right": {
                   "operator": "tablescan",
+                  "querylocs": [[311, 319]],
                   "operatorId": 10,
                   "relationId": 3,
                   "schema": {"type":"sessionschema"},
@@ -241,6 +252,7 @@
               },
               "right": {
                 "operator": "tablescan",
+                "querylocs": [[329, 337]],
                 "operatorId": 11,
                 "relationId": 4,
                 "schema": {"type":"sessionschema"},
@@ -252,6 +264,7 @@
             },
             "right": {
               "operator": "tablescan",
+              "querylocs": [[347, 353]],
               "operatorId": 12,
               "relationId": 8,
               "schema": {"type":"sessionschema"},
@@ -263,6 +276,7 @@
           },
           "right": {
             "operator": "tablescan",
+            "querylocs": [[363, 369]],
             "operatorId": 13,
             "relationId": 9,
             "schema": {"type":"sessionschema"},
@@ -289,6 +303,7 @@
                   "operatorId": 18,
                   "left": {
                     "operator": "tablescan",
+                    "querylocs": [[746, 754]],
                     "operatorId": 19,
                     "relationId": 4,
                     "schema": {"type":"sessionschema"},
@@ -298,6 +313,7 @@
                   },
                   "right": {
                     "operator": "tablescan",
+                    "querylocs": [[780, 788]],
                     "operatorId": 20,
                     "relationId": 3,
                     "schema": {"type":"sessionschema"},
@@ -309,6 +325,7 @@
                 },
                 "right": {
                   "operator": "tablescan",
+                  "querylocs": [[814, 820]],
                   "operatorId": 21,
                   "relationId": 8,
                   "schema": {"type":"sessionschema"},
@@ -320,6 +337,7 @@
               },
               "right": {
                 "operator": "tablescan",
+                "querylocs": [[846, 852]],
                 "operatorId": 22,
                 "relationId": 9,
                 "schema": {"type":"sessionschema"},
@@ -380,6 +398,7 @@
                     "operatorId": 10,
                     "left": {
                       "operator": "tablescan",
+                      "querylocs": [[846, 852]],
                       "operatorId": 11,
                       "relationId": 9,
                       "schema": {"type":"sessionschema"},
@@ -390,6 +409,7 @@
                     },
                     "right": {
                       "operator": "tablescan",
+                      "querylocs": [[814, 820]],
                       "operatorId": 12,
                       "relationId": 8,
                       "schema": {"type":"sessionschema"},
@@ -401,6 +421,7 @@
                   },
                   "right": {
                     "operator": "tablescan",
+                    "querylocs": [[780, 788]],
                     "operatorId": 13,
                     "relationId": 3,
                     "schema": {"type":"sessionschema"},
@@ -412,6 +433,7 @@
                 },
                 "right": {
                   "operator": "tablescan",
+                  "querylocs": [[746, 754]],
                   "operatorId": 14,
                   "relationId": 4,
                   "schema": {"type":"sessionschema"},
@@ -427,6 +449,7 @@
             },
             "right": {
               "operator": "tablescan",
+              "querylocs": [[297, 301]],
               "operatorId": 15,
               "relationId": 2,
               "schema": {"type":"sessionschema"},
@@ -439,6 +462,7 @@
           },
           "right": {
             "operator": "tablescan",
+            "querylocs": [[329, 337]],
             "operatorId": 16,
             "relationId": 4,
             "schema": {"type":"sessionschema"},
@@ -453,6 +477,7 @@
           "operatorId": 17,
           "left": {
             "operator": "tablescan",
+            "querylocs": [[347, 353]],
             "operatorId": 18,
             "relationId": 8,
             "schema": {"type":"sessionschema"},
@@ -462,6 +487,7 @@
           },
           "right": {
             "operator": "tablescan",
+            "querylocs": [[311, 319]],
             "operatorId": 19,
             "relationId": 3,
             "schema": {"type":"sessionschema"},
@@ -475,6 +501,7 @@
       },
       "right": {
         "operator": "tablescan",
+        "querylocs": [[363, 369]],
         "operatorId": 20,
         "relationId": 9,
         "schema": {"type":"sessionschema"},
@@ -506,6 +533,7 @@
       "cardinality": 1,
       "left": {
         "operator": "tablescan",
+        "querylocs": [[363, 369]],
         "operatorId": 4,
         "cardinality": 1,
         "relationId": 9,
@@ -533,6 +561,7 @@
               "cardinality": 6,
               "left": {
                 "operator": "tablescan",
+                "querylocs": [[297, 301]],
                 "operatorId": 9,
                 "cardinality": 6,
                 "relationId": 2,
@@ -560,6 +589,7 @@
                       "cardinality": 5,
                       "left": {
                         "operator": "tablescan",
+                        "querylocs": [[846, 852]],
                         "operatorId": 14,
                         "cardinality": 1,
                         "relationId": 9,
@@ -571,6 +601,7 @@
                       },
                       "right": {
                         "operator": "tablescan",
+                        "querylocs": [[814, 820]],
                         "operatorId": 15,
                         "cardinality": 25,
                         "relationId": 8,
@@ -583,6 +614,7 @@
                     },
                     "right": {
                       "operator": "tablescan",
+                      "querylocs": [[780, 788]],
                       "operatorId": 16,
                       "cardinality": 518,
                       "relationId": 3,
@@ -595,6 +627,7 @@
                   },
                   "right": {
                     "operator": "tablescan",
+                    "querylocs": [[746, 754]],
                     "operatorId": 17,
                     "cardinality": 537,
                     "relationId": 4,
@@ -613,6 +646,7 @@
             },
             "right": {
               "operator": "tablescan",
+              "querylocs": [[329, 337]],
               "operatorId": 18,
               "cardinality": 537,
               "relationId": 4,
@@ -625,6 +659,7 @@
           },
           "right": {
             "operator": "tablescan",
+            "querylocs": [[311, 319]],
             "operatorId": 19,
             "cardinality": 518,
             "relationId": 3,
@@ -637,6 +672,7 @@
         },
         "right": {
           "operator": "tablescan",
+          "querylocs": [[347, 353]],
           "operatorId": 20,
           "cardinality": 25,
           "relationId": 8,
@@ -671,6 +707,7 @@
       "method": "hash",
       "left": {
         "operator": "tablescan",
+        "querylocs": [[363, 369]],
         "operatorId": 4,
         "cardinality": 1,
         "relationId": 9,
@@ -702,6 +739,7 @@
               "method": "hash",
               "left": {
                 "operator": "tablescan",
+                "querylocs": [[297, 301]],
                 "operatorId": 9,
                 "cardinality": 6,
                 "relationId": 2,
@@ -732,6 +770,7 @@
                       "method": "hash",
                       "left": {
                         "operator": "tablescan",
+                        "querylocs": [[846, 852]],
                         "operatorId": 14,
                         "cardinality": 1,
                         "relationId": 9,
@@ -743,6 +782,7 @@
                       },
                       "right": {
                         "operator": "tablescan",
+                        "querylocs": [[814, 820]],
                         "operatorId": 15,
                         "cardinality": 25,
                         "relationId": 8,
@@ -755,6 +795,7 @@
                     },
                     "right": {
                       "operator": "tablescan",
+                      "querylocs": [[780, 788]],
                       "operatorId": 16,
                       "cardinality": 518,
                       "relationId": 3,
@@ -770,6 +811,7 @@
                     "operatorId": 17,
                     "input": {
                       "operator": "tablescan",
+                      "querylocs": [[746, 754]],
                       "operatorId": 18,
                       "cardinality": 537,
                       "relationId": 4,
@@ -791,6 +833,7 @@
             },
             "right": {
               "operator": "tablescan",
+              "querylocs": [[329, 337]],
               "operatorId": 19,
               "cardinality": 537,
               "relationId": 4,
@@ -803,6 +846,7 @@
           },
           "right": {
             "operator": "tablescan",
+            "querylocs": [[311, 319]],
             "operatorId": 20,
             "cardinality": 518,
             "relationId": 3,
@@ -815,6 +859,7 @@
         },
         "right": {
           "operator": "tablescan",
+          "querylocs": [[347, 353]],
           "operatorId": 21,
           "cardinality": 25,
           "relationId": 8,
@@ -849,6 +894,7 @@
       "method": "hash",
       "left": {
         "operator": "tablescan",
+        "querylocs": [[363, 369]],
         "operatorId": 4,
         "cardinality": 1,
         "relationId": 9,
@@ -880,6 +926,7 @@
               "method": "hash",
               "left": {
                 "operator": "tablescan",
+                "querylocs": [[297, 301]],
                 "operatorId": 9,
                 "cardinality": 6,
                 "relationId": 2,
@@ -910,6 +957,7 @@
                       "method": "hash",
                       "left": {
                         "operator": "tablescan",
+                        "querylocs": [[846, 852]],
                         "operatorId": 14,
                         "cardinality": 1,
                         "relationId": 9,
@@ -921,6 +969,7 @@
                       },
                       "right": {
                         "operator": "tablescan",
+                        "querylocs": [[814, 820]],
                         "operatorId": 15,
                         "cardinality": 25,
                         "relationId": 8,
@@ -933,6 +982,7 @@
                     },
                     "right": {
                       "operator": "tablescan",
+                      "querylocs": [[780, 788]],
                       "operatorId": 16,
                       "cardinality": 518,
                       "relationId": 3,
@@ -948,6 +998,7 @@
                     "operatorId": 17,
                     "input": {
                       "operator": "tablescan",
+                      "querylocs": [[746, 754]],
                       "operatorId": 18,
                       "cardinality": 537,
                       "relationId": 4,
@@ -969,6 +1020,7 @@
             },
             "right": {
               "operator": "tablescan",
+              "querylocs": [[329, 337]],
               "operatorId": 19,
               "cardinality": 537,
               "relationId": 4,
@@ -981,6 +1033,7 @@
           },
           "right": {
             "operator": "tablescan",
+            "querylocs": [[311, 319]],
             "operatorId": 20,
             "cardinality": 518,
             "relationId": 3,
@@ -993,6 +1046,7 @@
         },
         "right": {
           "operator": "tablescan",
+          "querylocs": [[347, 353]],
           "operatorId": 21,
           "cardinality": 25,
           "relationId": 8,
@@ -1029,6 +1083,7 @@
       "method": "hash",
       "left": {
         "operator": "tablescan",
+        "querylocs": [[363, 369]],
         "operatorId": 4,
         "cardinality": 1,
         "relationId": 9,
@@ -1060,6 +1115,7 @@
               "method": "hash",
               "left": {
                 "operator": "tablescan",
+                "querylocs": [[297, 301]],
                 "operatorId": 9,
                 "cardinality": 6,
                 "relationId": 2,
@@ -1090,6 +1146,7 @@
                       "method": "hash",
                       "left": {
                         "operator": "tablescan",
+                        "querylocs": [[846, 852]],
                         "operatorId": 14,
                         "cardinality": 1,
                         "relationId": 9,
@@ -1101,6 +1158,7 @@
                       },
                       "right": {
                         "operator": "tablescan",
+                        "querylocs": [[814, 820]],
                         "operatorId": 15,
                         "cardinality": 25,
                         "relationId": 8,
@@ -1113,6 +1171,7 @@
                     },
                     "right": {
                       "operator": "tablescan",
+                      "querylocs": [[780, 788]],
                       "operatorId": 16,
                       "cardinality": 518,
                       "relationId": 3,
@@ -1128,6 +1187,7 @@
                     "operatorId": 17,
                     "input": {
                       "operator": "tablescan",
+                      "querylocs": [[746, 754]],
                       "operatorId": 18,
                       "cardinality": 537,
                       "relationId": 4,
@@ -1149,6 +1209,7 @@
             },
             "right": {
               "operator": "tablescan",
+              "querylocs": [[329, 337]],
               "operatorId": 19,
               "cardinality": 537,
               "relationId": 4,
@@ -1161,6 +1222,7 @@
           },
           "right": {
             "operator": "tablescan",
+            "querylocs": [[311, 319]],
             "operatorId": 20,
             "cardinality": 518,
             "relationId": 3,
@@ -1173,6 +1235,7 @@
         },
         "right": {
           "operator": "tablescan",
+          "querylocs": [[347, 353]],
           "operatorId": 21,
           "cardinality": 25,
           "relationId": 8,

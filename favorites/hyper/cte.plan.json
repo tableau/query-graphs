@@ -21,6 +21,7 @@
         "cardinality": 3,
         "input": {
           "operator": "tableconstruction",
+          "querylocs": [[30, 39]],
           "operatorId": 5,
           "cardinality": 3,
           "output": [["v3", ["Integer"]]],
