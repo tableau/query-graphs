@@ -218,6 +218,12 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
         props.set("depth", d.depth.toString());
         props.set("x", d.x.toString());
         props.set("y", d.y.toString());
+        if (d.data.rectFill !== undefined) {
+            props.set("rectFill", d.data.rectFill);
+        }
+        if (d.data.rectFillOpacity !== undefined) {
+            props.set("rectFillOpacity", d.data.rectFillOpacity.toString());
+        }
         return props;
     }
 
@@ -403,7 +409,7 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
             .attr("ry", maxLabelLength / 2.5)
             .attr("height", "13")
             .style("fill", d => {
-                return d.data.properties?.get("metricsFill") ?? "hsl(104, 100%, 100%)";
+                return d.data.rectFill ?? "hsl(104, 100%, 100%)";
             })
             .style("fill-opacity", 0);
         nodeEnter
@@ -445,7 +451,7 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
 
         // Fade the rect in
         nodeUpdate.select("rect").style("fill-opacity", function(d) {
-            return d.data.properties?.get("metricsFillOpacity") ?? 0.0;
+            return d.data.rectFillOpacity ?? 0.0;
         });
 
         // Fade the text in

@@ -334,11 +334,11 @@ function colorChildRelativeExecutionTime(node: TreeNode, executionTime: number, 
         // TODO: assert(relativeExecutionTime >= 0, "Unexpected relative execution time");
 
         assert(node.properties !== undefined);
-        node.properties.set("relativeExecutionTime", relativeExecutionTime.toFixed(3));
+        node.properties.set("~Relative Execution Time", relativeExecutionTime.toFixed(3));
         const l = (100 + (36 - 100) * relativeExecutionTime).toFixed(3);
         const hsl = "hsl(309, 84%, " + l + "%)";
-        node.properties.set("metricsFill", hsl);
-        node.properties.set("metricsFillOpacity", (relativeExecutionTime >= 0.05 ? 0.8 : 0.0).toString());
+        node.rectFill = hsl;
+        node.rectFillOpacity = relativeExecutionTime >= 0.05 ? 0.8 : 0.0;
     }
     for (const child of treeDescription.allChildren(node)) {
         colorChildRelativeExecutionTime(child, executionTime, degreeOfParallelism);
