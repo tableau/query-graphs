@@ -15,7 +15,7 @@ The label for a tree node is taken from the first defined property among several
 
 import * as treeDescription from "./tree-description";
 import {TreeNode, TreeDescription, Crosslink} from "./tree-description";
-import {Json, forceToString, tryToString, formatMetric, hasOwnProperty, hasSubOject} from "./loader-utils";
+import {assert, Json, forceToString, tryToString, formatMetric, hasOwnProperty, hasSubOject} from "./loader-utils";
 
 // Convert Postgres JSON to a D3 tree
 function convertPostgres(node: Json, parentKey: string): TreeNode | TreeNode[] {
@@ -281,6 +281,70 @@ function colorForeignScan(node: TreeNode, foreignScan?: string) {
     }
 }
 
+// Color graph per a node's relative execution time
+// Actual Total Time is cumulative
+// Nodes with Actual Loops > 1 record an average Actual Total Time
+// Parallelized nodes have Actual Loops = Workers Launched + 1 for the leader
+// Not all Postgres plans have a root Execution Time even when children have Actual Total Time
+function colorRelativeExecutionTime(root: TreeNode) {
+    let executionTime = root.properties?.get("Execution Time");
+    if (executionTime === undefined) {
+        for (const child of treeDescription.allChildren(root)) {
+            const actualTotalTime = child.properties?.get("Actual Total Time");
+            if (actualTotalTime) {
+                assert(executionTime === undefined, "Unexpected result child node");
+                executionTime = actualTotalTime;
+            }
+        }
+    }
+    if (executionTime) {
+        for (const child of treeDescription.allChildren(root)) {
+            colorChildRelativeExecutionTime(child, Number(executionTime), 1);
+        }
+    }
+}
+function colorChildRelativeExecutionTime(node: TreeNode, executionTime: number, degreeOfParallelism: number) {
+    let childrenTime = 0;
+    if (node.tag === "Gather" || node.tag === "Gather Merge") {
+        const workersLaunched = node.properties?.get("Workers Launched");
+        assert(workersLaunched !== undefined, "Unexpected Workers Launched");
+        degreeOfParallelism = Number(workersLaunched) + 1 /* leader */;
+    }
+    for (const child of treeDescription.allChildren(node)) {
+        const actualTotalTime = child.properties?.get("Actual Total Time");
+        if (actualTotalTime) {
+            const actualLoops = child.properties?.get("Actual Loops");
+            assert(actualLoops !== undefined, "Unexpected Actual Loops");
+            const childLoops = Number(actualLoops) / degreeOfParallelism;
+            childrenTime += Number(actualTotalTime) * childLoops;
+        }
+    }
+    const actualTotalTime = node.properties?.get("Actual Total Time");
+    if (actualTotalTime) {
+        const nodeTotalTime = Number(actualTotalTime);
+        const actualLoops = node.properties?.get("Actual Loops");
+        assert(actualLoops !== undefined, "Unexpected Actual Loops");
+        let nodeLoops = Number(actualLoops);
+        if (node.tag !== "Gather" && node.tag !== "Gather Merge") {
+            nodeLoops /= degreeOfParallelism;
+        }
+
+        const relativeExecutionTime = (nodeTotalTime * nodeLoops - childrenTime) / executionTime;
+        // TODO: remove Actual Total Time of a CTE from referencing CTE Scan subplans
+        // TODO: assert(relativeExecutionTime >= 0, "Unexpected relative execution time");
+
+        assert(node.properties !== undefined);
+        node.properties.set("~Relative Execution Time", relativeExecutionTime.toFixed(3));
+        const l = (100 + (36 - 100) * relativeExecutionTime).toFixed(3);
+        const hsl = "hsl(309, 84%, " + l + "%)";
+        node.rectFill = hsl;
+        node.rectFillOpacity = relativeExecutionTime >= 0.05 ? 0.8 : 0.0;
+    }
+    for (const child of treeDescription.allChildren(node)) {
+        colorChildRelativeExecutionTime(child, executionTime, degreeOfParallelism);
+    }
+}
+
 // Function to add crosslinks between related nodes
 function addCrosslinks(root: TreeNode): Crosslink[] {
     interface UnresolvedCrosslink {
@@ -336,6 +400,7 @@ export function loadPostgresPlan(json: Json, graphCollapse: unknown = undefined)
     generateDisplayNames(root);
     treeDescription.createParentLinks(root);
     colorForeignScan(root);
+    colorRelativeExecutionTime(root);
     // Adjust the graph so it is collapsed as requested by the user
     if (graphCollapse === "y") {
         treeDescription.visitTreeNodes(root, treeDescription.collapseAllChildren, treeDescription.allChildren);

@@ -9,6 +9,9 @@ export interface TreeNode {
     symbol?: string;
     // Additional CSS classes applied to the node
     nodeClass?: string;
+    // Color applied to node rects
+    rectFill?: string;
+    rectFillOpacity?: number;
     // Rendered in the tooltip
     properties?: Map<string, string>;
 

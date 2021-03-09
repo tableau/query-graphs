@@ -33,6 +33,8 @@ interface Orientation {
     textdimension: "y" | "x";
     textdimensionoffset: (d: any) => number;
     textanchor: (d: any) => string;
+    rectoffsetx: (d: any, maxLabelLength: number) => number;
+    rectoffsety: (d: any, maxLabelLength: number) => number;
     nodesize: (maxLabelLength: number) => d3point;
     nodesep: (a: any, b: any) => number;
     rootx: (viewSize: xyPos, scale: number, maxLabelLength: number) => number;
@@ -48,6 +50,8 @@ const orientations: {[k in GraphOrientation]: Orientation} = {
         textdimension: "y",
         textdimensionoffset: d => (d.children ? -13 : 13),
         textanchor: d => (d.children ? "middle" : "middle"),
+        rectoffsetx: (d, maxLabelLength) => (-(maxLabelLength - 2) * 6) / 2,
+        rectoffsety: (d, _maxLabelLength) => (d.children ? -13 - 13 / 2 : 13 - 13 / 2),
         nodesize: maxLabelLength => [maxLabelLength * 6, 45] as d3point,
         nodesep: (a, b) => (a.parent === b.parent ? 1 : 1),
         rootx: (_viewSize, _scale, _maxLabelLength) => 0,
@@ -60,6 +64,8 @@ const orientations: {[k in GraphOrientation]: Orientation} = {
         textdimension: "x",
         textdimensionoffset: d => (d.children ? 10 : -10),
         textanchor: d => (d.children ? "start" : "end"),
+        rectoffsetx: (d, maxLabelLength) => (d.children ? 10 - 1.5 : -(maxLabelLength - 2) * 6 - (10 - 1.5)),
+        rectoffsety: (_d, _maxLabelLength) => -13 / 2,
         nodesize: maxLabelLength =>
             [11.2 /* table node diameter */ + 2, Math.max(90, maxLabelLength * 6 + 10 /* textdimensionoffset */)] as d3point,
         nodesep: (a, b) => (a.parent === b.parent ? 1 : 1.5),
@@ -73,6 +79,8 @@ const orientations: {[k in GraphOrientation]: Orientation} = {
         textdimension: "y",
         textdimensionoffset: d => (d.children ? 13 : -13),
         textanchor: d => (d.children ? "middle" : "middle"),
+        rectoffsetx: (d, maxLabelLength) => (-(maxLabelLength - 2) * 6) / 2,
+        rectoffsety: (d, _maxLabelLength) => (d.children ? 13 - 13 / 2 : -13 - 13 / 2),
         nodesize: maxLabelLength => [maxLabelLength * 6, 45] as d3point,
         nodesep: (a, b) => (a.parent === b.parent ? 1 : 1),
         rootx: (_viewSize, _scale, _maxLabelLength) => 0,
@@ -85,6 +93,8 @@ const orientations: {[k in GraphOrientation]: Orientation} = {
         textdimension: "x",
         textdimensionoffset: d => (d.children ? -10 : 10),
         textanchor: d => (d.children ? "end" : "start"),
+        rectoffsetx: (d, maxLabelLength) => (d.children ? -(maxLabelLength - 2) * 6 - (10 - 1.5) : 10 - 1.5),
+        rectoffsety: (_d, _maxLabelLength) => -13 / 2,
         nodesize: maxLabelLength =>
             [11.2 /* table node diameter */ + 2, Math.max(90, maxLabelLength * 6 + 10 /* textdimensionoffset */)] as d3point,
         nodesep: (a, b) => (a.parent === b.parent ? 1 : 2),
@@ -156,7 +166,7 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
     );
 
     // Limit maximum label length and keep layout tight for short names
-    maxLabelLength = Math.min(maxLabelLength, MAX_DISPLAY_LENGTH);
+    maxLabelLength = Math.min(maxLabelLength, MAX_DISPLAY_LENGTH + 2 /* include ellipsis */);
 
     // Misc. variables
     const duration = 750;
@@ -208,6 +218,12 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
         props.set("depth", d.depth.toString());
         props.set("x", d.x.toString());
         props.set("y", d.y.toString());
+        if (d.data.rectFill !== undefined) {
+            props.set("rectFill", d.data.rectFill);
+        }
+        if (d.data.rectFillOpacity !== undefined) {
+            props.set("rectFillOpacity", d.data.rectFillOpacity.toString());
+        }
         return props;
     }
 
@@ -385,6 +401,18 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
 
         nodeEnter.append("use").attr("xlink:href", d => "#" + (d.data.symbol ?? "default-symbol"));
         nodeEnter
+            .append("rect")
+            .attr("x", d => ooo.rectoffsetx(d, maxLabelLength))
+            .attr("y", d => ooo.rectoffsety(d, maxLabelLength))
+            .attr("width", (maxLabelLength - 2) * 6)
+            .attr("rx", maxLabelLength / 2.5)
+            .attr("ry", maxLabelLength / 2.5)
+            .attr("height", "13")
+            .style("fill", d => {
+                return d.data.rectFill ?? "hsl(104, 100%, 100%)";
+            })
+            .style("fill-opacity", 0);
+        nodeEnter
             .append("text")
             .attr(ooo.textdimension, d => ooo.textdimensionoffset(d))
             .attr("dy", ".35em")
@@ -395,7 +423,11 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
         const nodeUpdate = node.merge(nodeEnter);
         const nodeTransition = nodeUpdate.transition().duration(duration);
 
-        // Update the text position to reflect whether node has children or not.
+        // Update the rect and text position to reflect whether node has children or not.
+        nodeUpdate
+            .select("rect")
+            .attr("x", d => ooo.rectoffsetx(d, maxLabelLength))
+            .attr("y", d => ooo.rectoffsety(d, maxLabelLength));
         nodeUpdate
             .select("text")
             .attr(ooo.textdimension, d => ooo.textdimensionoffset(d))
@@ -417,6 +449,11 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
         // Transition nodes to their new position.
         nodeTransition.attr("transform", d => `translate(${ooo.x(d, viewSize)},${ooo.y(d, viewSize)})`);
 
+        // Fade the rect in
+        nodeUpdate.select("rect").style("fill-opacity", function(d) {
+            return d.data.rectFillOpacity ?? 0.0;
+        });
+
         // Fade the text in
         nodeTransition.select("text").style("fill-opacity", 1);
 
@@ -429,6 +466,8 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
             .remove();
 
         nodeExit.select("circle").attr("r", 0);
+
+        nodeExit.select("rect").style("fill-opacity", 0);
 
         nodeExit.select("text").style("fill-opacity", 0);
 
