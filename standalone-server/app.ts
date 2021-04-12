@@ -103,11 +103,13 @@ function registerEventHandlers(widget: any) {
                 console.log("pressed key " + e.keyCode);
             }
 
-            // On space, expand all currently visible collapsed nodes, that is all for now
-            // Subsequent uses may expand additional visible nodes that are now visible
-            // Refresh browser window to get back to baseline
+            // On (alt+)space: toggle all nodes or hidden children
             if (e.keyCode === 32) {
-                widget.expandOneLevel();
+                if (e.altKey) {
+                    widget.toggleAltTree();
+                } else {
+                    widget.toggleTree();
+                }
             }
         },
         false,

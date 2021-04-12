@@ -299,11 +299,11 @@ function colorRelativeExecutionTime(root: TreeNode) {
     }
     if (executionTime) {
         for (const child of treeDescription.allChildren(root)) {
-            colorChildRelativeExecutionTime(child, Number(executionTime), 1);
+            colorChildRelativeExecutionRatio(child, Number(executionTime), 1);
         }
     }
 }
-function colorChildRelativeExecutionTime(node: TreeNode, executionTime: number, degreeOfParallelism: number) {
+function colorChildRelativeExecutionRatio(node: TreeNode, executionTime: number, degreeOfParallelism: number) {
     let childrenTime = 0;
     if (node.tag === "Gather" || node.tag === "Gather Merge") {
         const workersLaunched = node.properties?.get("Workers Launched");
@@ -329,19 +329,21 @@ function colorChildRelativeExecutionTime(node: TreeNode, executionTime: number, 
             nodeLoops /= degreeOfParallelism;
         }
 
-        const relativeExecutionTime = (nodeTotalTime * nodeLoops - childrenTime) / executionTime;
+        const relativeTotalTime = nodeTotalTime * nodeLoops - childrenTime;
+        const relativeExecutionRatio = relativeTotalTime / executionTime;
         // TODO: remove Actual Total Time of a CTE from referencing CTE Scan subplans
-        // TODO: assert(relativeExecutionTime >= 0, "Unexpected relative execution time");
+        // TODO: assert(relativeExecutionRatio >= 0, "Unexpected relative execution ratio");
 
         assert(node.properties !== undefined);
-        node.properties.set("~Relative Execution Time", relativeExecutionTime.toFixed(3));
-        const l = (100 + (36 - 100) * relativeExecutionTime).toFixed(3);
+        node.properties.set("~Relative Time", relativeTotalTime.toFixed(3));
+        node.properties.set("~Relative Time Ratio", relativeExecutionRatio.toFixed(3));
+        const l = (95 + (72 - 95) * relativeExecutionRatio).toFixed(3);
         const hsl = "hsl(309, 84%, " + l + "%)";
         node.rectFill = hsl;
-        node.rectFillOpacity = relativeExecutionTime >= 0.05 ? 0.8 : 0.0;
+        node.rectFillOpacity = relativeExecutionRatio >= 0.05 ? 1.0 : 0.0;
     }
     for (const child of treeDescription.allChildren(node)) {
-        colorChildRelativeExecutionTime(child, executionTime, degreeOfParallelism);
+        colorChildRelativeExecutionRatio(child, executionTime, degreeOfParallelism);
     }
 }
 

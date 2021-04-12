@@ -22,6 +22,11 @@ export interface TreeNode {
     // Additional CSS classes applied to the label on the incoming edge
     edgeLabelClass?: string;
 
+    // Expanded node is visible if true
+    nodeToggled?: boolean;
+    // Node was collapsed by default if true
+    collapsedByDefault?: boolean;
+
     // An array containing all currently visible child nodes
     children?: TreeNode[];
     // An array containing all child nodes, including hidden nodes

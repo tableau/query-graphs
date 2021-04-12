@@ -16,6 +16,16 @@
   box-shadow: 2px 2px 2px #888;
 }
 
+.qg-help-card {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  background-color: rgba(255, 255, 255, 0.85);
+  border: thin solid #ccc;
+  border-radius: 5px;
+  box-shadow: 2px 2px 2px #888;
+}
+
 .qg-tree-label {
   font-size: 13px;
   font-weight: bold;
@@ -83,6 +93,7 @@
 
 .qg-node {
   cursor: pointer;
+  user-select: none;
 }
 
 .qg-overlay{
@@ -194,10 +205,24 @@
   font-weight: bold;
   font-family: Monaco, Consolas, monospace;
   fill: #2b2a2a;
+  user-select: none;
+}
+
+.qg-node .foreign-object {
+  font-size: 8px;
+  font-weight: bold;
+  font-family: Monaco, Consolas, monospace;
+  background-color: rgba(255, 255, 255, 0.85);
+  padding: 6px;
+  border: thin solid #eee;
+  border-radius: 5px;
+  box-shadow: 2px 2px 2px #888;
+  overflow-y: scroll;
+  user-select: none;
 }
 
 .qg-tooltip {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: bold;
   font-family: Monaco, Consolas, monospace;
   background-color: rgba(255, 255, 255, 0.85);
@@ -205,14 +230,19 @@
   border: thin solid #eee;
   border-radius: 5px;
   box-shadow: 2px 2px 2px #888;
+  max-width: 600px;
 }
 
 .qg-prop-name {
-  color: hsl(309, 84%, 36%);
+  color: hsl(0, 0%, 50%);
 }
 
 .qg-prop-name2 {
-  color: hsl(0, 0%, 50%);
+  color: hsl(309, 84%, 36%);
+}
+
+.qg-prop-name-help {
+  color: hsl(296, 34%, 67%);
 }
 
 .qg-prop-value {
@@ -257,6 +287,7 @@ marker#arrow {
   font-weight: bold;
   font-family: Monaco, Consolas, monospace;
   fill: #aaa;
+  user-select: none;
 }
 
 /* Symbols */
