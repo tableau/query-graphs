@@ -35,17 +35,22 @@ interface Orientation {
     x: (d: xyPos, viewSize: xyPos) => number;
     y: (d: xyPos, viewSize: xyPos) => number;
     textdimension: "y" | "x";
-    textdimensionoffset: (d: any, maxLabelLength: number) => number;
-    textanchor: (d: any) => string;
-    rectoffsetx: (d: any, maxLabelLength: number) => number;
-    rectoffsety: (d: any, maxLabelLength: number) => number;
-    foreignoffsetx: (d: any, maxLabelLength: number) => number;
+    textdimensionoffset: (d: d3hierarchy.HierarchyNode<unknown>, maxLabelLength: number) => number;
+    textanchor: (d: d3hierarchy.HierarchyNode<unknown>) => string;
+    rectoffsetx: (d: d3hierarchy.HierarchyNode<unknown>, maxLabelLength: number) => number;
+    rectoffsety: (d: d3hierarchy.HierarchyNode<unknown>, maxLabelLength: number) => number;
+    foreignoffsetx: (d: d3hierarchy.HierarchyNode<unknown>, maxLabelLength: number) => number;
     nudgeoffsety: number;
     nodesize: (maxLabelLength: number) => d3point;
-    nodesep: (a: any, b: any) => number;
-    nodespacing: (a: any, b: any) => number;
+    nodesep: (a: d3hierarchy.HierarchyNode<unknown>, b: d3hierarchy.HierarchyNode<unknown>) => number;
+    nodespacing: (a: d3hierarchy.HierarchyNode<TreeNode>, b: d3hierarchy.HierarchyNode<TreeNode>) => number;
     rootx: (viewSize: xyPos, scale: number, maxLabelLength: number) => number;
     rooty: (viewSize: xyPos, scale: number, maxLabelLength: number) => number;
+}
+
+interface LabelOrientation {
+    toggledx: (d: d3hierarchy.HierarchyPointLink<TreeNode>) => number;
+    toggledy: (d: d3hierarchy.HierarchyPointLink<TreeNode>) => number;
 }
 
 // Orientation mapping
@@ -76,8 +81,7 @@ const orientations: {[k in GraphOrientation]: Orientation} = {
         textanchor: d => (d.children ? "start" : "end"),
         rectoffsetx: (d, maxLabelLength) => (d.children ? 10 - 1.5 : -(maxLabelLength - 2) * 6 - (10 - 1.5)),
         rectoffsety: (_d, _maxLabelLength) => -13 / 2,
-        foreignoffsetx: (d, maxLabelLength) =>
-            d.children ? 10 - 1.5 - (maxLabelLength - 2) * 6 * 0.5 : -(maxLabelLength - 2) * 6 * 1.5 - (10 - 1.5),
+        foreignoffsetx: (_d, _maxLabelLength) => -FOREIGN_OBJECT_SIZE / 2,
         nudgeoffsety: -0.2,
         nodesize: maxLabelLength =>
             [11.2 /* table node diameter */ + 2, Math.max(90, maxLabelLength * 6 + 10 /* textdimensionoffset */)] as d3point,
@@ -112,8 +116,7 @@ const orientations: {[k in GraphOrientation]: Orientation} = {
         textanchor: d => (d.children ? "end" : "start"),
         rectoffsetx: (d, maxLabelLength) => (d.children ? -(maxLabelLength - 2) * 6 - (10 - 1.5) : 10 - 1.5),
         rectoffsety: (_d, _maxLabelLength) => -13 / 2,
-        foreignoffsetx: (d, maxLabelLength) =>
-            d.children ? -(maxLabelLength - 2) * 6 * 1.5 - (10 - 1.5) : 10 - 1.5 - (maxLabelLength - 2) * 6 * 0.5,
+        foreignoffsetx: (_d, _maxLabelLength) => -FOREIGN_OBJECT_SIZE / 2,
         nudgeoffsety: -0.2,
         nodesize: maxLabelLength =>
             [11.2 /* table node diameter */ + 2, Math.max(90, maxLabelLength * 6 + 10 /* textdimensionoffset */)] as d3point,
@@ -195,6 +198,42 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
     // Size of the diagram
     const viewSize = {x: target.clientWidth, y: target.clientHeight};
     const ooo = orientations[graphOrientation];
+
+    // Orient labels according to node expansion
+    const labelOrientations: {[k in GraphOrientation]: LabelOrientation} = {
+        "top-to-bottom": {
+            toggledx: d =>
+                d.source.data.nodeToggled && d.source.data.nodeToggled
+                    ? ooo.x(d.target, viewSize)
+                    : (ooo.x(d.source, viewSize) + ooo.x(d.target, viewSize)) / 2,
+            toggledy: d =>
+                (ooo.y(d.source, viewSize) +
+                    (d.source.data.nodeToggled !== undefined && d.source.data.nodeToggled
+                        ? FOREIGN_OBJECT_SIZE + (ooo.rectoffsety(d.source, maxLabelLength) + ooo.nudgeoffsety)
+                        : 0) +
+                    ooo.y(d.target, viewSize)) /
+                2,
+        },
+        "left-to-right": {
+            toggledx: d => (ooo.x(d.source, viewSize) + ooo.x(d.target, viewSize)) / 2,
+            toggledy: d => (ooo.y(d.source, viewSize) + ooo.y(d.target, viewSize)) / 2,
+        },
+        "bottom-to-top": {
+            toggledx: d => (ooo.x(d.source, viewSize) + ooo.x(d.target, viewSize)) / 2,
+            toggledy: d =>
+                (ooo.y(d.source, viewSize) +
+                    (d.source.data.nodeToggled !== undefined && d.source.data.nodeToggled
+                        ? FOREIGN_OBJECT_SIZE + (ooo.rectoffsety(d.source, maxLabelLength) + ooo.nudgeoffsety)
+                        : 0) +
+                    ooo.y(d.target, viewSize)) /
+                2,
+        },
+        "right-to-left": {
+            toggledx: d => (ooo.x(d.source, viewSize) + ooo.x(d.target, viewSize)) / 2,
+            toggledy: d => (ooo.y(d.source, viewSize) + ooo.y(d.target, viewSize)) / 2,
+        },
+    };
+    const labelOrientation = labelOrientations[graphOrientation];
 
     function foreignObjectToggled(d) {
         return (
@@ -671,8 +710,8 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
         // Update position for existing & new labels
         linkLabelTransition
             .style("fill-opacity", 1)
-            .attr("x", d => (ooo.x(d.source, viewSize) + ooo.x(d.target, viewSize)) / 2)
-            .attr("y", d => (ooo.y(d.source, viewSize) + ooo.y(d.target, viewSize)) / 2);
+            .attr("x", d => labelOrientation.toggledx(d))
+            .attr("y", d => labelOrientation.toggledy(d));
 
         // Remove labels
         linkLabel
