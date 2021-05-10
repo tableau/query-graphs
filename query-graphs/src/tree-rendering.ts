@@ -6,6 +6,7 @@ import {defineSymbols} from "./symbols";
 
 // Third-party dependencies
 import * as d3selection from "d3-selection";
+import * as d3flextree from "d3-flextree";
 import * as d3hierarchy from "d3-hierarchy";
 import * as d3shape from "d3-shape";
 import * as d3zoom from "d3-zoom";
@@ -13,6 +14,9 @@ import * as d3interpolate from "d3-interpolate";
 import d3tip from "d3-tip";
 
 const MAX_DISPLAY_LENGTH = 15;
+const FLEX_NODE_SIZE = 220;
+const FOREIGN_OBJECT_SIZE = FLEX_NODE_SIZE * 0.85;
+const ALT_CLICK_TOGGLE_NODE = true;
 
 type d3point = [number, number];
 
@@ -31,14 +35,22 @@ interface Orientation {
     x: (d: xyPos, viewSize: xyPos) => number;
     y: (d: xyPos, viewSize: xyPos) => number;
     textdimension: "y" | "x";
-    textdimensionoffset: (d: any) => number;
-    textanchor: (d: any) => string;
-    rectoffsetx: (d: any, maxLabelLength: number) => number;
-    rectoffsety: (d: any, maxLabelLength: number) => number;
+    textdimensionoffset: (d: d3hierarchy.HierarchyNode<unknown>, maxLabelLength: number) => number;
+    textanchor: (d: d3hierarchy.HierarchyNode<unknown>) => string;
+    rectoffsetx: (d: d3hierarchy.HierarchyNode<unknown>, maxLabelLength: number) => number;
+    rectoffsety: (d: d3hierarchy.HierarchyNode<unknown>, maxLabelLength: number) => number;
+    foreignoffsetx: (d: d3hierarchy.HierarchyNode<unknown>, maxLabelLength: number) => number;
+    nudgeoffsety: number;
     nodesize: (maxLabelLength: number) => d3point;
-    nodesep: (a: any, b: any) => number;
+    nodesep: (a: d3hierarchy.HierarchyNode<unknown>, b: d3hierarchy.HierarchyNode<unknown>) => number;
+    nodespacing: (a: d3hierarchy.HierarchyNode<TreeNode>, b: d3hierarchy.HierarchyNode<TreeNode>) => number;
     rootx: (viewSize: xyPos, scale: number, maxLabelLength: number) => number;
     rooty: (viewSize: xyPos, scale: number, maxLabelLength: number) => number;
+}
+
+interface LabelOrientation {
+    toggledx: (d: d3hierarchy.HierarchyPointLink<TreeNode>) => number;
+    toggledy: (d: d3hierarchy.HierarchyPointLink<TreeNode>) => number;
 }
 
 // Orientation mapping
@@ -52,10 +64,13 @@ const orientations: {[k in GraphOrientation]: Orientation} = {
         textanchor: d => (d.children ? "middle" : "middle"),
         rectoffsetx: (d, maxLabelLength) => (-(maxLabelLength - 2) * 6) / 2,
         rectoffsety: (d, _maxLabelLength) => (d.children ? -13 - 13 / 2 : 13 - 13 / 2),
+        foreignoffsetx: (_d, _maxLabelLength) => -FOREIGN_OBJECT_SIZE / 2,
+        nudgeoffsety: -0.2,
         nodesize: maxLabelLength => [maxLabelLength * 6, 45] as d3point,
         nodesep: (a, b) => (a.parent === b.parent ? 1 : 1),
+        nodespacing: (a, b) => (a.parent === b.parent ? 0 : 0),
         rootx: (_viewSize, _scale, _maxLabelLength) => 0,
-        rooty: (viewSize, scale, _maxLabelLength) => (viewSize.y / 2 - 100) / scale,
+        rooty: (viewSize, scale, _maxLabelLength) => viewSize.y / 2 / scale - 100,
     },
     "right-to-left": {
         link: d3shape.linkHorizontal,
@@ -66,10 +81,13 @@ const orientations: {[k in GraphOrientation]: Orientation} = {
         textanchor: d => (d.children ? "start" : "end"),
         rectoffsetx: (d, maxLabelLength) => (d.children ? 10 - 1.5 : -(maxLabelLength - 2) * 6 - (10 - 1.5)),
         rectoffsety: (_d, _maxLabelLength) => -13 / 2,
+        foreignoffsetx: (_d, _maxLabelLength) => -FOREIGN_OBJECT_SIZE / 2,
+        nudgeoffsety: -0.2,
         nodesize: maxLabelLength =>
             [11.2 /* table node diameter */ + 2, Math.max(90, maxLabelLength * 6 + 10 /* textdimensionoffset */)] as d3point,
         nodesep: (a, b) => (a.parent === b.parent ? 1 : 1.5),
-        rootx: (viewSize, scale, maxLabelLength) => (viewSize.x / 2 - maxLabelLength * 6) / scale,
+        nodespacing: (a, b) => (a.parent === b.parent ? (a.data.nodeToggled && b.data.nodeToggled ? 0 : FLEX_NODE_SIZE / 3) : 0),
+        rootx: (viewSize, scale, _maxLabelLength) => viewSize.x / 2 / scale + FOREIGN_OBJECT_SIZE,
         rooty: (_viewSize, _scale, _maxLabelLength) => 0,
     },
     "bottom-to-top": {
@@ -81,10 +99,13 @@ const orientations: {[k in GraphOrientation]: Orientation} = {
         textanchor: d => (d.children ? "middle" : "middle"),
         rectoffsetx: (d, maxLabelLength) => (-(maxLabelLength - 2) * 6) / 2,
         rectoffsety: (d, _maxLabelLength) => (d.children ? 13 - 13 / 2 : -13 - 13 / 2),
+        foreignoffsetx: (_d, _maxLabelLength) => -FOREIGN_OBJECT_SIZE / 2,
+        nudgeoffsety: -0.2,
         nodesize: maxLabelLength => [maxLabelLength * 6, 45] as d3point,
         nodesep: (a, b) => (a.parent === b.parent ? 1 : 1),
+        nodespacing: (a, b) => (a.parent === b.parent ? 0 : 0),
         rootx: (_viewSize, _scale, _maxLabelLength) => 0,
-        rooty: (viewSize, scale, _maxLabelLength) => viewSize.y - (viewSize.y / 2 - 50) / scale,
+        rooty: (viewSize, scale, _maxLabelLength) => viewSize.y - viewSize.y / 2 / scale + FOREIGN_OBJECT_SIZE + 10 - 1.5,
     },
     "left-to-right": {
         link: d3shape.linkHorizontal,
@@ -95,10 +116,13 @@ const orientations: {[k in GraphOrientation]: Orientation} = {
         textanchor: d => (d.children ? "end" : "start"),
         rectoffsetx: (d, maxLabelLength) => (d.children ? -(maxLabelLength - 2) * 6 - (10 - 1.5) : 10 - 1.5),
         rectoffsety: (_d, _maxLabelLength) => -13 / 2,
+        foreignoffsetx: (_d, _maxLabelLength) => -FOREIGN_OBJECT_SIZE / 2,
+        nudgeoffsety: -0.2,
         nodesize: maxLabelLength =>
             [11.2 /* table node diameter */ + 2, Math.max(90, maxLabelLength * 6 + 10 /* textdimensionoffset */)] as d3point,
         nodesep: (a, b) => (a.parent === b.parent ? 1 : 2),
-        rootx: (viewSize, scale, maxLabelLength) => (viewSize.x / 2 - maxLabelLength * 6) / scale,
+        nodespacing: (a, b) => (a.parent === b.parent ? (a.data.nodeToggled && b.data.nodeToggled ? 0 : FLEX_NODE_SIZE / 3) : 0),
+        rootx: (viewSize, scale, _maxLabelLength) => viewSize.x / 2 / scale - FOREIGN_OBJECT_SIZE,
         rooty: (_viewSize, _scale, _maxLabelLength) => 0,
     },
 };
@@ -175,10 +199,60 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
     const viewSize = {x: target.clientWidth, y: target.clientHeight};
     const ooo = orientations[graphOrientation];
 
-    const treelayout = d3hierarchy
-        .tree<treeDescription.TreeNode>()
-        .nodeSize(ooo.nodesize(maxLabelLength))
-        .separation(ooo.nodesep);
+    // Orient labels according to node expansion
+    const labelOrientations: {[k in GraphOrientation]: LabelOrientation} = {
+        "top-to-bottom": {
+            toggledx: d =>
+                d.source.data.nodeToggled && d.source.data.nodeToggled
+                    ? ooo.x(d.target, viewSize)
+                    : (ooo.x(d.source, viewSize) + ooo.x(d.target, viewSize)) / 2,
+            toggledy: d =>
+                (ooo.y(d.source, viewSize) +
+                    (d.source.data.nodeToggled !== undefined && d.source.data.nodeToggled
+                        ? FOREIGN_OBJECT_SIZE + (ooo.rectoffsety(d.source, maxLabelLength) + ooo.nudgeoffsety)
+                        : 0) +
+                    ooo.y(d.target, viewSize)) /
+                2,
+        },
+        "left-to-right": {
+            toggledx: d => (ooo.x(d.source, viewSize) + ooo.x(d.target, viewSize)) / 2,
+            toggledy: d => (ooo.y(d.source, viewSize) + ooo.y(d.target, viewSize)) / 2,
+        },
+        "bottom-to-top": {
+            toggledx: d => (ooo.x(d.source, viewSize) + ooo.x(d.target, viewSize)) / 2,
+            toggledy: d =>
+                (ooo.y(d.source, viewSize) +
+                    (d.source.data.nodeToggled !== undefined && d.source.data.nodeToggled
+                        ? FOREIGN_OBJECT_SIZE + (ooo.rectoffsety(d.source, maxLabelLength) + ooo.nudgeoffsety)
+                        : 0) +
+                    ooo.y(d.target, viewSize)) /
+                2,
+        },
+        "right-to-left": {
+            toggledx: d => (ooo.x(d.source, viewSize) + ooo.x(d.target, viewSize)) / 2,
+            toggledy: d => (ooo.y(d.source, viewSize) + ooo.y(d.target, viewSize)) / 2,
+        },
+    };
+    const labelOrientation = labelOrientations[graphOrientation];
+
+    function foreignObjectToggled(d) {
+        return (
+            d.data.nodeToggled &&
+            !d.data.collapsedByDefault &&
+            (d.data.properties?.size != 0 || getTooltipProperties(d.data).size != 0)
+        );
+    }
+
+    const treelayout = d3flextree
+        .flextree<treeDescription.TreeNode>()
+        .nodeSize(d => {
+            if (foreignObjectToggled(d)) {
+                return [FLEX_NODE_SIZE, FLEX_NODE_SIZE];
+            } else {
+                return ooo.nodesize(maxLabelLength);
+            }
+        })
+        .spacing((a, b) => ooo.nodespacing(a, b));
 
     // Define a d3 diagonal projection for use by the node paths later on.
     const diagonal = ooo
@@ -218,12 +292,10 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
         props.set("depth", d.depth.toString());
         props.set("x", d.x.toString());
         props.set("y", d.y.toString());
-        if (d.data.rectFill !== undefined) {
-            props.set("rectFill", d.data.rectFill);
-        }
-        if (d.data.rectFillOpacity !== undefined) {
-            props.set("rectFillOpacity", d.data.rectFillOpacity.toString());
-        }
+        props.set("rectFill", d.data.rectFill ?? "undefined");
+        props.set("rectFillOpacity", (d.data.rectFillOpacity ?? "undefined").toString());
+        props.set("nodeToggled", (d.data.nodeToggled ?? "undefined").toString());
+        props.set("collapsedByDefault", (d.data.collapsedByDefault ?? "undefined").toString());
         return props;
     }
 
@@ -235,8 +307,8 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
             let text = "<span style='text-decoration: underline'>" + escapeHtml(d.data.name ?? "") + "</span><br />";
             if (DEBUG) {
                 text += buildPropertyList(getDebugProperties(d), "qg-prop-name2");
+                text += buildPropertyList(getTooltipProperties(d.data), "qg-prop-name2");
             }
-            text += buildPropertyList(getTooltipProperties(d.data), "qg-prop-name2");
             if (d.data.properties !== undefined) {
                 text += buildPropertyList(d.data.properties);
             }
@@ -256,9 +328,27 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
     // Append a group which holds all nodes and which the zoom Listener can act upon.
     const svgGroup = baseSvg.append("g");
 
+    // Compute path for browsers not supporting Event.Path such as Safari and Firefox
+    function computePath(e) {
+        const path: SVGPathElement[] = [];
+        let currentElem = e.target;
+        while (currentElem) {
+            path.push(currentElem);
+            currentElem = currentElem.parentElement;
+        }
+        return path;
+    }
+
     // Define the zoomBehavior which calls the zoom function on the "zoom" event constrained within the scaleExtents
     const zoomBehavior = d3zoom
         .zoom<SVGSVGElement, unknown>()
+        .filter(function(e) {
+            if (e.path) {
+                return !e.path.some(object => object.tagName === "foreignObject");
+            } else {
+                return !computePath(e).some(object => object.tagName === "foreignObject");
+            }
+        })
         .extent([
             [0, 0],
             [viewSize.x, viewSize.y],
@@ -297,6 +387,23 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
             },
             treeDescription.allChildren,
         );
+
+        function initializeCollapsedByDefault(d) {
+            d.data.collapsedByDefault = true;
+            for (const child of treeDescription.allChildren(d)) {
+                initializeCollapsedByDefault(child);
+            }
+        }
+        function assignCollapsedByDefault(d) {
+            d.data.collapsedByDefault = false;
+            if (d.children != null) {
+                for (const child of d.children) {
+                    assignCollapsedByDefault(child);
+                }
+            }
+        }
+        initializeCollapsedByDefault(r);
+        assignCollapsedByDefault(r);
     }
 
     // Return true if node is collapsed
@@ -320,6 +427,13 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
         const _children = d._children ? d._children : null;
         d._children = children;
         d.children = _children;
+    }
+    function toggleNode(d) {
+        if (d.data.nodeToggled === undefined) {
+            d.data.nodeToggled = true;
+        } else {
+            d.data.nodeToggled = !d.data.nodeToggled;
+        }
     }
 
     // Dash tween to make the highlighted edges animate from start node to end node
@@ -393,9 +507,37 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
             .append("g")
             .attr("class", d => "qg-node " + (d.data.nodeClass ?? ""))
             .attr("transform", `translate(${ooo.x(prevSourcePos, viewSize)},${ooo.y(prevSourcePos, viewSize)})`)
-            .on("click", (_e, d) => {
-                // Toggle children on click.
-                toggleChildren(d);
+            .on("click", (e, d) => {
+                // Toggle node/children/subtree on (alt/shift) click
+                if (ALT_CLICK_TOGGLE_NODE) {
+                    if (e.altKey) {
+                        if (e.shiftKey) {
+                            toggleNodeSubtree(d);
+                        } else {
+                            toggleNode(d);
+                        }
+                    } else {
+                        if (e.shiftKey) {
+                            toggleChildrenSubtree(d);
+                        } else {
+                            toggleChildren(d);
+                        }
+                    }
+                } else {
+                    if (e.altKey) {
+                        if (e.shiftKey) {
+                            toggleChildrenSubtree(d);
+                        } else {
+                            toggleChildren(d);
+                        }
+                    } else {
+                        if (e.shiftKey) {
+                            toggleNodeSubtree(d);
+                        } else {
+                            toggleNode(d);
+                        }
+                    }
+                }
                 update(d.data);
             });
 
@@ -414,11 +556,32 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
             .style("fill-opacity", 0);
         nodeEnter
             .append("text")
-            .attr(ooo.textdimension, d => ooo.textdimensionoffset(d))
+            .attr(ooo.textdimension, d => ooo.textdimensionoffset(d, maxLabelLength))
             .attr("dy", ".35em")
             .attr("text-anchor", d => ooo.textanchor(d))
             .text(d => abbreviateName(d.data.name ?? ""))
             .style("fill-opacity", 0);
+
+        // Insert hidden foreign object before rect to hold node properties upon expansion
+        nodeEnter
+            .insert("foreignObject", "rect")
+            .attr("class", "foreign-object")
+            .attr("x", d => ooo.foreignoffsetx(d, maxLabelLength))
+            .attr("y", d => ooo.rectoffsety(d, maxLabelLength) + ooo.nudgeoffsety)
+            .attr("width", FOREIGN_OBJECT_SIZE)
+            .attr("height", FOREIGN_OBJECT_SIZE)
+            .html(d => {
+                let text = "<br />";
+                if (DEBUG) {
+                    text += buildPropertyList(getDebugProperties(d), "qg-prop-name2");
+                }
+                if (d.data.properties !== undefined) {
+                    text += buildPropertyList(d.data.properties, "qg-prop-name");
+                }
+                return text;
+            })
+            .style("visibility", "hidden")
+            .style("opacity", 0);
 
         const nodeUpdate = node.merge(nodeEnter);
         const nodeTransition = nodeUpdate.transition().duration(duration);
@@ -430,13 +593,19 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
             .attr("y", d => ooo.rectoffsety(d, maxLabelLength));
         nodeUpdate
             .select("text")
-            .attr(ooo.textdimension, d => ooo.textdimensionoffset(d))
+            .attr(ooo.textdimension, d => ooo.textdimensionoffset(d, maxLabelLength))
             .attr("text-anchor", d => ooo.textanchor(d));
+
+        // Update foreign object position
+        nodeUpdate
+            .select("foreignObject")
+            .attr("x", d => ooo.foreignoffsetx(d, maxLabelLength))
+            .attr("y", d => ooo.rectoffsety(d, maxLabelLength) + ooo.nudgeoffsety);
 
         // Change the symbol style class depending on whether it has children and is collapsed
         nodeUpdate.select("use").attr("class", d => (collapsed(d) ? "qg-collapsed" : "qg-expanded"));
 
-        // Add tooltips
+        // Add tooltips and crosslinks
         nodeUpdate
             .filter(d => d.data.properties?.size != 0 || getTooltipProperties(d.data).size != 0)
             .call(tip) // invoke tooltip
@@ -445,17 +614,41 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
             .on("mouseout.tooltip", tip.hide)
             .on("mouseover.crosslinks", edgeTransitionIn)
             .on("mouseout.crosslinks", edgeTransitionOut);
+        nodeUpdate
+            .filter(d => d.data.properties?.size != 0 || getTooltipProperties(d.data).size != 0)
+            .select("text")
+            .on("mouseover.crosslinks", edgeTransitionIn)
+            .on("mouseout.crosslinks", edgeTransitionOut);
 
         // Transition nodes to their new position.
         nodeTransition.attr("transform", d => `translate(${ooo.x(d, viewSize)},${ooo.y(d, viewSize)})`);
 
         // Fade the rect in
-        nodeUpdate.select("rect").style("fill-opacity", function(d) {
+        nodeTransition.select("rect").style("fill-opacity", function(d) {
             return d.data.rectFillOpacity ?? 0.0;
         });
 
         // Fade the text in
         nodeTransition.select("text").style("fill-opacity", 1);
+
+        // Fade the visible/hidden foreign object in/out
+        nodeTransition
+            .select("foreignObject")
+            .filter(d => foreignObjectToggled(d))
+            .style("visibility", "visible")
+            .style("opacity", 1);
+        // Delay visibility hidden until opacity duration completes
+        nodeUpdate
+            .transition()
+            .duration(0)
+            .delay(duration)
+            .select("foreignObject")
+            .filter(d => !foreignObjectToggled(d))
+            .style("visibility", "hidden");
+        nodeTransition
+            .select("foreignObject")
+            .filter(d => !foreignObjectToggled(d))
+            .style("opacity", 0);
 
         // Transition exiting nodes to the parent's new position.
         const nodeExit = node
@@ -464,12 +657,10 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
             .duration(duration)
             .attr("transform", `translate(${ooo.x(newSourcePos, viewSize)},${ooo.y(newSourcePos, viewSize)})`)
             .remove();
-
         nodeExit.select("circle").attr("r", 0);
-
         nodeExit.select("rect").style("fill-opacity", 0);
-
         nodeExit.select("text").style("fill-opacity", 0);
+        nodeExit.select("foreignObject").style("opacity", 0);
 
         // Update the links…
         const link = svgGroup
@@ -502,10 +693,10 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
             .selectAll<SVGTextElement, d3hierarchy.HierarchyPointLink<treeDescription.TreeNode>>("text.qg-link-label")
             .data(linksWithLabels, d => assertNotNull(nodeIds.get(d.target.data)));
 
-        // Enter new link labels
+        // Enter new link labels before node containers
         const linkLabelEnter = linkLabel
             .enter()
-            .insert("text")
+            .insert("text", "g")
             .attr("class", d => "qg-link-label " + (d.target.data.edgeLabelClass ?? ""))
             .attr("text-anchor", "middle")
             .text(d => d.target.data.edgeLabel ?? "")
@@ -519,8 +710,8 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
         // Update position for existing & new labels
         linkLabelTransition
             .style("fill-opacity", 1)
-            .attr("x", d => (ooo.x(d.source, viewSize) + ooo.x(d.target, viewSize)) / 2)
-            .attr("y", d => (ooo.y(d.source, viewSize) + ooo.y(d.target, viewSize)) / 2);
+            .attr("x", d => labelOrientation.toggledx(d))
+            .attr("y", d => labelOrientation.toggledy(d));
 
         // Remove labels
         linkLabel
@@ -551,12 +742,12 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
                 .attr("d", _d => diagonalCrosslink({source: prevSourcePos, target: prevSourcePos}));
             crossLink
                 .merge(crossLinkEnter)
-                .transition()
+                .transition("crossLinkTransition") // separate transition avoids untimely update
                 .duration(duration)
                 .attr("d", d => diagonalCrosslink({source: d.source, target: d.target}));
             crossLink
                 .exit()
-                .transition()
+                .transition("crossLinkTransition") // separate transition avoids untimely update
                 .duration(duration)
                 .attr("d", _d => diagonalCrosslink({source: newSourcePos, target: newSourcePos}))
                 .remove();
@@ -622,6 +813,22 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
 
     orientRoot();
 
+    // Add help card
+    const helpCard = d3selection
+        .select(target)
+        .append("div")
+        .attr("class", "qg-help-card");
+    // Add help properties
+    const helpProps = new Map();
+    helpProps.set("(alt+)click", "toggle " + (ALT_CLICK_TOGGLE_NODE ? "(node)children" : "(children)node"));
+    helpProps.set("(alt+)shift+click", "toggle subtree");
+    helpProps.set("(alt+)space", "toggle tree");
+    const helpText = buildPropertyList(helpProps, "qg-prop-name-help");
+    helpCard
+        .append("div")
+        .classed("qg-tree-label", true)
+        .html(helpText);
+
     const infoCard = d3selection
         .select(target)
         .append("div")
@@ -631,6 +838,7 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
     if (treeData.properties) {
         treeText += buildPropertyList(treeData.properties);
     }
+
     if (DEBUG) {
         const debugProps = new Map();
         debugProps.set("nodes", totalNodes.toString());
@@ -680,9 +888,11 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
     function clearQueryGraph() {
         // Removes the QueryGraph elements. This function is useful if we want to call `drawQueryTree` again
         // Clear the main tree
-        target.innerHTML = "";
+        d3selection.select(".qg-overlay").remove();
+        d3selection.select(".qg-info-card").remove();
+        d3selection.select(".qg-help-card").remove();
         // Clear the tooltip element (which is not under the main tree DOM)
-        d3selection.select("#tooltip").remove();
+        d3selection.select(".qg-tooltip").remove();
     }
     addToolbarButton("rotate-left", "Rotate 90° Left", () => {
         clearQueryGraph();
@@ -705,12 +915,41 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
         centerGraph();
     });
 
-    function expandOneLevel() {
-        svgGroup.selectAll("g.qg-node").each(d => {
-            if (collapsed(d)) {
+    function toggleNodeSubtree(d) {
+        if (!d.data.collapsedByDefault) {
+            toggleNode(d);
+        }
+        for (const child of treeDescription.allChildren(d)) {
+            toggleNodeSubtree(child);
+        }
+    }
+    function toggleChildrenSubtree(d) {
+        if (!d.data.collapsedByDefault) {
+            toggleChildren(d);
+        }
+        for (const child of treeDescription.allChildren(d)) {
+            toggleChildrenSubtree(child);
+        }
+    }
+
+    function toggleNodeTree() {
+        svgGroup.selectAll<SVGGElement, d3hierarchy.HierarchyNode<TreeNode>>("g.qg-node").each(d => {
+            if (!d.data.collapsedByDefault) {
+                toggleNode(d);
+            }
+        });
+        // Redraw rather than update to workaround issue with node expansion after graph rotation
+        clearQueryGraph();
+        drawQueryTree(target, treeData);
+    }
+    function toggleChildrenTree() {
+        svgGroup.selectAll<SVGGElement, d3hierarchy.HierarchyNode<TreeNode>>("g.qg-node").each(d => {
+            if (!d.data.collapsedByDefault) {
                 toggleChildren(d);
             }
         });
+        // TODO: Can't redraw here as in toggleNodeTree because children are re-collapsed during redraw
+        // TODO: Therefore this function is ineffective after graph rotation or toggleNodeTree
         update(root.data);
         orientRoot();
     }
@@ -725,7 +964,8 @@ export function drawQueryTree(target: HTMLElement, treeData: TreeDescription) {
     }
 
     return {
-        expandOneLevel: expandOneLevel,
+        toggleTree: ALT_CLICK_TOGGLE_NODE ? toggleChildrenTree : toggleNodeTree,
+        toggleAltTree: ALT_CLICK_TOGGLE_NODE ? toggleNodeTree : toggleChildrenTree,
         resize: resize,
         orientRoot: orientRoot,
     };
