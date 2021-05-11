@@ -13,13 +13,14 @@ Query Graphs is an investigation into graph visualization for query processing, 
 query evaluation plans.
 Current visualizations are tailored for artifacts from Tableau's query ecosystem:
 LogicalQuery XML, QueryFunction XML, and Hyper query-plan JSON.
-Postgres EXPLAIN (FORMAT JSON) is also supported.
+PostgreSQL EXPLAIN (FORMAT JSON) is also supported.
 
 You can view a few example query visualizations online:
 * [Tableau Logical Query joining 3 tables](https://tableau.github.io/query-graphs/query-graphs.html?file=favorites/tableau/joins.xml&properties={"title":"Tableau%20Logical%20Query"}),
 * [Federated query](https://tableau.github.io/query-graphs/query-graphs.html?file=favorites/tableau/dint4.xml&properties={"title":"Federated%20Query"}),
 * [Hyper query plan for TPC-H Q1](https://tableau.github.io/query-graphs/query-graphs.html?file=favorites/hyper/tpch-q1.plan.json&properties={"title":"TPC-H%20Q1%20in%20Hyper"}),
 * [Optimizer steps of Hyper for TPC-H Q2](https://tableau.github.io/query-graphs/query-graphs.html?file=favorites/hyper/tpch-q2-steps.plan.json&orientation=left-to-right&properties={"title":"Optimizer%20steps%20for%20TPC-H%20Q2"}),
+* [PostgreSQL query plan](https://tableau.github.io/query-graphs/query-graphs.html?file=favorites/postgres/learning_to_optimize_federated_queries/job/federated/disable_nestloop/10a_ricole-lx.json&properties={"title":"PostgreSQL%20Query%20Plan"})
 
 Installation
 ------------
