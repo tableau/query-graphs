@@ -153,7 +153,7 @@ if (paramErrors.length) {
             try {
                 loadedTree = loader(graphString, graphCollapse);
                 return true;
-            } catch (err) {
+            } catch (err : any) { // eslint-disable-line prettier/prettier
                 errors.push(err.toString());
                 return false;
             }
