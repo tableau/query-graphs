@@ -17,21 +17,20 @@ The server stores the uploaded query plans for some time, so that the resulting 
 Installation
 ------------
 
-1. Install NodeJS and npm (if you don't have them installed, yet)
-2. Clone this repository
-3. Inside this folder run `npm install`
-4. Start the server by running `node upload-server.js`
+1. Install NodeJS and yarn (not npm!)
+2. Run the following commands
 
-In other words:
 ```shell
 git clone https://github.com/tableau/query-graphs.git
 cd query-graphs/standalone-server
-npm install
+yarn install
+yarn run --cwd=../query-graphs build
+yarn run build
 node upload-server.js
 ```
 
 After local installation and server start, you should be able to open the example
-for logical query visualization at <http://localhost:3000/query-graphs.html?file=tableau/joins.xml>, and example for 
+for logical query visualization at <http://localhost:3000/query-graphs.html?file=tableau/joins.xml>, and example for
 aql table query visualization at <http://localhost:3000/query-graphs.html?file=tableau/aql-table-query-example.xml>.
 
 You can get a complete list of all example visualizations on <http://localhost:3000/favorites>.
@@ -73,25 +72,18 @@ right-label     | label of the right iframe
 Development
 -----------
 
-As long as you are only working on files within the
-`standalone-server` subdirectory, you can run `npm run bundle`
-to recreate the JS and CSS bundles.
+To get a debug build instead of a production build, use `yarn run build:dev` instead of `yarn run build` .
+For automatically rebuilding the project as soon as you save modifications to the TypeScript files, run `yarn run build::watch` in the background.
+Note that this will only work for modifications inside the `standalone-server` package, though, you still need to rebuild the `query-graphs` package manually if you change it.
 
-By default, this project uses the version of `query-graphs` which was
-officially released and published to the npm registry.
-If you want to pull in changes from an unpublished version, e.g. during testing
-your newly added improvements, you can either
-* use `npm link` to temporarily link the unpublished version of the query-graphs library into this project (see [documentation of npm link](https://docs.npmjs.com/cli/link))
-* replace the `"@tableau/query-graphs": "^2.0.0"` dependency in the package.json by `"@tableau/query-graphs": "file:../query-graphs"`
+We use eslint to lint our TypeScript code.
+To run eslint on the appropriate files, you can use `yarn run lint` inside the root directory of this git repository.
 
-We use eslint to lint our JavaScript code.
-To run eslint on the appropriate files, you can use `npm run lint` inside this directory.
-
-There are no automated test cases, yet.
+There are only very few test cases, yet.
 For now, we manually verify that all example query plans render as expected.
 
 Integration into Table Log Viewer
 -----------
 
-To create an archive containing the bundle and associated files for the Tableau Log Viewer, use `npm run bundle-tlv`.
+To create an archive containing the bundle and associated files for the Tableau Log Viewer, use `yarn run bundle-tlv`.
 Extract the archive in tlv-qt/query-graphs, a subdirectory in the tlv-qt project.
