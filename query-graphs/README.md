@@ -17,7 +17,6 @@ LogicalQuery XML, QueryFunction XML, and Hyper query-plan JSON.
 This package provides the reusable core functionality, i.e. the loading and rendering of query plans.
 As an end-user, you probably want to use QueryGraphs through one of the following applications:
 * The [standalone server](standalone-server/) allows you to upload & visualize query plans
-* The [JupyterLab extension](jupyterlab-extension/) integrates query plan visualization into [JupyterLab](https://github.com/jupyterlab/jupyterlab/)
 * The [Tableau Log Viewer](https://github.com/tableau/tableau-log-viewer) can visualize query plans embeded into Tableau & Hyper log files
 
 Development
