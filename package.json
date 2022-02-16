@@ -3,8 +3,7 @@
     "name": "query-graphs",
     "workspaces": [
         "query-graphs",
-        "standalone-server",
-        "jupyterlab-extension"
+        "standalone-server"
     ],
     "scripts": {
         "lint": "eslint . --ignore-path .gitignore --ext .ts,.tsx,.js --fix",

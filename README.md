@@ -27,7 +27,6 @@ Installation
 
 As an end-user, you probably want to use QueryGraphs through one of the following applications:
 * The [standalone server](standalone-server/) allows you to upload & visualize query plans
-* The [JupyterLab extension](jupyterlab-extension/) integrates query plan visualization into [JupyterLab](https://github.com/jupyterlab/jupyterlab/)
 * The [Tableau Log Viewer](https://github.com/tableau/tableau-log-viewer) can visualize query plans embeded into Tableau & Hyper log files
 
 Project Structure
@@ -37,7 +36,7 @@ This repository is a monorepo currently consisting of the following projects:
 
 * `query-graphs`: core functionality, i.e. the loading and rendering of query plans.
 * `standalone-server`: a stand-alone server which provides an easy way to upload and visualize query plans
-* `jupyterlab-plugin`: a JupyterLab extension integrating query plan visualization into JupyterLab
+* `plan-dumper`: utility scripts to refresh the demo query plans committed insides this repository
 
 Furthermore, Query Graphs is also used by the
 [Tableau Log Viewer](https://github.com/tableau/tableau-log-viewer)
