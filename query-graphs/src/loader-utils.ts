@@ -10,11 +10,11 @@ type JsonArray = Array<Json>;
 // In contrast to a raw call, this function
 // a) adds the necessary type narrowing, and
 // b) calls `hasOwnProperty` over its prototype, thereby making sure no-one overwrote it
-export function hasOwnProperty<X extends unknown, Y extends PropertyKey>(o: X, key: Y): o is X & Record<Y, unknown> {
+export function hasOwnProperty<X, Y extends PropertyKey>(o: X, key: Y): o is X & Record<Y, unknown> {
     return Object.prototype.hasOwnProperty.call(o, key);
 }
 
-export function hasSubOject<X extends unknown, Y extends PropertyKey>(o: X, key: Y): o is X & Record<Y, Record<string, unknown>> {
+export function hasSubOject<X, Y extends PropertyKey>(o: X, key: Y): o is X & Record<Y, Record<string, unknown>> {
     return hasOwnProperty(o, key) && typeof o[key] === "object" && o[key] !== null;
 }
 

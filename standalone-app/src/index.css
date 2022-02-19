@@ -1,0 +1,19 @@
+body, html, #main {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+}
+
+#main {
+    /* Colors for the main-area, i.e. the graph view panel */
+    --primary-bg-color: white;
+    --primary-fg-color: #111;
+    /* Secondary colors used for sidebars etc */
+    --secondary-bg-color: #fcfcfc;
+    --secondary-fg-color-rgb: 0,0,0;
+    --secondary-fg-color: rgb(var(--secondary-fg-color-rgb));
+    --secondary-select-bg-color: #ddd;
+    --secondary-border-color: #999;
+    --secondary-placeholder-fg-color: #555;
+}

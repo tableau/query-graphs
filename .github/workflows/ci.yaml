@@ -28,12 +28,12 @@ jobs:
       - name: Build query-graphs
         run: yarn run --cwd=query-graphs build
 
-      - name: Build standalone-server
-        run: yarn run --cwd=standalone-server build
+      - name: Build standalone-app
+        run: yarn run --cwd=standalone-app build
 
       - name: Deploy
         if: github.ref == 'refs/heads/master'
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./standalone-server/webroot/
+          publish_dir: ./standalone-app/dist/

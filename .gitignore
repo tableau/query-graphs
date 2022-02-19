@@ -18,6 +18,7 @@ yarn.lock
 tsconfig.tsbuildinfo
 jupyterlab-extension/lib
 query-graphs/lib
+standalone-app/dist
 standalone-server/webroot/*.min.js
 standalone-server/webroot/*.min.js.map
 

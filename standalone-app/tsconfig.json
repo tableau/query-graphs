@@ -1,0 +1,13 @@
+{
+    "$schema": "http://json.schemastore.org/tsconfig",
+    "extends": "../tsconfigbase",
+    "compilerOptions": {
+      "target": "es6",
+      "module": "es6",
+      "lib": ["dom", "es6"],
+      "jsx": "react",
+      "outDir": "dist/",
+      "esModuleInterop": true
+    },
+    "include": ["src/**/*"]
+  }
