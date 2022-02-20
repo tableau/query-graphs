@@ -6,12 +6,12 @@ import {loadXml} from "@tableau/query-graphs/lib/xml";
 import {TreeDescription} from "@tableau/query-graphs/lib/tree-description";
 import {assert} from "./assert";
 
-export function loadPlan(plan: string, fileName: string | null): TreeDescription {
+export function loadPlan(plan: string, mimeType: string | null): TreeDescription {
     let loaders;
-    if (fileName && fileName.endsWith(".json")) {
+    if (mimeType && mimeType.startsWith("application/json")) {
         // Try Postgres before Hyper to differentiate between them
         loaders = [loadPostgresPlanFromText, loadHyperPlanFromText, loadJsonFromText];
-    } else if (fileName && fileName.endsWith(".xml")) {
+    } else if (mimeType && mimeType.endsWith("application/xml")) {
         loaders = [loadTableauPlan, loadXml];
     } else {
         loaders = [loadPostgresPlanFromText, loadHyperPlanFromText, loadJsonFromText, loadTableauPlan, loadXml];
@@ -36,11 +36,5 @@ export function loadPlan(plan: string, fileName: string | null): TreeDescription
         throw new Error("Not a valid query plan:\n" + uniqueErrors.reduce((a, b) => a + "\n" + b));
     }
     assert(loadedTree !== undefined);
-    if (loadedTree.properties === undefined) {
-        loadedTree.properties = new Map<string, string>();
-    }
-    if (fileName) {
-        loadedTree.properties.set("fileName", fileName);
-    }
     return loadedTree;
 }
