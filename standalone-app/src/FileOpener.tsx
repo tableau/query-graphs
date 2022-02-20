@@ -1,4 +1,4 @@
-import React, {Fragment, useState} from "react";
+import React, {Fragment, useMemo, useState} from "react";
 import {useDropzone} from "react-dropzone";
 import Alert from "react-bootstrap/Alert";
 import objstr from "./objstr";
@@ -7,25 +7,16 @@ import Button from "react-bootstrap/Button";
 import "./FileOpener.css";
 import {assert} from "./assert";
 
-function readTextFromFile(file: File): Promise<string> {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-            resolve(reader.result as string);
-        };
-        reader.onerror = reject;
-        reader.readAsText(file);
-    });
-}
-
 export interface FileOpenerData {
-    content: string;
-    fileName: string | null;
+    // This might be a Blob URL.
+    // Make sure to call `URL.revokeBlobURL` if you no longer need it.
+    url: URL;
+    fileName?: string;
 }
 
 const isFirefox = /Firefox\/([0-9]+)\./.test(navigator.userAgent);
 
-async function getTextFromPasteEvent(e : React.ClipboardEvent) : Promise<FileOpenerData> {
+async function getTextFromPasteEvent(e: React.ClipboardEvent): Promise<FileOpenerData> {
     if (e.clipboardData.types.indexOf("Files") !== -1) {
         if (e.clipboardData.items.length > 1) {
             if (isFirefox) {
@@ -41,8 +32,7 @@ async function getTextFromPasteEvent(e : React.ClipboardEvent) : Promise<FileOpe
         if (f === null) {
             throw new Error("Unable to access pasted file");
         }
-        const text = await readTextFromFile(f);
-        return {content: text, fileName: f.name};
+        return {url: new URL(URL.createObjectURL(f)), fileName: f.name};
     } else {
         const items = [] as DataTransferItem[];
         Array.prototype.forEach.call(e.clipboardData.items, item => {
@@ -57,7 +47,8 @@ async function getTextFromPasteEvent(e : React.ClipboardEvent) : Promise<FileOpe
         }
         if (foundItem !== undefined) {
             const text = (await new Promise(resolve => foundItem!.getAsString(resolve))) as string;
-            return {content: text, fileName: null};
+            const textBlob = new Blob([text]);
+            return {url: new URL(URL.createObjectURL(textBlob))};
         } else {
             const typesString = items.map(e => e.type).join(", ");
             throw new Error(`None of the following types are supported: ${typesString}`);
@@ -65,70 +56,90 @@ async function getTextFromPasteEvent(e : React.ClipboardEvent) : Promise<FileOpe
     }
 }
 
+interface RawLoadState {
+    state: "pristine" | "loading" | "error";
+    detail?: string;
+}
+
+interface LoadStateController {
+    loadState: RawLoadState;
+    clearLoadState: () => void;
+    setProgress: (msg: string) => void;
+    setError: (msg: string) => void;
+    tryAndDisplayErrors: (doIt: () => Promise<void>) => Promise<void>;
+}
+
+export function useLoadStateController(): LoadStateController {
+    const [loadState, setLoadState] = useState<RawLoadState>({state: "pristine"});
+    return useMemo(() => {
+        const setProgress = (msg: string) => setLoadState({state: "loading", detail: msg});
+        const setError = (msg: string) => setLoadState({state: "error", detail: msg});
+        const tryAndDisplayErrors = async (doIt: () => Promise<void>) => {
+            try {
+                await doIt();
+            } catch (e) {
+                if (loadState.state == "loading") {
+                    // Show the error only after some additional time.
+                    // Thereby, we make sure that the spinner is visible at least for a short moment and
+                    // we don't get an unpleasant "flash" in case the download fails immediately.
+                    await new Promise(resolve => setTimeout(resolve, 250));
+                }
+                let msg;
+                if (e instanceof Error) {
+                    msg = e.message;
+                } else {
+                    console.log(e);
+                    msg = "Unknown error";
+                }
+                setError(msg);
+            }
+        };
+        return {
+            loadState,
+            clearLoadState: () => setLoadState({state: "pristine"}),
+            setProgress,
+            setError,
+            tryAndDisplayErrors,
+        };
+    }, [loadState, setLoadState]);
+}
+
 interface FileOpenerProps {
     /// Callback called with the selected data.
     /// Might throw an `Exception` if it can't open the received file.
     setData: (data: FileOpenerData) => Promise<void>;
+    /// Controller for displaying progress/completion
+    loadStateController: LoadStateController;
 }
 
-export function FileOpener({setData}: FileOpenerProps) {
-    interface LoadState {
-        state: "pristine" | "loading" | "error";
-        detail?: string;
-    }
-    const [loadState, setLoadState] = useState<LoadState>({state: "pristine"});
-    const [url, setUrl] = useState("https://");
-
-    async function wrapErrorHandling(doIt: (setProgress: (msg: string) => void) => Promise<void>, errorPrefix: string) {
-        try {
-            const setProgress = (msg : string) => setLoadState({state: "loading", detail: msg});
-            await doIt(setProgress);
-        } catch (e) {
-            // Show the error only after some additional time.
-            // Thereby, we make sure that the spinner is visible for at least for a short moment and
-            // we don't get an unpleasant "flash" in case the download fails immediately.
-            await new Promise(resolve => setTimeout(resolve, 250));
-            let msg;
-            if (e instanceof Error) {
-                msg = e.message;
-            } else {
-                msg = "Unknown error";
-            }
-            setLoadState({state: "error", detail: `${errorPrefix}: ${msg}`});
-        }
-    }
+export function FileOpener({setData, loadStateController}: FileOpenerProps) {
+    const {loadState, clearLoadState, tryAndDisplayErrors} = loadStateController;
+    const [url, setUrl] = useState("");
 
     async function openURL(url: string) {
-        await wrapErrorHandling(async (setProgress) => {
-            setProgress(`Downloading "${url}"`);
-            const response = await fetch(url);
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}`);
-            }
-            const text = await response.text();
-            await setData({content: text, fileName: url});
-            setLoadState({state: "pristine"});
-        }, `Unable to load "${url}"`);
+        await tryAndDisplayErrors(async () => {
+            await setData({url: new URL(url)});
+            clearLoadState();
+        });
     }
 
     const onPaste = async (e: React.ClipboardEvent) => {
         e.preventDefault();
-        await wrapErrorHandling(async (_setProgress) => {
-            const pastedData = await getTextFromPasteEvent(e);
-            await setData(pastedData);
-            setLoadState({state: "pristine"});
-        }, "Failed to paste");
+        await tryAndDisplayErrors(async () => {
+            await setData(await getTextFromPasteEvent(e));
+            clearLoadState();
+        });
     };
 
-    async function onDrop(f: File[]) {
-        await wrapErrorHandling(async (_setProgress) => {
-            if (f.length != 1) {
+    async function onDrop(files: File[]) {
+        await tryAndDisplayErrors(async () => {
+            if (files.length != 1) {
                 throw new Error("Cannot open multiple files");
             }
-            const text = await readTextFromFile(f[0]);
-            await setData({content: text, fileName: f[0].name});
-            setLoadState({state: "pristine"});
-        }, "Failed to paste");
+            const f = files[0];
+            await setData({url: new URL(URL.createObjectURL(f)), fileName: f.name});
+            clearLoadState();
+        });
     }
 
     const {getRootProps, getInputProps, isDragActive} = useDropzone({
@@ -150,7 +161,7 @@ export function FileOpener({setData}: FileOpenerProps) {
         let renderedError;
         if (loadState.state == "error") {
             renderedError = (
-                <Alert variant="danger" className="load-error" onClose={() => setLoadState({state: "pristine"})} dismissible>
+                <Alert variant="danger" className="load-error" onClose={() => clearLoadState()} dismissible>
                     {loadState.detail}
                 </Alert>
             );
@@ -195,7 +206,7 @@ export function FileOpener({setData}: FileOpenerProps) {
                         className="source-alternative-url"
                     >
                         <div className="source-caption">Remote file</div>
-                        <input aria-label="URL" value={url} onChange={e => setUrl(e.target.value)} />
+                        <input aria-label="URL" placeholder="https://" value={url} onChange={e => setUrl(e.target.value)} />
                         <Button type="submit" size="sm">
                             Open URL
                         </Button>

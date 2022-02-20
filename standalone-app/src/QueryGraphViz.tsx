@@ -15,7 +15,8 @@ export function QueryGraphViz({treeDescription}: QueryGraphVizProps) {
 
     useEffect(() => {
         assert(areaRef.current !== null);
-        const widget = drawQueryTree(areaRef.current, treeDescription);
+        const area = areaRef.current;
+        const widget = drawQueryTree(area, treeDescription);
         let timer = 0;
         const resizeListener = () => {
             window.clearTimeout(timer);
@@ -25,6 +26,8 @@ export function QueryGraphViz({treeDescription}: QueryGraphVizProps) {
         return () => {
             window.clearTimeout(timer);
             window.removeEventListener("resize", resizeListener);
+            // Remove all children drawn by `drawQueryTree`
+            area.replaceChildren();
         };
     }, [areaRef, treeDescription]);
 
