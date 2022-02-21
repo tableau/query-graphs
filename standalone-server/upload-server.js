@@ -9,16 +9,13 @@ const bodyParser = require("body-parser");
 const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
-const readdirrec = require("recursive-readdir");
 const app = express();
 
 const WEBROOT_DIR = "webroot/";
 const UPLOAD_DIR = path.join(WEBROOT_DIR, "uploads");
-const FAVORITES_DIR = path.join(WEBROOT_DIR, "favorites");
 const KEEP_FILES = 50;
 
 fs.mkdirSync(UPLOAD_DIR, {recursive: true});
-fs.mkdirSync(FAVORITES_DIR, {recursive: true});
 
 app.use(compression());
 app.use(bodyParser.urlencoded({extended: false, limit: "2mb"}));
@@ -126,49 +123,6 @@ app.post("/text-upload", function(req, res) {
     deleteOldFiles();
     // Redirect to the Visualization URL
     res.redirect(getVisualizationURL(req, filename));
-});
-
-function escapeHtml(unsafe) {
-    return unsafe
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}
-
-app.get("/favorites", function(req, res) {
-    readdirrec(FAVORITES_DIR, function(err, files) {
-        res.setHeader("Content-Type", "text/html");
-        if (err) {
-            console.log(err);
-            res.send(err);
-            return;
-        }
-        files.sort();
-        let html = "<html><head><title>Favorites</title></head><body><h1>Favorites</h1><ul>";
-        let lastPath = [];
-        files.forEach(function(name) {
-            const relName = path.relative(FAVORITES_DIR, name);
-            const relPath = relName.split(path.sep);
-            const fileName = relPath.pop();
-            let commonLen = 0;
-            while (commonLen < Math.min(lastPath.length, relPath.length) && relPath[commonLen] === lastPath[commonLen]) {
-                ++commonLen;
-            }
-            for (let i = lastPath.length; i > commonLen; --i) {
-                html += "</ul></li>";
-            }
-            for (let j = commonLen; j < relPath.length; ++j) {
-                html += "<li>" + escapeHtml(relPath[j]) + "<ul>";
-            }
-            html += "<li><a href='" + escapeHtml(getVisualizationURL(req, name)) + "'>" + escapeHtml(fileName) + "</a></li>";
-            lastPath = relPath;
-        });
-        html += "</ul></body></html>";
-        res.send(html);
-        res.end();
-    });
 });
 
 const server = app.listen(3000, function() {

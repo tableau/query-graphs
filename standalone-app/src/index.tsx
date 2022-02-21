@@ -103,7 +103,10 @@ function App() {
             if (!treeUrl) {
                 return;
             }
-            await loadTree(treeUrl);
+            // Also interpret relative URLs. This is important such that the "examples.html"
+            // page works correctly.
+            const absoluteUrl = new URL(treeUrl, window.location.href).toString();
+            await loadTree(absoluteUrl);
             clearLoadState();
         });
     });

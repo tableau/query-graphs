@@ -7,7 +7,12 @@
       "lib": ["dom", "es6"],
       "jsx": "react",
       "outDir": "dist/",
+      "sourceMap": true,
       "esModuleInterop": true
     },
-    "include": ["src/**/*"]
+    "include": ["src/**/*"],
+    // See https://github.com/webpack/webpack-cli/issues/2458#issuecomment-846635277
+    "ts-node": {
+      "compilerOptions": { "module": "commonjs" }
+    }
   }
