@@ -1,11 +1,18 @@
-const path = require("path");
-const CopyPlugin = require("copy-webpack-plugin");
-const {CleanWebpackPlugin} = require("clean-webpack-plugin");
+// `prettier` does not yet support `import type`
+// eslint-disable-next-line prettier/prettier
+import type { Configuration } from "webpack";
+import path from "path";
+import CopyPlugin from "copy-webpack-plugin";
+import { CreateExamplesListPlugin } from "./webpack-create-examples-list";
 
-module.exports = {
-    entry: "./src/index.tsx",
+const config: Configuration = {
     mode: "development",
-    plugins: [new CleanWebpackPlugin(), new CopyPlugin({patterns: ["src/index.html"]})],
+    devtool: 'inline-source-map',
+    plugins: [
+        new CopyPlugin({patterns: ["src/index.html", "examples/**"]}),
+        new CreateExamplesListPlugin(),
+    ],
+    entry: "./src/index.tsx",
     module: {
         rules: [
             {
@@ -37,10 +44,8 @@ module.exports = {
     output: {
         filename: "bundle.js",
         path: path.resolve(__dirname, "dist"),
-    },
-    devServer: {
-        static: {
-            directory: path.join(__dirname, "dist"),
-        },
+        clean: true,
     },
 };
+
+export default config;
