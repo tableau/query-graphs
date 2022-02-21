@@ -37,7 +37,7 @@
 }
 
 /* For large screens, we display the different alternatives side-by-side*/
-@media (min-width: 65em) {
+@media (min-width: 45em) {
     .file-selection-page .source-alternatives {
         flex-direction: row;
         /* Allow wrapping; the media query should ensure
@@ -69,7 +69,7 @@
     flex-grow: 1;
 }
 
-.file-selection-page .source-alternatives .file-paste-hint {
+.file-selection-page .source-alternatives .paste-hint {
     margin-top: 1em;
     margin-bottom: 0;
 }
