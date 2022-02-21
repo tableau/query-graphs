@@ -6,7 +6,7 @@
       "module": "es6",
       "lib": ["dom", "es6"],
       "jsx": "react",
-      "outDir": "dist/",
+      "outDir": "ts-build/",
       "sourceMap": true,
       "esModuleInterop": true
     },

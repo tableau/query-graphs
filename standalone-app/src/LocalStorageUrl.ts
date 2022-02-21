@@ -14,19 +14,16 @@ export function isLocalStorageURL(url: URL): boolean {
 
 /**
  * Try to replace the URL by a new URL backed by local storage.
- * Return the unmodified original URL on failure.
  */
-export async function createLocalStorageUrlFor(url: URL): Promise<URL> {
+export function createLocalStorageUrlFor(content: string): URL | null {
     try {
-        const response = await fetch(url.toString());
-        const content = await response.text();
         const slug = getRandomSlug();
         const localStorageKey = "file-" + slug;
         localStorage.setItem(localStorageKey, content);
         return new URL(localStorageProtocol + slug);
     } catch (e) {
         console.log("Failed to create localstorage URL", e);
-        return url;
+        return null;
     }
 }
 

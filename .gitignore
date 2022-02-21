@@ -19,8 +19,9 @@ tsconfig.tsbuildinfo
 jupyterlab-extension/lib
 query-graphs/lib
 standalone-app/dist
+standalone-app/ts-build
 standalone-server/webroot/*.min.js
 standalone-server/webroot/*.min.js.map
 
 # Uploads (from running the upload-server directly inside the repository)
-standalone-server/webroot/uploads/
+upload-server/uploads/

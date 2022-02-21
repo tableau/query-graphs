@@ -19,8 +19,8 @@
     "email": "avogelsgesang@salesforce.com"
   },
   "license": "MIT",
-  "sideEffects": [
-    "*.css"
+  "files": [
+    "dist/**"
   ],
   "devDependencies": {
     "@tableau/query-graphs": "^2.0.0",

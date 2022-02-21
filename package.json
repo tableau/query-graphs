@@ -4,7 +4,7 @@
     "workspaces": [
         "query-graphs",
         "standalone-app",
-        "standalone-server"
+        "upload-server"
     ],
     "scripts": {
         "lint": "eslint . --ignore-path .gitignore --ext .ts,.tsx,.js --fix",
