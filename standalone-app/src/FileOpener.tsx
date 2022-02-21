@@ -1,8 +1,7 @@
-import React, {Fragment, useMemo, useState} from "react";
+import React, {useMemo, useState} from "react";
 import {useDropzone} from "react-dropzone";
 import Alert from "react-bootstrap/Alert";
 import objstr from "./objstr";
-import Button from "react-bootstrap/Button";
 
 import "./FileOpener.css";
 import {assert} from "./assert";
@@ -47,6 +46,14 @@ async function getTextFromPasteEvent(e: React.ClipboardEvent): Promise<FileOpene
         }
         if (foundItem !== undefined) {
             const text = (await new Promise(resolve => foundItem!.getAsString(resolve))) as string;
+            // Recognize copy-pasted URLs and open them
+            try {
+                const url = new URL(text);
+                return {url};
+            } catch (_e) {
+                /*don't care about failures*/
+            }
+            // Open the pasted text
             const textBlob = new Blob([text]);
             return {url: new URL(URL.createObjectURL(textBlob))};
         } else {
@@ -114,14 +121,6 @@ interface FileOpenerProps {
 
 export function FileOpener({setData, loadStateController}: FileOpenerProps) {
     const {loadState, clearLoadState, tryAndDisplayErrors} = loadStateController;
-    const [url, setUrl] = useState("");
-
-    async function openURL(url: string) {
-        await tryAndDisplayErrors(async () => {
-            await setData({url: new URL(url)});
-            clearLoadState();
-        });
-    }
 
     const onPaste = async (e: React.ClipboardEvent) => {
         e.preventDefault();
@@ -179,13 +178,11 @@ export function FileOpener({setData, loadStateController}: FileOpenerProps) {
                             value=""
                             onChange={e => e.preventDefault()}
                         ></textarea>
-                        {!isFirefox ? (
-                            <Alert variant="info" className="file-paste-hint">
-                                You can also paste files from your Desktop or file manager!
-                            </Alert>
-                        ) : (
-                            <Fragment />
-                        )}
+                        <Alert variant="info" className="paste-hint">
+                            {!isFirefox
+                                ? "You can also paste `http(s)://` URLs or files from your Desktop or file manager!"
+                                : "You can also paste `http(s)://` URLs!"}
+                        </Alert>
                     </div>
                     <div>
                         <div className="source-caption">Local file</div>
@@ -198,19 +195,6 @@ export function FileOpener({setData, loadStateController}: FileOpenerProps) {
                             )}
                         </div>
                     </div>
-                    <form
-                        onSubmit={e => {
-                            openURL(url);
-                            e.preventDefault();
-                        }}
-                        className="source-alternative-url"
-                    >
-                        <div className="source-caption">Remote file</div>
-                        <input aria-label="URL" placeholder="https://" value={url} onChange={e => setUrl(e.target.value)} />
-                        <Button type="submit" size="sm">
-                            Open URL
-                        </Button>
-                    </form>
                 </div>
             </div>
         );
