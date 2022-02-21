@@ -1,0 +1,36 @@
+{
+  "name": "query-graphs-standalone-server",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Helping people see and understand queries.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tableau/query-graphs.git",
+    "directory": "standalone-server"
+  },
+  "author": {
+    "name": "Rick Cole",
+    "email": "ricole@tableau.com"
+  },
+  "contributors": [
+    {
+      "name": "Luis Enciso",
+      "email": "lenciso@tableau.com"
+    },
+    {
+      "name": "Adrian Vogelsgesang",
+      "email": "avogelsgesang@tableau.com"
+    }
+  ],
+  "license": "MIT",
+  "main": "./upload-server.js",
+  "dependencies": {
+    "compression": "^1.7.4",
+    "cors": "^2.8.5",
+    "express": "^4.17.3",
+    "multer": "^1.1.0"
+  },
+  "devDependencies": {
+    "debug": "^4.3.3"
+  }
+}

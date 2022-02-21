@@ -6,6 +6,7 @@ import {QueryGraphViz} from "./QueryGraphViz";
 import {TreeDescription} from "@tableau/query-graphs/lib/tree-description";
 import {loadPlan} from "./tree-loader";
 import {createLocalStorageUrlFor, isLocalStorageURL, loadLocalStorageURL} from "./LocalStorageUrl";
+import {assert} from "./assert";
 
 import "./index.css";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -25,6 +26,7 @@ function App() {
     const [tree, setTree] = useState<TreeDescription | undefined>(undefined);
     const [treeTitle, setTreeTitle] = useUrlParam("title");
     const [debugMode] = useUrlParam("DEBUG");
+    const [uploadServer] = useUrlParam("uploadServer");
     // We store the currently opened tree in a URL parameter.
     // Thereby, we automatically integrate with the browser's history.
     // We distinguish between the loaded URL and the displayed URL.
@@ -58,7 +60,6 @@ function App() {
                 response = await fetch(urlString);
             } catch (e) {
                 if (url.protocol == "blob:") {
-                    console.log(e);
                     throw new Error("Local content no longer accessible");
                 }
                 throw e;
@@ -76,12 +77,31 @@ function App() {
         setTree(tree);
     };
     // Callback for the file opener
-    const openPickedData = async (data: FileOpenerData) => {
+    const openPickedData = async (data: FileOpenerData): Promise<void> => {
         let url = data.url;
+        // TODO: only replace URLs after a succesful load
+        // TODO: don't use Blob urls; it's wasteful...
         if (url.protocol == "blob:") {
-            // Replace `blob` URLs by local storage URLs to ensure
-            // we can open the file after a page reload.
-            url = await createLocalStorageUrlFor(url);
+            const response = await fetch(url.toString());
+            assert(response.ok);
+            const content = await response.text();
+            if (uploadServer) {
+                // Replace `blob` URLs by shareable URLs
+                try {
+                    const uploadResult = await fetch(uploadServer, {
+                        method: "PUT",
+                        body: content,
+                    });
+                    assert(uploadResult.ok);
+                    url = new URL(await uploadResult.text());
+                } catch (e) {
+                    throw new Error(`Upload to ${uploadServer} failed!`);
+                }
+            } else {
+                // Replace `blob` URLs by local storage URLs to ensure
+                // we can open the file after a page reload.
+                url = createLocalStorageUrlFor(content) ?? url;
+            }
         }
         // Load the tree
         await loadTree(url.toString());
