@@ -15,7 +15,7 @@ export function isLocalStorageURL(url: URL): boolean {
 /**
  * Try to replace the URL by a new URL backed by local storage.
  */
-export function createLocalStorageUrlFor(content: string): URL | null {
+export function tryCreateLocalStorageUrl(content: string): URL | undefined {
     try {
         const slug = getRandomSlug();
         const localStorageKey = "file-" + slug;
@@ -23,7 +23,7 @@ export function createLocalStorageUrlFor(content: string): URL | null {
         return new URL(localStorageProtocol + slug);
     } catch (e) {
         console.log("Failed to create localstorage URL", e);
-        return null;
+        return undefined;
     }
 }
 
