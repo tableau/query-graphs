@@ -24,6 +24,7 @@ function App() {
     const {setProgress, clearLoadState, tryAndDisplayErrors} = loadStateController;
     const [tree, setTree] = useState<TreeDescription | undefined>(undefined);
     const [treeTitle, setTreeTitle] = useUrlParam("title");
+    const [debugMode] = useUrlParam("DEBUG");
     // We store the currently opened tree in a URL parameter.
     // Thereby, we automatically integrate with the browser's history.
     // We distinguish between the loaded URL and the displayed URL.
@@ -122,8 +123,9 @@ function App() {
         if (treeTitle) {
             newTree.properties.set("title", treeTitle);
         }
+        newTree.DEBUG = debugMode !== undefined;
         return newTree;
-    }, [tree, treeTitle]);
+    }, [tree, treeTitle, debugMode]);
 
     if (!annotatedTree) {
         return <FileOpener setData={openPickedData} loadStateController={loadStateController} />;
