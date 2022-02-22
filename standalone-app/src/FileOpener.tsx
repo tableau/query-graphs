@@ -1,4 +1,4 @@
-import React, {useMemo, useState} from "react";
+import React, {useCallback, useMemo, useState} from "react";
 import {useDropzone} from "react-dropzone";
 import Alert from "react-bootstrap/Alert";
 import objstr from "./objstr";
@@ -7,10 +7,21 @@ import "./FileOpener.css";
 import {assert} from "./assert";
 
 export interface FileOpenerData {
-    // This might be a Blob URL.
-    // Make sure to call `URL.revokeBlobURL` if you no longer need it.
-    url: URL;
+    // We always set either the `url` or the `content`
+    url?: URL;
+    content?: string;
     fileName?: string;
+}
+
+function readTextFromFile(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+            resolve(reader.result as string);
+        };
+        reader.onerror = reject;
+        reader.readAsText(file);
+    });
 }
 
 const isFirefox = /Firefox\/([0-9]+)\./.test(navigator.userAgent);
@@ -31,7 +42,7 @@ async function getTextFromPasteEvent(e: React.ClipboardEvent): Promise<FileOpene
         if (f === null) {
             throw new Error("Unable to access pasted file");
         }
-        return {url: new URL(URL.createObjectURL(f)), fileName: f.name};
+        return {content: await readTextFromFile(f), fileName: f.name};
     } else {
         const items = [] as DataTransferItem[];
         Array.prototype.forEach.call(e.clipboardData.items, item => {
@@ -53,9 +64,7 @@ async function getTextFromPasteEvent(e: React.ClipboardEvent): Promise<FileOpene
             } catch (_e) {
                 /*don't care about failures*/
             }
-            // Open the pasted text
-            const textBlob = new Blob([text]);
-            return {url: new URL(URL.createObjectURL(textBlob))};
+            return {content: text};
         } else {
             const typesString = items.map(e => e.type).join(", ");
             throw new Error(`None of the following types are supported: ${typesString}`);
@@ -78,19 +87,14 @@ interface LoadStateController {
 
 export function useLoadStateController(): LoadStateController {
     const [loadState, setLoadState] = useState<RawLoadState>({state: "pristine"});
-    return useMemo(() => {
-        const setProgress = (msg: string) => setLoadState({state: "loading", detail: msg});
-        const setError = (msg: string) => setLoadState({state: "error", detail: msg});
-        const tryAndDisplayErrors = async (doIt: () => Promise<void>) => {
+    const clearLoadState = useCallback(() => setLoadState({state: "pristine"}), [setLoadState]);
+    const setProgress = useCallback((msg: string) => setLoadState({state: "loading", detail: msg}), [setLoadState]);
+    const setError = useCallback((msg: string) => setLoadState({state: "error", detail: msg}), [setLoadState]);
+    const tryAndDisplayErrors = useCallback(
+        async (doIt: () => Promise<void>) => {
             try {
                 await doIt();
             } catch (e) {
-                if (loadState.state == "loading") {
-                    // Show the error only after some additional time.
-                    // Thereby, we make sure that the spinner is visible at least for a short moment and
-                    // we don't get an unpleasant "flash" in case the download fails immediately.
-                    await new Promise(resolve => setTimeout(resolve, 250));
-                }
                 let msg;
                 if (e instanceof Error) {
                     msg = e.message;
@@ -100,15 +104,18 @@ export function useLoadStateController(): LoadStateController {
                 }
                 setError(msg);
             }
-        };
+        },
+        [setError],
+    );
+    return useMemo(() => {
         return {
             loadState,
-            clearLoadState: () => setLoadState({state: "pristine"}),
+            clearLoadState,
             setProgress,
             setError,
             tryAndDisplayErrors,
         };
-    }, [loadState, setLoadState]);
+    }, [loadState, clearLoadState, setProgress, setError, tryAndDisplayErrors]);
 }
 
 interface FileOpenerProps {
@@ -136,7 +143,8 @@ export function FileOpener({setData, loadStateController}: FileOpenerProps) {
                 throw new Error("Cannot open multiple files");
             }
             const f = files[0];
-            await setData({url: new URL(URL.createObjectURL(f)), fileName: f.name});
+            const content = await readTextFromFile(f);
+            await setData({content, fileName: f.name});
             clearLoadState();
         });
     }
