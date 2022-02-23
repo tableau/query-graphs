@@ -6,13 +6,13 @@ import CopyPlugin from "copy-webpack-plugin";
 import { CreateExamplesListPlugin } from "./webpack-create-examples-list";
 
 const config: Configuration = {
-    mode: "development",
-    devtool: 'inline-source-map',
     plugins: [
         new CopyPlugin({patterns: ["src/index.html", "examples/**"]}),
         new CreateExamplesListPlugin(),
     ],
-    entry: "./src/index.tsx",
+    entry: {
+        bundle: "./src/index.tsx",
+    },
     module: {
         rules: [
             {
@@ -42,8 +42,8 @@ const config: Configuration = {
         },
     },
     output: {
-        filename: "bundle.js",
-        path: path.resolve(__dirname, "dist"),
+        filename: "[name].js",
+        path: path.resolve(__dirname, "..", "dist"),
         clean: true,
     },
 };
