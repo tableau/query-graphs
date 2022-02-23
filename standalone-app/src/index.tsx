@@ -147,7 +147,8 @@ function App() {
 }
 
 window.addEventListener("DOMContentLoaded", _event => {
-    const domContainer = document.querySelector("#main");
+    const domContainer = document.body.appendChild(document.createElement("DIV"));
+    domContainer.classList.add("main-app-container");
     ReactDOM.render(<App />, domContainer);
 });
 
