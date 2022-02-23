@@ -150,3 +150,11 @@ window.addEventListener("DOMContentLoaded", _event => {
     const domContainer = document.querySelector("#main");
     ReactDOM.render(<App />, domContainer);
 });
+
+// Check that service workers are supported
+if (process.env.NODE_ENV === "production" && "serviceWorker" in navigator) {
+    // Use the window load event to keep the page load performant
+    window.addEventListener("load", () => {
+        navigator.serviceWorker.register("service-worker.js");
+    });
+}
