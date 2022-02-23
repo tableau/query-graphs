@@ -1,11 +1,11 @@
-body, html, #main {
+body, html, .main-app-container {
     margin: 0;
     padding: 0;
     height: 100%;
     width: 100%;
 }
 
-#main {
+.main-app-container {
     /* Colors for the main-area, i.e. the graph view panel */
     --primary-bg-color: white;
     --primary-fg-color: #111;

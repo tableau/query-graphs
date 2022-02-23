@@ -4,10 +4,19 @@ import type { Configuration } from "webpack";
 import path from "path";
 import CopyPlugin from "copy-webpack-plugin";
 import { CreateExamplesListPlugin } from "./webpack-create-examples-list";
+import FaviconsWebpackPlugin from 'favicons-webpack-plugin';
+import HtmlWebpackPlugin from 'html-webpack-plugin';
 
 const config: Configuration = {
     plugins: [
-        new CopyPlugin({patterns: ["src/index.html", "examples/**"]}),
+        new HtmlWebpackPlugin({
+            "title": "Query Graphs",
+        }),
+        new FaviconsWebpackPlugin({
+            "logo": "../media/query-graphs-logo.svg",
+            "manifest": './src/manifest.json'
+        }),
+        new CopyPlugin({patterns: ["examples/**"]}),
         new CreateExamplesListPlugin(),
     ],
     entry: {

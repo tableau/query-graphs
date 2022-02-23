@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="145.08923mm"
+   height="145.61838mm"
+   viewBox="0 0 145.08923 145.61838"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.1 (c4e8f9e, 2021-05-24)"
+   sodipodi:docname="query-graphs-logo.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="0.69397447"
+     inkscape:cx="342.23161"
+     inkscape:cy="561.98033"
+     inkscape:window-width="1312"
+     inkscape:window-height="982"
+     inkscape:window-x="205"
+     inkscape:window-y="25"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-13.91476,-6.5295805)">
+    <g
+       id="g2631"
+       style="mix-blend-mode:normal"
+       transform="translate(-6.1001284,-14.106547)">
+      <circle
+         style="fill:none;fill-opacity:0.541176;stroke:#5581b0;stroke-width:8;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="path43"
+         cx="119.54699"
+         cy="120.69738"
+         r="41.557125" />
+      <circle
+         style="fill:#5581b0;fill-opacity:1;stroke:#5581b0;stroke-width:8;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="circle2270"
+         cx="65.572014"
+         cy="120.69738"
+         r="41.557125" />
+      <circle
+         style="fill:#b4c4dc;fill-opacity:1;stroke:#5581b0;stroke-width:8;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="circle2186"
+         cx="93.088669"
+         cy="66.193253"
+         r="41.557125" />
+    </g>
+  </g>
+</svg>
