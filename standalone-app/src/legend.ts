@@ -23,7 +23,8 @@ const symbols = [
 ];
 
 window.addEventListener("DOMContentLoaded", () => {
-    const svgRoot = document.getElementsByTagName("svg")[0];
+    const svgRoot = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    document.body.appendChild(svgRoot);
     console.log(svgRoot);
     defineSymbols(svgRoot);
 
