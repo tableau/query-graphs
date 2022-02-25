@@ -27,7 +27,7 @@ const config: Configuration = {
             "logo": "../media/query-graphs-logo.svg",
             "manifest": './src/manifest.json'
         }),
-        new CopyPlugin({patterns: ["examples/**"]}),
+        new CopyPlugin({patterns: ["../media/query-graphs-logo.svg", "examples/**"]}),
         new CreateExamplesListPlugin(),
     ],
     module: {

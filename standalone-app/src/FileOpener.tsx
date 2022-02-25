@@ -175,7 +175,11 @@ export function FileOpener({setData, loadStateController}: FileOpenerProps) {
         }
         return (
             <div className="file-selection-page">
-                <div className="caption">Which query plan do you want to visualize?</div>
+                <div className="caption">
+                    <img className="logo" src="query-graphs-logo.svg" />
+                    Query Graphs
+                </div>
+                <div className="subcaption">Which query plan do you want to visualize?</div>
                 {renderedError}
                 <div className="source-alternatives">
                     <div>
