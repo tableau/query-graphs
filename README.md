@@ -21,11 +21,11 @@ In contrast to many competing plan visualizers, query graphs:
 * can be easily embeded into larger tools,
 * works offline.
 
-You can find a [list of example visualizations](https://tableau.github.io/query-graphs/examples.html), a few particularly examples are:
+For a first impression see our [list of example visualizations](https://tableau.github.io/query-graphs/examples.html), a few particularly examples are:
 * [PostgreSQL query plan](https://tableau.github.io/query-graphs/index.html?file=examples%2Fpostgres%2Flearning_to_optimize_federated_queries%2Fjob%2Ffederated%2Fdisable_nestloop%2F10a_ricole-lx.json&title=10a_ricole-lx.json)
-* [A complex PostgreSQL query plan](http://avogelsesang.github.io/query-graphs/index.html?file=examples%2Fpostgres%2Flearning_to_optimize_federated_queries%2Fjob%2Funfederated%2Fdisable_nestloop%2F10a_dting-linux.json&title=10a_dting-linux.json)
-* [Hyper query plan for TPC-H Q1](https://tableau.github.io/query-graphs/index.html?file=examples%2Fhyper%2Ftpch-q1.plan.json&title=tpch-q1.plan.json),
-* [Optimizer steps of Hyper for TPC-H Q2](https://tableau.github.io/query-graphs/index.html?file=examples%2Fhyper%2Ftpch-q2-steps.plan.json&title=tpch-q2-steps.plan.json),
+* [A complex PostgreSQL query plan](https://tableau.github.io/query-graphs/index.html?file=examples%2Fpostgres%2Flearning_to_optimize_federated_queries%2Fjob%2Funfederated%2Fdisable_nestloop%2F10a_dting-linux.json&title=10a_dting-linux.json)
+* [Hyper query plan for TPC-H Q1](https://tableau.github.io/query-graphs/index.html?file=examples%2Fhyper%2Ftpch-q1.plan.json&title=tpch-q1.plan.json)
+* [Optimizer steps of Hyper for TPC-H Q2](https://tableau.github.io/query-graphs/index.html?file=examples%2Fhyper%2Ftpch-q2-steps.plan.json&title=tpch-q2-steps.plan.json)
 
 Usage
 -----
