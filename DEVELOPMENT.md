@@ -9,7 +9,7 @@ cd query-graphs/standalone-app
 yarn install
 yarn run --cwd=../query-graphs build
 yarn run build
-node run prod-server
+yarn run prod-server
 ```
 
 and open `localhost:8080`.
