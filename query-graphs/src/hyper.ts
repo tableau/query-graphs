@@ -60,24 +60,6 @@ function convertHyperNode(node: Json, parentKey = "result"): TreeNode | TreeNode
             }
         }
 
-        // Add the following keys as children only when they refer to objects and display as properties if not
-        const objectKeys = ["source"];
-        for (const key of objectKeys) {
-            if (!node.hasOwnProperty(key)) {
-                continue;
-            }
-            if (typeof node[key] !== "object") {
-                properties.set(key, forceToString(node[key]));
-                continue;
-            }
-            const child = convertHyperNode(node[key], key);
-            if (Array.isArray(child)) {
-                explicitChildren = explicitChildren.concat(child);
-            } else {
-                explicitChildren.push(child);
-            }
-        }
-
         // Display these properties always as properties, even if they are more complex
         const propertyKeys = ["analyze", "querylocs"];
         for (const key of propertyKeys) {
@@ -88,7 +70,7 @@ function convertHyperNode(node: Json, parentKey = "result"): TreeNode | TreeNode
         }
 
         // Display all other properties adaptively: simple expressions are displayed as properties, all others as part of the tree
-        const handledKeys = tagKeys.concat(childKeys, objectKeys, propertyKeys);
+        const handledKeys = tagKeys.concat(childKeys, propertyKeys);
         for (const key of Object.getOwnPropertyNames(node)) {
             if (handledKeys.indexOf(key) !== -1) {
                 continue;
@@ -168,7 +150,8 @@ function generateDisplayNames(treeRoot: TreeNode) {
     treeDescription.visitTreeNodes(
         treeRoot,
         node => {
-            node.name = node.name ?? node.tag ?? node.text ?? "";
+            node.name =
+                node.name ?? node.properties?.get("name") ?? node.properties?.get("debugName") ?? node.tag ?? node.text ?? "";
             switch (node.tag) {
                 case "executiontarget":
                     node.symbol = "run-query-symbol";
@@ -186,7 +169,6 @@ function generateDisplayNames(treeRoot: TreeNode) {
                     node.symbol = "full-join-symbol";
                     break;
                 case "tablescan":
-                    node.name = node.properties?.get("from") ?? node.tag;
                     node.symbol = "table-symbol";
                     break;
                 case "virtualtable":
@@ -199,6 +181,7 @@ function generateDisplayNames(treeRoot: TreeNode) {
                 case "binaryscan":
                 case "cursorscan":
                 case "csvscan":
+                case "parquetscan":
                 case "tdescan":
                     node.symbol = "table-symbol";
                     break;
@@ -210,19 +193,17 @@ function generateDisplayNames(treeRoot: TreeNode) {
                     node.symbol = "sort-symbol";
                     break;
                 case "explicitscan":
-                    node.name = node.tag;
                     node.symbol = "temp-table-symbol";
                     break;
                 case "temp":
-                    node.name = node.tag;
                     node.symbol = "temp-table-symbol";
                     node.edgeClass = "qg-link-and-arrow";
                     break;
                 case "comparison":
-                    node.name = node.properties?.get("mode") ?? node.tag;
+                    node.name = node.properties?.get("mode") ?? node.name;
                     break;
                 case "iuref":
-                    node.name = node.properties?.get("iu") ?? node.tag;
+                    node.name = node.properties?.get("iu") ?? node.name;
                     break;
                 case "attribute":
                 case "condition":
