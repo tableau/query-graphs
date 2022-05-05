@@ -1,5 +1,5 @@
 import React, {useEffect, useMemo, useState} from "react";
-import ReactDOM from "react-dom";
+import {createRoot} from "react-dom/client";
 import {useBrowserUrl, useUrlParam} from "./browserUrlHooks";
 import {FileOpener, FileOpenerData, useLoadStateController} from "./FileOpener";
 import {QueryGraphViz} from "./QueryGraphViz";
@@ -149,7 +149,8 @@ function App() {
 window.addEventListener("DOMContentLoaded", _event => {
     const domContainer = document.body.appendChild(document.createElement("DIV"));
     domContainer.classList.add("main-app-container");
-    ReactDOM.render(<App />, domContainer);
+    const root = createRoot(domContainer);
+    root.render(<App />);
 });
 
 // Check that service workers are supported
