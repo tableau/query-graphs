@@ -15,7 +15,7 @@
       "operatorId": 3,
       "cardinality": 3,
       "output": [{"source": {"expression": "iuref", "iu": ["v3", ["Integer"]]}, "target": ["v2", ["Integer"]]}],
-      "source": {
+      "input": {
         "operator": "temp",
         "operatorId": 4,
         "cardinality": 3,
@@ -34,7 +34,7 @@
       "operatorId": 6,
       "cardinality": 3,
       "output": [{"source": {"expression": "iuref", "iu": "v3"}, "target": ["v", ["Integer"]]}],
-      "source": 4
+      "input": 4
     },
     "condition": {"expression": "const", "value": {"type": ["Bool"], "value": true}}
   }

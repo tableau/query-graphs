@@ -35,7 +35,7 @@
           "operatorId": 6,
           "cardinality": 100,
           "output": [{"source": {"expression": "iuref", "iu": ["v3", ["Integer"]]}, "target": ["v4", ["Integer"]]}],
-          "source": {
+          "input": {
             "operator": "groupby",
             "operatorId": 7,
             "cardinality": 100,
