@@ -1,19 +1,19 @@
 {
   "operator": "executiontarget",
   "operatorId": 1,
-  "cardinality": 6,
+  "cardinality": 4,
   "producesRows": true,
   "output": [{"expression": "iuref", "iu": ["v", ["Char1"]]}, {"expression": "iuref", "iu": ["v2", ["Char1"]]}, {"expression": "iuref", "iu": ["v3", ["Numeric", 12, 2]]}, {"expression": "iuref", "iu": ["v4", ["Numeric", 12, 2]]}, {"expression": "iuref", "iu": ["v5", ["Numeric", 14, 4]]}, {"expression": "iuref", "iu": ["v6", ["Numeric", 16, 6]]}, {"expression": "iuref", "iu": ["v7", ["Numeric", 14, 4]]}, {"expression": "iuref", "iu": ["v8", ["Numeric", 14, 4]]}, {"expression": "iuref", "iu": ["v9", ["Numeric", 14, 4]]}, {"expression": "iuref", "iu": ["v10", ["BigInt"]]}],
   "outputNames": ["l_returnflag", "l_linestatus", "sum_qty", "sum_base_price", "sum_disc_price", "sum_charge", "avg_qty", "avg_price", "avg_disc", "count_order"],
   "input": {
     "operator": "sort",
     "operatorId": 2,
-    "cardinality": 6,
+    "cardinality": 4,
     "criterion": [{"value": {"expression": "iuref", "iu": "v"}, "descending": false, "nullFirst": false}, {"value": {"expression": "iuref", "iu": "v2"}, "descending": false, "nullFirst": false}],
     "input": {
       "operator": "groupby",
       "operatorId": 3,
-      "cardinality": 6,
+      "cardinality": 4,
       "input": {
         "operator": "tablescan",
         "querylocs": [[561, 569]],
@@ -21,8 +21,8 @@
         "cardinality": 568,
         "relationId": 7,
         "schema": {"type":"sessionschema"},
-        "from": "lineitem",
         "values": [{"name": "l_orderkey", "type": ["Integer"], "iu": null}, {"name": "l_partkey", "type": ["Integer"], "iu": null}, {"name": "l_suppkey", "type": ["Integer"], "iu": null}, {"name": "l_linenumber", "type": ["Integer"], "iu": null}, {"name": "l_quantity", "type": ["Numeric", 12, 2], "iu": ["v11", ["Numeric", 12, 2]]}, {"name": "l_extendedprice", "type": ["Numeric", 12, 2], "iu": ["v12", ["Numeric", 12, 2]]}, {"name": "l_discount", "type": ["Numeric", 12, 2], "iu": ["v13", ["Numeric", 12, 2]]}, {"name": "l_tax", "type": ["Numeric", 12, 2], "iu": ["v14", ["Numeric", 12, 2]]}, {"name": "l_returnflag", "type": ["Char1"], "iu": ["v15", ["Char1"]]}, {"name": "l_linestatus", "type": ["Char1"], "iu": ["v16", ["Char1"]]}, {"name": "l_shipdate", "type": ["Date"], "iu": ["v17", ["Date"]]}, {"name": "l_commitdate", "type": ["Date"], "iu": null}, {"name": "l_receiptdate", "type": ["Date"], "iu": null}, {"name": "l_shipinstruct", "type": ["Char", 25], "iu": null}, {"name": "l_shipmode", "type": ["Char", 10], "iu": null}, {"name": "l_comment", "type": ["Varchar", 44], "iu": null}],
+        "debugName": "lineitem",
         "restrictions": [{"attribute": 10, "mode": "<=", "value": {"expression": "const", "value": {"type": ["Date"], "value": 2451059}}}],
         "selectivity": 0.993007
       },

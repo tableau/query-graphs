@@ -93,11 +93,11 @@ CREATE TEMP TABLE region (
 -- We also load some data into the TPC-H schema because our query plans depend on cardinality estimates and we want meaningful numbers there.
 -- Unfortunately, I am not sure about the license of the TPC-H data and hence can't add it to the repository.
 -- You will have to downloade the data on your own or just comment out the following lines and use an empty schema instead.
-copy customer from './tpch-data-tiny/customer.tbl' delimiter '|';
-copy lineitem from './tpch-data-tiny/lineitem.tbl' delimiter '|';
-copy nation from './tpch-data-tiny/nation.tbl' delimiter '|';
-copy orders from './tpch-data-tiny/orders.tbl' delimiter '|';
-copy partsupp from './tpch-data-tiny/partsupp.tbl' delimiter '|';
-copy part from './tpch-data-tiny/part.tbl' delimiter '|';
-copy region from './tpch-data-tiny/region.tbl' delimiter '|';
-copy supplier from './tpch-data-tiny/supplier.tbl' delimiter '|';
+copy customer from './tpch-data-tiny/customer.tbl' (delimiter '|', trailing_delimiter);
+copy lineitem from './tpch-data-tiny/lineitem.tbl' (delimiter '|', trailing_delimiter);
+copy nation from './tpch-data-tiny/nation.tbl' (delimiter '|', trailing_delimiter);
+copy orders from './tpch-data-tiny/orders.tbl' (delimiter '|', trailing_delimiter);
+copy partsupp from './tpch-data-tiny/partsupp.tbl' (delimiter '|', trailing_delimiter);
+copy part from './tpch-data-tiny/part.tbl' (delimiter '|', trailing_delimiter);
+copy region from './tpch-data-tiny/region.tbl' (delimiter '|', trailing_delimiter);
+copy supplier from './tpch-data-tiny/supplier.tbl' (delimiter '|', trailing_delimiter);
