@@ -3,7 +3,7 @@ from pathlib import Path
 
 setupFile = Path("./setup.sql")
 queriesDir = Path("./queries")
-targetDir = Path("../standalone-server/webroot/favorites/hyper/")
+targetDir = Path("../standalone-app/examples/hyper/")
 params = {
     "log_config": ""
 }

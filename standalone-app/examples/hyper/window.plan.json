@@ -20,8 +20,8 @@
         "cardinality": 2000,
         "relationId": 0,
         "schema": {"type":"sessionschema"},
-        "from": "t1",
         "values": [{"name": "a1", "type": ["Integer"], "iu": ["v", ["Integer"]]}, {"name": "b1", "type": ["Integer"], "iu": ["v4", ["Integer"]]}, {"name": "c1", "type": ["Integer"], "iu": ["v5", ["Integer"]]}],
+        "debugName": "t1",
         "selectivity": 1
       },
       "windowInfos": [{"operation": "aggregate", "aggregation": {"behavior": "static", "values": [{"value": {"expression": "iuref", "iu": "v4"}}], "aggregates": [{"source": 0, "operation": {"aggregate": "sum"}, "iu": ["v2", ["BigInt", "nullable"]]}]}, "partitionBy": [], "frameOrderBy": [{"value": {"expression": "iuref", "iu": "v"}, "descending": false, "nullFirst": false}], "rowsmode": false, "startMode": "unbounded", "endMode": "currentrow", "exclude": "noothers"}]

@@ -16,8 +16,8 @@
       "cardinality": 2000,
       "relationId": 0,
       "schema": {"type":"sessionschema"},
-      "from": "t1",
       "values": [{"name": "a1", "type": ["Integer"], "iu": ["v4", ["Integer"]]}, {"name": "b1", "type": ["Integer"], "iu": ["v5", ["Integer"]]}, {"name": "c1", "type": ["Integer"], "iu": ["v6", ["Integer"]]}],
+      "debugName": "t1",
       "selectivity": 1
     },
     "behavior": "regular",

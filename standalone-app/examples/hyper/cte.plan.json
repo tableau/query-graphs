@@ -14,7 +14,7 @@
       "operator": "explicitscan",
       "operatorId": 3,
       "cardinality": 3,
-      "output": [{"source": {"expression": "iuref", "iu": ["v3", ["Integer"]]}, "target": ["v2", ["Integer"]]}],
+      "mapping": [{"source": {"expression": "iuref", "iu": ["v3", ["Integer"]]}, "target": ["v2", ["Integer"]]}],
       "input": {
         "operator": "temp",
         "operatorId": 4,
@@ -33,7 +33,7 @@
       "operator": "explicitscan",
       "operatorId": 6,
       "cardinality": 3,
-      "output": [{"source": {"expression": "iuref", "iu": "v3"}, "target": ["v", ["Integer"]]}],
+      "mapping": [{"source": {"expression": "iuref", "iu": "v3"}, "target": ["v", ["Integer"]]}],
       "input": 4
     },
     "condition": {"expression": "const", "value": {"type": ["Bool"], "value": true}}

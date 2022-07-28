@@ -17,8 +17,8 @@
       "cardinality": 2000,
       "relationId": 0,
       "schema": {"type":"sessionschema"},
-      "from": "t1",
       "values": [{"name": "a1", "type": ["Integer"], "iu": ["v", ["Integer"]]}, {"name": "b1", "type": ["Integer"], "iu": null}, {"name": "c1", "type": ["Integer"], "iu": null}],
+      "debugName": "t1",
       "selectivity": 1
     },
     "right": {
@@ -34,7 +34,7 @@
           "operator": "explicitscan",
           "operatorId": 6,
           "cardinality": 100,
-          "output": [{"source": {"expression": "iuref", "iu": ["v3", ["Integer"]]}, "target": ["v4", ["Integer"]]}],
+          "mapping": [{"source": {"expression": "iuref", "iu": ["v3", ["Integer"]]}, "target": ["v4", ["Integer"]]}],
           "input": {
             "operator": "groupby",
             "operatorId": 7,
@@ -51,8 +51,8 @@
           "cardinality": 2000,
           "relationId": 1,
           "schema": {"type":"sessionschema"},
-          "from": "t2",
           "values": [{"name": "a2", "type": ["Integer"], "iu": ["v5", ["Integer"]]}, {"name": "b2", "type": ["Integer"], "iu": null}, {"name": "c2", "type": ["Integer"], "iu": null}],
+          "debugName": "t2",
           "selectivity": 1
         },
         "condition": {"expression": "comparison", "mode": "<", "left": {"expression": "iuref", "iu": "v5"}, "right": {"expression": "iuref", "iu": "v4"}}
