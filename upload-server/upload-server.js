@@ -56,7 +56,6 @@ async function deleteOldFiles() {
 app.use(UPLOADS_URL_PATH, cors(), express.static(UPLOAD_DIR));
 app.options(UPLOADS_URL_PATH, cors());
 app.put(UPLOADS_URL_PATH, cors(), express.raw({limit: "2mb", type: "*/*"}), async (req, res) => {
-    console.log(req.get("Content-Type"));
     if (!(req.body instanceof Buffer)) {
         uploadLogger("upload without payload called");
         res.sendStatus(400);
@@ -69,7 +68,7 @@ app.put(UPLOADS_URL_PATH, cors(), express.raw({limit: "2mb", type: "*/*"}), asyn
     uploadLogger(`writing uploaded file to "${uploadPath}"`);
     await fs.writeFile(uploadPath, req.body);
     const ownUrl = req.protocol + "://" + req.get("host");
-    const uploadUrl = ownUrl + path.join(UPLOADS_URL_PATH, filename);
+    const uploadUrl = ownUrl + path.posix.join(UPLOADS_URL_PATH, filename);
     uploadLogger(`sending uploaded URL "${uploadUrl}"`);
     res.send(uploadUrl);
 });
