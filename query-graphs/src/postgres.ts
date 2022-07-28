@@ -207,26 +207,6 @@ function generateDisplayNames(treeRoot: TreeNode) {
                         }
                     }
                     break;
-                case "Bitmap Heap Scan":
-                case "Bitmap Index Scan":
-                case "Custom Scan":
-                case "Foreign Scan":
-                case "Function Scan":
-                case "Index Only Scan":
-                case "Index Scan":
-                case "Named Tuplestore Scan":
-                case "Sample Scan":
-                case "Subquery Scan":
-                case "Table Function Scan":
-                case "Tid Scan":
-                case "Values Scan":
-                    node.name = node.tag;
-                    node.symbol = "table-symbol";
-                    break;
-                case "Seq Scan":
-                    node.name = node.properties?.get("Relation Name") ?? node.tag;
-                    node.symbol = "table-symbol";
-                    break;
                 case "CTE Scan":
                 case "Materialize":
                 case "WorkTable Scan":
@@ -246,8 +226,20 @@ function generateDisplayNames(treeRoot: TreeNode) {
                     node.name = node.tag;
                     node.symbol = "filter-symbol";
                     break;
+                case "Function Scan":
+                case "Table Function Scan":
+                    node.name = node.tag;
+                    break;
                 default:
-                    if (node.tag) {
+                    if (node.tag?.endsWith(" Scan")) {
+                        const scanName = node.properties?.get("Relation Name") ?? node.properties?.get("Index Name");
+                        if (scanName) {
+                            node.name = scanName + " (" + node.tag + ")";
+                        } else {
+                            node.name = node.tag;
+                        }
+                        node.symbol = "table-symbol";
+                    } else if (node.tag) {
                         node.name = node.tag;
                     } else if (node.text) {
                         node.name = node.text;
