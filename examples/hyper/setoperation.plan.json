@@ -1,0 +1,86 @@
+{
+  "operator": "executiontarget",
+  "operatorId": 1,
+  "cardinality": 4001,
+  "producesRows": true,
+  "output": [{"expression": "iuref", "iu": ["v", ["Integer"]]}, {"expression": "iuref", "iu": ["v2", ["Integer"]]}],
+  "outputNames": ["a2", "b2"],
+  "input": {
+    "operator": "unionall",
+    "operatorId": 2,
+    "cardinality": 4001,
+    "input": [{
+      "operator": "tablescan",
+      "querylocs": [[37, 39]],
+      "operatorId": 3,
+      "cardinality": 2000,
+      "relationId": 1,
+      "schema": {"type":"sessionschema"},
+      "values": [{"name": "a2", "type": ["Integer"], "iu": ["v3", ["Integer"]]}, {"name": "b2", "type": ["Integer"], "iu": ["v4", ["Integer"]]}, {"name": "c2", "type": ["Integer"], "iu": null}],
+      "debugName": "t2",
+      "selectivity": 1
+    }, {
+      "operator": "tablescan",
+      "querylocs": [[69, 71]],
+      "operatorId": 4,
+      "cardinality": 2000,
+      "relationId": 1,
+      "schema": {"type":"sessionschema"},
+      "values": [{"name": "a2", "type": ["Integer"], "iu": ["v5", ["Integer"]]}, {"name": "b2", "type": ["Integer"], "iu": null}, {"name": "c2", "type": ["Integer"], "iu": ["v6", ["Integer"]]}],
+      "debugName": "t2",
+      "selectivity": 1
+    }, {
+      "operator": "exceptall",
+      "operatorId": 5,
+      "cardinality": 1,
+      "input": [{
+        "operator": "intersectall",
+        "operatorId": 6,
+        "cardinality": 900,
+        "input": [{
+          "operator": "tablescan",
+          "querylocs": [[106, 108]],
+          "operatorId": 7,
+          "cardinality": 1000,
+          "relationId": 0,
+          "schema": {"type":"sessionschema"},
+          "values": [{"name": "a1", "type": ["Integer"], "iu": ["v7", ["Integer"]]}, {"name": "b1", "type": ["Integer"], "iu": ["v8", ["Integer"]]}, {"name": "c1", "type": ["Integer"], "iu": ["v9", ["Integer"]]}],
+          "debugName": "t1",
+          "restrictions": [{"attribute": 0, "mode": "<", "value": {"expression": "const", "value": {"type": ["Integer"], "value": 0}}}],
+          "selectivity": 0.5
+        }, {
+          "operator": "tablescan",
+          "querylocs": [[164, 166]],
+          "operatorId": 8,
+          "cardinality": 1000,
+          "relationId": 0,
+          "schema": {"type":"sessionschema"},
+          "values": [{"name": "a1", "type": ["Integer"], "iu": ["v10", ["Integer"]]}, {"name": "b1", "type": ["Integer"], "iu": ["v11", ["Integer"]]}, {"name": "c1", "type": ["Integer"], "iu": ["v12", ["Integer"]]}],
+          "debugName": "t1",
+          "restrictions": [{"attribute": 0, "mode": ">", "value": {"expression": "const", "value": {"type": ["Integer"], "value": 0}}}],
+          "selectivity": 0.5
+        }],
+        "ius": [["v13", ["Integer"]], ["v14", ["Integer"]]],
+        "values": [[{"expression": "iuref", "iu": "v8"}, {"expression": "iuref", "iu": "v9"}], [{"expression": "iuref", "iu": "v11"}, {"expression": "iuref", "iu": "v12"}]],
+        "collates": [null, null]
+      }, {
+        "operator": "tablescan",
+        "querylocs": [[219, 221]],
+        "operatorId": 9,
+        "cardinality": 1000,
+        "relationId": 0,
+        "schema": {"type":"sessionschema"},
+        "values": [{"name": "a1", "type": ["Integer"], "iu": ["v15", ["Integer"]]}, {"name": "b1", "type": ["Integer"], "iu": ["v16", ["Integer"]]}, {"name": "c1", "type": ["Integer"], "iu": ["v17", ["Integer"]]}],
+        "debugName": "t1",
+        "restrictions": [{"attribute": 0, "mode": ">", "value": {"expression": "const", "value": {"type": ["Integer"], "value": 0}}}],
+        "selectivity": 0.5
+      }],
+      "ius": [["v18", ["Integer"]], ["v19", ["Integer"]]],
+      "values": [[{"expression": "iuref", "iu": "v13"}, {"expression": "iuref", "iu": "v14"}], [{"expression": "iuref", "iu": "v16"}, {"expression": "iuref", "iu": "v17"}]],
+      "collates": [null, null]
+    }],
+    "ius": [["v", ["Integer"]], ["v2", ["Integer"]]],
+    "values": [[{"expression": "iuref", "iu": "v3"}, {"expression": "iuref", "iu": "v4"}], [{"expression": "iuref", "iu": "v5"}, {"expression": "iuref", "iu": "v6"}], [{"expression": "iuref", "iu": "v18"}, {"expression": "iuref", "iu": "v19"}]],
+    "collates": [null, null]
+  }
+}
