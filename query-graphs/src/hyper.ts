@@ -16,7 +16,7 @@ The label for a tree node is taken from the first defined property among "operat
 
 import * as treeDescription from "./tree-description";
 import {TreeNode, TreeDescription, Crosslink} from "./tree-description";
-import {Json, JsonObject, forceToString, tryToString, formatMetric, hasOwnProperty} from "./loader-utils";
+import {Json, JsonObject, forceToString, tryToString, formatMetric, hasOwnProperty, tryGetPropertyPath} from "./loader-utils";
 
 function showExpanded(node: JsonObject, key: string): boolean {
     const child = node[key];
@@ -114,9 +114,20 @@ function convertHyperNode(node: Json, parentKey = "result"): TreeNode | TreeNode
 
         // Display the cardinality on the links between the nodes
         let edgeLabel: string | undefined = undefined;
+        let edgeLabelClass: string | undefined = undefined;
         if (hasOwnProperty(node, "cardinality") && typeof node.cardinality === "number") {
-            edgeLabel = formatMetric(node.cardinality);
+            const estimatedCard = node.cardinality;
+            edgeLabel = formatMetric(estimatedCard);
+            const actualCard = tryGetPropertyPath(node, ["analyze", "tuplecount"]);
+            if (typeof actualCard === "number") {
+                edgeLabel += "/" + formatMetric(actualCard);
+                // Highlight significant differences between planned and actual rows
+                if (estimatedCard > actualCard * 10 || actualCard * 10 < estimatedCard) {
+                    edgeLabelClass = "qg-link-label-highlighted";
+                }
+            }
         }
+
         // Build the converted node
         const convertedNode = {
             tag: tag,
@@ -124,6 +135,7 @@ function convertHyperNode(node: Json, parentKey = "result"): TreeNode | TreeNode
             children: expandedChildren,
             _children: collapsedChildren.length ? expandedChildren.concat(collapsedChildren) : [],
             edgeLabel: edgeLabel,
+            edgeLabelClass: edgeLabelClass,
         };
         return convertedNode;
     } else if (Array.isArray(node)) {
