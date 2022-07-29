@@ -1,7 +1,7 @@
 // Stricter type for JSON data
 type JsonPrimitive = string | number | boolean | null;
 export type Json = JsonPrimitive | JsonObject | JsonArray;
-interface JsonObject {
+export interface JsonObject {
     [x: string]: JsonPrimitive | JsonObject | JsonArray;
 }
 type JsonArray = Array<Json>;

@@ -5,9 +5,10 @@ Hyper JSON Transformations
 
 The Hyper JSON representation renders verbosely as a D3 tree; therefore, perform the following transformations.
 
-Render a few pre-defined keys ("left", "right", "input" and a few others) always as direct input nodes.
 For most other nodes, decide based on their value: if it is of a plain type (string, number, ...), show it as part
 of the tooltip; otherwise show it as part of the tree.
+Render a few pre-defined keys ("left", "right", "input" and a few others) in a pre-defined order (such that `left`
+is to the left of `right`)
 A short list of special-cased keys (e.g., "analyze") is always displayed as part of the tooltip.
 The label for a tree node is taken from the first defined property among "operator", "expression" and "mode".
 
@@ -15,7 +16,20 @@ The label for a tree node is taken from the first defined property among "operat
 
 import * as treeDescription from "./tree-description";
 import {TreeNode, TreeDescription, Crosslink} from "./tree-description";
-import {Json, forceToString, tryToString, formatMetric, hasOwnProperty} from "./loader-utils";
+import {Json, JsonObject, forceToString, tryToString, formatMetric, hasOwnProperty} from "./loader-utils";
+
+function showExpanded(node: JsonObject, key: string): boolean {
+    const child = node[key];
+    if (node.hasOwnProperty("operator")) {
+        if (typeof child === "object" && !Array.isArray(child) && child !== null) {
+            // Subobject which are also operators themself should be displayed
+            return child.hasOwnProperty("operator");
+        }
+        // All other children should be hidden
+        return false;
+    }
+    return true;
+}
 
 // Convert Hyper JSON to a D3 tree
 function convertHyperNode(node: Json, parentKey = "result"): TreeNode | TreeNode[] {
@@ -25,8 +39,8 @@ function convertHyperNode(node: Json, parentKey = "result"): TreeNode | TreeNode
         };
     } else if (typeof node === "object" && !Array.isArray(node) && node !== null) {
         // "Object" nodes
-        let explicitChildren = [] as TreeNode[];
-        const additionalChildren = [] as TreeNode[];
+        const expandedChildren = [] as TreeNode[];
+        const collapsedChildren = [] as TreeNode[];
         const properties = new Map<string, string>();
 
         // Take the first present tagKey as the new tag. Add all others as properties
@@ -46,20 +60,6 @@ function convertHyperNode(node: Json, parentKey = "result"): TreeNode | TreeNode
             tag = parentKey;
         }
 
-        // Add the following keys as children
-        const childKeys = ["input", "left", "right", "arguments", "value", "valueForComparison"];
-        for (const key of childKeys) {
-            if (!node.hasOwnProperty(key)) {
-                continue;
-            }
-            const child = convertHyperNode(node[key], key);
-            if (Array.isArray(child)) {
-                explicitChildren = explicitChildren.concat(child);
-            } else {
-                explicitChildren.push(child);
-            }
-        }
-
         // Display these properties always as properties, even if they are more complex
         const propertyKeys = ["analyze", "querylocs"];
         for (const key of propertyKeys) {
@@ -69,9 +69,27 @@ function convertHyperNode(node: Json, parentKey = "result"): TreeNode | TreeNode
             properties.set(key, forceToString(node[key]));
         }
 
+        // Determine the order in which other keys are displayed.
+        // For some keys, we enforce a specific order here (e.g., "left" comes before "right").
+        // For all other keys, we use alphabetic order.
+        const fixedOrder = ["input", "left", "right", "value", "valueForComparison"];
+        const orderedKeys = Object.getOwnPropertyNames(node).sort((a, b) => {
+            const idx1 = fixedOrder.indexOf(a);
+            const idx2 = fixedOrder.indexOf(b);
+            if (idx1 != -1 || idx2 != -1) {
+                const fixed1 = idx1 == -1 ? Infinity : idx1;
+                const fixed2 = idx2 == -1 ? Infinity : idx2;
+                return fixed1 - fixed2;
+            } else {
+                if (a < b) return -1;
+                if (a > b) return 1;
+                return 0;
+            }
+        });
+
         // Display all other properties adaptively: simple expressions are displayed as properties, all others as part of the tree
-        const handledKeys = tagKeys.concat(childKeys, propertyKeys);
-        for (const key of Object.getOwnPropertyNames(node)) {
+        const handledKeys = tagKeys.concat(propertyKeys);
+        for (const key of orderedKeys) {
             if (handledKeys.indexOf(key) !== -1) {
                 continue;
             }
@@ -84,11 +102,13 @@ function convertHyperNode(node: Json, parentKey = "result"): TreeNode | TreeNode
             }
 
             // Display as part of the tree
+            const children = showExpanded(node, key) ? expandedChildren : collapsedChildren;
             const innerNodes = convertHyperNode(node[key], key);
-            if (Array.isArray(innerNodes)) {
-                additionalChildren.push({tag: key, children: innerNodes});
+            const innerNodesArray = Array.isArray(innerNodes) ? innerNodes : [innerNodes];
+            if (fixedOrder.indexOf(key) != -1) {
+                Array.prototype.push.apply(children, innerNodesArray);
             } else {
-                additionalChildren.push({tag: key, children: [innerNodes]});
+                children.push({tag: key, children: innerNodesArray});
             }
         }
 
@@ -97,31 +117,12 @@ function convertHyperNode(node: Json, parentKey = "result"): TreeNode | TreeNode
         if (hasOwnProperty(node, "cardinality") && typeof node.cardinality === "number") {
             edgeLabel = formatMetric(node.cardinality);
         }
-        // Collapse nodes as appropriate
-        let children: TreeNode[];
-        let _children: TreeNode[];
-        if (node.hasOwnProperty("plan")) {
-            // The top-level plan element needs special attention: we want to hide the `header` by default
-            _children = explicitChildren.concat(additionalChildren);
-            const planIdx = _children.findIndex(n => {
-                return n.tag === "plan";
-            });
-            children = [_children[planIdx]];
-        } else if (node.hasOwnProperty("operator")) {
-            // For operators, the additionalChildren are collapsed by default
-            children = explicitChildren;
-            _children = explicitChildren.concat(additionalChildren);
-        } else {
-            // Everything else (usually expressions): display uncollapsed
-            children = explicitChildren.concat(additionalChildren);
-            _children = [];
-        }
         // Build the converted node
         const convertedNode = {
             tag: tag,
             properties: properties,
-            children: children,
-            _children: _children,
+            children: expandedChildren,
+            _children: collapsedChildren.length ? expandedChildren.concat(collapsedChildren) : [],
             edgeLabel: edgeLabel,
         };
         return convertedNode;
@@ -248,19 +249,21 @@ function addCrosslinks(root: TreeNode) {
             }
 
             // Identify source operators
-            let sourceKey: string;
+            let sourceKeys = [] as string[];
             switch (node.tag) {
                 case "explicitscan":
-                    sourceKey = "source";
+                    // Older versions of Hyper used `source`, newer version use `input`
+                    sourceKeys = ["source", "input"];
                     break;
                 case "earlyprobe":
-                    sourceKey = "builder";
+                    sourceKeys = ["builder"];
                     break;
                 default:
-                    sourceKey = "magic";
+                    // All magic joins refer to the magic scan as `magic`
+                    sourceKeys = ["magic"];
                     break;
             }
-            if (sourceKey !== undefined) {
+            for (const sourceKey of sourceKeys) {
                 const sourceId = node.properties?.get(sourceKey);
                 if (sourceId !== undefined) {
                     unresolvedLinks.push({
