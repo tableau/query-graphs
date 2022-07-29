@@ -21,9 +21,14 @@ import {Json, JsonObject, forceToString, tryToString, formatMetric, hasOwnProper
 function showExpanded(node: JsonObject, key: string): boolean {
     const child = node[key];
     if (node.hasOwnProperty("operator")) {
-        if (typeof child === "object" && !Array.isArray(child) && child !== null) {
-            // Subobject which are also operators themself should be displayed
-            return child.hasOwnProperty("operator");
+        // There might be arrays of operators. Also detect those...
+        let unwrapped = child;
+        while (Array.isArray(unwrapped) && unwrapped.length) {
+            unwrapped = unwrapped[0];
+        }
+        // Subobject which are also operators themself should be displayed
+        if (typeof unwrapped === "object" && !Array.isArray(unwrapped) && unwrapped !== null) {
+            return unwrapped.hasOwnProperty("operator");
         }
         // All other children should be hidden
         return false;
