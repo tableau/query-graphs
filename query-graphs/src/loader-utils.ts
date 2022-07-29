@@ -14,6 +14,15 @@ export function hasOwnProperty<X, Y extends PropertyKey>(o: X, key: Y): o is X &
     return Object.prototype.hasOwnProperty.call(o, key);
 }
 
+export function tryGetPropertyPath(d: Json, path: string[]): Json | undefined {
+    for (const key of path) {
+        if (typeof d !== "object" || d instanceof Array || d === null) return undefined;
+        if (!d.hasOwnProperty(key)) return undefined;
+        d = d[key];
+    }
+    return d;
+}
+
 export function hasSubOject<X, Y extends PropertyKey>(o: X, key: Y): o is X & Record<Y, Record<string, unknown>> {
     return hasOwnProperty(o, key) && typeof o[key] === "object" && o[key] !== null;
 }

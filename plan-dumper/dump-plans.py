@@ -23,7 +23,12 @@ with HyperProcess(telemetry=Telemetry.SEND_USAGE_DATA_TO_TABLEAU, parameters=par
         for f in queriesDir.glob("**/*.sql"):
             print(f)
             sql = read_file(f)
-            explain = "EXPLAIN (VERBOSE, OPTIMIZERSTEPS) " if str(f).endswith("-steps.sql") else "EXPLAIN (VERBOSE) ";
+            if str(f).endswith("-steps.sql"):
+                explain = "EXPLAIN (VERBOSE, OPTIMIZERSTEPS) "
+            elif str(f).endswith("-analyze.sql"):
+                explain = "EXPLAIN (VERBOSE, ANALYZE) "
+            else:
+                explain = "EXPLAIN (VERBOSE) "
             planRes = connection.execute_list_query(explain + sql)
             targetPath = targetDir / f.relative_to(queriesDir).with_suffix(".plan.json")
             plan = "\n".join(r[0] for r in planRes)
