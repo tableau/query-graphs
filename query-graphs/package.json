@@ -54,7 +54,7 @@
     "@types/d3-shape": "^2.0.0",
     "@types/d3-transition": "^2.0.0",
     "@types/d3-zoom": "^2.0.0",
-    "typescript": "^4.5.5"
+    "typescript": "^4.7.4"
   },
   "scripts": {
     "build": "tsc --build"
