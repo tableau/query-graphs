@@ -2,8 +2,6 @@ import ReactFlow, {
     MiniMap,
     Controls,
     ReactFlowProvider,
-    useStore,
-    useNodesInitialized,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
@@ -11,35 +9,27 @@ import { layoutTree } from './tree-layout';
 import { TreeDescription } from './tree-description';
 import { useMemo } from 'react';
 import { QueryNode } from './QueryNode';
+import { useNodeSizes } from './useNodeSizes';
 
 
 interface QueryGraphProps {
     treeDescription: TreeDescription;
 }
 
-interface NodeDimensions {
+export interface NodeDimensions {
   width : number,
   height : number,
 }
 
-function useNodeSizes() {
-  const state = useStore((s) => s.nodeInternals);
-  return useMemo(() => {
-    console.log(state);
-    var sizes = new Map<string, NodeDimensions>();
-    state.forEach((n, k) => {
-      console.log("k", n);
-      sizes.set(k, {width: n.width!, height: n.height!});
-    });
-    return sizes;  
-  }, [state])
-}
-
 function QueryGraphInternal({treeDescription}: QueryGraphProps) {
-  const layout = useMemo(() => layoutTree(treeDescription), [treeDescription]);
+  // Layout the tree, using the actual measured sizes of the DOM nodes
+  const nodeSizes = useNodeSizes();
+  const layout = useMemo(() => {
+    return layoutTree(treeDescription);
+  }, [treeDescription, nodeSizes]);
   console.log("layout", layout);
-  console.log("initialized", useNodesInitialized());
-  console.log("nodeSizes", useNodeSizes())
+  console.log("nodeSizes", useNodeSizes());
+
   const nodeTypes = useMemo(() => ({ querynode: QueryNode }), []);
 
   return (
