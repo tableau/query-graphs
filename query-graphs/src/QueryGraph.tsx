@@ -7,6 +7,8 @@ import 'reactflow/dist/style.css';
 
 import { layoutTree } from './tree-layout';
 import { TreeDescription } from './tree-description';
+import { useMemo } from 'react';
+import { QueryNode } from './QueryNode';
 
 
 interface QueryGraphProps {
@@ -15,13 +17,15 @@ interface QueryGraphProps {
 
 export function QueryGraph({treeDescription}: QueryGraphProps) {
   const layout = layoutTree(treeDescription);
-  console.log(layout);
+  console.log("layout", layout);
+  const nodeTypes = useMemo(() => ({ querynode: QueryNode }), []);
 
     return (
     <ReactFlowProvider>
       <ReactFlow
         nodes={layout.nodes}
         edges={layout.edges}
+        nodeTypes={nodeTypes}
         elementsSelectable={false}
         fitView
       >
