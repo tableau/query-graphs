@@ -2,6 +2,8 @@ import ReactFlow, {
     MiniMap,
     Controls,
     ReactFlowProvider,
+    useStore,
+    useNodesInitialized,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
@@ -15,23 +17,50 @@ interface QueryGraphProps {
     treeDescription: TreeDescription;
 }
 
-export function QueryGraph({treeDescription}: QueryGraphProps) {
-  const layout = layoutTree(treeDescription);
+interface NodeDimensions {
+  width : number,
+  height : number,
+}
+
+function useNodeSizes() {
+  const state = useStore((s) => s.nodeInternals);
+  return useMemo(() => {
+    console.log(state);
+    var sizes = new Map<string, NodeDimensions>();
+    state.forEach((n, k) => {
+      console.log("k", n);
+      sizes.set(k, {width: n.width!, height: n.height!});
+    });
+    return sizes;  
+  }, [state])
+}
+
+function QueryGraphInternal({treeDescription}: QueryGraphProps) {
+  const layout = useMemo(() => layoutTree(treeDescription), [treeDescription]);
   console.log("layout", layout);
+  console.log("initialized", useNodesInitialized());
+  console.log("nodeSizes", useNodeSizes())
   const nodeTypes = useMemo(() => ({ querynode: QueryNode }), []);
 
-    return (
-    <ReactFlowProvider>
-      <ReactFlow
+  return (
+    <ReactFlow
         nodes={layout.nodes}
         edges={layout.edges}
         nodeTypes={nodeTypes}
         elementsSelectable={false}
+        maxZoom = {2}
         fitView
       >
       <MiniMap zoomable={true} pannable={true}/>
       <Controls showInteractive={false}/>
     </ReactFlow>
-    </ReactFlowProvider>
   );
 };
+
+export function QueryGraph(props: QueryGraphProps) {
+  return (
+    <ReactFlowProvider>
+      <QueryGraphInternal {...props}/>
+    </ReactFlowProvider>
+  );
+}
