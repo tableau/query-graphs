@@ -5,6 +5,7 @@
       "rootDir": "src",
       "outDir": "lib",
       "esModuleInterop": true,
+      "jsx": "react-jsx",
       "noImplicitAny": false, // TODO: change
       "noImplicitReturns": false,  // TODO: change
       "noImplicitThis": false, // TODO: change
