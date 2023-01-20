@@ -54,10 +54,13 @@ export interface TreeDescription {
     /// The tree root
     root: TreeNode;
     /// Displays debugging annotations in the tree
+    /// XXX remove
     DEBUG?: boolean;
     /// The orientation of the graph
+    /// XXX remove
     graphOrientation?: GraphOrientation;
     /// Displayed in the top-level tree label
+    /// XXX remove
     properties?: Map<string, string>;
     /// Additional links between indirectly related nodes
     crosslinks?: Crosslink[];
