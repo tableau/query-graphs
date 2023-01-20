@@ -2,7 +2,7 @@ import React, {useEffect, useMemo, useState} from "react";
 import {createRoot} from "react-dom/client";
 import {useBrowserUrl, useUrlParam} from "./browserUrlHooks";
 import {FileOpener, FileOpenerData, useLoadStateController} from "./FileOpener";
-import {QueryGraphViz} from "./QueryGraphViz";
+import {QueryGraph} from "@tableau/query-graphs/lib/QueryGraph";
 import {TreeDescription} from "@tableau/query-graphs/lib/tree-description";
 import {loadPlan} from "./tree-loader";
 import {tryCreateLocalStorageUrl, isLocalStorageURL, loadLocalStorageURL} from "./LocalStorageUrl";
@@ -142,7 +142,7 @@ function App() {
     if (!annotatedTree) {
         return <FileOpener setData={openPickedData} loadStateController={loadStateController} />;
     } else {
-        return <QueryGraphViz treeDescription={annotatedTree} />;
+        return <QueryGraph treeDescription={annotatedTree} />;
     }
 }
 
