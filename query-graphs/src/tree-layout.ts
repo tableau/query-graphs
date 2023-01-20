@@ -60,7 +60,7 @@ interface TreeLayout {
 //
 // Returns node and edge lists
 export function layoutTree(treeData: TreeDescription) : TreeLayout {
-    const root = d3hierarchy.hierarchy(treeData.root, treeDescription.allChildren);
+    const root = d3hierarchy.hierarchy(treeData.root, (d)=>d.children);
     const graphOrientation = treeData.graphOrientation ?? "top-to-bottom";
     const ooo = orientations[graphOrientation];
 
@@ -105,7 +105,8 @@ export function layoutTree(treeData: TreeDescription) : TreeLayout {
         return {
             id: nodeIds.get(n.data),
             position: {x: n.x, y: n.y},
-            data: n.data
+            type: "querynode",
+            data: n.data,
         } as Node;
     });
     const edges = d3edges.map((e) => {
