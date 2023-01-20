@@ -37,14 +37,15 @@
   },
   "style": "style/query-graphs.css",
   "dependencies": {
-    "d3-hierarchy": "^2.0.0",
     "d3-flextree": "^2.1.1",
+    "d3-hierarchy": "^2.0.0",
     "d3-interpolate": "^2.0.0",
     "d3-selection": "^2.0.0",
     "d3-shape": "^2.0.0",
     "d3-tip": "^0.9.1",
     "d3-transition": "^2.0.0",
     "d3-zoom": "^2.0.0",
+    "reactflow": "^11.4.2",
     "xml2js": "^0.5.0"
   },
   "devDependencies": {
