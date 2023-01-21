@@ -1,4 +1,4 @@
-import React, {useEffect, useRef} from "react";
+import {useEffect, useRef} from "react";
 import {TreeDescription} from "@tableau/query-graphs/lib/tree-description";
 import {drawQueryTree} from "@tableau/query-graphs/lib/tree-rendering";
 import {assert} from "./assert";
