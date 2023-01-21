@@ -1,11 +1,11 @@
-// Import local modules
+import * as d3flextree from "d3-flextree";
+import * as d3hierarchy from "d3-hierarchy";
+
+import { NodeDimensions } from "./useNodeSizes";
 import * as treeDescription from "./tree-description";
 import {TreeNode, TreeDescription, GraphOrientation} from "./tree-description";
 import type {Edge, Node} from "reactflow";
-
-// Third-party dependencies
-import * as d3flextree from "d3-flextree";
-import * as d3hierarchy from "d3-hierarchy";
+import { assertNotNull } from "./loader-utils";
 
 const MAX_DISPLAY_LENGTH = 15;
 const FLEX_NODE_SIZE = 220;
@@ -48,10 +48,11 @@ interface TreeLayout {
 // Layout a tree
 //
 // Returns node and edge lists
-export function layoutTree(treeData: TreeDescription) : TreeLayout {
+export function layoutTree(treeData: TreeDescription, nodeSizes: NodeDimensions | undefined) : TreeLayout {
     const root = d3hierarchy.hierarchy(treeData.root, (d)=>d.children);
     const graphOrientation = treeData.graphOrientation ?? "top-to-bottom";
     const ooo = orientations[graphOrientation];
+    ooo;
 
     // Establish maxLabelLength and assign ids
     let nextId = 0;
@@ -75,17 +76,15 @@ export function layoutTree(treeData: TreeDescription) : TreeLayout {
     const treelayout = d3flextree
         .flextree<treeDescription.TreeNode>()
         .nodeSize(d => {
-            // TODO
-            const nodeExpanded = false;
-            if (nodeExpanded) {
-                return [FLEX_NODE_SIZE, FLEX_NODE_SIZE];
-            } else {
-                return ooo.nodesize(maxLabelLength);
-            }
+            const id = nodeIds.get(d.data);
+            const measuredSize = nodeSizes?.get(assertNotNull(id));
+            if (measuredSize)
+              return [measuredSize.width, measuredSize.height];
+            return [50,50];
         })
-        .spacing((a, b) => ooo.nodespacing(a, b));
+        .spacing((a, b) => (a.parent === b.parent ? 0 : 0));
+    console.log("layout");
     const layout = treelayout(root);
-    // XXX use layout.each
     const d3nodes = layout.descendants().reverse();
     const d3edges = layout.links();
 

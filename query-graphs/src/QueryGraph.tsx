@@ -2,6 +2,7 @@ import ReactFlow, {
     MiniMap,
     Controls,
     ReactFlowProvider,
+    useNodesInitialized,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
@@ -16,19 +17,12 @@ interface QueryGraphProps {
     treeDescription: TreeDescription;
 }
 
-export interface NodeDimensions {
-  width : number,
-  height : number,
-}
-
 function QueryGraphInternal({treeDescription}: QueryGraphProps) {
   // Layout the tree, using the actual measured sizes of the DOM nodes
+  const initialized = useNodesInitialized();
   const nodeSizes = useNodeSizes();
-  const layout = useMemo(() => {
-    return layoutTree(treeDescription);
-  }, [treeDescription, nodeSizes]);
-  console.log("layout", layout);
-  console.log("nodeSizes", useNodeSizes());
+  const layout = useMemo(() => layoutTree(treeDescription, nodeSizes), [treeDescription, nodeSizes]);
+  console.log({initialized, layout, nodeSizes});
 
   const nodeTypes = useMemo(() => ({ querynode: QueryNode }), []);
 
@@ -36,10 +30,11 @@ function QueryGraphInternal({treeDescription}: QueryGraphProps) {
     <ReactFlow
         nodes={layout.nodes}
         edges={layout.edges}
+        nodeOrigin={[0.5, 0.5]}
         nodeTypes={nodeTypes}
         elementsSelectable={false}
-        maxZoom = {2}
         fitView
+        maxZoom = {2}
       >
       <MiniMap zoomable={true} pannable={true}/>
       <Controls showInteractive={false}/>
