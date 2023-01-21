@@ -78,9 +78,10 @@ export function layoutTree(treeData: TreeDescription, nodeSizes: NodeDimensions 
         .nodeSize(d => {
             const id = nodeIds.get(d.data);
             const measuredSize = nodeSizes?.get(assertNotNull(id));
-            if (measuredSize)
-              return [measuredSize.width, measuredSize.height];
-            return [50,50];
+            if (!measuredSize)
+                // Fallback values, used before the tree is rendered for the first time
+                return [50,50];
+            return [measuredSize.width + 20, measuredSize.height + 20];
         })
         .spacing((a, b) => (a.parent === b.parent ? 0 : 0));
     console.log("layout");
