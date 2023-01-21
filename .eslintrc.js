@@ -31,6 +31,8 @@ module.exports = {
         "@typescript-eslint/no-empty-function": "off",
         "@typescript-eslint/no-non-null-assertion": "off",
         "@typescript-eslint/no-unused-vars": ["error", {vars: "all", argsIgnorePattern: "^_"}],
+        // We use `react-jsx` and there `React` does not need to be in scope
+        "react/react-in-jsx-scope": "off",
         // The following rules should be enabled, but aren't yet due to legacy code which still needs
         // to be adapted
         "@typescript-eslint/explicit-module-boundary-types": "off",
