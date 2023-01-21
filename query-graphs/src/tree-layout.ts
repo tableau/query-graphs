@@ -1,6 +1,6 @@
 // Import local modules
 import * as treeDescription from "./tree-description";
-import {TreeNode, TreeDescription, Crosslink, GraphOrientation} from "./tree-description";
+import {TreeNode, TreeDescription, GraphOrientation} from "./tree-description";
 import type {Edge, Node} from "reactflow";
 
 // Third-party dependencies
@@ -38,17 +38,6 @@ const orientations: {[k in GraphOrientation]: Orientation} = {
         nodespacing: (a, b) => (a.parent === b.parent ? (a.data.nodeToggled && b.data.nodeToggled ? 0 : FLEX_NODE_SIZE / 3) : 0),
     },
 };
-
-// Link cross-links against a d3 hierarchy
-function linkCrossLinks(root: d3hierarchy.HierarchyNode<treeDescription.TreeNode>, crosslinks: Crosslink[]) :Edge[] {
-    const descendants = root.descendants();
-    const map = (d: treeDescription.TreeNode) => descendants.find(h => h.data === d);
-    const linked: any[] = [];
-    crosslinks.forEach(l => {
-        linked.push({source: map(l.source), target: map(l.target)});
-    });
-    return linked;
-}
 
 interface TreeLayout {
     nodes: Node[];
@@ -120,6 +109,17 @@ export function layoutTree(treeData: TreeDescription) : TreeLayout {
     });
 
     // Add crosslinks
-    const crosslinks = linkCrossLinks(root, treeData.crosslinks ?? []);
+    const descendants = root.descendants();
+    const map = (d: treeDescription.TreeNode) => descendants.find(h => h.data === d);
+    const crosslinks = (treeData.crosslinks ?? []).map(l => {
+        const sourceId = nodeIds.get(map(l.source)!.data);
+        const targetId = nodeIds.get(map(l.target)!.data);
+        return {
+            id: `${sourceId}->${targetId}`,
+            source: sourceId,
+            target: targetId,
+        } as Edge;
+    });
+
     return { nodes: nodes, edges: edges.concat(crosslinks)};
 }
