@@ -1,11 +1,12 @@
 import ReactFlow, {MiniMap, Controls, ReactFlowProvider, useNodesInitialized} from "reactflow";
-import "reactflow/dist/style.css";
+import "reactflow/dist/base.css";
 
 import {layoutTree} from "./tree-layout";
 import {TreeDescription} from "./tree-description";
 import {useMemo} from "react";
 import {QueryNode} from "./QueryNode";
 import {useNodeSizes} from "./useNodeSizes";
+import "../style/query-graphs.css";
 
 interface QueryGraphProps {
     treeDescription: TreeDescription;
@@ -29,6 +30,7 @@ function QueryGraphInternal({treeDescription}: QueryGraphProps) {
             elementsSelectable={false}
             fitView
             maxZoom={2}
+            className={"query-graph"}
         >
             <MiniMap zoomable={true} pannable={true} />
             <Controls showInteractive={false} />

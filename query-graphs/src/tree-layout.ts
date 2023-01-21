@@ -3,42 +3,10 @@ import * as d3hierarchy from "d3-hierarchy";
 
 import {NodeDimensions} from "./useNodeSizes";
 import * as treeDescription from "./tree-description";
-import {TreeNode, TreeDescription, GraphOrientation} from "./tree-description";
+import {TreeNode, TreeDescription} from "./tree-description";
 // TODO: import type; fix `prettier` first :/
 import {Edge, Node} from "reactflow";
 import {assertNotNull} from "./loader-utils";
-
-const MAX_DISPLAY_LENGTH = 15;
-const FLEX_NODE_SIZE = 220;
-
-type d3point = [number, number];
-
-interface Orientation {
-    nodesize: (maxLabelLength: number) => d3point;
-    nodespacing: (a: d3hierarchy.HierarchyNode<TreeNode>, b: d3hierarchy.HierarchyNode<TreeNode>) => number;
-}
-
-// Orientation mapping
-const orientations: {[k in GraphOrientation]: Orientation} = {
-    "top-to-bottom": {
-        nodesize: maxLabelLength => [maxLabelLength * 6, 45] as d3point,
-        nodespacing: (a, b) => (a.parent === b.parent ? 0 : 0),
-    },
-    "right-to-left": {
-        nodesize: maxLabelLength =>
-            [11.2 /* table node diameter */ + 2, Math.max(90, maxLabelLength * 6 + 10 /* textdimensionoffset */)] as d3point,
-        nodespacing: (a, b) => (a.parent === b.parent ? (a.data.nodeToggled && b.data.nodeToggled ? 0 : FLEX_NODE_SIZE / 3) : 0),
-    },
-    "bottom-to-top": {
-        nodesize: maxLabelLength => [maxLabelLength * 6, 45] as d3point,
-        nodespacing: (a, b) => (a.parent === b.parent ? 0 : 0),
-    },
-    "left-to-right": {
-        nodesize: maxLabelLength =>
-            [11.2 /* table node diameter */ + 2, Math.max(90, maxLabelLength * 6 + 10 /* textdimensionoffset */)] as d3point,
-        nodespacing: (a, b) => (a.parent === b.parent ? (a.data.nodeToggled && b.data.nodeToggled ? 0 : FLEX_NODE_SIZE / 3) : 0),
-    },
-};
 
 interface TreeLayout {
     nodes: Node<TreeNode>[];
@@ -52,26 +20,18 @@ interface TreeLayout {
 export function layoutTree(treeData: TreeDescription, nodeSizes: NodeDimensions | undefined): TreeLayout {
     const root = d3hierarchy.hierarchy(treeData.root, d => d.children);
     const graphOrientation = treeData.graphOrientation ?? "top-to-bottom";
-    const ooo = orientations[graphOrientation];
-    ooo;
+    graphOrientation;
 
-    // Establish maxLabelLength and assign ids
+    // Assign ids
     let nextId = 0;
     const nodeIds = new Map<TreeNode, string>();
-    let maxLabelLength = 0;
     treeDescription.visitTreeNodes(
         treeData.root,
         d => {
             nodeIds.set(d, "" + nextId++);
-            if (d.name) {
-                maxLabelLength = Math.max(d.name.length, maxLabelLength);
-            }
         },
         treeDescription.allChildren,
     );
-
-    // Limit maximum label length and keep layout tight for short names
-    maxLabelLength = Math.min(maxLabelLength, MAX_DISPLAY_LENGTH + 2 /* include ellipsis */);
 
     // Layout the tree
     const treelayout = d3flextree
@@ -82,7 +42,7 @@ export function layoutTree(treeData: TreeDescription, nodeSizes: NodeDimensions 
             if (!measuredSize)
                 // Fallback values, used before the tree is rendered for the first time
                 return [50, 50];
-            return [measuredSize.width + 20, measuredSize.height + 20];
+            return [measuredSize.width + 20, measuredSize.height + 40];
         })
         .spacing((a, b) => (a.parent === b.parent ? 0 : 0));
     console.log("layout");
