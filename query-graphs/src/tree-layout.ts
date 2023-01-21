@@ -1,11 +1,12 @@
 import * as d3flextree from "d3-flextree";
 import * as d3hierarchy from "d3-hierarchy";
 
-import { NodeDimensions } from "./useNodeSizes";
+import {NodeDimensions} from "./useNodeSizes";
 import * as treeDescription from "./tree-description";
 import {TreeNode, TreeDescription, GraphOrientation} from "./tree-description";
-import type {Edge, Node} from "reactflow";
-import { assertNotNull } from "./loader-utils";
+// TODO: import type; fix `prettier` first :/
+import {Edge, Node} from "reactflow";
+import {assertNotNull} from "./loader-utils";
 
 const MAX_DISPLAY_LENGTH = 15;
 const FLEX_NODE_SIZE = 220;
@@ -40,7 +41,7 @@ const orientations: {[k in GraphOrientation]: Orientation} = {
 };
 
 interface TreeLayout {
-    nodes: Node[];
+    nodes: Node<TreeNode>[];
     edges: Edge[];
 }
 
@@ -48,8 +49,8 @@ interface TreeLayout {
 // Layout a tree
 //
 // Returns node and edge lists
-export function layoutTree(treeData: TreeDescription, nodeSizes: NodeDimensions | undefined) : TreeLayout {
-    const root = d3hierarchy.hierarchy(treeData.root, (d)=>d.children);
+export function layoutTree(treeData: TreeDescription, nodeSizes: NodeDimensions | undefined): TreeLayout {
+    const root = d3hierarchy.hierarchy(treeData.root, d => d.children);
     const graphOrientation = treeData.graphOrientation ?? "top-to-bottom";
     const ooo = orientations[graphOrientation];
     ooo;
@@ -80,7 +81,7 @@ export function layoutTree(treeData: TreeDescription, nodeSizes: NodeDimensions 
             const measuredSize = nodeSizes?.get(assertNotNull(id));
             if (!measuredSize)
                 // Fallback values, used before the tree is rendered for the first time
-                return [50,50];
+                return [50, 50];
             return [measuredSize.width + 20, measuredSize.height + 20];
         })
         .spacing((a, b) => (a.parent === b.parent ? 0 : 0));
@@ -90,7 +91,7 @@ export function layoutTree(treeData: TreeDescription, nodeSizes: NodeDimensions 
     const d3edges = layout.links();
 
     // Transform tree representation from d3 into reactflow
-    const nodes = d3nodes.map((n) => {
+    const nodes = d3nodes.map(n => {
         return {
             id: nodeIds.get(n.data),
             position: {x: n.x, y: n.y},
@@ -98,7 +99,7 @@ export function layoutTree(treeData: TreeDescription, nodeSizes: NodeDimensions 
             data: n.data,
         } as Node;
     });
-    const edges = d3edges.map((e) => {
+    const edges = d3edges.map(e => {
         const sourceId = nodeIds.get(e.source.data);
         const targetId = nodeIds.get(e.target.data);
         return {
@@ -121,5 +122,5 @@ export function layoutTree(treeData: TreeDescription, nodeSizes: NodeDimensions 
         } as Edge;
     });
 
-    return { nodes: nodes, edges: edges.concat(crosslinks)};
+    return {nodes: nodes, edges: edges.concat(crosslinks)};
 }
