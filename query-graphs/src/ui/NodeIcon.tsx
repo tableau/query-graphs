@@ -25,7 +25,7 @@ function RunQueryIcon({ style }: NodeIconProps) {
 
 function SortIcon({ style }: NodeIconProps) {
     return (
-        <svg style={style} viewBox="-9 -9 18 18" className="qg-icon qg-expanded">
+        <svg style={style} viewBox="-9 -8 18 18" className="qg-icon qg-expanded">
             <rect x={-8} y={-8} width={16} height="16" fill="#fff" stroke="none"></rect>
             <path d="M6,3 L6,6 L-7,6 L-7,3 Z" fill="currentColor"/>
             <path d="M0,-2 L0,1 L-7,1 L-7,-2 Z" fill="currentColor"/>
@@ -99,7 +99,7 @@ function createTableIcon(labelText? : string) {
         }
 
         return (
-            <svg style={style} viewBox="-10 -10 20 20" className="qg-icon qg-expanded">
+            <svg style={style} viewBox="-10 -7 20 14" className="qg-icon qg-expanded">
                 <rect x={tableStartLeft} width={tableWidth} y={tableStartTop} height={tableHeight} fill="#fff" />
                 <rect x={tableStartLeft} width={tableWidth} y={tableStartTop} height={tableRowHeight} fill="currentColor" />
                 {content}

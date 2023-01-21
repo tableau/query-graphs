@@ -1,0 +1,4 @@
+.react-flow__node-querynode {
+    display: flex;
+    flex-direction: column;
+}
