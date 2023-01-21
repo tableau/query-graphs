@@ -1,3 +1,7 @@
 .query-graph .react-flow__handle {
   opacity: 0;
 }
+
+.query-graph .react-flow__pane {
+  cursor: default;
+}

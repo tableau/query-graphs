@@ -27,9 +27,13 @@ function QueryGraphInternal({treeDescription}: QueryGraphProps) {
             edges={layout.edges}
             nodeOrigin={[0.5, 0.5]}
             nodeTypes={nodeTypes}
-            elementsSelectable={false}
             fitView
             maxZoom={2}
+            elementsSelectable={false}
+            nodesDraggable={false}
+            nodesConnectable={false}
+            edgesFocusable={false}
+            nodesFocusable={false}
             className={"query-graph"}
         >
             <MiniMap zoomable={true} pannable={true} />
