@@ -2,7 +2,7 @@ import {useEffect, useMemo, useState} from "react";
 import {createRoot} from "react-dom/client";
 import {useBrowserUrl, useUrlParam} from "./browserUrlHooks";
 import {FileOpener, FileOpenerData, useLoadStateController} from "./FileOpener";
-import {QueryGraph} from "@tableau/query-graphs/lib/QueryGraph";
+import {QueryGraph} from "@tableau/query-graphs/lib/ui/QueryGraph";
 import {TreeDescription} from "@tableau/query-graphs/lib/tree-description";
 import {loadPlan} from "./tree-loader";
 import {tryCreateLocalStorageUrl, isLocalStorageURL, loadLocalStorageURL} from "./LocalStorageUrl";

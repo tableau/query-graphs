@@ -2,11 +2,11 @@ import ReactFlow, {MiniMap, Controls, ReactFlowProvider, useNodesInitialized} fr
 import "reactflow/dist/base.css";
 
 import {layoutTree} from "./tree-layout";
-import {TreeDescription} from "./tree-description";
+import {TreeDescription} from "../tree-description";
 import {useMemo} from "react";
 import {QueryNode} from "./QueryNode";
 import {useNodeSizes} from "./useNodeSizes";
-import "../style/query-graphs.css";
+import "./QueryGraph.css";
 
 interface QueryGraphProps {
     treeDescription: TreeDescription;
