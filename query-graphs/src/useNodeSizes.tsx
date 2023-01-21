@@ -1,10 +1,15 @@
 import { useStore } from 'reactflow';
 import { useEffect, useRef } from 'react';
-import { NodeDimensions } from './QueryGraph';
 
-function useMemoCompare(next, compare) {
+export interface NodeDimension {
+  width : number,
+  height : number,
+}
+export type NodeDimensions = Map<string, NodeDimension>;
+
+function useMemoCompare<T>(next: T, compare : (a:T | undefined, b:T) => boolean): T | undefined {
   // Ref for storing previous value
-  const previousRef = useRef();
+  const previousRef = useRef<T>();
   const previous = previousRef.current;
   // Pass previous and next value to compare function
   // to determine whether to consider them equal.
@@ -20,8 +25,13 @@ function useMemoCompare(next, compare) {
   // Finally, if equal then return the previous value
   return isEqual ? previous : next;
 }
-function compareNodeSizes(a: Map<string, NodeDimensions>, b: Map<string, NodeDimensions>) {
-  if (!a || !b)
+
+function equalWithEpsilon(a : number, b : number) {
+  return Math.abs(a - b) < 0.5;
+}
+
+function compareNodeSizes(a: NodeDimensions | undefined, b: NodeDimensions): boolean {
+  if (a === undefined)
     return false;
   if (a.size !== b.size)
     return false;
@@ -29,19 +39,20 @@ function compareNodeSizes(a: Map<string, NodeDimensions>, b: Map<string, NodeDim
     const other = b.get(key);
     if (!other)
       return false;
-    if (val.height != other.height)
+    if (!equalWithEpsilon(val.height, other.height))
       return false;
-    if (val.width != other.width)
+    if (!equalWithEpsilon(val.width, other.width))
       return false;
   }
   return true;
 }
 export function useNodeSizes() {
-  const state = useStore((s) => s.nodeInternals);
-
-  var sizes = new Map<string, NodeDimensions>();
-  state.forEach((n, k) => {
-    sizes.set(k, { width: n.width!, height: n.height! });
+  const nodeInternals = useStore((s) => s.nodeInternals);
+  var sizes = new Map<string, NodeDimension>();
+  nodeInternals.forEach((n, k) => {
+    if (n.width === undefined || n.width === null) return;
+    if (n.height === undefined || n.height === null) return;
+    sizes.set(k, { width: n.width, height: n.height });
   });
   return useMemoCompare(sizes, compareNodeSizes);
 }
