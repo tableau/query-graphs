@@ -1,0 +1,385 @@
+.qg-tree-container {
+  padding: 0px;
+  width: 100%;
+  height: 100%;
+  background: #fff;
+  margin: 0 auto;
+}
+
+.qg-info-card {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  background-color: rgba(255, 255, 255, 0.85);
+  border: thin solid #ccc;
+  border-radius: 5px;
+  box-shadow: 2px 2px 2px #888;
+}
+
+.qg-help-card {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  background-color: rgba(255, 255, 255, 0.85);
+  border: thin solid #ccc;
+  border-radius: 5px;
+  box-shadow: 2px 2px 2px #888;
+}
+
+.qg-tree-label {
+  font-size: 13px;
+  font-weight: bold;
+  font-family: Monaco, Consolas, monospace;
+  padding: 12px 12px 0 12px;
+}
+
+.qg-toolbar {
+  float: right;
+  display: inline-block;
+  padding: 2px;
+}
+
+.qg-toolbar-button {
+  position: relative;
+  display: inline-block;
+  vertical-align: bottom;
+  border: thin solid hsl(0 0% 60%);
+  border-width: 1px 1px 1px 0;
+  padding: 3px;
+  font-family: Monaco, Consolas, monospace;
+  user-select: none;
+}
+
+.qg-toolbar-button:hover {
+  background: #eee;
+  cursor: pointer;
+}
+
+.qg-toolbar-button:first-child {
+  border-width: 1px;
+}
+
+.qg-toolbar-tooltip {
+  visibility: hidden;
+  text-align: center;
+  border-radius: 5px;
+  padding: 8px;
+  position: absolute;
+  z-index: 1;
+  top: 150%;
+  right: 0;
+  width: 125px;
+  background: #ccc;
+  font-size: 11px;
+}
+
+.qg-toolbar-tooltip::after {
+  content: " ";
+  top: -10px;
+  right: 8px;
+  border-color: transparent transparent #ccc transparent;
+  border-width: 5px;
+  position: absolute;
+  border-style: solid;
+}
+
+.qg-toolbar-icon > svg {
+  display: block;
+}
+
+.qg-toolbar-button:hover .qg-toolbar-tooltip {
+  visibility: visible;
+}
+
+.qg-node {
+  cursor: pointer;
+  user-select: none;
+}
+
+.qg-overlay{
+  background-color: #fff;
+}
+
+/*
+  Using a 2 color palette technique. When styling symbols use
+  "fill: inherit" to use the 1st set of colors
+  "fill: currentColor" to use the 2nd set of colors
+  More info on techniques: http://tympanus.net/codrops/2015/07/16/styling-svg-use-content-css/
+*/
+
+/*
+ .expanded luminosity increased by (100 - collapsed luminosity) / 1.5
+*/
+
+.qg-expanded {
+  stroke: hsl(0, 0%, 40%);
+  stroke-width: 0.8;
+  color: hsl(0, 0%, 84%);
+}
+
+.qg-collapsed {
+  stroke: hsl(0, 0%, 40%);
+  stroke-width: 0.8;
+  color: hsl(0, 0%, 60%);
+}
+
+/*
+ federated connection coloring
+
+ db2
+ excel-direct
+ fedeval_dataengine_connection
+ mysql
+ oracle
+ postgres
+ sqlserver
+ textscan
+*/
+
+.qg-db2 .qg-expanded {
+  color: hsl(211, 36%, 83%)
+}
+
+.qg-db2 .qg-collapsed {
+  color: hsl(211, 36%, 48%)
+}
+
+.qg-excel-direct .qg-expanded {
+  color: hsl(30, 88%, 86%)
+}
+
+.qg-excel-direct .qg-collapsed {
+  color: hsl(30, 88%, 56%)
+}
+
+.qg-fedeval_dataengine_connection .qg-expanded {
+  color: hsl(113, 34%, 83%)
+}
+
+.qg-fedeval_dataengine_connection .qg-collapsed {
+  color: hsl(113, 34%, 47%)
+}
+
+.qg-mysql .qg-expanded {
+  color: hsl(47, 82%, 87%)
+}
+
+.qg-mysql .qg-collapsed {
+  color: hsl(47, 82%, 61%)
+}
+
+.qg-oracle .qg-expanded {
+  color: hsl(173, 30%, 88%)
+}
+
+.qg-oracle .qg-collapsed {
+  color: hsl(173, 30%, 64%)
+}
+
+.qg-postgres .qg-expanded {
+  color: hsl(359, 70%, 87%)
+}
+
+.qg-postgres .qg-collapsed {
+  color: hsl(359, 70%, 61%)
+}
+
+.qg-sqlserver .qg-expanded {
+  color: hsl(354, 100%, 94%)
+}
+
+.qg-sqlserver .qg-collapsed {
+  color: hsl(354, 100%, 81%)
+}
+
+.qg-textscan .qg-expanded {
+  color: hsl(317, 25%, 86%)
+}
+
+.qg-textscan .qg-collapsed {
+  color: hsl(317, 25%, 58%)
+}
+
+.qg-node text {
+  font-size: 9px;
+  font-weight: bold;
+  font-family: Monaco, Consolas, monospace;
+  fill: #2b2a2a;
+  user-select: none;
+}
+
+.qg-node .foreign-object {
+  font-size: 8px;
+  font-weight: bold;
+  font-family: Monaco, Consolas, monospace;
+  background-color: rgba(255, 255, 255, 0.85);
+  padding: 6px;
+  border: thin solid #eee;
+  border-radius: 5px;
+  box-shadow: 2px 2px 2px #888;
+  overflow-y: scroll;
+  user-select: none;
+}
+
+.qg-tooltip {
+  font-size: 12px;
+  font-weight: bold;
+  font-family: Monaco, Consolas, monospace;
+  background-color: rgba(255, 255, 255, 0.85);
+  padding: 12px;
+  border: thin solid #eee;
+  border-radius: 5px;
+  box-shadow: 2px 2px 2px #888;
+  max-width: 600px;
+}
+
+.qg-prop-name {
+  color: hsl(0, 0%, 50%);
+}
+
+.qg-prop-name2 {
+  color: hsl(309, 84%, 36%);
+}
+
+.qg-prop-name-help {
+  color: hsl(0, 0%, 50%);
+}
+
+.qg-prop-value {
+  color: black;
+}
+
+.qg-link {
+  fill: none;
+  stroke: #ccc;
+  stroke-width: 1;
+}
+
+.qg-crosslink {
+  fill: none;
+  stroke: #ccc;
+  stroke-width: 0.5;
+  stroke-dasharray: 4 4;
+}
+
+.qg-crosslink-highlighted {
+  fill: none;
+  stroke: hsl(309, 84%, 36%);
+  stroke-width: 1.0;
+}
+
+.qg-link-and-arrow {
+  marker-start: url(#arrow);
+  stroke-dasharray: 5 3;
+}
+
+.qg-dotted-link {
+  stroke-width: 1.5;
+  stroke-dasharray: 1.5 2;
+}
+
+marker#arrow {
+  fill: #ccc;
+}
+
+.qg-link-label {
+  font-size: 7px;
+  font-weight: bold;
+  font-family: Monaco, Consolas, monospace;
+  fill: #aaa;
+  user-select: none;
+}
+
+/* Symbols */
+
+.qg-symbol-fill-fg {
+  fill: currentColor;
+}
+
+.qg-symbol-fill-bg {
+  fill: #fff;
+}
+
+.qg-symbol-no-stroke {
+  stroke: none;
+}
+
+.qg-symbol-stroke-only {
+  stroke-width: 1.2;
+  fill: none;
+}
+
+.qg-link-label-highlighted {
+  fill: hsl(309, 84%, 36%);
+}
+
+/* Favorite Foreign Scans (Jewel Bright color palette) */
+.qg-dtinglinux .qg-expanded {
+  color: hsl(189, 72%, 92%)
+}
+
+.qg-dtinglinux .qg-collapsed {
+  color: hsl(189, 72%, 76%)
+}
+
+.qg-lxulx .qg-expanded {
+  color: hsl(23, 100%, 86%)
+}
+
+.qg-lxulx .qg-collapsed {
+  color: hsl(23, 100%, 57%)
+}
+
+.qg-ricolelx .qg-expanded {
+  color: hsl(357, 89%, 84%)
+}
+
+.qg-ricolelx .qg-collapsed {
+  color: hsl(357, 89%, 53%)
+}
+
+/* Run Query */
+path.qg-run-query {
+  fill: #fff;
+}
+
+/* Joins */
+circle.qg-fill-join {
+  fill: currentColor;
+}
+
+circle.qg-empty-join {
+  stroke: none;
+  fill: #fff;
+}
+
+circle.qg-only-stroke-join {
+  fill: none;
+}
+
+/* Table */
+rect.qg-table-background {
+  fill: #fff;
+}
+
+rect.qg-table-header {
+  fill: currentColor;
+}
+
+rect.qg-table-border {
+  fill: none;
+}
+
+text.qg-table-text {
+  text-anchor: middle;
+  font-size: 7px;
+  font-weight: bold;
+  font-family: Monaco, Consolas, monospace;
+  stroke: none;
+  fill: hsl(0, 0%, 40%);
+}
+
+.qg-magnifier-handle {
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
