@@ -1,6 +1,6 @@
 import {memo} from "react";
 import {Handle, NodeProps, Position} from "reactflow";
-import {TreeNode} from "./tree-description";
+import {TreeNode} from "../tree-description";
 
 function QueryNode({data}: NodeProps<TreeNode>) {
     return (

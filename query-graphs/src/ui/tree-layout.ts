@@ -2,11 +2,11 @@ import * as d3flextree from "d3-flextree";
 import * as d3hierarchy from "d3-hierarchy";
 
 import {NodeDimensions} from "./useNodeSizes";
-import * as treeDescription from "./tree-description";
-import {TreeNode, TreeDescription} from "./tree-description";
+import * as treeDescription from "../tree-description";
+import {TreeNode, TreeDescription} from "../tree-description";
 // TODO: import type; fix `prettier` first :/
 import {Edge, Node} from "reactflow";
-import {assertNotNull} from "./loader-utils";
+import {assertNotNull} from "../loader-utils";
 
 interface TreeLayout {
     nodes: Node<TreeNode>[];

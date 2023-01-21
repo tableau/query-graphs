@@ -10,18 +10,12 @@ import HtmlWebpackPlugin from 'html-webpack-plugin';
 const config: Configuration = {
     entry: {
         bundle: "./src/index.tsx",
-        legend: "./src/legend.ts",
     },
     plugins: [
         new HtmlWebpackPlugin({
             title: "Query Graphs",
             filename: 'index.html',
             chunks: ["bundle"],
-        }),
-        new HtmlWebpackPlugin({
-            title: "Query Graphs - Legend",
-            filename: 'legend.html',
-            chunks: ["legend"],
         }),
         new FaviconsWebpackPlugin({
             "logo": "../media/query-graphs-logo.svg",
