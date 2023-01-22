@@ -1,4 +1,31 @@
-.qg-collapsed-node {
+.qg-graph-node {
     display: flex;
     flex-direction: column;
+    border: 1px solid transparent;
+    border-radius: .8em;
+    padding: .3em .5em;
+    margin: -.3em -.5em;
+    transition-property: border-color, background, padding;
+    transition-duration: 0.5s;
+}
+.qg-graph-node.qg-expanded {
+    background: hsl(0,0%, 95%);
+    border-color: hsl(0,0%, 80%);
+}
+
+.qg-graph-node-details {
+    max-width: 0;
+    height: 0;
+    overflow: hidden;
+    transition-property: height, overflow;
+    transition-duration: 2s;
+}
+.qg-graph-node.qg-expanded .qg-graph-node-details {
+    max-width: 30em;
+    height: unset;
+    overflow: auto;
+}
+
+.qg-prop-name {
+    color: hsl(0, 0%, 50%);
 }

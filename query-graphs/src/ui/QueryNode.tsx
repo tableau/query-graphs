@@ -4,43 +4,34 @@ import {TreeNode} from "../tree-description";
 import {NodeIcon} from "./NodeIcon";
 import "./QueryNode.css";
 
-function CollapsedQueryNode({data}: NodeProps<TreeNode>) {
-    return (
-        <div className="qg-collapsed-node">
-            <NodeIcon icon={data.symbol} style={{height: "1.5em"}} />
-            <div style={{textAlign: "center"}}>{data.name}</div>
-        </div>
-    );
-}
+function QueryNode({data}: NodeProps<TreeNode>) {
+    const [expanded, setExpanded] = useState(false);
+    const toggleExpanded = useCallback(() => setExpanded(!expanded), [expanded]);
 
-function ExpandedQueryNode({data}: NodeProps<TreeNode>) {
     const children = [] as ReactElement[];
     for (const [key, value] of (data.properties || []).entries()) {
         children.push(
             <div>
-                {key}: {value}
-            </div>,
+                <span className="qg-prop-name">{key}:</span> {value}
+            </div>
         );
     }
+
+    var className="qg-graph-node";
+    if (expanded) className += " qg-expanded";
+
     return (
-        <div className="qg-expanded-node">
+        <>
+        <Handle type="target" position={Position.Top} />
+        <div className={className} onClick={toggleExpanded}>
             <NodeIcon icon={data.symbol} style={{height: "1.5em"}} />
             <div style={{textAlign: "center"}}>{data.name}</div>
-            {children}
+            <div className="qg-graph-node-details">
+                {children}
+            </div>
         </div>
-    );
-}
-
-function QueryNode(props: NodeProps<TreeNode>) {
-    const [expanded, setExpanded] = useState(false);
-    const SelectedQueryNode = expanded ? ExpandedQueryNode : CollapsedQueryNode;
-    const toggleExpanded = useCallback(() => setExpanded(!expanded), [expanded]);
-    return (
-        <div onClick={toggleExpanded}>
-            <Handle type="target" position={Position.Top} />
-            <SelectedQueryNode {...props} />
-            <Handle type="source" position={Position.Bottom} />
-        </div>
+        <Handle type="source" position={Position.Bottom} />
+        </>
     );
 }
 
