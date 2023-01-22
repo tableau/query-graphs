@@ -15,15 +15,20 @@
 
 .qg-graph-node-details {
     max-width: 0;
-    height: 0;
+    max-height: 0;
     overflow: hidden;
-    transition-property: height, overflow;
-    transition-duration: 2s;
+    transition-property: max-width, max-height;
+    transition-duration: .5s;
 }
 .qg-graph-node.qg-expanded .qg-graph-node-details {
     max-width: 30em;
-    height: unset;
-    overflow: auto;
+    max-height: 20em;
+}
+.qg-graph-node-details-inner {
+    width: max-content;
+    height: max-content;
+    max-width: 30em;
+    max-height: 20em;
 }
 
 .qg-prop-name {
