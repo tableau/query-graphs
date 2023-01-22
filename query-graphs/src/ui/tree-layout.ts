@@ -17,8 +17,7 @@ interface TreeLayout {
 // Layout a tree
 //
 // Returns node and edge lists
-export function layoutTree(treeData: TreeDescription, nodeSizes: NodeDimensions | undefined): TreeLayout {
-    const root = d3hierarchy.hierarchy(treeData.root, d => d.children);
+export function layoutTree(treeData: TreeDescription, nodeSizes: NodeDimensions | undefined, expandedSubtrees : Record<string, boolean>): TreeLayout {
     const graphOrientation = treeData.graphOrientation ?? "top-to-bottom";
     graphOrientation;
 
@@ -32,6 +31,13 @@ export function layoutTree(treeData: TreeDescription, nodeSizes: NodeDimensions 
         },
         treeDescription.allChildren,
     );
+
+    const root = d3hierarchy.hierarchy(treeData.root, d => {
+        console.log("x", nodeIds.get(d), expandedSubtrees, expandedSubtrees[nodeIds.get(d)!]);
+        if (expandedSubtrees[nodeIds.get(d)!])
+            return d._children;
+        return d.children;
+    });
 
     // Layout the tree
     const treelayout = d3flextree

@@ -1,16 +1,22 @@
-import { memo, ReactElement, MouseEvent, useCallback, useState } from "react";
+import { memo, ReactElement, MouseEvent, useCallback } from "react";
 import { Handle, NodeProps, Position } from "reactflow";
 import { TreeNode } from "../tree-description";
 import { NodeIcon } from "./NodeIcon";
 import "./QueryNode.css";
+import { useGraphRenderingStore } from "./store";
 
-function QueryNode({ data }: NodeProps<TreeNode>) {
-    const [expanded, setExpanded] = useState(false);
-    const toggleExpanded = useCallback((e: MouseEvent) => {
+function QueryNode({ data, id }: NodeProps<TreeNode>) {
+    const expanded = useGraphRenderingStore((s) => s.expandedNodes[id]);
+    const toggleNode = useGraphRenderingStore((s) => s.toggleExpandedNode);
+    const toggleSubtree = useGraphRenderingStore((s) => s.toggleExpandedSubtree);
+    const onClick = useCallback((e: MouseEvent) => {
+        if (e.shiftKey)
+            toggleNode(id);
+        else
+            toggleSubtree(id);
         e.stopPropagation();
         e.preventDefault();
-        setExpanded(!expanded);
-    }, [expanded]);
+    }, [toggleNode, id]);
 
     const children = [] as ReactElement[];
     for (const [key, value] of (data.properties || []).entries()) {
@@ -27,7 +33,7 @@ function QueryNode({ data }: NodeProps<TreeNode>) {
     return (
         <>
             <Handle type="target" position={Position.Top} />
-            <div className={className} onClick={toggleExpanded}>
+            <div className={className} onClick={onClick}>
                 <NodeIcon icon={data.symbol} style={{ height: "1.5em" }} />
                 <div style={{ textAlign: "center" }}>{data.name}</div>
                 <div className="qg-graph-node-details">
