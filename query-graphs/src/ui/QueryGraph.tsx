@@ -25,11 +25,11 @@ function QueryGraphInternal({treeDescription}: QueryGraphProps) {
         <ReactFlow
             nodes={layout.nodes}
             edges={layout.edges}
-            nodeOrigin={[0.5, 0.5]}
+            nodeOrigin={[0.5, 0]}
             nodeTypes={nodeTypes}
             fitView
             maxZoom={2}
-            elementsSelectable={false}
+            elementsSelectable={true}
             nodesDraggable={false}
             nodesConnectable={false}
             edgesFocusable={false}
