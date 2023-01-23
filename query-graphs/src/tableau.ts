@@ -348,12 +348,13 @@ function assignSymbolsAndClasses(root: TreeNode) {
         (n: TreeNode) => {
             // Assign symbols
             if (n.class === "join" && n.properties?.has("join")) {
-                switch (n.properties.get("join")) {
-                    case "inner": n.icon = "inner-join-symbol";
-                    case "left": n.icon = "left-join-symbol";
-                    case "right": n.icon = "right-join-symbol";
-                    case "full": n.icon = "full-join-symbol";
-                }
+                const m: Record<string, treeDescription.IconName> = {
+                    inner: "inner-join-symbol",
+                    left: "left-join-symbol",
+                    right: "right-join-symbol",
+                    full: "full-join-symbol",
+                };
+                n.icon = m[n.properties.get("join")!];
             } else if (n.tag === "join-inner") {
                 n.icon = "inner-join-symbol";
             } else if (n.tag === "join-left") {

@@ -1,5 +1,5 @@
 import {CSSProperties} from "react";
-import { IconName } from "../tree-description";
+import {IconName} from "../tree-description";
 import "./NodeIcon.css";
 
 interface NodeIconProps {
@@ -141,7 +141,7 @@ const VirtualTableIcon = createTableIcon("dmv");
 const TempTableIcon = createTableIcon("tmp");
 
 export function NodeIcon({icon, style}: NodeIconProps) {
-    const iconTypes : Record<IconName, any> = {
+    const iconTypes: Record<IconName, any> = {
         "run-query-symbol": RunQueryIcon,
         "filter-symbol": FilterIcon,
         "sort-symbol": SortIcon,
