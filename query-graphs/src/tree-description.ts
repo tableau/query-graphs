@@ -1,17 +1,19 @@
-import { assert } from "./loader-utils";
+import {assert} from "./loader-utils";
 
 export type GraphOrientation = "left-to-right" | "top-to-bottom" | "right-to-left" | "bottom-to-top";
 
-export type IconName = "run-query-symbol" | "filter-symbol" |
-    "sort-symbol" |
-    "inner-join-symbol" |
-    "left-join-symbol" |
-    "right-join-symbol" |
-    "full-join-symbol" |
-    "table-symbol" |
-    "temp-table-symbol" |
-    "virtual-table-symbol" |
-    "const-table-symbol";
+export type IconName =
+    | "run-query-symbol"
+    | "filter-symbol"
+    | "sort-symbol"
+    | "inner-join-symbol"
+    | "left-join-symbol"
+    | "right-join-symbol"
+    | "full-join-symbol"
+    | "table-symbol"
+    | "temp-table-symbol"
+    | "virtual-table-symbol"
+    | "const-table-symbol";
 
 export interface TreeNode {
     // The displayed node name
@@ -96,7 +98,7 @@ export function allChildren<T extends TreeLike<T>>(n: T): T[] {
 export function createParentLinks(tree: TreeNode) {
     visitTreeNodes(
         tree,
-        () => { },
+        () => {},
         d => {
             if (d.children) {
                 const children = allChildren(d);

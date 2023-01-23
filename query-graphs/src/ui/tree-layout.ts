@@ -17,7 +17,11 @@ interface TreeLayout {
 // Layout a tree
 //
 // Returns node and edge lists
-export function layoutTree(treeData: TreeDescription, nodeSizes: NodeDimensions | undefined, expandedSubtrees : Record<string, boolean>): TreeLayout {
+export function layoutTree(
+    treeData: TreeDescription,
+    nodeSizes: NodeDimensions | undefined,
+    expandedSubtrees: Record<string, boolean>,
+): TreeLayout {
     const graphOrientation = treeData.graphOrientation ?? "top-to-bottom";
     graphOrientation;
 
@@ -33,8 +37,7 @@ export function layoutTree(treeData: TreeDescription, nodeSizes: NodeDimensions 
     );
 
     const root = d3hierarchy.hierarchy(treeData.root, d => {
-        if (expandedSubtrees[nodeIds.get(d)!])
-            return d._children;
+        if (expandedSubtrees[nodeIds.get(d)!]) return d._children;
         return d.children;
     });
 
