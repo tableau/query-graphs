@@ -1,8 +1,8 @@
-import ReactFlow, {MiniMap, Controls, ReactFlowProvider, useNodesInitialized} from "reactflow";
+import ReactFlow, {MiniMap, Node, Controls, ReactFlowProvider, useNodesInitialized} from "reactflow";
 import "reactflow/dist/base.css";
 
 import {layoutTree} from "./tree-layout";
-import {TreeDescription} from "../tree-description";
+import {TreeDescription, TreeNode} from "../tree-description";
 import {useMemo} from "react";
 import {QueryNode} from "./QueryNode";
 import {useNodeSizes} from "./useNodeSizes";
@@ -42,7 +42,7 @@ function QueryGraphInternal({treeDescription}: QueryGraphProps) {
             nodesFocusable={false}
             className={"query-graph"}
         >
-            <MiniMap zoomable={true} pannable={true} nodeColor={n => n.data.rectBackground ?? "#e2e2e2"} />
+            <MiniMap zoomable={true} pannable={true} nodeColor={(n:Node<TreeNode>) => n.data.nodeColor ?? "#e2e2e2"} />
             <Controls showInteractive={false} />
         </ReactFlow>
     );
