@@ -33,7 +33,6 @@ export function layoutTree(treeData: TreeDescription, nodeSizes: NodeDimensions 
     );
 
     const root = d3hierarchy.hierarchy(treeData.root, d => {
-        console.log("x", nodeIds.get(d), expandedSubtrees, expandedSubtrees[nodeIds.get(d)!]);
         if (expandedSubtrees[nodeIds.get(d)!])
             return d._children;
         return d.children;

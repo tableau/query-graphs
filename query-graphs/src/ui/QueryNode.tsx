@@ -1,5 +1,6 @@
 import { memo, ReactElement, MouseEvent, useCallback } from "react";
 import { Handle, NodeProps, Position } from "reactflow";
+import cc from "classcat";
 import { TreeNode } from "../tree-description";
 import { NodeIcon } from "./NodeIcon";
 import "./QueryNode.css";
@@ -9,11 +10,12 @@ function QueryNode({ data, id }: NodeProps<TreeNode>) {
     const expanded = useGraphRenderingStore((s) => s.expandedNodes[id]);
     const toggleNode = useGraphRenderingStore((s) => s.toggleExpandedNode);
     const toggleSubtree = useGraphRenderingStore((s) => s.toggleExpandedSubtree);
+    const hasChildren = !!data._children;
     const onClick = useCallback((e: MouseEvent) => {
         if (e.shiftKey)
-            toggleNode(id);
-        else
             toggleSubtree(id);
+        else if (hasChildren)
+            toggleNode(id);
         e.stopPropagation();
         e.preventDefault();
     }, [toggleNode, id]);
@@ -27,16 +29,21 @@ function QueryNode({ data, id }: NodeProps<TreeNode>) {
         );
     }
 
-    let className = "qg-graph-node";
-    if (expanded) className += " qg-expanded";
+    let className = cc([
+        "qg-graph-node",
+        {
+            "qg-expanded": expanded,
+            "qg-collapsed": hasChildren
+        }
+    ]);
 
     return (
         <>
             <Handle type="target" position={Position.Top} />
             <div className={className} onClick={onClick}>
-                <NodeIcon icon={data.symbol} style={{ height: "1.5em" }} />
-                <div style={{ textAlign: "center" }}>{data.name}</div>
-                <div className="qg-graph-node-details">
+                <NodeIcon icon={data.icon} style={{ height: "1.5em" }} />
+                <div className="qg-graph-node-label" style={{ textAlign: "center", background: data.nodeColor }}>{data.name}</div>
+                <div className="qg-graph-node-details nowheel">
                     <div className="qg-graph-node-details-inner">{children}</div>
                 </div>
             </div>

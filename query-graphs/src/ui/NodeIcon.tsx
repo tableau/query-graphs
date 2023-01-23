@@ -1,8 +1,9 @@
 import {CSSProperties} from "react";
+import { IconName } from "../tree-description";
 import "./NodeIcon.css";
 
 interface NodeIconProps {
-    icon?: string;
+    icon?: IconName;
     style?: CSSProperties;
 }
 
@@ -140,7 +141,7 @@ const VirtualTableIcon = createTableIcon("dmv");
 const TempTableIcon = createTableIcon("tmp");
 
 export function NodeIcon({icon, style}: NodeIconProps) {
-    const iconTypes = {
+    const iconTypes : Record<IconName, any> = {
         "run-query-symbol": RunQueryIcon,
         "filter-symbol": FilterIcon,
         "sort-symbol": SortIcon,
@@ -153,6 +154,6 @@ export function NodeIcon({icon, style}: NodeIconProps) {
         "virtual-table-symbol": VirtualTableIcon,
         "const-table-symbol": ConstTableIcon,
     };
-    const SelectedIcon = iconTypes[icon ?? ""] ?? DefaultIcon;
+    const SelectedIcon = icon ? iconTypes[icon] : DefaultIcon;
     return <SelectedIcon style={style} />;
 }
