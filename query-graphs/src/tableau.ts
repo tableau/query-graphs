@@ -348,23 +348,28 @@ function assignSymbolsAndClasses(root: TreeNode) {
         (n: TreeNode) => {
             // Assign symbols
             if (n.class === "join" && n.properties?.has("join")) {
-                n.symbol = n.properties.get("join") + "-join-symbol";
+                switch (n.properties.get("join")) {
+                    case "inner": n.icon = "inner-join-symbol";
+                    case "left": n.icon = "left-join-symbol";
+                    case "right": n.icon = "right-join-symbol";
+                    case "full": n.icon = "full-join-symbol";
+                }
             } else if (n.tag === "join-inner") {
-                n.symbol = "inner-join-symbol";
+                n.icon = "inner-join-symbol";
             } else if (n.tag === "join-left") {
-                n.symbol = "left-join-symbol";
+                n.icon = "left-join-symbol";
             } else if (n.tag === "join-right") {
-                n.symbol = "right-join-symbol";
+                n.icon = "right-join-symbol";
             } else if (n.tag === "join-full") {
-                n.symbol = "full-join-symbol";
+                n.icon = "full-join-symbol";
             } else if (n.class && n.class === "relation") {
-                n.symbol = "table-symbol";
+                n.icon = "table-symbol";
             } else if (n.class && n.class === "createtemptable") {
-                n.symbol = "temp-table-symbol";
+                n.icon = "temp-table-symbol";
             } else if (n.tag == "selectOp") {
-                n.symbol = "filter-symbol";
+                n.icon = "filter-symbol";
             } else if (n.name && n.name === "runquery") {
-                n.symbol = "run-query-symbol";
+                n.icon = "run-query-symbol";
             }
             // Assign classes for incoming edge
             if (n.tag === "binding" || n.class === "createtemptable" || (n.tag === "expression" && n.properties?.has("name"))) {

@@ -172,49 +172,49 @@ function generateDisplayNames(treeRoot: TreeNode) {
                 node.name ?? node.properties?.get("name") ?? node.properties?.get("debugName") ?? node.tag ?? node.text ?? "";
             switch (node.tag) {
                 case "executiontarget":
-                    node.symbol = "run-query-symbol";
+                    node.icon = "run-query-symbol";
                     break;
                 case "join":
-                    node.symbol = "inner-join-symbol";
+                    node.icon = "inner-join-symbol";
                     break;
                 case "leftouterjoin":
-                    node.symbol = "left-join-symbol";
+                    node.icon = "left-join-symbol";
                     break;
                 case "rightouterjoin":
-                    node.symbol = "right-join-symbol";
+                    node.icon = "right-join-symbol";
                     break;
                 case "fullouterjoin":
-                    node.symbol = "full-join-symbol";
+                    node.icon = "full-join-symbol";
                     break;
                 case "tablescan":
-                    node.symbol = "table-symbol";
+                    node.icon = "table-symbol";
                     break;
                 case "virtualtable":
                     node.name = node.properties?.get("name") ?? node.tag;
-                    node.symbol = "virtual-table-symbol";
+                    node.icon = "virtual-table-symbol";
                     break;
                 case "tableconstruction":
-                    node.symbol = "const-table-symbol";
+                    node.icon = "const-table-symbol";
                     break;
                 case "binaryscan":
                 case "cursorscan":
                 case "csvscan":
                 case "parquetscan":
                 case "tdescan":
-                    node.symbol = "table-symbol";
+                    node.icon = "table-symbol";
                     break;
                 case "select":
                 case "earlyprobe":
-                    node.symbol = "filter-symbol";
+                    node.icon = "filter-symbol";
                     break;
                 case "sort":
-                    node.symbol = "sort-symbol";
+                    node.icon = "sort-symbol";
                     break;
                 case "explicitscan":
-                    node.symbol = "temp-table-symbol";
+                    node.icon = "temp-table-symbol";
                     break;
                 case "temp":
-                    node.symbol = "temp-table-symbol";
+                    node.icon = "temp-table-symbol";
                     node.edgeClass = "qg-link-and-arrow";
                     break;
                 case "comparison":

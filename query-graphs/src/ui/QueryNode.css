@@ -5,12 +5,18 @@
     border-radius: .8em;
     padding: .3em .5em;
     margin: -.3em -.5em;
-    transition-property: border-color, background, padding;
-    transition-duration: 0.5s;
+    transition-property: border-color, background;
+    transition-duration: 0.2s;
 }
+.qg-graph-node.qg-collapsed:hover,
 .qg-graph-node.qg-expanded {
     background: hsl(0,0%, 95%);
     border-color: hsl(0,0%, 80%);
+}
+
+.qg-graph-node-label {
+    border-radius: .4em;
+    padding: 0 .15em;
 }
 
 .qg-graph-node-details {
@@ -27,6 +33,7 @@
 .qg-graph-node-details-inner {
     width: max-content;
     height: max-content;
+    overflow: auto;
     max-width: 30em;
     max-height: 20em;
 }

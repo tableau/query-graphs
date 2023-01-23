@@ -1,17 +1,27 @@
-import {assert} from "./loader-utils";
+import { assert } from "./loader-utils";
 
 export type GraphOrientation = "left-to-right" | "top-to-bottom" | "right-to-left" | "bottom-to-top";
+
+export type IconName = "run-query-symbol" | "filter-symbol" |
+    "sort-symbol" |
+    "inner-join-symbol" |
+    "left-join-symbol" |
+    "right-join-symbol" |
+    "full-join-symbol" |
+    "table-symbol" |
+    "temp-table-symbol" |
+    "virtual-table-symbol" |
+    "const-table-symbol";
 
 export interface TreeNode {
     // The displayed node name
     name?: string;
-    // The id of the symbol rendered for this node
-    symbol?: string;
+    // The name of the icon rendered for this node
+    icon?: IconName;
     // Additional CSS classes applied to the node
     nodeClass?: string;
     // Color applied to node rects
-    rectFill?: string;
-    rectFillOpacity?: number;
+    nodeColor?: string;
     // Rendered in the tooltip
     properties?: Map<string, string>;
 
@@ -22,12 +32,7 @@ export interface TreeNode {
     // Additional CSS classes applied to the label on the incoming edge
     edgeLabelClass?: string;
 
-    // Expanded node is visible if true
-    nodeToggled?: boolean;
-    // Node was collapsed by default if true
-    collapsedByDefault?: boolean;
-
-    // An array containing all currently visible child nodes
+    // An array containing all child nodes visible by default
     children?: TreeNode[];
     // An array containing all child nodes, including hidden nodes
     _children?: TreeNode[];
@@ -53,9 +58,6 @@ export interface Crosslink {
 export interface TreeDescription {
     /// The tree root
     root: TreeNode;
-    /// Displays debugging annotations in the tree
-    /// XXX remove
-    DEBUG?: boolean;
     /// The orientation of the graph
     /// XXX remove
     graphOrientation?: GraphOrientation;
@@ -94,7 +96,7 @@ export function allChildren<T extends TreeLike<T>>(n: T): T[] {
 export function createParentLinks(tree: TreeNode) {
     visitTreeNodes(
         tree,
-        () => {},
+        () => { },
         d => {
             if (d.children) {
                 const children = allChildren(d);

@@ -37,6 +37,7 @@
   },
   "style": "style/query-graphs.css",
   "dependencies": {
+    "classcat": "^5.0.4",
     "d3-flextree": "^2.1.1",
     "d3-hierarchy": "^2.0.0",
     "d3-interpolate": "^2.0.0",

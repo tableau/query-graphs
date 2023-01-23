@@ -29,7 +29,6 @@ function App() {
     // Thereby, we automatically integrate with the browser's history.
     const [treeUrl, setTreeUrl] = useUrlParam(browserUrl, "file");
     const [treeTitle, setTreeTitle] = useUrlParam(browserUrl, "title");
-    const [debugMode] = useUrlParam(browserUrl, "DEBUG");
     const [uploadServer] = useUrlParam(browserUrl, "uploadServer");
     // Callback for the file opener
     const openPickedData = async (data: FileOpenerData): Promise<void> => {
@@ -135,9 +134,8 @@ function App() {
         if (treeTitle) {
             newTree.properties.set("title", treeTitle);
         }
-        newTree.DEBUG = debugMode !== undefined;
         return newTree;
-    }, [tree, treeTitle, debugMode]);
+    }, [tree, treeTitle]);
 
     if (!annotatedTree) {
         return <FileOpener setData={openPickedData} loadStateController={loadStateController} />;

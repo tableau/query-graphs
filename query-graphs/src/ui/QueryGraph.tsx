@@ -38,7 +38,7 @@ function QueryGraphInternal({treeDescription}: QueryGraphProps) {
             nodesFocusable={false}
             className={"query-graph"}
         >
-            <MiniMap zoomable={true} pannable={true} />
+            <MiniMap zoomable={true} pannable={true} nodeColor={(n) => n.data.rectBackground ?? '#e2e2e2'} />
             <Controls showInteractive={false} />
         </ReactFlow>
     );

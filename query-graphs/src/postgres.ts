@@ -186,23 +186,23 @@ function generateDisplayNames(treeRoot: TreeNode) {
                         switch (node.properties?.get("Join Type")) {
                             case "Inner":
                                 node.name = node.tag;
-                                node.symbol = "inner-join-symbol";
+                                node.icon = "inner-join-symbol";
                                 break;
                             case "Full Outer":
                                 node.name = node.tag;
-                                node.symbol = "full-join-symbol";
+                                node.icon = "full-join-symbol";
                                 break;
                             case "Left Outer":
                                 node.name = node.tag;
-                                node.symbol = "left-join-symbol";
+                                node.icon = "left-join-symbol";
                                 break;
                             case "Right Outer":
                                 node.name = node.tag;
-                                node.symbol = "right-join-symbol";
+                                node.icon = "right-join-symbol";
                                 break;
                             default:
                                 node.name = node.tag;
-                                node.symbol = "inner-join-symbol";
+                                node.icon = "inner-join-symbol";
                                 break;
                         }
                     }
@@ -211,20 +211,20 @@ function generateDisplayNames(treeRoot: TreeNode) {
                 case "Materialize":
                 case "WorkTable Scan":
                     node.name = node.tag;
-                    node.symbol = "temp-table-symbol";
+                    node.icon = "temp-table-symbol";
                     break;
                 case "Incremental Sort":
                 case "Sort":
                     node.name = node.tag;
-                    node.symbol = "sort-symbol";
+                    node.icon = "sort-symbol";
                     break;
                 case "Result":
                     node.name = node.tag;
-                    node.symbol = "const-table-symbol";
+                    node.icon = "const-table-symbol";
                     break;
                 case "Limit":
                     node.name = node.tag;
-                    node.symbol = "filter-symbol";
+                    node.icon = "filter-symbol";
                     break;
                 case "Function Scan":
                 case "Table Function Scan":
@@ -238,7 +238,7 @@ function generateDisplayNames(treeRoot: TreeNode) {
                         } else {
                             node.name = node.tag;
                         }
-                        node.symbol = "table-symbol";
+                        node.icon = "table-symbol";
                     } else if (node.tag) {
                         node.name = node.tag;
                     } else if (node.text) {
@@ -330,9 +330,7 @@ function colorChildRelativeExecutionRatio(node: TreeNode, executionTime: number,
         node.properties.set("~Relative Time", relativeTotalTime.toFixed(3));
         node.properties.set("~Relative Time Ratio", relativeExecutionRatio.toFixed(3));
         const l = (95 + (72 - 95) * relativeExecutionRatio).toFixed(3);
-        const hsl = "hsl(309, 84%, " + l + "%)";
-        node.rectFill = hsl;
-        node.rectFillOpacity = relativeExecutionRatio >= 0.05 ? 1.0 : 0.0;
+        node.nodeColor = relativeExecutionRatio >= 0.05 ? `hsl(309, 84%, ${l}%)` : undefined;
     }
     for (const child of treeDescription.allChildren(node)) {
         colorChildRelativeExecutionRatio(child, executionTime, degreeOfParallelism);
