@@ -17,11 +17,12 @@
       "relationId": 0,
       "schema": {"type":"sessionschema"},
       "values": [{"name": "a1", "type": ["Integer"], "iu": ["v4", ["Integer"]]}, {"name": "b1", "type": ["Integer"], "iu": ["v5", ["Integer"]]}, {"name": "c1", "type": ["Integer"], "iu": ["v6", ["Integer"]]}],
-      "debugName": "t1",
+      "debugName": {"classification": "nonsensitive", "value": "t1"},
       "selectivity": 1
     },
-    "behavior": "regular",
+    "aggregatesNullable": false,
     "values": [{"value": {"expression": "iuref", "iu": "v4"}}, {"value": {"expression": "iuref", "iu": "v5"}}, {"value": {"expression": "iuref", "iu": "v6"}}],
-    "aggregates": [{"source": 2, "operation": {"aggregate": "avg"}, "iu": ["v3", ["Numeric", 14, 4]]}, {"source": 1, "operation": {"aggregate": "sum"}, "iu": ["v2", ["BigInt"]]}, {"source": 0, "operation": {"aggregate": "keep"}, "iu": ["v", ["Integer"]]}]
+    "aggregates": [{"source": 2, "operation": {"aggregate": "avg"}, "iu": ["v3", ["Numeric", 14, 4]]}, {"source": 1, "operation": {"aggregate": "sum"}, "iu": ["v2", ["BigInt"]]}, {"source": 0, "operation": {"aggregate": "keep"}, "iu": ["v", ["Integer"]]}],
+    "groupingSets": [{"aggregatedExpressionIndices": [0], "behavior": "regular"}]
   }
 }
