@@ -19,8 +19,16 @@
 }
 
 .qg-graph-node-label {
+    text-align: center;
     border-radius: .4em;
     padding: 0 .15em;
+}
+
+.qg-click-hint {
+    text-align: center;
+    color: #666;
+    font-style: italic;
+    font-size: .5em;
 }
 
 .qg-graph-node-details {
