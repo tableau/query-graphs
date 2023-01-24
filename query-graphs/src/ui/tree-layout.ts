@@ -49,7 +49,7 @@ export function layoutTree(
                 return [50, 50];
             return [measuredSize.width + 20, measuredSize.height + 40];
         })
-        .spacing((a, b) => (a.parent === b.parent ? 0 : 0));
+        .spacing((a, b) => (a.parent === b.parent ? 0 : 40));
     console.log("layout");
     const layout = treelayout(root);
     const d3nodes = layout.descendants().reverse();
