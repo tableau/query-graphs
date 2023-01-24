@@ -3,6 +3,7 @@ import {assert} from "./loader-utils";
 export type IconName =
     | "run-query-symbol"
     | "filter-symbol"
+    | "groupby-symbol"
     | "sort-symbol"
     | "inner-join-symbol"
     | "left-join-symbol"
