@@ -28,7 +28,7 @@ export function layoutTree(
     treeDescription.visitTreeNodes(
         treeData.root,
         d => {
-        nodeIds.set(d, "" + nextId++);
+            nodeIds.set(d, "" + nextId++);
         },
         treeDescription.allChildren,
     );
