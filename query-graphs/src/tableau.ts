@@ -456,8 +456,19 @@ function colorFederated(node: TreeNode, federatedType?: string) {
     if (node.tag === "fed-op") {
         federatedType = getFederationConnectionType(node) ?? federatedType;
     }
+    const federatedColors = {
+        db2: "hsl(211, 36%, 48%)",
+        "excel-direct": "hsl(30, 88%, 56%)",
+        fedeval_dataengine_connection: "hsl(113, 34%, 47%)",
+        mysql: "hsl(47, 82%, 61%)",
+        oracle: "hsl(173, 30%, 64%)",
+        postgres: "hsl(359, 70%, 61%)",
+        sqlserver: "hsl(354, 100%, 81%)",
+        textscan: "hsl(317, 25%, 58%)",
+    };
     if (federatedType !== undefined) {
-        node.nodeClass = "qg-" + federatedType;
+        console.log(federatedType, federatedColors[federatedType]);
+        node.iconColor = federatedColors[federatedType];
     }
     for (const child of treeDescription.allChildren(node)) {
         colorFederated(child, federatedType);

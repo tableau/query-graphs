@@ -13,6 +13,16 @@ interface QueryGraphProps {
     treeDescription: TreeDescription;
 }
 
+function minimapNodeColor(n: Node<TreeNode>): string {
+    if (n.data.nodeColor) return n.data.nodeColor;
+    if (n.data.iconColor) return n.data.iconColor;
+    return "hsl(0, 0%, 72%)";
+}
+
+const nodeTypes = {
+    querynode: QueryNode,
+};
+
 function QueryGraphInternal({treeDescription}: QueryGraphProps) {
     // Layout the tree, using the actual measured sizes of the DOM nodes
     const initialized = useNodesInitialized();
@@ -24,8 +34,6 @@ function QueryGraphInternal({treeDescription}: QueryGraphProps) {
         expandedSubtrees,
     ]);
     console.log({initialized, layout, nodeSizes});
-
-    const nodeTypes = useMemo(() => ({querynode: QueryNode}), []);
 
     return (
         <ReactFlow
@@ -42,7 +50,7 @@ function QueryGraphInternal({treeDescription}: QueryGraphProps) {
             nodesFocusable={false}
             className={"query-graph"}
         >
-            <MiniMap zoomable={true} pannable={true} nodeColor={(n:Node<TreeNode>) => n.data.nodeColor ?? "#e2e2e2"} />
+            <MiniMap zoomable={true} pannable={true} nodeColor={minimapNodeColor} />
             <Controls showInteractive={false} />
         </ReactFlow>
     );

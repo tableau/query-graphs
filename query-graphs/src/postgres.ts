@@ -265,8 +265,15 @@ function colorForeignScan(node: TreeNode, foreignScan?: string) {
             foreignScan = relations.split(/[(.]/).find(token => token !== "");
         }
     }
+
+    /* Favorite Foreign Scans (Jewel Bright color palette) */
     if (foreignScan !== undefined) {
-        node.nodeClass = "qg-" + foreignScan;
+        const favoriteForeignScanColors = {
+            dtinglinux: "hsl(189, 72%, 76%)",
+            lxulx: "hsl(23, 100%, 57%)",
+            ricolelx: "hsl(357, 89%, 53%)",
+        };
+        node.iconColor = favoriteForeignScanColors[foreignScan];
     }
     for (const child of treeDescription.allChildren(node)) {
         colorForeignScan(child, foreignScan);

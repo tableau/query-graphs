@@ -18,12 +18,12 @@ export type IconName =
 export interface TreeNode {
     // The displayed node name
     name?: string;
-    // The name of the icon rendered for this node
-    icon?: IconName;
-    // Additional CSS classes applied to the node
-    nodeClass?: string;
     // Color applied to node rects
     nodeColor?: string;
+    // The name of the icon rendered for this node
+    icon?: IconName;
+    // The color for the icon
+    iconColor?: string;
     // Rendered in the tooltip
     properties?: Map<string, string>;
 
