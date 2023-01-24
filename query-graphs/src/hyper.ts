@@ -210,6 +210,9 @@ function generateDisplayNames(treeRoot: TreeNode) {
                 case "sort":
                     node.icon = "sort-symbol";
                     break;
+                case "groupby":
+                    node.icon = "groupby-symbol";
+                    break;    
                 case "explicitscan":
                     node.icon = "temp-table-symbol";
                     break;
