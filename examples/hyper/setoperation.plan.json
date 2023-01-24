@@ -17,7 +17,7 @@
       "relationId": 1,
       "schema": {"type":"sessionschema"},
       "values": [{"name": "a2", "type": ["Integer"], "iu": ["v3", ["Integer"]]}, {"name": "b2", "type": ["Integer"], "iu": ["v4", ["Integer"]]}, {"name": "c2", "type": ["Integer"], "iu": null}],
-      "debugName": "t2",
+      "debugName": {"classification": "nonsensitive", "value": "t2"},
       "selectivity": 1
     }, {
       "operator": "tablescan",
@@ -27,7 +27,7 @@
       "relationId": 1,
       "schema": {"type":"sessionschema"},
       "values": [{"name": "a2", "type": ["Integer"], "iu": ["v5", ["Integer"]]}, {"name": "b2", "type": ["Integer"], "iu": null}, {"name": "c2", "type": ["Integer"], "iu": ["v6", ["Integer"]]}],
-      "debugName": "t2",
+      "debugName": {"classification": "nonsensitive", "value": "t2"},
       "selectivity": 1
     }, {
       "operator": "exceptall",
@@ -45,7 +45,7 @@
           "relationId": 0,
           "schema": {"type":"sessionschema"},
           "values": [{"name": "a1", "type": ["Integer"], "iu": ["v7", ["Integer"]]}, {"name": "b1", "type": ["Integer"], "iu": ["v8", ["Integer"]]}, {"name": "c1", "type": ["Integer"], "iu": ["v9", ["Integer"]]}],
-          "debugName": "t1",
+          "debugName": {"classification": "nonsensitive", "value": "t1"},
           "restrictions": [{"attribute": 0, "mode": "<", "value": {"expression": "const", "value": {"type": ["Integer"], "value": 0}}}],
           "selectivity": 0.5
         }, {
@@ -56,7 +56,7 @@
           "relationId": 0,
           "schema": {"type":"sessionschema"},
           "values": [{"name": "a1", "type": ["Integer"], "iu": ["v10", ["Integer"]]}, {"name": "b1", "type": ["Integer"], "iu": ["v11", ["Integer"]]}, {"name": "c1", "type": ["Integer"], "iu": ["v12", ["Integer"]]}],
-          "debugName": "t1",
+          "debugName": {"classification": "nonsensitive", "value": "t1"},
           "restrictions": [{"attribute": 0, "mode": ">", "value": {"expression": "const", "value": {"type": ["Integer"], "value": 0}}}],
           "selectivity": 0.5
         }],
@@ -71,7 +71,7 @@
         "relationId": 0,
         "schema": {"type":"sessionschema"},
         "values": [{"name": "a1", "type": ["Integer"], "iu": ["v15", ["Integer"]]}, {"name": "b1", "type": ["Integer"], "iu": ["v16", ["Integer"]]}, {"name": "c1", "type": ["Integer"], "iu": ["v17", ["Integer"]]}],
-        "debugName": "t1",
+        "debugName": {"classification": "nonsensitive", "value": "t1"},
         "restrictions": [{"attribute": 0, "mode": ">", "value": {"expression": "const", "value": {"type": ["Integer"], "value": 0}}}],
         "selectivity": 0.5
       }],

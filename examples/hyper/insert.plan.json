@@ -38,7 +38,7 @@
           "relationId": 0,
           "schema": {"type":"sessionschema"},
           "values": [{"name": "a1", "type": ["Integer"], "iu": ["v8", ["Integer"]]}, {"name": "b1", "type": ["Integer"], "iu": ["v9", ["Integer"]]}, {"name": "c1", "type": ["Integer"], "iu": ["v10", ["Integer"]]}],
-          "debugName": "t1",
+          "debugName": {"classification": "nonsensitive", "value": "t1"},
           "selectivity": 1
         },
         "condition": {"expression": "const", "value": {"type": ["Bool"], "value": true}}
