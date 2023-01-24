@@ -8,8 +8,12 @@
     transition-property: border-color, background;
     transition-duration: 0.2s;
 }
+.qg-graph-node.qg-no-props {
+    cursor: default;
+}
 .qg-graph-node.qg-collapsed:hover,
 .qg-graph-node.qg-expanded {
+    cursor: pointer;
     background: hsl(0,0%, 95%);
     border-color: hsl(0,0%, 80%);
 }

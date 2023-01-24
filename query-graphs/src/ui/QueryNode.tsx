@@ -10,11 +10,12 @@ function QueryNode({data, id}: NodeProps<TreeNode>) {
     const expanded = useGraphRenderingStore(s => s.expandedNodes[id]);
     const toggleNode = useGraphRenderingStore(s => s.toggleExpandedNode);
     const toggleSubtree = useGraphRenderingStore(s => s.toggleExpandedSubtree);
+    const hasProperties = data.properties?.size;
     const hasChildren = !!data._children;
     const onClick = useCallback(
         (e: MouseEvent) => {
-            if (e.shiftKey) toggleSubtree(id);
-            else if (hasChildren) toggleNode(id);
+            if (e.shiftKey && hasChildren) toggleSubtree(id);
+            else if (hasProperties) toggleNode(id);
             e.stopPropagation();
             e.preventDefault();
         },
@@ -24,7 +25,7 @@ function QueryNode({data, id}: NodeProps<TreeNode>) {
     const children = [] as ReactElement[];
     for (const [key, value] of (data.properties || []).entries()) {
         children.push(
-            <div>
+            <div key={key}>
                 <span className="qg-prop-name">{key}:</span> {value}
             </div>,
         );
@@ -34,11 +35,11 @@ function QueryNode({data, id}: NodeProps<TreeNode>) {
         "qg-graph-node",
         {
             "qg-expanded": expanded,
-            "qg-collapsed": hasChildren,
+            "qg-collapsed": hasProperties,
+            "qg-no-props": true,
         },
     ]);
 
-    console.log(data.iconColor);
     return (
         <>
             <Handle type="target" position={Position.Top} />
