@@ -86,6 +86,7 @@ export function layoutTree(
             id: `${sourceId}->${targetId}`,
             source: sourceId,
             target: targetId,
+            className: "qg-crosslink",
         } as Edge;
     });
 

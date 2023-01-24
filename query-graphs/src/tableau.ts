@@ -372,20 +372,6 @@ function assignSymbolsAndClasses(root: TreeNode) {
             } else if (n.name && n.name === "runquery") {
                 n.icon = "run-query-symbol";
             }
-            // Assign classes for incoming edge
-            if (n.tag === "binding" || n.class === "createtemptable" || (n.tag === "expression" && n.properties?.has("name"))) {
-                assert(n.children !== undefined);
-                n.children.forEach(c => {
-                    c.edgeClass = "qg-link-and-arrow";
-                });
-            } else if (n.name === "runquery") {
-                assert(n.children !== undefined);
-                n.children.forEach(c => {
-                    if (c.class === "createtemptable") {
-                        c.edgeClass = "qg-dotted-link";
-                    }
-                });
-            }
         },
         treeDescription.allChildren,
     );
@@ -493,8 +479,8 @@ function prepareTreeData(xml: ParsedXML, graphCollapse?: unknown): TreeNode {
 // Function to add crosslinks between related nodes
 function addCrosslinks(root: TreeNode): Crosslink[] {
     interface UnresolvedCrosslink {
-        source: TreeNode;
-        targetName: string;
+        target: TreeNode;
+        sourceName: string;
     }
 
     const unresolvedLinks: UnresolvedCrosslink[] = [];
@@ -516,7 +502,7 @@ function addCrosslinks(root: TreeNode): Crosslink[] {
                 case "fed-op": {
                     const table = node.properties?.get("table");
                     if (node.properties?.get("class") === "createtemptable" && table !== undefined) {
-                        unresolvedLinks.push({source: node, targetName: table});
+                        unresolvedLinks.push({target: node, sourceName: table});
                     }
                     break;
                 }
@@ -524,7 +510,7 @@ function addCrosslinks(root: TreeNode): Crosslink[] {
                 case "referenceExp": {
                     const ref = node.properties?.get("ref");
                     if (ref !== undefined) {
-                        unresolvedLinks.push({source: node, targetName: ref});
+                        unresolvedLinks.push({target: node, sourceName: ref});
                     }
                     break;
                 }
@@ -538,9 +524,9 @@ function addCrosslinks(root: TreeNode): Crosslink[] {
     // Add crosslinks from source to matching target node
     const crosslinks = [] as Crosslink[];
     for (const link of unresolvedLinks) {
-        const target = operatorsByName.get(link.targetName);
-        if (target !== undefined) {
-            crosslinks.push({source: link.source, target: target});
+        const source = operatorsByName.get(link.sourceName);
+        if (source !== undefined) {
+            crosslinks.push({target: link.target, source: source});
         }
     }
 

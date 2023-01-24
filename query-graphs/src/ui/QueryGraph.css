@@ -22,3 +22,21 @@
 .query-graph .react-flow__edge.qg-label-highlighted .react-flow__edge-text {
   fill: hsl(309, 84%, 36%);
 }
+
+
+.query-graph .react-flow__edge.qg-crosslink .react-flow__edge-path {
+  stroke: #ccc;
+  stroke-dasharray: 4 4;
+}
+
+.query-graph .react-flow__edge .qg-crosslink:hover .react-flow__edge-path {
+  stroke: hsl(309, 84%, 36%);
+}
+
+.query-graph .react-flow__edge .qg-crosslink .react-flow__edge-path:hover {
+  stroke: hsl(309, 84%, 36%);
+}
+
+.query-graph:hover .react-flow__edge .qg-crosslink .react-flow__edge-path {
+  stroke: hsl(309, 84%, 36%);
+}
