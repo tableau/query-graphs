@@ -467,7 +467,6 @@ function colorFederated(node: TreeNode, federatedType?: string) {
         textscan: "hsl(317, 25%, 58%)",
     };
     if (federatedType !== undefined) {
-        console.log(federatedType, federatedColors[federatedType]);
         node.iconColor = federatedColors[federatedType];
     }
     for (const child of treeDescription.allChildren(node)) {

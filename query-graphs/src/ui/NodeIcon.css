@@ -10,8 +10,9 @@
 */
 
 .qg-icon {
-    stroke: hsl(0, 0%, 40%);
+    height: 1.5em;
     stroke-width: 0.8;
+    stroke: hsl(0, 0%, 40%);
     color: hsl(0, 0%, 72%);
 }
 
