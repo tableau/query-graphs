@@ -18,7 +18,7 @@
       "relationId": 0,
       "schema": {"type":"sessionschema"},
       "values": [{"name": "a1", "type": ["Integer"], "iu": ["v", ["Integer"]]}, {"name": "b1", "type": ["Integer"], "iu": null}, {"name": "c1", "type": ["Integer"], "iu": null}],
-      "debugName": "t1",
+      "debugName": {"classification": "nonsensitive", "value": "t1"},
       "selectivity": 1
     },
     "right": {
@@ -39,9 +39,10 @@
             "operator": "groupby",
             "operatorId": 7,
             "cardinality": 100,
-            "behavior": "regular",
+            "aggregatesNullable": false,
             "values": [{"value": {"expression": "iuref", "iu": "v"}}],
-            "aggregates": [{"source": 0, "operation": {"aggregate": "keep"}, "iu": ["v3", ["Integer"]]}]
+            "aggregates": [{"source": 0, "operation": {"aggregate": "keep"}, "iu": ["v3", ["Integer"]]}],
+            "groupingSets": [{"aggregatedExpressionIndices": [0], "behavior": "regular"}]
           }
         },
         "right": {
@@ -52,14 +53,15 @@
           "relationId": 1,
           "schema": {"type":"sessionschema"},
           "values": [{"name": "a2", "type": ["Integer"], "iu": ["v5", ["Integer"]]}, {"name": "b2", "type": ["Integer"], "iu": null}, {"name": "c2", "type": ["Integer"], "iu": null}],
-          "debugName": "t2",
+          "debugName": {"classification": "nonsensitive", "value": "t2"},
           "selectivity": 1
         },
         "condition": {"expression": "comparison", "mode": "<", "left": {"expression": "iuref", "iu": "v5"}, "right": {"expression": "iuref", "iu": "v4"}}
       },
-      "behavior": "regular",
+      "aggregatesNullable": true,
       "values": [{"value": {"expression": "iuref", "iu": "v5"}}, {"value": {"expression": "iuref", "iu": "v4"}}],
-      "aggregates": [{"source": 1, "operation": {"aggregate": "keep"}, "iu": ["v6", ["Integer"]]}, {"source": 0, "operation": {"aggregate": "sum"}, "iu": ["v2", ["BigInt", "nullable"]]}]
+      "aggregates": [{"source": 1, "operation": {"aggregate": "keep"}, "iu": ["v6", ["Integer"]]}, {"source": 0, "operation": {"aggregate": "sum"}, "iu": ["v2", ["BigInt", "nullable"]]}],
+      "groupingSets": [{"aggregatedExpressionIndices": [1], "behavior": "regular"}]
     },
     "condition": {"expression": "comparison", "mode": "is", "left": {"expression": "iuref", "iu": "v"}, "right": {"expression": "iuref", "iu": "v6"}},
     "magic": 7
