@@ -22,16 +22,13 @@ export function layoutTree(
     nodeSizes: NodeDimensions | undefined,
     expandedSubtrees: Record<string, boolean>,
 ): TreeLayout {
-    const graphOrientation = treeData.graphOrientation ?? "top-to-bottom";
-    graphOrientation;
-
     // Assign ids
     let nextId = 0;
     const nodeIds = new Map<TreeNode, string>();
     treeDescription.visitTreeNodes(
         treeData.root,
         d => {
-            nodeIds.set(d, "" + nextId++);
+        nodeIds.set(d, "" + nextId++);
         },
         treeDescription.allChildren,
     );
@@ -74,6 +71,8 @@ export function layoutTree(
             id: `${sourceId}->${targetId}`,
             source: sourceId,
             target: targetId,
+            label: e.target.data.edgeLabel,
+            className: e.target.data.edgeClass,
         } as Edge;
     });
 

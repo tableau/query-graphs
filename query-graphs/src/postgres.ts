@@ -111,7 +111,7 @@ function convertPostgres(node: Json, parentKey: string): TreeNode | TreeNode[] {
 
         // Display the cardinality on the links between the nodes
         let edgeLabel: string | undefined = undefined;
-        let edgeLabelClass: string | undefined = undefined;
+        let edgeClass: string | undefined = undefined;
         if (node.hasOwnProperty("Plan Rows") && typeof node["Plan Rows"] === "number") {
             edgeLabel = formatMetric(node["Plan Rows"]);
             if (node.hasOwnProperty("Actual Rows") && typeof node["Actual Rows"] === "number") {
@@ -120,7 +120,7 @@ function convertPostgres(node: Json, parentKey: string): TreeNode | TreeNode[] {
                 const num0 = Number(node["Plan Rows"]);
                 const num1 = Number(node["Actual Rows"]);
                 if (num0 > num1 * 10 || num0 * 10 < num1) {
-                    edgeLabelClass = "qg-link-label-highlighted";
+                    edgeClass = "qg-label-highlighted";
                 }
             }
         }
@@ -146,12 +146,12 @@ function convertPostgres(node: Json, parentKey: string): TreeNode | TreeNode[] {
 
         // Build the converted node
         return {
-            tag: tag,
+            tag,
             properties: sortedProperties,
-            children: children,
-            _children: _children,
-            edgeLabel: edgeLabel,
-            edgeLabelClass: edgeLabelClass,
+            children,
+            _children,
+            edgeLabel,
+            edgeClass,
         };
     } else if (Array.isArray(node)) {
         // "Array" nodes

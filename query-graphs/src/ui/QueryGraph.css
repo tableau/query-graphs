@@ -7,3 +7,18 @@
 .query-graph .react-flow__node {
   cursor: default;
 }
+
+.query-graph .react-flow__edge-text-bg {
+  opacity: .5;
+}
+
+.query-graph .react-flow__edge-text {
+  font-size: .6em;
+}
+
+.query-graph .react-flow__edge.qg-label-highlighted .react-flow__edge-text-bg {
+  opacity: 1;
+}
+.query-graph .react-flow__edge.qg-label-highlighted .react-flow__edge-text {
+  fill: hsl(309, 84%, 36%);
+}

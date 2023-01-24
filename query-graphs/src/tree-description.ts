@@ -1,7 +1,5 @@
 import {assert} from "./loader-utils";
 
-export type GraphOrientation = "left-to-right" | "top-to-bottom" | "right-to-left" | "bottom-to-top";
-
 export type IconName =
     | "run-query-symbol"
     | "filter-symbol"
@@ -31,8 +29,6 @@ export interface TreeNode {
     edgeClass?: string;
     // EdgeLabel: label placed on the incoming edge
     edgeLabel?: string;
-    // Additional CSS classes applied to the label on the incoming edge
-    edgeLabelClass?: string;
 
     // An array containing all child nodes visible by default
     children?: TreeNode[];
@@ -60,9 +56,6 @@ export interface Crosslink {
 export interface TreeDescription {
     /// The tree root
     root: TreeNode;
-    /// The orientation of the graph
-    /// XXX remove
-    graphOrientation?: GraphOrientation;
     /// Displayed in the top-level tree label
     /// XXX remove
     properties?: Map<string, string>;

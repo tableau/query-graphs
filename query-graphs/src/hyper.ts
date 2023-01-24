@@ -119,7 +119,7 @@ function convertHyperNode(node: Json, parentKey = "result"): TreeNode | TreeNode
 
         // Display the cardinality on the links between the nodes
         let edgeLabel: string | undefined = undefined;
-        let edgeLabelClass: string | undefined = undefined;
+        let edgeClass: string | undefined = undefined;
         if (hasOwnProperty(node, "cardinality") && typeof node.cardinality === "number") {
             const estimatedCard = node.cardinality;
             edgeLabel = formatMetric(estimatedCard);
@@ -128,7 +128,7 @@ function convertHyperNode(node: Json, parentKey = "result"): TreeNode | TreeNode
                 edgeLabel += "/" + formatMetric(actualCard);
                 // Highlight significant differences between planned and actual rows
                 if (estimatedCard > actualCard * 10 || actualCard * 10 < estimatedCard) {
-                    edgeLabelClass = "qg-link-label-highlighted";
+                    edgeClass = "qg-label-highlighted";
                 }
             }
         }
@@ -136,11 +136,11 @@ function convertHyperNode(node: Json, parentKey = "result"): TreeNode | TreeNode
         // Build the converted node
         const convertedNode = {
             tag: tag,
-            properties: properties,
+            properties,
             children: expandedChildren,
             _children: collapsedChildren.length ? expandedChildren.concat(collapsedChildren) : [],
-            edgeLabel: edgeLabel,
-            edgeLabelClass: edgeLabelClass,
+            edgeLabel,
+            edgeClass,
         };
         return convertedNode;
     } else if (Array.isArray(node)) {
@@ -215,7 +215,6 @@ function generateDisplayNames(treeRoot: TreeNode) {
                     break;
                 case "temp":
                     node.icon = "temp-table-symbol";
-                    node.edgeClass = "qg-link-and-arrow";
                     break;
                 case "comparison":
                     node.name = node.properties?.get("mode") ?? node.name;
