@@ -1,12 +1,12 @@
-import { memo, ReactElement, MouseEvent, useCallback } from "react";
-import { Handle, NodeProps, Position } from "reactflow";
+import {memo, ReactElement, MouseEvent, useCallback} from "react";
+import {Handle, NodeProps, Position} from "reactflow";
 import cc from "classcat";
-import { TreeNode } from "../tree-description";
-import { NodeIcon } from "./NodeIcon";
+import {TreeNode} from "../tree-description";
+import {NodeIcon} from "./NodeIcon";
 import "./QueryNode.css";
-import { useGraphRenderingStore } from "./store";
+import {useGraphRenderingStore} from "./store";
 
-function QueryNode({ data, id }: NodeProps<TreeNode>) {
+function QueryNode({data, id}: NodeProps<TreeNode>) {
     const expanded = useGraphRenderingStore(s => s.expandedNodes[id]);
     const toggleNode = useGraphRenderingStore(s => s.toggleExpandedNode);
     const toggleSubtree = useGraphRenderingStore(s => s.toggleExpandedSubtree);
@@ -14,15 +14,18 @@ function QueryNode({ data, id }: NodeProps<TreeNode>) {
     const hasChildren = !!data._children;
     const onClick = useCallback(
         (e: MouseEvent) => {
-            if (e.shiftKey && hasChildren) toggleSubtree(id);
-            else if (hasProperties) toggleNode(id);
+            if (e.shiftKey) {
+                if (hasChildren) toggleSubtree(id);
+            } else {
+                if (hasProperties) toggleNode(id);
+            }
             e.stopPropagation();
             e.preventDefault();
         },
-        [toggleNode, toggleSubtree, hasChildren, id],
+        [toggleNode, toggleSubtree, hasProperties, hasChildren, id],
     );
 
-    var expandHint = <></>;
+    let expandHint = <></>;
     if (hasChildren) {
         expandHint = <div className="qg-click-hint">Ctrl+Click to show all children</div>;
     }
@@ -45,13 +48,12 @@ function QueryNode({ data, id }: NodeProps<TreeNode>) {
         },
     ]);
 
-
     return (
         <>
             <Handle type="target" position={Position.Top} />
             <div className={className} onClick={onClick}>
                 <NodeIcon icon={data.icon} iconColor={data.iconColor} />
-                <div className="qg-graph-node-label" style={{ background: data.nodeColor }}>
+                <div className="qg-graph-node-label" style={{background: data.nodeColor}}>
                     {data.name}
                 </div>
                 <div className="qg-graph-node-details nowheel">
@@ -67,4 +69,4 @@ function QueryNode({ data, id }: NodeProps<TreeNode>) {
 }
 
 const memoizedQueryNode = memo(QueryNode);
-export { memoizedQueryNode as QueryNode };
+export {memoizedQueryNode as QueryNode};
