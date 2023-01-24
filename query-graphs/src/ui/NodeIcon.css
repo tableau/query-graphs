@@ -12,13 +12,7 @@
 .qg-icon {
     stroke: hsl(0, 0%, 40%);
     stroke-width: 0.8;
-    color: hsl(0, 0%, 60%);
-}
-
-.qg-icon.qg-expanded {
-    stroke: hsl(0, 0%, 40%);
-    stroke-width: 0.8;
-    color: hsl(0, 0%, 84%);
+    color: hsl(0, 0%, 72%);
 }
 
 text.qg-table-text {

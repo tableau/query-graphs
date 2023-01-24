@@ -1,32 +1,43 @@
-import {CSSProperties} from "react";
+import {CSSProperties, SVGAttributes} from "react";
 import {IconName} from "../tree-description";
 import "./NodeIcon.css";
 
 interface NodeIconProps {
     icon?: IconName;
+    iconColor?: string;
     style?: CSSProperties;
 }
 
-function DefaultIcon({style}: NodeIconProps) {
+function sharedSvgProps({style, iconColor}: NodeIconProps): SVGAttributes<SVGSVGElement> {
+    return {
+        className: "qg-icon",
+        style: {
+            color: iconColor,
+            ...style,
+        },
+    };
+}
+
+function DefaultIcon(p: NodeIconProps) {
     return (
-        <svg style={style} viewBox="-7 -7 14 14" className="qg-icon qg-expanded">
+        <svg viewBox="-7 -7 14 14" {...sharedSvgProps(p)}>
             <circle r="5" fill="currentColor" />
         </svg>
     );
 }
 
-function RunQueryIcon({style}: NodeIconProps) {
+function RunQueryIcon(p: NodeIconProps) {
     return (
-        <svg style={style} viewBox="-7 -7 14 14" className="qg-icon qg-expanded">
+        <svg viewBox="-7 -7 14 14" {...sharedSvgProps(p)}>
             <circle r="6" fill="currentColor" />
             <path d="M-2.5,-3.5L4,0L-2.5,3.5 z" fill="#fff" />
         </svg>
     );
 }
 
-function SortIcon({style}: NodeIconProps) {
+function SortIcon(p: NodeIconProps) {
     return (
-        <svg style={style} viewBox="-9 -8 18 18" className="qg-icon qg-expanded">
+        <svg viewBox="-9 -8 18 18" {...sharedSvgProps(p)}>
             <rect x={-8} y={-8} width={16} height="16" fill="#fff" stroke="none"></rect>
             <path d="M6,3 L6,6 L-7,6 L-7,3 Z" fill="currentColor" />
             <path d="M0,-2 L0,1 L-7,1 L-7,-2 Z" fill="currentColor" />
@@ -36,9 +47,9 @@ function SortIcon({style}: NodeIconProps) {
     );
 }
 
-function FilterIcon({style}: NodeIconProps) {
+function FilterIcon(p: NodeIconProps) {
     return (
-        <svg style={style} viewBox="-7 -7 14 14" className="qg-icon qg-expanded">
+        <svg viewBox="-7 -7 14 14" {...sharedSvgProps(p)}>
             <path d="M-6,-6 L6,-6 L0.8,0 L0.8,5 L-0.8,7 L-0.8,0 Z" fill="currentColor" />
         </svg>
     );
@@ -51,14 +62,14 @@ interface JoinFills {
 }
 
 function createJoinIcon(joinFills: JoinFills) {
-    return function JoinIcon({style}: NodeIconProps) {
+    return function JoinIcon(p: NodeIconProps) {
         // Join symbols are just 2 overlapped circles for the most part.
         const radius = 6.0;
         const leftOffset = -3.0;
         const rightOffset = 3.0;
 
         return (
-            <svg style={style} viewBox="-10 -7 20 14" className="qg-icon qg-expanded">
+            <svg viewBox="-10 -7 20 14" {...sharedSvgProps(p)}>
                 {/* left and right circle */}
                 <circle r={radius} cx={leftOffset} stroke="none" fill={joinFills.left ? "currentColor" : "#fff"} />
                 <circle r={radius} cx={rightOffset} stroke="none" fill={joinFills.right ? "currentColor" : "#fff"} />
@@ -87,7 +98,7 @@ const RightJoinIcon = createJoinIcon({left: false, center: true, right: true});
 const FullJoinIcon = createJoinIcon({left: true, right: true, center: true});
 
 function createTableIcon(labelText?: string) {
-    return function TableIcon({style}: NodeIconProps) {
+    return function TableIcon(p: NodeIconProps) {
         const tableRowWidth = 5.2;
         const tableRowHeight = 2.8;
         const tableWidth = tableRowWidth * 3;
@@ -126,7 +137,7 @@ function createTableIcon(labelText?: string) {
         }
 
         return (
-            <svg style={style} viewBox="-10 -7 20 14" className="qg-icon qg-expanded">
+            <svg viewBox="-10 -7 20 14" {...sharedSvgProps(p)}>
                 <rect x={tableStartLeft} width={tableWidth} y={tableStartTop} height={tableHeight} fill="#fff" />
                 <rect x={tableStartLeft} width={tableWidth} y={tableStartTop} height={tableRowHeight} fill="currentColor" />
                 {content}
@@ -140,7 +151,7 @@ const ConstTableIcon = createTableIcon("cnst");
 const VirtualTableIcon = createTableIcon("dmv");
 const TempTableIcon = createTableIcon("tmp");
 
-export function NodeIcon({icon, style}: NodeIconProps) {
+export function NodeIcon({icon, ...rest}: NodeIconProps) {
     const iconTypes: Record<IconName, any> = {
         "run-query-symbol": RunQueryIcon,
         "filter-symbol": FilterIcon,
@@ -155,5 +166,5 @@ export function NodeIcon({icon, style}: NodeIconProps) {
         "const-table-symbol": ConstTableIcon,
     };
     const SelectedIcon = icon ? iconTypes[icon] : DefaultIcon;
-    return <SelectedIcon style={style} />;
+    return <SelectedIcon {...rest} />;
 }

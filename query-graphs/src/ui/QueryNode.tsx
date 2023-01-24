@@ -38,12 +38,13 @@ function QueryNode({data, id}: NodeProps<TreeNode>) {
         },
     ]);
 
+    console.log(data.iconColor);
     return (
         <>
             <Handle type="target" position={Position.Top} />
             <div className={className} onClick={onClick}>
-                <NodeIcon icon={data.icon} style={{height: "1.5em"}} />
-                <div className="qg-graph-node-label" style={{textAlign: "center", background: data.nodeColor}}>
+                <NodeIcon icon={data.icon} iconColor={data.iconColor} />
+                <div className="qg-graph-node-label" style={{background: data.nodeColor}}>
                     {data.name}
                 </div>
                 <div className="qg-graph-node-details nowheel">
