@@ -27,7 +27,7 @@ function QueryNode({data, id}: NodeProps<TreeNode>) {
 
     let expandHint = <></>;
     if (hasChildren) {
-        expandHint = <div className="qg-click-hint">Ctrl+Click to show all children</div>;
+        expandHint = <div className="qg-click-hint">Shift+Click to show all children</div>;
     }
 
     const children = [] as ReactElement[];
