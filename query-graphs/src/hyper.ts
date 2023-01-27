@@ -15,10 +15,67 @@ The label for a tree node is taken from the first defined property among "operat
 */
 
 import * as treeDescription from "./tree-description";
-import {TreeNode, TreeDescription, Crosslink} from "./tree-description";
+import {TreeNode, TreeDescription, Crosslink, IconName} from "./tree-description";
 import {Json, JsonObject, forceToString, tryToString, formatMetric, hasOwnProperty, tryGetPropertyPath} from "./loader-utils";
 
-function showExpanded(node: JsonObject, key: string): boolean {
+interface UnresolvedCrosslink {
+    source: TreeNode;
+    targetOpId: string;
+}
+
+// Temporary state which we hold during converting from JSON to internal graph representation
+interface ConversionState {
+    operatorsById: Map<string, TreeNode>;
+    crosslinks: UnresolvedCrosslink[];
+};
+
+// Customization points for rendering the various different
+// operator and expression types
+interface NodeRenderingConfig {
+    displayNameKey?: string;
+    crosslinkSourceKey?: string;
+    icon?: IconName;
+}
+
+const nodeRenderingConfig: Record<string, NodeRenderingConfig> = {
+    "op:executiontarget": {icon: "run-query-symbol"},
+    "op:select": {icon: "filter-symbol"},
+    "op:sort": {icon: "sort-symbol"},
+    "op:groupby": {icon: "groupby-symbol"},
+    // Joins
+    "op:join": {icon: "inner-join-symbol", crosslinkSourceKey: "magic"},
+    "op:leftouterjoin": {icon: "left-join-symbol", crosslinkSourceKey: "magic"},
+    "op:rightouterjoin": {icon: "right-join-symbol", crosslinkSourceKey: "magic"},
+    "op:fullouterjoin": {icon: "full-join-symbol", crosslinkSourceKey: "magic"},
+    "op:leftantijoin": {crosslinkSourceKey: "magic"},
+    "op:rightantijoin": {crosslinkSourceKey: "magic"},
+    "op:leftsemijoin": {crosslinkSourceKey: "magic"},
+    "op:rightsemijoin": {crosslinkSourceKey: "magic"},
+    "op:leftsinglejoin": {crosslinkSourceKey: "magic"},
+    "op:rightsinglejoin": {crosslinkSourceKey: "magic"},
+    "op:leftmarkjoin": {crosslinkSourceKey: "magic"},
+    "op:rightmarkjoin": {crosslinkSourceKey: "magic"},
+    "op:earlyprobe": {icon: "filter-symbol", crosslinkSourceKey: "builder"},
+    // Various scans
+    "op:tablescan": {icon: "table-symbol"},
+    "op:binaryscan": {icon: "table-symbol"},
+    "op:cursorscan": {icon: "table-symbol"},
+    "op:csvscan": {icon: "table-symbol"},
+    "op:parquetscan": {icon: "table-symbol"},
+    "op:tdescan": {icon: "table-symbol"},
+    // Other tables
+    "op:tableconstruction": {icon: "const-table-symbol"},
+    "op:virtualtable": {icon: "virtual-table-symbol"},
+    // Temp & Explicit scan
+    "op:explicitscan": {icon: "temp-table-symbol", crosslinkSourceKey: "input"},
+    "op:temp": {icon: "temp-table-symbol"},
+    // Expressions
+    "exp:comparison": {displayNameKey: "mode"},
+    "exp:iuref": {displayNameKey: "iu"},
+};
+
+// Should the entry `key` from `node` be displayed as an expanded or collapsed node by default?
+function isExpandedByDefault(node: JsonObject, key: string): boolean {
     const child = node[key];
     if (node.hasOwnProperty("operator")) {
         // There might be arrays of operators. Also detect those...
@@ -26,7 +83,7 @@ function showExpanded(node: JsonObject, key: string): boolean {
         while (Array.isArray(unwrapped) && unwrapped.length) {
             unwrapped = unwrapped[0];
         }
-        // Subobject which are also operators themself should be displayed
+        // Subobjects which are also operators themself should be displayed
         if (typeof unwrapped === "object" && !Array.isArray(unwrapped) && unwrapped !== null) {
             return unwrapped.hasOwnProperty("operator");
         }
@@ -37,48 +94,55 @@ function showExpanded(node: JsonObject, key: string): boolean {
 }
 
 // Convert Hyper JSON to a D3 tree
-function convertHyperNode(node: Json, parentKey = "result"): TreeNode | TreeNode[] {
-    if (tryToString(node) !== undefined) {
+function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionState): TreeNode | TreeNode[] {
+    if (tryToString(rawNode) !== undefined) {
         return {
-            text: tryToString(node),
+            name: tryToString(rawNode),
         };
-    } else if (typeof node === "object" && !Array.isArray(node) && node !== null) {
+    } else if (typeof rawNode === "object" && !Array.isArray(rawNode) && rawNode !== null) {
         // "Object" nodes
         const expandedChildren = [] as TreeNode[];
         const collapsedChildren = [] as TreeNode[];
         const properties = new Map<string, string>();
 
-        // Take the first present tagKey as the new tag. Add all others as properties
-        const tagKeys = ["operator", "expression", "mode"];
-        let tag: string | undefined;
-        for (const tagKey of tagKeys) {
-            if (!node.hasOwnProperty(tagKey)) {
-                continue;
+        // Figure out if this is an operator or an expression and
+        // retrieve the operator-specific customizations
+        let nodeType: "operator" | "expression" | undefined;
+        let nodeTag: string | undefined;
+        let renderingConfig: NodeRenderingConfig = {};
+        if (rawNode.hasOwnProperty("operator")) {
+            const val = tryToString(rawNode["operator"]);
+            if (val !== undefined) {
+                nodeType = "operator";
+                nodeTag = val;
+                renderingConfig = nodeRenderingConfig[`op:${nodeTag}`] ?? {};
             }
-            if (tag === undefined) {
-                tag = tryToString(node[tagKey]);
-            } else {
-                properties.set(tagKey, forceToString(node[tagKey]));
+        } else if (rawNode.hasOwnProperty("expression")) {
+            const val = tryToString(rawNode["expression"]);
+            if (val !== undefined) {
+                nodeType = "expression";
+                nodeTag = val;
+                renderingConfig = nodeRenderingConfig[`exp:${nodeTag}`] ?? {};
             }
-        }
-        if (tag === undefined) {
-            tag = parentKey;
+        } else {
+            // Just inherit the parent key by default
+            nodeTag = parentKey;
         }
 
         // Display these properties always as properties, even if they are more complex
         const propertyKeys = ["analyze", "querylocs"];
         for (const key of propertyKeys) {
-            if (!node.hasOwnProperty(key)) {
+            if (!rawNode.hasOwnProperty(key)) {
                 continue;
             }
-            properties.set(key, forceToString(node[key]));
+            properties.set(key, forceToString(rawNode[key]));
         }
 
         // Determine the order in which other keys are displayed.
         // For some keys, we enforce a specific order here (e.g., "left" comes before "right").
         // For all other keys, we use alphabetic order.
         const fixedOrder = ["input", "left", "right", "value", "valueForComparison"];
-        const orderedKeys = Object.getOwnPropertyNames(node).sort((a, b) => {
+        const orderedKeys = Object.getOwnPropertyNames(rawNode).sort((a, b) => {
             const idx1 = fixedOrder.indexOf(a);
             const idx2 = fixedOrder.indexOf(b);
             if (idx1 != -1 || idx2 != -1) {
@@ -90,40 +154,42 @@ function convertHyperNode(node: Json, parentKey = "result"): TreeNode | TreeNode
                 if (a > b) return 1;
                 return 0;
             }
+        }).filter(k => {
+            // `propertyKeys` and `operator`/`expression` were already handled
+            return k != nodeType && propertyKeys.indexOf(k) === -1;
         });
 
         // Display all other properties adaptively: simple expressions are displayed as properties, all others as part of the tree
-        const handledKeys = tagKeys.concat(propertyKeys);
         for (const key of orderedKeys) {
-            if (handledKeys.indexOf(key) !== -1) {
-                continue;
-            }
-
             // Try to display as string property
-            const str = tryToString(node[key]);
+            const str = tryToString(rawNode[key]);
             if (str !== undefined) {
                 properties.set(key, str);
                 continue;
             }
 
             // Display as part of the tree
-            const children = showExpanded(node, key) ? expandedChildren : collapsedChildren;
-            const innerNodes = convertHyperNode(node[key], key);
+            const children = isExpandedByDefault(rawNode, key) ? expandedChildren : collapsedChildren;
+            const innerNodes = convertHyperNode(rawNode[key], key, conversionState);
             const innerNodesArray = Array.isArray(innerNodes) ? innerNodes : [innerNodes];
             if (fixedOrder.indexOf(key) != -1) {
                 Array.prototype.push.apply(children, innerNodesArray);
             } else {
-                children.push({tag: key, children: innerNodesArray});
+                children.push({name: key, children: innerNodesArray});
             }
         }
+
+        // Figure out the display name
+        const specificDisplayName = renderingConfig.displayNameKey ? properties.get(renderingConfig.displayNameKey) : undefined;
+        const displayName = specificDisplayName ?? properties?.get("name") ?? properties?.get("debugName") ?? nodeTag ?? "";
 
         // Display the cardinality on the links between the nodes
         let edgeLabel: string | undefined = undefined;
         let edgeClass: string | undefined = undefined;
-        if (hasOwnProperty(node, "cardinality") && typeof node.cardinality === "number") {
-            const estimatedCard = node.cardinality;
+        if (hasOwnProperty(rawNode, "cardinality") && typeof rawNode.cardinality === "number") {
+            const estimatedCard = rawNode.cardinality;
             edgeLabel = formatMetric(estimatedCard);
-            const actualCard = tryGetPropertyPath(node, ["analyze", "tuplecount"]);
+            const actualCard = tryGetPropertyPath(rawNode, ["analyze", "tuplecount"]);
             if (typeof actualCard === "number") {
                 edgeLabel += "/" + formatMetric(actualCard);
                 // Highlight significant differences between planned and actual rows
@@ -135,20 +201,41 @@ function convertHyperNode(node: Json, parentKey = "result"): TreeNode | TreeNode
 
         // Build the converted node
         const convertedNode = {
-            tag: tag,
+            name: displayName,
+            icon: renderingConfig.icon,
             properties,
             children: expandedChildren,
             _children: collapsedChildren.length ? expandedChildren.concat(collapsedChildren) : [],
             edgeLabel,
             edgeClass,
         };
+
+        // Add cross links
+        if (renderingConfig.crosslinkSourceKey) {
+            const sourceId = properties?.get(renderingConfig.crosslinkSourceKey);
+            if (sourceId !== undefined) {
+                conversionState.crosslinks.push({
+                    source: convertedNode,
+                    targetOpId: sourceId,
+                });
+            }
+        }
+
+        // Add to `operatorId` map if applicable
+        if (nodeType == "operator") {
+            const operatorId = properties?.get("operatorId");
+            if (operatorId !== undefined) {
+                conversionState.operatorsById.set(operatorId, convertedNode);
+            }
+        }
+
         return convertedNode;
-    } else if (Array.isArray(node)) {
+    } else if (Array.isArray(rawNode)) {
         // "Array" nodes
         const listOfObjects = [] as TreeNode[];
-        for (let index = 0; index < node.length; ++index) {
-            const value = node[index];
-            const innerNode = convertHyperNode(value, parentKey + "." + index.toString());
+        for (let index = 0; index < rawNode.length; ++index) {
+            const value = rawNode[index];
+            const innerNode = convertHyperNode(value, parentKey + "." + index.toString(), conversionState);
             // objectify nested arrays
             if (Array.isArray(innerNode)) {
                 innerNode.forEach(value => {
@@ -163,146 +250,15 @@ function convertHyperNode(node: Json, parentKey = "result"): TreeNode | TreeNode
     throw new Error("Invalid Hyper query plan");
 }
 
-// Function to generate nodes' display names based on their properties
-function generateDisplayNames(treeRoot: TreeNode) {
-    treeDescription.visitTreeNodes(
-        treeRoot,
-        node => {
-            node.name =
-                node.name ?? node.properties?.get("name") ?? node.properties?.get("debugName") ?? node.tag ?? node.text ?? "";
-            switch (node.tag) {
-                case "executiontarget":
-                    node.icon = "run-query-symbol";
-                    break;
-                case "join":
-                    node.icon = "inner-join-symbol";
-                    break;
-                case "leftouterjoin":
-                    node.icon = "left-join-symbol";
-                    break;
-                case "rightouterjoin":
-                    node.icon = "right-join-symbol";
-                    break;
-                case "fullouterjoin":
-                    node.icon = "full-join-symbol";
-                    break;
-                case "tablescan":
-                    node.icon = "table-symbol";
-                    break;
-                case "virtualtable":
-                    node.name = node.properties?.get("name") ?? node.tag;
-                    node.icon = "virtual-table-symbol";
-                    break;
-                case "tableconstruction":
-                    node.icon = "const-table-symbol";
-                    break;
-                case "binaryscan":
-                case "cursorscan":
-                case "csvscan":
-                case "parquetscan":
-                case "tdescan":
-                    node.icon = "table-symbol";
-                    break;
-                case "select":
-                case "earlyprobe":
-                    node.icon = "filter-symbol";
-                    break;
-                case "sort":
-                    node.icon = "sort-symbol";
-                    break;
-                case "groupby":
-                    node.icon = "groupby-symbol";
-                    break;
-                case "explicitscan":
-                    node.icon = "temp-table-symbol";
-                    break;
-                case "temp":
-                    node.icon = "temp-table-symbol";
-                    break;
-                case "comparison":
-                    node.name = node.properties?.get("mode") ?? node.name;
-                    break;
-                case "iuref":
-                    node.name = node.properties?.get("iu") ?? node.name;
-                    break;
-                case "attribute":
-                case "condition":
-                case "iu":
-                case "name":
-                case "operation":
-                case "source":
-                case "tableOid":
-                case "tid":
-                case "tupleFlags":
-                case "output":
-                    if (node.text) {
-                        node.name = node.tag + ":" + node.text;
-                    } else {
-                        node.name = node.tag;
-                    }
-                    break;
-            }
-        },
-        treeDescription.allChildren,
-    );
-}
-
-// Function to add crosslinks between related nodes
-function addCrosslinks(root: TreeNode) {
-    interface UnresolvedCrosslink {
-        source: TreeNode;
-        targetOpId: number;
-    }
-
-    const unresolvedLinks = [] as UnresolvedCrosslink[];
-    const operatorsById = new Map<number, TreeNode>();
-
-    treeDescription.visitTreeNodes(
-        root,
-        node => {
-            // Build map from operatorId to node
-            const operatorId = node.properties?.get("operatorId");
-            if (operatorId !== undefined) {
-                const key = parseInt(operatorId, 10);
-                operatorsById.set(key, node);
-            }
-
-            // Identify source operators
-            let sourceKeys = [] as string[];
-            switch (node.tag) {
-                case "explicitscan":
-                    // Older versions of Hyper used `source`, newer version use `input`
-                    sourceKeys = ["source", "input"];
-                    break;
-                case "earlyprobe":
-                    sourceKeys = ["builder"];
-                    break;
-                default:
-                    // All magic joins refer to the magic scan as `magic`
-                    sourceKeys = ["magic"];
-                    break;
-            }
-            for (const sourceKey of sourceKeys) {
-                const sourceId = node.properties?.get(sourceKey);
-                if (sourceId !== undefined) {
-                    unresolvedLinks.push({
-                        source: node,
-                        targetOpId: parseInt(sourceId, 10),
-                    });
-                }
-            }
-        },
-        treeDescription.allChildren,
-    );
-
-    // Add crosslinks from source to matching target node
-    const crosslinks = [] as Crosslink[];
-    for (const link of unresolvedLinks) {
-        const target = operatorsById.get(link.targetOpId);
+// Resolve all pending crosslinks
+function resolveCrosslinks(state : ConversionState) : Crosslink[] {
+    var crosslinks = [] as Crosslink[];
+    for (var link of state.crosslinks) {
+        const target = state.operatorsById.get(link.targetOpId);
         if (target !== undefined) {
             crosslinks.push({source: link.source, target: target});
         }
-    }
+    };
     return crosslinks;
 }
 
@@ -312,12 +268,16 @@ interface LinkedNodes {
 }
 
 function convertHyperPlan(node: Json): LinkedNodes {
-    const root = convertHyperNode(node);
+    const conversionState = {
+        operatorsById: new Map<string, TreeNode>(),
+        crosslinks: [],
+    } as ConversionState;
+    const root = convertHyperNode(node, "result", conversionState);
     if (Array.isArray(root)) {
         throw new Error("Invalid Hyper query plan");
     }
-    generateDisplayNames(root);
-    const crosslinks = addCrosslinks(root);
+    const crosslinks = resolveCrosslinks(conversionState);
+    console.log({root, crosslinks});
     return {root, crosslinks};
 }
 

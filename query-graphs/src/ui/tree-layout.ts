@@ -78,17 +78,25 @@ export function layoutTree(
 
     // Add crosslinks
     const descendants = root.descendants();
-    const map = (d: treeDescription.TreeNode) => descendants.find(h => h.data === d);
-    const crosslinks = (treeData.crosslinks ?? []).map(l => {
-        const sourceId = nodeIds.get(map(l.source)!.data);
-        const targetId = nodeIds.get(map(l.target)!.data);
-        return {
+    const map = (d: treeDescription.TreeNode) => {
+        return descendants.find(h => {
+            return h.data === d;
+        });
+    }
+    var crosslinks = [] as Edge[];
+    for (const link of treeData.crosslinks ?? []) {
+        const sourceNode = map(link.source);
+        const targetNode = map(link.target);
+        if (!targetNode || !sourceNode) continue;
+        const sourceId = nodeIds.get(sourceNode.data)!;
+        const targetId = nodeIds.get(targetNode.data)!;
+        crosslinks.push({
             id: `${sourceId}->${targetId}`,
             source: sourceId,
             target: targetId,
             className: "qg-crosslink",
-        } as Edge;
-    });
+        });
+    }
 
     return {nodes: nodes, edges: edges.concat(crosslinks)};
 }
