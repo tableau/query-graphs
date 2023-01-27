@@ -7,6 +7,7 @@ import {TreeNode, TreeDescription} from "../tree-description";
 // TODO: import type; fix `prettier` first :/
 import {Edge, Node} from "reactflow";
 import {assertNotNull} from "../loader-utils";
+import { CSSProperties } from "react";
 
 interface TreeLayout {
     nodes: Node<TreeNode>[];
@@ -47,7 +48,7 @@ export function layoutTree(
             if (!measuredSize)
                 // Fallback values, used before the tree is rendered for the first time
                 return [50, 50];
-            return [measuredSize.width + 20, measuredSize.height + 40];
+            return [measuredSize.width + 20, measuredSize.height + 50];
         })
         .spacing((a, b) => (a.parent === b.parent ? 0 : 40));
     console.log("layout");
@@ -67,12 +68,18 @@ export function layoutTree(
     const edges = d3edges.map(e => {
         const sourceId = nodeIds.get(e.source.data);
         const targetId = nodeIds.get(e.target.data);
+        const style = {} as CSSProperties;
+        if (e.target.data.edgeWidth) {
+            const width = Math.max(1, 10 * Math.min(1, e.target.data.edgeWidth))
+            style.strokeWidth = `${width}px`;
+        }
         return {
             id: `${sourceId}->${targetId}`,
             source: sourceId,
             target: targetId,
             label: e.target.data.edgeLabel,
             className: e.target.data.edgeClass,
+            style: style
         } as Edge;
     });
 
