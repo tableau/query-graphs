@@ -226,6 +226,10 @@ function generateDisplayNames(treeRoot: TreeNode) {
                     node.name = node.tag;
                     node.icon = "filter-symbol";
                     break;
+                case "Aggregate":
+                    node.name = node.tag;
+                    node.icon = "groupby-symbol";
+                    break;
                 case "Function Scan":
                 case "Table Function Scan":
                     node.name = node.tag;
