@@ -1,5 +1,5 @@
-import { CSSProperties, SVGAttributes } from "react";
-import { IconName } from "../tree-description";
+import {CSSProperties, SVGAttributes} from "react";
+import {IconName} from "../tree-description";
 import "./NodeIcon.css";
 
 interface NodeIconProps {
@@ -8,7 +8,7 @@ interface NodeIconProps {
     style?: CSSProperties;
 }
 
-function sharedSvgProps({ style, iconColor }: NodeIconProps): SVGAttributes<SVGSVGElement> {
+function sharedSvgProps({style, iconColor}: NodeIconProps): SVGAttributes<SVGSVGElement> {
     return {
         className: "qg-icon",
         style: {
@@ -38,7 +38,11 @@ function RunQueryIcon(p: NodeIconProps) {
 function GroupByIcon(p: NodeIconProps) {
     return (
         <svg viewBox="0 0 14 14" {...sharedSvgProps(p)}>
-            <path d="m 12.791493,0.09859908 0.07435,3.95594402 h -0.397475 c -0.02719,-0.65226 -0.166472,-1.17541 -0.417854,-1.5695 -0.251404,-0.3940699 -0.55885,-0.6437599 -0.92234,-0.7490799 -0.363511,-0.10524 -0.888379,-0.15806 -1.5746055,-0.15806 H 5.6807598 l -0.023394,9.8231058 c -4.8e-6,0.91046 0.1171977,1.48798 0.3516101,1.73259 0.2344018,0.24459 0.7762555,0.38048 1.6255615,0.40765 v 0.3771 H 1.7030209 v -0.3771 c 0.8560938,-0.0272 1.4030432,-0.16306 1.6408499,-0.40765 0.2378018,-0.24461 0.3567027,-0.82213 0.3567059,-1.73259 v -8.78515 c -3.2e-6,-0.91044 -0.1189041,-1.4879799 -0.3567059,-1.73258992 -0.2378067,-0.24457 -0.7847561,-0.38046 -1.6408499,-0.40765 v -0.3771 z"  fill="currentColor" stroke="inherit"/>
+            <path
+                d="m 12.791493,0.09859908 0.07435,3.95594402 h -0.397475 c -0.02719,-0.65226 -0.166472,-1.17541 -0.417854,-1.5695 -0.251404,-0.3940699 -0.55885,-0.6437599 -0.92234,-0.7490799 -0.363511,-0.10524 -0.888379,-0.15806 -1.5746055,-0.15806 H 5.6807598 l -0.023394,9.8231058 c -4.8e-6,0.91046 0.1171977,1.48798 0.3516101,1.73259 0.2344018,0.24459 0.7762555,0.38048 1.6255615,0.40765 v 0.3771 H 1.7030209 v -0.3771 c 0.8560938,-0.0272 1.4030432,-0.16306 1.6408499,-0.40765 0.2378018,-0.24461 0.3567027,-0.82213 0.3567059,-1.73259 v -8.78515 c -3.2e-6,-0.91044 -0.1189041,-1.4879799 -0.3567059,-1.73258992 -0.2378067,-0.24457 -0.7847561,-0.38046 -1.6408499,-0.40765 v -0.3771 z"
+                fill="currentColor"
+                stroke="inherit"
+            />
         </svg>
     );
 }
@@ -100,10 +104,10 @@ function createJoinIcon(joinFills: JoinFills) {
     };
 }
 
-const InnerJoinIcon = createJoinIcon({ left: false, center: true, right: false });
-const LeftJoinIcon = createJoinIcon({ left: true, center: true, right: false });
-const RightJoinIcon = createJoinIcon({ left: false, center: true, right: true });
-const FullJoinIcon = createJoinIcon({ left: true, right: true, center: true });
+const InnerJoinIcon = createJoinIcon({left: false, center: true, right: false});
+const LeftJoinIcon = createJoinIcon({left: true, center: true, right: false});
+const RightJoinIcon = createJoinIcon({left: false, center: true, right: true});
+const FullJoinIcon = createJoinIcon({left: true, right: true, center: true});
 
 function createTableIcon(labelText?: string) {
     return function TableIcon(p: NodeIconProps) {
@@ -159,7 +163,7 @@ const ConstTableIcon = createTableIcon("cnst");
 const VirtualTableIcon = createTableIcon("dmv");
 const TempTableIcon = createTableIcon("tmp");
 
-export function NodeIcon({ icon, ...rest }: NodeIconProps) {
+export function NodeIcon({icon, ...rest}: NodeIconProps) {
     const iconTypes: Record<IconName, any> = {
         "run-query-symbol": RunQueryIcon,
         "filter-symbol": FilterIcon,
