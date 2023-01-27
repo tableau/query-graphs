@@ -28,8 +28,10 @@ export interface TreeNode {
 
     // Additional CSS classes applied to the incoming link
     edgeClass?: string;
-    // EdgeLabel: label placed on the incoming edge
+    // Label placed on the incoming edge
     edgeLabel?: string;
+    // Width of the incoming edge
+    edgeWidth?: number;
 
     // An array containing all child nodes visible by default
     children?: TreeNode[];

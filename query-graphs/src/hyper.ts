@@ -27,6 +27,7 @@ interface UnresolvedCrosslink {
 interface ConversionState {
     operatorsById: Map<string, TreeNode>;
     crosslinks: UnresolvedCrosslink[];
+    edgeWidths: {node: TreeNode, width: number}[];
 };
 
 // Customization points for rendering the various different
@@ -186,16 +187,20 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
         // Display the cardinality on the links between the nodes
         let edgeLabel: string | undefined = undefined;
         let edgeClass: string | undefined = undefined;
+        let edgeWidth: number | undefined = undefined;
         if (hasOwnProperty(rawNode, "cardinality") && typeof rawNode.cardinality === "number") {
             const estimatedCard = rawNode.cardinality;
-            edgeLabel = formatMetric(estimatedCard);
             const actualCard = tryGetPropertyPath(rawNode, ["analyze", "tuplecount"]);
             if (typeof actualCard === "number") {
-                edgeLabel += "/" + formatMetric(actualCard);
+                edgeWidth = actualCard;
+                edgeLabel = formatMetric(actualCard) + "/" + formatMetric(estimatedCard);
                 // Highlight significant differences between planned and actual rows
                 if (estimatedCard > actualCard * 10 || actualCard * 10 < estimatedCard) {
                     edgeClass = "qg-label-highlighted";
                 }
+            } else {
+                edgeWidth = estimatedCard;
+                edgeLabel = formatMetric(estimatedCard);
             }
         }
 
@@ -209,6 +214,10 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
             edgeLabel,
             edgeClass,
         };
+
+        if (edgeWidth) {
+            conversionState.edgeWidths.push({node: convertedNode, width: edgeWidth});
+        }
 
         // Add cross links
         if (renderingConfig.crosslinkSourceKey) {
@@ -262,6 +271,15 @@ function resolveCrosslinks(state : ConversionState) : Crosslink[] {
     return crosslinks;
 }
 
+// Sets the edge widths, relative to the number of output tuples
+function setEdgeWidths(state : ConversionState) {
+    var maxWidth = state.edgeWidths.reduce((p, v) => ( p > v.width ? p : v.width ), 0);
+    maxWidth = Math.max(maxWidth, 10);
+    for (const edge of state.edgeWidths) {
+        edge.node.edgeWidth = edge.width / maxWidth;
+    }
+}
+
 interface LinkedNodes {
     root: TreeNode;
     crosslinks: Crosslink[];
@@ -271,11 +289,13 @@ function convertHyperPlan(node: Json): LinkedNodes {
     const conversionState = {
         operatorsById: new Map<string, TreeNode>(),
         crosslinks: [],
+        edgeWidths: [],
     } as ConversionState;
     const root = convertHyperNode(node, "result", conversionState);
     if (Array.isArray(root)) {
         throw new Error("Invalid Hyper query plan");
     }
+    setEdgeWidths(conversionState);
     const crosslinks = resolveCrosslinks(conversionState);
     console.log({root, crosslinks});
     return {root, crosslinks};
