@@ -212,7 +212,7 @@ function generateDisplayNames(treeRoot: TreeNode) {
                     break;
                 case "groupby":
                     node.icon = "groupby-symbol";
-                    break;    
+                    break;
                 case "explicitscan":
                     node.icon = "temp-table-symbol";
                     break;
