@@ -113,15 +113,16 @@ function convertPostgres(node: Json, parentKey: string): TreeNode | TreeNode[] {
         let edgeLabel: string | undefined = undefined;
         let edgeClass: string | undefined = undefined;
         if (node.hasOwnProperty("Plan Rows") && typeof node["Plan Rows"] === "number") {
-            edgeLabel = formatMetric(node["Plan Rows"]);
             if (node.hasOwnProperty("Actual Rows") && typeof node["Actual Rows"] === "number") {
-                edgeLabel += "," + formatMetric(node["Actual Rows"]);
+                edgeLabel = formatMetric(node["Actual Rows"]) + '/' + formatMetric(node["Plan Rows"]);
                 // Highlight significant differences between planned and actual rows
                 const num0 = Number(node["Plan Rows"]);
                 const num1 = Number(node["Actual Rows"]);
                 if (num0 > num1 * 10 || num0 * 10 < num1) {
                     edgeClass = "qg-label-highlighted";
                 }
+            } else {
+                edgeLabel = formatMetric(node["Plan Rows"]);
             }
         }
 
