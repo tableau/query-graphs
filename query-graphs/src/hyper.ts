@@ -357,8 +357,17 @@ export function loadHyperPlan(json: Json, graphCollapse?: unknown): TreeDescript
     return {root, crosslinks};
 }
 
+function tryStripPrefix(str, pre) {
+    if (str.startsWith(pre))
+        return str.substring(pre.length);
+    return str;
+}
+
 // Load a JSON tree from text
 export function loadHyperPlanFromText(graphString: string, graphCollapse?: unknown): TreeDescription {
+    // Strip `plan` prefix if it exists. This is written by `sql_hyper` if output is forwarded using `\o`
+    graphString = tryStripPrefix(graphString, "plan\n");
+
     // Parse the plan as JSON
     let json: Json;
     try {
