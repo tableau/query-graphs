@@ -33,6 +33,13 @@
     transition-duration: 0.2s;
 }
 
+.query-graph .react-flow__handle.qg-subtree-handle.qg-collapsed {
+    opacity: 0;
+}
+.query-graph .react-flow__node-querynode:hover .react-flow__handle.qg-subtree-handle {
+    opacity: 1;
+}
+
 .query-graph .react-flow__handle.qg-subtree-handle:hover {
     background: hsl(0,0%,70%);
 }
