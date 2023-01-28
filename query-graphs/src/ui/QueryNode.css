@@ -18,17 +18,29 @@
     border-color: hsl(0,0%, 80%);
 }
 
+.query-graph .react-flow__handle.qg-subtree-handle {
+    font-size: .8em;
+    width: 1em;
+    height: 1em;
+    bottom: -.8em;
+    line-height: 1em;
+    text-align: center;
+    border-radius: 0.5em;
+    background: hsl(0,0%,85%);
+    cursor: pointer;
+    pointer-events: all;
+    transition-property: border-color, background;
+    transition-duration: 0.2s;
+}
+
+.query-graph .react-flow__handle.qg-subtree-handle:hover {
+    background: hsl(0,0%,70%);
+}
+
 .qg-graph-node-label {
     text-align: center;
     border-radius: .4em;
     padding: 0 .15em;
-}
-
-.qg-click-hint {
-    text-align: center;
-    color: #666;
-    font-style: italic;
-    font-size: .5em;
 }
 
 .qg-graph-node-details {

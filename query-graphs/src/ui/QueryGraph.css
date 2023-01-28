@@ -1,5 +1,6 @@
 .query-graph .react-flow__handle {
-  opacity: 0;
+  background-color: transparent;
+  pointer-events: none;
 }
 
 .query-graph .react-flow__pane,
