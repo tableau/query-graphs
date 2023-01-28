@@ -27,9 +27,9 @@ interface UnresolvedCrosslink {
 interface ConversionState {
     operatorsById: Map<string, TreeNode>;
     crosslinks: UnresolvedCrosslink[];
-    edgeWidths: {node: TreeNode, width: number}[];
-    runtimes: {node: TreeNode, time: number}[];
-};
+    edgeWidths: {node: TreeNode; width: number}[];
+    runtimes: {node: TreeNode; time: number}[];
+}
 
 // Customization points for rendering the various different
 // operator and expression types
@@ -144,22 +144,24 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
         // For some keys, we enforce a specific order here (e.g., "left" comes before "right").
         // For all other keys, we use alphabetic order.
         const fixedOrder = ["input", "left", "right", "value", "valueForComparison"];
-        const orderedKeys = Object.getOwnPropertyNames(rawNode).sort((a, b) => {
-            const idx1 = fixedOrder.indexOf(a);
-            const idx2 = fixedOrder.indexOf(b);
-            if (idx1 != -1 || idx2 != -1) {
-                const fixed1 = idx1 == -1 ? Infinity : idx1;
-                const fixed2 = idx2 == -1 ? Infinity : idx2;
-                return fixed1 - fixed2;
-            } else {
-                if (a < b) return -1;
-                if (a > b) return 1;
-                return 0;
-            }
-        }).filter(k => {
-            // `propertyKeys` and `operator`/`expression` were already handled
-            return k != nodeType && propertyKeys.indexOf(k) === -1;
-        });
+        const orderedKeys = Object.getOwnPropertyNames(rawNode)
+            .sort((a, b) => {
+                const idx1 = fixedOrder.indexOf(a);
+                const idx2 = fixedOrder.indexOf(b);
+                if (idx1 != -1 || idx2 != -1) {
+                    const fixed1 = idx1 == -1 ? Infinity : idx1;
+                    const fixed2 = idx2 == -1 ? Infinity : idx2;
+                    return fixed1 - fixed2;
+                } else {
+                    if (a < b) return -1;
+                    if (a > b) return 1;
+                    return 0;
+                }
+            })
+            .filter(k => {
+                // `propertyKeys` and `operator`/`expression` were already handled
+                return k != nodeType && propertyKeys.indexOf(k) === -1;
+            });
 
         // Display all other properties adaptively: simple expressions are displayed as properties, all others as part of the tree
         for (const key of orderedKeys) {
@@ -192,7 +194,7 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
         // Figure out the display name
         const specificDisplayName = renderingConfig.displayNameKey ? properties.get(renderingConfig.displayNameKey) : undefined;
         convertedNode.name = specificDisplayName ?? properties?.get("name") ?? properties?.get("debugName") ?? nodeTag ?? "";
-        
+
         // Information on the execution time
         const execTime = tryGetPropertyPath(rawNode, ["analyze", "tuplecount"]);
         if (typeof execTime === "number") {
@@ -257,31 +259,30 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
 }
 
 // Resolve all pending crosslinks
-function resolveCrosslinks(state : ConversionState) : Crosslink[] {
-    var crosslinks = [] as Crosslink[];
-    for (var link of state.crosslinks) {
+function resolveCrosslinks(state: ConversionState): Crosslink[] {
+    const crosslinks = [] as Crosslink[];
+    for (const link of state.crosslinks) {
         const target = state.operatorsById.get(link.targetOpId);
         if (target !== undefined) {
             crosslinks.push({source: link.source, target: target});
         }
-    };
+    }
     return crosslinks;
 }
 
 // Sets the edge widths, relative to the number of output tuples
-function colorRelativeExecutionTime(state : ConversionState) {
-    var totalTime = state.runtimes.reduce((p, v) => p + v.time, 0);
+function colorRelativeExecutionTime(state: ConversionState) {
+    const totalTime = state.runtimes.reduce((p, v) => p + v.time, 0);
     for (const op of state.runtimes) {
         const relativeExecutionRatio = op.time / totalTime;
         const l = (95 + (72 - 95) * relativeExecutionRatio).toFixed(3);
         op.node.nodeColor = relativeExecutionRatio >= 0.05 ? `hsl(309, 84%, ${l}%)` : undefined;
-
     }
 }
 
 // Sets the edge widths, relative to the number of output tuples
-function setEdgeWidths(state : ConversionState) {
-    var maxWidth = state.edgeWidths.reduce((p, v) => p > v.width ? p : v.width, 0);
+function setEdgeWidths(state: ConversionState) {
+    let maxWidth = state.edgeWidths.reduce((p, v) => (p > v.width ? p : v.width), 0);
     maxWidth = Math.max(maxWidth, 10);
     for (const edge of state.edgeWidths) {
         edge.node.edgeWidth = edge.width / maxWidth;

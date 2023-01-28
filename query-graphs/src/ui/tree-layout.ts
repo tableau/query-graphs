@@ -7,7 +7,7 @@ import {TreeNode, TreeDescription} from "../tree-description";
 // TODO: import type; fix `prettier` first :/
 import {Edge, Node} from "reactflow";
 import {assertNotNull} from "../loader-utils";
-import { CSSProperties } from "react";
+import {CSSProperties} from "react";
 
 interface TreeLayout {
     nodes: Node<TreeNode>[];
@@ -70,7 +70,7 @@ export function layoutTree(
         const targetId = nodeIds.get(e.target.data);
         const style = {} as CSSProperties;
         if (e.target.data.edgeWidth) {
-            const width = Math.max(1, 10 * Math.min(1, e.target.data.edgeWidth))
+            const width = Math.max(1, 10 * Math.min(1, e.target.data.edgeWidth));
             style.strokeWidth = `${width}px`;
         }
         return {
@@ -79,7 +79,7 @@ export function layoutTree(
             target: targetId,
             label: e.target.data.edgeLabel,
             className: e.target.data.edgeClass,
-            style: style
+            style: style,
         } as Edge;
     });
 
@@ -89,8 +89,8 @@ export function layoutTree(
         return descendants.find(h => {
             return h.data === d;
         });
-    }
-    var crosslinks = [] as Edge[];
+    };
+    const crosslinks = [] as Edge[];
     for (const link of treeData.crosslinks ?? []) {
         const sourceNode = map(link.source);
         const targetNode = map(link.target);
