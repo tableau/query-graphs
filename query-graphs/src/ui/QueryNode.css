@@ -5,7 +5,7 @@
     border-radius: .8em;
     padding: .3em .5em;
     margin: -.3em -.5em;
-    transition-property: border-color, background;
+    transition-property: border-color, background-color;
     transition-duration: 0.2s;
 }
 .qg-graph-node.qg-no-props {
@@ -19,7 +19,7 @@
 }
 
 .query-graph .react-flow__handle.qg-subtree-handle {
-    font-size: .8em;
+    font-size: .7em;
     width: 1em;
     height: 1em;
     bottom: -.8em;
@@ -29,7 +29,7 @@
     background: hsl(0,0%,85%);
     cursor: pointer;
     pointer-events: all;
-    transition-property: border-color, background;
+    transition-property: background-color;
     transition-duration: 0.2s;
 }
 
