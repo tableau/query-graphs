@@ -9,26 +9,28 @@ import {useGraphRenderingStore} from "./store";
 function QueryNode({data, id}: NodeProps<TreeNode>) {
     const expanded = useGraphRenderingStore(s => s.expandedNodes[id]);
     const toggleNode = useGraphRenderingStore(s => s.toggleExpandedNode);
+    const subtreeExpanded = useGraphRenderingStore(s => s.expandedSubtrees[id]);
     const toggleSubtree = useGraphRenderingStore(s => s.toggleExpandedSubtree);
     const hasProperties = data.properties?.size;
-    const hasChildren = !!data._children;
+    const hasSubtree = !!data._children;
     const onClick = useCallback(
         (e: MouseEvent) => {
             if (e.shiftKey) {
-                if (hasChildren) toggleSubtree(id);
+                if (hasSubtree) toggleSubtree(id);
             } else {
                 if (hasProperties) toggleNode(id);
             }
             e.stopPropagation();
-            e.preventDefault();
         },
-        [toggleNode, toggleSubtree, hasProperties, hasChildren, id],
+        [toggleNode, toggleSubtree, hasProperties, hasSubtree, id],
     );
-
-    let expandHint = <></>;
-    if (hasChildren) {
-        expandHint = <div className="qg-click-hint">Shift+Click to show all children</div>;
-    }
+    const onSubtreeHandleClick = useCallback(
+        (e: MouseEvent) => {
+            if (hasSubtree) toggleSubtree(id);
+            e.stopPropagation();
+        },
+        [toggleSubtree, hasSubtree, id],
+    );
 
     const children = [] as ReactElement[];
     for (const [key, value] of (data.properties || []).entries()) {
@@ -39,31 +41,38 @@ function QueryNode({data, id}: NodeProps<TreeNode>) {
         );
     }
 
-    const className = cc([
+    const nodeClassName = cc([
         "qg-graph-node",
         {
             "qg-expanded": expanded,
-            "qg-collapsed": hasProperties,
-            "qg-no-props": true,
+            "qg-collapsed": hasProperties && !expanded,
+            "qg-no-props": !hasProperties,
         },
     ]);
+
+    const handleClassName = cc({
+        "qg-subtree-handle": hasSubtree,
+        "qg-expanded": hasSubtree && subtreeExpanded,
+        "qg-collapsed": hasSubtree && !subtreeExpanded,
+    });
 
     return (
         <>
             <Handle type="target" position={Position.Top} />
-            <div className={className} onClick={onClick}>
+            <div className={nodeClassName} onClick={onClick}>
                 <NodeIcon icon={data.icon} iconColor={data.iconColor} />
                 <div className="qg-graph-node-label" style={{background: data.nodeColor}}>
                     {data.name}
                 </div>
                 <div className="qg-graph-node-details nowheel">
                     <div className="qg-graph-node-details-inner">
-                        {expandHint}
                         {children}
                     </div>
                 </div>
             </div>
-            <Handle type="source" position={Position.Bottom} />
+            <Handle type="source" position={Position.Bottom} className={handleClassName} onClick={onSubtreeHandleClick}>
+                {hasSubtree ? (subtreeExpanded ? "-" : "+") : ""}
+            </Handle>
         </>
     );
 }
