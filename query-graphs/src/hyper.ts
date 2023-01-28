@@ -358,8 +358,7 @@ export function loadHyperPlan(json: Json, graphCollapse?: unknown): TreeDescript
 }
 
 function tryStripPrefix(str, pre) {
-    if (str.startsWith(pre))
-        return str.substring(pre.length);
+    if (str.startsWith(pre)) return str.substring(pre.length);
     return str;
 }
 
