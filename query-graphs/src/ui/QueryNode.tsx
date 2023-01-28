@@ -65,9 +65,7 @@ function QueryNode({data, id}: NodeProps<TreeNode>) {
                     {data.name}
                 </div>
                 <div className="qg-graph-node-details nowheel">
-                    <div className="qg-graph-node-details-inner">
-                        {children}
-                    </div>
+                    <div className="qg-graph-node-details-inner">{children}</div>
                 </div>
             </div>
             <Handle type="source" position={Position.Bottom} className={handleClassName} onClick={onSubtreeHandleClick}>
