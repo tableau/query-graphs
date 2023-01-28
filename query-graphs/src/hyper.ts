@@ -28,6 +28,7 @@ interface ConversionState {
     operatorsById: Map<string, TreeNode>;
     crosslinks: UnresolvedCrosslink[];
     edgeWidths: {node: TreeNode, width: number}[];
+    runtimes: {node: TreeNode, time: number}[];
 };
 
 // Customization points for rendering the various different
@@ -180,43 +181,47 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
             }
         }
 
-        // Figure out the display name
-        const specificDisplayName = renderingConfig.displayNameKey ? properties.get(renderingConfig.displayNameKey) : undefined;
-        const displayName = specificDisplayName ?? properties?.get("name") ?? properties?.get("debugName") ?? nodeTag ?? "";
-
-        // Display the cardinality on the links between the nodes
-        let edgeLabel: string | undefined = undefined;
-        let edgeClass: string | undefined = undefined;
-        let edgeWidth: number | undefined = undefined;
-        if (hasOwnProperty(rawNode, "cardinality") && typeof rawNode.cardinality === "number") {
-            const estimatedCard = rawNode.cardinality;
-            const actualCard = tryGetPropertyPath(rawNode, ["analyze", "tuplecount"]);
-            if (typeof actualCard === "number") {
-                edgeWidth = actualCard;
-                edgeLabel = formatMetric(actualCard) + "/" + formatMetric(estimatedCard);
-                // Highlight significant differences between planned and actual rows
-                if (estimatedCard > actualCard * 10 || actualCard * 10 < estimatedCard) {
-                    edgeClass = "qg-label-highlighted";
-                }
-            } else {
-                edgeWidth = estimatedCard;
-                edgeLabel = formatMetric(estimatedCard);
-            }
-        }
-
         // Build the converted node
         const convertedNode = {
-            name: displayName,
             icon: renderingConfig.icon,
             properties,
             children: expandedChildren,
             _children: collapsedChildren.length ? expandedChildren.concat(collapsedChildren) : [],
-            edgeLabel,
-            edgeClass,
-        };
+        } as TreeNode;
 
-        if (edgeWidth) {
-            conversionState.edgeWidths.push({node: convertedNode, width: edgeWidth});
+        // Figure out the display name
+        const specificDisplayName = renderingConfig.displayNameKey ? properties.get(renderingConfig.displayNameKey) : undefined;
+        convertedNode.name = specificDisplayName ?? properties?.get("name") ?? properties?.get("debugName") ?? nodeTag ?? "";
+        
+        // Information on the execution time
+        const execTime = tryGetPropertyPath(rawNode, ["analyze", "tuplecount"]);
+        if (typeof execTime === "number") {
+            conversionState.runtimes.push({node: convertedNode, time: execTime});
+        }
+
+        // Display the cardinality on the links between the nodes
+        if (hasOwnProperty(rawNode, "cardinality") && typeof rawNode.cardinality === "number") {
+            const estimatedCard = rawNode.cardinality;
+            const actualCard = tryGetPropertyPath(rawNode, ["analyze", "tuplecount"]);
+            if (typeof actualCard === "number") {
+                conversionState.edgeWidths.push({node: convertedNode, width: actualCard});
+                convertedNode.edgeLabel = formatMetric(actualCard) + "/" + formatMetric(estimatedCard);
+                // Highlight significant differences between planned and actual rows
+                if (estimatedCard > actualCard * 10 || actualCard * 10 < estimatedCard) {
+                    convertedNode.edgeClass = "qg-label-highlighted";
+                }
+            } else {
+                conversionState.edgeWidths.push({node: convertedNode, width: estimatedCard});
+                convertedNode.edgeLabel = formatMetric(estimatedCard);
+            }
+        }
+
+        // Add to `operatorId` map if applicable
+        if (nodeType == "operator") {
+            const operatorId = properties?.get("operatorId");
+            if (operatorId !== undefined) {
+                conversionState.operatorsById.set(operatorId, convertedNode);
+            }
         }
 
         // Add cross links
@@ -227,14 +232,6 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
                     source: convertedNode,
                     targetOpId: sourceId,
                 });
-            }
-        }
-
-        // Add to `operatorId` map if applicable
-        if (nodeType == "operator") {
-            const operatorId = properties?.get("operatorId");
-            if (operatorId !== undefined) {
-                conversionState.operatorsById.set(operatorId, convertedNode);
             }
         }
 
@@ -272,8 +269,19 @@ function resolveCrosslinks(state : ConversionState) : Crosslink[] {
 }
 
 // Sets the edge widths, relative to the number of output tuples
+function colorRelativeExecutionTime(state : ConversionState) {
+    var totalTime = state.runtimes.reduce((p, v) => p + v.time, 0);
+    for (const op of state.runtimes) {
+        const relativeExecutionRatio = op.time / totalTime;
+        const l = (95 + (72 - 95) * relativeExecutionRatio).toFixed(3);
+        op.node.nodeColor = relativeExecutionRatio >= 0.05 ? `hsl(309, 84%, ${l}%)` : undefined;
+
+    }
+}
+
+// Sets the edge widths, relative to the number of output tuples
 function setEdgeWidths(state : ConversionState) {
-    var maxWidth = state.edgeWidths.reduce((p, v) => ( p > v.width ? p : v.width ), 0);
+    var maxWidth = state.edgeWidths.reduce((p, v) => p > v.width ? p : v.width, 0);
     maxWidth = Math.max(maxWidth, 10);
     for (const edge of state.edgeWidths) {
         edge.node.edgeWidth = edge.width / maxWidth;
@@ -290,11 +298,13 @@ function convertHyperPlan(node: Json): LinkedNodes {
         operatorsById: new Map<string, TreeNode>(),
         crosslinks: [],
         edgeWidths: [],
+        runtimes: [],
     } as ConversionState;
     const root = convertHyperNode(node, "result", conversionState);
     if (Array.isArray(root)) {
         throw new Error("Invalid Hyper query plan");
     }
+    colorRelativeExecutionTime(conversionState);
     setEdgeWidths(conversionState);
     const crosslinks = resolveCrosslinks(conversionState);
     console.log({root, crosslinks});
