@@ -28,16 +28,12 @@
 .query-graph .react-flow__edge.qg-crosslink .react-flow__edge-path {
   stroke: #ccc;
   stroke-dasharray: 4 4;
+  transition-property: stroke, stroke-width, stroke-dasharray;
+  transition-duration: .5s;
 }
 
-.query-graph .react-flow__edge .qg-crosslink:hover .react-flow__edge-path {
+.query-graph .react-flow__edge.qg-crosslink:hover .react-flow__edge-path {
   stroke: hsl(309, 84%, 36%);
-}
-
-.query-graph .react-flow__edge .qg-crosslink .react-flow__edge-path:hover {
-  stroke: hsl(309, 84%, 36%);
-}
-
-.query-graph:hover .react-flow__edge .qg-crosslink .react-flow__edge-path {
-  stroke: hsl(309, 84%, 36%);
+  stroke-width: 1.5px;
+  stroke-dasharray: 6 2;
 }
