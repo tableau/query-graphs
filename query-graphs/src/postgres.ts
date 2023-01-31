@@ -114,7 +114,7 @@ function convertPostgres(node: Json, parentKey: string): TreeNode | TreeNode[] {
         let edgeClass: string | undefined = undefined;
         if (node.hasOwnProperty("Plan Rows") && typeof node["Plan Rows"] === "number") {
             if (node.hasOwnProperty("Actual Rows") && typeof node["Actual Rows"] === "number") {
-                edgeLabel = formatMetric(node["Actual Rows"]) + '/' + formatMetric(node["Plan Rows"]);
+                edgeLabel = formatMetric(node["Actual Rows"]) + "/" + formatMetric(node["Plan Rows"]);
                 // Highlight significant differences between planned and actual rows
                 const num0 = Number(node["Plan Rows"]);
                 const num1 = Number(node["Actual Rows"]);
