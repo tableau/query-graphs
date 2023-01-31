@@ -1,11 +1,10 @@
-import ReactFlow, {MiniMap, Node, Controls, ReactFlowProvider, useNodesInitialized} from "reactflow";
+import ReactFlow, {MiniMap, Node, Controls, ReactFlowProvider} from "reactflow";
 import "reactflow/dist/base.css";
 
 import {layoutTree} from "./tree-layout";
 import {TreeDescription, TreeNode} from "../tree-description";
-import {useMemo} from "react";
+import {useMemo, useEffect, useRef} from "react";
 import {QueryNode} from "./QueryNode";
-import {useNodeSizes} from "./useNodeSizes";
 import "./QueryGraph.css";
 import {useGraphRenderingStore} from "./store";
 
@@ -24,16 +23,34 @@ const nodeTypes = {
 };
 
 function QueryGraphInternal({treeDescription}: QueryGraphProps) {
+    // Create a ResizeObserver to keep track of the sizes of the nodes
+    const resizeObserverRef = useRef<ResizeObserver>();
+    const updateNodeDimensions = useGraphRenderingStore(s => s.updateNodeDimensions);
+
+    const resizeObserver = useMemo(() => {
+        resizeObserverRef.current?.disconnect();
+        const observer = new ResizeObserver(updateNodeDimensions);
+        resizeObserverRef.current = observer;
+        return observer;
+    }, [updateNodeDimensions]);
+
+    useEffect(() => {
+        return () => {
+            resizeObserverRef.current?.disconnect();
+        };
+    }, []);
+
     // Layout the tree, using the actual measured sizes of the DOM nodes
-    const initialized = useNodesInitialized();
-    const nodeSizes = useNodeSizes();
+    const nodeDimensions = useGraphRenderingStore(s => s.nodeDimensions);
+    const expandedNodes = useGraphRenderingStore(s => s.expandedNodes);
     const expandedSubtrees = useGraphRenderingStore(s => s.expandedSubtrees);
-    const layout = useMemo(() => layoutTree(treeDescription, nodeSizes, expandedSubtrees), [
+    const layout = useMemo(() => layoutTree(treeDescription, nodeDimensions, expandedNodes, expandedSubtrees, resizeObserver), [
         treeDescription,
-        nodeSizes,
+        nodeDimensions,
+        expandedNodes,
         expandedSubtrees,
+        resizeObserver,
     ]);
-    console.log({initialized, layout, nodeSizes});
 
     return (
         <ReactFlow

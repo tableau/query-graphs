@@ -1,7 +1,7 @@
 import * as d3flextree from "d3-flextree";
 import * as d3hierarchy from "d3-hierarchy";
 
-import {NodeDimensions} from "./useNodeSizes";
+import {NodeDimensions} from "./store";
 import * as treeDescription from "../tree-description";
 import {TreeNode, TreeDescription} from "../tree-description";
 // TODO: import type; fix `prettier` first :/
@@ -20,9 +20,12 @@ interface TreeLayout {
 // Returns node and edge lists
 export function layoutTree(
     treeData: TreeDescription,
-    nodeSizes: NodeDimensions | undefined,
+    nodeDimensions: Record<string, NodeDimensions>,
+    expandedNodes: Record<string, boolean>,
     expandedSubtrees: Record<string, boolean>,
+    resizeObserver: ResizeObserver,
 ): TreeLayout {
+    console.log("layout");
     // Assign ids
     let nextId = 0;
     const nodeIds = new Map<TreeNode, string>();
@@ -43,15 +46,20 @@ export function layoutTree(
     const treelayout = d3flextree
         .flextree<treeDescription.TreeNode>()
         .nodeSize(d => {
-            const id = nodeIds.get(d.data);
-            const measuredSize = nodeSizes?.get(assertNotNull(id));
-            if (!measuredSize)
-                // Fallback values, used before the tree is rendered for the first time
+            const id = assertNotNull(nodeIds.get(d.data));
+            const dim = nodeDimensions[id];
+            if (
+                dim == undefined ||
+                dim.headWidth === undefined ||
+                dim.headHeight === undefined ||
+                dim.bodyWidth === undefined ||
+                dim.bodyHeight === undefined
+            )
                 return [50, 50];
-            return [measuredSize.width + 20, measuredSize.height + 50];
+            if (expandedNodes[id]) return [Math.max(dim.headWidth, dim.bodyWidth) + 20, dim.headHeight + dim.bodyHeight + 50];
+            else return [dim.headWidth + 20, dim.headHeight + 50];
         })
         .spacing((a, b) => (a.parent === b.parent ? 0 : 40));
-    console.log("layout");
     const layout = treelayout(root);
     const d3nodes = layout.descendants().reverse();
     const d3edges = layout.links();
@@ -62,7 +70,7 @@ export function layoutTree(
             id: nodeIds.get(n.data),
             position: {x: n.x, y: n.y},
             type: "querynode",
-            data: n.data,
+            data: {...n.data, resizeObserver},
         } as Node;
     });
     const edges = d3edges.map(e => {
