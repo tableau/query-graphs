@@ -1,18 +1,37 @@
-import {memo, ReactElement, MouseEvent, useCallback} from "react";
+import {memo, ReactElement, MouseEvent, useCallback, useRef, useEffect, RefObject} from "react";
 import {Handle, NodeProps, Position} from "reactflow";
 import cc from "classcat";
 import {TreeNode} from "../tree-description";
 import {NodeIcon} from "./NodeIcon";
 import "./QueryNode.css";
 import {useGraphRenderingStore} from "./store";
+import {assert} from "../loader-utils";
 
-function QueryNode({data, id}: NodeProps<TreeNode>) {
+type NodeData = TreeNode & {resizeObserver: ResizeObserver};
+
+function useResizeObservedRef<T extends Element>(resizeObserver: ResizeObserver): RefObject<T> {
+    const ref = useRef<T>(null);
+    useEffect(() => {
+        assert(ref.current !== null);
+        const currNode = ref.current;
+        resizeObserver.observe(currNode);
+        return () => resizeObserver.unobserve(currNode);
+    }, [resizeObserver]);
+    return ref;
+}
+
+function QueryNode({data, id}: NodeProps<NodeData>) {
+    const bodyRef = useResizeObservedRef<HTMLDivElement>(data.resizeObserver);
+    const headRef = useResizeObservedRef<HTMLDivElement>(data.resizeObserver);
+
     const expanded = useGraphRenderingStore(s => s.expandedNodes[id]);
     const toggleNode = useGraphRenderingStore(s => s.toggleExpandedNode);
     const subtreeExpanded = useGraphRenderingStore(s => s.expandedSubtrees[id]);
     const toggleSubtree = useGraphRenderingStore(s => s.toggleExpandedSubtree);
+
     const hasProperties = data.properties?.size;
     const hasSubtree = !!data._children;
+
     const onClick = useCallback(
         (e: MouseEvent) => {
             if (e.shiftKey) {
@@ -60,12 +79,16 @@ function QueryNode({data, id}: NodeProps<TreeNode>) {
         <>
             <Handle type="target" position={Position.Top} />
             <div className={nodeClassName} onClick={onClick}>
-                <NodeIcon icon={data.icon} iconColor={data.iconColor} />
-                <div className="qg-graph-node-label" style={{background: data.nodeColor}}>
-                    {data.name}
+                <div className="qg-graph-node-head" ref={headRef}>
+                    <NodeIcon icon={data.icon} iconColor={data.iconColor} />
+                    <div className="qg-graph-node-label" style={{background: data.nodeColor}}>
+                        {data.name}
+                    </div>
                 </div>
-                <div className="qg-graph-node-details nowheel">
-                    <div className="qg-graph-node-details-inner">{children}</div>
+                <div className="qg-graph-node-body-wrapper nowheel">
+                    <div ref={bodyRef} className="qg-graph-node-body">
+                        {children}
+                    </div>
                 </div>
             </div>
             <Handle type="source" position={Position.Bottom} className={handleClassName} onClick={onSubtreeHandleClick}>

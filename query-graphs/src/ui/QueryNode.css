@@ -1,6 +1,4 @@
 .qg-graph-node {
-    display: flex;
-    flex-direction: column;
     border: 1px solid transparent;
     border-radius: .8em;
     padding: .3em .5em;
@@ -44,24 +42,36 @@
     background: hsl(0,0%,70%);
 }
 
-.qg-graph-node-label {
+.qg-graph-node-head {
+    /* We don't want the node to automatically stretch/shrink with its container
+     * because that would trigger the `ResizeObserver` to  often and would cause too
+     * many layout recomputations.*/
+    width: max-content;
+    margin: auto;
     text-align: center;
+}
+
+.qg-graph-node-label {
+    /*
+     * We set up everything such that we can draw a nice background for the label.
+     * If the node label should be highlighted, a `background-color` is set from React.
+     */
     border-radius: .4em;
     padding: 0 .15em;
 }
 
-.qg-graph-node-details {
+.qg-graph-node-body-wrapper {
     max-width: 0;
     max-height: 0;
     overflow: hidden;
     transition-property: max-width, max-height;
     transition-duration: .5s;
 }
-.qg-graph-node.qg-expanded .qg-graph-node-details {
+.qg-graph-node.qg-expanded .qg-graph-node-body-wrapper {
     max-width: 30em;
     max-height: 20em;
 }
-.qg-graph-node-details-inner {
+.qg-graph-node-body {
     width: max-content;
     height: max-content;
     overflow: auto;
