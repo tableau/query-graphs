@@ -1,7 +1,7 @@
 import React, {useCallback, useMemo, useState} from "react";
 import {useDropzone} from "react-dropzone";
 import Alert from "react-bootstrap/Alert";
-import objstr from "./objstr";
+import cc from "classcat";
 
 import "./FileOpener.css";
 import {assert} from "./assert";
@@ -152,7 +152,7 @@ export function FileOpener({setData, loadStateController}: FileOpenerProps) {
     const {getRootProps, getInputProps, isDragActive} = useDropzone({
         onDrop,
     });
-    const dropClassName = objstr({
+    const dropClassName = cc({
         "qg-drop-zone": true,
         "qg-drop-zone-drag-active": isDragActive,
     });
