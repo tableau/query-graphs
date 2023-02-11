@@ -1,0 +1,48 @@
+{
+  "operator": "executiontarget",
+  "operatorId": 1,
+  "cardinality": 1.36603,
+  "producesRows": true,
+  "output": [{"expression": "iuref", "iu": ["v", ["SmallInt"]]}, {"expression": "iuref", "iu": ["v2", ["Char1"]]}, {"expression": "iuref", "iu": ["v3", ["Bool"]]}, {"expression": "iuref", "iu": ["v4", ["Bool"]]}, {"expression": "iuref", "iu": ["v5", ["Bool"]]}, {"expression": "iuref", "iu": ["v6", ["Bool"]]}, {"expression": "const", "value": {"type": ["Bool"], "value": false}}, {"expression": "iuref", "iu": ["v7", ["Oid"]]}, {"expression": "iuref", "iu": ["v8", ["Varchar"]]}, {"expression": "iuref", "iu": ["v9", ["Char1"]]}],
+  "outputNames": ["relchecks", "relkind", "relhasindex", "relhasrules", "relhastriggers", "relhasoids", "relispartition", "reltablespace", "case", "relpersistence"],
+  "input": {
+    "operator": "map",
+    "operatorId": 2,
+    "cardinality": 1.36603,
+    "input": {
+      "operator": "leftouterjoin",
+      "operatorId": 3,
+      "cardinality": 1.36603,
+      "method": "hash",
+      "left": {
+        "operator": "virtualtable",
+        "querylocs": [[289, 308]],
+        "operatorId": 4,
+        "cardinality": 1,
+        "debugName": {"classification": "nonsensitive", "value": "pg_class"},
+        "restrictions": [{"attribute": 0, "mode": "=", "value": {"expression": "const", "value": {"type": ["Oid"], "value": 12}}}],
+        "schema": {"type":"builtinschema"},
+        "id": 1259,
+        "values": [{"name": "oid", "type": ["Oid"], "iu": ["v10", ["Oid"]]}, {"name": "relname", "type": ["Varchar"], "iu": null}, {"name": "relnamespace", "type": ["Oid"], "iu": null}, {"name": "reltype", "type": ["Oid"], "iu": null}, {"name": "reloftype", "type": ["Oid"], "iu": ["v11", ["Oid"]]}, {"name": "relowner", "type": ["Oid"], "iu": null}, {"name": "relam", "type": ["Oid"], "iu": null}, {"name": "relfilenode", "type": ["Oid"], "iu": null}, {"name": "reltablespace", "type": ["Oid"], "iu": ["v7", ["Oid"]]}, {"name": "relpages", "type": ["Integer"], "iu": null}, {"name": "reltuples", "type": ["Double"], "iu": null}, {"name": "reltoastrelid", "type": ["Oid"], "iu": ["v12", ["Oid"]]}, {"name": "reltoastidxid", "type": ["Oid"], "iu": null}, {"name": "relhasindex", "type": ["Bool"], "iu": ["v3", ["Bool"]]}, {"name": "relisshared", "type": ["Bool"], "iu": null}, {"name": "relpersistence", "type": ["Char1"], "iu": ["v9", ["Char1"]]}, {"name": "relkind", "type": ["Char1"], "iu": ["v2", ["Char1"]]}, {"name": "relnatts", "type": ["SmallInt"], "iu": null}, {"name": "relchecks", "type": ["SmallInt"], "iu": ["v", ["SmallInt"]]}, {"name": "relhasoids", "type": ["Bool"], "iu": ["v6", ["Bool"]]}, {"name": "relhaspkey", "type": ["Bool"], "iu": null}, {"name": "relhasrules", "type": ["Bool"], "iu": ["v4", ["Bool"]]}, {"name": "relhastriggers", "type": ["Bool"], "iu": ["v5", ["Bool"]]}, {"name": "relhassubclass", "type": ["Bool"], "iu": null}, {"name": "relfrozenxid", "type": ["BigInt"], "iu": null}, {"name": "relacl", "type": ["AclItem-array", "nullable"], "iu": null}, {"name": "reloptions", "type": ["Varchar-array", "nullable"], "iu": null}],
+        "tid": null,
+        "tableOid": null,
+        "tupleFlags": null
+      },
+      "right": {
+        "operator": "virtualtable",
+        "querylocs": [[321, 340]],
+        "operatorId": 5,
+        "cardinality": 100,
+        "debugName": {"classification": "nonsensitive", "value": "pg_class"},
+        "schema": {"type":"builtinschema"},
+        "id": 1259,
+        "values": [{"name": "oid", "type": ["Oid"], "iu": ["v13", ["Oid", "nullable"]]}, {"name": "relname", "type": ["Varchar"], "iu": null}, {"name": "relnamespace", "type": ["Oid"], "iu": null}, {"name": "reltype", "type": ["Oid"], "iu": null}, {"name": "reloftype", "type": ["Oid"], "iu": null}, {"name": "relowner", "type": ["Oid"], "iu": null}, {"name": "relam", "type": ["Oid"], "iu": null}, {"name": "relfilenode", "type": ["Oid"], "iu": null}, {"name": "reltablespace", "type": ["Oid"], "iu": null}, {"name": "relpages", "type": ["Integer"], "iu": null}, {"name": "reltuples", "type": ["Double"], "iu": null}, {"name": "reltoastrelid", "type": ["Oid"], "iu": null}, {"name": "reltoastidxid", "type": ["Oid"], "iu": null}, {"name": "relhasindex", "type": ["Bool"], "iu": null}, {"name": "relisshared", "type": ["Bool"], "iu": null}, {"name": "relpersistence", "type": ["Char1"], "iu": null}, {"name": "relkind", "type": ["Char1"], "iu": null}, {"name": "relnatts", "type": ["SmallInt"], "iu": null}, {"name": "relchecks", "type": ["SmallInt"], "iu": null}, {"name": "relhasoids", "type": ["Bool"], "iu": null}, {"name": "relhaspkey", "type": ["Bool"], "iu": null}, {"name": "relhasrules", "type": ["Bool"], "iu": null}, {"name": "relhastriggers", "type": ["Bool"], "iu": null}, {"name": "relhassubclass", "type": ["Bool"], "iu": null}, {"name": "relfrozenxid", "type": ["BigInt"], "iu": null}, {"name": "relacl", "type": ["AclItem-array", "nullable"], "iu": null}, {"name": "reloptions", "type": ["Varchar-array", "nullable"], "iu": null}],
+        "tid": null,
+        "tableOid": null,
+        "tupleFlags": null
+      },
+      "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v12"}, "right": {"expression": "iuref", "iu": "v13"}}
+    },
+    "values": [{"iu": ["v8", ["Varchar"]], "value": {"expression": "simplecase", "value": {"expression": "iuref", "iu": "v11"}, "cases": [{"cases": [{"expression": "const", "value": {"type": ["Integer"], "value": 0}}], "value": {"expression": "const", "value": {"type": ["Varchar"], "value": ""}}}], "else": {"expression": "cast", "value": {"expression": "cast", "value": {"expression": "iuref", "iu": "v11"}, "type": ["RegType"], "errorHandling": "trap"}, "type": ["Varchar"], "errorHandling": "trap"}}}]
+  }
+}
