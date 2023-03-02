@@ -53,6 +53,12 @@
 
 .qg-graph-node-label {
     /*
+     * Clip the label at some length; long labels can become quite unreadable
+     */
+    max-width: 10em;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    /*
      * We set up everything such that we can draw a nice background for the label.
      * If the node label should be highlighted, a `background-color` is set from React.
      */
