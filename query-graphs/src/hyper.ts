@@ -3,14 +3,22 @@
 Hyper JSON Transformations
 --------------------------
 
-The Hyper JSON representation renders verbosely as a D3 tree; therefore, perform the following transformations.
+To perform from a Hyper JSON tree to a query-graphs tree, we apply the following heuristics:
 
-For most other nodes, decide based on their value: if it is of a plain type (string, number, ...), show it as part
-of the tooltip; otherwise show it as part of the tree.
-Render a few pre-defined keys ("left", "right", "input" and a few others) in a pre-defined order (such that `left`
-is to the left of `right`)
-A short list of special-cased keys (e.g., "analyze") is always displayed as part of the tooltip.
-The label for a tree node is taken from the first defined property among "operator", "expression" and "mode".
+The main steps are:
+
+1. Convert the overall tree
+    * traverse breadth-first over the tree, converting from JSON to our internal representation
+    * detect the type of a node based on the `operator` or `expression` key
+      For other nodes, decide based on their value: if it is of a plain type (string, number, ...), show it as part
+      of the tooltip; otherwise show it as part of the tree. A few pre-defined keys (e.g., "analyze", are alsways rendered
+      in the tooltip, though)
+    * lookup a type-specific config which configures the icon, display name etc.
+    * render children in a logically meaningful order, i.e. render "left" before "right" etc.
+    * collapse tree by defautl:
+        * for operators: collapse all children which are not operators
+        * for expressions: don't collapse anything
+2. Add additional details in a 2nd pass: edge widths, highlighting particularly long-running queries, ...
 
 */
 
@@ -145,6 +153,10 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
         // For all other keys, we use alphabetic order.
         const fixedOrder = ["input", "left", "right", "value", "valueForComparison"];
         const orderedKeys = Object.getOwnPropertyNames(rawNode)
+            .filter(k => {
+                // `propertyKeys` and `operator`/`expression` were already handled
+                return k != nodeType && propertyKeys.indexOf(k) === -1;
+            })
             .sort((a, b) => {
                 const idx1 = fixedOrder.indexOf(a);
                 const idx2 = fixedOrder.indexOf(b);
@@ -157,10 +169,6 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
                     if (a > b) return 1;
                     return 0;
                 }
-            })
-            .filter(k => {
-                // `propertyKeys` and `operator`/`expression` were already handled
-                return k != nodeType && propertyKeys.indexOf(k) === -1;
             });
 
         // Display all other properties adaptively: simple expressions are displayed as properties, all others as part of the tree
@@ -288,7 +296,6 @@ function setEdgeWidths(state: ConversionState) {
     const minWidth = state.edgeWidths.reduce((p, v) => (p < v.width ? p : v.width), Infinity);
     if (minWidth == maxWidth) return;
     const factor = Math.max(maxWidth - minWidth, minWidth);
-    console.log({minWidth, maxWidth, factor});
     maxWidth = Math.max(maxWidth, 10);
     for (const edge of state.edgeWidths) {
         edge.node.edgeWidth = (edge.width - minWidth) / factor;
@@ -314,7 +321,6 @@ function convertHyperPlan(node: Json): LinkedNodes {
     colorRelativeExecutionTime(conversionState);
     setEdgeWidths(conversionState);
     const crosslinks = resolveCrosslinks(conversionState);
-    console.log({root, crosslinks});
     return {root, crosslinks};
 }
 
