@@ -132,7 +132,7 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
         }
 
         // Display these properties always as properties, even if they are more complex
-        const propertyKeys = ["analyze", "querylocs"];
+        const propertyKeys = ["debugName", "analyze", "querylocs"];
         for (const key of propertyKeys) {
             if (!rawNode.hasOwnProperty(key)) {
                 continue;
@@ -193,7 +193,9 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
 
         // Figure out the display name
         const specificDisplayName = renderingConfig.displayNameKey ? properties.get(renderingConfig.displayNameKey) : undefined;
-        convertedNode.name = specificDisplayName ?? properties?.get("name") ?? properties?.get("debugName") ?? nodeTag ?? "";
+        const debugNameNode = tryGetPropertyPath(rawNode, ["debugName", "value"]);
+        const debugName = typeof debugNameNode === "string" ? debugNameNode : undefined;
+        convertedNode.name = specificDisplayName ?? debugName ?? properties?.get("name") ?? nodeTag ?? "";
 
         // Information on the execution time
         const execTime = tryGetPropertyPath(rawNode, ["analyze", "tuplecount"]);
