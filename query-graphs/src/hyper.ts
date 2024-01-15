@@ -84,8 +84,8 @@ const nodeRenderingConfig: Record<string, NodeRenderingConfig> = {
     "exp:iuref": {displayNameKey: "iu"},
 };
 
-// Should the entry `key` from `node` be displayed as an expanded or collapsed node by default?
-function isExpandedByDefault(node: JsonObject, key: string): boolean {
+// Should the entry `key` from `node` always be expanded?
+function isAlwaysExpanded(node: JsonObject, key: string): boolean {
     const child = node[key];
     if (node.hasOwnProperty("operator")) {
         // There might be arrays of operators. Also detect those...
@@ -100,7 +100,7 @@ function isExpandedByDefault(node: JsonObject, key: string): boolean {
         // All other children should be hidden
         return false;
     }
-    return true;
+    return false;
 }
 
 // Convert Hyper JSON to a D3 tree
@@ -181,13 +181,14 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
             }
 
             // Display as part of the tree
-            const children = isExpandedByDefault(rawNode, key) ? expandedChildren : collapsedChildren;
+            const children = isAlwaysExpanded(rawNode, key) ? expandedChildren : collapsedChildren;
             const innerNodes = convertHyperNode(rawNode[key], key, conversionState);
             const innerNodesArray = Array.isArray(innerNodes) ? innerNodes : [innerNodes];
             if (fixedOrder.indexOf(key) != -1) {
                 Array.prototype.push.apply(children, innerNodesArray);
             } else {
-                children.push({name: key, children: innerNodesArray});
+                // Array-valued children are collapsed by default, to avoid displaying too many properties all at once.
+                children.push({name: key, collapsedChildren: innerNodesArray});
             }
         }
 
@@ -196,14 +197,15 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
             icon: renderingConfig.icon,
             properties,
             children: expandedChildren,
-            _children: collapsedChildren.length ? expandedChildren.concat(collapsedChildren) : [],
+            collapsedChildren,
+            expandedByDefault: nodeType != "operator" && expandedChildren.length == 0
         } as TreeNode;
 
         // Figure out the display name
         const specificDisplayName = renderingConfig.displayNameKey ? properties.get(renderingConfig.displayNameKey) : undefined;
         const debugNameNode = tryGetPropertyPath(rawNode, ["debugName", "value"]);
         const debugName = typeof debugNameNode === "string" ? debugNameNode : undefined;
-        convertedNode.name = specificDisplayName ?? debugName ?? properties?.get("name") ?? nodeTag ?? "";
+        convertedNode.name = debugName ?? specificDisplayName ?? properties?.get("name") ?? nodeTag ?? "";
 
         // Information on the execution time
         const execTime = tryGetPropertyPath(rawNode, ["analyze", "tuplecount"]);
