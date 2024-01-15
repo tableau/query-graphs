@@ -387,7 +387,7 @@ function addCrosslinks(root: TreeNode): Crosslink[] {
 }
 
 // Loads a Postgres query plan
-export function loadPostgresPlan(json: Json, graphCollapse: unknown = undefined): TreeDescription {
+export function loadPostgresPlan(json: Json): TreeDescription {
     // Skip initial array containing a single "Plan"
     if (Array.isArray(json) && json.length === 1) {
         json = json[0];
@@ -405,19 +405,13 @@ export function loadPostgresPlan(json: Json, graphCollapse: unknown = undefined)
     treeDescription.createParentLinks(root);
     colorForeignScan(root);
     colorRelativeExecutionTime(root);
-    // Adjust the graph so it is collapsed as requested by the user
-    if (graphCollapse === "y") {
-        treeDescription.visitTreeNodes(root, treeDescription.collapseAllChildren, treeDescription.allChildren);
-    } else if (graphCollapse === "n") {
-        treeDescription.visitTreeNodes(root, treeDescription.expandAllChildren, treeDescription.allChildren);
-    }
     // Add crosslinks
     const crosslinks = addCrosslinks(root);
     return {root: root, crosslinks: crosslinks};
 }
 
 // Load a JSON tree from text
-export function loadPostgresPlanFromText(graphString: string, graphCollapse?: unknown): TreeDescription {
+export function loadPostgresPlanFromText(graphString: string): TreeDescription {
     // Parse the plan as JSON
     let json: Json;
     try {
@@ -425,5 +419,5 @@ export function loadPostgresPlanFromText(graphString: string, graphCollapse?: un
     } catch (err) {
         throw new Error("JSON parse failed with '" + err + "'.");
     }
-    return loadPostgresPlan(json, graphCollapse);
+    return loadPostgresPlan(json);
 }

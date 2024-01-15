@@ -71,7 +71,7 @@ function convertXML(xml: ParsedXML): TreeNode {
     };
 }
 
-export function loadXml(graphString: string, _graphCollapse?: unknown): TreeDescription {
+export function loadXml(graphString: string): TreeDescription {
     const xml = typesafeXMLParse(graphString);
     return {root: convertXML(xml)};
 }

@@ -11,7 +11,7 @@ already provides us the structure of the rendered tree.
 
 // Require node modules
 import * as treeDescription from "./tree-description";
-import {TreeDescription, TreeNode, Crosslink, collapseAllChildren, streamline} from "./tree-description";
+import {TreeDescription, TreeNode, Crosslink, streamline} from "./tree-description";
 import {typesafeXMLParse, ParsedXML} from "./xml";
 import {assert} from "./loader-utils";
 
@@ -377,59 +377,56 @@ function assignSymbolsAndClasses(root: TreeNode) {
     );
 }
 
-function collapseNodes(root: TreeNode, graphCollapse?: unknown) {
-    const streamlineOrCollapse = graphCollapse === "s" ? streamline : collapseAllChildren;
-    if (graphCollapse !== "n") {
-        treeDescription.visitTreeNodes(
-            root,
-            d => {
-                switch (d.name) {
-                    case "condition":
-                    case "conditions":
-                    case "datasource":
-                    case "expressions":
-                    case "field":
-                    case "groupbys":
-                    case "group-bys":
-                    case "imports":
-                    case "measures":
-                    case "column-names":
-                    case "replaced-columns":
-                    case "renamed-columns":
-                    case "new-columns":
-                    case "metadata-record":
-                    case "metadata-records":
-                    case "orderbys":
-                    case "order-bys":
-                    case "filter":
-                    case "predicate":
-                    case "restrictions":
-                    case "runquery-columns":
-                    case "selects":
-                    case "schema":
-                    case "tid":
-                    case "top":
-                    case "aggregates":
-                    case "join-conditions":
-                    case "join-condition":
-                    case "arguments":
-                    case "function-node":
-                    case "type":
-                    case "tuples":
-                        streamlineOrCollapse(d);
-                        return;
-                }
-                switch (d.class) {
-                    case "relation":
-                        collapseAllChildren(d);
-                        return;
-                }
-            },
-            function(d): TreeNode[] {
-                return d.children && d.children.length > 0 ? d.children.slice(0) : [];
-            },
-        );
-    }
+function collapseNodes(root: TreeNode) {
+    treeDescription.visitTreeNodes(
+        root,
+        d => {
+            switch (d.name) {
+                case "condition":
+                case "conditions":
+                case "datasource":
+                case "expressions":
+                case "field":
+                case "groupbys":
+                case "group-bys":
+                case "imports":
+                case "measures":
+                case "column-names":
+                case "replaced-columns":
+                case "renamed-columns":
+                case "new-columns":
+                case "metadata-record":
+                case "metadata-records":
+                case "orderbys":
+                case "order-bys":
+                case "filter":
+                case "predicate":
+                case "restrictions":
+                case "runquery-columns":
+                case "selects":
+                case "schema":
+                case "tid":
+                case "top":
+                case "aggregates":
+                case "join-conditions":
+                case "join-condition":
+                case "arguments":
+                case "function-node":
+                case "type":
+                case "tuples":
+                    streamline(d);
+                    return;
+            }
+            switch (d.class) {
+                case "relation":
+                    streamline(d);
+                    return;
+            }
+        },
+        function(d): TreeNode[] {
+            return d.children && d.children.length > 0 ? d.children.slice(0) : [];
+        },
+    );
 }
 
 function getFederationConnectionType(node: TreeNode) {
@@ -461,7 +458,7 @@ function colorFederated(node: TreeNode, federatedType?: string) {
 }
 
 // Prepare the loaded data for visualization
-function prepareTreeData(xml: ParsedXML, graphCollapse?: unknown): TreeNode {
+function prepareTreeData(xml: ParsedXML): TreeNode {
     const treeData = convertXML(xml);
     // Tag the tree root
     if (!treeData.tag) {
@@ -472,7 +469,7 @@ function prepareTreeData(xml: ParsedXML, graphCollapse?: unknown): TreeNode {
     assignSymbolsAndClasses(treeData);
 
     colorFederated(treeData);
-    collapseNodes(treeData, graphCollapse);
+    collapseNodes(treeData);
     return treeData;
 }
 
@@ -533,9 +530,9 @@ function addCrosslinks(root: TreeNode): Crosslink[] {
     return crosslinks;
 }
 
-export function loadTableauPlan(graphString: string, graphCollapse?: unknown): TreeDescription {
+export function loadTableauPlan(graphString: string): TreeDescription {
     const xml = typesafeXMLParse(graphString);
-    const root = prepareTreeData(xml, graphCollapse);
+    const root = prepareTreeData(xml);
     const crosslinks = addCrosslinks(root);
     return {root: root, crosslinks: crosslinks};
 }
