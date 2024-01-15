@@ -20,8 +20,7 @@ export function loadPlan(plan: string, mimeType: string | null): TreeDescription
     let loadedTree: TreeDescription | undefined;
     function tryLoad(loader: any) {
         try {
-            const graphCollapse = undefined;
-            loadedTree = loader(plan, graphCollapse);
+            loadedTree = loader(plan);
             return true;
         } catch (err : any) { // eslint-disable-line  prettier/prettier
             errors.push(err.toString());

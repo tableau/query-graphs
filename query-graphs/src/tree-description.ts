@@ -109,24 +109,6 @@ export function createParentLinks(tree: TreeNode) {
     );
 }
 
-// Collapse all children regardless of the current state
-export function collapseAllChildren(d: TreeNode) {
-    const children = d.children ? d.children : [];
-    const _children = d._children ? d._children : [];
-    d.children = [];
-    d._children = children.length > _children.length ? children : _children;
-    return d;
-}
-
-// Expand all children regardless of the current state
-export function expandAllChildren(d: TreeNode) {
-    const children = d.children ? d.children : [];
-    const _children = d._children ? d._children : [];
-    d.children = children.length > _children.length ? children : _children;
-    d._children = [];
-    return d;
-}
-
 // Collapse the given node in its parent node
 // Requires parent links to be present (e.g., created by `createParentLinks`)
 export function streamline(d: TreeNode) {

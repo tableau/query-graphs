@@ -356,16 +356,11 @@ function convertOptimizerSteps(node: Json): LinkedNodes | undefined {
 }
 
 // Loads a Hyper query plan
-export function loadHyperPlan(json: Json, graphCollapse?: unknown): TreeDescription {
+export function loadHyperPlan(json: Json): TreeDescription {
     // Load the graph with the nodes collapsed in an automatic way
     const {root, crosslinks} = convertOptimizerSteps(json) ?? convertHyperPlan(json);
     treeDescription.createParentLinks(root);
     // Adjust the graph so it is collapsed as requested by the user
-    if (graphCollapse === "y") {
-        treeDescription.visitTreeNodes(root, treeDescription.collapseAllChildren, treeDescription.allChildren);
-    } else if (graphCollapse === "n") {
-        treeDescription.visitTreeNodes(root, treeDescription.expandAllChildren, treeDescription.allChildren);
-    }
     return {root, crosslinks};
 }
 
@@ -375,7 +370,7 @@ function tryStripPrefix(str, pre) {
 }
 
 // Load a JSON tree from text
-export function loadHyperPlanFromText(graphString: string, graphCollapse?: unknown): TreeDescription {
+export function loadHyperPlanFromText(graphString: string): TreeDescription {
     // Strip `plan` prefix if it exists. This is written by `sql_hyper` if output is forwarded using `\o`
     graphString = tryStripPrefix(graphString, "plan\n");
 
@@ -386,5 +381,5 @@ export function loadHyperPlanFromText(graphString: string, graphCollapse?: unkno
     } catch (err) {
         throw new Error("JSON parse failed with '" + err + "'.");
     }
-    return loadHyperPlan(json, graphCollapse);
+    return loadHyperPlan(json);
 }
