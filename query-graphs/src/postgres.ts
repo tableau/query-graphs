@@ -3,105 +3,129 @@
 Postgres JSON Transformations
 -----------------------------
 
-The Postgres JSON representation renders verbosely as a D3 tree; therefore, perform the following transformations.
-
-Render a few pre-defined keys ("Plan" and "Plans") always as direct input nodes.
-For most other nodes, decide based on their value: if it is of a plain type (string, number, ...), show it as part
-of the tooltip; otherwise show it as part of the tree.
-A short list of special-cased keys (currently there are none) is always displayed as part of the tooltip.
-The label for a tree node is taken from the first defined property among several, which currently only includes "Node Type".
+This is pretty much the same algorithm as the algorithm for Hyper plans
 
 */
 
 import * as treeDescription from "./tree-description";
-import {TreeNode, TreeDescription, Crosslink} from "./tree-description";
-import {assert, Json, forceToString, tryToString, formatMetric, hasOwnProperty, hasSubOject} from "./loader-utils";
+import {TreeNode, TreeDescription, Crosslink, IconName} from "./tree-description";
+import {assert, Json, tryToString, formatMetric, hasOwnProperty, hasSubOject} from "./loader-utils";
+
+interface UnresolvedCrosslink {
+    source: TreeNode;
+    targetOpId: string;
+}
+
+// Temporary state which we hold during converting from JSON to internal graph representation
+interface ConversionState {
+    operatorsById: Map<string, TreeNode>;
+    crosslinks: UnresolvedCrosslink[];
+    edgeWidths: {node: TreeNode; width: number}[];
+}
+
+interface OperatorRenderingDescription {
+    displayName: string;
+    icon?: IconName;
+    crosslinkId?: string,
+}
+
+function getOperatorRendering(operatorType: string, properties: Map<string, string>): OperatorRenderingDescription {
+    switch (operatorType) {
+        case "Hash Join":
+        case "Nested Loop":
+        case "Merge Join":
+            const joinIcons = {
+                "Inner": "inner-join-symbol",
+                "Full Outer": "full-join-symbol",
+                "Left Outer": "left-join-symbol",
+                "Right Outer": "right-join-symbol",
+            }
+            const icon = joinIcons[properties?.get("Join Type") ?? ""] ?? "inner-join-symbol";
+            return {displayName: operatorType, icon};
+        case "CTE Scan":
+            return {
+                displayName: operatorType,
+                icon: "temp-table-symbol",
+                crosslinkId: "CTE " + properties.get("CTE Name")};
+        case "Materialize":
+        case "WorkTable Scan":
+            return {displayName: operatorType, icon: "temp-table-symbol"};
+        case "Incremental Sort":
+        case "Sort":
+            return {displayName: operatorType, icon: "sort-symbol"};
+        case "Result":
+            return {displayName: operatorType, icon: "const-table-symbol"};
+        case "Limit":
+            return {displayName: operatorType, icon: "filter-symbol"};
+        case "Aggregate":
+            return {displayName: operatorType, icon: "groupby-symbol"};
+        case "Function Scan":
+        case "Table Function Scan":
+            return {displayName: operatorType};
+        default:
+            if (operatorType?.endsWith(" Scan")) {
+                let displayName = properties?.get("Relation Name") ?? properties?.get("Index Name");
+                if (displayName) {
+                    displayName = displayName + " (" + operatorType + ")";
+                } else {
+                    displayName = operatorType;
+                }
+                return {displayName, icon: "table-symbol"};
+            } else {
+                return {displayName: operatorType};
+            }
+    }
+}
 
 // Convert Postgres JSON to a D3 tree
-function convertPostgres(node: Json, parentKey: string): TreeNode | TreeNode[] {
-    if (tryToString(node) !== undefined) {
+function convertPostgresNode(rawNode: Json, parentKey: string, conversionState: ConversionState): TreeNode | TreeNode[] {
+    if (tryToString(rawNode) !== undefined) {
         return {
-            text: tryToString(node),
+            name: tryToString(rawNode),
         };
-    } else if (typeof node === "object" && !Array.isArray(node) && node !== null) {
+    } else if (typeof rawNode === "object" && !Array.isArray(rawNode) && rawNode !== null) {
         // "Object" nodes
         let children = [] as TreeNode[];
         let collapsedChildren = [] as TreeNode[];
         const properties = new Map<string, string>();
 
         // Take the first present tagKey as the new tag. Add all others as properties
-        const tagKeys = ["Node Type"];
-        let tag: string | undefined;
-        for (const tagKey of tagKeys) {
-            if (!node.hasOwnProperty(tagKey)) {
-                continue;
-            }
-            if (tag === undefined) {
-                tag = tryToString(node[tagKey]);
-            } else {
-                properties.set(tagKey, forceToString(node[tagKey]));
-            }
-        }
-        if (tag === undefined) {
-            tag = parentKey;
+        let operatorType: string | undefined;
+        const operatorTypeKey = "Node Type";
+        if (rawNode.hasOwnProperty(operatorTypeKey)) {
+            operatorType = tryToString(rawNode[operatorTypeKey]);
         }
 
         // Add the following keys as children
         const childKeys = ["Plan", "Plans"];
         for (const key of childKeys) {
-            if (!node.hasOwnProperty(key)) {
+            if (!rawNode.hasOwnProperty(key)) {
                 continue;
             }
-            const child = convertPostgres(node[key], key);
+            const child = convertPostgresNode(rawNode[key], key, conversionState);
             if (Array.isArray(child)) {
                 children = children.concat(child);
             } else {
                 children.push(child);
-            }
-        }
-
-        // Add the following keys as children only when they refer to objects and display as properties if not
-        const objectKeys = [""];
-        for (const key of objectKeys) {
-            if (!node.hasOwnProperty(key)) {
-                continue;
-            }
-            if (typeof node[key] !== "object") {
-                properties.set(key, forceToString(node[key]));
-                continue;
-            }
-            const child = convertPostgres(node[key], key);
-            if (Array.isArray(child)) {
-                children = children.concat(child);
-            } else {
-                children.push(child);
-            }
-        }
-
-        // Display these properties always as properties, even if they are more complex
-        const propertyKeys = [""];
-        for (const key of propertyKeys) {
-            if (node.hasOwnProperty(key)) {
-                properties.set(key, forceToString(node[key]));
             }
         }
 
         // Display all other properties adaptively: simple expressions are displayed as properties, all others as part of the tree
-        const handledKeys = tagKeys.concat(childKeys, objectKeys, propertyKeys);
-        for (const key of Object.getOwnPropertyNames(node)) {
+        const handledKeys = ["Node Type"].concat(childKeys);
+        for (const key of Object.getOwnPropertyNames(rawNode)) {
             if (handledKeys.indexOf(key) !== -1) {
                 continue;
             }
 
             // Try to display as string property
-            const str = tryToString(node[key]);
+            const str = tryToString(rawNode[key]);
             if (str !== undefined) {
                 properties.set(key, str);
                 continue;
             }
 
             // Display as part of the tree
-            const innerNodes = convertPostgres(node[key], key);
+            const innerNodes = convertPostgresNode(rawNode[key], key, conversionState);
             if (Array.isArray(innerNodes)) {
                 collapsedChildren.push({tag: key, children: innerNodes});
             } else {
@@ -109,27 +133,21 @@ function convertPostgres(node: Json, parentKey: string): TreeNode | TreeNode[] {
             }
         }
 
-        // Display the cardinality on the links between the nodes
-        let edgeLabel: string | undefined = undefined;
-        let edgeClass: string | undefined = undefined;
-        if (node.hasOwnProperty("Plan Rows") && typeof node["Plan Rows"] === "number") {
-            if (node.hasOwnProperty("Actual Rows") && typeof node["Actual Rows"] === "number") {
-                edgeLabel = formatMetric(node["Actual Rows"]) + "/" + formatMetric(node["Plan Rows"]);
-                // Highlight significant differences between planned and actual rows
-                const num0 = Number(node["Plan Rows"]);
-                const num1 = Number(node["Actual Rows"]);
-                if (num0 > num1 * 10 || num0 * 10 < num1) {
-                    edgeClass = "qg-label-highlighted";
-                }
-            } else {
-                edgeLabel = formatMetric(node["Plan Rows"]);
-            }
+        // Determine display name & icon
+        let displayName = parentKey;
+        let crosslinkId: string | undefined = undefined;
+        let icon: IconName | undefined;
+        if (operatorType) {
+            let res = getOperatorRendering(operatorType, properties);
+            displayName = res.displayName;
+            icon = res.icon;
+            crosslinkId = res.crosslinkId
         }
 
         // Collapse nodes as appropriate
         // For operators, the additionalChildren are collapsed by default.
         // Everything else (usually expressions): display uncollapsed
-        if (!node.hasOwnProperty("Triggers") && !node.hasOwnProperty("Node Type")) {
+        if (!rawNode.hasOwnProperty("Triggers") && !rawNode.hasOwnProperty("Node Type")) {
             children = children.concat(collapsedChildren);
             collapsedChildren = [];
         }
@@ -141,20 +159,54 @@ function convertPostgres(node: Json, parentKey: string): TreeNode | TreeNode[] {
         }
 
         // Build the converted node
-        return {
-            tag,
+        let convertedNode = {
+            name: displayName,
+            icon,
             properties: sortedProperties,
             children,
             collapsedChildren,
-            edgeLabel,
-            edgeClass,
-        };
-    } else if (Array.isArray(node)) {
+        } as TreeNode;
+
+        // Display the cardinality on the links between the nodes
+        if (rawNode.hasOwnProperty("Plan Rows") && typeof rawNode["Plan Rows"] === "number") {
+            const estimatedCard = rawNode["Plan Rows"];
+            const actualCard = rawNode.hasOwnProperty("Actual Rows") ? rawNode["Actual Rows"] : undefined;
+            if (typeof actualCard === "number") {
+                conversionState.edgeWidths.push({node: convertedNode, width: actualCard});
+                convertedNode.edgeLabel = formatMetric(actualCard) + "/" + formatMetric(estimatedCard);
+                // Highlight significant differences between planned and actual rows
+                if (estimatedCard > actualCard * 10 || actualCard * 10 < estimatedCard) {
+                    convertedNode.edgeClass = "qg-label-highlighted";
+                }
+            } else {
+                conversionState.edgeWidths.push({node: convertedNode, width: estimatedCard});
+                convertedNode.edgeLabel = formatMetric(rawNode["Plan Rows"]);
+            }
+        }
+
+        // Add to `operatorId` map if applicable
+        if (operatorType) {
+            const operatorId = properties?.get("Subplan Name");
+            if (operatorId !== undefined) {
+                conversionState.operatorsById.set(operatorId, convertedNode);
+            }
+        }
+
+        // Add cross links
+        if (crosslinkId) {
+            conversionState.crosslinks.push({
+                source: convertedNode,
+                targetOpId: crosslinkId,
+            });
+        }
+
+        return convertedNode;
+    } else if (Array.isArray(rawNode)) {
         // "Array" nodes
         const listOfObjects = [] as TreeNode[];
-        for (let index = 0; index < node.length; ++index) {
-            const value = node[index];
-            const innerNode = convertPostgres(value, parentKey + "." + index.toString());
+        for (let index = 0; index < rawNode.length; ++index) {
+            const value = rawNode[index];
+            const innerNode = convertPostgresNode(value, parentKey + "." + index.toString(), conversionState);
             // objectify nested arrays
             if (Array.isArray(innerNode)) {
                 innerNode.forEach(function(value, _index) {
@@ -167,90 +219,6 @@ function convertPostgres(node: Json, parentKey: string): TreeNode | TreeNode[] {
         return listOfObjects;
     }
     throw new Error("Invalid Postgres query plan");
-}
-
-// Function to generate nodes' display names based on their properties
-function generateDisplayNames(treeRoot: TreeNode) {
-    treeDescription.visitTreeNodes(
-        treeRoot,
-        function(node) {
-            switch (node.tag) {
-                case "Hash Join":
-                case "Nested Loop":
-                case "Merge Join":
-                    if (node.hasOwnProperty("properties")) {
-                        switch (node.properties?.get("Join Type")) {
-                            case "Inner":
-                                node.name = node.tag;
-                                node.icon = "inner-join-symbol";
-                                break;
-                            case "Full Outer":
-                                node.name = node.tag;
-                                node.icon = "full-join-symbol";
-                                break;
-                            case "Left Outer":
-                                node.name = node.tag;
-                                node.icon = "left-join-symbol";
-                                break;
-                            case "Right Outer":
-                                node.name = node.tag;
-                                node.icon = "right-join-symbol";
-                                break;
-                            default:
-                                node.name = node.tag;
-                                node.icon = "inner-join-symbol";
-                                break;
-                        }
-                    }
-                    break;
-                case "CTE Scan":
-                case "Materialize":
-                case "WorkTable Scan":
-                    node.name = node.tag;
-                    node.icon = "temp-table-symbol";
-                    break;
-                case "Incremental Sort":
-                case "Sort":
-                    node.name = node.tag;
-                    node.icon = "sort-symbol";
-                    break;
-                case "Result":
-                    node.name = node.tag;
-                    node.icon = "const-table-symbol";
-                    break;
-                case "Limit":
-                    node.name = node.tag;
-                    node.icon = "filter-symbol";
-                    break;
-                case "Aggregate":
-                    node.name = node.tag;
-                    node.icon = "groupby-symbol";
-                    break;
-                case "Function Scan":
-                case "Table Function Scan":
-                    node.name = node.tag;
-                    break;
-                default:
-                    if (node.tag?.endsWith(" Scan")) {
-                        const scanName = node.properties?.get("Relation Name") ?? node.properties?.get("Index Name");
-                        if (scanName) {
-                            node.name = scanName + " (" + node.tag + ")";
-                        } else {
-                            node.name = node.tag;
-                        }
-                        node.icon = "table-symbol";
-                    } else if (node.tag) {
-                        node.name = node.tag;
-                    } else if (node.text) {
-                        node.name = node.text;
-                    } else {
-                        node.name = "";
-                    }
-                    break;
-            }
-        },
-        treeDescription.allChildren,
-    );
 }
 
 // Color graph per a node's relative execution time
@@ -277,7 +245,7 @@ function colorRelativeExecutionTime(root: TreeNode) {
 }
 function colorChildRelativeExecutionRatio(node: TreeNode, executionTime: number, degreeOfParallelism: number) {
     let childrenTime = 0;
-    if (node.tag === "Gather" || node.tag === "Gather Merge") {
+    if (node.name === "Gather" || node.name === "Gather Merge") {
         const workersLaunched = node.properties?.get("Workers Launched");
         assert(workersLaunched !== undefined, "Unexpected Workers Launched");
         degreeOfParallelism = Number(workersLaunched) + 1 /* leader */;
@@ -297,7 +265,7 @@ function colorChildRelativeExecutionRatio(node: TreeNode, executionTime: number,
         const actualLoops = node.properties?.get("Actual Loops");
         assert(actualLoops !== undefined, "Unexpected Actual Loops");
         let nodeLoops = Number(actualLoops);
-        if (node.tag !== "Gather" && node.tag !== "Gather Merge") {
+        if (node.name !== "Gather" && node.name !== "Gather Merge") {
             nodeLoops /= degreeOfParallelism;
         }
 
@@ -317,41 +285,28 @@ function colorChildRelativeExecutionRatio(node: TreeNode, executionTime: number,
     }
 }
 
-// Function to add crosslinks between related nodes
-function addCrosslinks(root: TreeNode): Crosslink[] {
-    interface UnresolvedCrosslink {
-        source: TreeNode;
-        targetName: string;
-    }
-    const unresolvedLinks: UnresolvedCrosslink[] = [];
-    const operatorsByName = new Map<string, TreeNode>();
-    treeDescription.visitTreeNodes(
-        root,
-        function(node) {
-            // Build map from potential target operator Subplan Name to node
-            const subplanName = node.properties?.get("Subplan Name");
-            if (subplanName?.startsWith("CTE ")) {
-                operatorsByName.set(subplanName, node);
-            }
-            // Identify source operators
-            if (node.tag === "CTE Scan" && node.properties?.has("CTE Name")) {
-                unresolvedLinks.push({
-                    source: node,
-                    targetName: "CTE " + node.properties.get("CTE Name"),
-                });
-            }
-        },
-        treeDescription.allChildren,
-    );
-    // Add crosslinks from source to matching target node
+// Resolve all pending crosslinks
+function resolveCrosslinks(state: ConversionState): Crosslink[] {
     const crosslinks = [] as Crosslink[];
-    for (const link of unresolvedLinks) {
-        const target = operatorsByName.get(link.targetName);
+    for (const link of state.crosslinks) {
+        const target = state.operatorsById.get(link.targetOpId);
         if (target !== undefined) {
             crosslinks.push({source: link.source, target: target});
         }
     }
     return crosslinks;
+}
+
+// Sets the edge widths, relative to the number of output tuples
+function setEdgeWidths(state: ConversionState) {
+    let maxWidth = state.edgeWidths.reduce((p, v) => (p > v.width ? p : v.width), 0);
+    const minWidth = state.edgeWidths.reduce((p, v) => (p < v.width ? p : v.width), Infinity);
+    if (minWidth == maxWidth) return;
+    const factor = Math.max(maxWidth - minWidth, minWidth);
+    maxWidth = Math.max(maxWidth, 10);
+    for (const edge of state.edgeWidths) {
+        edge.node.edgeWidth = (edge.width - minWidth) / factor;
+    }
 }
 
 // Loads a Postgres query plan
@@ -364,16 +319,20 @@ export function loadPostgresPlan(json: Json): TreeDescription {
     if (!hasSubOject(json, "Plan") || !hasOwnProperty(json.Plan, "Node Type")) {
         throw new Error("Invalid Postgres query plan");
     }
-    // Load the graph with the nodes collapsed in an automatic way
-    const root = convertPostgres(json, "result");
+    // Load the graph
+    const conversionState = {
+        operatorsById: new Map<string, TreeNode>(),
+        crosslinks: [],
+        edgeWidths: [],
+        runtimes: [],
+    } as ConversionState;
+    const root = convertPostgresNode(json, "result", conversionState);
     if (Array.isArray(root)) {
         throw new Error("Invalid Postgres query plan");
     }
-    generateDisplayNames(root);
-    treeDescription.createParentLinks(root);
     colorRelativeExecutionTime(root);
-    // Add crosslinks
-    const crosslinks = addCrosslinks(root);
+    setEdgeWidths(conversionState);
+    const crosslinks = resolveCrosslinks(conversionState);
     return {root: root, crosslinks: crosslinks};
 }
 

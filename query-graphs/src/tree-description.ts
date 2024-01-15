@@ -90,6 +90,7 @@ export function allChildren<T extends TreeLike<T>>(n: T): T[] {
 }
 
 // Create parent links
+// XXX remove
 export function createParentLinks(tree: TreeNode) {
     visitTreeNodes(
         tree,
@@ -110,6 +111,7 @@ export function createParentLinks(tree: TreeNode) {
 
 // Collapse the given node in its parent node
 // Requires parent links to be present (e.g., created by `createParentLinks`)
+// XXX remove
 export function streamline(d: TreeNode) {
     if (d.parent) {
         assert(d.parent.children !== undefined);

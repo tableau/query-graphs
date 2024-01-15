@@ -22,7 +22,6 @@ The main steps are:
 
 */
 
-import * as treeDescription from "./tree-description";
 import {TreeNode, TreeDescription, Crosslink, IconName} from "./tree-description";
 import {Json, JsonObject, forceToString, tryToString, formatMetric, hasOwnProperty, tryGetPropertyPath} from "./loader-utils";
 
@@ -195,20 +194,21 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
             }
         }
 
+        // Figure out the display name
+        const specificDisplayName = renderingConfig.displayNameKey ? properties.get(renderingConfig.displayNameKey) : undefined;
+        const debugNameNode = tryGetPropertyPath(rawNode, ["debugName", "value"]);
+        const debugName = typeof debugNameNode === "string" ? debugNameNode : undefined;
+        let displayName = debugName ?? specificDisplayName ?? properties?.get("name") ?? nodeTag ?? "";
+
         // Build the converted node
         const convertedNode = {
+            name: displayName,
             icon: renderingConfig.icon,
             properties,
             children: expandedChildren,
             collapsedChildren,
             expandedByDefault: nodeType != "operator" && expandedChildren.length == 0
         } as TreeNode;
-
-        // Figure out the display name
-        const specificDisplayName = renderingConfig.displayNameKey ? properties.get(renderingConfig.displayNameKey) : undefined;
-        const debugNameNode = tryGetPropertyPath(rawNode, ["debugName", "value"]);
-        const debugName = typeof debugNameNode === "string" ? debugNameNode : undefined;
-        convertedNode.name = debugName ?? specificDisplayName ?? properties?.get("name") ?? nodeTag ?? "";
 
         // Information on the execution time
         const execTime = tryGetPropertyPath(rawNode, ["analyze", "tuplecount"]);
@@ -364,7 +364,6 @@ function convertOptimizerSteps(node: Json): LinkedNodes | undefined {
 export function loadHyperPlan(json: Json): TreeDescription {
     // Load the graph with the nodes collapsed in an automatic way
     const {root, crosslinks} = convertOptimizerSteps(json) ?? convertHyperPlan(json);
-    treeDescription.createParentLinks(root);
     // Adjust the graph so it is collapsed as requested by the user
     return {root, crosslinks};
 }
