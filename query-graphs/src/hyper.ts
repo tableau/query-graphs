@@ -151,15 +151,15 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
         // Determine the order in which other keys are displayed.
         // For some keys, we enforce a specific order here (e.g., "left" comes before "right").
         // For all other keys, we use alphabetic order.
-        const fixedOrder = ["input", "left", "right", "value", "valueForComparison"];
+        const fixedChildOrder = ["input", "left", "right", "value", "valueForComparison"];
         const orderedKeys = Object.getOwnPropertyNames(rawNode)
             .filter(k => {
                 // `propertyKeys` and `operator`/`expression` were already handled
                 return k != nodeType && propertyKeys.indexOf(k) === -1;
             })
             .sort((a, b) => {
-                const idx1 = fixedOrder.indexOf(a);
-                const idx2 = fixedOrder.indexOf(b);
+                const idx1 = fixedChildOrder.indexOf(a);
+                const idx2 = fixedChildOrder.indexOf(b);
                 if (idx1 != -1 || idx2 != -1) {
                     const fixed1 = idx1 == -1 ? Infinity : idx1;
                     const fixed2 = idx2 == -1 ? Infinity : idx2;
@@ -184,11 +184,14 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
             const children = isAlwaysExpanded(rawNode, key) ? expandedChildren : collapsedChildren;
             const innerNodes = convertHyperNode(rawNode[key], key, conversionState);
             const innerNodesArray = Array.isArray(innerNodes) ? innerNodes : [innerNodes];
-            if (fixedOrder.indexOf(key) != -1) {
+            if (fixedChildOrder.indexOf(key) != -1) {
+                // Flatten the array, in case it's one of the "fixedChildOrder" keys
                 Array.prototype.push.apply(children, innerNodesArray);
-            } else {
+            } else if (Array.isArray(innerNodes)) {
                 // Array-valued children are collapsed by default, to avoid displaying too many properties all at once.
                 children.push({name: key, collapsedChildren: innerNodesArray});
+            } else {
+                children.push({name: key, children: innerNodesArray});
             }
         }
 

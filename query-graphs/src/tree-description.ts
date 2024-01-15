@@ -39,9 +39,6 @@ export interface TreeNode {
     collapsedChildren?: TreeNode[];
     // Whether collapsed children are shown by default
     expandedByDefault?: boolean;
-    // An array containing all child nodes, including hidden nodes
-    // XXX remove
-    _children?: TreeNode[];
     // The parent node
     parent?: TreeNode;
 
@@ -116,11 +113,10 @@ export function createParentLinks(tree: TreeNode) {
 export function streamline(d: TreeNode) {
     if (d.parent) {
         assert(d.parent.children !== undefined);
-        if (!d.parent._children) {
-            // Save all of the original children in _children one time only
-            d.parent._children = d.parent.children.slice(0);
+        if (!d.parent.collapsedChildren) {
+            d.parent.collapsedChildren = [];
         }
         const index = d.parent.children.indexOf(d);
-        d.parent.children.splice(index, 1);
+        d.collapsedChildren!.push(d.parent.children.splice(index, 1)[0]);
     }
 }

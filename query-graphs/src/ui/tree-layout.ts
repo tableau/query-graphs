@@ -29,7 +29,7 @@ export function layoutTree(
     console.log("layout");
     const root = d3hierarchy.hierarchy(treeData.root, d => {
         if (expandedSubtrees[nodeIds.get(d)!] && d.collapsedChildren) {
-            return d.children?.concat(d.collapsedChildren);
+            return (d.children ?? []).concat(d.collapsedChildren);
         }
         return d.children;
     });
