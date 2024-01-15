@@ -25,8 +25,8 @@ function convertPostgres(node: Json, parentKey: string): TreeNode | TreeNode[] {
         };
     } else if (typeof node === "object" && !Array.isArray(node) && node !== null) {
         // "Object" nodes
-        let explicitChildren = [] as TreeNode[];
-        const additionalChildren = [] as TreeNode[];
+        let children = [] as TreeNode[];
+        let collapsedChildren = [] as TreeNode[];
         const properties = new Map<string, string>();
 
         // Take the first present tagKey as the new tag. Add all others as properties
@@ -54,9 +54,9 @@ function convertPostgres(node: Json, parentKey: string): TreeNode | TreeNode[] {
             }
             const child = convertPostgres(node[key], key);
             if (Array.isArray(child)) {
-                explicitChildren = explicitChildren.concat(child);
+                children = children.concat(child);
             } else {
-                explicitChildren.push(child);
+                children.push(child);
             }
         }
 
@@ -72,9 +72,9 @@ function convertPostgres(node: Json, parentKey: string): TreeNode | TreeNode[] {
             }
             const child = convertPostgres(node[key], key);
             if (Array.isArray(child)) {
-                explicitChildren = explicitChildren.concat(child);
+                children = children.concat(child);
             } else {
-                explicitChildren.push(child);
+                children.push(child);
             }
         }
 
@@ -103,9 +103,9 @@ function convertPostgres(node: Json, parentKey: string): TreeNode | TreeNode[] {
             // Display as part of the tree
             const innerNodes = convertPostgres(node[key], key);
             if (Array.isArray(innerNodes)) {
-                additionalChildren.push({tag: key, children: innerNodes});
+                collapsedChildren.push({tag: key, children: innerNodes});
             } else {
-                additionalChildren.push({tag: key, children: [innerNodes]});
+                collapsedChildren.push({tag: key, children: [innerNodes]});
             }
         }
 
@@ -127,16 +127,11 @@ function convertPostgres(node: Json, parentKey: string): TreeNode | TreeNode[] {
         }
 
         // Collapse nodes as appropriate
-        let children: TreeNode[];
-        let _children: TreeNode[];
-        if (node.hasOwnProperty("Triggers") || node.hasOwnProperty("Node Type")) {
-            // For operators, the additionalChildren are collapsed by default
-            children = explicitChildren;
-            _children = explicitChildren.concat(additionalChildren);
-        } else {
-            // Everything else (usually expressions): display uncollapsed
-            children = explicitChildren.concat(additionalChildren);
-            _children = [];
+        // For operators, the additionalChildren are collapsed by default.
+        // Everything else (usually expressions): display uncollapsed
+        if (!node.hasOwnProperty("Triggers") && !node.hasOwnProperty("Node Type")) {
+            children = children.concat(collapsedChildren);
+            collapsedChildren = [];
         }
 
         // Sort properties by key
@@ -150,7 +145,7 @@ function convertPostgres(node: Json, parentKey: string): TreeNode | TreeNode[] {
             tag,
             properties: sortedProperties,
             children,
-            _children,
+            collapsedChildren,
             edgeLabel,
             edgeClass,
         };
