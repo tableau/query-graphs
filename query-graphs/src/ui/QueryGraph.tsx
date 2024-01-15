@@ -2,7 +2,7 @@ import ReactFlow, {MiniMap, Node, Controls, ReactFlowProvider} from "reactflow";
 import "reactflow/dist/base.css";
 
 import {layoutTree} from "./tree-layout";
-import {TreeDescription, TreeNode} from "../tree-description";
+import {TreeDescription, TreeNode, allChildren, visitTreeNodes} from "../tree-description";
 import {useMemo, useEffect, useRef} from "react";
 import {QueryNode} from "./QueryNode";
 import "./QueryGraph.css";
@@ -23,17 +23,41 @@ const nodeTypes = {
 };
 
 function QueryGraphInternal({treeDescription}: QueryGraphProps) {
+    // Assign ids to all nodes
+    const nodeIdMapping = useMemo(() => {
+        let nextId = 0;
+        const nodeIds = new Map<TreeNode, string>();
+        visitTreeNodes(
+            treeDescription.root,
+            d => {
+                nodeIds.set(d, "" + nextId++);
+            },
+            allChildren,
+        );
+        return nodeIds;
+    }, [treeDescription]);
+
+    // Initialize our state using the correct "expandedByDefault" state
+    const initGraphStore = useGraphRenderingStore(s => s.init);
+    useMemo(() => {
+        const expandedSubtrees = {};
+        visitTreeNodes(treeDescription.root, (n) => {
+            if (n.expandedByDefault) {
+                expandedSubtrees[nodeIdMapping.get(n)!] = true;
+            }
+        }, allChildren);
+        initGraphStore(expandedSubtrees);
+    }, [treeDescription, initGraphStore]);
+
     // Create a ResizeObserver to keep track of the sizes of the nodes
     const resizeObserverRef = useRef<ResizeObserver>();
     const updateNodeDimensions = useGraphRenderingStore(s => s.updateNodeDimensions);
-
     const resizeObserver = useMemo(() => {
         resizeObserverRef.current?.disconnect();
         const observer = new ResizeObserver(updateNodeDimensions);
         resizeObserverRef.current = observer;
         return observer;
     }, [updateNodeDimensions]);
-
     useEffect(() => {
         return () => {
             resizeObserverRef.current?.disconnect();
@@ -44,7 +68,7 @@ function QueryGraphInternal({treeDescription}: QueryGraphProps) {
     const nodeDimensions = useGraphRenderingStore(s => s.nodeDimensions);
     const expandedNodes = useGraphRenderingStore(s => s.expandedNodes);
     const expandedSubtrees = useGraphRenderingStore(s => s.expandedSubtrees);
-    const layout = useMemo(() => layoutTree(treeDescription, nodeDimensions, expandedNodes, expandedSubtrees, resizeObserver), [
+    const layout = useMemo(() => layoutTree(treeDescription, nodeIdMapping, nodeDimensions, expandedNodes, expandedSubtrees, resizeObserver), [
         treeDescription,
         nodeDimensions,
         expandedNodes,

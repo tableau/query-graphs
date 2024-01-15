@@ -30,7 +30,7 @@ function QueryNode({data, id}: NodeProps<NodeData>) {
     const toggleSubtree = useGraphRenderingStore(s => s.toggleExpandedSubtree);
 
     const hasProperties = data.properties?.size;
-    const hasSubtree = !!data._children;
+    const hasSubtree = data.collapsedChildren && data.collapsedChildren.length > 0;
 
     const onClick = useCallback(
         (e: MouseEvent) => {

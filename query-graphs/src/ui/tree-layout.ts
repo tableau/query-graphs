@@ -20,25 +20,17 @@ interface TreeLayout {
 // Returns node and edge lists
 export function layoutTree(
     treeData: TreeDescription,
+    nodeIds:  Map<TreeNode, string>,
     nodeDimensions: Record<string, NodeDimensions>,
     expandedNodes: Record<string, boolean>,
     expandedSubtrees: Record<string, boolean>,
     resizeObserver: ResizeObserver,
 ): TreeLayout {
     console.log("layout");
-    // Assign ids
-    let nextId = 0;
-    const nodeIds = new Map<TreeNode, string>();
-    treeDescription.visitTreeNodes(
-        treeData.root,
-        d => {
-            nodeIds.set(d, "" + nextId++);
-        },
-        treeDescription.allChildren,
-    );
-
     const root = d3hierarchy.hierarchy(treeData.root, d => {
-        if (expandedSubtrees[nodeIds.get(d)!]) return d._children;
+        if (expandedSubtrees[nodeIds.get(d)!] && d.collapsedChildren) {
+            return d.children?.concat(d.collapsedChildren);
+        }
         return d.children;
     });
 
@@ -54,9 +46,13 @@ export function layoutTree(
                 dim.headHeight === undefined ||
                 dim.bodyWidth === undefined ||
                 dim.bodyHeight === undefined
-            )
+            ) {
+                // This is just a default. We will immediately re-render with the updated actual values.
                 return [50, 50];
-            if (expandedNodes[id]) return [Math.max(dim.headWidth, dim.bodyWidth) + 20, dim.headHeight + dim.bodyHeight + 50];
+            }
+            if (expandedNodes[id]) {
+                return [Math.max(dim.headWidth, dim.bodyWidth) + 20, dim.headHeight + dim.bodyHeight + 50];
+            }
             else return [dim.headWidth + 20, dim.headHeight + 50];
         })
         .spacing((a, b) => (a.parent === b.parent ? 0 : 40));

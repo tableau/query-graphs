@@ -33,9 +33,14 @@ export interface TreeNode {
     // Width of the incoming edge
     edgeWidth?: number;
 
-    // An array containing all child nodes visible by default
+    // All child nodes visible by default
     children?: TreeNode[];
+    // All collapsed child nodes
+    collapsedChildren?: TreeNode[];
+    // Whether collapsed children are shown by default
+    expandedByDefault?: boolean;
     // An array containing all child nodes, including hidden nodes
+    // XXX remove
     _children?: TreeNode[];
     // The parent node
     parent?: TreeNode;
@@ -79,15 +84,12 @@ export function visitTreeNodes<T>(parent: T, visitFn: (n: T) => void, childrenFn
 
 interface TreeLike<T extends TreeLike<T>> {
     children?: T[];
-    _children?: T[];
+    collapsedChildren?: T[];
 }
 
 // Returns all children of a node, including collapsed children
 export function allChildren<T extends TreeLike<T>>(n: T): T[] {
-    const childrenLength = n.children?.length ?? 0;
-    const _childrenLength = n._children?.length ?? 0;
-    const largerArray = _childrenLength > childrenLength ? n._children : n.children;
-    return largerArray ?? [];
+    return (n.children ?? []).concat(n.collapsedChildren ?? []);
 }
 
 // Create parent links

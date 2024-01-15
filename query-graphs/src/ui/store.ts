@@ -10,6 +10,7 @@ export interface NodeDimensions {
 }
 
 interface GraphRenderingState {
+    init: (expandedSubtrees: Record<string, boolean>) => void,
     expandedNodes: Record<string, boolean>;
     toggleExpandedNode: (nodeId: string) => void;
     expandedSubtrees: Record<string, boolean>;
@@ -22,16 +23,23 @@ export const useGraphRenderingStore = create<GraphRenderingState>()(
     devtools(
         immer((set, get) => ({
             expandedNodes: {},
+            expandedSubtrees: {},
+            nodeDimensions: {},
+            init: expandedSubtrees => {
+                set(state => {
+                    state.expandedNodes = {};
+                    state.expandedSubtrees = expandedSubtrees;
+                    state.nodeDimensions = {};
+                });
+            },
             toggleExpandedNode: nodeId =>
                 set(state => {
                     state.expandedNodes[nodeId] = !get().expandedNodes[nodeId];
                 }),
-            expandedSubtrees: {},
             toggleExpandedSubtree: nodeId =>
                 set(state => {
                     state.expandedSubtrees[nodeId] = !get().expandedSubtrees[nodeId];
                 }),
-            nodeDimensions: {},
             updateNodeDimensions: (entries: ResizeObserverEntry[]) =>
                 set(state => {
                     for (const e of entries) {
