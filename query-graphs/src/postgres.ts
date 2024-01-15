@@ -253,33 +253,6 @@ function generateDisplayNames(treeRoot: TreeNode) {
     );
 }
 
-// Color graph per Foreign Scan relations
-function colorForeignScan(node: TreeNode, foreignScan?: string) {
-    if (node.tag === "Foreign Scan") {
-        // A Foreign Scan of one relation has a Schema or a Relations if multiple
-        const schema = node.properties?.get("Schema");
-        const relations = node.properties?.get("Relations");
-        if (schema) {
-            foreignScan = schema;
-        } else if (relations) {
-            foreignScan = relations.split(/[(.]/).find(token => token !== "");
-        }
-    }
-
-    /* Favorite Foreign Scans (Jewel Bright color palette) */
-    if (foreignScan !== undefined) {
-        const favoriteForeignScanColors = {
-            dtinglinux: "hsl(189, 72%, 76%)",
-            lxulx: "hsl(23, 100%, 57%)",
-            ricolelx: "hsl(357, 89%, 53%)",
-        };
-        node.iconColor = favoriteForeignScanColors[foreignScan];
-    }
-    for (const child of treeDescription.allChildren(node)) {
-        colorForeignScan(child, foreignScan);
-    }
-}
-
 // Color graph per a node's relative execution time
 // Actual Total Time is cumulative
 // Nodes with Actual Loops > 1 record an average Actual Total Time
@@ -398,7 +371,6 @@ export function loadPostgresPlan(json: Json): TreeDescription {
     }
     generateDisplayNames(root);
     treeDescription.createParentLinks(root);
-    colorForeignScan(root);
     colorRelativeExecutionTime(root);
     // Add crosslinks
     const crosslinks = addCrosslinks(root);
