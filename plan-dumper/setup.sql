@@ -91,11 +91,11 @@ CREATE TEMP TABLE region (
 );
 
 -- We also load some data into the TPC-H schema because our query plans depend on cardinality estimates and we want meaningful numbers there.
-copy customer from './tpch-data-tiny/customer.tbl' (format text, delimiter '|', trailing_delimiter);
-copy lineitem from './tpch-data-tiny/lineitem.tbl' (format text, delimiter '|', trailing_delimiter);
-copy nation from './tpch-data-tiny/nation.tbl' (format text, delimiter '|', trailing_delimiter);
-copy orders from './tpch-data-tiny/orders.tbl' (format text, delimiter '|', trailing_delimiter);
-copy partsupp from './tpch-data-tiny/partsupp.tbl' (format text, delimiter '|', trailing_delimiter);
-copy part from './tpch-data-tiny/part.tbl' (format text, delimiter '|', trailing_delimiter);
-copy region from './tpch-data-tiny/region.tbl' (format text, delimiter '|', trailing_delimiter);
-copy supplier from './tpch-data-tiny/supplier.tbl' (format text, delimiter '|', trailing_delimiter);
+copy customer from './tpch-data-tiny/customer.tbl' (format text, delimiter '|');
+copy lineitem from './tpch-data-tiny/lineitem.tbl' (format text, delimiter '|');
+copy nation from './tpch-data-tiny/nation.tbl' (format text, delimiter '|');
+copy orders from './tpch-data-tiny/orders.tbl' (format text, delimiter '|');
+copy partsupp from './tpch-data-tiny/partsupp.tbl' (format text, delimiter '|');
+copy part from './tpch-data-tiny/part.tbl' (format text, delimiter '|');
+copy region from './tpch-data-tiny/region.tbl' (format text, delimiter '|');
+copy supplier from './tpch-data-tiny/supplier.tbl' (format text, delimiter '|');

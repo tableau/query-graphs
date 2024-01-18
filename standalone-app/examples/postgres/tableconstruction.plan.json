@@ -1,0 +1,1 @@
+[{"Plan": {"Node Type": "Values Scan", "Parallel Aware": false, "Async Capable": false, "Alias": "*VALUES*", "Startup Cost": 0.0, "Total Cost": 0.03, "Plan Rows": 2, "Plan Width": 64, "Output": ["column1", "column2"]}}]

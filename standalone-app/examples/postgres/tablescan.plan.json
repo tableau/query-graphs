@@ -1,0 +1,1 @@
+[{"Plan": {"Node Type": "Seq Scan", "Parallel Aware": false, "Async Capable": false, "Relation Name": "region", "Schema": "pg_temp", "Alias": "region", "Startup Cost": 0.0, "Total Cost": 11.7, "Plan Rows": 170, "Plan Width": 104, "Output": ["r_name"]}}]
