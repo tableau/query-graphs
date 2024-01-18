@@ -1,7 +1,7 @@
 {
   "operator": "executiontarget",
   "operatorId": 1,
-  "cardinality": 4001,
+  "cardinality": 4008.5,
   "producesRows": true,
   "output": [{"expression": "iuref", "iu": ["v", ["Integer"]]}, {"expression": "iuref", "iu": ["v2", ["Integer"]]}],
   "outputNames": ["a2", "b2"],
@@ -9,7 +9,7 @@
     "operator": "unionall",
     "operatorId": 2,
     "sqlpos": [[72, 81], [40, 49]],
-    "cardinality": 4001,
+    "cardinality": 4008.5,
     "input": [{
       "operator": "tablescan",
       "operatorId": 3,
@@ -34,7 +34,7 @@
       "operator": "exceptall",
       "operatorId": 5,
       "sqlpos": [[186, 196]],
-      "cardinality": 1,
+      "cardinality": 8.50385,
       "input": [{
         "operator": "intersectall",
         "operatorId": 6,

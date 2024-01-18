@@ -33,7 +33,7 @@
           "debugName": {"classification": "nonsensitive", "value": "orders"},
           "restrictions": [{"attribute": 4, "mode": "[)", "value": {"expression": "const", "value": {"type": ["Date"], "value": 2449170}}, "value2": {"expression": "const", "value": {"type": ["Date"], "value": 2449262}}}],
           "selectivity": 0.0390625,
-          "analyze": {"pipeline": 4, "tuplecount": 5, "execution-time": 22321}
+          "analyze": {"pipeline": 4, "tuplecount": 5, "execution-time": 23764}
         },
         "right": {
           "operator": "tablescan",
@@ -47,7 +47,7 @@
           "residuals": [{"expression": "comparison", "mode": "<", "left": {"expression": "iuref", "iu": "v7"}, "right": {"expression": "iuref", "iu": "v8"}}],
           "earlyProbes": [{"builder": 4, "attributes": [0], "type": "lookup"}],
           "selectivity": 0.5,
-          "analyze": {"pipeline": 3, "tuplecount": 11, "execution-time": 66484}
+          "analyze": {"pipeline": 3, "tuplecount": 11, "execution-time": 68807}
         },
         "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v6"}, "right": {"expression": "iuref", "iu": "v3"}},
         "analyze": {"pipeline": 3, "tuplecount": 5, "memory-bytes": 18456}
@@ -56,9 +56,9 @@
       "groupingSets": [{"keyIndices": [0], "coreIndices": [0], "behavior": "regular"}],
       "emptyGroups": false,
       "aggregates": [{"source": 4294967295, "operation": {"aggregate": "count"}, "iu": ["v2", ["BigInt"]]}],
-      "analyze": {"pipeline": 2, "tuplecount": 4, "memory-bytes": 18456, "execution-time": 16301}
+      "analyze": {"pipeline": 2, "tuplecount": 4, "memory-bytes": 18456, "execution-time": 10947}
     },
-    "analyze": {"pipeline": 1, "tuplecount": 4, "memory-bytes": 184, "execution-time": 590}
+    "analyze": {"pipeline": 1, "tuplecount": 4, "memory-bytes": 184, "execution-time": 633}
   },
   "analyze": {}
 }

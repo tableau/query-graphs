@@ -1,0 +1,1 @@
+[{"Plan": {"Node Type": "Function Scan", "Parallel Aware": false, "Async Capable": false, "Function Name": "generate_series", "Schema": "pg_catalog", "Alias": "generate_series", "Startup Cost": 0.0, "Total Cost": 0.1, "Plan Rows": 10, "Plan Width": 4, "Output": ["generate_series"], "Function Call": "generate_series(1, 10)"}}]

@@ -1,7 +1,7 @@
 {
   "operator": "executiontarget",
   "operatorId": 1,
-  "cardinality": 162.047,
+  "cardinality": 168.009,
   "producesRows": true,
   "output": [{"expression": "iuref", "iu": ["v", ["Char", 25]]}, {"expression": "iuref", "iu": ["v2", ["Char", 25]]}, {"expression": "iuref", "iu": ["v3", ["Integer"]]}, {"expression": "iuref", "iu": ["v4", ["BigNumeric", 38, 4]]}],
   "outputNames": ["supp_nation", "cust_nation", "l_year", "revenue"],
@@ -9,46 +9,46 @@
     "operator": "sort",
     "operatorId": 2,
     "sqlpos": [[1419, 1430]],
-    "cardinality": 162.047,
+    "cardinality": 168.009,
     "criterion": [{"value": {"expression": "iuref", "iu": "v"}, "descending": false, "nullFirst": false}, {"value": {"expression": "iuref", "iu": "v2"}, "descending": false, "nullFirst": false}, {"value": {"expression": "iuref", "iu": "v3"}, "descending": false, "nullFirst": false}],
     "input": {
       "operator": "groupby",
       "operatorId": 3,
       "sqlpos": [[1336, 1401], [203, 214]],
-      "cardinality": 162.047,
+      "cardinality": 168.009,
       "input": {
         "operator": "map",
         "operatorId": 4,
         "sqlpos": [[288, 312]],
-        "cardinality": 180.053,
+        "cardinality": 186.677,
         "input": {
           "operator": "join",
           "operatorId": 5,
-          "cardinality": 180.053,
+          "cardinality": 186.677,
           "method": "hash",
           "referencedByScanEarlyProbe": true,
           "left": {
             "operator": "join",
             "operatorId": 6,
-            "cardinality": 180.053,
+            "cardinality": 186.677,
             "method": "hash",
             "referencedByScanEarlyProbe": true,
             "left": {
               "operator": "join",
               "operatorId": 7,
-              "cardinality": 95.6297,
+              "cardinality": 99.1478,
               "method": "hash",
               "referencedByScanEarlyProbe": true,
               "left": {
                 "operator": "join",
                 "operatorId": 8,
-                "cardinality": 96.3768,
+                "cardinality": 99.9224,
                 "method": "hash",
                 "referencedByScanEarlyProbe": true,
                 "left": {
                   "operator": "join",
                   "operatorId": 9,
-                  "cardinality": 18.6777,
+                  "cardinality": 19.3648,
                   "method": "bnl",
                   "left": {
                     "operator": "tablescan",
@@ -60,7 +60,7 @@
                     "values": [{"name": "n_nationkey", "type": ["Integer"], "iu": ["v5", ["Integer"]]}, {"name": "n_name", "type": ["Char", 25], "iu": ["v6", ["Char", 25]]}, {"name": "n_regionkey", "type": ["Integer"], "iu": null}, {"name": "n_comment", "type": ["Varchar", 152], "iu": null}],
                     "debugName": {"classification": "nonsensitive", "value": "n2"},
                     "selectivity": 1,
-                    "analyze": {"pipeline": 8, "tuplecount": 25, "execution-time": 23627}
+                    "analyze": {"pipeline": 8, "tuplecount": 25, "execution-time": 23228}
                   },
                   "right": {
                     "operator": "tablescan",
@@ -72,9 +72,9 @@
                     "values": [{"name": "n_nationkey", "type": ["Integer"], "iu": ["v7", ["Integer"]]}, {"name": "n_name", "type": ["Char", 25], "iu": ["v8", ["Char", 25]]}, {"name": "n_regionkey", "type": ["Integer"], "iu": null}, {"name": "n_comment", "type": ["Varchar", 152], "iu": null}],
                     "debugName": {"classification": "nonsensitive", "value": "n1"},
                     "selectivity": 1,
-                    "analyze": {"pipeline": 7, "tuplecount": 25, "execution-time": 228260}
+                    "analyze": {"pipeline": 7, "tuplecount": 25, "execution-time": 57250}
                   },
-                  "condition": {"expression": "lookup", "input": [{"expression": "iuref", "iu": "v8"}, {"expression": "iuref", "iu": "v6"}], "values": [{"type": ["Char", 25], "value": "FRANCE"}, {"type": ["Char", 25], "value": "GERMANY"}, {"type": ["Char", 25], "value": "GERMANY"}, {"type": ["Char", 25], "value": "FRANCE"}], "collates": [null, null], "modes": ["is", "is"]},
+                  "condition": {"expression": "or", "arguments": [{"expression": "and", "arguments": [{"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v8"}, "right": {"expression": "const", "value": {"type": ["Char", 25], "value": "FRANCE"}}}, {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v6"}, "right": {"expression": "const", "value": {"type": ["Char", 25], "value": "GERMANY"}}}]}, {"expression": "and", "arguments": [{"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v8"}, "right": {"expression": "const", "value": {"type": ["Char", 25], "value": "GERMANY"}}}, {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v6"}, "right": {"expression": "const", "value": {"type": ["Char", 25], "value": "FRANCE"}}}]}]},
                   "analyze": {"pipeline": 7, "tuplecount": 2, "memory-bytes": 18456}
                 },
                 "right": {
@@ -88,7 +88,7 @@
                   "debugName": {"classification": "nonsensitive", "value": "customer"},
                   "earlyProbes": [{"builder": 8, "attributes": [3], "type": "lookup"}],
                   "selectivity": 1,
-                  "analyze": {"pipeline": 6, "tuplecount": 12, "execution-time": 21887}
+                  "analyze": {"pipeline": 6, "tuplecount": 12, "execution-time": 20341}
                 },
                 "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v10"}, "right": {"expression": "iuref", "iu": "v5"}},
                 "analyze": {"pipeline": 6, "tuplecount": 12, "memory-bytes": 18456}
@@ -104,7 +104,7 @@
                 "debugName": {"classification": "nonsensitive", "value": "orders"},
                 "earlyProbes": [{"builder": 7, "attributes": [1], "type": "lookup"}],
                 "selectivity": 1,
-                "analyze": {"pipeline": 5, "tuplecount": 12, "execution-time": 19256}
+                "analyze": {"pipeline": 5, "tuplecount": 12, "execution-time": 20303}
               },
               "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v9"}, "right": {"expression": "iuref", "iu": "v12"}},
               "analyze": {"pipeline": 5, "tuplecount": 12, "memory-bytes": 18456}
@@ -121,7 +121,7 @@
               "restrictions": [{"attribute": 10, "mode": "[]", "value": {"expression": "const", "value": {"type": ["Date"], "value": 2449719}}, "value2": {"expression": "const", "value": {"type": ["Date"], "value": 2450449}}}],
               "earlyProbes": [{"builder": 6, "attributes": [0], "type": "lookup"}],
               "selectivity": 0.421329,
-              "analyze": {"pipeline": 4, "tuplecount": 30, "execution-time": 37730}
+              "analyze": {"pipeline": 4, "tuplecount": 30, "execution-time": 41222}
             },
             "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v11"}, "right": {"expression": "iuref", "iu": "v13"}},
             "analyze": {"pipeline": 4, "tuplecount": 30, "memory-bytes": 18456}
@@ -137,7 +137,7 @@
             "debugName": {"classification": "nonsensitive", "value": "supplier"},
             "earlyProbes": [{"builder": 5, "attributes": [0, 3], "type": "minmaxonly"}],
             "selectivity": 1,
-            "analyze": {"pipeline": 3, "tuplecount": 468, "execution-time": 49318}
+            "analyze": {"pipeline": 3, "tuplecount": 468, "execution-time": 51765}
           },
           "condition": {"expression": "and", "arguments": [{"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v18"}, "right": {"expression": "iuref", "iu": "v14"}}, {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v19"}, "right": {"expression": "iuref", "iu": "v7"}}]},
           "analyze": {"pipeline": 3, "tuplecount": 1, "memory-bytes": 18456}
@@ -150,9 +150,9 @@
       "emptyGroups": false,
       "aggExpressions": [{"value": {"expression": "iuref", "iu": "v21"}}],
       "aggregates": [{"source": 0, "operation": {"aggregate": "sum"}, "iu": ["v4", ["BigNumeric", 38, 4]]}],
-      "analyze": {"pipeline": 2, "tuplecount": 1, "memory-bytes": 18456, "execution-time": 9895}
+      "analyze": {"pipeline": 2, "tuplecount": 1, "memory-bytes": 18456, "execution-time": 9010}
     },
-    "analyze": {"pipeline": 1, "tuplecount": 1, "memory-bytes": 160, "execution-time": 617}
+    "analyze": {"pipeline": 1, "tuplecount": 1, "memory-bytes": 160, "execution-time": 575}
   },
   "analyze": {}
 }
