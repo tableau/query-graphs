@@ -8,21 +8,24 @@
   "input": {
     "operator": "sort",
     "operatorId": 2,
+    "sqlpos": [[616, 631]],
     "cardinality": 4.46938,
     "criterion": [{"value": {"expression": "iuref", "iu": "v"}, "descending": false, "nullFirst": false}],
     "input": {
       "operator": "groupby",
       "operatorId": 3,
+      "sqlpos": [[566, 598], [170, 178]],
       "cardinality": 4.46938,
       "input": {
         "operator": "leftsemijoin",
         "operatorId": 4,
         "cardinality": 4.46938,
         "method": "hash",
+        "referencedByScanEarlyProbe": true,
         "left": {
           "operator": "tablescan",
-          "querylocs": [[207, 213]],
           "operatorId": 5,
+          "sqlpos": [[207, 213]],
           "cardinality": 5,
           "relationId": 6,
           "schema": {"type":"sessionschema"},
@@ -30,31 +33,32 @@
           "debugName": {"classification": "nonsensitive", "value": "orders"},
           "restrictions": [{"attribute": 4, "mode": "[)", "value": {"expression": "const", "value": {"type": ["Date"], "value": 2449170}}, "value2": {"expression": "const", "value": {"type": ["Date"], "value": 2449262}}}],
           "selectivity": 0.0390625,
-          "analyze": {"pipeline": 4, "tuplecount": 5, "execution-time": 20152}
+          "analyze": {"pipeline": 4, "tuplecount": 5, "execution-time": 22321}
         },
         "right": {
           "operator": "tablescan",
-          "querylocs": [[420, 428]],
           "operatorId": 6,
+          "sqlpos": [[420, 428]],
           "cardinality": 286,
           "relationId": 7,
           "schema": {"type":"sessionschema"},
           "values": [{"name": "l_orderkey", "type": ["Integer"], "iu": ["v6", ["Integer"]]}, {"name": "l_partkey", "type": ["Integer"], "iu": null}, {"name": "l_suppkey", "type": ["Integer"], "iu": null}, {"name": "l_linenumber", "type": ["Integer"], "iu": null}, {"name": "l_quantity", "type": ["Numeric", 12, 2], "iu": null}, {"name": "l_extendedprice", "type": ["Numeric", 12, 2], "iu": null}, {"name": "l_discount", "type": ["Numeric", 12, 2], "iu": null}, {"name": "l_tax", "type": ["Numeric", 12, 2], "iu": null}, {"name": "l_returnflag", "type": ["Char1"], "iu": null}, {"name": "l_linestatus", "type": ["Char1"], "iu": null}, {"name": "l_shipdate", "type": ["Date"], "iu": null}, {"name": "l_commitdate", "type": ["Date"], "iu": ["v7", ["Date"]]}, {"name": "l_receiptdate", "type": ["Date"], "iu": ["v8", ["Date"]]}, {"name": "l_shipinstruct", "type": ["Char", 25], "iu": null}, {"name": "l_shipmode", "type": ["Char", 10], "iu": null}, {"name": "l_comment", "type": ["Varchar", 44], "iu": null}],
           "debugName": {"classification": "nonsensitive", "value": "lineitem"},
           "residuals": [{"expression": "comparison", "mode": "<", "left": {"expression": "iuref", "iu": "v7"}, "right": {"expression": "iuref", "iu": "v8"}}],
+          "earlyProbes": [{"builder": 4, "attributes": [0], "type": "lookup"}],
           "selectivity": 0.5,
-          "analyze": {"pipeline": 3, "tuplecount": 349, "execution-time": 78736}
+          "analyze": {"pipeline": 3, "tuplecount": 11, "execution-time": 66484}
         },
         "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v6"}, "right": {"expression": "iuref", "iu": "v3"}},
-        "analyze": {"pipeline": 3, "tuplecount": 5, "memory-bytes": 40960}
+        "analyze": {"pipeline": 3, "tuplecount": 5, "memory-bytes": 18456}
       },
-      "aggregatesNullable": false,
-      "values": [{"value": {"expression": "iuref", "iu": "v5"}}],
-      "aggregates": [{"source": 4294967295, "operation": {"aggregate": "count"}, "iu": ["v2", ["BigInt"]]}, {"source": 0, "operation": {"aggregate": "keep"}, "iu": ["v", ["Char", 15]]}],
-      "groupingSets": [{"aggregatedExpressionIndices": [0], "behavior": "regular"}],
-      "analyze": {"pipeline": 2, "tuplecount": 4, "memory-bytes": 43008, "execution-time": 25654}
+      "keyExpressions": [{"expression": {"value": {"expression": "iuref", "iu": "v5"}}, "iu": ["v", ["Char", 15]]}],
+      "groupingSets": [{"keyIndices": [0], "coreIndices": [0], "behavior": "regular"}],
+      "emptyGroups": false,
+      "aggregates": [{"source": 4294967295, "operation": {"aggregate": "count"}, "iu": ["v2", ["BigInt"]]}],
+      "analyze": {"pipeline": 2, "tuplecount": 4, "memory-bytes": 18456, "execution-time": 16301}
     },
-    "analyze": {"pipeline": 1, "tuplecount": 4, "memory-bytes": 184, "execution-time": 626}
+    "analyze": {"pipeline": 1, "tuplecount": 4, "memory-bytes": 184, "execution-time": 590}
   },
   "analyze": {}
 }
