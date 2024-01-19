@@ -41,13 +41,17 @@ function QueryGraphInternal({treeDescription}: QueryGraphProps) {
     const initGraphStore = useGraphRenderingStore(s => s.init);
     useMemo(() => {
         const expandedSubtrees = {};
-        visitTreeNodes(treeDescription.root, (n) => {
-            if (n.expandedByDefault) {
-                expandedSubtrees[nodeIdMapping.get(n)!] = true;
-            }
-        }, allChildren);
+        visitTreeNodes(
+            treeDescription.root,
+            n => {
+                if (n.expandedByDefault) {
+                    expandedSubtrees[nodeIdMapping.get(n)!] = true;
+                }
+            },
+            allChildren,
+        );
         initGraphStore(expandedSubtrees);
-    }, [treeDescription, initGraphStore]);
+    }, [treeDescription, initGraphStore, nodeIdMapping]);
 
     // Create a ResizeObserver to keep track of the sizes of the nodes
     const resizeObserverRef = useRef<ResizeObserver>();
@@ -68,13 +72,10 @@ function QueryGraphInternal({treeDescription}: QueryGraphProps) {
     const nodeDimensions = useGraphRenderingStore(s => s.nodeDimensions);
     const expandedNodes = useGraphRenderingStore(s => s.expandedNodes);
     const expandedSubtrees = useGraphRenderingStore(s => s.expandedSubtrees);
-    const layout = useMemo(() => layoutTree(treeDescription, nodeIdMapping, nodeDimensions, expandedNodes, expandedSubtrees, resizeObserver), [
-        treeDescription,
-        nodeDimensions,
-        expandedNodes,
-        expandedSubtrees,
-        resizeObserver,
-    ]);
+    const layout = useMemo(
+        () => layoutTree(treeDescription, nodeIdMapping, nodeDimensions, expandedNodes, expandedSubtrees, resizeObserver),
+        [treeDescription, nodeIdMapping, nodeDimensions, expandedNodes, expandedSubtrees, resizeObserver],
+    );
 
     return (
         <ReactFlow

@@ -10,7 +10,7 @@ export interface NodeDimensions {
 }
 
 interface GraphRenderingState {
-    init: (expandedSubtrees: Record<string, boolean>) => void,
+    init: (expandedSubtrees: Record<string, boolean>) => void;
     expandedNodes: Record<string, boolean>;
     toggleExpandedNode: (nodeId: string) => void;
     expandedSubtrees: Record<string, boolean>;
