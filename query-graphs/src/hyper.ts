@@ -67,9 +67,12 @@ const nodeRenderingConfig: Record<string, NodeRenderingConfig> = {
     "op:earlyprobe": {icon: "filter-symbol", crosslinkSourceKey: "builder"},
     // Various scans
     "op:tablescan": {icon: "table-symbol"},
+    "op:arrowscan": {icon: "table-symbol"},
     "op:binaryscan": {icon: "table-symbol"},
-    "op:cursorscan": {icon: "table-symbol"},
     "op:csvscan": {icon: "table-symbol"},
+    "op:cloudtablescan": {icon: "table-symbol"},
+    "op:cursorscan": {icon: "table-symbol"},
+    "op:icebergscan": {icon: "table-symbol"},
     "op:parquetscan": {icon: "table-symbol"},
     "op:tdescan": {icon: "table-symbol"},
     // Other tables
