@@ -35,6 +35,8 @@ export function layoutTree(
     });
 
     // Layout the tree
+    const heighOffset = 60;
+    console.log({heighOffset});
     const treelayout = d3flextree
         .flextree<treeDescription.TreeNode>()
         .nodeSize((d) => {
@@ -52,10 +54,10 @@ export function layoutTree(
                 return [50, 50];
             }
             if (expandedNodes[id]) {
-                return [Math.max(dim.headWidth, dim.bodyWidth) + 20, dim.headHeight + dim.bodyHeight + 50];
-            } else return [dim.headWidth + 20, dim.headHeight + 50];
+                return [Math.max(dim.headWidth, dim.bodyWidth) + 20, dim.headHeight + dim.bodyHeight + heighOffset];
+            } else return [dim.headWidth + 20, dim.headHeight + heighOffset];
         })
-        .spacing((a, b) => (a.parent === b.parent ? 0 : 40));
+        .spacing((a, b) => (a.parent === b.parent ? 10 : 40));
     const layout = treelayout(root);
     const d3nodes = layout.descendants().reverse();
     const d3edges = layout.links();
