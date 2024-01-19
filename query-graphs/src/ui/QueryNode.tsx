@@ -24,10 +24,10 @@ function QueryNode({data, id}: NodeProps<NodeData>) {
     const bodyRef = useResizeObservedRef<HTMLDivElement>(data.resizeObserver);
     const headRef = useResizeObservedRef<HTMLDivElement>(data.resizeObserver);
 
-    const expanded = useGraphRenderingStore(s => s.expandedNodes[id]);
-    const toggleNode = useGraphRenderingStore(s => s.toggleExpandedNode);
-    const subtreeExpanded = useGraphRenderingStore(s => s.expandedSubtrees[id]);
-    const toggleSubtree = useGraphRenderingStore(s => s.toggleExpandedSubtree);
+    const expanded = useGraphRenderingStore((s) => s.expandedNodes[id]);
+    const toggleNode = useGraphRenderingStore((s) => s.toggleExpandedNode);
+    const subtreeExpanded = useGraphRenderingStore((s) => s.expandedSubtrees[id]);
+    const toggleSubtree = useGraphRenderingStore((s) => s.toggleExpandedSubtree);
 
     const hasProperties = data.properties?.size;
     const hasSubtree = data.collapsedChildren && data.collapsedChildren.length > 0;

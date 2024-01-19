@@ -152,7 +152,7 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
         // For all other keys, we use alphabetic order.
         const fixedChildOrder = ["input", "left", "right", "value", "valueForComparison"];
         const orderedKeys = Object.getOwnPropertyNames(rawNode)
-            .filter(k => {
+            .filter((k) => {
                 // `propertyKeys` and `operator`/`expression` were already handled
                 return k != nodeType && propertyKeys.indexOf(k) === -1;
             })
@@ -261,7 +261,7 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
             const innerNode = convertHyperNode(value, parentKey + "." + index.toString(), conversionState);
             // objectify nested arrays
             if (Array.isArray(innerNode)) {
-                innerNode.forEach(value => {
+                innerNode.forEach((value) => {
                     listOfObjects.push(value);
                 });
             } else {

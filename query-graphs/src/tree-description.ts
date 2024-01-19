@@ -95,7 +95,7 @@ export function createParentLinks(tree: TreeNode) {
     visitTreeNodes(
         tree,
         () => {},
-        d => {
+        (d) => {
             if (d.children) {
                 const children = allChildren(d);
                 const count = children.length;

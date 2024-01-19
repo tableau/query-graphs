@@ -29,7 +29,7 @@ function QueryGraphInternal({treeDescription}: QueryGraphProps) {
         const nodeIds = new Map<TreeNode, string>();
         visitTreeNodes(
             treeDescription.root,
-            d => {
+            (d) => {
                 nodeIds.set(d, "" + nextId++);
             },
             allChildren,
@@ -38,12 +38,12 @@ function QueryGraphInternal({treeDescription}: QueryGraphProps) {
     }, [treeDescription]);
 
     // Initialize our state using the correct "expandedByDefault" state
-    const initGraphStore = useGraphRenderingStore(s => s.init);
+    const initGraphStore = useGraphRenderingStore((s) => s.init);
     useMemo(() => {
         const expandedSubtrees = {};
         visitTreeNodes(
             treeDescription.root,
-            n => {
+            (n) => {
                 if (n.expandedByDefault) {
                     expandedSubtrees[nodeIdMapping.get(n)!] = true;
                 }
@@ -55,7 +55,7 @@ function QueryGraphInternal({treeDescription}: QueryGraphProps) {
 
     // Create a ResizeObserver to keep track of the sizes of the nodes
     const resizeObserverRef = useRef<ResizeObserver>();
-    const updateNodeDimensions = useGraphRenderingStore(s => s.updateNodeDimensions);
+    const updateNodeDimensions = useGraphRenderingStore((s) => s.updateNodeDimensions);
     const resizeObserver = useMemo(() => {
         resizeObserverRef.current?.disconnect();
         const observer = new ResizeObserver(updateNodeDimensions);
@@ -69,9 +69,9 @@ function QueryGraphInternal({treeDescription}: QueryGraphProps) {
     }, []);
 
     // Layout the tree, using the actual measured sizes of the DOM nodes
-    const nodeDimensions = useGraphRenderingStore(s => s.nodeDimensions);
-    const expandedNodes = useGraphRenderingStore(s => s.expandedNodes);
-    const expandedSubtrees = useGraphRenderingStore(s => s.expandedSubtrees);
+    const nodeDimensions = useGraphRenderingStore((s) => s.nodeDimensions);
+    const expandedNodes = useGraphRenderingStore((s) => s.expandedNodes);
+    const expandedSubtrees = useGraphRenderingStore((s) => s.expandedSubtrees);
     const layout = useMemo(
         () => layoutTree(treeDescription, nodeIdMapping, nodeDimensions, expandedNodes, expandedSubtrees, resizeObserver),
         [treeDescription, nodeIdMapping, nodeDimensions, expandedNodes, expandedSubtrees, resizeObserver],

@@ -211,7 +211,7 @@ function convertPostgresNode(rawNode: Json, parentKey: string, conversionState: 
             const innerNode = convertPostgresNode(value, parentKey + "." + index.toString(), conversionState);
             // objectify nested arrays
             if (Array.isArray(innerNode)) {
-                innerNode.forEach(function(value, _index) {
+                innerNode.forEach(function (value, _index) {
                     listOfObjects.push(value);
                 });
             } else {
