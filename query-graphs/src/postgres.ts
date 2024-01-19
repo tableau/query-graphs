@@ -23,13 +23,13 @@ interface ConversionState {
     edgeWidths: {node: TreeNode; width: number}[];
 }
 
-interface OperatorRenderingDescription {
+interface NodeRenderingDescription {
     displayName: string;
     icon?: IconName;
     crosslinkId?: string;
 }
 
-function getOperatorRendering(operatorType: string, properties: Map<string, string>): OperatorRenderingDescription {
+function getOperatorRendering(operatorType: string, properties: Map<string, string>): NodeRenderingDescription {
     switch (operatorType) {
         case "Hash Join":
         case "Nested Loop":
@@ -40,7 +40,7 @@ function getOperatorRendering(operatorType: string, properties: Map<string, stri
                 "Left Outer": "left-join-symbol",
                 "Right Outer": "right-join-symbol",
             };
-            const icon = joinIcons[properties?.get("Join Type") ?? ""] ?? "inner-join-symbol";
+            const icon = joinIcons[properties?.get("Join Type") ?? ""] ?? "temp-table-symbol";
             return {displayName: operatorType, icon};
         }
         case "CTE Scan":
@@ -129,9 +129,9 @@ function convertPostgresNode(rawNode: Json, parentKey: string, conversionState: 
             // Display as part of the tree
             const innerNodes = convertPostgresNode(rawNode[key], key, conversionState);
             if (Array.isArray(innerNodes)) {
-                collapsedChildren.push({tag: key, children: innerNodes});
+                collapsedChildren.push({name: key, children: innerNodes});
             } else {
-                collapsedChildren.push({tag: key, children: [innerNodes]});
+                collapsedChildren.push({name: key, children: [innerNodes]});
             }
         }
 

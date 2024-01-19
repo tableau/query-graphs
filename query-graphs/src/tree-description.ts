@@ -1,5 +1,3 @@
-import {assert} from "./loader-utils";
-
 export type IconName =
     | "run-query-symbol"
     | "filter-symbol"
@@ -39,18 +37,6 @@ export interface TreeNode {
     collapsedChildren?: TreeNode[];
     // Whether collapsed children are shown by default
     expandedByDefault?: boolean;
-    // The parent node
-    parent?: TreeNode;
-
-    // The text
-    // TODO: get rid of this
-    text?: string;
-    // The tag
-    // TODO: get rid of this
-    tag?: string;
-    // The "class"; Intermediate value used by the Tableau loader
-    // TODO: get rid of this
-    class?: string;
 }
 
 export interface Crosslink {
@@ -87,38 +73,4 @@ interface TreeLike<T extends TreeLike<T>> {
 // Returns all children of a node, including collapsed children
 export function allChildren<T extends TreeLike<T>>(n: T): T[] {
     return (n.children ?? []).concat(n.collapsedChildren ?? []);
-}
-
-// Create parent links
-// XXX remove
-export function createParentLinks(tree: TreeNode) {
-    visitTreeNodes(
-        tree,
-        () => {},
-        (d) => {
-            if (d.children) {
-                const children = allChildren(d);
-                const count = children.length;
-                for (let i = 0; i < count; i++) {
-                    children[i].parent = d;
-                }
-                return children;
-            }
-            return [];
-        },
-    );
-}
-
-// Collapse the given node in its parent node
-// Requires parent links to be present (e.g., created by `createParentLinks`)
-// XXX remove
-export function streamline(d: TreeNode) {
-    if (d.parent) {
-        assert(d.parent.children !== undefined);
-        if (!d.parent.collapsedChildren) {
-            d.parent.collapsedChildren = [];
-        }
-        const index = d.parent.children.indexOf(d);
-        d.collapsedChildren!.push(d.parent.children.splice(index, 1)[0]);
-    }
 }
