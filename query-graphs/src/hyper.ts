@@ -139,7 +139,7 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
         }
 
         // Display these properties always as properties, even if they are more complex
-        const propertyKeys = ["debugName", "analyze", "querylocs"];
+        const propertyKeys = ["debugName", "analyze", "sqlpos"];
         for (const key of propertyKeys) {
             if (!rawNode.hasOwnProperty(key)) {
                 continue;
