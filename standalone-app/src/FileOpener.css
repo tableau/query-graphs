@@ -1,13 +1,11 @@
 .file-selection-page {
     min-height: 100%;
-    background: var(--secondary-bg-color);
-    color: var(--secondary-fg-color);
-    padding: 1em;
+    background: var(--primary-bg-color);
+    color: var(--primary-fg-color);
+    padding: 2em;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    text-align: center;
 }
 
 .file-selection-page .logo {
@@ -25,89 +23,72 @@
     margin-bottom: .5em;
 }
 
+.file-selection-page-content {
+    width: 35em;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    row-gap: 1em;
+}
+
+.github-link {
+    border-top: 1px solid #ccc;
+    margin-top: 3em;
+    padding-top: 0.8em;
+    font-size: 0.9em;
+    text-align: center;
+    color: gray;
+}
+
+.github-link a {
+    color: gray;
+}
+
+/* Hinted text area */
+
+.hinted-textarea {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #666;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: 1px 2px 5px hsl(0,0%,90%);
+}
+
+.hinted-textarea > textarea {
+    resize: vertical;
+    border: none;
+    padding: 0.3em;
+}
+
+.hinted-textarea > textarea:focus {
+    outline: none;
+}
+
+.hinted-textarea > .textarea-hint {
+    background: white;
+    border-top: 1px solid #666;
+    border-color: hsl(0,0%, 80%);
+    padding: 0.4em;
+    color: #555;
+    font-size: .8em;
+}
+
+/* Error message */
 .file-selection-page .load-error {
+    padding: 1em;
+    background: hsl(0, 87%, 85%);
+    border: 1px solid hsl(0, 48%, 48%);
+    border-radius: var(--border-radius);
     white-space: pre-line;
 }
 
-.file-selection-page .source-alternatives {
-    display: flex;
-    /* vertical layout; will be overwritten through media-query on large screens*/
-    flex-direction: column;
+/* Submit button */
+.file-selection-page button {
+    border-radius: var(--border-radius);
 }
 
-.file-selection-page .source-alternatives > * {
-    width: 20em;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    /* vertical layout; will be overwritten through media-query on large screens*/
-    padding: 1em 0 2em 0;
-    border: 0px solid var(--secondary-border-color);
-    border-top-width: 1px;
-}
-
-/* For large screens, we display the different alternatives side-by-side*/
-@media (min-width: 45em) {
-    .file-selection-page .source-alternatives {
-        flex-direction: row;
-        /* Allow wrapping; the media query should ensure
-         * we have enough space. But better safe than sorry.
-         * Rather wrap the layout than having horizontal scrolling. */
-        flex-wrap: wrap;
-    }
-
-    .file-selection-page .source-alternatives > * {
-        border-top-width: 0px;
-        border-right-width: 1px;
-        padding: .5em 1em;
-    }
-
-    .file-selection-page .source-alternatives > *:last-child {
-        border-right-width: 0px;
-    }
-}
-
-.file-selection-page .source-alternatives .source-caption {
-    font-size: 1.2em;
-    text-align: center;
-    margin-bottom: 0.5em;
-}
-
-.file-selection-page .source-alternatives textarea {
-    resize: none;
-    width: 100%;
-    flex-grow: 1;
-}
-
-.file-selection-page .source-alternatives .paste-hint {
-    margin-top: 1em;
-    margin-bottom: 0;
-}
-
-.qg-drop-zone {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 1em 2em;
-    border: .25em dashed transparent;
-    border-radius: 1em;
-    background-color: var(--secondary-select-bg-color);
-    outline: none;
-    user-select: none;
-    cursor: pointer;
-    flex-grow: 1;
-}
-
-.qg-drop-zone:focus {
-    box-shadow: 0 0 0 .2rem rgba(38,143,255,.5);
-}
-
-.qg-drop-zone.qg-drop-zone-drag-active {
-    border-color: #2196f3;
-}
+/* Spinner */
 
 .qg-spinner {
     margin: 3em auto;

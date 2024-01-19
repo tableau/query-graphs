@@ -6,16 +6,9 @@ import {loadXml} from "@tableau/query-graphs/lib/xml";
 import {TreeDescription} from "@tableau/query-graphs/lib/tree-description";
 import {assert} from "./assert";
 
-export function loadPlan(plan: string, mimeType: string | null): TreeDescription {
-    let loaders;
-    if (mimeType && mimeType.startsWith("application/json")) {
-        // Try Postgres before Hyper to differentiate between them
-        loaders = [loadPostgresPlanFromText, loadHyperPlanFromText, loadJsonFromText];
-    } else if (mimeType && mimeType.endsWith("application/xml")) {
-        loaders = [loadTableauPlan, loadXml];
-    } else {
-        loaders = [loadPostgresPlanFromText, loadHyperPlanFromText, loadJsonFromText, loadTableauPlan, loadXml];
-    }
+export function loadPlan(plan: string): TreeDescription {
+    // Try Postgres before Hyper to differentiate between them
+    const loaders = [loadPostgresPlanFromText, loadHyperPlanFromText, loadJsonFromText, loadTableauPlan, loadXml];
     const errors: string[] = [];
     let loadedTree: TreeDescription | undefined;
     function tryLoad(loader: any) {

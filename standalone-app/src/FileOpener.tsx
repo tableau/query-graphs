@@ -1,15 +1,10 @@
-import React, {useCallback, useMemo, useState} from "react";
-import {useDropzone} from "react-dropzone";
-import Alert from "react-bootstrap/Alert";
-import cc from "classcat";
+import React, {useCallback, useEffect, useMemo, useState} from "react";
 
 import "./FileOpener.css";
 import {assert} from "./assert";
 
 export interface FileOpenerData {
-    // We always set either the `url` or the `content`
-    url?: URL;
-    content?: string;
+    content: string;
     fileName?: string;
 }
 
@@ -50,13 +45,6 @@ async function getTextFromPasteEvent(e: React.ClipboardEvent): Promise<FileOpene
         }
         if (foundItem !== undefined) {
             const text = (await new Promise((resolve) => foundItem!.getAsString(resolve))) as string;
-            // Recognize copy-pasted URLs and open them
-            try {
-                const url = new URL(text);
-                return {url};
-            } catch (_e) {
-                /*don't care about failures*/
-            }
             return {content: text};
         } else {
             const typesString = items.map((e) => e.type).join(", ");
@@ -115,40 +103,67 @@ interface FileOpenerProps {
     /// Callback called with the selected data.
     /// Might throw an `Exception` if it can't open the received file.
     setData: (data: FileOpenerData) => Promise<void>;
+    /// A validation function; returns an error string or "undefined" if the value is acceptable
+    validate: (content: string) => string | undefined;
     /// Controller for displaying progress/completion
     loadStateController: LoadStateController;
 }
 
-export function FileOpener({setData, loadStateController}: FileOpenerProps) {
-    const {loadState, clearLoadState, tryAndDisplayErrors} = loadStateController;
+export function FileOpener({setData, validate, loadStateController}: FileOpenerProps) {
+    const {loadState, clearLoadState, tryAndDisplayErrors, setError} = loadStateController;
+    const [planString, setPlanString] = useState<string>("");
 
-    const onPaste = async (e: React.ClipboardEvent) => {
-        e.preventDefault();
-        await tryAndDisplayErrors(async () => {
-            await setData(await getTextFromPasteEvent(e));
+    useEffect(() => {
+        console.log("validate", planString);
+        if (planString === "") {
             clearLoadState();
-        });
-    };
-
-    async function onDrop(files: File[]) {
-        await tryAndDisplayErrors(async () => {
-            if (files.length != 1) {
-                throw new Error("Cannot open multiple files");
+        } else {
+            const error = validate(planString);
+            console.log(error);
+            if (error) {
+                setError(error);
+            } else {
+                clearLoadState();
             }
-            const f = files[0];
-            const content = await readTextFromFile(f);
-            await setData({content, fileName: f.name});
+        }
+    }, [planString, validate, clearLoadState, setError]);
+
+    const submitDisabled = planString.trim() === "" || loadState.state != "pristine";
+
+    const onChange = useCallback(
+        (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+            setPlanString(e.target.value);
+        },
+        [setPlanString],
+    );
+
+    const onPaste = useCallback(
+        async (e: React.ClipboardEvent) => {
+            // TODO: For textual pasts, load the combined text, not only the pasted text
+            await tryAndDisplayErrors(async () => {
+                await setData(await getTextFromPasteEvent(e));
+                clearLoadState();
+            });
+        },
+        [setData, clearLoadState, tryAndDisplayErrors],
+    );
+
+    const submit = useCallback(async () => {
+        if (planString.trim() === "") return;
+        await tryAndDisplayErrors(async () => {
+            await setData({content: planString});
             clearLoadState();
         });
-    }
+    }, [planString, setData, tryAndDisplayErrors, clearLoadState]);
 
-    const {getRootProps, getInputProps, isDragActive} = useDropzone({
-        onDrop,
-    });
-    const dropClassName = cc({
-        "qg-drop-zone": true,
-        "qg-drop-zone-drag-active": isDragActive,
-    });
+    const onKeyDown = useCallback(
+        (e: React.KeyboardEvent) => {
+            if (e.key == "Enter" && (e.ctrlKey || e.metaKey)) {
+                submit();
+            }
+        },
+        [submit],
+    );
 
     if (loadState.state == "loading") {
         return (
@@ -160,11 +175,7 @@ export function FileOpener({setData, loadStateController}: FileOpenerProps) {
     } else {
         let renderedError;
         if (loadState.state == "error") {
-            renderedError = (
-                <Alert variant="danger" className="load-error" onClose={() => clearLoadState()} dismissible>
-                    {loadState.detail}
-                </Alert>
-            );
+            renderedError = <div className="load-error">{loadState.detail}</div>;
         }
         return (
             <div className="file-selection-page">
@@ -173,30 +184,25 @@ export function FileOpener({setData, loadStateController}: FileOpenerProps) {
                     Query Graphs
                 </div>
                 <div className="subcaption">Which query plan do you want to visualize?</div>
-                {renderedError}
-                <div className="source-alternatives">
-                    <div>
-                        <div className="source-caption">Copy &amp; Paste</div>
+                <div className="file-selection-page-content">
+                    <div className="hinted-textarea">
                         <textarea
                             placeholder="Paste your query plan here..."
+                            autoFocus={true}
+                            rows={5}
+                            value={planString}
+                            onChange={onChange}
                             onPaste={onPaste}
-                            value=""
-                            onChange={(e) => e.preventDefault()}
+                            onKeyDown={onKeyDown}
                         ></textarea>
-                        <Alert variant="info" className="paste-hint">
-                            You can also paste `http(s)://` URLs or files from your Desktop or file manager!
-                        </Alert>
+                        <div className="textarea-hint">Paste your query plan, either the textual contents or a file</div>
                     </div>
-                    <div>
-                        <div className="source-caption">Local file</div>
-                        <div {...getRootProps({className: dropClassName})}>
-                            <input {...getInputProps()} />
-                            {isDragActive ? (
-                                "Drop the file here ..."
-                            ) : (
-                                <React.Fragment>Drag &apos;n&apos; drop your file here, or click to select a file</React.Fragment>
-                            )}
-                        </div>
+                    <button onClick={submit} disabled={submitDisabled}>
+                        Parse and Visualize Plan
+                    </button>
+                    {renderedError}
+                    <div className="github-link">
+                        Open-sourced on <a href="https://github.com/tableau/query-graphs">Github</a>
                     </div>
                 </div>
             </div>

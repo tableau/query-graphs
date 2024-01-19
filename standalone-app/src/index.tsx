@@ -1,7 +1,7 @@
 import {createRoot} from "react-dom/client";
 
+import "bootstrap/dist/css/bootstrap-reboot.min.css";
 import "./index.css";
-import "bootstrap/dist/css/bootstrap.min.css";
 import {ErrorBoundary} from "./ErrorBoundary";
 import {QueryGraphsApp} from "./QueryGraphsApp";
 

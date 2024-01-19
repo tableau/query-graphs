@@ -1,4 +1,4 @@
-import {useEffect, useMemo, useState} from "react";
+import {useCallback, useEffect, useMemo, useState} from "react";
 import {useBrowserUrl, useUrlParam} from "./browserUrlHooks";
 import {FileOpener, FileOpenerData, useLoadStateController} from "./FileOpener";
 import {QueryGraph} from "@tableau/query-graphs/lib/ui/QueryGraph";
@@ -7,14 +7,6 @@ import {loadPlan} from "./tree-loader";
 import {tryCreateLocalStorageUrl, isLocalStorageURL, loadLocalStorageURL} from "./LocalStorageUrl";
 import {assert} from "./assert";
 
-function shortenPathName(path: string) {
-    const parts = path.split("/");
-    let shortened = parts.pop() as string;
-    while (parts.length && shortened.length + parts[parts.length - 1].length < 30) {
-        shortened = parts.pop() + "/" + shortened;
-    }
-    return shortened;
-}
 export function QueryGraphsApp() {
     const loadStateController = useLoadStateController();
     const {setProgress, clearLoadState, tryAndDisplayErrors} = loadStateController;
@@ -27,10 +19,9 @@ export function QueryGraphsApp() {
     const [uploadServer] = useUrlParam(browserUrl, "uploadServer");
     // Callback for the file opener
     const openPickedData = async (data: FileOpenerData): Promise<void> => {
-        let url = data.url;
         const content = data.content;
-        if (!url && uploadServer) {
-            assert(content);
+        let url;
+        if (uploadServer) {
             // Replace `blob` URLs by shareable URLs
             try {
                 const uploadResult = await fetch(uploadServer, {
@@ -46,12 +37,10 @@ export function QueryGraphsApp() {
         if (!url) {
             // Replace `blob` URLs by local storage URLs to ensure
             // we can open the file after a page reload.
-            assert(content);
             url = tryCreateLocalStorageUrl(content);
         }
         if (!url) {
             // Last resort: Use a `blob` URL
-            assert(content);
             const contentBlob = new Blob([content]);
             url = new URL(URL.createObjectURL(contentBlob));
         }
@@ -59,8 +48,6 @@ export function QueryGraphsApp() {
         let title;
         if (data.fileName) {
             title = data.fileName;
-        } else if (url.protocol == "http:" || url.protocol == "http:") {
-            title = shortenPathName(url.pathname);
         } else {
             title = "query plan";
         }
@@ -86,7 +73,6 @@ export function QueryGraphsApp() {
             setTree(undefined);
             // Load the URL
             let text;
-            let mimeType = null;
             if (isLocalStorageURL(url)) {
                 text = loadLocalStorageURL(url);
             } else {
@@ -104,11 +90,10 @@ export function QueryGraphsApp() {
                     throw new Error(`Failed to load ${urlString}: HTTP ${response.status}`);
                 }
                 text = await response.text();
-                mimeType = response.headers.get("Content-Type");
             }
             // Parse the tree
             setProgress("Parsing plan...");
-            const tree = loadPlan(text, mimeType);
+            const tree = loadPlan(text);
             // Display the freshly loaded tree=
             setTree(tree);
             clearLoadState();
@@ -117,6 +102,20 @@ export function QueryGraphsApp() {
             abortController.abort();
         };
     }, [treeUrl, clearLoadState, setProgress, tryAndDisplayErrors]);
+
+    const validate = useCallback((text: string) => {
+        try {
+            loadPlan(text);
+            return undefined;
+        } catch (e) {
+            if (e instanceof Error) {
+                return e.message;
+            } else {
+                return "Unknown error";
+            }
+        }
+    }, []);
+
     // We annotate the tree with the `title`
     const annotatedTree = useMemo(() => {
         if (tree === undefined) return undefined;
@@ -133,7 +132,7 @@ export function QueryGraphsApp() {
     }, [tree, treeTitle]);
 
     if (!annotatedTree) {
-        return <FileOpener setData={openPickedData} loadStateController={loadStateController} />;
+        return <FileOpener setData={openPickedData} loadStateController={loadStateController} validate={validate} />;
     } else {
         return <QueryGraph treeDescription={annotatedTree} />;
     }

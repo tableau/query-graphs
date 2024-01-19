@@ -7,13 +7,18 @@ body, html, .main-app-container {
 
 .main-app-container {
     /* Colors for the main-area, i.e. the graph view panel */
-    --primary-bg-color: white;
+    --primary-bg-color: #fdfdfd;
     --primary-fg-color: #111;
-    /* Secondary colors used for sidebars etc */
-    --secondary-bg-color: #fcfcfc;
-    --secondary-fg-color-rgb: 0,0,0;
-    --secondary-fg-color: rgb(var(--secondary-fg-color-rgb));
-    --secondary-select-bg-color: #ddd;
-    --secondary-border-color: #999;
-    --secondary-placeholder-fg-color: #555;
+    --primary-border-color: #999;
+    --border-radius: 10px;
+}
+
+.span-link {
+    color: #5c8aff;
+    cursor: pointer;
+}
+
+.span-link:hover, span-link:focus {
+    color: #2965ff;
+    text-decoration: underline;
 }
