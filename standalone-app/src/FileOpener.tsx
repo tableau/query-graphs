@@ -24,16 +24,9 @@ function readTextFromFile(file: File): Promise<string> {
     });
 }
 
-const isFirefox = /Firefox\/([0-9]+)\./.test(navigator.userAgent);
-
 async function getTextFromPasteEvent(e: React.ClipboardEvent): Promise<FileOpenerData> {
     if (e.clipboardData.types.indexOf("Files") !== -1) {
         if (e.clipboardData.items.length > 1) {
-            if (isFirefox) {
-                // Firefox bug: https://bugzilla.mozilla.org/show_bug.cgi?id=1699743
-                // Also: Firefox does not support pasting non-image files
-                throw new Error("Copy-pasting files doesn't work on Firefox, yet");
-            }
             throw new Error("Cannot open multiple files");
         }
         const item = e.clipboardData.items[0];
@@ -191,9 +184,7 @@ export function FileOpener({setData, loadStateController}: FileOpenerProps) {
                             onChange={(e) => e.preventDefault()}
                         ></textarea>
                         <Alert variant="info" className="paste-hint">
-                            {!isFirefox
-                                ? "You can also paste `http(s)://` URLs or files from your Desktop or file manager!"
-                                : "You can also paste `http(s)://` URLs!"}
+                            You can also paste `http(s)://` URLs or files from your Desktop or file manager!
                         </Alert>
                     </div>
                     <div>
