@@ -84,7 +84,7 @@ function QueryGraphInternal({treeDescription}: QueryGraphProps) {
             nodeOrigin={[0.5, 0]}
             nodeTypes={nodeTypes}
             fitView
-            maxZoom={2}
+            maxZoom={1.5}
             elementsSelectable={true}
             nodesDraggable={false}
             nodesConnectable={false}
