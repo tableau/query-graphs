@@ -20,7 +20,7 @@ interface TreeLayout {
 // Returns node and edge lists
 export function layoutTree(
     treeData: TreeDescription,
-    nodeIds:  Map<TreeNode, string>,
+    nodeIds: Map<TreeNode, string>,
     nodeDimensions: Record<string, NodeDimensions>,
     expandedNodes: Record<string, boolean>,
     expandedSubtrees: Record<string, boolean>,
@@ -52,8 +52,7 @@ export function layoutTree(
             }
             if (expandedNodes[id]) {
                 return [Math.max(dim.headWidth, dim.bodyWidth) + 20, dim.headHeight + dim.bodyHeight + 50];
-            }
-            else return [dim.headWidth + 20, dim.headHeight + 50];
+            } else return [dim.headWidth + 20, dim.headHeight + 50];
         })
         .spacing((a, b) => (a.parent === b.parent ? 0 : 40));
     const layout = treelayout(root);

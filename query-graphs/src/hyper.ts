@@ -198,7 +198,7 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
         const specificDisplayName = renderingConfig.displayNameKey ? properties.get(renderingConfig.displayNameKey) : undefined;
         const debugNameNode = tryGetPropertyPath(rawNode, ["debugName", "value"]);
         const debugName = typeof debugNameNode === "string" ? debugNameNode : undefined;
-        let displayName = debugName ?? specificDisplayName ?? properties?.get("name") ?? nodeTag ?? "";
+        const displayName = debugName ?? specificDisplayName ?? properties?.get("name") ?? nodeTag ?? "";
 
         // Build the converted node
         const convertedNode = {
@@ -207,7 +207,7 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
             properties,
             children: expandedChildren,
             collapsedChildren,
-            expandedByDefault: nodeType != "operator" && expandedChildren.length == 0
+            expandedByDefault: nodeType != "operator" && expandedChildren.length == 0,
         } as TreeNode;
 
         // Information on the execution time

@@ -26,27 +26,29 @@ interface ConversionState {
 interface OperatorRenderingDescription {
     displayName: string;
     icon?: IconName;
-    crosslinkId?: string,
+    crosslinkId?: string;
 }
 
 function getOperatorRendering(operatorType: string, properties: Map<string, string>): OperatorRenderingDescription {
     switch (operatorType) {
         case "Hash Join":
         case "Nested Loop":
-        case "Merge Join":
+        case "Merge Join": {
             const joinIcons = {
-                "Inner": "inner-join-symbol",
+                Inner: "inner-join-symbol",
                 "Full Outer": "full-join-symbol",
                 "Left Outer": "left-join-symbol",
                 "Right Outer": "right-join-symbol",
-            }
+            };
             const icon = joinIcons[properties?.get("Join Type") ?? ""] ?? "inner-join-symbol";
             return {displayName: operatorType, icon};
+        }
         case "CTE Scan":
             return {
                 displayName: operatorType,
                 icon: "temp-table-symbol",
-                crosslinkId: "CTE " + properties.get("CTE Name")};
+                crosslinkId: "CTE " + properties.get("CTE Name"),
+            };
         case "Materialize":
         case "WorkTable Scan":
             return {displayName: operatorType, icon: "temp-table-symbol"};
@@ -138,10 +140,10 @@ function convertPostgresNode(rawNode: Json, parentKey: string, conversionState: 
         let crosslinkId: string | undefined = undefined;
         let icon: IconName | undefined;
         if (operatorType) {
-            let res = getOperatorRendering(operatorType, properties);
+            const res = getOperatorRendering(operatorType, properties);
             displayName = res.displayName;
             icon = res.icon;
-            crosslinkId = res.crosslinkId
+            crosslinkId = res.crosslinkId;
         }
 
         // Collapse nodes as appropriate
@@ -159,7 +161,7 @@ function convertPostgresNode(rawNode: Json, parentKey: string, conversionState: 
         }
 
         // Build the converted node
-        let convertedNode = {
+        const convertedNode = {
             name: displayName,
             icon,
             properties: sortedProperties,
