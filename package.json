@@ -11,14 +11,14 @@
         "lint-test": "eslint . --ignore-path .gitignore --ext .ts,.tsx,.js"
     },
     "devDependencies": {
-        "@typescript-eslint/eslint-plugin": "^5.31.0",
-        "@typescript-eslint/parser": "^5.31.0",
-        "eslint": "^8.20.0",
-        "eslint-config-prettier": "^7.2.0",
-        "eslint-plugin-prettier": "^3.2.0",
+        "@typescript-eslint/eslint-plugin": "^6.19.0",
+        "@typescript-eslint/parser": "^6.19.0",
+        "eslint": "^8.56.0",
+        "eslint-config-prettier": "^9.1.0",
+        "eslint-plugin-prettier": "^5.1.3",
         "eslint-plugin-react": "^7.30.1",
         "eslint-plugin-react-hooks": "^4.6.0",
-        "prettier": "^1.19.1",
+        "prettier": "^3.2.4",
         "typescript": "^5.3.3"
     }
 }

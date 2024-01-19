@@ -87,7 +87,7 @@ app.get("/", forwardToGUI);
 app.get("/upload-form.html", forwardToGUI);
 app.get("/query-graphs.html", forwardToGUI);
 
-const server = app.listen(3000, function() {
+const server = app.listen(3000, function () {
     const host = server.address().address;
     const port = server.address().port;
     console.log("Upload server listening at http://%s:%s", host, port);

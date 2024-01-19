@@ -3,9 +3,9 @@
 import type { Configuration } from "webpack";
 import path from "path";
 import CopyPlugin from "copy-webpack-plugin";
-import { CreateExamplesListPlugin } from "./webpack-create-examples-list";
-import FaviconsWebpackPlugin from 'favicons-webpack-plugin';
-import HtmlWebpackPlugin from 'html-webpack-plugin';
+import {CreateExamplesListPlugin} from "./webpack-create-examples-list";
+import FaviconsWebpackPlugin from "favicons-webpack-plugin";
+import HtmlWebpackPlugin from "html-webpack-plugin";
 
 const config: Configuration = {
     entry: {
@@ -14,12 +14,12 @@ const config: Configuration = {
     plugins: [
         new HtmlWebpackPlugin({
             title: "Query Graphs",
-            filename: 'index.html',
+            filename: "index.html",
             chunks: ["bundle"],
         }),
         new FaviconsWebpackPlugin({
-            "logo": "../media/query-graphs-logo.svg",
-            "manifest": './src/manifest.json'
+            logo: "../media/query-graphs-logo.svg",
+            manifest: "./src/manifest.json",
         }),
         new CopyPlugin({patterns: ["../media/query-graphs-logo.svg", "examples/**"]}),
         new CreateExamplesListPlugin(),

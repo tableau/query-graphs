@@ -45,7 +45,7 @@ function convertXML(xml: ParsedXML) {
 }
 
 // Function to generate nodes' display names based on their properties
-const generateDisplayNames = (function() {
+const generateDisplayNames = (function () {
     // Get the first non-null, non-empty string
     function fallback(...args: (string | undefined)[]) {
         for (const arg of args) {
@@ -380,7 +380,7 @@ function assignSymbolsAndClasses(root: TreeNode) {
 function collapseNodes(root: TreeNode) {
     treeDescription.visitTreeNodes(
         root,
-        d => {
+        (d) => {
             switch (d.name) {
                 case "condition":
                 case "conditions":
@@ -423,7 +423,7 @@ function collapseNodes(root: TreeNode) {
                     return;
             }
         },
-        function(d): TreeNode[] {
+        function (d): TreeNode[] {
             return d.children && d.children.length > 0 ? d.children.slice(0) : [];
         },
     );
@@ -485,7 +485,7 @@ function addCrosslinks(root: TreeNode): Crosslink[] {
 
     treeDescription.visitTreeNodes(
         root,
-        node => {
+        (node) => {
             // Build map from potential target operator name/ref to node
             const ref = node.properties?.get("ref");
             if (getFederationConnectionType(node) === "fedeval_dataengine_connection" && node.class === "relation" && node.name) {

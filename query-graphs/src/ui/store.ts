@@ -25,23 +25,23 @@ export const useGraphRenderingStore = create<GraphRenderingState>()(
             expandedNodes: {},
             expandedSubtrees: {},
             nodeDimensions: {},
-            init: expandedSubtrees => {
-                set(state => {
+            init: (expandedSubtrees) => {
+                set((state) => {
                     state.expandedNodes = {};
                     state.expandedSubtrees = expandedSubtrees;
                     state.nodeDimensions = {};
                 });
             },
-            toggleExpandedNode: nodeId =>
-                set(state => {
+            toggleExpandedNode: (nodeId) =>
+                set((state) => {
                     state.expandedNodes[nodeId] = !get().expandedNodes[nodeId];
                 }),
-            toggleExpandedSubtree: nodeId =>
-                set(state => {
+            toggleExpandedSubtree: (nodeId) =>
+                set((state) => {
                     state.expandedSubtrees[nodeId] = !get().expandedSubtrees[nodeId];
                 }),
             updateNodeDimensions: (entries: ResizeObserverEntry[]) =>
-                set(state => {
+                set((state) => {
                     for (const e of entries) {
                         // Figure out which node was changed
                         const target = e.target as HTMLElement;

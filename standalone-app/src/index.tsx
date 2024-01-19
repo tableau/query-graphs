@@ -13,7 +13,7 @@ function TopLevelApp() {
     );
 }
 
-window.addEventListener("DOMContentLoaded", _event => {
+window.addEventListener("DOMContentLoaded", (_event) => {
     const domContainer = document.body.appendChild(document.createElement("DIV"));
     domContainer.classList.add("main-app-container");
     const root = createRoot(domContainer);

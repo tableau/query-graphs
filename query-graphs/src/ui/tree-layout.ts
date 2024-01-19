@@ -27,7 +27,7 @@ export function layoutTree(
     resizeObserver: ResizeObserver,
 ): TreeLayout {
     console.log("layout");
-    const root = d3hierarchy.hierarchy(treeData.root, d => {
+    const root = d3hierarchy.hierarchy(treeData.root, (d) => {
         if (expandedSubtrees[nodeIds.get(d)!] && d.collapsedChildren) {
             return (d.children ?? []).concat(d.collapsedChildren);
         }
@@ -37,7 +37,7 @@ export function layoutTree(
     // Layout the tree
     const treelayout = d3flextree
         .flextree<treeDescription.TreeNode>()
-        .nodeSize(d => {
+        .nodeSize((d) => {
             const id = assertNotNull(nodeIds.get(d.data));
             const dim = nodeDimensions[id];
             if (
@@ -60,7 +60,7 @@ export function layoutTree(
     const d3edges = layout.links();
 
     // Transform tree representation from d3 into reactflow
-    const nodes = d3nodes.map(n => {
+    const nodes = d3nodes.map((n) => {
         return {
             id: nodeIds.get(n.data),
             position: {x: n.x, y: n.y},
@@ -68,7 +68,7 @@ export function layoutTree(
             data: {...n.data, resizeObserver},
         } as Node;
     });
-    const edges = d3edges.map(e => {
+    const edges = d3edges.map((e) => {
         const sourceId = nodeIds.get(e.source.data);
         const targetId = nodeIds.get(e.target.data);
         const style = {} as CSSProperties;
@@ -89,7 +89,7 @@ export function layoutTree(
     // Add crosslinks
     const descendants = root.descendants();
     const map = (d: treeDescription.TreeNode) => {
-        return descendants.find(h => {
+        return descendants.find((h) => {
             return h.data === d;
         });
     };

@@ -45,7 +45,7 @@ async function getTextFromPasteEvent(e: React.ClipboardEvent): Promise<FileOpene
         return {content: await readTextFromFile(f), fileName: f.name};
     } else {
         const items = [] as DataTransferItem[];
-        Array.prototype.forEach.call(e.clipboardData.items, item => {
+        Array.prototype.forEach.call(e.clipboardData.items, (item) => {
             items.push(item);
         });
         let foundItem: DataTransferItem | undefined;
@@ -56,7 +56,7 @@ async function getTextFromPasteEvent(e: React.ClipboardEvent): Promise<FileOpene
             }
         }
         if (foundItem !== undefined) {
-            const text = (await new Promise(resolve => foundItem!.getAsString(resolve))) as string;
+            const text = (await new Promise((resolve) => foundItem!.getAsString(resolve))) as string;
             // Recognize copy-pasted URLs and open them
             try {
                 const url = new URL(text);
@@ -66,7 +66,7 @@ async function getTextFromPasteEvent(e: React.ClipboardEvent): Promise<FileOpene
             }
             return {content: text};
         } else {
-            const typesString = items.map(e => e.type).join(", ");
+            const typesString = items.map((e) => e.type).join(", ");
             throw new Error(`None of the following types are supported: ${typesString}`);
         }
     }
@@ -188,7 +188,7 @@ export function FileOpener({setData, loadStateController}: FileOpenerProps) {
                             placeholder="Paste your query plan here..."
                             onPaste={onPaste}
                             value=""
-                            onChange={e => e.preventDefault()}
+                            onChange={(e) => e.preventDefault()}
                         ></textarea>
                         <Alert variant="info" className="paste-hint">
                             {!isFirefox
