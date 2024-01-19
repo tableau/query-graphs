@@ -15,8 +15,8 @@
       "cardinality": 2000,
       "input": {
         "operator": "tablescan",
-        "querylocs": [[139, 141]],
         "operatorId": 4,
+        "sqlpos": [[139, 141]],
         "cardinality": 2000,
         "relationId": 0,
         "schema": {"type":"sessionschema"},
@@ -24,8 +24,8 @@
         "debugName": {"classification": "nonsensitive", "value": "t1"},
         "selectivity": 1
       },
-      "windowInfos": [{"operation": "aggregate", "aggregation": {"aggregatesNullable": true, "values": [{"value": {"expression": "iuref", "iu": "v4"}}], "aggregates": [{"source": 0, "operation": {"aggregate": "sum"}, "iu": ["v2", ["BigInt", "nullable"]]}]}, "partitionBy": [], "frameOrderBy": [{"value": {"expression": "iuref", "iu": "v"}, "descending": false, "nullFirst": false}], "rowsmode": false, "startMode": "unbounded", "endMode": "currentrow", "exclude": "noothers"}]
+      "windowInfos": [{"operation": "aggregate", "aggregation": {"emptyGroups": true, "aggExpressions": [{"value": {"expression": "iuref", "iu": "v4"}}], "aggregates": [{"source": 0, "operation": {"aggregate": "sum"}, "iu": ["v2", ["BigInt", "nullable"]]}]}, "partitionBy": [], "frameOrderBy": [{"value": {"expression": "iuref", "iu": "v"}, "descending": false, "nullFirst": false}], "rowsmode": false, "startMode": "unbounded", "endMode": "currentrow", "exclude": "noothers"}]
     },
-    "windowInfos": [{"operation": "aggregate", "aggregation": {"aggregatesNullable": true, "values": [{"value": {"expression": "iuref", "iu": "v5"}}], "aggregates": [{"source": 0, "operation": {"aggregate": "avg"}, "iu": ["v3", ["Numeric", 14, 4, "nullable"]]}]}, "partitionBy": [], "frameOrderBy": [{"value": {"expression": "iuref", "iu": "v4"}, "descending": false, "nullFirst": false}], "rowsmode": true, "startMode": "value", "startExp": {"expression": "const", "value": {"type": ["Integer"], "value": -1}}, "endMode": "value", "endExp": {"expression": "iuref", "iu": "v"}, "exclude": "noothers"}]
+    "windowInfos": [{"operation": "aggregate", "aggregation": {"emptyGroups": true, "aggExpressions": [{"value": {"expression": "iuref", "iu": "v5"}}], "aggregates": [{"source": 0, "operation": {"aggregate": "avg"}, "iu": ["v3", ["Numeric", 14, 4, "nullable"]]}]}, "partitionBy": [], "frameOrderBy": [{"value": {"expression": "iuref", "iu": "v4"}, "descending": false, "nullFirst": false}], "rowsmode": true, "startMode": "value", "startExp": {"expression": "const", "value": {"type": ["Integer"], "value": -1}}, "endMode": "value", "endExp": {"expression": "iuref", "iu": "v"}, "exclude": "noothers"}]
   }
 }

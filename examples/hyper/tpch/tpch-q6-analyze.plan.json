@@ -8,25 +8,26 @@
   "input": {
     "operator": "groupby",
     "operatorId": 2,
+    "sqlpos": [[145, 178]],
     "cardinality": 1,
     "input": {
       "operator": "tablescan",
-      "querylocs": [[203, 211]],
       "operatorId": 3,
+      "sqlpos": [[203, 211]],
       "cardinality": 20,
       "relationId": 7,
       "schema": {"type":"sessionschema"},
       "values": [{"name": "l_orderkey", "type": ["Integer"], "iu": null}, {"name": "l_partkey", "type": ["Integer"], "iu": null}, {"name": "l_suppkey", "type": ["Integer"], "iu": null}, {"name": "l_linenumber", "type": ["Integer"], "iu": null}, {"name": "l_quantity", "type": ["Numeric", 12, 2], "iu": ["v2", ["Numeric", 12, 2]]}, {"name": "l_extendedprice", "type": ["Numeric", 12, 2], "iu": ["v3", ["Numeric", 12, 2]]}, {"name": "l_discount", "type": ["Numeric", 12, 2], "iu": ["v4", ["Numeric", 12, 2]]}, {"name": "l_tax", "type": ["Numeric", 12, 2], "iu": null}, {"name": "l_returnflag", "type": ["Char1"], "iu": null}, {"name": "l_linestatus", "type": ["Char1"], "iu": null}, {"name": "l_shipdate", "type": ["Date"], "iu": ["v5", ["Date"]]}, {"name": "l_commitdate", "type": ["Date"], "iu": null}, {"name": "l_receiptdate", "type": ["Date"], "iu": null}, {"name": "l_shipinstruct", "type": ["Char", 25], "iu": null}, {"name": "l_shipmode", "type": ["Char", 10], "iu": null}, {"name": "l_comment", "type": ["Varchar", 44], "iu": null}],
       "debugName": {"classification": "nonsensitive", "value": "lineitem"},
-      "restrictions": [{"attribute": 10, "mode": "[)", "value": {"expression": "const", "value": {"type": ["Date"], "value": 2449354}}, "value2": {"expression": "const", "value": {"type": ["Date"], "value": 2449719}}}, {"attribute": 4, "mode": "<", "value": {"expression": "const", "value": {"type": ["Numeric", 12, 2], "value": 2400}}}, {"attribute": 6, "mode": "[]", "value": {"expression": "const", "value": {"type": ["Numeric", 12, 2], "value": 5}}, "value2": {"expression": "const", "value": {"type": ["Numeric", 12, 2], "value": 7}}}],
+      "restrictions": [{"attribute": 6, "mode": "[]", "value": {"expression": "const", "value": {"type": ["Numeric", 12, 2], "value": 5}}, "value2": {"expression": "const", "value": {"type": ["Numeric", 12, 2], "value": 7}}}, {"attribute": 10, "mode": "[)", "value": {"expression": "const", "value": {"type": ["Date"], "value": 2449354}}, "value2": {"expression": "const", "value": {"type": ["Date"], "value": 2449719}}}, {"attribute": 4, "mode": "<", "value": {"expression": "const", "value": {"type": ["Numeric", 12, 2], "value": 2400}}}],
       "selectivity": 0.034965,
-      "analyze": {"pipeline": 2, "tuplecount": 20, "execution-time": 36852}
+      "analyze": {"pipeline": 2, "tuplecount": 20, "execution-time": 32656}
     },
-    "aggregatesNullable": true,
-    "values": [{"value": {"expression": "mul", "left": {"expression": "iuref", "iu": "v3"}, "right": {"expression": "iuref", "iu": "v4"}}}],
+    "groupingSets": [{"keyIndices": [], "coreIndices": null, "behavior": "static"}],
+    "emptyGroups": true,
+    "aggExpressions": [{"value": {"expression": "mul", "left": {"expression": "iuref", "iu": "v3"}, "right": {"expression": "iuref", "iu": "v4"}}}],
     "aggregates": [{"source": 0, "operation": {"aggregate": "sum"}, "iu": ["v", ["BigNumeric", 38, 4, "nullable"]]}],
-    "groupingSets": [{"aggregatedExpressionIndices": [], "behavior": "static"}],
-    "analyze": {"pipeline": 1, "tuplecount": 1, "memory-bytes": 0, "execution-time": 448}
+    "analyze": {"pipeline": 1, "tuplecount": 1, "memory-bytes": 0, "execution-time": 312}
   },
   "analyze": {}
 }

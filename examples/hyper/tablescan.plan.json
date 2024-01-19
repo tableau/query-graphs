@@ -7,8 +7,8 @@
   "outputNames": ["r_name"],
   "input": {
     "operator": "tablescan",
-    "querylocs": [[37, 43]],
     "operatorId": 2,
+    "sqlpos": [[37, 43]],
     "cardinality": 5,
     "relationId": 9,
     "schema": {"type":"sessionschema"},

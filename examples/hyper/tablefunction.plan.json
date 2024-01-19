@@ -7,8 +7,8 @@
   "outputNames": ["generate_series"],
   "input": {
     "operator": "tablefunction",
-    "querylocs": [[32, 47]],
     "operatorId": 2,
+    "sqlpos": [[32, 47]],
     "cardinality": 10,
     "input": {
       "operator": "tableconstruction",

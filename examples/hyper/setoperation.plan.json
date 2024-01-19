@@ -1,18 +1,19 @@
 {
   "operator": "executiontarget",
   "operatorId": 1,
-  "cardinality": 4001,
+  "cardinality": 4008.5,
   "producesRows": true,
   "output": [{"expression": "iuref", "iu": ["v", ["Integer"]]}, {"expression": "iuref", "iu": ["v2", ["Integer"]]}],
   "outputNames": ["a2", "b2"],
   "input": {
     "operator": "unionall",
     "operatorId": 2,
-    "cardinality": 4001,
+    "sqlpos": [[72, 81], [40, 49]],
+    "cardinality": 4008.5,
     "input": [{
       "operator": "tablescan",
-      "querylocs": [[37, 39]],
       "operatorId": 3,
+      "sqlpos": [[37, 39]],
       "cardinality": 2000,
       "relationId": 1,
       "schema": {"type":"sessionschema"},
@@ -21,8 +22,8 @@
       "selectivity": 1
     }, {
       "operator": "tablescan",
-      "querylocs": [[69, 71]],
       "operatorId": 4,
+      "sqlpos": [[69, 71]],
       "cardinality": 2000,
       "relationId": 1,
       "schema": {"type":"sessionschema"},
@@ -32,15 +33,17 @@
     }, {
       "operator": "exceptall",
       "operatorId": 5,
-      "cardinality": 1,
+      "sqlpos": [[186, 196]],
+      "cardinality": 8.50385,
       "input": [{
         "operator": "intersectall",
         "operatorId": 6,
+        "sqlpos": [[128, 141]],
         "cardinality": 900,
         "input": [{
           "operator": "tablescan",
-          "querylocs": [[106, 108]],
           "operatorId": 7,
+          "sqlpos": [[106, 108]],
           "cardinality": 1000,
           "relationId": 0,
           "schema": {"type":"sessionschema"},
@@ -50,8 +53,8 @@
           "selectivity": 0.5
         }, {
           "operator": "tablescan",
-          "querylocs": [[164, 166]],
           "operatorId": 8,
+          "sqlpos": [[164, 166]],
           "cardinality": 1000,
           "relationId": 0,
           "schema": {"type":"sessionschema"},
@@ -65,8 +68,8 @@
         "collates": [null, null]
       }, {
         "operator": "tablescan",
-        "querylocs": [[219, 221]],
         "operatorId": 9,
+        "sqlpos": [[219, 221]],
         "cardinality": 1000,
         "relationId": 0,
         "schema": {"type":"sessionschema"},

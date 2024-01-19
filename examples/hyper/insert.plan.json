@@ -16,6 +16,7 @@
     "input": {
       "operator": "map",
       "operatorId": 3,
+      "sqlpos": [[40, 44]],
       "cardinality": 4000,
       "input": {
         "operator": "join",
@@ -24,16 +25,16 @@
         "method": "bnl",
         "left": {
           "operator": "tableconstruction",
-          "querylocs": [[67, 76]],
           "operatorId": 5,
+          "sqlpos": [[67, 76]],
           "cardinality": 2,
           "output": [["v7", ["Integer"]]],
           "values": [[{"expression": "const", "value": {"type": ["Integer"], "value": 1}}], [{"expression": "const", "value": {"type": ["Integer"], "value": 2}}]]
         },
         "right": {
           "operator": "tablescan",
-          "querylocs": [[62, 64]],
           "operatorId": 6,
+          "sqlpos": [[62, 64]],
           "cardinality": 2000,
           "relationId": 0,
           "schema": {"type":"sessionschema"},

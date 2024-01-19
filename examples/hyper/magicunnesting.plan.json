@@ -12,8 +12,8 @@
     "method": "hash",
     "left": {
       "operator": "tablescan",
-      "querylocs": [[73, 75]],
       "operatorId": 3,
+      "sqlpos": [[73, 75]],
       "cardinality": 2000,
       "relationId": 0,
       "schema": {"type":"sessionschema"},
@@ -24,6 +24,7 @@
     "right": {
       "operator": "groupby",
       "operatorId": 4,
+      "sqlpos": [[37, 44]],
       "cardinality": 100,
       "input": {
         "operator": "join",
@@ -39,16 +40,16 @@
             "operator": "groupby",
             "operatorId": 7,
             "cardinality": 100,
-            "aggregatesNullable": false,
-            "values": [{"value": {"expression": "iuref", "iu": "v"}}],
-            "aggregates": [{"source": 0, "operation": {"aggregate": "keep"}, "iu": ["v3", ["Integer"]]}],
-            "groupingSets": [{"aggregatedExpressionIndices": [0], "behavior": "regular"}]
+            "keyExpressions": [{"expression": {"value": {"expression": "iuref", "iu": "v"}}, "iu": ["v3", ["Integer"]]}],
+            "groupingSets": [{"keyIndices": [0], "coreIndices": null, "behavior": "regular"}],
+            "emptyGroups": false,
+            "aggregates": []
           }
         },
         "right": {
           "operator": "tablescan",
-          "querylocs": [[50, 52]],
           "operatorId": 8,
+          "sqlpos": [[50, 52]],
           "cardinality": 2000,
           "relationId": 1,
           "schema": {"type":"sessionschema"},
@@ -58,10 +59,11 @@
         },
         "condition": {"expression": "comparison", "mode": "<", "left": {"expression": "iuref", "iu": "v5"}, "right": {"expression": "iuref", "iu": "v4"}}
       },
-      "aggregatesNullable": true,
-      "values": [{"value": {"expression": "iuref", "iu": "v5"}}, {"value": {"expression": "iuref", "iu": "v4"}}],
-      "aggregates": [{"source": 1, "operation": {"aggregate": "keep"}, "iu": ["v6", ["Integer"]]}, {"source": 0, "operation": {"aggregate": "sum"}, "iu": ["v2", ["BigInt", "nullable"]]}],
-      "groupingSets": [{"aggregatedExpressionIndices": [1], "behavior": "regular"}]
+      "keyExpressions": [{"expression": {"value": {"expression": "iuref", "iu": "v4"}}, "iu": ["v6", ["Integer"]]}],
+      "groupingSets": [{"keyIndices": [0], "coreIndices": [0], "behavior": "regular"}],
+      "emptyGroups": true,
+      "aggExpressions": [{"value": {"expression": "iuref", "iu": "v5"}}],
+      "aggregates": [{"source": 0, "operation": {"aggregate": "sum"}, "iu": ["v2", ["BigInt", "nullable"]]}]
     },
     "condition": {"expression": "comparison", "mode": "is", "left": {"expression": "iuref", "iu": "v"}, "right": {"expression": "iuref", "iu": "v6"}},
     "magic": 7
