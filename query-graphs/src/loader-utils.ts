@@ -93,8 +93,7 @@ export function assert(value: boolean, errorMsg = "Assertion violated"): asserts
     }
 }
 
-export function assertNotNull<T>(v: T | null | undefined): T {
+export function assertNotNull<T>(v: T | null | undefined): asserts v is T {
     assert(v !== null, "Unexpected null value");
     assert(v !== undefined, "Unexpected undefined value");
-    return v;
 }

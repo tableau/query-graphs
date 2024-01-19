@@ -38,7 +38,8 @@ export function layoutTree(
     const treelayout = d3flextree
         .flextree<treeDescription.TreeNode>()
         .nodeSize((d) => {
-            const id = assertNotNull(nodeIds.get(d.data));
+            const id = nodeIds.get(d.data);
+            assertNotNull(id);
             const dim = nodeDimensions[id];
             if (
                 dim == undefined ||
