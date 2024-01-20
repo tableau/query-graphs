@@ -25,6 +25,8 @@
 
 .file-selection-page-content {
     width: 35em;
+    min-width: 40%;
+    max-width: 100%;
     display: flex;
     flex-direction: column;
     align-items: stretch;
