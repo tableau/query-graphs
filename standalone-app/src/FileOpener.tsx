@@ -139,13 +139,15 @@ export function FileOpener({setData, validate, loadStateController}: FileOpenerP
 
     const onPaste = useCallback(
         async (e: React.ClipboardEvent) => {
-            // TODO: For textual pasts, load the combined text, not only the pasted text
-            await tryAndDisplayErrors(async () => {
-                await setData(await getTextFromPasteEvent(e));
-                clearLoadState();
-            });
+            // If pasting into an empty input area, try to auto-submit on paste events
+            if (planString === "") {
+                await tryAndDisplayErrors(async () => {
+                    await setData(await getTextFromPasteEvent(e));
+                    clearLoadState();
+                });
+            }
         },
-        [setData, clearLoadState, tryAndDisplayErrors],
+        [planString, setData, clearLoadState, tryAndDisplayErrors],
     );
 
     const submit = useCallback(async () => {
