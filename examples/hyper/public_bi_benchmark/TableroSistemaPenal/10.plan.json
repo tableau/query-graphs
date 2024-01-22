@@ -1,0 +1,33 @@
+{
+  "operator": "executiontarget",
+  "operatorId": 1,
+  "cardinality": 1800,
+  "producesRows": true,
+  "output": [{"expression": "iuref", "iu": ["v", ["Numeric", 1]]}, {"expression": "iuref", "iu": ["v2", ["Varchar", 5]]}, {"expression": "iuref", "iu": ["v3", ["BigInt"]]}, {"expression": "iuref", "iu": ["v4", ["BigInt"]]}],
+  "outputNames": ["CAUTELAR", "PAÍS", "ctd:ID_EVENTO:ok", "yr:FECHA AUDIENCIA:ok"],
+  "input": {
+    "operator": "groupby",
+    "operatorId": 2,
+    "sqlpos": [[414, 517], [132, 183]],
+    "cardinality": 1800,
+    "input": {
+      "operator": "tablescan",
+      "operatorId": 3,
+      "sqlpos": [[318, 341]],
+      "cardinality": 2000,
+      "relationId": 160,
+      "schema": {"type":"sessionschema"},
+      "values": [{"name": "AGRUPADOR", "type": ["Varchar", 55], "iu": null}, {"name": "AÑO CAUSA", "type": ["SmallInt"], "iu": null}, {"name": "CAUTELAR", "type": ["Numeric", 1], "iu": ["v5", ["Numeric", 1]]}, {"name": "COD_CTE", "type": ["SmallInt"], "iu": null}, {"name": "COD_MATERIA", "type": ["SmallInt"], "iu": null}, {"name": "COD_TRIB", "type": ["SmallInt"], "iu": null}, {"name": "CORTE", "type": ["Varchar", 17], "iu": null}, {"name": "DELITO", "type": ["Varchar", 64], "iu": null}, {"name": "FECHA AUDIENCIA", "type": ["Timestamp"], "iu": ["v6", ["Timestamp"]]}, {"name": "ID_EVENTO", "type": ["Integer"], "iu": ["v7", ["Integer"]]}, {"name": "ILEGALIDAD_DETENCION", "type": ["Numeric", 1], "iu": null}, {"name": "Number of Records", "type": ["SmallInt"], "iu": null}, {"name": "PAÍS", "type": ["Varchar", 5], "iu": ["v8", ["Varchar", 5]]}, {"name": "PRISION_PREVENTIVA", "type": ["Numeric", 4], "iu": null}, {"name": "PRISION_PREVENTIVA_DECRETADA", "type": ["Numeric", 4], "iu": null}, {"name": "PRISION_PREVENTIVA_RECHAZADA", "type": ["Numeric", 4], "iu": null}, {"name": "RIT", "type": ["SmallInt"], "iu": null}, {"name": "Rechaza Prisión Preventiva (copia)", "type": ["Varchar", 27], "iu": null}, {"name": "SENTENCIA", "type": ["Numeric", 1], "iu": null}, {"name": "TIPO", "type": ["SmallInt"], "iu": null}, {"name": "TRIBUNAL", "type": ["Varchar", 30], "iu": null}],
+      "debugName": {"classification": "nonsensitive", "value": "TableroSistemaPenal_5"},
+      "selectivity": 1,
+      "analyze": {"pipeline": 2, "tuplecount": 0, "execution-time": 1258}
+    },
+    "keyExpressions": [{"expression": {"value": {"expression": "iuref", "iu": "v5"}}, "iu": ["v", ["Numeric", 1]]}, {"expression": {"value": {"expression": "iuref", "iu": "v8"}}, "iu": ["v2", ["Varchar", 5]]}, {"expression": {"value": {"expression": "cast", "value": {"expression": "extractyear", "input": {"expression": "iuref", "iu": "v6"}}, "type": ["BigInt"], "errorHandling": "trap"}}, "iu": ["v4", ["BigInt"]]}],
+    "groupingSets": [{"keyIndices": [0, 1, 2], "coreIndices": [0, 1, 2], "behavior": "regular"}],
+    "emptyGroups": false,
+    "aggExpressions": [{"value": {"expression": "iuref", "iu": "v7"}}],
+    "aggregates": [{"source": 0, "operation": {"aggregate": "count", "distinct": true}, "iu": ["v3", ["BigInt"]]}],
+    "analyze": {"pipeline": 1, "tuplecount": 0, "memory-bytes": 4096, "execution-time": 9258}
+  },
+  "analyze": {}
+}

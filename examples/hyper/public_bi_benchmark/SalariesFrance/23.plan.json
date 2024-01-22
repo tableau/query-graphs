@@ -1,0 +1,32 @@
+{
+  "operator": "executiontarget",
+  "operatorId": 1,
+  "cardinality": 1,
+  "producesRows": true,
+  "output": [{"expression": "iuref", "iu": ["v", ["Double"]]}],
+  "outputNames": ["avg:Calculation_163536984210948109:ok"],
+  "input": {
+    "operator": "groupby",
+    "operatorId": 2,
+    "sqlpos": [[34, 133]],
+    "cardinality": 1,
+    "input": {
+      "operator": "tablescan",
+      "operatorId": 3,
+      "sqlpos": [[182, 201]],
+      "cardinality": 2000,
+      "relationId": 157,
+      "schema": {"type":"sessionschema"},
+      "values": [{"name": "A129", "type": ["Varchar", 4], "iu": null}, {"name": "A129_LIBCOURT", "type": ["Varchar", 46], "iu": null}, {"name": "A129_LIBCOURT_PJ", "type": ["Varchar", 40], "iu": null}, {"name": "A129_LIB", "type": ["Varchar", 162], "iu": null}, {"name": "A88", "type": ["Varchar", 2], "iu": null}, {"name": "A88_LIB", "type": ["Varchar", 138], "iu": null}, {"name": "ADECCO_NB_CANDIDATS", "type": ["Numeric", 4], "iu": null}, {"name": "ADECCO_NB_CAND_METIERS_PROCHES", "type": ["Double"], "iu": null}, {"name": "ADECCO_SALAIRES_BRUTS", "type": ["Numeric", 18, 14], "iu": null}, {"name": "AG_25_29", "type": ["Double"], "iu": null}, {"name": "AG_30_39", "type": ["Double"], "iu": null}, {"name": "AG_40_49", "type": ["Double"], "iu": null}, {"name": "AG_50_54", "type": ["Double"], "iu": null}, {"name": "AG_M25", "type": ["Double"], "iu": null}, {"name": "AG_P55", "type": ["Double"], "iu": null}, {"name": "APPRENTI", "type": ["Double"], "iu": null}, {"name": "BMO_DIFFICILE", "type": ["Double"], "iu": null}, {"name": "BMO_INTENTIONS", "type": ["Double"], "iu": null}, {"name": "BMO_SAISON", "type": ["Double"], "iu": null}, {"name": "CODGEO_PRINCIPAL", "type": ["Varchar", 5], "iu": null}, {"name": "CP_PRINCIPAL", "type": ["Varchar", 5], "iu": null}, {"name": "Calculation_163536984210948109", "type": ["SmallInt"], "iu": ["v2", ["SmallInt"]]}, {"name": "Calculation_392657618632466432", "type": ["Double"], "iu": null}, {"name": "Calculation_393783518250995712", "type": ["Double"], "iu": null}, {"name": "EMBAUCHES_GLOBAL", "type": ["Double"], "iu": null}, {"name": "EMBAUCHES_NM1", "type": ["Double"], "iu": null}, {"name": "EMBAUCHES_NP1", "type": ["Double"], "iu": null}, {"name": "EMBAUCHE_CDD", "type": ["Double"], "iu": null}, {"name": "EMBAUCHE_CDI", "type": ["Double"], "iu": null}, {"name": "EMPSAL_NM1", "type": ["Double"], "iu": null}, {"name": "EMPSAL_NP1", "type": ["Double"], "iu": null}, {"name": "FEMMES", "type": ["Double"], "iu": null}, {"name": "HOMMES", "type": ["Double"], "iu": null}, {"name": "INTERIM_NM1", "type": ["Double"], "iu": null}, {"name": "INTERIM_NP1", "type": ["Double"], "iu": null}, {"name": "LIBDOM1", "type": ["Varchar", 74], "iu": null}, {"name": "LIBDOM2", "type": ["Varchar", 77], "iu": null}, {"name": "LIBELLES_ROME_BONNE_FORMATION", "type": ["Varchar", 92], "iu": null}, {"name": "LIBROME_MINUSCULE", "type": ["Varchar", 95], "iu": null}, {"name": "Latitude", "type": ["Numeric", 15, 13], "iu": null}, {"name": "Longitude", "type": ["Double"], "iu": null}, {"name": "NB_DE_PE", "type": ["SmallInt"], "iu": null}, {"name": "NB_ETS", "type": ["SmallInt"], "iu": null}, {"name": "NOM_PAGES_JAUNES", "type": ["Varchar", 33], "iu": null}, {"name": "Number of Records", "type": ["SmallInt"], "iu": null}, {"name": "REG_LIB", "type": ["Varchar", 27], "iu": null}, {"name": "RENSEIGNE", "type": ["Varchar", 1], "iu": null}, {"name": "REPERE1 (copie)", "type": ["SmallInt"], "iu": null}, {"name": "ROME", "type": ["Varchar", 5], "iu": null}, {"name": "ROME_LIB", "type": ["Varchar", 95], "iu": null}, {"name": "SALAIRE_BRUT", "type": ["Double"], "iu": null}, {"name": "SALAIRE_VF", "type": ["Double"], "iu": null}, {"name": "TK_SIRET", "type": ["SmallInt"], "iu": null}, {"name": "UIMM_FAMILLES", "type": ["Varchar", 38], "iu": null}, {"name": "ZE2010", "type": ["Varchar", 4], "iu": null}, {"name": "ZE2010_LIB", "type": ["Varchar", 35], "iu": null}, {"name": "Calculation_490892384732147714", "type": ["Varchar", 46], "iu": null}],
+      "debugName": {"classification": "nonsensitive", "value": "SalariesFrance_13"},
+      "selectivity": 1,
+      "analyze": {"pipeline": 2, "tuplecount": 0, "execution-time": 482}
+    },
+    "groupingSets": [{"keyIndices": [], "coreIndices": [], "behavior": "regular"}],
+    "emptyGroups": false,
+    "aggExpressions": [{"value": {"expression": "cast", "value": {"expression": "iuref", "iu": "v2"}, "type": ["Double"], "errorHandling": "trap"}}],
+    "aggregates": [{"source": 0, "operation": {"aggregate": "avg"}, "iu": ["v", ["Double"]]}],
+    "analyze": {"pipeline": 1, "tuplecount": 0, "memory-bytes": 0, "execution-time": 133}
+  },
+  "analyze": {}
+}

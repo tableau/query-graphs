@@ -1,0 +1,41 @@
+{
+  "operator": "executiontarget",
+  "operatorId": 1,
+  "cardinality": 100,
+  "producesRows": true,
+  "output": [{"expression": "iuref", "iu": ["v", ["Varchar", 17]]}],
+  "outputNames": ["Property Type"],
+  "input": {
+    "operator": "sort",
+    "operatorId": 2,
+    "sqlpos": [[314, 333]],
+    "cardinality": 100,
+    "criterion": [{"value": {"expression": "iuref", "iu": "v"}, "descending": false, "nullFirst": false}],
+    "input": {
+      "operator": "groupby",
+      "operatorId": 3,
+      "sqlpos": [[280, 304]],
+      "cardinality": 100,
+      "input": {
+        "operator": "tablescan",
+        "operatorId": 4,
+        "sqlpos": [[90, 105]],
+        "cardinality": 500,
+        "relationId": 124,
+        "schema": {"type":"sessionschema"},
+        "values": [{"name": "Address 1", "type": ["Varchar", 50], "iu": null}, {"name": "Address 2", "type": ["Varchar", 45], "iu": null}, {"name": "County", "type": ["Varchar", 28], "iu": null}, {"name": "Date of Transfer", "type": ["Timestamp"], "iu": ["v2", ["Timestamp"]]}, {"name": "District", "type": ["Varchar", 38], "iu": null}, {"name": "Duration", "type": ["Varchar", 8], "iu": null}, {"name": "Latitude", "type": ["Numeric", 8, 6], "iu": null}, {"name": "Locality", "type": ["Varchar", 34], "iu": null}, {"name": "Longitude", "type": ["Double"], "iu": null}, {"name": "New Build?", "type": ["Varchar", 1], "iu": null}, {"name": "Number of Records", "type": ["SmallInt"], "iu": null}, {"name": "Postcode District", "type": ["Varchar", 4], "iu": null}, {"name": "Postcode Region", "type": ["Varchar", 2], "iu": null}, {"name": "Postcode Sector", "type": ["Varchar", 6], "iu": null}, {"name": "Postcode", "type": ["Varchar", 8], "iu": null}, {"name": "Price", "type": ["Integer"], "iu": null}, {"name": "Property Type", "type": ["Varchar", 17], "iu": ["v3", ["Varchar", 17]]}, {"name": "Street", "type": ["Varchar", 47], "iu": null}, {"name": "Town/City", "type": ["Varchar", 22], "iu": null}, {"name": "Transaction ID", "type": ["Varchar", 38], "iu": null}, {"name": "Month", "type": ["SmallInt"], "iu": null}, {"name": "Calculation_7270508194941839", "type": ["SmallInt"], "iu": null}, {"name": "Calculation_5960512115909696", "type": ["Varchar", 7], "iu": null}, {"name": "Calculation_5480628224156393", "type": ["Timestamp"], "iu": null}, {"name": "Calculation_2630509165701334", "type": ["Double"], "iu": null}, {"name": "Calculation_0390512122057182", "type": ["Varchar", 15], "iu": null}, {"name": "Year", "type": ["SmallInt"], "iu": null}, {"name": "average monthly price per km2 (copy)", "type": ["Double"], "iu": null}],
+        "debugName": {"classification": "nonsensitive", "value": "RealEstate1_2"},
+        "restrictions": [{"attribute": 3, "mode": "lambda", "value": {"expression": "between", "arguments": [{"expression": "cast", "value": {"expression": "iuref", "iu": "v2"}, "type": ["Date"], "errorHandling": "trap"}, {"expression": "const", "value": {"type": ["Date"], "value": 2453372}}, {"expression": "const", "value": {"type": ["Date"], "value": 2457113}}]}, "value2": null}],
+        "selectivity": 0.25,
+        "analyze": {"pipeline": 3, "tuplecount": 0, "execution-time": 555}
+      },
+      "keyExpressions": [{"expression": {"value": {"expression": "iuref", "iu": "v3"}}, "iu": ["v", ["Varchar", 17]]}],
+      "groupingSets": [{"keyIndices": [0], "coreIndices": [0], "behavior": "regular"}],
+      "emptyGroups": false,
+      "aggregates": [],
+      "analyze": {"pipeline": 2, "tuplecount": 0, "memory-bytes": 2048, "execution-time": 6922}
+    },
+    "analyze": {"pipeline": 1, "tuplecount": 0, "memory-bytes": 0, "execution-time": 357}
+  },
+  "analyze": {}
+}

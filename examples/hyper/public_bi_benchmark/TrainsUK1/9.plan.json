@@ -1,0 +1,34 @@
+{
+  "operator": "executiontarget",
+  "operatorId": 1,
+  "cardinality": 85.25,
+  "producesRows": true,
+  "output": [{"expression": "iuref", "iu": ["v", ["Varchar", 1]]}, {"expression": "iuref", "iu": ["v2", ["Varchar", 1]]}, {"expression": "iuref", "iu": ["v3", ["Varchar", 31]]}, {"expression": "iuref", "iu": ["v4", ["Varchar", 31]]}, {"expression": "iuref", "iu": ["v5", ["Time"]]}, {"expression": "iuref", "iu": ["v6", ["Time"]]}, {"expression": "iuref", "iu": ["v7", ["BigNumeric", 38, 2]]}, {"expression": "iuref", "iu": ["v8", ["Varchar", 43]]}],
+  "outputNames": ["TEMP(attr:Calculation_2480421151322357:nk)(3539376641)(0)", "TEMP(attr:Calculation_2480421151322357:nk)(3547210890)(0)", "TEMP(attr:Section Start Location Full Name:nk)(1915377183)(0)", "TEMP(attr:Section Start Location Full Name:nk)(4245200940)(0)", "TEMP(attr:v_Section_WTT_Time:ok)(2639448957)(0)", "TEMP(attr:v_Section_WTT_Time:ok)(881973835)(0)", "sum:Calculation_2040623161253421:ok", "v_WTT and Section Name and Timing Event"],
+  "input": {
+    "operator": "groupby",
+    "operatorId": 2,
+    "sqlpos": [[1204, 1254], [34, 83], [150, 199], [266, 319], [390, 443], [514, 567], [624, 677], [733, 782]],
+    "cardinality": 85.25,
+    "input": {
+      "operator": "tablescan",
+      "operatorId": 3,
+      "sqlpos": [[933, 946]],
+      "cardinality": 85.25,
+      "relationId": 179,
+      "schema": {"type":"sessionschema"},
+      "values": [{"name": "Average Lateness", "type": ["Double"], "iu": null}, {"name": "Calculation_2040623161253421", "type": ["Numeric", 4, 2], "iu": ["v9", ["Numeric", 4, 2]]}, {"name": "Calculation_2890421151640665", "type": ["Varchar", 18], "iu": null}, {"name": "Calculation_3330422103625946", "type": ["Numeric", 17, 16], "iu": null}, {"name": "Engineering Allowance (mins)", "type": ["SmallInt"], "iu": null}, {"name": "Headcode", "type": ["Varchar", 4], "iu": null}, {"name": "Median Lateness", "type": ["Numeric", 4, 2], "iu": null}, {"name": "Operator Name", "type": ["Varchar", 24], "iu": null}, {"name": "Operator", "type": ["Varchar", 2], "iu": ["v10", ["Varchar", 2]]}, {"name": "Pathing Allowance (mins)", "type": ["Numeric", 3, 1], "iu": null}, {"name": "Performance Allowance (mins)", "type": ["Numeric", 2, 1], "iu": null}, {"name": "Planned Dest Location Full Name", "type": ["Varchar", 30], "iu": null}, {"name": "Planned Origin Location Full Name", "type": ["Varchar", 30], "iu": null}, {"name": "Punctuality Threshold", "type": ["SmallInt"], "iu": null}, {"name": "RT%", "type": ["Numeric", 18, 17], "iu": null}, {"name": "Ranking", "type": ["SmallInt"], "iu": null}, {"name": "Section Start Location Full Name", "type": ["Varchar", 31], "iu": ["v11", ["Varchar", 31]]}, {"name": "Section Start Location Name", "type": ["Varchar", 31], "iu": null}, {"name": "Time-to-10%", "type": ["Numeric", 17, 16], "iu": null}, {"name": "Time-to-2%", "type": ["Numeric", 18, 17], "iu": null}, {"name": "Time-to-5%", "type": ["Numeric", 17, 16], "iu": null}, {"name": "Timetable", "type": ["Varchar", 3], "iu": ["v12", ["Varchar", 3]]}, {"name": "Train Count", "type": ["SmallInt"], "iu": null}, {"name": "v_Headcode Description", "type": ["Varchar", 77], "iu": ["v13", ["Varchar", 77]]}, {"name": "v_Section_WTT_Time", "type": ["Time"], "iu": ["v14", ["Time"]]}, {"name": "v_WTT and Section Name and Timing Event", "type": ["Varchar", 43], "iu": ["v15", ["Varchar", 43]]}, {"name": "Calculation_2480421151322357", "type": ["Varchar", 1], "iu": ["v16", ["Varchar", 1]]}, {"name": "Calculation_0430624152715434", "type": ["Varchar", 69], "iu": null}],
+      "debugName": {"classification": "nonsensitive", "value": "TrainsUK1_4"},
+      "restrictions": [{"attribute": 8, "mode": "=", "value": {"expression": "const", "value": {"type": ["Varchar", 2], "value": "EB"}}}, {"attribute": 21, "mode": "=", "value": {"expression": "const", "value": {"type": ["Varchar", 3], "value": "M18"}}}, {"attribute": 23, "mode": "=", "value": {"expression": "const", "value": {"type": ["Varchar", 77], "value": "1A04London Liverpool Street to Harwich Town at 06:38"}}}],
+      "selectivity": 0.042625,
+      "analyze": {"pipeline": 2, "tuplecount": 0, "execution-time": 1496}
+    },
+    "keyExpressions": [{"expression": {"value": {"expression": "iuref", "iu": "v15"}}, "iu": ["v8", ["Varchar", 43]]}],
+    "groupingSets": [{"keyIndices": [0], "coreIndices": [0], "behavior": "regular"}],
+    "emptyGroups": false,
+    "aggExpressions": [{"value": {"expression": "iuref", "iu": "v16"}}, {"value": {"expression": "iuref", "iu": "v11"}}, {"value": {"expression": "iuref", "iu": "v14"}}, {"value": {"expression": "iuref", "iu": "v9"}}],
+    "aggregates": [{"source": 3, "operation": {"aggregate": "sum"}, "iu": ["v7", ["BigNumeric", 38, 2]]}, {"source": 1, "operation": {"aggregate": "max"}, "iu": ["v4", ["Varchar", 31]]}, {"source": 1, "operation": {"aggregate": "min"}, "iu": ["v3", ["Varchar", 31]]}, {"source": 2, "operation": {"aggregate": "min"}, "iu": ["v5", ["Time"]]}, {"source": 2, "operation": {"aggregate": "max"}, "iu": ["v6", ["Time"]]}, {"source": 0, "operation": {"aggregate": "max"}, "iu": ["v2", ["Varchar", 1]]}, {"source": 0, "operation": {"aggregate": "min"}, "iu": ["v", ["Varchar", 1]]}],
+    "analyze": {"pipeline": 1, "tuplecount": 0, "memory-bytes": 2048, "execution-time": 9629}
+  },
+  "analyze": {}
+}

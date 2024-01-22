@@ -1,0 +1,48 @@
+{
+  "operator": "executiontarget",
+  "operatorId": 1,
+  "cardinality": 25,
+  "producesRows": true,
+  "output": [{"expression": "iuref", "iu": ["v", ["Varchar", 2]]}, {"expression": "iuref", "iu": ["v2", ["BigInt"]]}, {"expression": "cast", "value": {"expression": "iuref", "iu": ["v3", ["Integer"]]}, "type": ["BigInt"], "errorHandling": "trap"}, {"expression": "cast", "value": {"expression": "iuref", "iu": ["v4", ["Integer"]]}, "type": ["BigInt"], "errorHandling": "trap"}],
+  "outputNames": ["State ", "TEMP(Calculation_251075720248410112)(2109769841)(0)", "TEMP(Calculation_251075720248410112)(3451088709)(0)", "TEMP(Calculation_251075720248410112)(3855970114)(0)"],
+  "input": {
+    "operator": "select",
+    "operatorId": 2,
+    "cardinality": 25,
+    "input": {
+      "operator": "map",
+      "operatorId": 3,
+      "cardinality": 100,
+      "input": {
+        "operator": "groupby",
+        "operatorId": 4,
+        "sqlpos": [[566, 594], [604, 610], [623, 629], [69, 75], [141, 170], [247, 276]],
+        "cardinality": 100,
+        "input": {
+          "operator": "tablescan",
+          "operatorId": 5,
+          "sqlpos": [[350, 360]],
+          "cardinality": 134.375,
+          "relationId": 28,
+          "schema": {"type":"sessionschema"},
+          "values": [{"name": "City", "type": ["Varchar", 31], "iu": null}, {"name": "Client", "type": ["Varchar", 32], "iu": null}, {"name": "Created Date", "type": ["Double"], "iu": null}, {"name": "F26", "type": ["Varchar", 59], "iu": null}, {"name": "F27", "type": ["Varchar", 65], "iu": null}, {"name": "F28", "type": ["Varchar", 800], "iu": null}, {"name": "FF Ratio", "type": ["Double"], "iu": null}, {"name": "Favorites", "type": ["Integer"], "iu": null}, {"name": "Followers", "type": ["Integer"], "iu": null}, {"name": "Following", "type": ["Integer"], "iu": null}, {"name": "Gender", "type": ["Varchar", 1], "iu": null}, {"name": "Influencer?", "type": ["SmallInt"], "iu": null}, {"name": "Joined", "type": ["Numeric", 15, 10], "iu": null}, {"name": "Keyword", "type": ["Varchar", 24], "iu": ["v5", ["Varchar", 24]]}, {"name": "LPF", "type": ["Numeric", 7, 2], "iu": null}, {"name": "Language", "type": ["Varchar", 18], "iu": null}, {"name": "Lat", "type": ["Numeric", 11, 8], "iu": null}, {"name": "Listed", "type": ["Integer"], "iu": null}, {"name": "Location Type", "type": ["Varchar", 5], "iu": null}, {"name": "Long", "type": ["Numeric", 10, 8], "iu": null}, {"name": "Name", "type": ["Varchar", 20], "iu": null}, {"name": "Number of Records", "type": ["SmallInt"], "iu": null}, {"name": "Region", "type": ["Varchar", 9], "iu": null}, {"name": "Self Report Location", "type": ["Varchar", 78], "iu": null}, {"name": "State ", "type": ["Varchar", 2], "iu": ["v6", ["Varchar", 2]]}, {"name": "StatePopName", "type": ["Varchar", 2], "iu": null}, {"name": "StatePopNum", "type": ["Integer"], "iu": ["v7", ["Integer"]]}, {"name": "Tweet Text", "type": ["Varchar", 141], "iu": null}, {"name": "Tweets", "type": ["Integer"], "iu": null}, {"name": "Username", "type": ["Varchar", 17], "iu": null}, {"name": "profile desc", "type": ["Varchar", 160], "iu": null}],
+          "debugName": {"classification": "nonsensitive", "value": "Hatred_1"},
+          "restrictions": [{"attribute": 13, "mode": "lambda", "value": {"expression": "quantor", "mode": "=some", "value": {"expression": "iuref", "iu": "v5"}, "set": [{"expression": "const", "value": {"type": ["Varchar", 24], "value": "beaner"}}, {"expression": "const", "value": {"type": ["Varchar", 24], "value": "spic"}}, {"expression": "const", "value": {"type": ["Varchar", 24], "value": "wetback"}}]}, "value2": null}, {"attribute": 24, "mode": "lambda", "value": {"expression": "cachingexpression", "input": {"expression": "or", "arguments": [{"expression": "between", "arguments": [{"expression": "iuref", "iu": "v6"}, {"expression": "const", "value": {"type": ["Varchar", 2], "value": "AK"}}, {"expression": "const", "value": {"type": ["Varchar", 2], "value": "CT"}}]}, {"expression": "between", "arguments": [{"expression": "iuref", "iu": "v6"}, {"expression": "const", "value": {"type": ["Varchar", 2], "value": "DE"}}, {"expression": "const", "value": {"type": ["Varchar", 2], "value": "WY"}}]}]}, "cacheSize": 800, "estimatedDistinctKeys": 100}, "value2": null}],
+          "selectivity": 0.0671875,
+          "analyze": {"pipeline": 2, "tuplecount": 0, "execution-time": 602}
+        },
+        "keyExpressions": [{"expression": {"value": {"expression": "iuref", "iu": "v6"}}, "iu": ["v", ["Varchar", 2]]}],
+        "groupingSets": [{"keyIndices": [0], "coreIndices": [0], "behavior": "regular"}],
+        "emptyGroups": false,
+        "aggExpressions": [{"value": {"expression": "iuref", "iu": "v7"}}],
+        "aggregates": [{"source": 0, "operation": {"aggregate": "max"}, "iu": ["v3", ["Integer"]]}, {"source": 0, "operation": {"aggregate": "min"}, "iu": ["v4", ["Integer"]]}, {"source": 4294967295, "operation": {"aggregate": "count"}, "iu": ["v8", ["BigInt"]]}],
+        "analyze": {"pipeline": 1, "tuplecount": 0, "memory-bytes": 2048, "execution-time": 5781}
+      },
+      "values": [{"iu": ["v2", ["BigInt"]], "value": {"expression": "mul", "left": {"expression": "iuref", "iu": "v8"}, "right": {"expression": "const", "value": {"type": ["Integer"], "value": 1}}}}],
+      "analyze": {"pipeline": 1, "tuplecount": 0}
+    },
+    "condition": {"expression": "between", "arguments": [{"expression": "iuref", "iu": "v2"}, {"expression": "const", "value": {"type": ["BigInt"], "value": 30}}, {"expression": "const", "value": {"type": ["BigInt"], "value": 100000}}]},
+    "analyze": {"pipeline": 1, "tuplecount": 0}
+  },
+  "analyze": {}
+}

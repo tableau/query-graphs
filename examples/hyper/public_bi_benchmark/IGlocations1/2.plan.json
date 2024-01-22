@@ -1,0 +1,34 @@
+{
+  "operator": "executiontarget",
+  "operatorId": 1,
+  "cardinality": 100,
+  "producesRows": true,
+  "output": [{"expression": "iuref", "iu": ["v", ["Varchar", 20]]}, {"expression": "iuref", "iu": ["v2", ["BigInt"]]}],
+  "outputNames": ["State", "TEMP(Calculation_8840730155303010)(3219150654)(0)"],
+  "input": {
+    "operator": "groupby",
+    "operatorId": 2,
+    "sqlpos": [[271, 304], [73, 128]],
+    "cardinality": 100,
+    "input": {
+      "operator": "tablescan",
+      "operatorId": 3,
+      "sqlpos": [[189, 205]],
+      "cardinality": 1800,
+      "relationId": 29,
+      "schema": {"type":"sessionschema"},
+      "values": [{"name": "CENSUS2010POP", "type": ["Integer"], "iu": null}, {"name": "CONCIT", "type": ["Integer"], "iu": null}, {"name": "COUSUB", "type": ["Integer"], "iu": null}, {"name": "City", "type": ["Varchar", 57], "iu": null}, {"name": "County Code", "type": ["SmallInt"], "iu": null}, {"name": "ESTIMATESBASE2010", "type": ["Integer"], "iu": null}, {"name": "FUNCSTAT", "type": ["Varchar", 1], "iu": null}, {"name": "Number of Records", "type": ["SmallInt"], "iu": null}, {"name": "PLACE", "type": ["Integer"], "iu": null}, {"name": "POPESTIMATE2010", "type": ["Integer"], "iu": null}, {"name": "POPESTIMATE2011", "type": ["Integer"], "iu": null}, {"name": "POPESTIMATE2012", "type": ["Integer"], "iu": null}, {"name": "POPESTIMATE2013", "type": ["Integer"], "iu": null}, {"name": "POPESTIMATE2014", "type": ["Integer"], "iu": ["v3", ["Integer"]]}, {"name": "PRIMGEO_FLAG", "type": ["SmallInt"], "iu": null}, {"name": "SUMLEV", "type": ["SmallInt"], "iu": null}, {"name": "State code", "type": ["SmallInt"], "iu": null}, {"name": "State", "type": ["Varchar", 20], "iu": ["v4", ["Varchar", 20]]}],
+      "debugName": {"classification": "nonsensitive", "value": "IGlocations1_1"},
+      "restrictions": [{"attribute": 17, "mode": "lambda", "value": {"expression": "comparison", "mode": "<>", "left": {"expression": "iuref", "iu": "v4"}, "right": {"expression": "const", "value": {"type": ["Varchar", 20], "value": "District of Columbia"}}}, "value2": null}],
+      "selectivity": 0.9,
+      "analyze": {"pipeline": 2, "tuplecount": 0, "execution-time": 1805}
+    },
+    "keyExpressions": [{"expression": {"value": {"expression": "iuref", "iu": "v4"}}, "iu": ["v", ["Varchar", 20]]}],
+    "groupingSets": [{"keyIndices": [0], "coreIndices": [0], "behavior": "regular"}],
+    "emptyGroups": false,
+    "aggExpressions": [{"value": {"expression": "cast", "value": {"expression": "iuref", "iu": "v3"}, "type": ["BigInt"], "errorHandling": "trap"}}],
+    "aggregates": [{"source": 0, "operation": {"aggregate": "sum"}, "iu": ["v2", ["BigInt"]]}],
+    "analyze": {"pipeline": 1, "tuplecount": 0, "memory-bytes": 2048, "execution-time": 13625}
+  },
+  "analyze": {}
+}

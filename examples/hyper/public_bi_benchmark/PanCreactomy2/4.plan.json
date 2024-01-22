@@ -1,0 +1,44 @@
+{
+  "operator": "executiontarget",
+  "operatorId": 1,
+  "cardinality": 0.00704,
+  "producesRows": true,
+  "output": [{"expression": "iuref", "iu": ["v", ["Varchar", 70]]}, {"expression": "iuref", "iu": ["v2", ["Varchar", 2]]}, {"expression": "iuref", "iu": ["v3", ["Varchar", 43]]}, {"expression": "iuref", "iu": ["v4", ["Double", "nullable"]]}, {"expression": "iuref", "iu": ["v5", ["Double", "nullable"]]}, {"expression": "iuref", "iu": ["v6", ["Double"]]}, {"expression": "iuref", "iu": ["v7", ["Double"]]}],
+  "outputNames": ["NPPES_PROVIDER_LAST_ORG_NAME", "NPPES_PROVIDER_STATE", "PROVIDER_TYPE", "med:AVERAGE_MEDICARE_PAYMENT_AMT:ok", "med:AVERAGE_SUBMITTED_CHRG_AMT:ok", "sum:AVERAGE_MEDICARE_PAYMENT_AMT:ok", "sum:LINE_SRVC_CNT:ok"],
+  "input": {
+    "operator": "map",
+    "operatorId": 2,
+    "cardinality": 0.00704,
+    "input": {
+      "operator": "window",
+      "operatorId": 3,
+      "cardinality": 0.00704,
+      "input": {
+        "operator": "window",
+        "operatorId": 4,
+        "cardinality": 110,
+        "input": {
+          "operator": "tablescan",
+          "operatorId": 5,
+          "sqlpos": [[612, 629]],
+          "cardinality": 110,
+          "relationId": 114,
+          "schema": {"type":"sessionschema"},
+          "values": [{"name": "AVERAGE_MEDICARE_ALLOWED_AMT", "type": ["Double"], "iu": null}, {"name": "AVERAGE_MEDICARE_PAYMENT_AMT", "type": ["Double"], "iu": ["v8", ["Double"]]}, {"name": "AVERAGE_SUBMITTED_CHRG_AMT", "type": ["Double"], "iu": ["v9", ["Double"]]}, {"name": "BENE_DAY_SRVC_CNT", "type": ["Integer"], "iu": null}, {"name": "BENE_UNIQUE_CNT", "type": ["Integer"], "iu": null}, {"name": "HCPCS_CODE", "type": ["Varchar", 5], "iu": null}, {"name": "HCPCS_DESCRIPTION", "type": ["Varchar", 255], "iu": ["v10", ["Varchar", 255]]}, {"name": "HCPCS_DRUG_INDICATOR", "type": ["Varchar", 1], "iu": null}, {"name": "LINE_SRVC_CNT", "type": ["Double"], "iu": ["v11", ["Double"]]}, {"name": "MEDICARE_PARTICIPATION_INDICATOR", "type": ["Varchar", 1], "iu": null}, {"name": "NPI", "type": ["Integer"], "iu": null}, {"name": "NPPES_CREDENTIALS", "type": ["Varchar", 20], "iu": null}, {"name": "NPPES_ENTITY_CODE", "type": ["Varchar", 1], "iu": null}, {"name": "NPPES_PROVIDER_CITY", "type": ["Varchar", 28], "iu": null}, {"name": "NPPES_PROVIDER_COUNTRY", "type": ["Varchar", 2], "iu": null}, {"name": "NPPES_PROVIDER_FIRST_NAME", "type": ["Varchar", 20], "iu": null}, {"name": "NPPES_PROVIDER_GENDER", "type": ["Varchar", 1], "iu": null}, {"name": "NPPES_PROVIDER_LAST_ORG_NAME", "type": ["Varchar", 70], "iu": ["v12", ["Varchar", 70]]}, {"name": "NPPES_PROVIDER_MI", "type": ["Varchar", 1], "iu": null}, {"name": "NPPES_PROVIDER_STATE", "type": ["Varchar", 2], "iu": ["v13", ["Varchar", 2]]}, {"name": "NPPES_PROVIDER_STREET1", "type": ["Varchar", 55], "iu": null}, {"name": "NPPES_PROVIDER_STREET2", "type": ["Varchar", 55], "iu": null}, {"name": "NPPES_PROVIDER_ZIP", "type": ["Integer"], "iu": null}, {"name": "Number of Records", "type": ["SmallInt"], "iu": null}, {"name": "PLACE_OF_SERVICE", "type": ["Varchar", 1], "iu": null}, {"name": "PROVIDER_TYPE", "type": ["Varchar", 43], "iu": ["v14", ["Varchar", 43]]}, {"name": "STDEV_MEDICARE_ALLOWED_AMT", "type": ["Double"], "iu": null}, {"name": "STDEV_MEDICARE_PAYMENT_AMT", "type": ["Double"], "iu": null}, {"name": "STDEV_SUBMITTED_CHRG_AMT", "type": ["Double"], "iu": null}],
+          "debugName": {"classification": "nonsensitive", "value": "PanCreactomy2_2"},
+          "restrictions": [{"attribute": 25, "mode": "lambda", "value": {"expression": "quantor", "mode": "=some", "value": {"expression": "iuref", "iu": "v14"}, "set": [{"expression": "const", "value": {"type": ["Varchar", 43], "value": "General Surgery"}}, {"expression": "const", "value": {"type": ["Varchar", 43], "value": "Surgical Oncology"}}]}, "value2": null}, {"attribute": 6, "mode": "lambda", "value": {"expression": "quantor", "mode": "=some", "value": {"expression": "iuref", "iu": "v10"}, "set": [{"expression": "const", "value": {"type": ["Varchar", 255], "value": "Pancreas procedure"}}, {"expression": "const", "value": {"type": ["Varchar", 255], "value": "Partial removal of pancreas"}}, {"expression": "const", "value": {"type": ["Varchar", 255], "value": "Partial removal of pancreas with attachment to small bowel"}}, {"expression": "const", "value": {"type": ["Varchar", 255], "value": "Partial removal of pancreas, bile duct and small bowel with connection of pancreas to small bowel"}}]}, "value2": null}],
+          "selectivity": 0.055,
+          "analyze": {"pipeline": 3, "tuplecount": 0, "execution-time": 1275}
+        },
+        "windowInfos": [{"operation": "percentcont", "iu": ["v15", ["Double", "nullable"]], "operationOrderBy": [{"value": {"expression": "iuref", "iu": "v8"}, "descending": false, "nullFirst": true}], "fraction": 0.5, "partitionBy": [{"value": {"expression": "iuref", "iu": "v12"}}, {"value": {"expression": "iuref", "iu": "v13"}}, {"value": {"expression": "iuref", "iu": "v14"}}], "frameOrderBy": [], "rowsmode": true, "startMode": "unbounded", "endMode": "unbounded", "exclude": "noothers"}],
+        "analyze": {"pipeline": 2, "tuplecount": 0, "execution-time": 25525, "memory-bytes": 0}
+      },
+      "windowInfos": [{"operation": "percentcont", "iu": ["v16", ["Double", "nullable"]], "operationOrderBy": [{"value": {"expression": "iuref", "iu": "v9"}, "descending": false, "nullFirst": true}], "fraction": 0.5, "partitionBy": [{"value": {"expression": "iuref", "iu": "v12"}}, {"value": {"expression": "iuref", "iu": "v13"}}, {"value": {"expression": "iuref", "iu": "v14"}}], "frameOrderBy": [], "rowsmode": true, "startMode": "unbounded", "endMode": "unbounded", "exclude": "noothers"}, {"operation": "aggregate", "aggregation": {"emptyGroups": false, "aggExpressions": [{"value": {"expression": "iuref", "iu": "v8"}}, {"value": {"expression": "iuref", "iu": "v11"}}], "aggregates": [{"source": 0, "operation": {"aggregate": "sum"}, "iu": ["v6", ["Double"]]}, {"source": 1, "operation": {"aggregate": "sum"}, "iu": ["v7", ["Double"]]}]}, "partitionBy": [], "frameOrderBy": [], "rowsmode": true, "startMode": "unbounded", "endMode": "unbounded", "exclude": "noothers"}],
+      "aggregatePartitions": true,
+      "analyze": {"pipeline": 1, "tuplecount": 0, "execution-time": 16952, "memory-bytes": 0}
+    },
+    "values": [{"iu": ["v", ["Varchar", 70]], "value": {"expression": "iuref", "iu": "v12"}}, {"iu": ["v2", ["Varchar", 2]], "value": {"expression": "iuref", "iu": "v13"}}, {"iu": ["v3", ["Varchar", 43]], "value": {"expression": "iuref", "iu": "v14"}}, {"iu": ["v5", ["Double", "nullable"]], "value": {"expression": "iuref", "iu": "v16"}}, {"iu": ["v4", ["Double", "nullable"]], "value": {"expression": "iuref", "iu": "v15"}}],
+    "analyze": {"pipeline": 1, "tuplecount": 0}
+  },
+  "analyze": {}
+}

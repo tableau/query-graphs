@@ -1,0 +1,42 @@
+{
+  "operator": "executiontarget",
+  "operatorId": 1,
+  "cardinality": 100,
+  "producesRows": true,
+  "output": [{"expression": "iuref", "iu": ["v", ["Numeric", 8, 4]]}],
+  "outputNames": ["F4"],
+  "input": {
+    "operator": "sort",
+    "operatorId": 2,
+    "sqlpos": [[220, 229]],
+    "cardinality": 100,
+    "criterion": [],
+    "limit": 130,
+    "input": {
+      "operator": "groupby",
+      "operatorId": 3,
+      "sqlpos": [[206, 219]],
+      "cardinality": 100,
+      "input": {
+        "operator": "tablescan",
+        "operatorId": 4,
+        "sqlpos": [[62, 71]],
+        "cardinality": 500,
+        "relationId": 0,
+        "schema": {"type":"sessionschema"},
+        "values": [{"name": "F1", "type": ["Varchar", 3], "iu": null}, {"name": "F2", "type": ["Varchar", 5], "iu": null}, {"name": "F3", "type": ["Timestamp"], "iu": ["v2", ["Timestamp"]]}, {"name": "F4", "type": ["Numeric", 8, 4], "iu": ["v3", ["Numeric", 8, 4]]}, {"name": "F5", "type": ["Numeric", 8, 6], "iu": null}, {"name": "F6", "type": ["Varchar", 1], "iu": null}, {"name": "F7", "type": ["Varchar", 1], "iu": null}, {"name": "F8", "type": ["Numeric", 9, 6], "iu": null}, {"name": "F9", "type": ["Numeric", 9, 6], "iu": null}, {"name": "Number of Records", "type": ["SmallInt"], "iu": null}, {"name": "WNET (bin)", "type": ["SmallInt"], "iu": null}],
+        "debugName": {"classification": "nonsensitive", "value": "Arade_1"},
+        "restrictions": [{"attribute": 2, "mode": "lambda", "value": {"expression": "between", "arguments": [{"expression": "cast", "value": {"expression": "iuref", "iu": "v2"}, "type": ["Date"], "errorHandling": "trap"}, {"expression": "const", "value": {"type": ["Date"], "value": 2456948}}, {"expression": "const", "value": {"type": ["Date"], "value": 2457312}}]}, "value2": null}],
+        "selectivity": 0.25,
+        "analyze": {"pipeline": 2, "tuplecount": 0, "execution-time": 1383}
+      },
+      "keyExpressions": [{"expression": {"value": {"expression": "iuref", "iu": "v3"}}, "iu": ["v", ["Numeric", 8, 4]]}],
+      "groupingSets": [{"keyIndices": [0], "coreIndices": [0], "behavior": "regular"}],
+      "emptyGroups": false,
+      "aggregates": [],
+      "analyze": {"pipeline": 1, "tuplecount": 0, "memory-bytes": 2048, "execution-time": 16252}
+    },
+    "analyze": {"pipeline": 1, "tuplecount": 0}
+  },
+  "analyze": {}
+}

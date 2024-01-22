@@ -1,0 +1,41 @@
+{
+  "operator": "executiontarget",
+  "operatorId": 1,
+  "cardinality": 100,
+  "producesRows": true,
+  "output": [{"expression": "iuref", "iu": ["v", ["Varchar", 9]]}],
+  "outputNames": ["Jurisdicción"],
+  "input": {
+    "operator": "sort",
+    "operatorId": 2,
+    "sqlpos": [[180, 199]],
+    "cardinality": 100,
+    "criterion": [{"value": {"expression": "iuref", "iu": "v"}, "descending": false, "nullFirst": false}],
+    "input": {
+      "operator": "groupby",
+      "operatorId": 3,
+      "sqlpos": [[122, 170]],
+      "cardinality": 100,
+      "input": {
+        "operator": "tablescan",
+        "operatorId": 4,
+        "sqlpos": [[98, 121]],
+        "cardinality": 2000,
+        "relationId": 162,
+        "schema": {"type":"sessionschema"},
+        "values": [{"name": "AGRUPADOR", "type": ["Varchar", 55], "iu": null}, {"name": "Año Ingreso", "type": ["Varchar", 4], "iu": null}, {"name": "CLASE", "type": ["Varchar", 13], "iu": null}, {"name": "COD DELITO", "type": ["Double"], "iu": null}, {"name": "COD. REGIÓN", "type": ["SmallInt"], "iu": null}, {"name": "COMUNA", "type": ["Varchar", 19], "iu": null}, {"name": "CORTE", "type": ["Varchar", 17], "iu": null}, {"name": "CREA RUC", "type": ["Varchar", 9], "iu": null}, {"name": "Calculation_0520821013255406", "type": ["Varchar", 55], "iu": null}, {"name": "Calculation_0640821194248948", "type": ["Varchar", 55], "iu": null}, {"name": "Calculation_7430825124450529", "type": ["Numeric", 4], "iu": null}, {"name": "Cod. Tribunal", "type": ["SmallInt"], "iu": null}, {"name": "DELITO", "type": ["Varchar", 64], "iu": null}, {"name": "Forma Inicio", "type": ["Varchar", 25], "iu": null}, {"name": "INGRESOS", "type": ["Numeric", 4], "iu": null}, {"name": "Ingresos _ Garantia (copy)", "type": ["Numeric", 3], "iu": null}, {"name": "Jurisdicción", "type": ["Varchar", 9], "iu": ["v2", ["Varchar", 9]]}, {"name": "LATITUD", "type": ["Varchar", 19], "iu": null}, {"name": "LONGITUD", "type": ["Varchar", 19], "iu": null}, {"name": "Mes Ingreso", "type": ["Varchar", 7], "iu": null}, {"name": "Number of Records", "type": ["SmallInt"], "iu": null}, {"name": "PAÍS", "type": ["Varchar", 5], "iu": null}, {"name": "REGIÓN", "type": ["Varchar", 53], "iu": null}, {"name": "RPA", "type": ["Varchar", 3], "iu": null}, {"name": "TIPO", "type": ["Varchar", 9], "iu": null}, {"name": "TIP_TRIB", "type": ["SmallInt"], "iu": null}, {"name": "TRIBUNAL", "type": ["Varchar", 30], "iu": null}],
+        "mightScanDomain": true,
+        "debugName": {"classification": "nonsensitive", "value": "TableroSistemaPenal_7"},
+        "selectivity": 1,
+        "analyze": {"pipeline": 3, "tuplecount": 0, "execution-time": 1520}
+      },
+      "keyExpressions": [{"expression": {"value": {"expression": "iuref", "iu": "v2"}}, "iu": ["v", ["Varchar", 9]]}],
+      "groupingSets": [{"keyIndices": [0], "coreIndices": [0], "behavior": "regular"}],
+      "emptyGroups": false,
+      "aggregates": [],
+      "analyze": {"pipeline": 2, "tuplecount": 0, "memory-bytes": 2048, "execution-time": 12815}
+    },
+    "analyze": {"pipeline": 1, "tuplecount": 0, "memory-bytes": 0, "execution-time": 340}
+  },
+  "analyze": {}
+}

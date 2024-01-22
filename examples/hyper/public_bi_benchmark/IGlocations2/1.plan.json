@@ -1,0 +1,33 @@
+{
+  "operator": "executiontarget",
+  "operatorId": 1,
+  "cardinality": 180,
+  "producesRows": true,
+  "output": [{"expression": "iuref", "iu": ["v", ["Numeric", 5, 2]]}, {"expression": "iuref", "iu": ["v2", ["Numeric", 4, 2]]}],
+  "outputNames": ["Calculation_1750724145742463", "Calculation_9330724145728972"],
+  "input": {
+    "operator": "groupby",
+    "operatorId": 2,
+    "sqlpos": [[439, 546]],
+    "cardinality": 180,
+    "input": {
+      "operator": "tablescan",
+      "operatorId": 3,
+      "sqlpos": [[206, 222]],
+      "cardinality": 200,
+      "relationId": 30,
+      "schema": {"type":"sessionschema"},
+      "values": [{"name": "Number of Records", "type": ["SmallInt"], "iu": null}, {"name": "caption", "type": ["Varchar", 3688], "iu": null}, {"name": "city", "type": ["Varchar", 35], "iu": null}, {"name": "country", "type": ["Varchar", 2], "iu": null}, {"name": "created_time", "type": ["Timestamp"], "iu": null}, {"name": "id", "type": ["Integer"], "iu": null}, {"name": "latitude", "type": ["Numeric", 10, 8], "iu": null}, {"name": "like_count", "type": ["Integer"], "iu": null}, {"name": "link", "type": ["Varchar", 35], "iu": null}, {"name": "longitude", "type": ["Numeric", 11, 8], "iu": null}, {"name": "media_type", "type": ["Varchar", 5], "iu": null}, {"name": "media_url", "type": ["Varchar", 153], "iu": null}, {"name": "State (copy)", "type": ["Varchar", 16], "iu": null}, {"name": "state", "type": ["Varchar", 16], "iu": ["v3", ["Varchar", 16]]}, {"name": "username", "type": ["Varchar", 30], "iu": null}, {"name": "Calculation_1750724145742463", "type": ["Numeric", 5, 2], "iu": ["v4", ["Numeric", 5, 2]]}, {"name": "Calculation_3650724144057954", "type": ["Varchar", 8], "iu": null}, {"name": "Calculation_4370724142342227", "type": ["Varchar", 5], "iu": null}, {"name": "Calculation_8090724143600502", "type": ["Varchar", 5], "iu": null}, {"name": "Calculation_9330724145728972", "type": ["Numeric", 4, 2], "iu": ["v5", ["Numeric", 4, 2]]}],
+      "debugName": {"classification": "nonsensitive", "value": "IGlocations2_1"},
+      "restrictions": [{"attribute": 13, "mode": "lambda", "value": {"expression": "cachingexpression", "input": {"expression": "quantor", "mode": "=some", "value": {"expression": "iuref", "iu": "v3"}, "set": [{"expression": "const", "value": {"type": ["Varchar", 16], "value": "Alabama"}}, {"expression": "const", "value": {"type": ["Varchar", 16], "value": "Alaska"}}, {"expression": "const", "value": {"type": ["Varchar", 16], "value": "Arizona"}}, {"expression": "const", "value": {"type": ["Varchar", 16], "value": "Arkansas"}}, {"expression": "const", "value": {"type": ["Varchar", 16], "value": "California"}}, {"expression": "const", "value": {"type": ["Varchar", 16], "value": "Colorado"}}, {"expression": "const", "value": {"type": ["Varchar", 16], "value": "Connecticut"}}, {"expression": "const", "value": {"type": ["Varchar", 16], "value": "Delaware"}}, {"expression": "const", "value": {"type": ["Varchar", 16], "value": "Florida"}}, {"expression": "const", "value": {"type": ["Varchar", 16], "value": "Georgia"}}, {"expression": "const", "value": {"type": ["Varchar", 16], "value": "Hawaii"}}, {"expression": "const", "value": {"type": ["Varchar", 16], "value": "Idaho"}}, {"expression": "const", "value": {"type": ["Varchar", 16], "value": "Illinois"}}, {"expression": "const", "value": {"type": ["Varchar", 16], "value": "Indiana"}}, {"expression": "const", "value": {"type": ["Varchar", 16], "value": "Iowa"}}, {"expression": "const", "value": {"type": ["Varchar", 16], "value": "Kansas"}}]}, "cacheSize": 800, "estimatedDistinctKeys": 100}, "value2": null}],
+      "selectivity": 0.1,
+      "analyze": {"pipeline": 2, "tuplecount": 0, "execution-time": 1685}
+    },
+    "keyExpressions": [{"expression": {"value": {"expression": "iuref", "iu": "v4"}}, "iu": ["v", ["Numeric", 5, 2]]}, {"expression": {"value": {"expression": "iuref", "iu": "v5"}}, "iu": ["v2", ["Numeric", 4, 2]]}],
+    "groupingSets": [{"keyIndices": [0, 1], "coreIndices": [0, 1], "behavior": "regular"}],
+    "emptyGroups": false,
+    "aggregates": [],
+    "analyze": {"pipeline": 1, "tuplecount": 0, "memory-bytes": 2048, "execution-time": 11578}
+  },
+  "analyze": {}
+}

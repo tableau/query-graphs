@@ -1,0 +1,33 @@
+{
+  "operator": "executiontarget",
+  "operatorId": 1,
+  "cardinality": 1,
+  "producesRows": true,
+  "output": [{"expression": "iuref", "iu": ["v", ["Double"]]}, {"expression": "iuref", "iu": ["v2", ["BigInt"]]}],
+  "outputNames": ["sum:LINE_SRVC_CNT:ok", "sum:Number of Records:ok"],
+  "input": {
+    "operator": "groupby",
+    "operatorId": 2,
+    "sqlpos": [[34, 72], [102, 160]],
+    "cardinality": 1,
+    "input": {
+      "operator": "tablescan",
+      "operatorId": 3,
+      "sqlpos": [[196, 213]],
+      "cardinality": 107.25,
+      "relationId": 114,
+      "schema": {"type":"sessionschema"},
+      "values": [{"name": "AVERAGE_MEDICARE_ALLOWED_AMT", "type": ["Double"], "iu": null}, {"name": "AVERAGE_MEDICARE_PAYMENT_AMT", "type": ["Double"], "iu": null}, {"name": "AVERAGE_SUBMITTED_CHRG_AMT", "type": ["Double"], "iu": null}, {"name": "BENE_DAY_SRVC_CNT", "type": ["Integer"], "iu": null}, {"name": "BENE_UNIQUE_CNT", "type": ["Integer"], "iu": null}, {"name": "HCPCS_CODE", "type": ["Varchar", 5], "iu": null}, {"name": "HCPCS_DESCRIPTION", "type": ["Varchar", 255], "iu": ["v3", ["Varchar", 255]]}, {"name": "HCPCS_DRUG_INDICATOR", "type": ["Varchar", 1], "iu": null}, {"name": "LINE_SRVC_CNT", "type": ["Double"], "iu": ["v4", ["Double"]]}, {"name": "MEDICARE_PARTICIPATION_INDICATOR", "type": ["Varchar", 1], "iu": null}, {"name": "NPI", "type": ["Integer"], "iu": null}, {"name": "NPPES_CREDENTIALS", "type": ["Varchar", 20], "iu": null}, {"name": "NPPES_ENTITY_CODE", "type": ["Varchar", 1], "iu": null}, {"name": "NPPES_PROVIDER_CITY", "type": ["Varchar", 28], "iu": null}, {"name": "NPPES_PROVIDER_COUNTRY", "type": ["Varchar", 2], "iu": null}, {"name": "NPPES_PROVIDER_FIRST_NAME", "type": ["Varchar", 20], "iu": null}, {"name": "NPPES_PROVIDER_GENDER", "type": ["Varchar", 1], "iu": null}, {"name": "NPPES_PROVIDER_LAST_ORG_NAME", "type": ["Varchar", 70], "iu": null}, {"name": "NPPES_PROVIDER_MI", "type": ["Varchar", 1], "iu": null}, {"name": "NPPES_PROVIDER_STATE", "type": ["Varchar", 2], "iu": ["v5", ["Varchar", 2]]}, {"name": "NPPES_PROVIDER_STREET1", "type": ["Varchar", 55], "iu": null}, {"name": "NPPES_PROVIDER_STREET2", "type": ["Varchar", 55], "iu": null}, {"name": "NPPES_PROVIDER_ZIP", "type": ["Integer"], "iu": null}, {"name": "Number of Records", "type": ["SmallInt"], "iu": ["v6", ["SmallInt"]]}, {"name": "PLACE_OF_SERVICE", "type": ["Varchar", 1], "iu": null}, {"name": "PROVIDER_TYPE", "type": ["Varchar", 43], "iu": ["v7", ["Varchar", 43]]}, {"name": "STDEV_MEDICARE_ALLOWED_AMT", "type": ["Double"], "iu": null}, {"name": "STDEV_MEDICARE_PAYMENT_AMT", "type": ["Double"], "iu": null}, {"name": "STDEV_SUBMITTED_CHRG_AMT", "type": ["Double"], "iu": null}],
+      "debugName": {"classification": "nonsensitive", "value": "PanCreactomy2_2"},
+      "restrictions": [{"attribute": 19, "mode": "=", "value": {"expression": "const", "value": {"type": ["Varchar", 2], "value": "MO"}}}, {"attribute": 6, "mode": "lambda", "value": {"expression": "quantor", "mode": "=some", "value": {"expression": "iuref", "iu": "v3"}, "set": [{"expression": "const", "value": {"type": ["Varchar", 255], "value": "Insertion of pancreatic or bile duct drainage tube using an endoscope"}}, {"expression": "const", "value": {"type": ["Varchar", 255], "value": "Insertion of tube or stent into bile or pancreatic duct using an endoscope"}}, {"expression": "const", "value": {"type": ["Varchar", 255], "value": "Placement of catheter of gallbladder and pancreas under imaging using an endoscope"}}]}, "value2": null}, {"attribute": 25, "mode": "lambda", "value": {"expression": "quantor", "mode": "<>all", "value": {"expression": "iuref", "iu": "v7"}, "set": [{"expression": "const", "value": {"type": ["Varchar", 43], "value": ""}}, {"expression": "const", "value": {"type": ["Varchar", 43], "value": "Clinical Laboratory"}}]}, "value2": null}],
+      "selectivity": 0.053625,
+      "analyze": {"pipeline": 2, "tuplecount": 0, "execution-time": 982}
+    },
+    "groupingSets": [{"keyIndices": [], "coreIndices": [], "behavior": "regular"}],
+    "emptyGroups": false,
+    "aggExpressions": [{"value": {"expression": "iuref", "iu": "v4"}}, {"value": {"expression": "cast", "value": {"expression": "iuref", "iu": "v6"}, "type": ["BigInt"], "errorHandling": "trap"}}],
+    "aggregates": [{"source": 1, "operation": {"aggregate": "sum"}, "iu": ["v2", ["BigInt"]]}, {"source": 0, "operation": {"aggregate": "sum"}, "iu": ["v", ["Double"]]}],
+    "analyze": {"pipeline": 1, "tuplecount": 0, "memory-bytes": 0, "execution-time": 393}
+  },
+  "analyze": {}
+}
