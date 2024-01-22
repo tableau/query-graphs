@@ -1,0 +1,41 @@
+{
+  "operator": "executiontarget",
+  "operatorId": 1,
+  "cardinality": 100,
+  "producesRows": true,
+  "output": [{"expression": "iuref", "iu": ["v", ["Varchar", 8]]}],
+  "outputNames": ["polarity"],
+  "input": {
+    "operator": "sort",
+    "operatorId": 2,
+    "sqlpos": [[132, 146]],
+    "cardinality": 100,
+    "criterion": [{"value": {"expression": "iuref", "iu": "v"}, "descending": false, "nullFirst": false}],
+    "input": {
+      "operator": "groupby",
+      "operatorId": 3,
+      "sqlpos": [[90, 122]],
+      "cardinality": 100,
+      "input": {
+        "operator": "tablescan",
+        "operatorId": 4,
+        "sqlpos": [[77, 89]],
+        "cardinality": 2000,
+        "relationId": 20,
+        "schema": {"type":"sessionschema"},
+        "values": [{"name": "Number of Records", "type": ["SmallInt"], "iu": null}, {"name": "id", "type": ["Integer"], "iu": null}, {"name": "lang", "type": ["Varchar", 3], "iu": null}, {"name": "latitude", "type": ["Varchar", 12], "iu": null}, {"name": "longitude", "type": ["Varchar", 13], "iu": null}, {"name": "polarity", "type": ["Varchar", 8], "iu": ["v2", ["Varchar", 8]]}, {"name": "polarity_confidence", "type": ["Numeric", 16, 15], "iu": null}, {"name": "subjectivity", "type": ["Varchar", 10], "iu": null}, {"name": "subjectivity_confidence", "type": ["Numeric", 16, 15], "iu": null}, {"name": "tweet", "type": ["Varchar", 402], "iu": null}, {"name": "tweeted_at", "type": ["Timestamp"], "iu": null}],
+        "mightScanDomain": true,
+        "debugName": {"classification": "nonsensitive", "value": "Euro2016_1"},
+        "selectivity": 1,
+        "analyze": {"pipeline": 3, "tuplecount": 0, "execution-time": 968}
+      },
+      "keyExpressions": [{"expression": {"value": {"expression": "iuref", "iu": "v2"}}, "iu": ["v", ["Varchar", 8]]}],
+      "groupingSets": [{"keyIndices": [0], "coreIndices": [0], "behavior": "regular"}],
+      "emptyGroups": false,
+      "aggregates": [],
+      "analyze": {"pipeline": 2, "tuplecount": 0, "memory-bytes": 2048, "execution-time": 7903}
+    },
+    "analyze": {"pipeline": 1, "tuplecount": 0, "memory-bytes": 0, "execution-time": 339}
+  },
+  "analyze": {}
+}

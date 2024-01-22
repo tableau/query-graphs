@@ -1,0 +1,41 @@
+{
+  "operator": "executiontarget",
+  "operatorId": 1,
+  "cardinality": 100,
+  "producesRows": true,
+  "output": [{"expression": "iuref", "iu": ["v", ["Varchar", 4]]}],
+  "outputNames": ["league"],
+  "input": {
+    "operator": "sort",
+    "operatorId": 2,
+    "sqlpos": [[114, 126]],
+    "cardinality": 100,
+    "criterion": [{"value": {"expression": "iuref", "iu": "v"}, "descending": false, "nullFirst": false}],
+    "input": {
+      "operator": "groupby",
+      "operatorId": 3,
+      "sqlpos": [[78, 104]],
+      "cardinality": 100,
+      "input": {
+        "operator": "tablescan",
+        "operatorId": 4,
+        "sqlpos": [[69, 77]],
+        "cardinality": 2000,
+        "relationId": 87,
+        "schema": {"type":"sessionschema"},
+        "values": [{"name": "AB", "type": ["SmallInt"], "iu": null}, {"name": "AVG", "type": ["Numeric", 4, 3], "iu": null}, {"name": "BABIP", "type": ["Numeric", 4, 3], "iu": null}, {"name": "BIP", "type": ["SmallInt"], "iu": null}, {"name": "FB.", "type": ["Numeric", 4, 1], "iu": null}, {"name": "FB", "type": ["SmallInt"], "iu": null}, {"name": "GB.", "type": ["Numeric", 4, 1], "iu": null}, {"name": "GB", "type": ["SmallInt"], "iu": null}, {"name": "GIDP", "type": ["SmallInt"], "iu": null}, {"name": "HBP", "type": ["SmallInt"], "iu": null}, {"name": "HR", "type": ["SmallInt"], "iu": null}, {"name": "H", "type": ["SmallInt"], "iu": null}, {"name": "ISO", "type": ["Numeric", 4, 3], "iu": null}, {"name": "LD.", "type": ["Numeric", 4, 1], "iu": null}, {"name": "LD", "type": ["SmallInt"], "iu": null}, {"name": "Number of Records", "type": ["SmallInt"], "iu": null}, {"name": "OBP", "type": ["Numeric", 4, 3], "iu": null}, {"name": "PA", "type": ["SmallInt"], "iu": null}, {"name": "PU.", "type": ["Numeric", 4, 1], "iu": null}, {"name": "PU", "type": ["SmallInt"], "iu": null}, {"name": "SF", "type": ["SmallInt"], "iu": null}, {"name": "SH", "type": ["SmallInt"], "iu": null}, {"name": "SLG", "type": ["Numeric", 4, 3], "iu": null}, {"name": "TB", "type": ["SmallInt"], "iu": null}, {"name": "X1B", "type": ["SmallInt"], "iu": null}, {"name": "X2B", "type": ["SmallInt"], "iu": null}, {"name": "X3B", "type": ["SmallInt"], "iu": null}, {"name": "batter_name", "type": ["Varchar", 26], "iu": null}, {"name": "league", "type": ["Varchar", 4], "iu": ["v2", ["Varchar", 4]]}, {"name": "parentteam", "type": ["Varchar", 3], "iu": null}, {"name": "position", "type": ["Varchar", 14], "iu": null}, {"name": "pwRC.", "type": ["SmallInt"], "iu": null}, {"name": "teamname", "type": ["Varchar", 27], "iu": null}, {"name": "wOBA", "type": ["Numeric", 4, 3], "iu": null}, {"name": "wRAA", "type": ["Numeric", 3, 1], "iu": null}, {"name": "wRC.", "type": ["SmallInt"], "iu": null}, {"name": "wRC", "type": ["Numeric", 3, 1], "iu": null}, {"name": "year", "type": ["SmallInt"], "iu": null}, {"name": "Calculation_40532458117263387", "type": ["Numeric", 2], "iu": null}, {"name": "Calculation_40532458113208334", "type": ["Numeric", 16, 14], "iu": null}],
+        "mightScanDomain": true,
+        "debugName": {"classification": "nonsensitive", "value": "MLB_11"},
+        "selectivity": 1,
+        "analyze": {"pipeline": 3, "tuplecount": 0, "execution-time": 1363}
+      },
+      "keyExpressions": [{"expression": {"value": {"expression": "iuref", "iu": "v2"}}, "iu": ["v", ["Varchar", 4]]}],
+      "groupingSets": [{"keyIndices": [0], "coreIndices": [0], "behavior": "regular"}],
+      "emptyGroups": false,
+      "aggregates": [],
+      "analyze": {"pipeline": 2, "tuplecount": 0, "memory-bytes": 2048, "execution-time": 9686}
+    },
+    "analyze": {"pipeline": 1, "tuplecount": 0, "memory-bytes": 0, "execution-time": 302}
+  },
+  "analyze": {}
+}

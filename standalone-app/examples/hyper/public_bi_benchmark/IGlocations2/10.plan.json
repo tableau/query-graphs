@@ -1,0 +1,34 @@
+{
+  "operator": "executiontarget",
+  "operatorId": 1,
+  "cardinality": 99,
+  "producesRows": true,
+  "output": [{"expression": "iuref", "iu": ["v", ["Numeric", 5, 2]]}, {"expression": "iuref", "iu": ["v2", ["Numeric", 4, 2]]}, {"expression": "iuref", "iu": ["v3", ["Varchar", 16]]}, {"expression": "iuref", "iu": ["v4", ["BigInt"]]}],
+  "outputNames": ["Calculation_1750724145742463", "Calculation_9330724145728972", "state", "sum:like_count:ok"],
+  "input": {
+    "operator": "groupby",
+    "operatorId": 2,
+    "sqlpos": [[606, 739], [243, 293]],
+    "cardinality": 99,
+    "input": {
+      "operator": "tablescan",
+      "operatorId": 3,
+      "sqlpos": [[322, 338]],
+      "cardinality": 110,
+      "relationId": 29,
+      "schema": {"type":"sessionschema"},
+      "values": [{"name": "Number of Records", "type": ["SmallInt"], "iu": null}, {"name": "caption", "type": ["Varchar", 3688], "iu": null}, {"name": "city", "type": ["Varchar", 35], "iu": null}, {"name": "country", "type": ["Varchar", 2], "iu": null}, {"name": "created_time", "type": ["Timestamp"], "iu": null}, {"name": "id", "type": ["Integer"], "iu": null}, {"name": "latitude", "type": ["Numeric", 10, 8], "iu": null}, {"name": "like_count", "type": ["Integer"], "iu": ["v5", ["Integer"]]}, {"name": "link", "type": ["Varchar", 35], "iu": null}, {"name": "longitude", "type": ["Numeric", 11, 8], "iu": null}, {"name": "media_type", "type": ["Varchar", 5], "iu": null}, {"name": "media_url", "type": ["Varchar", 153], "iu": null}, {"name": "State (copy)", "type": ["Varchar", 16], "iu": ["v6", ["Varchar", 16]]}, {"name": "state", "type": ["Varchar", 16], "iu": ["v7", ["Varchar", 16]]}, {"name": "username", "type": ["Varchar", 30], "iu": null}, {"name": "Calculation_1750724145742463", "type": ["Numeric", 5, 2], "iu": ["v8", ["Numeric", 5, 2]]}, {"name": "Calculation_3650724144057954", "type": ["Varchar", 8], "iu": null}, {"name": "Calculation_4370724142342227", "type": ["Varchar", 5], "iu": null}, {"name": "Calculation_8090724143600502", "type": ["Varchar", 5], "iu": null}, {"name": "Calculation_9330724145728972", "type": ["Numeric", 4, 2], "iu": ["v9", ["Numeric", 4, 2]]}],
+      "debugName": {"classification": "nonsensitive", "value": "IGlocations2_2"},
+      "restrictions": [{"attribute": 12, "mode": "=", "value": {"expression": "const", "value": {"type": ["Varchar", 16], "value": "Alaska"}}}, {"attribute": 13, "mode": "lambda", "value": {"expression": "cachingexpression", "input": {"expression": "quantor", "mode": "=some", "value": {"expression": "iuref", "iu": "v7"}, "set": [{"expression": "const", "value": {"type": ["Varchar", 16], "value": "Alabama"}}, {"expression": "const", "value": {"type": ["Varchar", 16], "value": "Alaska"}}, {"expression": "const", "value": {"type": ["Varchar", 16], "value": "Arizona"}}, {"expression": "const", "value": {"type": ["Varchar", 16], "value": "Arkansas"}}, {"expression": "const", "value": {"type": ["Varchar", 16], "value": "California"}}, {"expression": "const", "value": {"type": ["Varchar", 16], "value": "Colorado"}}, {"expression": "const", "value": {"type": ["Varchar", 16], "value": "Connecticut"}}, {"expression": "const", "value": {"type": ["Varchar", 16], "value": "Delaware"}}, {"expression": "const", "value": {"type": ["Varchar", 16], "value": "Florida"}}, {"expression": "const", "value": {"type": ["Varchar", 16], "value": "Georgia"}}, {"expression": "const", "value": {"type": ["Varchar", 16], "value": "Hawaii"}}, {"expression": "const", "value": {"type": ["Varchar", 16], "value": "Idaho"}}, {"expression": "const", "value": {"type": ["Varchar", 16], "value": "Illinois"}}, {"expression": "const", "value": {"type": ["Varchar", 16], "value": "Indiana"}}, {"expression": "const", "value": {"type": ["Varchar", 16], "value": "Iowa"}}, {"expression": "const", "value": {"type": ["Varchar", 16], "value": "Kansas"}}]}, "cacheSize": 800, "estimatedDistinctKeys": 100}, "value2": null}],
+      "selectivity": 0.055,
+      "analyze": {"pipeline": 2, "tuplecount": 0, "execution-time": 1349}
+    },
+    "keyExpressions": [{"expression": {"value": {"expression": "iuref", "iu": "v8"}}, "iu": ["v", ["Numeric", 5, 2]]}, {"expression": {"value": {"expression": "iuref", "iu": "v9"}}, "iu": ["v2", ["Numeric", 4, 2]]}, {"expression": {"value": {"expression": "iuref", "iu": "v7"}}, "iu": ["v3", ["Varchar", 16]]}],
+    "groupingSets": [{"keyIndices": [0, 1, 2], "coreIndices": [0, 1, 2], "behavior": "regular"}],
+    "emptyGroups": false,
+    "aggExpressions": [{"value": {"expression": "cast", "value": {"expression": "iuref", "iu": "v5"}, "type": ["BigInt"], "errorHandling": "trap"}}],
+    "aggregates": [{"source": 0, "operation": {"aggregate": "sum"}, "iu": ["v4", ["BigInt"]]}],
+    "analyze": {"pipeline": 1, "tuplecount": 0, "memory-bytes": 2048, "execution-time": 11820}
+  },
+  "analyze": {}
+}

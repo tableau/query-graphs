@@ -1,0 +1,41 @@
+{
+  "operator": "executiontarget",
+  "operatorId": 1,
+  "cardinality": 100,
+  "producesRows": true,
+  "output": [{"expression": "iuref", "iu": ["v", ["Varchar", 4]]}],
+  "outputNames": ["homeaway"],
+  "input": {
+    "operator": "sort",
+    "operatorId": 2,
+    "sqlpos": [[120, 134]],
+    "cardinality": 100,
+    "criterion": [{"value": {"expression": "iuref", "iu": "v"}, "descending": false, "nullFirst": false}],
+    "input": {
+      "operator": "groupby",
+      "operatorId": 3,
+      "sqlpos": [[82, 110]],
+      "cardinality": 100,
+      "input": {
+        "operator": "tablescan",
+        "operatorId": 4,
+        "sqlpos": [[73, 81]],
+        "cardinality": 2000,
+        "relationId": 34,
+        "schema": {"type":"sessionschema"},
+        "values": [{"name": "AB", "type": ["SmallInt"], "iu": null}, {"name": "AVG", "type": ["Numeric", 4, 3], "iu": null}, {"name": "BABIP", "type": ["Numeric", 4, 3], "iu": null}, {"name": "BB.", "type": ["Numeric", 4, 1], "iu": null}, {"name": "BB", "type": ["SmallInt"], "iu": null}, {"name": "BIP.", "type": ["Numeric", 4, 1], "iu": null}, {"name": "BIP", "type": ["SmallInt"], "iu": null}, {"name": "Ba.", "type": ["Numeric", 4, 1], "iu": null}, {"name": "Balls", "type": ["SmallInt"], "iu": null}, {"name": "CS", "type": ["SmallInt"], "iu": null}, {"name": "Ca.", "type": ["Numeric", 4, 1], "iu": null}, {"name": "Calculation_496521908229181448", "type": ["Numeric", 4, 3], "iu": null}, {"name": "Called", "type": ["SmallInt"], "iu": null}, {"name": "F.", "type": ["Numeric", 4, 1], "iu": null}, {"name": "FB.", "type": ["Numeric", 4, 1], "iu": null}, {"name": "FB", "type": ["SmallInt"], "iu": null}, {"name": "Foul", "type": ["SmallInt"], "iu": null}, {"name": "GB.", "type": ["Numeric", 4, 1], "iu": null}, {"name": "GB", "type": ["SmallInt"], "iu": null}, {"name": "GIDP", "type": ["SmallInt"], "iu": null}, {"name": "HBP", "type": ["SmallInt"], "iu": null}, {"name": "HR", "type": ["SmallInt"], "iu": null}, {"name": "H", "type": ["SmallInt"], "iu": null}, {"name": "ISO", "type": ["Numeric", 4, 3], "iu": null}, {"name": "K.", "type": ["Numeric", 4, 1], "iu": null}, {"name": "LD.", "type": ["Numeric", 4, 1], "iu": null}, {"name": "LD", "type": ["SmallInt"], "iu": null}, {"name": "Number of Records", "type": ["SmallInt"], "iu": null}, {"name": "OBP", "type": ["Numeric", 4, 3], "iu": null}, {"name": "PA", "type": ["SmallInt"], "iu": null}, {"name": "PU.", "type": ["Numeric", 4, 1], "iu": null}, {"name": "PU", "type": ["SmallInt"], "iu": null}, {"name": "Pitches", "type": ["SmallInt"], "iu": null}, {"name": "RBI", "type": ["SmallInt"], "iu": null}, {"name": "R", "type": ["SmallInt"], "iu": null}, {"name": "SB.", "type": ["Numeric", 3, 2], "iu": null}, {"name": "SB", "type": ["SmallInt"], "iu": null}, {"name": "SF", "type": ["SmallInt"], "iu": null}, {"name": "SH", "type": ["SmallInt"], "iu": null}, {"name": "SLG", "type": ["Numeric", 4, 3], "iu": null}, {"name": "SOL", "type": ["SmallInt"], "iu": null}, {"name": "SOS", "type": ["SmallInt"], "iu": null}, {"name": "SO", "type": ["SmallInt"], "iu": null}, {"name": "Str.", "type": ["Numeric", 4, 1], "iu": null}, {"name": "Strikes", "type": ["SmallInt"], "iu": null}, {"name": "SwStr.", "type": ["Numeric", 4, 1], "iu": null}, {"name": "Swinging", "type": ["SmallInt"], "iu": null}, {"name": "TB", "type": ["SmallInt"], "iu": null}, {"name": "Wh.Sw", "type": ["Numeric", 4, 1], "iu": null}, {"name": "X1B", "type": ["SmallInt"], "iu": null}, {"name": "X2B", "type": ["SmallInt"], "iu": null}, {"name": "X3B", "type": ["SmallInt"], "iu": null}, {"name": "batter_name", "type": ["Varchar", 26], "iu": null}, {"name": "homeaway", "type": ["Varchar", 4], "iu": ["v2", ["Varchar", 4]]}, {"name": "iBB", "type": ["SmallInt"], "iu": null}, {"name": "league", "type": ["Varchar", 4], "iu": null}, {"name": "parentteam", "type": ["Varchar", 3], "iu": null}, {"name": "pwRC.", "type": ["SmallInt"], "iu": null}, {"name": "teamname", "type": ["Varchar", 27], "iu": null}, {"name": "wOBA", "type": ["Numeric", 4, 3], "iu": null}, {"name": "wRAA", "type": ["Numeric", 3, 1], "iu": null}, {"name": "wRC.", "type": ["SmallInt"], "iu": null}, {"name": "wRC", "type": ["Numeric", 3, 1], "iu": null}, {"name": "year", "type": ["SmallInt"], "iu": null}, {"name": "Calculation_40532458108895237", "type": ["Numeric", 17, 14], "iu": null}, {"name": "Calculation_40532458114994194", "type": ["Numeric", 17, 14], "iu": null}],
+        "mightScanDomain": true,
+        "debugName": {"classification": "nonsensitive", "value": "MLB_48"},
+        "selectivity": 1,
+        "analyze": {"pipeline": 3, "tuplecount": 0, "execution-time": 1486}
+      },
+      "keyExpressions": [{"expression": {"value": {"expression": "iuref", "iu": "v2"}}, "iu": ["v", ["Varchar", 4]]}],
+      "groupingSets": [{"keyIndices": [0], "coreIndices": [0], "behavior": "regular"}],
+      "emptyGroups": false,
+      "aggregates": [],
+      "analyze": {"pipeline": 2, "tuplecount": 0, "memory-bytes": 2048, "execution-time": 11155}
+    },
+    "analyze": {"pipeline": 1, "tuplecount": 0, "memory-bytes": 0, "execution-time": 335}
+  },
+  "analyze": {}
+}

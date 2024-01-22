@@ -7,6 +7,7 @@ from pathlib import Path
 
 setupFile = Path("./setup.sql")
 queriesDir = Path("./queries")
+biBenchDir = Path("./public_bi_benchmark/benchmark")
 targetDir = Path("../standalone-app/examples/")
 hyper_params = {
     "log_config": ""
@@ -24,8 +25,13 @@ def read_file(p):
         return f.read()
 
 
+def write_file(path, contents):
+   path.parent.mkdir(parents=True, exist_ok=True)
+   with open(path, "w") as f:
+       f.write(contents)
 
-def dump_plans(name, exec_stmt, get_plan):
+
+def dump_local_plans(name, exec_stmt, get_plan):
    # run setup script
    setupSql = read_file(setupFile)
    for stmt in setupSql.split(";"):
@@ -45,10 +51,40 @@ def dump_plans(name, exec_stmt, get_plan):
        if not plan:
            continue
        targetPath = targetDir / name / f.relative_to(queriesDir).with_suffix(".plan.json")
-       targetPath.parent.mkdir(parents=True, exist_ok=True)
-       with open(targetPath, "w") as f:
-           f.write(plan)
+       write_file(targetPath, plan)
 
+
+def patch_bi_bench_sql(sql):
+    sql = sql.replace("double", "double precision")
+    sql = sql.replace("CREATE TABLE", "CREATE TEMP TABLE");
+    return sql
+
+
+def dump_bi_bench_plans(name, exec_stmt, get_plan):
+    for dir in sorted(list(biBenchDir.iterdir())):
+        print(f"{name}: {dir}")
+        if name == "postgres" and dir.name in ["IGlocations1", "PanCreactomy1", "PanCreactomy2", "RealEstate2"]:
+            # Not supported by Postgres
+            continue
+        # Not supported by Hyper
+        if name == "hyper" and dir.name in ["IGlocations1", "RealEstate2"]:
+            continue
+        for tableSqlFile in (dir / "tables").iterdir():
+            tableSql = read_file(tableSqlFile)
+            tableSql = patch_bi_bench_sql(tableSql)
+            exec_stmt(tableSql)
+        for querySqlFile in (dir / "queries").iterdir():
+            querySql = read_file(querySqlFile)
+            querySql = patch_bi_bench_sql(querySql)
+            plan = get_plan(querySql, "analyze")
+            if not plan:
+                continue
+            targetPath = targetDir / name / "public_bi_benchmark" / dir.name / Path(querySqlFile.parts[-1]).with_suffix(".plan.json")
+            write_file(targetPath, plan)
+
+def dump_plans(name, exec_stmt, get_plan):
+    # dump_local_plans(name, exec_stmt, get_plan)
+    dump_bi_bench_plans(name, exec_stmt, get_plan)
 
 # Postgres
 with psycopg2.connect("port=5433") as conn:

@@ -1,0 +1,33 @@
+{
+  "operator": "executiontarget",
+  "operatorId": 1,
+  "cardinality": 100,
+  "producesRows": true,
+  "output": [{"expression": "iuref", "iu": ["v", ["Varchar", 55]]}],
+  "outputNames": ["nppes_provider_street1"],
+  "input": {
+    "operator": "groupby",
+    "operatorId": 2,
+    "sqlpos": [[231, 277]],
+    "cardinality": 100,
+    "input": {
+      "operator": "tablescan",
+      "operatorId": 3,
+      "sqlpos": [[105, 117]],
+      "cardinality": 110,
+      "relationId": 123,
+      "schema": {"type":"sessionschema"},
+      "values": [{"name": "Number of Records", "type": ["SmallInt"], "iu": null}, {"name": "average_Medicare_allowed_amt", "type": ["Double"], "iu": null}, {"name": "average_Medicare_payment_amt", "type": ["Double"], "iu": null}, {"name": "average_submitted_chrg_amt", "type": ["Double"], "iu": null}, {"name": "bene_day_srvc_cnt", "type": ["Integer"], "iu": null}, {"name": "bene_unique_cnt", "type": ["Integer"], "iu": null}, {"name": "hcpcs_code", "type": ["Integer"], "iu": null}, {"name": "hcpcs_description", "type": ["Varchar", 28], "iu": null}, {"name": "line_srvc_cnt", "type": ["Integer"], "iu": null}, {"name": "medicare_participation_indicator", "type": ["Varchar", 1], "iu": null}, {"name": "npi", "type": ["Integer"], "iu": null}, {"name": "nppes_credentials", "type": ["Varchar", 20], "iu": null}, {"name": "nppes_entity_code", "type": ["Varchar", 1], "iu": null}, {"name": "nppes_provider_city", "type": ["Varchar", 28], "iu": null}, {"name": "nppes_provider_country", "type": ["Varchar", 2], "iu": null}, {"name": "nppes_provider_first_name", "type": ["Varchar", 20], "iu": null}, {"name": "nppes_provider_gender", "type": ["Varchar", 1], "iu": null}, {"name": "nppes_provider_last_org_name", "type": ["Varchar", 70], "iu": null}, {"name": "nppes_provider_mi", "type": ["Varchar", 1], "iu": null}, {"name": "nppes_provider_state", "type": ["Varchar", 2], "iu": ["v2", ["Varchar", 2]]}, {"name": "nppes_provider_street1", "type": ["Varchar", 55], "iu": ["v3", ["Varchar", 55]]}, {"name": "nppes_provider_street2", "type": ["Varchar", 55], "iu": null}, {"name": "nppes_provider_zip", "type": ["Integer"], "iu": null}, {"name": "place_of_service", "type": ["Varchar", 1], "iu": null}, {"name": "provider_type", "type": ["Varchar", 43], "iu": ["v4", ["Varchar", 43]]}, {"name": "stdev_Medicare_allowed_amt", "type": ["Double"], "iu": null}, {"name": "stdev_Medicare_payment_amt", "type": ["Double"], "iu": null}, {"name": "stdev_submitted_chrg_amt", "type": ["Double"], "iu": null}],
+      "debugName": {"classification": "nonsensitive", "value": "Provider_8"},
+      "restrictions": [{"attribute": 19, "mode": "=", "value": {"expression": "const", "value": {"type": ["Varchar", 2], "value": "RI"}}}, {"attribute": 24, "mode": "=", "value": {"expression": "const", "value": {"type": ["Varchar", 43], "value": "Diagnostic Radiology"}}}],
+      "selectivity": 0.055,
+      "analyze": {"pipeline": 2, "tuplecount": 0, "execution-time": 1415}
+    },
+    "keyExpressions": [{"expression": {"value": {"expression": "iuref", "iu": "v3"}}, "iu": ["v", ["Varchar", 55]]}],
+    "groupingSets": [{"keyIndices": [0], "coreIndices": [0], "behavior": "regular"}],
+    "emptyGroups": false,
+    "aggregates": [],
+    "analyze": {"pipeline": 1, "tuplecount": 0, "memory-bytes": 2048, "execution-time": 11482}
+  },
+  "analyze": {}
+}

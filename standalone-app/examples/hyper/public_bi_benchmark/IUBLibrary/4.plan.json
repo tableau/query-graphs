@@ -1,0 +1,32 @@
+{
+  "operator": "executiontarget",
+  "operatorId": 1,
+  "cardinality": 1800,
+  "producesRows": true,
+  "output": [{"expression": "iuref", "iu": ["v", ["Varchar", 8]]}, {"expression": "iuref", "iu": ["v2", ["Varchar", 8]]}, {"expression": "iuref", "iu": ["v3", ["Varchar", 2]]}],
+  "outputNames": ["Inactive (group)", "Inactive", "Sh"],
+  "input": {
+    "operator": "groupby",
+    "operatorId": 2,
+    "sqlpos": [[184, 276]],
+    "cardinality": 1800,
+    "input": {
+      "operator": "tablescan",
+      "operatorId": 3,
+      "sqlpos": [[169, 183]],
+      "cardinality": 2000,
+      "relationId": 31,
+      "schema": {"type":"sessionschema"},
+      "values": [{"name": "Author", "type": ["Varchar", 117], "iu": null}, {"name": "CallNumber", "type": ["Varchar", 32], "iu": null}, {"name": "CallSequence", "type": ["SmallInt"], "iu": null}, {"name": "CatalogKey", "type": ["Integer"], "iu": null}, {"name": "ClasscodeLCSUDOCNLM", "type": ["Varchar", 2], "iu": null}, {"name": "CopyNumber", "type": ["SmallInt"], "iu": null}, {"name": "DateLastCharged", "type": ["Date"], "iu": null}, {"name": "DateofPublication260c", "type": ["Varchar", 17], "iu": null}, {"name": "Format", "type": ["Varchar", 6], "iu": null}, {"name": "Inactive", "type": ["Varchar", 8], "iu": ["v4", ["Varchar", 8]]}, {"name": "ItemCreatedDate", "type": ["Date"], "iu": null}, {"name": "ItemType", "type": ["Varchar", 6], "iu": null}, {"name": "Language", "type": ["Varchar", 3], "iu": null}, {"name": "LastActivityDate", "type": ["Date"], "iu": null}, {"name": "Library", "type": ["Varchar", 7], "iu": null}, {"name": "MARCkey", "type": ["Integer"], "iu": null}, {"name": "OCLC", "type": ["Integer"], "iu": null}, {"name": "PubYear", "type": ["SmallInt"], "iu": null}, {"name": "Sh", "type": ["Varchar", 2], "iu": ["v5", ["Varchar", 2]]}, {"name": "TitleControlNumber", "type": ["Varchar", 9], "iu": null}, {"name": "TitleCreatedDate", "type": ["Date"], "iu": null}, {"name": "Title", "type": ["Varchar", 118], "iu": null}, {"name": "TotalCharges", "type": ["SmallInt"], "iu": null}, {"name": "Type", "type": ["Varchar", 1], "iu": null}, {"name": "elvingKey", "type": ["Varchar", 53], "iu": null}, {"name": "Inactive (group)", "type": ["Varchar", 8], "iu": ["v6", ["Varchar", 8]]}, {"name": "Calculation_649925789325832192", "type": ["Varchar", 1], "iu": null}],
+      "debugName": {"classification": "nonsensitive", "value": "IUBLibrary_1"},
+      "selectivity": 1,
+      "analyze": {"pipeline": 2, "tuplecount": 0, "execution-time": 561}
+    },
+    "keyExpressions": [{"expression": {"value": {"expression": "iuref", "iu": "v6"}}, "iu": ["v", ["Varchar", 8]]}, {"expression": {"value": {"expression": "iuref", "iu": "v4"}}, "iu": ["v2", ["Varchar", 8]]}, {"expression": {"value": {"expression": "iuref", "iu": "v5"}}, "iu": ["v3", ["Varchar", 2]]}],
+    "groupingSets": [{"keyIndices": [0, 1, 2], "coreIndices": [0, 1, 2], "behavior": "regular"}],
+    "emptyGroups": false,
+    "aggregates": [],
+    "analyze": {"pipeline": 1, "tuplecount": 0, "memory-bytes": 2048, "execution-time": 5560}
+  },
+  "analyze": {}
+}

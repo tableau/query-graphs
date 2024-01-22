@@ -1,0 +1,26 @@
+{
+  "operator": "executiontarget",
+  "operatorId": 1,
+  "cardinality": 0,
+  "producesRows": true,
+  "output": [{"expression": "iuref", "iu": ["v", ["Numeric", 16, 14]]}],
+  "outputNames": ["Latitud AUTO PREV"],
+  "input": {
+    "operator": "sort",
+    "operatorId": 2,
+    "sqlpos": [[169, 176]],
+    "cardinality": 0,
+    "criterion": [],
+    "limit": 1,
+    "input": {
+      "operator": "tableconstruction",
+      "operatorId": 3,
+      "cardinality": 0,
+      "output": [["v", ["Numeric", 16, 14]]],
+      "values": [],
+      "analyze": {"pipeline": 1, "tuplecount": 0, "execution-time": 143}
+    },
+    "analyze": {"pipeline": 1, "tuplecount": 0}
+  },
+  "analyze": {}
+}
