@@ -1,0 +1,53 @@
+{
+  "operator": "executiontarget",
+  "operatorId": 1,
+  "cardinality": 200,
+  "producesRows": true,
+  "output": [{"expression": "iuref", "iu": ["v", ["Integer"]]}, {"expression": "iuref", "iu": ["v2", ["BigInt"]]}, {"expression": "iuref", "iu": ["v3", ["Numeric", 14, 4]]}],
+  "outputNames": ["a1", "sum", "avg"],
+  "input": {
+    "operator": "unionall",
+    "operatorId": 2,
+    "sqlpos": [[105, 114]],
+    "cardinality": 200,
+    "input": [{
+      "operator": "explicitscan",
+      "operatorId": 3,
+      "sqlpos": [[101, 104]],
+      "cardinality": 100,
+      "mapping": [{"source": {"expression": "iuref", "iu": ["v4", ["Integer"]]}, "target": ["v5", ["Integer"]]}, {"source": {"expression": "iuref", "iu": ["v6", ["BigInt"]]}, "target": ["v7", ["BigInt"]]}, {"source": {"expression": "iuref", "iu": ["v8", ["Numeric", 14, 4]]}, "target": ["v9", ["Numeric", 14, 4]]}],
+      "input": {
+        "operator": "groupby",
+        "operatorId": 4,
+        "sqlpos": [[73, 84], [42, 49], [51, 58]],
+        "cardinality": 100,
+        "input": {
+          "operator": "tablescan",
+          "operatorId": 5,
+          "sqlpos": [[67, 69]],
+          "cardinality": 2000,
+          "relationId": 0,
+          "schema": {"type":"sessionschema"},
+          "values": [{"name": "a1", "type": ["Integer"], "iu": ["v10", ["Integer"]]}, {"name": "b1", "type": ["Integer"], "iu": ["v11", ["Integer"]]}, {"name": "c1", "type": ["Integer"], "iu": ["v12", ["Integer"]]}],
+          "debugName": {"classification": "nonsensitive", "value": "t1"},
+          "selectivity": 1
+        },
+        "keyExpressions": [{"expression": {"value": {"expression": "iuref", "iu": "v10"}}, "iu": ["v4", ["Integer"]]}],
+        "groupingSets": [{"keyIndices": [0], "coreIndices": [0], "behavior": "regular"}],
+        "emptyGroups": false,
+        "aggExpressions": [{"value": {"expression": "iuref", "iu": "v11"}}, {"value": {"expression": "iuref", "iu": "v12"}}],
+        "aggregates": [{"source": 1, "operation": {"aggregate": "avg"}, "iu": ["v8", ["Numeric", 14, 4]]}, {"source": 0, "operation": {"aggregate": "sum"}, "iu": ["v6", ["BigInt"]]}]
+      }
+    }, {
+      "operator": "explicitscan",
+      "operatorId": 6,
+      "sqlpos": [[129, 132]],
+      "cardinality": 100,
+      "mapping": [{"source": {"expression": "iuref", "iu": "v4"}, "target": ["v13", ["Integer"]]}, {"source": {"expression": "iuref", "iu": "v6"}, "target": ["v14", ["BigInt"]]}, {"source": {"expression": "iuref", "iu": "v8"}, "target": ["v15", ["Numeric", 14, 4]]}],
+      "input": 4
+    }],
+    "ius": [["v", ["Integer"]], ["v2", ["BigInt"]], ["v3", ["Numeric", 14, 4]]],
+    "values": [[{"expression": "iuref", "iu": "v5"}, {"expression": "iuref", "iu": "v7"}, {"expression": "iuref", "iu": "v9"}], [{"expression": "iuref", "iu": "v13"}, {"expression": "iuref", "iu": "v14"}, {"expression": "iuref", "iu": "v15"}]],
+    "collates": [null, null, null]
+  }
+}
