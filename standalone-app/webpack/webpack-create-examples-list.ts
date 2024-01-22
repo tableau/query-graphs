@@ -38,7 +38,7 @@ async function generateSubDirList(dirPath: string, createLink: CreateLink): Prom
 }
 
 async function generateExamplesList(dirPath: string, createLink: CreateLink) {
-    let html = "<html><head><title>Favorites</title></head><body><h1>Favorites</h1><ul>";
+    let html = "<html><head><title>Example Query Plans</title></head><body><h1>Example Query Plans</h1><ul>";
     html += await generateSubDirList(dirPath, createLink);
     html += "</ul></body></html>";
     return html;
