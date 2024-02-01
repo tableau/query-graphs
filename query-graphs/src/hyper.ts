@@ -214,7 +214,7 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
         } as TreeNode;
 
         // Information on the execution time
-        const execTime = tryGetPropertyPath(rawNode, ["analyze", "tuplecount"]);
+        const execTime = tryGetPropertyPath(rawNode, ["analyze", "execution-time"]);
         if (typeof execTime === "number") {
             conversionState.runtimes.push({node: convertedNode, time: execTime});
         }
