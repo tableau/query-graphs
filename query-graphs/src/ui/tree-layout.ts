@@ -26,7 +26,6 @@ export function layoutTree(
     expandedSubtrees: Record<string, boolean>,
     resizeObserver: ResizeObserver,
 ): TreeLayout {
-    console.log("layout");
     const root = d3hierarchy.hierarchy(treeData.root, (d) => {
         if (expandedSubtrees[nodeIds.get(d)!] && d.collapsedChildren) {
             return (d.children ?? []).concat(d.collapsedChildren);
@@ -36,7 +35,6 @@ export function layoutTree(
 
     // Layout the tree
     const heighOffset = 60;
-    console.log({heighOffset});
     const treelayout = d3flextree
         .flextree<treeDescription.TreeNode>()
         .nodeSize((d) => {
