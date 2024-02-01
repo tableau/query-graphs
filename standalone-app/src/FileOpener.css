@@ -2,7 +2,6 @@
     min-height: 100%;
     background: var(--primary-bg-color);
     color: var(--primary-fg-color);
-    padding: 2em;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -14,6 +13,7 @@
 }
 
 .file-selection-page .caption {
+    margin-top: 2em;
     font-size: 2em;
     margin-bottom: .5em;
 }
@@ -88,6 +88,20 @@
 /* Submit button */
 .file-selection-page button {
     border-radius: var(--border-radius);
+}
+
+.file-selection-page > .dragging-operlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.2);
+    border: .3em dashed #aaa;
+    border-radius: .6em;
+    padding-top: 20vh;
+    font-weight: bold;
+    text-align: center;
+    font-size: 3em;
+    color: rgba(0, 0, 0, .6);
 }
 
 /* Spinner */

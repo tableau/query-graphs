@@ -2,6 +2,7 @@ import React, {useCallback, useEffect, useMemo, useState} from "react";
 
 import "./FileOpener.css";
 import {assert} from "./assert";
+import classcat from "classcat";
 
 export interface FileOpenerData {
     content: string;
@@ -99,6 +100,29 @@ export function useLoadStateController(): LoadStateController {
     }, [loadState, clearLoadState, setProgress, setError, tryAndDisplayErrors]);
 }
 
+interface FileDropState {
+    dragging: boolean;
+    onDragOver: (e: React.DragEvent<HTMLElement>) => void;
+    onDragLeave: (e: React.SyntheticEvent) => void;
+}
+
+function useFileDrop(): FileDropState {
+    const [dragging, setDragOver] = useState(false);
+
+    const onDragOver = (e: React.DragEvent<HTMLElement>) => {
+        e.preventDefault();
+        setDragOver(e.dataTransfer.types.length == 1 && e.dataTransfer.types[0] == "Files");
+    };
+
+    const onDragLeave = () => setDragOver(false);
+
+    return {
+        dragging,
+        onDragOver,
+        onDragLeave,
+    };
+}
+
 interface FileOpenerProps {
     /// Callback called with the selected data.
     /// Might throw an `Exception` if it can't open the received file.
@@ -111,10 +135,11 @@ interface FileOpenerProps {
 
 export function FileOpener({setData, validate, loadStateController}: FileOpenerProps) {
     const {loadState, clearLoadState, tryAndDisplayErrors, setError} = loadStateController;
+    const {dragging, onDragOver, onDragLeave} = useFileDrop();
     const [planString, setPlanString] = useState<string>("");
 
+    // Re-validate the current string whenever it's updated
     useEffect(() => {
-        console.log("validate", planString);
         if (planString === "") {
             clearLoadState();
         } else {
@@ -137,9 +162,17 @@ export function FileOpener({setData, validate, loadStateController}: FileOpenerP
         [setPlanString],
     );
 
+    const submit = useCallback(async () => {
+        if (planString.trim() === "") return;
+        await tryAndDisplayErrors(async () => {
+            await setData({content: planString});
+            clearLoadState();
+        });
+    }, [planString, setData, tryAndDisplayErrors, clearLoadState]);
+
+    // If pasting into an empty input area, try to auto-submit on paste events
     const onPaste = useCallback(
         async (e: React.ClipboardEvent) => {
-            // If pasting into an empty input area, try to auto-submit on paste events
             if (planString === "") {
                 await tryAndDisplayErrors(async () => {
                     await setData(await getTextFromPasteEvent(e));
@@ -150,14 +183,7 @@ export function FileOpener({setData, validate, loadStateController}: FileOpenerP
         [planString, setData, clearLoadState, tryAndDisplayErrors],
     );
 
-    const submit = useCallback(async () => {
-        if (planString.trim() === "") return;
-        await tryAndDisplayErrors(async () => {
-            await setData({content: planString});
-            clearLoadState();
-        });
-    }, [planString, setData, tryAndDisplayErrors, clearLoadState]);
-
+    // Auto-submit on Ctrl/Cmd-Enter
     const onKeyDown = useCallback(
         (e: React.KeyboardEvent) => {
             if (e.key == "Enter" && (e.ctrlKey || e.metaKey)) {
@@ -165,6 +191,31 @@ export function FileOpener({setData, validate, loadStateController}: FileOpenerP
             }
         },
         [submit],
+    );
+
+    // Allow dropping text
+    const onDrop = useCallback(
+        async (e: React.DragEvent<HTMLElement>) => {
+            if (e.dataTransfer.types.length != 1 || e.dataTransfer.types[0] != "Files") {
+                return;
+            }
+            e.preventDefault();
+            onDragLeave(e);
+
+            const file = e.dataTransfer.items[0].getAsFile();
+            if (!file) {
+                alert("No File");
+                return;
+            }
+
+            await tryAndDisplayErrors(async () => {
+                const content = await readTextFromFile(file);
+                setPlanString(content);
+                await setData({content, fileName: file.name});
+                clearLoadState();
+            });
+        },
+        [clearLoadState, onDragLeave, setData, tryAndDisplayErrors],
     );
 
     if (loadState.state == "loading") {
@@ -179,8 +230,12 @@ export function FileOpener({setData, validate, loadStateController}: FileOpenerP
         if (loadState.state == "error") {
             renderedError = <div className="load-error">{loadState.detail}</div>;
         }
+        let dragOverlay;
+        if (dragging) {
+            dragOverlay = <div className="dragging-operlay">Drop your plan here...</div>;
+        }
         return (
-            <div className="file-selection-page">
+            <div className={classcat("file-selection-page")} onDragOver={onDragOver} onDragLeave={onDragLeave} onDrop={onDrop}>
                 <div className="caption">
                     <img className="logo" src="query-graphs-logo.svg" />
                     Query Graphs
@@ -197,7 +252,7 @@ export function FileOpener({setData, validate, loadStateController}: FileOpenerP
                             onPaste={onPaste}
                             onKeyDown={onKeyDown}
                         ></textarea>
-                        <div className="textarea-hint">Paste your query plan, either the textual contents or a file</div>
+                        <div className="textarea-hint">Paste your query plan. To open a file, use drag & drop.</div>
                     </div>
                     <button onClick={submit} disabled={submitDisabled}>
                         Parse and Visualize Plan
@@ -207,6 +262,7 @@ export function FileOpener({setData, validate, loadStateController}: FileOpenerP
                         Open-sourced on <a href="https://github.com/tableau/query-graphs">Github</a>
                     </div>
                 </div>
+                {dragOverlay}
             </div>
         );
     }
