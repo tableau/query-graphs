@@ -35,7 +35,8 @@
   transition-duration: .5s;
 }
 
-.query-graph .react-flow__edge.qg-crosslink:hover .react-flow__edge-path {
+.query-graph .react-flow__edge.qg-crosslink:hover .react-flow__edge-path,
+.query-graph .react-flow__edge.qg-crosslink:focus .react-flow__edge-path {
   stroke: hsl(309, 84%, 36%);
   stroke-width: 1.5px;
   stroke-dasharray: 6 2;

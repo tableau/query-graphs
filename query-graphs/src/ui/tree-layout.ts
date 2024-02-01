@@ -84,6 +84,7 @@ export function layoutTree(
             label: e.target.data.edgeLabel,
             className: e.target.data.edgeClass,
             style: style,
+            focusable: false,
         } as Edge;
     });
 
@@ -106,6 +107,7 @@ export function layoutTree(
             source: sourceId,
             target: targetId,
             className: "qg-crosslink",
+            focusable: true,
         });
     }
 

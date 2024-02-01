@@ -89,7 +89,6 @@ function QueryGraphInternal({treeDescription}: QueryGraphProps) {
             elementsSelectable={true}
             nodesDraggable={false}
             nodesConnectable={false}
-            edgesFocusable={false}
             nodesFocusable={false}
             className={"query-graph"}
         >
