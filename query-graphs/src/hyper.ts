@@ -136,9 +136,6 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
                 nodeTag = val;
                 renderingConfig = nodeRenderingConfig[`exp:${nodeTag}`] ?? {};
             }
-        } else {
-            // Just inherit the parent key by default
-            nodeTag = parentKey;
         }
 
         // Display these properties always as properties, even if they are more complex
@@ -185,15 +182,27 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
             // Display as part of the tree
             const children = isAlwaysExpanded(rawNode, key) ? expandedChildren : collapsedChildren;
             const innerNodes = convertHyperNode(rawNode[key], key, conversionState);
-            const innerNodesArray = Array.isArray(innerNodes) ? innerNodes : [innerNodes];
             if (fixedChildOrder.indexOf(key) != -1) {
-                // Flatten the array, in case it's one of the "fixedChildOrder" keys
-                Array.prototype.push.apply(children, innerNodesArray);
+                if (Array.isArray(innerNodes)) {
+                    // Flatten the array, in case it's one of the "fixedChildOrder" keys
+                    Array.prototype.push.apply(children, innerNodes);
+                } else {
+                    // The `key` itself is not inserted as an intermediate node.
+                    if (!innerNodes.name) {
+                        innerNodes.name = key;
+                    }
+                    children.push(innerNodes);
+                }
             } else if (Array.isArray(innerNodes)) {
                 // Array-valued children are collapsed by default, to avoid displaying too many properties all at once.
-                children.push({name: key, collapsedChildren: innerNodesArray});
+                children.push({name: key, collapsedChildren: innerNodes});
+            } else if (!innerNodes.name) {
+                // Single node without a name? Set the name and as a child.
+                innerNodes.name = key;
+                children.push(innerNodes);
             } else {
-                children.push({name: key, children: innerNodesArray});
+                // Single node which already has a name? Add as a nested node.
+                children.push({name: key, children: [innerNodes]});
             }
         }
 
@@ -261,15 +270,13 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
         const listOfObjects = [] as TreeNode[];
         for (let index = 0; index < rawNode.length; ++index) {
             const value = rawNode[index];
-            const innerNode = convertHyperNode(value, parentKey + "." + index.toString(), conversionState);
-            // objectify nested arrays
+            const name = `${parentKey}.${index}`;
+            let innerNode = convertHyperNode(value, name, conversionState);
             if (Array.isArray(innerNode)) {
-                innerNode.forEach((value) => {
-                    listOfObjects.push(value);
-                });
-            } else {
-                listOfObjects.push(innerNode);
+                innerNode = {children: innerNode};
             }
+            if (!innerNode.name) innerNode.name = name;
+            listOfObjects.push(innerNode);
         }
         return listOfObjects;
     }
