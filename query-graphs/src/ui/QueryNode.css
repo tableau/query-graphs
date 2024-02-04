@@ -89,3 +89,10 @@
 .qg-prop-name {
     color: hsl(0, 0%, 50%);
 }
+
+.qg-prop-value {
+    -webkit-user-select: all;  
+    -moz-user-select: all;     
+    -ms-user-select: all;      
+    user-select: all;
+}
