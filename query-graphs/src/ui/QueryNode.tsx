@@ -55,7 +55,7 @@ function QueryNode({data, id}: NodeProps<NodeData>) {
     for (const [key, value] of (data.properties || []).entries()) {
         children.push(
             <div key={key}>
-                <span className="qg-prop-name">{key}:</span> {value}
+                <span className="qg-prop-name">{key}:</span> <span className="qg-prop-value">{value}</span>
             </div>,
         );
     }
