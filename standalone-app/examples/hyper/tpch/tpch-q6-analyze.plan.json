@@ -21,13 +21,13 @@
       "debugName": {"classification": "nonsensitive", "value": "lineitem"},
       "restrictions": [{"attribute": 6, "mode": "[]", "value": {"expression": "const", "value": {"type": ["Numeric", 12, 2], "value": 5}}, "value2": {"expression": "const", "value": {"type": ["Numeric", 12, 2], "value": 7}}}, {"attribute": 10, "mode": "[)", "value": {"expression": "const", "value": {"type": ["Date"], "value": 2449354}}, "value2": {"expression": "const", "value": {"type": ["Date"], "value": 2449719}}}, {"attribute": 4, "mode": "<", "value": {"expression": "const", "value": {"type": ["Numeric", 12, 2], "value": 2400}}}],
       "selectivity": 0.034965,
-      "analyze": {"pipeline": 2, "tuplecount": 20, "execution-time": 32656}
+      "analyze": {"pipeline": 2, "tuple-count": 20, "execution-time": 32656}
     },
     "groupingSets": [{"keyIndices": [], "coreIndices": null, "behavior": "static"}],
     "emptyGroups": true,
     "aggExpressions": [{"value": {"expression": "mul", "left": {"expression": "iuref", "iu": "v3"}, "right": {"expression": "iuref", "iu": "v4"}}}],
     "aggregates": [{"source": 0, "operation": {"aggregate": "sum"}, "iu": ["v", ["BigNumeric", 38, 4, "nullable"]]}],
-    "analyze": {"pipeline": 1, "tuplecount": 1, "memory-bytes": 0, "execution-time": 312}
+    "analyze": {"pipeline": 1, "tuple-count": 1, "memory-bytes": 0, "execution-time": 312}
   },
   "analyze": {}
 }

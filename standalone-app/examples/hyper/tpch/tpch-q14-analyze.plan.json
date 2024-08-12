@@ -32,7 +32,7 @@
           "debugName": {"classification": "nonsensitive", "value": "lineitem"},
           "restrictions": [{"attribute": 10, "mode": "[)", "value": {"expression": "const", "value": {"type": ["Date"], "value": 2449962}}, "value2": {"expression": "const", "value": {"type": ["Date"], "value": 2449992}}}],
           "selectivity": 0.0192308,
-          "analyze": {"pipeline": 3, "tuplecount": 11, "execution-time": 22935}
+          "analyze": {"pipeline": 3, "tuple-count": 11, "execution-time": 22935}
         },
         "right": {
           "operator": "tablescan",
@@ -45,19 +45,19 @@
           "debugName": {"classification": "nonsensitive", "value": "part"},
           "earlyProbes": [{"builder": 4, "attributes": [0], "type": "lookup"}],
           "selectivity": 1,
-          "analyze": {"pipeline": 2, "tuplecount": 14, "execution-time": 35590}
+          "analyze": {"pipeline": 2, "tuple-count": 14, "execution-time": 35590}
         },
         "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v2"}, "right": {"expression": "iuref", "iu": "v6"}},
-        "analyze": {"pipeline": 2, "tuplecount": 11, "memory-bytes": 18456}
+        "analyze": {"pipeline": 2, "tuple-count": 11, "memory-bytes": 18456}
       },
       "groupingSets": [{"keyIndices": [], "coreIndices": null, "behavior": "static"}],
       "emptyGroups": true,
       "aggExpressions": [{"value": {"expression": "case", "cases": [{"case": {"expression": "like", "arguments": [{"expression": "iuref", "iu": "v7"}, {"expression": "const", "value": {"type": ["Varchar"], "value": "PROMO%"}}, {"expression": "const", "value": {"type": ["Varchar"], "value": "\\"}}]}, "value": {"expression": "mul", "left": {"expression": "sub", "left": {"expression": "const", "value": {"type": ["Integer"], "value": 1}}, "right": {"expression": "iuref", "iu": "v4"}}, "right": {"expression": "iuref", "iu": "v3"}}}], "else": {"expression": "const", "value": {"type": ["BigNumeric", 25, 4], "low": 0, "high": 0}}}}, {"value": {"expression": "mul", "left": {"expression": "sub", "left": {"expression": "const", "value": {"type": ["Integer"], "value": 1}}, "right": {"expression": "iuref", "iu": "v4"}}, "right": {"expression": "iuref", "iu": "v3"}}}],
       "aggregates": [{"source": 1, "operation": {"aggregate": "sum"}, "iu": ["v8", ["BigNumeric", 38, 4, "nullable"]]}, {"source": 0, "operation": {"aggregate": "sum"}, "iu": ["v9", ["BigNumeric", 38, 4, "nullable"]]}],
-      "analyze": {"pipeline": 1, "tuplecount": 1, "memory-bytes": 0, "execution-time": 324}
+      "analyze": {"pipeline": 1, "tuple-count": 1, "memory-bytes": 0, "execution-time": 324}
     },
     "values": [{"iu": ["v", ["BigNumeric", 38, 4, "nullable"]], "value": {"expression": "div", "left": {"expression": "mul", "left": {"expression": "iuref", "iu": "v9"}, "right": {"expression": "const", "value": {"type": ["Numeric", 5, 2], "value": 10000}}}, "right": {"expression": "iuref", "iu": "v8"}}}],
-    "analyze": {"pipeline": 1, "tuplecount": 1}
+    "analyze": {"pipeline": 1, "tuple-count": 1}
   },
   "analyze": {}
 }

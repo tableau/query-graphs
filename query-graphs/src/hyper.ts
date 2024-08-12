@@ -231,7 +231,11 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
         // Display the cardinality on the links between the nodes
         if (hasOwnProperty(rawNode, "cardinality") && typeof rawNode.cardinality === "number") {
             const estimatedCard = rawNode.cardinality;
-            const actualCard = tryGetPropertyPath(rawNode, ["analyze", "tuplecount"]);
+            let actualCard = tryGetPropertyPath(rawNode, ["analyze", "tuple-count"]);
+            if (actualCard === undefined) {
+                // Backwards-compat: until recently, this was `tuple-count`, not `tuple-count`
+                actualCard = tryGetPropertyPath(rawNode, ["analyze", "tuple-count"]);
+            }
             if (typeof actualCard === "number") {
                 conversionState.edgeWidths.push({node: convertedNode, width: actualCard});
                 convertedNode.edgeLabel = formatMetric(actualCard) + "/" + formatMetric(estimatedCard);
