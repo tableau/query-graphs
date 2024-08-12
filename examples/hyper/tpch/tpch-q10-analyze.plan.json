@@ -46,7 +46,7 @@
               "debugName": {"classification": "nonsensitive", "value": "orders"},
               "restrictions": [{"attribute": 4, "mode": "[)", "value": {"expression": "const", "value": {"type": ["Date"], "value": 2449262}}, "value2": {"expression": "const", "value": {"type": ["Date"], "value": 2449354}}}],
               "selectivity": 0.0703125,
-              "analyze": {"pipeline": 6, "tuplecount": 9, "execution-time": 26758}
+              "analyze": {"pipeline": 6, "tuple-count": 9, "execution-time": 26758}
             },
             "right": {
               "operator": "tablescan",
@@ -59,10 +59,10 @@
               "debugName": {"classification": "nonsensitive", "value": "customer"},
               "earlyProbes": [{"builder": 6, "attributes": [0], "type": "lookup"}],
               "selectivity": 1,
-              "analyze": {"pipeline": 5, "tuplecount": 9, "execution-time": 27623}
+              "analyze": {"pipeline": 5, "tuple-count": 9, "execution-time": 27623}
             },
             "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v12"}, "right": {"expression": "iuref", "iu": "v10"}},
-            "analyze": {"pipeline": 5, "tuplecount": 9, "memory-bytes": 18456}
+            "analyze": {"pipeline": 5, "tuple-count": 9, "memory-bytes": 18456}
           },
           "right": {
             "operator": "tablescan",
@@ -75,10 +75,10 @@
             "debugName": {"classification": "nonsensitive", "value": "nation"},
             "earlyProbes": [{"builder": 5, "attributes": [0], "type": "lookup"}],
             "selectivity": 1,
-            "analyze": {"pipeline": 4, "tuplecount": 9, "execution-time": 37544}
+            "analyze": {"pipeline": 4, "tuple-count": 9, "execution-time": 37544}
           },
           "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v15"}, "right": {"expression": "iuref", "iu": "v19"}},
-          "analyze": {"pipeline": 4, "tuplecount": 9, "memory-bytes": 18456}
+          "analyze": {"pipeline": 4, "tuple-count": 9, "memory-bytes": 18456}
         },
         "right": {
           "operator": "tablescan",
@@ -92,19 +92,19 @@
           "restrictions": [{"attribute": 8, "mode": "=", "value": {"expression": "const", "value": {"type": ["Char1"], "value": 82}}}],
           "earlyProbes": [{"builder": 4, "attributes": [0], "type": "lookup"}],
           "selectivity": 0.265734,
-          "analyze": {"pipeline": 3, "tuplecount": 25, "execution-time": 39892}
+          "analyze": {"pipeline": 3, "tuple-count": 25, "execution-time": 39892}
         },
         "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v21"}, "right": {"expression": "iuref", "iu": "v9"}},
-        "analyze": {"pipeline": 3, "tuplecount": 23, "memory-bytes": 18456}
+        "analyze": {"pipeline": 3, "tuple-count": 23, "memory-bytes": 18456}
       },
       "keyExpressions": [{"expression": {"value": {"expression": "iuref", "iu": "v12"}}, "iu": ["v", ["Integer"]]}, {"expression": {"value": {"expression": "iuref", "iu": "v13"}}, "iu": ["v2", ["Varchar", 25]]}, {"expression": {"value": {"expression": "iuref", "iu": "v17"}}, "iu": ["v4", ["Numeric", 12, 2]]}, {"expression": {"value": {"expression": "iuref", "iu": "v16"}}, "iu": ["v7", ["Char", 15]]}, {"expression": {"value": {"expression": "iuref", "iu": "v20"}}, "iu": ["v5", ["Char", 25]]}, {"expression": {"value": {"expression": "iuref", "iu": "v14"}}, "iu": ["v6", ["Varchar", 40]]}, {"expression": {"value": {"expression": "iuref", "iu": "v18"}}, "iu": ["v8", ["Varchar", 117]]}],
       "groupingSets": [{"keyIndices": [0, 1, 2, 3, 4, 5, 6], "coreIndices": [0, 1, 2, 3, 4, 5, 6], "behavior": "regular"}],
       "emptyGroups": false,
       "aggExpressions": [{"value": {"expression": "mul", "left": {"expression": "sub", "left": {"expression": "const", "value": {"type": ["Integer"], "value": 1}}, "right": {"expression": "iuref", "iu": "v23"}}, "right": {"expression": "iuref", "iu": "v22"}}}],
       "aggregates": [{"source": 0, "operation": {"aggregate": "sum"}, "iu": ["v3", ["BigNumeric", 38, 4]]}],
-      "analyze": {"pipeline": 2, "tuplecount": 8, "memory-bytes": 18456, "execution-time": 13780}
+      "analyze": {"pipeline": 2, "tuple-count": 8, "memory-bytes": 18456, "execution-time": 13780}
     },
-    "analyze": {"pipeline": 1, "tuplecount": 8, "memory-bytes": 1672, "execution-time": 681}
+    "analyze": {"pipeline": 1, "tuple-count": 8, "memory-bytes": 1672, "execution-time": 681}
   },
   "analyze": {}
 }
