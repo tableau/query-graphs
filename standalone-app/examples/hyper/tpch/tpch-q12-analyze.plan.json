@@ -34,7 +34,7 @@
           "restrictions": [{"attribute": 12, "mode": "[)", "value": {"expression": "const", "value": {"type": ["Date"], "value": 2449354}}, "value2": {"expression": "const", "value": {"type": ["Date"], "value": 2449719}}}, {"attribute": 14, "mode": "lambda", "value": {"expression": "quantor", "mode": "=some", "value": {"expression": "iuref", "iu": "v8"}, "set": [{"expression": "const", "value": {"type": ["Char", 10], "value": "MAIL"}}, {"expression": "const", "value": {"type": ["Char", 10], "value": "SHIP"}}]}, "value2": null}],
           "residuals": [{"expression": "comparison", "mode": "<", "left": {"expression": "iuref", "iu": "v6"}, "right": {"expression": "iuref", "iu": "v7"}}, {"expression": "comparison", "mode": "<", "left": {"expression": "iuref", "iu": "v5"}, "right": {"expression": "iuref", "iu": "v6"}}],
           "selectivity": 0.0458916,
-          "analyze": {"pipeline": 4, "tuplecount": 2, "execution-time": 73445}
+          "analyze": {"pipeline": 4, "tuple-count": 2, "execution-time": 73445}
         },
         "right": {
           "operator": "tablescan",
@@ -47,19 +47,19 @@
           "debugName": {"classification": "nonsensitive", "value": "orders"},
           "earlyProbes": [{"builder": 4, "attributes": [0], "type": "lookup"}],
           "selectivity": 1,
-          "analyze": {"pipeline": 3, "tuplecount": 3, "execution-time": 23183}
+          "analyze": {"pipeline": 3, "tuple-count": 3, "execution-time": 23183}
         },
         "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v9"}, "right": {"expression": "iuref", "iu": "v4"}},
-        "analyze": {"pipeline": 3, "tuplecount": 2, "memory-bytes": 18456}
+        "analyze": {"pipeline": 3, "tuple-count": 2, "memory-bytes": 18456}
       },
       "keyExpressions": [{"expression": {"value": {"expression": "iuref", "iu": "v8"}}, "iu": ["v", ["Char", 10]]}],
       "groupingSets": [{"keyIndices": [0], "coreIndices": [0], "behavior": "regular"}],
       "emptyGroups": false,
       "aggExpressions": [{"value": {"expression": "simplecase", "value": {"expression": "iuref", "iu": "v10"}, "cases": [{"cases": [{"expression": "const", "value": {"type": ["Varchar"], "value": "1-URGENT"}}, {"expression": "const", "value": {"type": ["Varchar"], "value": "2-HIGH"}}], "value": {"expression": "const", "value": {"type": ["Integer"], "value": 1}}}], "else": {"expression": "const", "value": {"type": ["Integer"], "value": 0}}}}, {"value": {"expression": "case", "cases": [{"case": {"expression": "and", "arguments": [{"expression": "comparison", "mode": "<>", "left": {"expression": "iuref", "iu": "v10"}, "right": {"expression": "const", "value": {"type": ["Char", 15], "value": "1-URGENT"}}}, {"expression": "comparison", "mode": "<>", "left": {"expression": "iuref", "iu": "v10"}, "right": {"expression": "const", "value": {"type": ["Char", 15], "value": "2-HIGH"}}}]}, "value": {"expression": "const", "value": {"type": ["Integer"], "value": 1}}}], "else": {"expression": "const", "value": {"type": ["Integer"], "value": 0}}}}],
       "aggregates": [{"source": 1, "operation": {"aggregate": "sum"}, "iu": ["v3", ["BigInt"]]}, {"source": 0, "operation": {"aggregate": "sum"}, "iu": ["v2", ["BigInt"]]}],
-      "analyze": {"pipeline": 2, "tuplecount": 2, "memory-bytes": 18456, "execution-time": 11998}
+      "analyze": {"pipeline": 2, "tuple-count": 2, "memory-bytes": 18456, "execution-time": 11998}
     },
-    "analyze": {"pipeline": 1, "tuplecount": 2, "memory-bytes": 168, "execution-time": 692}
+    "analyze": {"pipeline": 1, "tuple-count": 2, "memory-bytes": 168, "execution-time": 692}
   },
   "analyze": {}
 }
