@@ -354,8 +354,7 @@ function convertOptimizerSteps(node: Json): LinkedNodes | undefined {
     // Transform the optimizer steps
     const crosslinks: Crosslink[] = [];
     const children: TreeNode[] = [];
-    for (let i = 0; i < steps.length; ++i) {
-        const step = steps[i];
+    for (const step of steps) {
         // Check that our step has two subproperties: "name" and "plan"
         if (typeof step !== "object" || Array.isArray(step) || step === null) return undefined;
         if (Object.getOwnPropertyNames(step).length != 2) return undefined;

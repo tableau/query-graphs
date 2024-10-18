@@ -1,5 +1,5 @@
 // `prettier` does not yet support `import type`
-// eslint-disable-next-line prettier/prettier
+
 import type React from "react";
 import {useCallback, useEffect, useState} from "react";
 

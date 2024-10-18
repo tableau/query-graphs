@@ -30,7 +30,7 @@ export function QueryGraphsApp() {
                 });
                 assert(uploadResult.ok);
                 url = new URL(await uploadResult.text());
-            } catch (e) {
+            } catch (_e) {
                 throw new Error(`Upload to ${uploadServer} failed!`);
             }
         }
