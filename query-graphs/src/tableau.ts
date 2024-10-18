@@ -92,9 +92,9 @@ function getNodeRenderingConfig(tag: string, properties: Map<string, string>): N
         case "funcallExp":
             return {displayName: extractProperty(properties, "function") ?? tag};
         case "literal":
-            return {displayName: properties?.get("datatype") + ":" + properties?.get("value") ?? tag};
+            return {displayName: properties?.get("datatype") + ":" + properties?.get("value")};
         case "referenceExp":
-            return {displayName: "ref:" + properties?.get("ref") ?? tag};
+            return {displayName: "ref:" + properties?.get("ref")};
         case "condition":
             return {displayName: extractProperty(properties, "op") ?? tag};
         case "binding":
