@@ -4,8 +4,7 @@ import * as d3hierarchy from "d3-hierarchy";
 import {NodeDimensions} from "./store";
 import * as treeDescription from "../tree-description";
 import {TreeNode, TreeDescription} from "../tree-description";
-// TODO: import type; fix `prettier` first :/
-import {Edge, Node} from "reactflow";
+import type {Edge, Node} from "reactflow";
 import {assertNotNull} from "../loader-utils";
 import {CSSProperties} from "react";
 
