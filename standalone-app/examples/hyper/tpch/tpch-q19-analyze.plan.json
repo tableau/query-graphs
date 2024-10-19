@@ -8,31 +8,31 @@
   "input": {
     "operator": "groupby",
     "operatorId": 2,
-    "sqlpos": [[145, 183]],
+    "sqlpos": [[149, 187]],
     "cardinality": 1,
     "input": {
       "operator": "join",
       "operatorId": 3,
-      "cardinality": 11.6917,
+      "cardinality": 11.8234,
       "method": "hash",
       "referencedByScanEarlyProbe": true,
       "left": {
         "operator": "tablescan",
         "operatorId": 4,
-        "sqlpos": [[208, 216]],
+        "sqlpos": [[212, 220]],
         "cardinality": 23,
         "relationId": 7,
         "schema": {"type":"sessionschema"},
         "values": [{"name": "l_orderkey", "type": ["Integer"], "iu": null}, {"name": "l_partkey", "type": ["Integer"], "iu": ["v2", ["Integer"]]}, {"name": "l_suppkey", "type": ["Integer"], "iu": null}, {"name": "l_linenumber", "type": ["Integer"], "iu": null}, {"name": "l_quantity", "type": ["Numeric", 12, 2], "iu": ["v3", ["Numeric", 12, 2]]}, {"name": "l_extendedprice", "type": ["Numeric", 12, 2], "iu": ["v4", ["Numeric", 12, 2]]}, {"name": "l_discount", "type": ["Numeric", 12, 2], "iu": ["v5", ["Numeric", 12, 2]]}, {"name": "l_tax", "type": ["Numeric", 12, 2], "iu": null}, {"name": "l_returnflag", "type": ["Char1"], "iu": null}, {"name": "l_linestatus", "type": ["Char1"], "iu": null}, {"name": "l_shipdate", "type": ["Date"], "iu": null}, {"name": "l_commitdate", "type": ["Date"], "iu": null}, {"name": "l_receiptdate", "type": ["Date"], "iu": null}, {"name": "l_shipinstruct", "type": ["Char", 25], "iu": ["v6", ["Char", 25]]}, {"name": "l_shipmode", "type": ["Char", 10], "iu": ["v7", ["Char", 10]]}, {"name": "l_comment", "type": ["Varchar", 44], "iu": null}],
         "debugName": {"classification": "nonsensitive", "value": "lineitem"},
-        "restrictions": [{"attribute": 13, "mode": "=", "value": {"expression": "const", "value": {"type": ["Char", 25], "value": "DELIVER IN PERSON"}}}, {"attribute": 14, "mode": "lambda", "value": {"expression": "quantor", "mode": "=some", "value": {"expression": "iuref", "iu": "v7"}, "set": [{"expression": "const", "value": {"type": ["Char", 10], "value": "AIR"}}, {"expression": "const", "value": {"type": ["Char", 10], "value": "AIR REG"}}]}, "value2": null}],
+        "restrictions": [{"attribute": 13, "mode": "=", "value": {"expression": "const", "value": {"type": ["Char", 25], "value": "DELIVER IN PERSON"}}}, {"attribute": 14, "mode": "lambda", "expression": {"expression": "lookup", "input": [{"expression": "iuref", "iu": "v7"}], "values": [{"type": ["Char", 10], "value": "AIR"}, {"type": ["Char", 10], "value": "AIR REG"}], "collates": [null], "modes": ["equals"]}}],
         "selectivity": 0.0402098,
-        "analyze": {"pipeline": 3, "tuple-count": 23, "execution-time": 44336}
+        "analyze": {"pipeline": 2, "execution-time": 309, "running": false, "tuple-count": 23}
       },
       "right": {
         "operator": "tablescan",
         "operatorId": 5,
-        "sqlpos": [[226, 230]],
+        "sqlpos": [[230, 234]],
         "cardinality": 533,
         "relationId": 2,
         "schema": {"type":"sessionschema"},
@@ -40,16 +40,16 @@
         "debugName": {"classification": "nonsensitive", "value": "part"},
         "earlyProbes": [{"builder": 3, "attributes": [0], "type": "lookup"}],
         "selectivity": 1,
-        "analyze": {"pipeline": 2, "tuple-count": 27, "execution-time": 23385}
+        "analyze": {"pipeline": 1, "execution-time": 831, "running": false, "tuple-count": 65}
       },
-      "condition": {"expression": "and", "arguments": [{"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v8"}, "right": {"expression": "iuref", "iu": "v2"}}, {"expression": "or", "arguments": [{"expression": "and", "arguments": [{"expression": "between", "arguments": [{"expression": "iuref", "iu": "v3"}, {"expression": "const", "value": {"type": ["Numeric", 12, 2], "value": 100}}, {"expression": "const", "value": {"type": ["Numeric", 12, 2], "value": 1100}}]}, {"expression": "between", "arguments": [{"expression": "iuref", "iu": "v10"}, {"expression": "const", "value": {"type": ["Integer"], "value": 1}}, {"expression": "const", "value": {"type": ["Integer"], "value": 5}}]}, {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v9"}, "right": {"expression": "const", "value": {"type": ["Char", 10], "value": "Brand#12"}}}, {"expression": "quantor", "mode": "=some", "value": {"expression": "iuref", "iu": "v11"}, "set": [{"expression": "const", "value": {"type": ["Char", 10], "value": "SM BOX"}}, {"expression": "const", "value": {"type": ["Char", 10], "value": "SM CASE"}}, {"expression": "const", "value": {"type": ["Char", 10], "value": "SM PACK"}}, {"expression": "const", "value": {"type": ["Char", 10], "value": "SM PKG"}}]}]}, {"expression": "and", "arguments": [{"expression": "between", "arguments": [{"expression": "iuref", "iu": "v3"}, {"expression": "const", "value": {"type": ["Numeric", 12, 2], "value": 1000}}, {"expression": "const", "value": {"type": ["Numeric", 12, 2], "value": 2000}}]}, {"expression": "between", "arguments": [{"expression": "iuref", "iu": "v10"}, {"expression": "const", "value": {"type": ["Integer"], "value": 1}}, {"expression": "const", "value": {"type": ["Integer"], "value": 10}}]}, {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v9"}, "right": {"expression": "const", "value": {"type": ["Char", 10], "value": "Brand#23"}}}, {"expression": "quantor", "mode": "=some", "value": {"expression": "iuref", "iu": "v11"}, "set": [{"expression": "const", "value": {"type": ["Char", 10], "value": "MED BAG"}}, {"expression": "const", "value": {"type": ["Char", 10], "value": "MED BOX"}}, {"expression": "const", "value": {"type": ["Char", 10], "value": "MED PACK"}}, {"expression": "const", "value": {"type": ["Char", 10], "value": "MED PKG"}}]}]}, {"expression": "and", "arguments": [{"expression": "between", "arguments": [{"expression": "iuref", "iu": "v3"}, {"expression": "const", "value": {"type": ["Numeric", 12, 2], "value": 2000}}, {"expression": "const", "value": {"type": ["Numeric", 12, 2], "value": 3000}}]}, {"expression": "between", "arguments": [{"expression": "iuref", "iu": "v10"}, {"expression": "const", "value": {"type": ["Integer"], "value": 1}}, {"expression": "const", "value": {"type": ["Integer"], "value": 15}}]}, {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v9"}, "right": {"expression": "const", "value": {"type": ["Char", 10], "value": "Brand#34"}}}, {"expression": "quantor", "mode": "=some", "value": {"expression": "iuref", "iu": "v11"}, "set": [{"expression": "const", "value": {"type": ["Char", 10], "value": "LG BOX"}}, {"expression": "const", "value": {"type": ["Char", 10], "value": "LG CASE"}}, {"expression": "const", "value": {"type": ["Char", 10], "value": "LG PACK"}}, {"expression": "const", "value": {"type": ["Char", 10], "value": "LG PKG"}}]}]}]}]},
-      "analyze": {"pipeline": 2, "tuple-count": 1, "memory-bytes": 18456}
+      "condition": {"expression": "and", "arguments": [{"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v8"}, "right": {"expression": "iuref", "iu": "v2"}}, {"expression": "or", "arguments": [{"expression": "and", "arguments": [{"expression": "between", "arguments": [{"expression": "iuref", "iu": "v3"}, {"expression": "const", "value": {"type": ["Numeric", 12, 2], "value": 100}}, {"expression": "const", "value": {"type": ["Numeric", 12, 2], "value": 1100}}]}, {"expression": "between", "arguments": [{"expression": "iuref", "iu": "v10"}, {"expression": "const", "value": {"type": ["Integer"], "value": 1}}, {"expression": "const", "value": {"type": ["Integer"], "value": 5}}]}, {"expression": "lookup", "input": [{"expression": "iuref", "iu": "v11"}], "values": [{"type": ["Char", 10], "value": "SM BOX"}, {"type": ["Char", 10], "value": "SM CASE"}, {"type": ["Char", 10], "value": "SM PACK"}, {"type": ["Char", 10], "value": "SM PKG"}], "collates": [null], "modes": ["equals"]}, {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v9"}, "right": {"expression": "const", "value": {"type": ["Char", 10], "value": "Brand#12"}}}]}, {"expression": "and", "arguments": [{"expression": "between", "arguments": [{"expression": "iuref", "iu": "v3"}, {"expression": "const", "value": {"type": ["Numeric", 12, 2], "value": 1000}}, {"expression": "const", "value": {"type": ["Numeric", 12, 2], "value": 2000}}]}, {"expression": "between", "arguments": [{"expression": "iuref", "iu": "v10"}, {"expression": "const", "value": {"type": ["Integer"], "value": 1}}, {"expression": "const", "value": {"type": ["Integer"], "value": 10}}]}, {"expression": "lookup", "input": [{"expression": "iuref", "iu": "v11"}], "values": [{"type": ["Char", 10], "value": "MED BAG"}, {"type": ["Char", 10], "value": "MED BOX"}, {"type": ["Char", 10], "value": "MED PACK"}, {"type": ["Char", 10], "value": "MED PKG"}], "collates": [null], "modes": ["equals"]}, {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v9"}, "right": {"expression": "const", "value": {"type": ["Char", 10], "value": "Brand#23"}}}]}, {"expression": "and", "arguments": [{"expression": "between", "arguments": [{"expression": "iuref", "iu": "v3"}, {"expression": "const", "value": {"type": ["Numeric", 12, 2], "value": 2000}}, {"expression": "const", "value": {"type": ["Numeric", 12, 2], "value": 3000}}]}, {"expression": "between", "arguments": [{"expression": "iuref", "iu": "v10"}, {"expression": "const", "value": {"type": ["Integer"], "value": 1}}, {"expression": "const", "value": {"type": ["Integer"], "value": 15}}]}, {"expression": "lookup", "input": [{"expression": "iuref", "iu": "v11"}], "values": [{"type": ["Char", 10], "value": "LG BOX"}, {"type": ["Char", 10], "value": "LG CASE"}, {"type": ["Char", 10], "value": "LG PACK"}, {"type": ["Char", 10], "value": "LG PKG"}], "collates": [null], "modes": ["equals"]}, {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v9"}, "right": {"expression": "const", "value": {"type": ["Char", 10], "value": "Brand#34"}}}]}]}]},
+      "analyze": {"pipeline": 1, "memory-bytes": 18432, "tuple-count": 1}
     },
     "groupingSets": [{"keyIndices": [], "coreIndices": null, "behavior": "static"}],
     "emptyGroups": true,
-    "aggExpressions": [{"value": {"expression": "mul", "left": {"expression": "sub", "left": {"expression": "const", "value": {"type": ["Integer"], "value": 1}}, "right": {"expression": "iuref", "iu": "v5"}}, "right": {"expression": "iuref", "iu": "v4"}}}],
+    "aggExpressions": [{"value": {"expression": "mul", "left": {"expression": "sub", "left": {"expression": "const", "value": {"type": ["Numeric", 1], "value": 1}}, "right": {"expression": "iuref", "iu": "v5"}}, "right": {"expression": "iuref", "iu": "v4"}}}],
     "aggregates": [{"source": 0, "operation": {"aggregate": "sum"}, "iu": ["v", ["BigNumeric", 38, 4, "nullable"]]}],
-    "analyze": {"pipeline": 1, "tuple-count": 1, "memory-bytes": 0, "execution-time": 226}
+    "analyze": {"pipeline": 0, "execution-time": 12, "memory-bytes": 0, "running": false, "tuple-count": 1}
   },
-  "analyze": {}
+  "analyze": {"error": null, "pipeline": 0}
 }

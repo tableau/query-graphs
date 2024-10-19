@@ -1,86 +1,86 @@
 {
   "operator": "executiontarget",
   "operatorId": 1,
-  "cardinality": 168.009,
+  "cardinality": 162.047,
   "producesRows": true,
   "output": [{"expression": "iuref", "iu": ["v", ["Char", 25]]}, {"expression": "iuref", "iu": ["v2", ["Char", 25]]}, {"expression": "iuref", "iu": ["v3", ["Integer"]]}, {"expression": "iuref", "iu": ["v4", ["BigNumeric", 38, 4]]}],
   "outputNames": ["supp_nation", "cust_nation", "l_year", "revenue"],
   "input": {
     "operator": "sort",
     "operatorId": 2,
-    "sqlpos": [[1419, 1430]],
-    "cardinality": 168.009,
+    "sqlpos": [[1423, 1434]],
+    "cardinality": 162.047,
     "criterion": [{"value": {"expression": "iuref", "iu": "v"}, "descending": false, "nullFirst": false}, {"value": {"expression": "iuref", "iu": "v2"}, "descending": false, "nullFirst": false}, {"value": {"expression": "iuref", "iu": "v3"}, "descending": false, "nullFirst": false}],
     "input": {
       "operator": "groupby",
       "operatorId": 3,
-      "sqlpos": [[1336, 1401], [203, 214]],
-      "cardinality": 168.009,
+      "sqlpos": [[1340, 1405], [207, 218]],
+      "cardinality": 162.047,
       "input": {
         "operator": "map",
         "operatorId": 4,
-        "sqlpos": [[288, 312]],
-        "cardinality": 186.677,
+        "sqlpos": [[292, 316]],
+        "cardinality": 180.053,
         "input": {
           "operator": "join",
           "operatorId": 5,
-          "cardinality": 186.677,
+          "cardinality": 180.053,
           "method": "hash",
           "referencedByScanEarlyProbe": true,
           "left": {
             "operator": "join",
             "operatorId": 6,
-            "cardinality": 186.677,
+            "cardinality": 180.053,
             "method": "hash",
             "referencedByScanEarlyProbe": true,
             "left": {
               "operator": "join",
               "operatorId": 7,
-              "cardinality": 99.1478,
+              "cardinality": 95.6297,
               "method": "hash",
               "referencedByScanEarlyProbe": true,
               "left": {
                 "operator": "join",
                 "operatorId": 8,
-                "cardinality": 99.9224,
+                "cardinality": 96.3768,
                 "method": "hash",
                 "referencedByScanEarlyProbe": true,
                 "left": {
                   "operator": "join",
                   "operatorId": 9,
-                  "cardinality": 19.3648,
+                  "cardinality": 18.6777,
                   "method": "bnl",
                   "left": {
                     "operator": "tablescan",
                     "operatorId": 10,
-                    "sqlpos": [[712, 718]],
+                    "sqlpos": [[716, 722]],
                     "cardinality": 25,
                     "relationId": 8,
                     "schema": {"type":"sessionschema"},
                     "values": [{"name": "n_nationkey", "type": ["Integer"], "iu": ["v5", ["Integer"]]}, {"name": "n_name", "type": ["Char", 25], "iu": ["v6", ["Char", 25]]}, {"name": "n_regionkey", "type": ["Integer"], "iu": null}, {"name": "n_comment", "type": ["Varchar", 152], "iu": null}],
                     "debugName": {"classification": "nonsensitive", "value": "n2"},
                     "selectivity": 1,
-                    "analyze": {"pipeline": 8, "tuple-count": 25, "execution-time": 23228}
+                    "analyze": {"pipeline": 7, "execution-time": 227, "running": false, "tuple-count": 25}
                   },
                   "right": {
                     "operator": "tablescan",
                     "operatorId": 11,
-                    "sqlpos": [[677, 683]],
+                    "sqlpos": [[681, 687]],
                     "cardinality": 25,
                     "relationId": 8,
                     "schema": {"type":"sessionschema"},
                     "values": [{"name": "n_nationkey", "type": ["Integer"], "iu": ["v7", ["Integer"]]}, {"name": "n_name", "type": ["Char", 25], "iu": ["v8", ["Char", 25]]}, {"name": "n_regionkey", "type": ["Integer"], "iu": null}, {"name": "n_comment", "type": ["Varchar", 152], "iu": null}],
                     "debugName": {"classification": "nonsensitive", "value": "n1"},
                     "selectivity": 1,
-                    "analyze": {"pipeline": 7, "tuple-count": 25, "execution-time": 57250}
+                    "analyze": {"pipeline": 6, "execution-time": 1451, "running": false, "tuple-count": 25}
                   },
-                  "condition": {"expression": "or", "arguments": [{"expression": "and", "arguments": [{"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v8"}, "right": {"expression": "const", "value": {"type": ["Char", 25], "value": "FRANCE"}}}, {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v6"}, "right": {"expression": "const", "value": {"type": ["Char", 25], "value": "GERMANY"}}}]}, {"expression": "and", "arguments": [{"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v8"}, "right": {"expression": "const", "value": {"type": ["Char", 25], "value": "GERMANY"}}}, {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v6"}, "right": {"expression": "const", "value": {"type": ["Char", 25], "value": "FRANCE"}}}]}]},
-                  "analyze": {"pipeline": 7, "tuple-count": 2, "memory-bytes": 18456}
+                  "condition": {"expression": "lookup", "input": [{"expression": "iuref", "iu": "v8"}, {"expression": "iuref", "iu": "v6"}], "values": [{"type": ["Char", 25], "value": "FRANCE"}, {"type": ["Char", 25], "value": "GERMANY"}, {"type": ["Char", 25], "value": "GERMANY"}, {"type": ["Char", 25], "value": "FRANCE"}], "collates": [null, null], "modes": ["is", "is"]},
+                  "analyze": {"pipeline": 6, "memory-bytes": 18432, "tuple-count": 2}
                 },
                 "right": {
                   "operator": "tablescan",
                   "operatorId": 12,
-                  "sqlpos": [[643, 651]],
+                  "sqlpos": [[647, 655]],
                   "cardinality": 129,
                   "relationId": 5,
                   "schema": {"type":"sessionschema"},
@@ -88,15 +88,15 @@
                   "debugName": {"classification": "nonsensitive", "value": "customer"},
                   "earlyProbes": [{"builder": 8, "attributes": [3], "type": "lookup"}],
                   "selectivity": 1,
-                  "analyze": {"pipeline": 6, "tuple-count": 12, "execution-time": 20341}
+                  "analyze": {"pipeline": 5, "execution-time": 266, "running": false, "tuple-count": 12}
                 },
                 "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v10"}, "right": {"expression": "iuref", "iu": "v5"}},
-                "analyze": {"pipeline": 6, "tuple-count": 12, "memory-bytes": 18456}
+                "analyze": {"pipeline": 5, "memory-bytes": 18432, "tuple-count": 12}
               },
               "right": {
                 "operator": "tablescan",
                 "operatorId": 13,
-                "sqlpos": [[611, 617]],
+                "sqlpos": [[615, 621]],
                 "cardinality": 128,
                 "relationId": 6,
                 "schema": {"type":"sessionschema"},
@@ -104,15 +104,15 @@
                 "debugName": {"classification": "nonsensitive", "value": "orders"},
                 "earlyProbes": [{"builder": 7, "attributes": [1], "type": "lookup"}],
                 "selectivity": 1,
-                "analyze": {"pipeline": 5, "tuple-count": 12, "execution-time": 20303}
+                "analyze": {"pipeline": 4, "execution-time": 233, "running": false, "tuple-count": 15}
               },
               "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v9"}, "right": {"expression": "iuref", "iu": "v12"}},
-              "analyze": {"pipeline": 5, "tuple-count": 12, "memory-bytes": 18456}
+              "analyze": {"pipeline": 4, "memory-bytes": 18432, "tuple-count": 12}
             },
             "right": {
               "operator": "tablescan",
               "operatorId": 14,
-              "sqlpos": [[577, 585]],
+              "sqlpos": [[581, 589]],
               "cardinality": 241,
               "relationId": 7,
               "schema": {"type":"sessionschema"},
@@ -121,15 +121,15 @@
               "restrictions": [{"attribute": 10, "mode": "[]", "value": {"expression": "const", "value": {"type": ["Date"], "value": 2449719}}, "value2": {"expression": "const", "value": {"type": ["Date"], "value": 2450449}}}],
               "earlyProbes": [{"builder": 6, "attributes": [0], "type": "lookup"}],
               "selectivity": 0.421329,
-              "analyze": {"pipeline": 4, "tuple-count": 30, "execution-time": 41222}
+              "analyze": {"pipeline": 3, "execution-time": 529, "running": false, "tuple-count": 30}
             },
             "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v11"}, "right": {"expression": "iuref", "iu": "v13"}},
-            "analyze": {"pipeline": 4, "tuple-count": 30, "memory-bytes": 18456}
+            "analyze": {"pipeline": 3, "memory-bytes": 18432, "tuple-count": 30}
           },
           "right": {
             "operator": "tablescan",
             "operatorId": 15,
-            "sqlpos": [[543, 551]],
+            "sqlpos": [[547, 555]],
             "cardinality": 518,
             "relationId": 3,
             "schema": {"type":"sessionschema"},
@@ -137,22 +137,22 @@
             "debugName": {"classification": "nonsensitive", "value": "supplier"},
             "earlyProbes": [{"builder": 5, "attributes": [0, 3], "type": "minmaxonly"}],
             "selectivity": 1,
-            "analyze": {"pipeline": 3, "tuple-count": 468, "execution-time": 51765}
+            "analyze": {"pipeline": 2, "execution-time": 1190, "running": false, "tuple-count": 518}
           },
           "condition": {"expression": "and", "arguments": [{"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v18"}, "right": {"expression": "iuref", "iu": "v14"}}, {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v19"}, "right": {"expression": "iuref", "iu": "v7"}}]},
-          "analyze": {"pipeline": 3, "tuple-count": 1, "memory-bytes": 18456}
+          "analyze": {"pipeline": 2, "memory-bytes": 18432, "tuple-count": 1}
         },
-        "values": [{"iu": ["v20", ["Integer"]], "value": {"expression": "extractyear", "input": {"expression": "iuref", "iu": "v17"}}}, {"iu": ["v21", ["BigNumeric", 25, 4]], "value": {"expression": "mul", "left": {"expression": "sub", "left": {"expression": "const", "value": {"type": ["Integer"], "value": 1}}, "right": {"expression": "iuref", "iu": "v16"}}, "right": {"expression": "iuref", "iu": "v15"}}}],
-        "analyze": {"pipeline": 3, "tuple-count": 1}
+        "values": [{"iu": ["v20", ["Integer"]], "value": {"expression": "extractyear", "input": {"expression": "iuref", "iu": "v17"}}}, {"iu": ["v21", ["BigNumeric", 25, 4]], "value": {"expression": "mul", "left": {"expression": "sub", "left": {"expression": "const", "value": {"type": ["Numeric", 1], "value": 1}}, "right": {"expression": "iuref", "iu": "v16"}}, "right": {"expression": "iuref", "iu": "v15"}}}],
+        "analyze": {"pipeline": 2, "tuple-count": 1}
       },
       "keyExpressions": [{"expression": {"value": {"expression": "iuref", "iu": "v8"}}, "iu": ["v", ["Char", 25]]}, {"expression": {"value": {"expression": "iuref", "iu": "v6"}}, "iu": ["v2", ["Char", 25]]}, {"expression": {"value": {"expression": "iuref", "iu": "v20"}}, "iu": ["v3", ["Integer"]]}],
       "groupingSets": [{"keyIndices": [0, 1, 2], "coreIndices": [0, 1, 2], "behavior": "regular"}],
       "emptyGroups": false,
       "aggExpressions": [{"value": {"expression": "iuref", "iu": "v21"}}],
       "aggregates": [{"source": 0, "operation": {"aggregate": "sum"}, "iu": ["v4", ["BigNumeric", 38, 4]]}],
-      "analyze": {"pipeline": 2, "tuple-count": 1, "memory-bytes": 18456, "execution-time": 9010}
+      "analyze": {"pipeline": 1, "execution-time": 342, "memory-bytes": 18432, "running": false, "tuple-count": 1}
     },
-    "analyze": {"pipeline": 1, "tuple-count": 1, "memory-bytes": 160, "execution-time": 575}
+    "analyze": {"pipeline": 0, "execution-time": 131, "memory-bytes": 262152, "running": false, "tuple-count": 1}
   },
-  "analyze": {}
+  "analyze": {"error": null, "pipeline": 0}
 }

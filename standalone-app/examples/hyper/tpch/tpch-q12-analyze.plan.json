@@ -8,13 +8,13 @@
   "input": {
     "operator": "sort",
     "operatorId": 2,
-    "sqlpos": [[910, 920]],
+    "sqlpos": [[914, 924]],
     "cardinality": 7,
     "criterion": [{"value": {"expression": "iuref", "iu": "v"}, "descending": false, "nullFirst": false}],
     "input": {
       "operator": "groupby",
       "operatorId": 3,
-      "sqlpos": [[865, 892], [165, 344], [373, 555]],
+      "sqlpos": [[869, 896], [169, 348], [377, 559]],
       "cardinality": 7,
       "input": {
         "operator": "join",
@@ -25,21 +25,21 @@
         "left": {
           "operator": "tablescan",
           "operatorId": 5,
-          "sqlpos": [[603, 611]],
+          "sqlpos": [[607, 615]],
           "cardinality": 26.25,
           "relationId": 7,
           "schema": {"type":"sessionschema"},
           "values": [{"name": "l_orderkey", "type": ["Integer"], "iu": ["v4", ["Integer"]]}, {"name": "l_partkey", "type": ["Integer"], "iu": null}, {"name": "l_suppkey", "type": ["Integer"], "iu": null}, {"name": "l_linenumber", "type": ["Integer"], "iu": null}, {"name": "l_quantity", "type": ["Numeric", 12, 2], "iu": null}, {"name": "l_extendedprice", "type": ["Numeric", 12, 2], "iu": null}, {"name": "l_discount", "type": ["Numeric", 12, 2], "iu": null}, {"name": "l_tax", "type": ["Numeric", 12, 2], "iu": null}, {"name": "l_returnflag", "type": ["Char1"], "iu": null}, {"name": "l_linestatus", "type": ["Char1"], "iu": null}, {"name": "l_shipdate", "type": ["Date"], "iu": ["v5", ["Date"]]}, {"name": "l_commitdate", "type": ["Date"], "iu": ["v6", ["Date"]]}, {"name": "l_receiptdate", "type": ["Date"], "iu": ["v7", ["Date"]]}, {"name": "l_shipinstruct", "type": ["Char", 25], "iu": null}, {"name": "l_shipmode", "type": ["Char", 10], "iu": ["v8", ["Char", 10]]}, {"name": "l_comment", "type": ["Varchar", 44], "iu": null}],
           "debugName": {"classification": "nonsensitive", "value": "lineitem"},
-          "restrictions": [{"attribute": 12, "mode": "[)", "value": {"expression": "const", "value": {"type": ["Date"], "value": 2449354}}, "value2": {"expression": "const", "value": {"type": ["Date"], "value": 2449719}}}, {"attribute": 14, "mode": "lambda", "value": {"expression": "quantor", "mode": "=some", "value": {"expression": "iuref", "iu": "v8"}, "set": [{"expression": "const", "value": {"type": ["Char", 10], "value": "MAIL"}}, {"expression": "const", "value": {"type": ["Char", 10], "value": "SHIP"}}]}, "value2": null}],
+          "restrictions": [{"attribute": 12, "mode": "[)", "value": {"expression": "const", "value": {"type": ["Date"], "value": 2449354}}, "value2": {"expression": "const", "value": {"type": ["Date"], "value": 2449719}}}, {"attribute": 14, "mode": "lambda", "expression": {"expression": "lookup", "input": [{"expression": "iuref", "iu": "v8"}], "values": [{"type": ["Char", 10], "value": "MAIL"}, {"type": ["Char", 10], "value": "SHIP"}], "collates": [null], "modes": ["equals"]}}],
           "residuals": [{"expression": "comparison", "mode": "<", "left": {"expression": "iuref", "iu": "v6"}, "right": {"expression": "iuref", "iu": "v7"}}, {"expression": "comparison", "mode": "<", "left": {"expression": "iuref", "iu": "v5"}, "right": {"expression": "iuref", "iu": "v6"}}],
           "selectivity": 0.0458916,
-          "analyze": {"pipeline": 4, "tuple-count": 2, "execution-time": 73445}
+          "analyze": {"pipeline": 3, "execution-time": 704, "running": false, "tuple-count": 2}
         },
         "right": {
           "operator": "tablescan",
           "operatorId": 6,
-          "sqlpos": [[587, 593]],
+          "sqlpos": [[591, 597]],
           "cardinality": 128,
           "relationId": 6,
           "schema": {"type":"sessionschema"},
@@ -47,19 +47,19 @@
           "debugName": {"classification": "nonsensitive", "value": "orders"},
           "earlyProbes": [{"builder": 4, "attributes": [0], "type": "lookup"}],
           "selectivity": 1,
-          "analyze": {"pipeline": 3, "tuple-count": 3, "execution-time": 23183}
+          "analyze": {"pipeline": 2, "execution-time": 232, "running": false, "tuple-count": 4}
         },
         "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v9"}, "right": {"expression": "iuref", "iu": "v4"}},
-        "analyze": {"pipeline": 3, "tuple-count": 2, "memory-bytes": 18456}
+        "analyze": {"pipeline": 2, "memory-bytes": 18432, "tuple-count": 2}
       },
       "keyExpressions": [{"expression": {"value": {"expression": "iuref", "iu": "v8"}}, "iu": ["v", ["Char", 10]]}],
       "groupingSets": [{"keyIndices": [0], "coreIndices": [0], "behavior": "regular"}],
       "emptyGroups": false,
       "aggExpressions": [{"value": {"expression": "simplecase", "value": {"expression": "iuref", "iu": "v10"}, "cases": [{"cases": [{"expression": "const", "value": {"type": ["Varchar"], "value": "1-URGENT"}}, {"expression": "const", "value": {"type": ["Varchar"], "value": "2-HIGH"}}], "value": {"expression": "const", "value": {"type": ["Integer"], "value": 1}}}], "else": {"expression": "const", "value": {"type": ["Integer"], "value": 0}}}}, {"value": {"expression": "case", "cases": [{"case": {"expression": "and", "arguments": [{"expression": "comparison", "mode": "<>", "left": {"expression": "iuref", "iu": "v10"}, "right": {"expression": "const", "value": {"type": ["Char", 15], "value": "1-URGENT"}}}, {"expression": "comparison", "mode": "<>", "left": {"expression": "iuref", "iu": "v10"}, "right": {"expression": "const", "value": {"type": ["Char", 15], "value": "2-HIGH"}}}]}, "value": {"expression": "const", "value": {"type": ["Integer"], "value": 1}}}], "else": {"expression": "const", "value": {"type": ["Integer"], "value": 0}}}}],
       "aggregates": [{"source": 1, "operation": {"aggregate": "sum"}, "iu": ["v3", ["BigInt"]]}, {"source": 0, "operation": {"aggregate": "sum"}, "iu": ["v2", ["BigInt"]]}],
-      "analyze": {"pipeline": 2, "tuple-count": 2, "memory-bytes": 18456, "execution-time": 11998}
+      "analyze": {"pipeline": 1, "execution-time": 208, "memory-bytes": 18432, "running": false, "tuple-count": 2}
     },
-    "analyze": {"pipeline": 1, "tuple-count": 2, "memory-bytes": 168, "execution-time": 692}
+    "analyze": {"pipeline": 0, "execution-time": 26, "memory-bytes": 262160, "running": false, "tuple-count": 2}
   },
-  "analyze": {}
+  "analyze": {"error": null, "pipeline": 0}
 }

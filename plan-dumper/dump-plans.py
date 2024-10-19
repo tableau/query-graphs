@@ -82,11 +82,11 @@ with HyperProcess(telemetry=Telemetry.SEND_USAGE_DATA_TO_TABLEAU, parameters=hyp
 
         def get_hyper_plan(sql, mode):
             if mode == "steps":
-                explain = "EXPLAIN (VERBOSE, OPTIMIZERSTEPS) "
+                explain = "EXPLAIN (FORMAT JSON, OPTIMIZERSTEPS) "
             elif mode == "analyze":
-                explain = "EXPLAIN (VERBOSE, ANALYZE) "
+                explain = "EXPLAIN (FORMAT JSON, ANALYZE) "
             elif mode is None:
-                explain = "EXPLAIN (VERBOSE) "
+                explain = "EXPLAIN (FORMAT JSON) "
             else:
                 return None
             planRes = connection.execute_list_query(explain + sql)

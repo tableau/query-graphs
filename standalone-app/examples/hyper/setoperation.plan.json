@@ -8,12 +8,12 @@
   "input": {
     "operator": "unionall",
     "operatorId": 2,
-    "sqlpos": [[72, 81], [40, 49]],
+    "sqlpos": [[76, 85], [44, 53]],
     "cardinality": 4008.5,
     "input": [{
       "operator": "tablescan",
       "operatorId": 3,
-      "sqlpos": [[37, 39]],
+      "sqlpos": [[41, 43]],
       "cardinality": 2000,
       "relationId": 1,
       "schema": {"type":"sessionschema"},
@@ -23,7 +23,7 @@
     }, {
       "operator": "tablescan",
       "operatorId": 4,
-      "sqlpos": [[69, 71]],
+      "sqlpos": [[73, 75]],
       "cardinality": 2000,
       "relationId": 1,
       "schema": {"type":"sessionschema"},
@@ -33,17 +33,17 @@
     }, {
       "operator": "exceptall",
       "operatorId": 5,
-      "sqlpos": [[186, 196]],
+      "sqlpos": [[190, 200]],
       "cardinality": 8.50385,
       "input": [{
         "operator": "intersectall",
         "operatorId": 6,
-        "sqlpos": [[128, 141]],
+        "sqlpos": [[132, 145]],
         "cardinality": 900,
         "input": [{
           "operator": "tablescan",
           "operatorId": 7,
-          "sqlpos": [[106, 108]],
+          "sqlpos": [[110, 112]],
           "cardinality": 1000,
           "relationId": 0,
           "schema": {"type":"sessionschema"},
@@ -54,7 +54,7 @@
         }, {
           "operator": "tablescan",
           "operatorId": 8,
-          "sqlpos": [[164, 166]],
+          "sqlpos": [[168, 170]],
           "cardinality": 1000,
           "relationId": 0,
           "schema": {"type":"sessionschema"},
@@ -69,7 +69,7 @@
       }, {
         "operator": "tablescan",
         "operatorId": 9,
-        "sqlpos": [[219, 221]],
+        "sqlpos": [[223, 225]],
         "cardinality": 1000,
         "relationId": 0,
         "schema": {"type":"sessionschema"},
