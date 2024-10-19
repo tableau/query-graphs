@@ -4,7 +4,7 @@ export type Json = JsonPrimitive | JsonObject | JsonArray;
 export interface JsonObject {
     [x: string]: JsonPrimitive | JsonObject | JsonArray;
 }
-type JsonArray = Array<Json>;
+type JsonArray = Json[];
 
 // Checks if an object has a given key
 // In contrast to a raw call, this function

@@ -1,6 +1,4 @@
-// `prettier` does not yet support `import type`
-// eslint-disable-next-line prettier/prettier
-import type webpack from 'webpack';
+import type webpack from "webpack";
 import fs from "fs/promises";
 import path from "path";
 

@@ -1,6 +1,4 @@
-// `prettier` does not yet support `import type`
-// eslint-disable-next-line prettier/prettier
-import type { Configuration } from "webpack";
+import type {Configuration} from "webpack";
 import path from "path";
 import CopyPlugin from "copy-webpack-plugin";
 import {CreateExamplesListPlugin} from "./webpack-create-examples-list";
