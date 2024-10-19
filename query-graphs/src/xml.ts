@@ -33,8 +33,10 @@ export function typesafeXMLParse(str: string): ParsedXML {
         mergeAttrs: false,
     });
     parser.parseString(str, (err: unknown, parsed: ParsedXML) => {
-        if (err) {
-            throw new Error("XML parse failed with '" + err + "'.");
+        if (err instanceof Error) {
+            throw new Error("XML parse failed with '" + err.message + "'.");
+        } else if (err) {
+            throw new Error("XML parse failed.");
         } else {
             result = parsed;
         }
