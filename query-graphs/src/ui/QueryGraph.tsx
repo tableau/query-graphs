@@ -3,13 +3,14 @@ import "reactflow/dist/base.css";
 
 import {layoutTree} from "./tree-layout";
 import {TreeDescription, TreeNode, allChildren, visitTreeNodes} from "../tree-description";
-import {useMemo, useEffect, useRef} from "react";
+import {useMemo, useEffect, useRef, ReactNode} from "react";
 import {QueryNode} from "./QueryNode";
-import "./QueryGraph.css";
 import {useGraphRenderingStore} from "./store";
+import "./QueryGraph.css";
 
 interface QueryGraphProps {
     treeDescription: TreeDescription;
+    children: ReactNode | ReactNode[];
 }
 
 function minimapNodeColor(n: Node<TreeNode>): string {
@@ -22,7 +23,7 @@ const nodeTypes = {
     querynode: QueryNode,
 };
 
-function QueryGraphInternal({treeDescription}: QueryGraphProps) {
+function QueryGraphInternal({treeDescription, children}: QueryGraphProps) {
     // Assign ids to all nodes
     const nodeIdMapping = useMemo(() => {
         let nextId = 0;
@@ -92,6 +93,7 @@ function QueryGraphInternal({treeDescription}: QueryGraphProps) {
             nodesFocusable={false}
             className={"query-graph"}
         >
+            {...Array.isArray(children) ? children : [children]}
             <MiniMap zoomable={true} pannable={true} nodeColor={minimapNodeColor} />
             <Controls showInteractive={false} />
         </ReactFlow>
