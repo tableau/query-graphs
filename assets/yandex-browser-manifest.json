@@ -5,17 +5,5 @@
     "logo": "yandex-browser-50x50.png",
     "color": "#fff",
     "show_title": true
-  },
-  "$schema": "https://json.schemastore.org/web-manifest.json",
-  "name": "Query Graphs",
-  "short_name": "Query Graphs",
-  "description": "Helping people see and understand queries.",
-  "dir": "auto",
-  "lang": "en-US",
-  "display": "minimal-ui",
-  "orientation": "any",
-  "scope": "../",
-  "start_url": "../",
-  "background_color": "#fff",
-  "theme_color": "#5581b0"
+  }
 }
