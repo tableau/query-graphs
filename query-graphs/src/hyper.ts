@@ -311,11 +311,10 @@ function colorRelativeExecutionTime(state: ConversionState) {
 
 // Sets the edge widths, relative to the number of output tuples
 function setEdgeWidths(state: ConversionState) {
-    let maxWidth = state.edgeWidths.reduce((p, v) => (p > v.width ? p : v.width), 0);
+    const maxWidth = state.edgeWidths.reduce((p, v) => (p > v.width ? p : v.width), 0);
     const minWidth = state.edgeWidths.reduce((p, v) => (p < v.width ? p : v.width), Infinity);
     if (minWidth == maxWidth) return;
     const factor = Math.max(maxWidth - minWidth, minWidth);
-    maxWidth = Math.max(maxWidth, 10);
     for (const edge of state.edgeWidths) {
         edge.node.edgeWidth = (edge.width - minWidth) / factor;
     }
