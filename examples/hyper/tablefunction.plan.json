@@ -8,7 +8,7 @@
   "input": {
     "operator": "tablefunction",
     "operatorId": 2,
-    "sqlpos": [[32, 47]],
+    "sqlpos": [[36, 51]],
     "cardinality": 10,
     "input": {
       "operator": "tableconstruction",

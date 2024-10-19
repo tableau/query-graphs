@@ -3,17 +3,17 @@
   "operatorId": 1,
   "cardinality": 100,
   "producesRows": true,
-  "output": [{"expression": "iuref", "iu": ["v", ["Integer"]]}, {"expression": "iuref", "iu": ["v2", ["BigInt"]]}, {"expression": "iuref", "iu": ["v3", ["Numeric", 14, 4]]}],
+  "output": [{"expression": "iuref", "iu": ["v", ["Integer"]]}, {"expression": "iuref", "iu": ["v2", ["BigInt"]]}, {"expression": "iuref", "iu": ["v3", ["Numeric", 16, 6]]}],
   "outputNames": ["a1", "sum", "avg"],
   "input": {
     "operator": "groupby",
     "operatorId": 2,
-    "sqlpos": [[54, 65], [29, 36], [38, 45]],
+    "sqlpos": [[58, 69], [33, 40], [42, 49]],
     "cardinality": 100,
     "input": {
       "operator": "tablescan",
       "operatorId": 3,
-      "sqlpos": [[51, 53]],
+      "sqlpos": [[55, 57]],
       "cardinality": 2000,
       "relationId": 0,
       "schema": {"type":"sessionschema"},
@@ -25,6 +25,6 @@
     "groupingSets": [{"keyIndices": [0], "coreIndices": [0], "behavior": "regular"}],
     "emptyGroups": false,
     "aggExpressions": [{"value": {"expression": "iuref", "iu": "v5"}}, {"value": {"expression": "iuref", "iu": "v6"}}],
-    "aggregates": [{"source": 1, "operation": {"aggregate": "avg"}, "iu": ["v3", ["Numeric", 14, 4]]}, {"source": 0, "operation": {"aggregate": "sum"}, "iu": ["v2", ["BigInt"]]}]
+    "aggregates": [{"source": 1, "operation": {"aggregate": "avg"}, "iu": ["v3", ["Numeric", 16, 6]]}, {"source": 0, "operation": {"aggregate": "sum"}, "iu": ["v2", ["BigInt"]]}]
   }
 }
