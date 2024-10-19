@@ -9,7 +9,7 @@
   "input": {
     "operator": "sort",
     "operatorId": 2,
-    "sqlpos": [[1152, 1166], [1212, 1221]],
+    "sqlpos": [[1156, 1170], [1216, 1225]],
     "criterion": [{"value": {"expression": "iuref", "iu": "v"}, "descending": true, "nullFirst": true}, {"value": {"expression": "iuref", "iu": "v3"}, "descending": false, "nullFirst": false}, {"value": {"expression": "iuref", "iu": "v2"}, "descending": false, "nullFirst": false}, {"value": {"expression": "iuref", "iu": "v4"}, "descending": false, "nullFirst": false}],
     "limit": 100,
     "input": {
@@ -18,7 +18,7 @@
       "input": {
         "operator": "select",
         "operatorId": 4,
-        "sqlpos": [[384, 1136]],
+        "sqlpos": [[388, 1140]],
         "input": {
           "operator": "leftouterjoin",
           "operatorId": 5,
@@ -37,7 +37,7 @@
                   "left": {
                     "operator": "tablescan",
                     "operatorId": 10,
-                    "sqlpos": [[297, 301]],
+                    "sqlpos": [[301, 305]],
                     "relationId": 2,
                     "schema": {"type":"sessionschema"},
                     "values": [{"name": "p_partkey", "type": ["Integer"], "iu": ["v4", ["Integer"]]}, {"name": "p_name", "type": ["Varchar", 55], "iu": ["v9", ["Varchar", 55]]}, {"name": "p_mfgr", "type": ["Char", 25], "iu": ["v5", ["Char", 25]]}, {"name": "p_brand", "type": ["Char", 10], "iu": ["v10", ["Char", 10]]}, {"name": "p_type", "type": ["Varchar", 25], "iu": ["v11", ["Varchar", 25]]}, {"name": "p_size", "type": ["Integer"], "iu": ["v12", ["Integer"]]}, {"name": "p_container", "type": ["Char", 10], "iu": ["v13", ["Char", 10]]}, {"name": "p_retailprice", "type": ["Numeric", 12, 2], "iu": ["v14", ["Numeric", 12, 2]]}, {"name": "p_comment", "type": ["Varchar", 23], "iu": ["v15", ["Varchar", 23]]}],
@@ -50,7 +50,7 @@
                   "right": {
                     "operator": "tablescan",
                     "operatorId": 11,
-                    "sqlpos": [[311, 319]],
+                    "sqlpos": [[315, 323]],
                     "relationId": 3,
                     "schema": {"type":"sessionschema"},
                     "values": [{"name": "s_suppkey", "type": ["Integer"], "iu": ["v19", ["Integer"]]}, {"name": "s_name", "type": ["Char", 25], "iu": ["v2", ["Char", 25]]}, {"name": "s_address", "type": ["Varchar", 40], "iu": ["v6", ["Varchar", 40]]}, {"name": "s_nationkey", "type": ["Integer"], "iu": ["v20", ["Integer"]]}, {"name": "s_phone", "type": ["Char", 15], "iu": ["v7", ["Char", 15]]}, {"name": "s_acctbal", "type": ["Numeric", 12, 2], "iu": ["v", ["Numeric", 12, 2]]}, {"name": "s_comment", "type": ["Varchar", 101], "iu": ["v8", ["Varchar", 101]]}],
@@ -65,7 +65,7 @@
                 "right": {
                   "operator": "tablescan",
                   "operatorId": 12,
-                  "sqlpos": [[329, 337]],
+                  "sqlpos": [[333, 341]],
                   "relationId": 4,
                   "schema": {"type":"sessionschema"},
                   "values": [{"name": "ps_partkey", "type": ["Integer"], "iu": ["v24", ["Integer"]]}, {"name": "ps_suppkey", "type": ["Integer"], "iu": ["v25", ["Integer"]]}, {"name": "ps_availqty", "type": ["Integer"], "iu": ["v26", ["Integer"]]}, {"name": "ps_supplycost", "type": ["Numeric", 12, 2], "iu": ["v27", ["Numeric", 12, 2]]}, {"name": "ps_comment", "type": ["Varchar", 199], "iu": ["v28", ["Varchar", 199]]}],
@@ -80,7 +80,7 @@
               "right": {
                 "operator": "tablescan",
                 "operatorId": 13,
-                "sqlpos": [[347, 353]],
+                "sqlpos": [[351, 357]],
                 "relationId": 8,
                 "schema": {"type":"sessionschema"},
                 "values": [{"name": "n_nationkey", "type": ["Integer"], "iu": ["v32", ["Integer"]]}, {"name": "n_name", "type": ["Char", 25], "iu": ["v3", ["Char", 25]]}, {"name": "n_regionkey", "type": ["Integer"], "iu": ["v33", ["Integer"]]}, {"name": "n_comment", "type": ["Varchar", 152], "iu": ["v34", ["Varchar", 152]]}],
@@ -95,7 +95,7 @@
             "right": {
               "operator": "tablescan",
               "operatorId": 14,
-              "sqlpos": [[363, 369]],
+              "sqlpos": [[367, 373]],
               "relationId": 9,
               "schema": {"type":"sessionschema"},
               "values": [{"name": "r_regionkey", "type": ["Integer"], "iu": ["v38", ["Integer"]]}, {"name": "r_name", "type": ["Char", 25], "iu": ["v39", ["Char", 25]]}, {"name": "r_comment", "type": ["Varchar", 152], "iu": ["v40", ["Varchar", 152]]}],
@@ -113,11 +113,11 @@
             "input": {
               "operator": "groupby",
               "operatorId": 16,
-              "sqlpos": [[682, 700]],
+              "sqlpos": [[686, 704]],
               "input": {
                 "operator": "select",
                 "operatorId": 17,
-                "sqlpos": [[899, 1126]],
+                "sqlpos": [[903, 1130]],
                 "input": {
                   "operator": "join",
                   "operatorId": 18,
@@ -130,7 +130,7 @@
                       "left": {
                         "operator": "tablescan",
                         "operatorId": 21,
-                        "sqlpos": [[746, 754]],
+                        "sqlpos": [[750, 758]],
                         "relationId": 4,
                         "schema": {"type":"sessionschema"},
                         "values": [{"name": "ps_partkey", "type": ["Integer"], "iu": ["v44", ["Integer"]]}, {"name": "ps_suppkey", "type": ["Integer"], "iu": ["v45", ["Integer"]]}, {"name": "ps_availqty", "type": ["Integer"], "iu": ["v46", ["Integer"]]}, {"name": "ps_supplycost", "type": ["Numeric", 12, 2], "iu": ["v47", ["Numeric", 12, 2]]}, {"name": "ps_comment", "type": ["Varchar", 199], "iu": ["v48", ["Varchar", 199]]}],
@@ -143,7 +143,7 @@
                       "right": {
                         "operator": "tablescan",
                         "operatorId": 22,
-                        "sqlpos": [[780, 788]],
+                        "sqlpos": [[784, 792]],
                         "relationId": 3,
                         "schema": {"type":"sessionschema"},
                         "values": [{"name": "s_suppkey", "type": ["Integer"], "iu": ["v52", ["Integer"]]}, {"name": "s_name", "type": ["Char", 25], "iu": ["v53", ["Char", 25]]}, {"name": "s_address", "type": ["Varchar", 40], "iu": ["v54", ["Varchar", 40]]}, {"name": "s_nationkey", "type": ["Integer"], "iu": ["v55", ["Integer"]]}, {"name": "s_phone", "type": ["Char", 15], "iu": ["v56", ["Char", 15]]}, {"name": "s_acctbal", "type": ["Numeric", 12, 2], "iu": ["v57", ["Numeric", 12, 2]]}, {"name": "s_comment", "type": ["Varchar", 101], "iu": ["v58", ["Varchar", 101]]}],
@@ -158,7 +158,7 @@
                     "right": {
                       "operator": "tablescan",
                       "operatorId": 23,
-                      "sqlpos": [[814, 820]],
+                      "sqlpos": [[818, 824]],
                       "relationId": 8,
                       "schema": {"type":"sessionschema"},
                       "values": [{"name": "n_nationkey", "type": ["Integer"], "iu": ["v62", ["Integer"]]}, {"name": "n_name", "type": ["Char", 25], "iu": ["v63", ["Char", 25]]}, {"name": "n_regionkey", "type": ["Integer"], "iu": ["v64", ["Integer"]]}, {"name": "n_comment", "type": ["Varchar", 152], "iu": ["v65", ["Varchar", 152]]}],
@@ -173,7 +173,7 @@
                   "right": {
                     "operator": "tablescan",
                     "operatorId": 24,
-                    "sqlpos": [[846, 852]],
+                    "sqlpos": [[850, 856]],
                     "relationId": 9,
                     "schema": {"type":"sessionschema"},
                     "values": [{"name": "r_regionkey", "type": ["Integer"], "iu": ["v69", ["Integer"]]}, {"name": "r_name", "type": ["Char", 25], "iu": ["v70", ["Char", 25]]}, {"name": "r_comment", "type": ["Varchar", 152], "iu": ["v71", ["Varchar", 152]]}],
@@ -213,13 +213,13 @@
   "input": {
     "operator": "sort",
     "operatorId": 2,
-    "sqlpos": [[1152, 1166], [1212, 1221]],
+    "sqlpos": [[1156, 1170], [1216, 1225]],
     "criterion": [{"value": {"expression": "iuref", "iu": "v"}, "descending": true, "nullFirst": true}, {"value": {"expression": "iuref", "iu": "v3"}, "descending": false, "nullFirst": false}, {"value": {"expression": "iuref", "iu": "v2"}, "descending": false, "nullFirst": false}, {"value": {"expression": "iuref", "iu": "v4"}, "descending": false, "nullFirst": false}],
     "limit": 100,
     "input": {
       "operator": "select",
       "operatorId": 3,
-      "sqlpos": [[384, 1136]],
+      "sqlpos": [[388, 1140]],
       "input": {
         "operator": "leftouterjoin",
         "operatorId": 4,
@@ -238,7 +238,7 @@
                 "left": {
                   "operator": "tablescan",
                   "operatorId": 9,
-                  "sqlpos": [[297, 301]],
+                  "sqlpos": [[301, 305]],
                   "cardinality": 533,
                   "relationId": 2,
                   "schema": {"type":"sessionschema"},
@@ -249,7 +249,7 @@
                 "right": {
                   "operator": "tablescan",
                   "operatorId": 10,
-                  "sqlpos": [[311, 319]],
+                  "sqlpos": [[315, 323]],
                   "cardinality": 518,
                   "relationId": 3,
                   "schema": {"type":"sessionschema"},
@@ -262,7 +262,7 @@
               "right": {
                 "operator": "tablescan",
                 "operatorId": 11,
-                "sqlpos": [[329, 337]],
+                "sqlpos": [[333, 341]],
                 "cardinality": 537,
                 "relationId": 4,
                 "schema": {"type":"sessionschema"},
@@ -275,7 +275,7 @@
             "right": {
               "operator": "tablescan",
               "operatorId": 12,
-              "sqlpos": [[347, 353]],
+              "sqlpos": [[351, 357]],
               "cardinality": 25,
               "relationId": 8,
               "schema": {"type":"sessionschema"},
@@ -288,7 +288,7 @@
           "right": {
             "operator": "tablescan",
             "operatorId": 13,
-            "sqlpos": [[363, 369]],
+            "sqlpos": [[367, 373]],
             "cardinality": 5,
             "relationId": 9,
             "schema": {"type":"sessionschema"},
@@ -301,11 +301,11 @@
         "right": {
           "operator": "groupby",
           "operatorId": 14,
-          "sqlpos": [[682, 700]],
+          "sqlpos": [[686, 704]],
           "input": {
             "operator": "select",
             "operatorId": 15,
-            "sqlpos": [[899, 1126]],
+            "sqlpos": [[903, 1130]],
             "input": {
               "operator": "join",
               "operatorId": 16,
@@ -318,7 +318,7 @@
                   "left": {
                     "operator": "tablescan",
                     "operatorId": 19,
-                    "sqlpos": [[746, 754]],
+                    "sqlpos": [[750, 758]],
                     "cardinality": 537,
                     "relationId": 4,
                     "schema": {"type":"sessionschema"},
@@ -329,7 +329,7 @@
                   "right": {
                     "operator": "tablescan",
                     "operatorId": 20,
-                    "sqlpos": [[780, 788]],
+                    "sqlpos": [[784, 792]],
                     "cardinality": 518,
                     "relationId": 3,
                     "schema": {"type":"sessionschema"},
@@ -342,7 +342,7 @@
                 "right": {
                   "operator": "tablescan",
                   "operatorId": 21,
-                  "sqlpos": [[814, 820]],
+                  "sqlpos": [[818, 824]],
                   "cardinality": 25,
                   "relationId": 8,
                   "schema": {"type":"sessionschema"},
@@ -355,7 +355,7 @@
               "right": {
                 "operator": "tablescan",
                 "operatorId": 22,
-                "sqlpos": [[846, 852]],
+                "sqlpos": [[850, 856]],
                 "cardinality": 5,
                 "relationId": 9,
                 "schema": {"type":"sessionschema"},
@@ -390,7 +390,7 @@
   "input": {
     "operator": "sort",
     "operatorId": 2,
-    "sqlpos": [[1152, 1166], [1212, 1221]],
+    "sqlpos": [[1156, 1170], [1216, 1225]],
     "criterion": [{"value": {"expression": "iuref", "iu": "v"}, "descending": true, "nullFirst": true}, {"value": {"expression": "iuref", "iu": "v3"}, "descending": false, "nullFirst": false}, {"value": {"expression": "iuref", "iu": "v2"}, "descending": false, "nullFirst": false}, {"value": {"expression": "iuref", "iu": "v4"}, "descending": false, "nullFirst": false}],
     "limit": 100,
     "input": {
@@ -408,7 +408,7 @@
             "left": {
               "operator": "groupby",
               "operatorId": 7,
-              "sqlpos": [[682, 700]],
+              "sqlpos": [[686, 704]],
               "input": {
                 "operator": "join",
                 "operatorId": 8,
@@ -421,7 +421,7 @@
                     "left": {
                       "operator": "tablescan",
                       "operatorId": 11,
-                      "sqlpos": [[846, 852]],
+                      "sqlpos": [[850, 856]],
                       "relationId": 9,
                       "schema": {"type":"sessionschema"},
                       "values": [{"name": "r_regionkey", "type": ["Integer"], "iu": ["v9", ["Integer"]]}, {"name": "r_name", "type": ["Char", 25], "iu": ["v10", ["Char", 25]]}, {"name": "r_comment", "type": ["Varchar", 152], "iu": null}],
@@ -432,7 +432,7 @@
                     "right": {
                       "operator": "tablescan",
                       "operatorId": 12,
-                      "sqlpos": [[814, 820]],
+                      "sqlpos": [[818, 824]],
                       "cardinality": 25,
                       "relationId": 8,
                       "schema": {"type":"sessionschema"},
@@ -445,7 +445,7 @@
                   "right": {
                     "operator": "tablescan",
                     "operatorId": 13,
-                    "sqlpos": [[780, 788]],
+                    "sqlpos": [[784, 792]],
                     "cardinality": 518,
                     "relationId": 3,
                     "schema": {"type":"sessionschema"},
@@ -458,7 +458,7 @@
                 "right": {
                   "operator": "tablescan",
                   "operatorId": 14,
-                  "sqlpos": [[746, 754]],
+                  "sqlpos": [[750, 758]],
                   "cardinality": 537,
                   "relationId": 4,
                   "schema": {"type":"sessionschema"},
@@ -477,7 +477,7 @@
             "right": {
               "operator": "tablescan",
               "operatorId": 15,
-              "sqlpos": [[297, 301]],
+              "sqlpos": [[301, 305]],
               "relationId": 2,
               "schema": {"type":"sessionschema"},
               "values": [{"name": "p_partkey", "type": ["Integer"], "iu": ["v4", ["Integer"]]}, {"name": "p_name", "type": ["Varchar", 55], "iu": null}, {"name": "p_mfgr", "type": ["Char", 25], "iu": ["v5", ["Char", 25]]}, {"name": "p_brand", "type": ["Char", 10], "iu": null}, {"name": "p_type", "type": ["Varchar", 25], "iu": ["v20", ["Varchar", 25]]}, {"name": "p_size", "type": ["Integer"], "iu": ["v21", ["Integer"]]}, {"name": "p_container", "type": ["Char", 10], "iu": null}, {"name": "p_retailprice", "type": ["Numeric", 12, 2], "iu": null}, {"name": "p_comment", "type": ["Varchar", 23], "iu": null}],
@@ -490,7 +490,7 @@
           "right": {
             "operator": "tablescan",
             "operatorId": 16,
-            "sqlpos": [[329, 337]],
+            "sqlpos": [[333, 341]],
             "cardinality": 537,
             "relationId": 4,
             "schema": {"type":"sessionschema"},
@@ -498,7 +498,7 @@
             "debugName": {"classification": "nonsensitive", "value": "partsupp"},
             "selectivity": 1
           },
-          "condition": {"expression": "and", "arguments": [{"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v22"}, "right": {"expression": "iuref", "iu": "v18"}}, {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v24"}, "right": {"expression": "iuref", "iu": "v19"}}, {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v4"}, "right": {"expression": "iuref", "iu": "v22"}}]}
+          "condition": {"expression": "and", "arguments": [{"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v18"}, "right": {"expression": "iuref", "iu": "v22"}}, {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v24"}, "right": {"expression": "iuref", "iu": "v19"}}, {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v4"}, "right": {"expression": "iuref", "iu": "v22"}}]}
         },
         "right": {
           "operator": "join",
@@ -506,7 +506,7 @@
           "left": {
             "operator": "tablescan",
             "operatorId": 18,
-            "sqlpos": [[347, 353]],
+            "sqlpos": [[351, 357]],
             "cardinality": 25,
             "relationId": 8,
             "schema": {"type":"sessionschema"},
@@ -517,7 +517,7 @@
           "right": {
             "operator": "tablescan",
             "operatorId": 19,
-            "sqlpos": [[311, 319]],
+            "sqlpos": [[315, 323]],
             "cardinality": 518,
             "relationId": 3,
             "schema": {"type":"sessionschema"},
@@ -532,7 +532,7 @@
       "right": {
         "operator": "tablescan",
         "operatorId": 20,
-        "sqlpos": [[363, 369]],
+        "sqlpos": [[367, 373]],
         "relationId": 9,
         "schema": {"type":"sessionschema"},
         "values": [{"name": "r_regionkey", "type": ["Integer"], "iu": ["v29", ["Integer"]]}, {"name": "r_name", "type": ["Char", 25], "iu": ["v30", ["Char", 25]]}, {"name": "r_comment", "type": ["Varchar", 152], "iu": null}],
@@ -555,7 +555,7 @@
   "input": {
     "operator": "sort",
     "operatorId": 2,
-    "sqlpos": [[1152, 1166], [1212, 1221]],
+    "sqlpos": [[1156, 1170], [1216, 1225]],
     "criterion": [{"value": {"expression": "iuref", "iu": "v"}, "descending": true, "nullFirst": true}, {"value": {"expression": "iuref", "iu": "v3"}, "descending": false, "nullFirst": false}, {"value": {"expression": "iuref", "iu": "v2"}, "descending": false, "nullFirst": false}, {"value": {"expression": "iuref", "iu": "v4"}, "descending": false, "nullFirst": false}],
     "limit": 100,
     "input": {
@@ -573,7 +573,7 @@
           "left": {
             "operator": "tablescan",
             "operatorId": 6,
-            "sqlpos": [[363, 369]],
+            "sqlpos": [[367, 373]],
             "cardinality": 1,
             "relationId": 9,
             "schema": {"type":"sessionschema"},
@@ -585,7 +585,7 @@
           "right": {
             "operator": "tablescan",
             "operatorId": 7,
-            "sqlpos": [[347, 353]],
+            "sqlpos": [[351, 357]],
             "cardinality": 25,
             "relationId": 8,
             "schema": {"type":"sessionschema"},
@@ -606,19 +606,19 @@
             "left": {
               "operator": "tablescan",
               "operatorId": 10,
-              "sqlpos": [[297, 301]],
+              "sqlpos": [[301, 305]],
               "cardinality": 6,
               "relationId": 2,
               "schema": {"type":"sessionschema"},
               "values": [{"name": "p_partkey", "type": ["Integer"], "iu": ["v4", ["Integer"]]}, {"name": "p_name", "type": ["Varchar", 55], "iu": null}, {"name": "p_mfgr", "type": ["Char", 25], "iu": ["v5", ["Char", 25]]}, {"name": "p_brand", "type": ["Char", 10], "iu": null}, {"name": "p_type", "type": ["Varchar", 25], "iu": ["v13", ["Varchar", 25]]}, {"name": "p_size", "type": ["Integer"], "iu": ["v14", ["Integer"]]}, {"name": "p_container", "type": ["Char", 10], "iu": null}, {"name": "p_retailprice", "type": ["Numeric", 12, 2], "iu": null}, {"name": "p_comment", "type": ["Varchar", 23], "iu": null}],
               "debugName": {"classification": "nonsensitive", "value": "part"},
-              "restrictions": [{"attribute": 5, "mode": "=", "value": {"expression": "const", "value": {"type": ["Integer"], "value": 15}}}, {"attribute": 4, "mode": "lambda", "value": {"expression": "like", "arguments": [{"expression": "iuref", "iu": "v13"}, {"expression": "const", "value": {"type": ["Varchar"], "value": "%BRASS"}}, {"expression": "const", "value": {"type": ["Varchar"], "value": "\\"}}]}, "value2": null}],
+              "restrictions": [{"attribute": 5, "mode": "=", "value": {"expression": "const", "value": {"type": ["Integer"], "value": 15}}}, {"attribute": 4, "mode": "lambda", "expression": {"expression": "like", "arguments": [{"expression": "iuref", "iu": "v13"}, {"expression": "const", "value": {"type": ["Varchar"], "value": "%BRASS"}}, {"expression": "const", "value": {"type": ["Varchar"], "value": "\\"}}]}}],
               "selectivity": 0.011257
             },
             "right": {
               "operator": "tablescan",
               "operatorId": 11,
-              "sqlpos": [[329, 337]],
+              "sqlpos": [[333, 341]],
               "cardinality": 537,
               "relationId": 4,
               "schema": {"type":"sessionschema"},
@@ -631,7 +631,7 @@
           "right": {
             "operator": "tablescan",
             "operatorId": 12,
-            "sqlpos": [[311, 319]],
+            "sqlpos": [[315, 323]],
             "cardinality": 518,
             "relationId": 3,
             "schema": {"type":"sessionschema"},
@@ -646,7 +646,7 @@
       "right": {
         "operator": "groupby",
         "operatorId": 13,
-        "sqlpos": [[682, 700]],
+        "sqlpos": [[686, 704]],
         "cardinality": 107.4,
         "input": {
           "operator": "join",
@@ -663,7 +663,7 @@
               "left": {
                 "operator": "tablescan",
                 "operatorId": 17,
-                "sqlpos": [[846, 852]],
+                "sqlpos": [[850, 856]],
                 "cardinality": 1,
                 "relationId": 9,
                 "schema": {"type":"sessionschema"},
@@ -675,7 +675,7 @@
               "right": {
                 "operator": "tablescan",
                 "operatorId": 18,
-                "sqlpos": [[814, 820]],
+                "sqlpos": [[818, 824]],
                 "cardinality": 25,
                 "relationId": 8,
                 "schema": {"type":"sessionschema"},
@@ -688,7 +688,7 @@
             "right": {
               "operator": "tablescan",
               "operatorId": 19,
-              "sqlpos": [[780, 788]],
+              "sqlpos": [[784, 792]],
               "cardinality": 518,
               "relationId": 3,
               "schema": {"type":"sessionschema"},
@@ -701,7 +701,7 @@
           "right": {
             "operator": "tablescan",
             "operatorId": 20,
-            "sqlpos": [[746, 754]],
+            "sqlpos": [[750, 758]],
             "cardinality": 537,
             "relationId": 4,
             "schema": {"type":"sessionschema"},
@@ -717,7 +717,7 @@
         "aggExpressions": [{"value": {"expression": "iuref", "iu": "v28"}}],
         "aggregates": [{"source": 0, "operation": {"aggregate": "min"}, "iu": ["v30", ["Numeric", 12, 2, "nullable"]]}]
       },
-      "condition": {"expression": "and", "arguments": [{"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v4"}, "right": {"expression": "iuref", "iu": "v29"}}, {"expression": "and", "arguments": [{"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v15"}, "right": {"expression": "iuref", "iu": "v29"}}, {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v17"}, "right": {"expression": "iuref", "iu": "v30"}}]}]}
+      "condition": {"expression": "and", "arguments": [{"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v4"}, "right": {"expression": "iuref", "iu": "v29"}}, {"expression": "and", "arguments": [{"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v29"}, "right": {"expression": "iuref", "iu": "v15"}}, {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v17"}, "right": {"expression": "iuref", "iu": "v30"}}]}]}
     }
   }
 }
@@ -732,7 +732,7 @@
   "input": {
     "operator": "sort",
     "operatorId": 2,
-    "sqlpos": [[1152, 1166], [1212, 1221]],
+    "sqlpos": [[1156, 1170], [1216, 1225]],
     "criterion": [{"value": {"expression": "iuref", "iu": "v"}, "descending": true, "nullFirst": true}, {"value": {"expression": "iuref", "iu": "v3"}, "descending": false, "nullFirst": false}, {"value": {"expression": "iuref", "iu": "v2"}, "descending": false, "nullFirst": false}, {"value": {"expression": "iuref", "iu": "v4"}, "descending": false, "nullFirst": false}],
     "limit": 100,
     "input": {
@@ -755,7 +755,7 @@
           "left": {
             "operator": "tablescan",
             "operatorId": 6,
-            "sqlpos": [[363, 369]],
+            "sqlpos": [[367, 373]],
             "cardinality": 1,
             "relationId": 9,
             "schema": {"type":"sessionschema"},
@@ -767,7 +767,7 @@
           "right": {
             "operator": "tablescan",
             "operatorId": 7,
-            "sqlpos": [[347, 353]],
+            "sqlpos": [[351, 357]],
             "cardinality": 25,
             "relationId": 8,
             "schema": {"type":"sessionschema"},
@@ -793,19 +793,19 @@
             "left": {
               "operator": "tablescan",
               "operatorId": 10,
-              "sqlpos": [[297, 301]],
+              "sqlpos": [[301, 305]],
               "cardinality": 6,
               "relationId": 2,
               "schema": {"type":"sessionschema"},
               "values": [{"name": "p_partkey", "type": ["Integer"], "iu": ["v4", ["Integer"]]}, {"name": "p_name", "type": ["Varchar", 55], "iu": null}, {"name": "p_mfgr", "type": ["Char", 25], "iu": ["v5", ["Char", 25]]}, {"name": "p_brand", "type": ["Char", 10], "iu": null}, {"name": "p_type", "type": ["Varchar", 25], "iu": ["v13", ["Varchar", 25]]}, {"name": "p_size", "type": ["Integer"], "iu": ["v14", ["Integer"]]}, {"name": "p_container", "type": ["Char", 10], "iu": null}, {"name": "p_retailprice", "type": ["Numeric", 12, 2], "iu": null}, {"name": "p_comment", "type": ["Varchar", 23], "iu": null}],
               "debugName": {"classification": "nonsensitive", "value": "part"},
-              "restrictions": [{"attribute": 5, "mode": "=", "value": {"expression": "const", "value": {"type": ["Integer"], "value": 15}}}, {"attribute": 4, "mode": "lambda", "value": {"expression": "like", "arguments": [{"expression": "iuref", "iu": "v13"}, {"expression": "const", "value": {"type": ["Varchar"], "value": "%BRASS"}}, {"expression": "const", "value": {"type": ["Varchar"], "value": "\\"}}]}, "value2": null}],
+              "restrictions": [{"attribute": 5, "mode": "=", "value": {"expression": "const", "value": {"type": ["Integer"], "value": 15}}}, {"attribute": 4, "mode": "lambda", "expression": {"expression": "like", "arguments": [{"expression": "iuref", "iu": "v13"}, {"expression": "const", "value": {"type": ["Varchar"], "value": "%BRASS"}}, {"expression": "const", "value": {"type": ["Varchar"], "value": "\\"}}]}}],
               "selectivity": 0.011257
             },
             "right": {
               "operator": "tablescan",
               "operatorId": 11,
-              "sqlpos": [[329, 337]],
+              "sqlpos": [[333, 341]],
               "cardinality": 537,
               "relationId": 4,
               "schema": {"type":"sessionschema"},
@@ -819,7 +819,7 @@
           "right": {
             "operator": "tablescan",
             "operatorId": 12,
-            "sqlpos": [[311, 319]],
+            "sqlpos": [[315, 323]],
             "cardinality": 518,
             "relationId": 3,
             "schema": {"type":"sessionschema"},
@@ -835,7 +835,7 @@
       "right": {
         "operator": "groupby",
         "operatorId": 13,
-        "sqlpos": [[682, 700]],
+        "sqlpos": [[686, 704]],
         "cardinality": 107.4,
         "input": {
           "operator": "join",
@@ -858,7 +858,7 @@
               "left": {
                 "operator": "tablescan",
                 "operatorId": 17,
-                "sqlpos": [[846, 852]],
+                "sqlpos": [[850, 856]],
                 "cardinality": 1,
                 "relationId": 9,
                 "schema": {"type":"sessionschema"},
@@ -870,7 +870,7 @@
               "right": {
                 "operator": "tablescan",
                 "operatorId": 18,
-                "sqlpos": [[814, 820]],
+                "sqlpos": [[818, 824]],
                 "cardinality": 25,
                 "relationId": 8,
                 "schema": {"type":"sessionschema"},
@@ -884,7 +884,7 @@
             "right": {
               "operator": "tablescan",
               "operatorId": 19,
-              "sqlpos": [[780, 788]],
+              "sqlpos": [[784, 792]],
               "cardinality": 518,
               "relationId": 3,
               "schema": {"type":"sessionschema"},
@@ -898,7 +898,7 @@
           "right": {
             "operator": "tablescan",
             "operatorId": 20,
-            "sqlpos": [[746, 754]],
+            "sqlpos": [[750, 758]],
             "cardinality": 537,
             "relationId": 4,
             "schema": {"type":"sessionschema"},
@@ -915,7 +915,7 @@
         "aggExpressions": [{"value": {"expression": "iuref", "iu": "v28"}}],
         "aggregates": [{"source": 0, "operation": {"aggregate": "min"}, "iu": ["v30", ["Numeric", 12, 2, "nullable"]]}]
       },
-      "condition": {"expression": "and", "arguments": [{"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v17"}, "right": {"expression": "iuref", "iu": "v30"}}, {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v4"}, "right": {"expression": "iuref", "iu": "v29"}}, {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v15"}, "right": {"expression": "iuref", "iu": "v29"}}]}
+      "condition": {"expression": "and", "arguments": [{"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v17"}, "right": {"expression": "iuref", "iu": "v30"}}, {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v4"}, "right": {"expression": "iuref", "iu": "v29"}}, {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v29"}, "right": {"expression": "iuref", "iu": "v15"}}]}
     }
   }
 }
@@ -930,7 +930,7 @@
   "input": {
     "operator": "sort",
     "operatorId": 2,
-    "sqlpos": [[1152, 1166], [1212, 1221]],
+    "sqlpos": [[1156, 1170], [1216, 1225]],
     "criterion": [{"value": {"expression": "iuref", "iu": "v"}, "descending": true, "nullFirst": true}, {"value": {"expression": "iuref", "iu": "v3"}, "descending": false, "nullFirst": false}, {"value": {"expression": "iuref", "iu": "v2"}, "descending": false, "nullFirst": false}, {"value": {"expression": "iuref", "iu": "v4"}, "descending": false, "nullFirst": false}],
     "limit": 100,
     "input": {
@@ -953,7 +953,7 @@
           "left": {
             "operator": "tablescan",
             "operatorId": 6,
-            "sqlpos": [[363, 369]],
+            "sqlpos": [[367, 373]],
             "cardinality": 1,
             "relationId": 9,
             "schema": {"type":"sessionschema"},
@@ -965,7 +965,7 @@
           "right": {
             "operator": "tablescan",
             "operatorId": 7,
-            "sqlpos": [[347, 353]],
+            "sqlpos": [[351, 357]],
             "cardinality": 25,
             "relationId": 8,
             "schema": {"type":"sessionschema"},
@@ -991,19 +991,19 @@
             "left": {
               "operator": "tablescan",
               "operatorId": 10,
-              "sqlpos": [[297, 301]],
+              "sqlpos": [[301, 305]],
               "cardinality": 6,
               "relationId": 2,
               "schema": {"type":"sessionschema"},
               "values": [{"name": "p_partkey", "type": ["Integer"], "iu": ["v4", ["Integer"]]}, {"name": "p_name", "type": ["Varchar", 55], "iu": null}, {"name": "p_mfgr", "type": ["Char", 25], "iu": ["v5", ["Char", 25]]}, {"name": "p_brand", "type": ["Char", 10], "iu": null}, {"name": "p_type", "type": ["Varchar", 25], "iu": ["v13", ["Varchar", 25]]}, {"name": "p_size", "type": ["Integer"], "iu": ["v14", ["Integer"]]}, {"name": "p_container", "type": ["Char", 10], "iu": null}, {"name": "p_retailprice", "type": ["Numeric", 12, 2], "iu": null}, {"name": "p_comment", "type": ["Varchar", 23], "iu": null}],
               "debugName": {"classification": "nonsensitive", "value": "part"},
-              "restrictions": [{"attribute": 5, "mode": "=", "value": {"expression": "const", "value": {"type": ["Integer"], "value": 15}}}, {"attribute": 4, "mode": "lambda", "value": {"expression": "like", "arguments": [{"expression": "iuref", "iu": "v13"}, {"expression": "const", "value": {"type": ["Varchar"], "value": "%BRASS"}}, {"expression": "const", "value": {"type": ["Varchar"], "value": "\\"}}]}, "value2": null}],
+              "restrictions": [{"attribute": 5, "mode": "=", "value": {"expression": "const", "value": {"type": ["Integer"], "value": 15}}}, {"attribute": 4, "mode": "lambda", "expression": {"expression": "like", "arguments": [{"expression": "iuref", "iu": "v13"}, {"expression": "const", "value": {"type": ["Varchar"], "value": "%BRASS"}}, {"expression": "const", "value": {"type": ["Varchar"], "value": "\\"}}]}}],
               "selectivity": 0.011257
             },
             "right": {
               "operator": "tablescan",
               "operatorId": 11,
-              "sqlpos": [[329, 337]],
+              "sqlpos": [[333, 341]],
               "cardinality": 537,
               "relationId": 4,
               "schema": {"type":"sessionschema"},
@@ -1017,7 +1017,7 @@
           "right": {
             "operator": "tablescan",
             "operatorId": 12,
-            "sqlpos": [[311, 319]],
+            "sqlpos": [[315, 323]],
             "cardinality": 518,
             "relationId": 3,
             "schema": {"type":"sessionschema"},
@@ -1033,7 +1033,7 @@
       "right": {
         "operator": "groupby",
         "operatorId": 13,
-        "sqlpos": [[682, 700]],
+        "sqlpos": [[686, 704]],
         "cardinality": 107.4,
         "input": {
           "operator": "join",
@@ -1056,7 +1056,7 @@
               "left": {
                 "operator": "tablescan",
                 "operatorId": 17,
-                "sqlpos": [[846, 852]],
+                "sqlpos": [[850, 856]],
                 "cardinality": 1,
                 "relationId": 9,
                 "schema": {"type":"sessionschema"},
@@ -1068,7 +1068,7 @@
               "right": {
                 "operator": "tablescan",
                 "operatorId": 18,
-                "sqlpos": [[814, 820]],
+                "sqlpos": [[818, 824]],
                 "cardinality": 25,
                 "relationId": 8,
                 "schema": {"type":"sessionschema"},
@@ -1082,7 +1082,7 @@
             "right": {
               "operator": "tablescan",
               "operatorId": 19,
-              "sqlpos": [[780, 788]],
+              "sqlpos": [[784, 792]],
               "cardinality": 518,
               "relationId": 3,
               "schema": {"type":"sessionschema"},
@@ -1096,7 +1096,7 @@
           "right": {
             "operator": "tablescan",
             "operatorId": 20,
-            "sqlpos": [[746, 754]],
+            "sqlpos": [[750, 758]],
             "cardinality": 537,
             "relationId": 4,
             "schema": {"type":"sessionschema"},
@@ -1113,7 +1113,7 @@
         "aggExpressions": [{"value": {"expression": "iuref", "iu": "v28"}}],
         "aggregates": [{"source": 0, "operation": {"aggregate": "min"}, "iu": ["v30", ["Numeric", 12, 2, "nullable"]]}]
       },
-      "condition": {"expression": "and", "arguments": [{"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v17"}, "right": {"expression": "iuref", "iu": "v30"}}, {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v4"}, "right": {"expression": "iuref", "iu": "v29"}}, {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v15"}, "right": {"expression": "iuref", "iu": "v29"}}]}
+      "condition": {"expression": "and", "arguments": [{"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v17"}, "right": {"expression": "iuref", "iu": "v30"}}, {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v4"}, "right": {"expression": "iuref", "iu": "v29"}}, {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v29"}, "right": {"expression": "iuref", "iu": "v15"}}]}
     }
   }
 }
@@ -1129,7 +1129,7 @@
   "input": {
     "operator": "sort",
     "operatorId": 2,
-    "sqlpos": [[1152, 1166], [1212, 1221]],
+    "sqlpos": [[1156, 1170], [1216, 1225]],
     "cardinality": 1.2,
     "criterion": [{"value": {"expression": "iuref", "iu": "v"}, "descending": true, "nullFirst": true}, {"value": {"expression": "iuref", "iu": "v3"}, "descending": false, "nullFirst": false}, {"value": {"expression": "iuref", "iu": "v2"}, "descending": false, "nullFirst": false}, {"value": {"expression": "iuref", "iu": "v4"}, "descending": false, "nullFirst": false}],
     "limit": 100,
@@ -1153,7 +1153,7 @@
           "left": {
             "operator": "tablescan",
             "operatorId": 6,
-            "sqlpos": [[363, 369]],
+            "sqlpos": [[367, 373]],
             "cardinality": 1,
             "relationId": 9,
             "schema": {"type":"sessionschema"},
@@ -1165,7 +1165,7 @@
           "right": {
             "operator": "tablescan",
             "operatorId": 7,
-            "sqlpos": [[347, 353]],
+            "sqlpos": [[351, 357]],
             "cardinality": 25,
             "relationId": 8,
             "schema": {"type":"sessionschema"},
@@ -1191,19 +1191,19 @@
             "left": {
               "operator": "tablescan",
               "operatorId": 10,
-              "sqlpos": [[297, 301]],
+              "sqlpos": [[301, 305]],
               "cardinality": 6,
               "relationId": 2,
               "schema": {"type":"sessionschema"},
               "values": [{"name": "p_partkey", "type": ["Integer"], "iu": ["v4", ["Integer"]]}, {"name": "p_name", "type": ["Varchar", 55], "iu": null}, {"name": "p_mfgr", "type": ["Char", 25], "iu": ["v5", ["Char", 25]]}, {"name": "p_brand", "type": ["Char", 10], "iu": null}, {"name": "p_type", "type": ["Varchar", 25], "iu": ["v13", ["Varchar", 25]]}, {"name": "p_size", "type": ["Integer"], "iu": ["v14", ["Integer"]]}, {"name": "p_container", "type": ["Char", 10], "iu": null}, {"name": "p_retailprice", "type": ["Numeric", 12, 2], "iu": null}, {"name": "p_comment", "type": ["Varchar", 23], "iu": null}],
               "debugName": {"classification": "nonsensitive", "value": "part"},
-              "restrictions": [{"attribute": 5, "mode": "=", "value": {"expression": "const", "value": {"type": ["Integer"], "value": 15}}}, {"attribute": 4, "mode": "lambda", "value": {"expression": "like", "arguments": [{"expression": "iuref", "iu": "v13"}, {"expression": "const", "value": {"type": ["Varchar"], "value": "%BRASS"}}, {"expression": "const", "value": {"type": ["Varchar"], "value": "\\"}}]}, "value2": null}],
+              "restrictions": [{"attribute": 5, "mode": "=", "value": {"expression": "const", "value": {"type": ["Integer"], "value": 15}}}, {"attribute": 4, "mode": "lambda", "expression": {"expression": "like", "arguments": [{"expression": "iuref", "iu": "v13"}, {"expression": "const", "value": {"type": ["Varchar"], "value": "%BRASS"}}, {"expression": "const", "value": {"type": ["Varchar"], "value": "\\"}}]}}],
               "selectivity": 0.011257
             },
             "right": {
               "operator": "tablescan",
               "operatorId": 11,
-              "sqlpos": [[329, 337]],
+              "sqlpos": [[333, 341]],
               "cardinality": 537,
               "relationId": 4,
               "schema": {"type":"sessionschema"},
@@ -1217,7 +1217,7 @@
           "right": {
             "operator": "tablescan",
             "operatorId": 12,
-            "sqlpos": [[311, 319]],
+            "sqlpos": [[315, 323]],
             "cardinality": 518,
             "relationId": 3,
             "schema": {"type":"sessionschema"},
@@ -1233,7 +1233,7 @@
       "right": {
         "operator": "groupby",
         "operatorId": 13,
-        "sqlpos": [[682, 700]],
+        "sqlpos": [[686, 704]],
         "cardinality": 107.4,
         "input": {
           "operator": "join",
@@ -1256,7 +1256,7 @@
               "left": {
                 "operator": "tablescan",
                 "operatorId": 17,
-                "sqlpos": [[846, 852]],
+                "sqlpos": [[850, 856]],
                 "cardinality": 1,
                 "relationId": 9,
                 "schema": {"type":"sessionschema"},
@@ -1268,7 +1268,7 @@
               "right": {
                 "operator": "tablescan",
                 "operatorId": 18,
-                "sqlpos": [[814, 820]],
+                "sqlpos": [[818, 824]],
                 "cardinality": 25,
                 "relationId": 8,
                 "schema": {"type":"sessionschema"},
@@ -1282,7 +1282,7 @@
             "right": {
               "operator": "tablescan",
               "operatorId": 19,
-              "sqlpos": [[780, 788]],
+              "sqlpos": [[784, 792]],
               "cardinality": 518,
               "relationId": 3,
               "schema": {"type":"sessionschema"},
@@ -1296,7 +1296,7 @@
           "right": {
             "operator": "tablescan",
             "operatorId": 20,
-            "sqlpos": [[746, 754]],
+            "sqlpos": [[750, 758]],
             "cardinality": 537,
             "relationId": 4,
             "schema": {"type":"sessionschema"},
@@ -1313,7 +1313,7 @@
         "aggExpressions": [{"value": {"expression": "iuref", "iu": "v28"}}],
         "aggregates": [{"source": 0, "operation": {"aggregate": "min"}, "iu": ["v30", ["Numeric", 12, 2, "nullable"]]}]
       },
-      "condition": {"expression": "and", "arguments": [{"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v17"}, "right": {"expression": "iuref", "iu": "v30"}}, {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v4"}, "right": {"expression": "iuref", "iu": "v29"}}, {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v15"}, "right": {"expression": "iuref", "iu": "v29"}}]}
+      "condition": {"expression": "and", "arguments": [{"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v17"}, "right": {"expression": "iuref", "iu": "v30"}}, {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v4"}, "right": {"expression": "iuref", "iu": "v29"}}, {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v29"}, "right": {"expression": "iuref", "iu": "v15"}}]}
     }
   }
 }

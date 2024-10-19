@@ -13,7 +13,7 @@
     "left": {
       "operator": "tablescan",
       "operatorId": 3,
-      "sqlpos": [[85, 87]],
+      "sqlpos": [[89, 91]],
       "cardinality": 2000,
       "relationId": 0,
       "schema": {"type":"sessionschema"},
@@ -24,7 +24,7 @@
     "right": {
       "operator": "tablescan",
       "operatorId": 4,
-      "sqlpos": [[50, 52]],
+      "sqlpos": [[54, 56]],
       "cardinality": 2000,
       "relationId": 1,
       "schema": {"type":"sessionschema"},

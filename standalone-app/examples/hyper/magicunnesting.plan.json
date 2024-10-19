@@ -13,7 +13,7 @@
     "left": {
       "operator": "tablescan",
       "operatorId": 3,
-      "sqlpos": [[73, 75]],
+      "sqlpos": [[77, 79]],
       "cardinality": 2000,
       "relationId": 0,
       "schema": {"type":"sessionschema"},
@@ -24,7 +24,7 @@
     "right": {
       "operator": "groupby",
       "operatorId": 4,
-      "sqlpos": [[37, 44]],
+      "sqlpos": [[41, 48]],
       "cardinality": 100,
       "input": {
         "operator": "join",
@@ -49,7 +49,7 @@
         "right": {
           "operator": "tablescan",
           "operatorId": 8,
-          "sqlpos": [[50, 52]],
+          "sqlpos": [[54, 56]],
           "cardinality": 2000,
           "relationId": 1,
           "schema": {"type":"sessionschema"},
