@@ -1,4 +1,4 @@
--- This query is derived from TPC-H query 1
+-- This query is derived from TPC-H query 13
 -- THE TPC SOFTWARE IS AVAILABLE WITHOUT CHARGE FROM TPC.
 
 select

@@ -1,0 +1,172 @@
+{
+  "sql": "EXPLAIN (FORMAT JSON, ANALYZE)\n-- This query is derived from TPC-H query 11\n-- THE TPC SOFTWARE IS AVAILABLE WITHOUT CHARGE FROM TPC.\n-- The query was modified so that errors out during execution.\n-- We use it to test reporting of errors when running `ANALYZE`.\n\nselect\n        ps_partkey,\n        sum(ps_supplycost * ps_availqty) as \"value\"\nfrom\n        partsupp,\n        supplier,\n        nation\nwhere\n        ps_suppkey = s_suppkey\n        and s_nationkey = n_nationkey\n        and n_name = 'GERMANY'\ngroup by\n        ps_partkey having\n                sum(ps_supplycost * ps_availqty) > (\n                        select\n                                sum(ps_supplycost * ps_availqty) * 0.0001\n                        from\n                                partsupp,\n                                supplier,\n                                nation\n                        where\n                                ps_suppkey = s_suppkey\n                                and s_nationkey = n_nationkey\n                                and n_name = 'GERMANY'\n                ) / 0\norder by\n        \"value\" desc\n",
+  "operator": "executiontarget",
+  "operatorId": 1,
+  "cardinality": 10.74,
+  "producesRows": true,
+  "output": [{"expression": "iuref", "iu": ["v", ["Integer"]]}, {"expression": "iuref", "iu": ["v2", ["BigNumeric", 38, 2]]}],
+  "outputNames": ["ps_partkey", "value"],
+  "input": {
+    "operator": "sort",
+    "operatorId": 2,
+    "sqlpos": [[1090, 1102]],
+    "cardinality": 10.74,
+    "criterion": [{"value": {"expression": "iuref", "iu": "v2"}, "descending": true, "nullFirst": true}],
+    "input": {
+      "operator": "join",
+      "operatorId": 3,
+      "cardinality": 10.74,
+      "method": "hash",
+      "singleMatch": true,
+      "left": {
+        "operator": "map",
+        "operatorId": 4,
+        "sqlpos": [[655, 696]],
+        "cardinality": 1,
+        "input": {
+          "operator": "groupby",
+          "operatorId": 5,
+          "sqlpos": [[655, 687]],
+          "cardinality": 1,
+          "input": {
+            "operator": "join",
+            "operatorId": 6,
+            "cardinality": 21.48,
+            "method": "hash",
+            "referencedByScanEarlyProbe": true,
+            "left": {
+              "operator": "join",
+              "operatorId": 7,
+              "cardinality": 20.72,
+              "method": "hash",
+              "referencedByScanEarlyProbe": true,
+              "left": {
+                "operator": "tablescan",
+                "operatorId": 8,
+                "sqlpos": [[842, 848]],
+                "cardinality": 1,
+                "relationId": 8,
+                "schema": {"type":"sessionschema"},
+                "values": [{"name": "n_nationkey", "type": ["Integer"], "iu": ["v3", ["Integer"]]}, {"name": "n_name", "type": ["Char", 25], "iu": ["v4", ["Char", 25]]}, {"name": "n_regionkey", "type": ["Integer"], "iu": null}, {"name": "n_comment", "type": ["Varchar", 152], "iu": null}],
+                "debugName": {"classification": "nonsensitive", "value": "nation"},
+                "restrictions": [{"attribute": 1, "mode": "=", "value": {"expression": "const", "value": {"type": ["Char", 25], "value": "GERMANY"}}}],
+                "selectivity": 0.04,
+                "analyze": {"pipeline": 5, "execution-time": 4527, "running": false, "tuple-count": 1}
+              },
+              "right": {
+                "operator": "tablescan",
+                "operatorId": 9,
+                "sqlpos": [[800, 808]],
+                "cardinality": 518,
+                "relationId": 3,
+                "schema": {"type":"sessionschema"},
+                "values": [{"name": "s_suppkey", "type": ["Integer"], "iu": ["v5", ["Integer"]]}, {"name": "s_name", "type": ["Char", 25], "iu": null}, {"name": "s_address", "type": ["Varchar", 40], "iu": null}, {"name": "s_nationkey", "type": ["Integer"], "iu": ["v6", ["Integer"]]}, {"name": "s_phone", "type": ["Char", 15], "iu": null}, {"name": "s_acctbal", "type": ["Numeric", 12, 2], "iu": null}, {"name": "s_comment", "type": ["Varchar", 101], "iu": null}],
+                "debugName": {"classification": "nonsensitive", "value": "supplier"},
+                "earlyProbes": [{"builder": 7, "attributes": [3], "type": "lookup"}],
+                "selectivity": 1,
+                "analyze": {"pipeline": 4, "execution-time": 798, "running": false, "tuple-count": 19}
+              },
+              "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v6"}, "right": {"expression": "iuref", "iu": "v3"}},
+              "analyze": {"pipeline": 4, "memory-bytes": 18432, "tuple-count": 19}
+            },
+            "right": {
+              "operator": "tablescan",
+              "operatorId": 10,
+              "sqlpos": [[758, 766]],
+              "cardinality": 537,
+              "relationId": 4,
+              "schema": {"type":"sessionschema"},
+              "values": [{"name": "ps_partkey", "type": ["Integer"], "iu": null}, {"name": "ps_suppkey", "type": ["Integer"], "iu": ["v7", ["Integer"]]}, {"name": "ps_availqty", "type": ["Integer"], "iu": ["v8", ["Integer"]]}, {"name": "ps_supplycost", "type": ["Numeric", 12, 2], "iu": ["v9", ["Numeric", 12, 2]]}, {"name": "ps_comment", "type": ["Varchar", 199], "iu": null}],
+              "debugName": {"classification": "nonsensitive", "value": "partsupp"},
+              "earlyProbes": [{"builder": 6, "attributes": [1], "type": "lookup"}],
+              "selectivity": 1,
+              "analyze": {"pipeline": 3, "execution-time": 1158, "running": false, "tuple-count": 58}
+            },
+            "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v7"}, "right": {"expression": "iuref", "iu": "v5"}},
+            "analyze": {"pipeline": 3, "memory-bytes": 18432, "tuple-count": 21}
+          },
+          "groupingSets": [{"keyIndices": [], "coreIndices": null, "behavior": "static"}],
+          "emptyGroups": true,
+          "aggExpressions": [{"value": {"expression": "mul", "left": {"expression": "iuref", "iu": "v9"}, "right": {"expression": "iuref", "iu": "v8"}}}],
+          "aggregates": [{"source": 0, "operation": {"aggregate": "sum"}, "iu": ["v10", ["BigNumeric", 38, 2, "nullable"]]}],
+          "analyze": {"pipeline": 2, "execution-time": 17, "memory-bytes": 0, "running": false, "tuple-count": 1}
+        },
+        "values": [{"iu": ["v11", ["BigNumeric", 38, 6, "nullable"]], "value": {"expression": "mul", "left": {"expression": "iuref", "iu": "v10"}, "right": {"expression": "const", "value": {"type": ["Numeric", 5, 4], "value": 1}}}}],
+        "analyze": {"pipeline": 2, "tuple-count": 1}
+      },
+      "right": {
+        "operator": "groupby",
+        "operatorId": 11,
+        "sqlpos": [[504, 531], [555, 587], [298, 330]],
+        "cardinality": 21.48,
+        "input": {
+          "operator": "join",
+          "operatorId": 12,
+          "cardinality": 21.48,
+          "method": "hash",
+          "referencedByScanEarlyProbe": true,
+          "left": {
+            "operator": "join",
+            "operatorId": 13,
+            "cardinality": 20.72,
+            "method": "hash",
+            "referencedByScanEarlyProbe": true,
+            "left": {
+              "operator": "tablescan",
+              "operatorId": 14,
+              "sqlpos": [[391, 397]],
+              "cardinality": 1,
+              "relationId": 8,
+              "schema": {"type":"sessionschema"},
+              "values": [{"name": "n_nationkey", "type": ["Integer"], "iu": ["v12", ["Integer"]]}, {"name": "n_name", "type": ["Char", 25], "iu": ["v13", ["Char", 25]]}, {"name": "n_regionkey", "type": ["Integer"], "iu": null}, {"name": "n_comment", "type": ["Varchar", 152], "iu": null}],
+              "debugName": {"classification": "nonsensitive", "value": "nation"},
+              "restrictions": [{"attribute": 1, "mode": "=", "value": {"expression": "const", "value": {"type": ["Char", 25], "value": "GERMANY"}}}],
+              "selectivity": 0.04,
+              "analyze": {"pipeline": 8, "execution-time": 46, "running": false, "tuple-count": 1}
+            },
+            "right": {
+              "operator": "tablescan",
+              "operatorId": 15,
+              "sqlpos": [[373, 381]],
+              "cardinality": 518,
+              "relationId": 3,
+              "schema": {"type":"sessionschema"},
+              "values": [{"name": "s_suppkey", "type": ["Integer"], "iu": ["v14", ["Integer"]]}, {"name": "s_name", "type": ["Char", 25], "iu": null}, {"name": "s_address", "type": ["Varchar", 40], "iu": null}, {"name": "s_nationkey", "type": ["Integer"], "iu": ["v15", ["Integer"]]}, {"name": "s_phone", "type": ["Char", 15], "iu": null}, {"name": "s_acctbal", "type": ["Numeric", 12, 2], "iu": null}, {"name": "s_comment", "type": ["Varchar", 101], "iu": null}],
+              "debugName": {"classification": "nonsensitive", "value": "supplier"},
+              "earlyProbes": [{"builder": 13, "attributes": [3], "type": "lookup"}],
+              "selectivity": 1,
+              "analyze": {"pipeline": 7, "execution-time": 148, "running": false, "tuple-count": 19}
+            },
+            "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v15"}, "right": {"expression": "iuref", "iu": "v12"}},
+            "analyze": {"pipeline": 7, "memory-bytes": 18432, "tuple-count": 19}
+          },
+          "right": {
+            "operator": "tablescan",
+            "operatorId": 16,
+            "sqlpos": [[355, 363]],
+            "cardinality": 537,
+            "relationId": 4,
+            "schema": {"type":"sessionschema"},
+            "values": [{"name": "ps_partkey", "type": ["Integer"], "iu": ["v16", ["Integer"]]}, {"name": "ps_suppkey", "type": ["Integer"], "iu": ["v17", ["Integer"]]}, {"name": "ps_availqty", "type": ["Integer"], "iu": ["v18", ["Integer"]]}, {"name": "ps_supplycost", "type": ["Numeric", 12, 2], "iu": ["v19", ["Numeric", 12, 2]]}, {"name": "ps_comment", "type": ["Varchar", 199], "iu": null}],
+            "debugName": {"classification": "nonsensitive", "value": "partsupp"},
+            "earlyProbes": [{"builder": 12, "attributes": [1], "type": "lookup"}],
+            "selectivity": 1,
+            "analyze": {"pipeline": 6, "execution-time": 839, "running": false, "tuple-count": 58}
+          },
+          "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v17"}, "right": {"expression": "iuref", "iu": "v14"}},
+          "analyze": {"pipeline": 6, "memory-bytes": 18432, "tuple-count": 21}
+        },
+        "keyExpressions": [{"expression": {"value": {"expression": "iuref", "iu": "v16"}}, "iu": ["v", ["Integer"]]}],
+        "groupingSets": [{"keyIndices": [0], "coreIndices": [0], "behavior": "regular"}],
+        "emptyGroups": false,
+        "aggExpressions": [{"value": {"expression": "mul", "left": {"expression": "iuref", "iu": "v19"}, "right": {"expression": "iuref", "iu": "v18"}}}],
+        "aggregates": [{"source": 0, "operation": {"aggregate": "sum"}, "iu": ["v2", ["BigNumeric", 38, 2]]}],
+        "analyze": {"pipeline": 1, "execution-time": 0, "memory-bytes": 18432, "running": true, "tuple-count": 0}
+      },
+      "condition": {"expression": "comparison", "mode": ">", "left": {"expression": "iuref", "iu": "v2"}, "right": {"expression": "div", "left": {"expression": "iuref", "iu": "v11"}, "right": {"expression": "const", "value": {"type": ["Numeric", 1], "value": 0}}}},
+      "analyze": {"pipeline": 1, "memory-bytes": 18432, "tuple-count": 0}
+    },
+    "analyze": {"pipeline": 0, "execution-time": 0, "memory-bytes": 0, "running": false, "tuple-count": 0}
+  },
+  "analyze": {"error": {"code": "22012", "message": {"original": "division by zero", "translation": "division by zero"}, "detail": null, "internalDetail": null, "hint": null}, "pipeline": 0}
+}
