@@ -36,6 +36,7 @@ interface ConversionState {
     crosslinks: UnresolvedCrosslink[];
     edgeWidths: {node: TreeNode; width: number}[];
     runtimes: {node: TreeNode; time: number}[];
+    metadata: Map<string, string>;
 }
 
 // Customization points for rendering the various different
@@ -222,6 +223,12 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
             expandedByDefault: nodeType != "operator" && expandedChildren.length == 0,
         } as TreeNode;
 
+        // Highlight the node which errored out, in case the query failed
+        const errored = conversionState.metadata.has("Error") && tryGetPropertyPath(rawNode, ["analyze", "running"]) === true;
+        if (errored) {
+            convertedNode.iconColor = "red";
+        }
+
         // Information on the execution time
         const execTime = tryGetPropertyPath(rawNode, ["analyze", "execution-time"]);
         if (typeof execTime === "number") {
@@ -320,18 +327,20 @@ function setEdgeWidths(state: ConversionState) {
     }
 }
 
-interface LinkedNodes {
-    root: TreeNode;
-    crosslinks: Crosslink[];
-}
-
-function convertHyperPlan(node: Json): LinkedNodes {
+function convertHyperPlan(node: Json): TreeDescription {
     const conversionState = {
         operatorsById: new Map<string, TreeNode>(),
         crosslinks: [],
         edgeWidths: [],
         runtimes: [],
+        metadata: new Map<string, string>(),
     } as ConversionState;
+    // Check if the query failed
+    const errorMsg = tryGetPropertyPath(node, ["analyze", "error", "message", "original"]);
+    if (errorMsg) {
+        conversionState.metadata.set("Error", forceToString(errorMsg));
+    }
+
     const root = convertHyperNode(node, "result", conversionState);
     if (Array.isArray(root)) {
         throw new Error("Invalid Hyper query plan");
@@ -339,10 +348,10 @@ function convertHyperPlan(node: Json): LinkedNodes {
     colorRelativeExecutionTime(conversionState);
     setEdgeWidths(conversionState);
     const crosslinks = resolveCrosslinks(conversionState);
-    return {root, crosslinks};
+    return {root, crosslinks, metadata: conversionState.metadata};
 }
 
-function convertOptimizerSteps(node: Json): LinkedNodes | undefined {
+function convertOptimizerSteps(node: Json): TreeDescription | undefined {
     // Check if we have a top-level object with a single key "optimizersteps" containing an array
     if (typeof node !== "object" || Array.isArray(node) || node === null) return undefined;
     if (Object.getOwnPropertyNames(node).length != 1) return undefined;
@@ -353,6 +362,7 @@ function convertOptimizerSteps(node: Json): LinkedNodes | undefined {
     // Transform the optimizer steps
     const crosslinks: Crosslink[] = [];
     const children: TreeNode[] = [];
+    const properties = new Map<string, string>();
     for (const step of steps) {
         // Check that our step has two subproperties: "name" and "plan"
         if (typeof step !== "object" || Array.isArray(step) || step === null) return undefined;
@@ -364,20 +374,20 @@ function convertOptimizerSteps(node: Json): LinkedNodes | undefined {
         if (typeof name !== "string") return undefined;
 
         // Add the child
-        const {root: childRoot, crosslinks: newCrosslinks} = convertHyperPlan(plan);
-        crosslinks.push(...newCrosslinks);
+        const {root: childRoot, crosslinks: newCrosslinks, metadata: newProperties} = convertHyperPlan(plan);
+        crosslinks.push(...(newCrosslinks ?? []));
         children.push({name: name, children: [childRoot]});
+        for (const p of newProperties ?? new Map<string, string>()) {
+            properties.set(p[0], p[1]);
+        }
     }
     const root = {name: "optimizersteps", children: children};
-    return {root, crosslinks};
+    return {root, crosslinks, metadata: properties};
 }
 
 // Loads a Hyper query plan
 export function loadHyperPlan(json: Json): TreeDescription {
-    // Load the graph with the nodes collapsed in an automatic way
-    const {root, crosslinks} = convertOptimizerSteps(json) ?? convertHyperPlan(json);
-    // Adjust the graph so it is collapsed as requested by the user
-    return {root, crosslinks};
+    return convertOptimizerSteps(json) ?? convertHyperPlan(json);
 }
 
 function tryStripPrefix(str, pre) {

@@ -122,7 +122,7 @@ export function QueryGraphsApp() {
     } else {
         return (
             <QueryGraph treeDescription={tree}>
-                <TreeLabel title={treeTitle ?? ""} setTitle={setTreeTitle} />
+                <TreeLabel title={treeTitle ?? ""} setTitle={setTreeTitle} metadata={tree.metadata} />
             </QueryGraph>
         );
     }

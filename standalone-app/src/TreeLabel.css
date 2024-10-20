@@ -1,5 +1,6 @@
 .graph-title {
-    font-size: 1.2em;
+    background: #fff;
+    font-size: 1.1em;
     font-weight: bold;
     field-sizing: content;
     min-width: 10em;
@@ -8,4 +9,10 @@
 
 .graph-title:hover {
     background: #ffeded;
+}
+
+.graph-metadata {
+    background: #fff;
+    max-width: 20em;
+    word-break: break-all;
 }

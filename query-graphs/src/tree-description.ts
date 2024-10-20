@@ -47,9 +47,8 @@ export interface Crosslink {
 export interface TreeDescription {
     /// The tree root
     root: TreeNode;
-    /// Displayed in the top-level tree label
-    /// XXX remove
-    properties?: Map<string, string>;
+    /// Metadata about the graph; displayed in the top-level tree label
+    metadata?: Map<string, string>;
     /// Additional links between indirectly related nodes
     crosslinks?: Crosslink[];
 }
