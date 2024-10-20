@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useMemo, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {useBrowserUrl, useUrlParam} from "./browserUrlHooks";
 import {FileOpener, FileOpenerData, useLoadStateController} from "./FileOpener";
 import {QueryGraph} from "@tableau/query-graphs/lib/ui/QueryGraph";
@@ -6,6 +6,7 @@ import {TreeDescription} from "@tableau/query-graphs/lib/tree-description";
 import {loadPlan} from "./tree-loader";
 import {tryCreateLocalStorageUrl, isLocalStorageURL, loadLocalStorageURL} from "./LocalStorageUrl";
 import {assert} from "./assert";
+import {TreeLabel} from "./TreeLabel";
 
 export function QueryGraphsApp() {
     const loadStateController = useLoadStateController();
@@ -15,7 +16,7 @@ export function QueryGraphsApp() {
     // We store the currently opened tree in a URL parameter.
     // Thereby, we automatically integrate with the browser's history.
     const [treeUrl, setTreeUrl] = useUrlParam(browserUrl, "file");
-    const [treeTitle, setTreeTitle] = useUrlParam(browserUrl, "title");
+    const [treeTitle, setTreeTitle] = useUrlParam(browserUrl, "title", true);
     const [uploadServer] = useUrlParam(browserUrl, "uploadServer");
     // Callback for the file opener
     const openPickedData = async (data: FileOpenerData): Promise<void> => {
@@ -49,7 +50,7 @@ export function QueryGraphsApp() {
         if (data.fileName) {
             title = data.fileName;
         } else {
-            title = "query plan";
+            title = new Date().toLocaleString();
         }
         // Update the tree URL such that link sharing works.
         setTreeTitle(title);
@@ -116,24 +117,13 @@ export function QueryGraphsApp() {
         }
     }, []);
 
-    // We annotate the tree with the `title`
-    const annotatedTree = useMemo(() => {
-        if (tree === undefined) return undefined;
-        const newTree = {
-            ...tree,
-        };
-        if (newTree.properties === undefined) {
-            newTree.properties = new Map<string, string>();
-        }
-        if (treeTitle) {
-            newTree.properties.set("title", treeTitle);
-        }
-        return newTree;
-    }, [tree, treeTitle]);
-
-    if (!annotatedTree) {
+    if (!tree) {
         return <FileOpener setData={openPickedData} loadStateController={loadStateController} validate={validate} />;
     } else {
-        return <QueryGraph treeDescription={annotatedTree} />;
+        return (
+            <QueryGraph treeDescription={tree}>
+                <TreeLabel title={treeTitle ?? ""} setTitle={setTreeTitle} />
+            </QueryGraph>
+        );
     }
 }
