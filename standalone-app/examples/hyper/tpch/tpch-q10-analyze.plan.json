@@ -46,7 +46,7 @@
               "debugName": {"classification": "nonsensitive", "value": "orders"},
               "restrictions": [{"attribute": 4, "mode": "[)", "value": {"expression": "const", "value": {"type": ["Date"], "value": 2449262}}, "value2": {"expression": "const", "value": {"type": ["Date"], "value": 2449354}}}],
               "selectivity": 0.0703125,
-              "analyze": {"pipeline": 5, "execution-time": 136, "running": false, "tuple-count": 9}
+              "analyze": {"pipeline": 5, "cpu-cycles": 136, "running": false, "tuple-count": 9}
             },
             "right": {
               "operator": "tablescan",
@@ -59,7 +59,7 @@
               "debugName": {"classification": "nonsensitive", "value": "customer"},
               "earlyProbes": [{"builder": 6, "attributes": [0], "type": "lookup"}],
               "selectivity": 1,
-              "analyze": {"pipeline": 4, "execution-time": 284, "running": false, "tuple-count": 15}
+              "analyze": {"pipeline": 4, "cpu-cycles": 284, "running": false, "tuple-count": 15}
             },
             "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v12"}, "right": {"expression": "iuref", "iu": "v10"}},
             "analyze": {"pipeline": 4, "memory-bytes": 18432, "tuple-count": 9}
@@ -75,7 +75,7 @@
             "debugName": {"classification": "nonsensitive", "value": "nation"},
             "earlyProbes": [{"builder": 5, "attributes": [0], "type": "lookup"}],
             "selectivity": 1,
-            "analyze": {"pipeline": 3, "execution-time": 145, "running": false, "tuple-count": 11}
+            "analyze": {"pipeline": 3, "cpu-cycles": 145, "running": false, "tuple-count": 11}
           },
           "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v15"}, "right": {"expression": "iuref", "iu": "v19"}},
           "analyze": {"pipeline": 3, "memory-bytes": 18432, "tuple-count": 9}
@@ -92,7 +92,7 @@
           "restrictions": [{"attribute": 8, "mode": "=", "value": {"expression": "const", "value": {"type": ["Char1"], "value": 82}}}],
           "earlyProbes": [{"builder": 4, "attributes": [0], "type": "lookup"}],
           "selectivity": 0.265734,
-          "analyze": {"pipeline": 2, "execution-time": 411, "running": false, "tuple-count": 37}
+          "analyze": {"pipeline": 2, "cpu-cycles": 411, "running": false, "tuple-count": 37}
         },
         "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v21"}, "right": {"expression": "iuref", "iu": "v9"}},
         "analyze": {"pipeline": 2, "memory-bytes": 18432, "tuple-count": 23}
@@ -102,9 +102,9 @@
       "emptyGroups": false,
       "aggExpressions": [{"value": {"expression": "mul", "left": {"expression": "sub", "left": {"expression": "const", "value": {"type": ["Numeric", 1], "value": 1}}, "right": {"expression": "iuref", "iu": "v23"}}, "right": {"expression": "iuref", "iu": "v22"}}}],
       "aggregates": [{"source": 0, "operation": {"aggregate": "sum"}, "iu": ["v3", ["BigNumeric", 38, 4]]}],
-      "analyze": {"pipeline": 1, "execution-time": 243, "memory-bytes": 18432, "running": false, "tuple-count": 8}
+      "analyze": {"pipeline": 1, "cpu-cycles": 243, "memory-bytes": 18432, "running": false, "tuple-count": 8}
     },
-    "analyze": {"pipeline": 0, "execution-time": 175, "heap-gc-passes": 0, "memory-bytes": 262208, "running": false, "tuple-count": 8}
+    "analyze": {"pipeline": 0, "cpu-cycles": 175, "heap-gc-passes": 0, "memory-bytes": 262208, "running": false, "tuple-count": 8}
   },
   "analyze": {"error": null, "pipeline": 0}
 }
