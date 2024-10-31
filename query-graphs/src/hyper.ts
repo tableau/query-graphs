@@ -230,7 +230,7 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
         }
 
         // Information on the execution time
-        const execTime = tryGetPropertyPath(rawNode, ["analyze", "execution-time"]);
+        const execTime = tryGetPropertyPath(rawNode, ["analyze", "cpu-cycles"]);
         if (typeof execTime === "number") {
             conversionState.runtimes.push({node: convertedNode, time: execTime});
         }

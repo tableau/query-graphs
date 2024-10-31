@@ -27,16 +27,16 @@
         "debugName": {"classification": "nonsensitive", "value": "lineitem"},
         "restrictions": [{"attribute": 10, "mode": "<=", "value": {"expression": "const", "value": {"type": ["Date"], "value": 2451059}}}],
         "selectivity": 0.993007,
-        "analyze": {"pipeline": 2, "execution-time": 2717, "running": false, "tuple-count": 568}
+        "analyze": {"pipeline": 2, "cpu-cycles": 2717, "running": false, "tuple-count": 568}
       },
       "keyExpressions": [{"expression": {"value": {"expression": "iuref", "iu": "v15"}}, "iu": ["v", ["Char1"]]}, {"expression": {"value": {"expression": "iuref", "iu": "v16"}}, "iu": ["v2", ["Char1"]]}],
       "groupingSets": [{"keyIndices": [0, 1], "coreIndices": [0, 1], "behavior": "regular"}],
       "emptyGroups": false,
       "aggExpressions": [{"value": {"expression": "iuref", "iu": "v11"}}, {"value": {"expression": "iuref", "iu": "v12"}}, {"value": {"expression": "mul", "left": {"expression": "sub", "left": {"expression": "const", "value": {"type": ["Numeric", 1], "value": 1}}, "right": {"expression": "iuref", "iu": "v13"}}, "right": {"expression": "iuref", "iu": "v12"}}}, {"value": {"expression": "mul", "left": {"expression": "mul", "left": {"expression": "sub", "left": {"expression": "const", "value": {"type": ["Numeric", 1], "value": 1}}, "right": {"expression": "iuref", "iu": "v13"}}, "right": {"expression": "iuref", "iu": "v12"}}, "right": {"expression": "add", "left": {"expression": "iuref", "iu": "v14"}, "right": {"expression": "const", "value": {"type": ["Numeric", 1], "value": 1}}}}}, {"value": {"expression": "iuref", "iu": "v13"}}],
       "aggregates": [{"source": 4294967295, "operation": {"aggregate": "count"}, "iu": ["v10", ["BigInt"]]}, {"source": 0, "operation": {"aggregate": "avg"}, "iu": ["v7", ["Numeric", 16, 6]]}, {"source": 4, "operation": {"aggregate": "avg"}, "iu": ["v9", ["Numeric", 16, 6]]}, {"source": 3, "operation": {"aggregate": "sum"}, "iu": ["v6", ["BigNumeric", 38, 6]]}, {"source": 1, "operation": {"aggregate": "avg"}, "iu": ["v8", ["Numeric", 16, 6]]}, {"source": 0, "operation": {"aggregate": "sum"}, "iu": ["v3", ["BigNumeric", 38, 2]]}, {"source": 1, "operation": {"aggregate": "sum"}, "iu": ["v4", ["BigNumeric", 38, 2]]}, {"source": 2, "operation": {"aggregate": "sum"}, "iu": ["v5", ["BigNumeric", 38, 4]]}],
-      "analyze": {"pipeline": 1, "execution-time": 187, "memory-bytes": 18432, "running": false, "tuple-count": 4}
+      "analyze": {"pipeline": 1, "cpu-cycles": 187, "memory-bytes": 18432, "running": false, "tuple-count": 4}
     },
-    "analyze": {"pipeline": 0, "execution-time": 91, "memory-bytes": 262176, "running": false, "tuple-count": 4}
+    "analyze": {"pipeline": 0, "cpu-cycles": 91, "memory-bytes": 262176, "running": false, "tuple-count": 4}
   },
   "analyze": {"error": null, "pipeline": 0}
 }

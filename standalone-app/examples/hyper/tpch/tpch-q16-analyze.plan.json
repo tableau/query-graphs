@@ -32,7 +32,7 @@
           "debugName": {"classification": "nonsensitive", "value": "supplier"},
           "restrictions": [{"attribute": 6, "mode": "lambda", "expression": {"expression": "like", "arguments": [{"expression": "iuref", "iu": "v6"}, {"expression": "const", "value": {"type": ["Varchar"], "value": "%Customer%Complaints%"}}, {"expression": "const", "value": {"type": ["Varchar"], "value": "\\"}}]}}],
           "selectivity": 0.0019305,
-          "analyze": {"pipeline": 3, "execution-time": 961, "running": false, "tuple-count": 0}
+          "analyze": {"pipeline": 3, "cpu-cycles": 961, "running": false, "tuple-count": 0}
         },
         "right": {
           "operator": "join",
@@ -51,7 +51,7 @@
             "debugName": {"classification": "nonsensitive", "value": "part"},
             "restrictions": [{"attribute": 5, "mode": "lambda", "expression": {"expression": "lookup", "input": [{"expression": "iuref", "iu": "v10"}], "values": [{"type": ["Integer"], "value": 3}, {"type": ["Integer"], "value": 9}, {"type": ["Integer"], "value": 14}, {"type": ["Integer"], "value": 19}, {"type": ["Integer"], "value": 23}, {"type": ["Integer"], "value": 36}, {"type": ["Integer"], "value": 45}, {"type": ["Integer"], "value": 49}], "collates": [null], "modes": ["equals"]}}, {"attribute": 4, "mode": "lambda", "expression": {"expression": "not", "input": {"expression": "like", "arguments": [{"expression": "iuref", "iu": "v9"}, {"expression": "const", "value": {"type": ["Varchar"], "value": "MEDIUM POLISHED%"}}, {"expression": "const", "value": {"type": ["Varchar"], "value": "\\"}}]}}}, {"attribute": 3, "mode": "lambda", "expression": {"expression": "comparison", "mode": "<>", "left": {"expression": "iuref", "iu": "v8"}, "right": {"expression": "const", "value": {"type": ["Char", 10], "value": "Brand#45"}}}}],
             "selectivity": 0.15197,
-            "analyze": {"pipeline": 4, "execution-time": 1935, "running": false, "tuple-count": 81}
+            "analyze": {"pipeline": 4, "cpu-cycles": 1935, "running": false, "tuple-count": 81}
           },
           "right": {
             "operator": "tablescan",
@@ -64,7 +64,7 @@
             "debugName": {"classification": "nonsensitive", "value": "partsupp"},
             "earlyProbes": [{"builder": 6, "attributes": [0], "type": "lookup"}],
             "selectivity": 1,
-            "analyze": {"pipeline": 2, "execution-time": 2076, "running": false, "tuple-count": 185}
+            "analyze": {"pipeline": 2, "cpu-cycles": 2076, "running": false, "tuple-count": 185}
           },
           "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v7"}, "right": {"expression": "iuref", "iu": "v11"}},
           "analyze": {"pipeline": 2, "memory-bytes": 18432, "tuple-count": 81}
@@ -77,9 +77,9 @@
       "emptyGroups": false,
       "aggExpressions": [{"value": {"expression": "iuref", "iu": "v12"}}],
       "aggregates": [{"source": 0, "operation": {"aggregate": "count", "distinct": true}, "iu": ["v4", ["BigInt"]]}],
-      "analyze": {"pipeline": 1, "execution-time": 637, "memory-bytes": 36864, "running": false, "tuple-count": 81}
+      "analyze": {"pipeline": 1, "cpu-cycles": 637, "memory-bytes": 36864, "running": false, "tuple-count": 81}
     },
-    "analyze": {"pipeline": 0, "execution-time": 198, "memory-bytes": 262792, "running": false, "tuple-count": 81}
+    "analyze": {"pipeline": 0, "cpu-cycles": 198, "memory-bytes": 262792, "running": false, "tuple-count": 81}
   },
   "analyze": {"error": null, "pipeline": 0}
 }
