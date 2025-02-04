@@ -18,6 +18,11 @@ export function QueryGraphsApp() {
     const [treeUrl, setTreeUrl] = useUrlParam(browserUrl, "file");
     const [treeTitle, setTreeTitle] = useUrlParam(browserUrl, "title", true);
     const [uploadServer] = useUrlParam(browserUrl, "uploadServer");
+    // Keep the browser tab's title in sync
+    useEffect(() => {
+        const tabTitle = treeTitle ? `${treeTitle} - QueryGraphs` : "QueryGraphs";
+        document.title = tabTitle;
+    }, [treeTitle]);
     // Callback for the file opener
     const openPickedData = async (data: FileOpenerData): Promise<void> => {
         const content = data.content;
