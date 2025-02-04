@@ -255,7 +255,7 @@ export function FileOpener({setData, validate, loadStateController}: FileOpenerP
                         <div className="textarea-hint">Paste your query plan. To open a file, use drag & drop.</div>
                     </div>
                     <button onClick={submit} disabled={submitDisabled}>
-                        Parse and Visualize Plan
+                        Visualize Plan
                     </button>
                     {renderedError}
                     <div className="github-link">
