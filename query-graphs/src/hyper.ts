@@ -82,6 +82,7 @@ const nodeRenderingConfig: Record<string, NodeRenderingConfig> = {
     // Temp & Explicit scan
     "op:explicitscan": {icon: "temp-table-symbol", crosslinkSourceKey: "input"},
     "op:temp": {icon: "temp-table-symbol"},
+    "op:iterationincrement": {crosslinkSourceKey: "source"},
     // Expressions
     "exp:comparison": {displayNameKey: "mode"},
     "exp:iuref": {displayNameKey: "iu"},

@@ -1,0 +1,47 @@
+{
+  "operator": "executiontarget",
+  "operatorId": 1,
+  "cardinality": 11,
+  "producesRows": true,
+  "output": [{"expression": "iuref", "iu": ["v", ["Integer"]]}],
+  "outputNames": ["i"],
+  "input": {
+    "operator": "iteration",
+    "operatorId": 2,
+    "cardinality": 11,
+    "resultIUs": [["v", ["Integer"]]],
+    "leftValues": [{"expression": "iuref", "iu": ["v2", ["Integer"]]}],
+    "rightValues": [{"expression": "iuref", "iu": ["v3", ["Integer"]]}],
+    "unionAll": true,
+    "left": {
+      "operator": "tableconstruction",
+      "operatorId": 3,
+      "cardinality": 1,
+      "output": [["v2", ["Integer"]]],
+      "values": [[{"expression": "const", "value": {"type": ["Integer"], "value": 1}}]]
+    },
+    "right": {
+      "operator": "map",
+      "operatorId": 4,
+      "sqlpos": [[85, 90]],
+      "cardinality": 1,
+      "input": {
+        "operator": "select",
+        "operatorId": 5,
+        "sqlpos": [[104, 111]],
+        "cardinality": 1,
+        "input": {
+          "operator": "iterationincrement",
+          "operatorId": 6,
+          "sqlpos": [[96, 97]],
+          "cardinality": 1,
+          "values": [["v4", ["Integer"]]],
+          "source": 2
+        },
+        "condition": {"expression": "comparison", "mode": "<", "left": {"expression": "iuref", "iu": "v4"}, "right": {"expression": "const", "value": {"type": ["Integer"], "value": 100}}}
+      },
+      "values": [{"iu": ["v3", ["Integer"]], "value": {"expression": "add", "left": {"expression": "iuref", "iu": "v4"}, "right": {"expression": "const", "value": {"type": ["Integer"], "value": 1}}}}]
+    },
+    "collates": [null]
+  }
+}
