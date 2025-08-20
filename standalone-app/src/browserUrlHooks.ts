@@ -35,26 +35,44 @@ export function useBrowserUrl(): URLState {
     return [url, setUrl];
 }
 
+// Generate URLSearchParams from the URL hash and the URL search params,
+// with the hash params taking precedence
+function generateUrlSearchParams(url: URL): URLSearchParams {
+    // Use a clone of the URLSearchParams to avoid mutating the original URLSearchParams
+    const params = new URLSearchParams(url.search);
+    const hashParams = new URLSearchParams(url.hash.slice(1));
+    hashParams.forEach((value, key) => {
+        params.set(key, value);
+    });
+    return params;
+}
+
 export function useUrlParam(
     urlState: URLState,
     key: string,
     noHistoryEntry?: boolean,
 ): [string | undefined, React.Dispatch<React.SetStateAction<string | undefined>>] {
     const [url, setUrl] = urlState;
-    const v = url.searchParams.get(key) ?? undefined;
+    const searchParams = generateUrlSearchParams(url);
+    const v = searchParams.get(key) ?? undefined;
     const set = useCallback(
         (action: React.SetStateAction<string | undefined>) => {
             setUrl((url) => {
-                const currentValue = url.searchParams.get(key) ?? undefined;
+                const searchParams = generateUrlSearchParams(url);
+                const currentValue = searchParams.get(key) ?? undefined;
                 let newValue: string | undefined;
                 if (action instanceof Function) newValue = action(currentValue);
                 else newValue = action;
                 const newURL = new URL(url);
                 if (newValue === undefined) {
-                    newURL.searchParams.delete(key);
+                    searchParams.delete(key);
                 } else {
-                    newURL.searchParams.set(key, newValue);
+                    searchParams.set(key, newValue);
                 }
+                // Delete all search parameters and move them to the hash to avoid
+                // sending unnecessary data to the server
+                newURL.search = "";
+                newURL.hash = `#${searchParams.toString()}`;
                 return newURL;
             }, noHistoryEntry);
         },
