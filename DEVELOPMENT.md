@@ -77,16 +77,7 @@ If you also have a Postgres instance running on port 5433, install `psycopg2` to
 
 ### 2. Visually verify plans in the local server
 
-Build and start the app (if not already running):
-
-```shell
-cd standalone-app
-yarn install
-yarn run --cwd=../query-graphs build
-yarn run build
-yarn run prod-server
-```
-
+Build and start the app (if not already running).
 Then open [localhost:8080/examples.html](http://localhost:8080/examples.html) in your browser. This page lists all example plans. Click through the Hyper plans to verify they render correctly.
 
 ## Linting
