@@ -3,36 +3,39 @@
   "operatorId": 1,
   "cardinality": 2000,
   "producesRows": true,
-  "output": [{"expression": "iuref", "iu": ["v", ["Integer"]]}, {"expression": "iuref", "iu": ["v2", ["Integer"]]}, {"expression": "iuref", "iu": ["v3", ["Integer"]]}, {"expression": "iuref", "iu": ["v4", ["Bool"]]}],
+  "output": [{"expression": "iuref", "iu": ["scan_a1", ["Integer"]]}, {"expression": "iuref", "iu": ["scan_b1", ["Integer"]]}, {"expression": "iuref", "iu": ["scan_c1", ["Integer"]]}, {"expression": "iuref", "iu": ["joinMarker", ["Bool"]]}],
   "outputNames": ["a1", "b1", "c1", "2"],
-  "input": {
+  "inputs": [{
     "operator": "leftmarkjoin",
     "operatorId": 2,
     "cardinality": 2000,
     "method": "hash",
-    "left": {
+    "inputs": [{
       "operator": "tablescan",
       "operatorId": 3,
       "sqlpos": [[89, 91]],
       "cardinality": 2000,
+      "volatility": "stable",
       "relationId": 0,
       "schema": {"type":"sessionschema"},
-      "values": [{"name": "a1", "type": ["Integer"], "iu": ["v", ["Integer"]]}, {"name": "b1", "type": ["Integer"], "iu": ["v2", ["Integer"]]}, {"name": "c1", "type": ["Integer"], "iu": ["v3", ["Integer"]]}],
+      "attributeCount": 3,
+      "attributes": [{"colId": 0, "name": "a1", "type": ["Integer"], "iu": ["scan_a1", ["Integer"]]},{"colId": 1, "name": "b1", "type": ["Integer"], "iu": ["scan_b1", ["Integer"]]},{"colId": 2, "name": "c1", "type": ["Integer"], "iu": ["scan_c1", ["Integer"]]}],
       "debugName": {"classification": "nonsensitive", "value": "t1"},
       "selectivity": 1
-    },
-    "right": {
+    }, {
       "operator": "tablescan",
       "operatorId": 4,
       "sqlpos": [[54, 56]],
       "cardinality": 2000,
+      "volatility": "stable",
       "relationId": 1,
       "schema": {"type":"sessionschema"},
-      "values": [{"name": "a2", "type": ["Integer"], "iu": ["v5", ["Integer"]]}, {"name": "b2", "type": ["Integer"], "iu": ["v6", ["Integer"]]}, {"name": "c2", "type": ["Integer"], "iu": null}],
+      "attributeCount": 3,
+      "attributes": [{"colId": 0, "name": "a2", "type": ["Integer"], "iu": ["scan_a2", ["Integer"]]},{"colId": 1, "name": "b2", "type": ["Integer"], "iu": ["scan_b2", ["Integer"]]}],
       "debugName": {"classification": "nonsensitive", "value": "t2"},
       "selectivity": 1
-    },
-    "condition": {"expression": "and", "arguments": [{"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "v"}, "right": {"expression": "iuref", "iu": "v5"}}, {"expression": "comparison", "mode": "<", "left": {"expression": "iuref", "iu": "v2"}, "right": {"expression": "iuref", "iu": "v6"}}]},
-    "marker": ["v4", ["Bool"]]
-  }
+    }],
+    "condition": {"expression": "and", "arguments": [{"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "scan_a1"}, "right": {"expression": "iuref", "iu": "scan_a2"}}, {"expression": "comparison", "mode": "<", "left": {"expression": "iuref", "iu": "scan_b1"}, "right": {"expression": "iuref", "iu": "scan_b2"}}]},
+    "marker": ["joinMarker", ["Bool"]]
+  }]
 }

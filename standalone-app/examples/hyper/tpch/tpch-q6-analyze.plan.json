@@ -3,31 +3,33 @@
   "operatorId": 1,
   "cardinality": 1,
   "producesRows": true,
-  "output": [{"expression": "iuref", "iu": ["v", ["BigNumeric", 38, 4, "nullable"]]}],
+  "output": [{"expression": "iuref", "iu": ["sum", ["BigNumeric", 38, 4, "nullable"]]}],
   "outputNames": ["revenue"],
-  "input": {
+  "inputs": [{
     "operator": "groupby",
     "operatorId": 2,
     "sqlpos": [[149, 182]],
     "cardinality": 1,
-    "input": {
+    "inputs": [{
       "operator": "tablescan",
       "operatorId": 3,
       "sqlpos": [[207, 215]],
       "cardinality": 20,
+      "volatility": "stable",
       "relationId": 7,
       "schema": {"type":"sessionschema"},
-      "values": [{"name": "l_orderkey", "type": ["Integer"], "iu": null}, {"name": "l_partkey", "type": ["Integer"], "iu": null}, {"name": "l_suppkey", "type": ["Integer"], "iu": null}, {"name": "l_linenumber", "type": ["Integer"], "iu": null}, {"name": "l_quantity", "type": ["Numeric", 12, 2], "iu": ["v2", ["Numeric", 12, 2]]}, {"name": "l_extendedprice", "type": ["Numeric", 12, 2], "iu": ["v3", ["Numeric", 12, 2]]}, {"name": "l_discount", "type": ["Numeric", 12, 2], "iu": ["v4", ["Numeric", 12, 2]]}, {"name": "l_tax", "type": ["Numeric", 12, 2], "iu": null}, {"name": "l_returnflag", "type": ["Char1"], "iu": null}, {"name": "l_linestatus", "type": ["Char1"], "iu": null}, {"name": "l_shipdate", "type": ["Date"], "iu": ["v5", ["Date"]]}, {"name": "l_commitdate", "type": ["Date"], "iu": null}, {"name": "l_receiptdate", "type": ["Date"], "iu": null}, {"name": "l_shipinstruct", "type": ["Char", 25], "iu": null}, {"name": "l_shipmode", "type": ["Char", 10], "iu": null}, {"name": "l_comment", "type": ["Varchar", 44], "iu": null}],
+      "attributeCount": 16,
+      "attributes": [{"colId": 4, "name": "l_quantity", "type": ["Numeric", 12, 2], "iu": ["scan_quantity", ["Numeric", 12, 2]]},{"colId": 5, "name": "l_extendedprice", "type": ["Numeric", 12, 2], "iu": ["scan_extended", ["Numeric", 12, 2]]},{"colId": 6, "name": "l_discount", "type": ["Numeric", 12, 2], "iu": ["scan_discount", ["Numeric", 12, 2]]},{"colId": 10, "name": "l_shipdate", "type": ["Date"], "iu": ["scan_shipdate", ["Date"]]}],
       "debugName": {"classification": "nonsensitive", "value": "lineitem"},
-      "restrictions": [{"attribute": 6, "mode": "[]", "value": {"expression": "const", "value": {"type": ["Numeric", 12, 2], "value": 5}}, "value2": {"expression": "const", "value": {"type": ["Numeric", 12, 2], "value": 7}}}, {"attribute": 10, "mode": "[)", "value": {"expression": "const", "value": {"type": ["Date"], "value": 2449354}}, "value2": {"expression": "const", "value": {"type": ["Date"], "value": 2449719}}}, {"attribute": 4, "mode": "<", "value": {"expression": "const", "value": {"type": ["Numeric", 12, 2], "value": 2400}}}],
+      "restrictions": [{"attribute": 6, "mode": "[]", "selectivity": 0.272727, "value": {"expression": "const", "value": {"type": ["Numeric", 12, 2], "value": 5}}, "value2": {"expression": "const", "value": {"type": ["Numeric", 12, 2], "value": 7}}}, {"attribute": 10, "mode": "[)", "selectivity": 0.3, "value": {"expression": "const", "value": {"type": ["Date"], "value": 2449354}}, "value2": {"expression": "const", "value": {"type": ["Date"], "value": 2449719}}}, {"attribute": 4, "mode": "<", "selectivity": 0.5, "value": {"expression": "const", "value": {"type": ["Numeric", 12, 2], "value": 2400}}}],
       "selectivity": 0.034965,
-      "analyze": {"pipeline": 1, "cpu-cycles": 124, "running": false, "tuple-count": 20}
-    },
+      "analyze": {"pipeline": 1, "column-count": 2, "cpu-cycles": 700, "processed-rows": 572, "running": false, "tuple-count": 20}
+    }],
     "groupingSets": [{"keyIndices": [], "coreIndices": null, "behavior": "static"}],
     "emptyGroups": true,
-    "aggExpressions": [{"value": {"expression": "mul", "left": {"expression": "iuref", "iu": "v3"}, "right": {"expression": "iuref", "iu": "v4"}}}],
-    "aggregates": [{"source": 0, "operation": {"aggregate": "sum"}, "iu": ["v", ["BigNumeric", 38, 4, "nullable"]]}],
-    "analyze": {"pipeline": 0, "cpu-cycles": 14, "memory-bytes": 0, "running": false, "tuple-count": 1}
-  },
-  "analyze": {"error": null, "pipeline": 0}
+    "aggExpressions": [{"value": {"expression": "mul", "left": {"expression": "iuref", "iu": "scan_extended"}, "right": {"expression": "iuref", "iu": "scan_discount"}}}],
+    "aggregates": [{"source": 0, "operation": {"aggregate": "sum"}, "iu": ["sum", ["BigNumeric", 38, 4, "nullable"]]}],
+    "analyze": {"pipeline": 0, "column-count": 1, "cpu-cycles": 31, "memory-bytes": 0, "running": false, "tuple-count": 1}
+  }],
+  "analyze": {"error": null, "pipeline": 0, "column-count": 0}
 }

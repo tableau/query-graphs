@@ -3,14 +3,15 @@
   "operatorId": 1,
   "cardinality": 2,
   "producesRows": true,
-  "output": [{"expression": "iuref", "iu": ["v", ["Varchar"]]}, {"expression": "iuref", "iu": ["v2", ["Varchar"]]}],
+  "output": [{"expression": "iuref", "iu": ["tableconstruction", ["Varchar"]]}, {"expression": "iuref", "iu": ["tableconstruction2", ["Varchar"]]}],
   "outputNames": ["column1", "column2"],
-  "input": {
+  "inputs": [{
     "operator": "tableconstruction",
     "operatorId": 2,
     "sqlpos": [[22, 38]],
     "cardinality": 2,
-    "output": [["v", ["Varchar"]], ["v2", ["Varchar"]]],
-    "values": [[{"expression": "const", "value": {"type": ["Varchar"], "value": "a"}}, {"expression": "const", "value": {"type": ["Varchar"], "value": "b"}}], [{"expression": "const", "value": {"type": ["Varchar"], "value": "c"}}, {"expression": "const", "value": {"type": ["Varchar"], "value": "d"}}]]
-  }
+    "output": [["tableconstruction", ["Varchar"]], ["tableconstruction2", ["Varchar"]]],
+    "values": [[{"expression": "const", "value": {"type": ["Varchar"], "value": "a"}}, {"expression": "const", "value": {"type": ["Varchar"], "value": "b"}}], [{"expression": "const", "value": {"type": ["Varchar"], "value": "c"}}, {"expression": "const", "value": {"type": ["Varchar"], "value": "d"}}]],
+    "inputs": []
+  }]
 }
