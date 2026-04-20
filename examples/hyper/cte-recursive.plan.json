@@ -3,45 +3,46 @@
   "operatorId": 1,
   "cardinality": 11,
   "producesRows": true,
-  "output": [{"expression": "iuref", "iu": ["v", ["Integer"]]}],
+  "output": [{"expression": "iuref", "iu": ["map", ["Integer"]]}],
   "outputNames": ["i"],
-  "input": {
+  "inputs": [{
     "operator": "iteration",
     "operatorId": 2,
     "cardinality": 11,
-    "resultIUs": [["v", ["Integer"]]],
-    "leftValues": [{"expression": "iuref", "iu": ["v2", ["Integer"]]}],
-    "rightValues": [{"expression": "iuref", "iu": ["v3", ["Integer"]]}],
+    "resultIUs": [["map", ["Integer"]]],
+    "leftValues": [{"expression": "iuref", "iu": ["map2", ["Integer"]]}],
+    "rightValues": [{"expression": "iuref", "iu": ["map3", ["Integer"]]}],
     "unionAll": true,
-    "left": {
+    "inputs": [{
       "operator": "tableconstruction",
       "operatorId": 3,
       "cardinality": 1,
-      "output": [["v2", ["Integer"]]],
-      "values": [[{"expression": "const", "value": {"type": ["Integer"], "value": 1}}]]
-    },
-    "right": {
+      "output": [["map2", ["Integer"]]],
+      "values": [[{"expression": "const", "value": {"type": ["Integer"], "value": 1}}]],
+      "inputs": []
+    }, {
       "operator": "map",
       "operatorId": 4,
       "sqlpos": [[85, 90]],
       "cardinality": 1,
-      "input": {
-        "operator": "select",
+      "inputs": [{
+        "operator": "filter",
         "operatorId": 5,
         "sqlpos": [[104, 111]],
         "cardinality": 1,
-        "input": {
+        "inputs": [{
           "operator": "iterationincrement",
           "operatorId": 6,
           "sqlpos": [[96, 97]],
           "cardinality": 1,
-          "values": [["v4", ["Integer"]]],
+          "values": [["map_increment", ["Integer"]]],
           "source": 2
-        },
-        "condition": {"expression": "comparison", "mode": "<", "left": {"expression": "iuref", "iu": "v4"}, "right": {"expression": "const", "value": {"type": ["Integer"], "value": 100}}}
-      },
-      "values": [{"iu": ["v3", ["Integer"]], "value": {"expression": "add", "left": {"expression": "iuref", "iu": "v4"}, "right": {"expression": "const", "value": {"type": ["Integer"], "value": 1}}}}]
-    },
-    "collates": [null]
-  }
+        }],
+        "condition": {"expression": "comparison", "mode": "<", "left": {"expression": "iuref", "iu": "map_increment"}, "right": {"expression": "const", "value": {"type": ["Integer"], "value": 100}}}
+      }],
+      "values": [{"iu": ["map3", ["Integer"]], "value": {"expression": "add", "left": {"expression": "iuref", "iu": "map_increment"}, "right": {"expression": "const", "value": {"type": ["Integer"], "value": 1}}}}]
+    }],
+    "collates": [null],
+    "algorithm": "materializing"
+  }]
 }

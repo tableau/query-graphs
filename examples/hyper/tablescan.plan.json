@@ -3,17 +3,19 @@
   "operatorId": 1,
   "cardinality": 5,
   "producesRows": true,
-  "output": [{"expression": "iuref", "iu": ["v", ["Char", 25]]}],
+  "output": [{"expression": "iuref", "iu": ["scan_r_name", ["Char", 25]]}],
   "outputNames": ["r_name"],
-  "input": {
+  "inputs": [{
     "operator": "tablescan",
     "operatorId": 2,
     "sqlpos": [[41, 47]],
     "cardinality": 5,
+    "volatility": "stable",
     "relationId": 9,
     "schema": {"type":"sessionschema"},
-    "values": [{"name": "r_regionkey", "type": ["Integer"], "iu": null}, {"name": "r_name", "type": ["Char", 25], "iu": ["v", ["Char", 25]]}, {"name": "r_comment", "type": ["Varchar", 152], "iu": null}],
+    "attributeCount": 3,
+    "attributes": [{"colId": 1, "name": "r_name", "type": ["Char", 25], "iu": ["scan_r_name", ["Char", 25]]}],
     "debugName": {"classification": "nonsensitive", "value": "region"},
     "selectivity": 1
-  }
+  }]
 }
