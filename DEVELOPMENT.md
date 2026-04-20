@@ -42,6 +42,44 @@ To do so, run `yarn dev-server` inside the `standalone-app` folder and connect t
 Changes inside the `query-graphs` directory are not immediately picked up by the `standalone-app`. 
 For your changes to take effect, you will have to re-run `yarn build` inside the `query-graphs` folder.
 
+## Testing with Hyper Query Plans
+
+When making changes to the query plan visualization (e.g., supporting a new plan format), follow these steps to verify everything works end-to-end.
+
+### 1. Dump fresh plans from Hyper
+
+The `plan-dumper/dump-plans.py` script runs SQL queries against a Hyper instance and writes the resulting `EXPLAIN` output as JSON files into `standalone-app/examples/`.
+
+**Prerequisites:**
+
+```shell
+pip3 install tableauhyperapi
+```
+
+**Running with the default (pip-installed) Hyper:**
+
+```shell
+cd plan-dumper
+python3 dump-plans.py
+```
+
+**Running with a custom Hyper build:**
+
+```shell
+cd plan-dumper
+python3 dump-plans.py --hyper-path ~/workspace/hyper-db/bazel-bin/hyper/tools/hyperd
+```
+
+The `--hyper-path` argument should point to the directory containing the `hyperd` binary.
+When omitted, the script uses the `hyperd` bundled with the pip-installed `tableauhyperapi` package.
+
+If you also have a Postgres instance running on port 5433, install `psycopg2` to dump Postgres plans as well. Otherwise, the Postgres section is skipped automatically.
+
+### 2. Visually verify plans in the local server
+
+Build and start the app (if not already running).
+Then open [localhost:8080/examples.html](http://localhost:8080/examples.html) in your browser. This page lists all example plans. Click through the Hyper plans to verify they render correctly.
+
 ## Linting
 
 We use eslint as our code linter.

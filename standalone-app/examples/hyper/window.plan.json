@@ -3,29 +3,31 @@
   "operatorId": 1,
   "cardinality": 2000,
   "producesRows": true,
-  "output": [{"expression": "iuref", "iu": ["v", ["Integer"]]}, {"expression": "iuref", "iu": ["v2", ["BigInt", "nullable"]]}, {"expression": "iuref", "iu": ["v3", ["Numeric", 16, 6, "nullable"]]}],
+  "output": [{"expression": "iuref", "iu": ["scan_a1", ["Integer"]]}, {"expression": "iuref", "iu": ["sum", ["BigInt", "nullable"]]}, {"expression": "iuref", "iu": ["avg", ["Numeric", 16, 6, "nullable"]]}],
   "outputNames": ["a1", "sum", "avg"],
-  "input": {
+  "inputs": [{
     "operator": "window",
     "operatorId": 2,
     "cardinality": 2000,
-    "input": {
+    "inputs": [{
       "operator": "window",
       "operatorId": 3,
       "cardinality": 2000,
-      "input": {
+      "inputs": [{
         "operator": "tablescan",
         "operatorId": 4,
         "sqlpos": [[142, 144]],
         "cardinality": 2000,
+        "volatility": "stable",
         "relationId": 0,
         "schema": {"type":"sessionschema"},
-        "values": [{"name": "a1", "type": ["Integer"], "iu": ["v", ["Integer"]]}, {"name": "b1", "type": ["Integer"], "iu": ["v4", ["Integer"]]}, {"name": "c1", "type": ["Integer"], "iu": ["v5", ["Integer"]]}],
+        "attributeCount": 3,
+        "attributes": [{"colId": 0, "name": "a1", "type": ["Integer"], "iu": ["scan_a1", ["Integer"]]},{"colId": 1, "name": "b1", "type": ["Integer"], "iu": ["scan_b1", ["Integer"]]},{"colId": 2, "name": "c1", "type": ["Integer"], "iu": ["scan_c1", ["Integer"]]}],
         "debugName": {"classification": "nonsensitive", "value": "t1"},
         "selectivity": 1
-      },
-      "windowInfos": [{"operation": "aggregate", "aggregation": {"emptyGroups": true, "aggExpressions": [{"value": {"expression": "iuref", "iu": "v4"}}], "aggregates": [{"source": 0, "operation": {"aggregate": "sum"}, "iu": ["v2", ["BigInt", "nullable"]]}]}, "partitionBy": [], "frameOrderBy": [{"value": {"expression": "iuref", "iu": "v"}, "descending": false, "nullFirst": false}], "rowsmode": false, "startMode": "unbounded", "endMode": "currentrow", "exclude": "noothers"}]
-    },
-    "windowInfos": [{"operation": "aggregate", "aggregation": {"emptyGroups": true, "aggExpressions": [{"value": {"expression": "iuref", "iu": "v5"}}], "aggregates": [{"source": 0, "operation": {"aggregate": "avg"}, "iu": ["v3", ["Numeric", 16, 6, "nullable"]]}]}, "partitionBy": [], "frameOrderBy": [{"value": {"expression": "iuref", "iu": "v4"}, "descending": false, "nullFirst": false}], "rowsmode": true, "startMode": "value", "startExp": {"expression": "const", "value": {"type": ["Integer"], "value": -1}}, "endMode": "value", "endExp": {"expression": "const", "value": {"type": ["Integer"], "value": 3}}, "exclude": "noothers"}]
-  }
+      }],
+      "windowInfos": [{"operation": "aggregate", "aggregation": {"emptyGroups": true, "aggExpressions": [{"value": {"expression": "iuref", "iu": "scan_b1"}}], "aggregates": [{"source": 0, "operation": {"aggregate": "sum"}, "iu": ["sum", ["BigInt", "nullable"]]}]}, "partitionBy": [], "frameOrderBy": [{"value": {"expression": "iuref", "iu": "scan_a1"}, "descending": false, "nullFirst": false}], "rowsmode": false, "startMode": "unbounded", "endMode": "currentrow", "exclude": "noothers"}]
+    }],
+    "windowInfos": [{"operation": "aggregate", "aggregation": {"emptyGroups": true, "aggExpressions": [{"value": {"expression": "iuref", "iu": "scan_c1"}}], "aggregates": [{"source": 0, "operation": {"aggregate": "avg"}, "iu": ["avg", ["Numeric", 16, 6, "nullable"]]}]}, "partitionBy": [], "frameOrderBy": [{"value": {"expression": "iuref", "iu": "scan_b1"}, "descending": false, "nullFirst": false}], "rowsmode": true, "startMode": "value", "startExp": {"expression": "const", "value": {"type": ["Integer"], "value": -1}}, "endMode": "value", "endExp": {"expression": "const", "value": {"type": ["Integer"], "value": 3}}, "exclude": "noothers"}]
+  }]
 }

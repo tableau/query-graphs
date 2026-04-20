@@ -152,7 +152,7 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
         // Determine the order in which other keys are displayed.
         // For some keys, we enforce a specific order here (e.g., "left" comes before "right").
         // For all other keys, we use alphabetic order.
-        const fixedChildOrder = ["input", "left", "right", "value", "valueForComparison"];
+        const fixedChildOrder = ["inputs", "input", "left", "right", "value", "valueForComparison"];
         const orderedKeys = Object.getOwnPropertyNames(rawNode)
             .filter((k) => {
                 // `propertyKeys` and `operator`/`expression` were already handled

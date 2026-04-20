@@ -3,22 +3,24 @@
   "operatorId": 1,
   "cardinality": 10,
   "producesRows": true,
-  "output": [{"expression": "iuref", "iu": ["v", ["Integer"]]}],
+  "output": [{"expression": "iuref", "iu": ["sequence", ["Integer"]]}],
   "outputNames": ["generate_series"],
-  "input": {
+  "inputs": [{
     "operator": "tablefunction",
     "operatorId": 2,
     "sqlpos": [[36, 51]],
     "cardinality": 10,
-    "input": {
+    "inputs": [{
       "operator": "tableconstruction",
       "operatorId": 3,
       "cardinality": 1,
       "output": [],
-      "values": [[]]
-    },
+      "values": [[]],
+      "inputs": []
+    }],
     "function": "sequence",
     "args": [{"expression": "const", "value": {"type": ["Integer"], "value": 1}}, {"expression": "const", "value": {"type": ["Integer"], "value": 10}}, {"expression": "const", "value": {"type": ["Integer"], "value": 1}}],
-    "ius": [["v", ["Integer"]]]
-  }
+    "ius": [["sequence", ["Integer"]]],
+    "ordinality": ["ordinality", ["BigInt"]]
+  }]
 }

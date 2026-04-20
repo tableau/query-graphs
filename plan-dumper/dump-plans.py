@@ -1,5 +1,9 @@
 from tableauhyperapi import HyperProcess, Telemetry, Connection
-import psycopg2
+try:
+    import psycopg2
+except ImportError:
+    psycopg2 = None
+import argparse
 import shutil
 import os
 import json
@@ -51,38 +55,47 @@ def dump_plans(name, exec_stmt, get_plan):
 
 
 # Postgres
-with psycopg2.connect("port=5433") as conn:
-    def exec_postgres(sql):
-        with conn.cursor() as cur:
-            if sql.strip() != "":
-                cur.execute(sql)
+if psycopg2 is not None:
+    with psycopg2.connect("port=5433") as conn:
+        def exec_postgres(sql):
+            with conn.cursor() as cur:
+                if sql.strip() != "":
+                    cur.execute(sql)
 
-    def get_postgres_plan(sql, mode):
-        if mode == "steps":
-            return None
-        elif mode == "analyze":
-            explain = "EXPLAIN (VERBOSE, ANALYZE, FORMAT JSON) "
-        elif mode is None:
-            explain = "EXPLAIN (VERBOSE, FORMAT JSON) "
-        else:
-            return None
-        with conn.cursor() as cur:
-            cur.execute(explain + sql)
-            records = cur.fetchall()
-            return json.dumps(records[0][0])
-    
-    dump_plans("postgres", exec_postgres, get_postgres_plan)
+        def get_postgres_plan(sql, mode):
+            if mode == "steps":
+                return None
+            elif mode == "analyze":
+                explain = "EXPLAIN (VERBOSE, ANALYZE, FORMAT JSON) "
+            elif mode is None:
+                explain = "EXPLAIN (VERBOSE, FORMAT JSON) "
+            else:
+                return None
+            with conn.cursor() as cur:
+                cur.execute(explain + sql)
+                records = cur.fetchall()
+                return json.dumps(records[0][0])
 
+        dump_plans("postgres", exec_postgres, get_postgres_plan)
+else:
+    print("Skipping Postgres: psycopg2 not installed")
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--hyper-path", type=Path, default=None,
+                    help="Path to a directory containing the hyperd binary. "
+                         "Uses the pip-installed Hyper by default.")
+args = parser.parse_args()
 
 # Hyper
-with HyperProcess(telemetry=Telemetry.SEND_USAGE_DATA_TO_TABLEAU, parameters=hyper_params) as hyper:
+with HyperProcess(telemetry=Telemetry.SEND_USAGE_DATA_TO_TABLEAU, parameters=hyper_params, hyper_path=args.hyper_path) as hyper:
     with Connection(endpoint=hyper.endpoint) as connection:
         def exec_hyper(sql):
             connection.execute_command(sql)
 
         def get_hyper_plan(sql, mode):
             if mode == "steps":
-                explain = "EXPLAIN (FORMAT JSON, OPTIMIZERSTEPS) "
+                explain = "EXPLAIN (FORMAT JSON, OPTIMIZE STEPS) "
             elif mode == "analyze":
                 explain = "EXPLAIN (FORMAT JSON, ANALYZE) "
             elif mode is None:
