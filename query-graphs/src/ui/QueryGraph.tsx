@@ -5,6 +5,7 @@ import {layoutTree} from "./tree-layout";
 import {TreeDescription, TreeNode, allChildren, visitTreeNodes} from "../tree-description";
 import {useMemo, useEffect, useRef, ReactNode} from "react";
 import {QueryNode} from "./QueryNode";
+import {PipelineEdge} from "./PipelineEdge";
 import {useGraphRenderingStore} from "./store";
 import "./QueryGraph.css";
 
@@ -14,6 +15,7 @@ interface QueryGraphProps {
 }
 
 function minimapNodeColor(n: Node<TreeNode>): string {
+    if (n.data.pipelineColor) return n.data.pipelineColor;
     if (n.data.nodeColor) return n.data.nodeColor;
     if (n.data.iconColor) return n.data.iconColor;
     return "hsl(0, 0%, 72%)";
@@ -21,6 +23,10 @@ function minimapNodeColor(n: Node<TreeNode>): string {
 
 const nodeTypes = {
     querynode: QueryNode,
+};
+
+const edgeTypes = {
+    pipeline: PipelineEdge,
 };
 
 function QueryGraphInternal({treeDescription, children}: QueryGraphProps) {
@@ -84,6 +90,7 @@ function QueryGraphInternal({treeDescription, children}: QueryGraphProps) {
             edges={layout.edges}
             nodeOrigin={[0.5, 0]}
             nodeTypes={nodeTypes}
+            edgeTypes={edgeTypes}
             fitView
             minZoom={0.2}
             maxZoom={1.5}

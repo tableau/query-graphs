@@ -72,17 +72,29 @@ export function layoutTree(
         const sourceId = nodeIds.get(e.source.data);
         const targetId = nodeIds.get(e.target.data);
         const style = {} as CSSProperties;
+        // Edge *thickness* encodes the number of rows flowing on the edge.
+        let width = 1.5;
         if (e.target.data.edgeWidth) {
-            const width = Math.max(1, 10 * Math.min(1, e.target.data.edgeWidth));
-            style.strokeWidth = `${width}px`;
+            width = Math.max(1, 10 * Math.min(1, e.target.data.edgeWidth));
         }
+        // The incoming edge shows the color(s) of the pipeline(s) flowing across
+        // it (see `edgeColors`/`edgeColor` in tree-description).
+        const pipelineColor = e.target.data.edgeColor;
+        const pipelineColors = e.target.data.edgeColors;
+        if (pipelineColor) {
+            style.stroke = pipelineColor;
+            width = Math.max(width, 2);
+        }
+        style.strokeWidth = `${width}px`;
         return {
             id: `${sourceId}->${targetId}`,
             source: sourceId,
             target: targetId,
+            type: "pipeline",
             label: e.target.data.edgeLabel,
             className: e.target.data.edgeClass,
             style: style,
+            data: {pipelineColor, pipelineColors, strokeWidth: width},
             focusable: false,
         } as Edge;
     });

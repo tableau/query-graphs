@@ -52,6 +52,23 @@
     text-align: center;
 }
 
+/* A small color bar under the operator label, indicating its execution
+ * pipeline(s). Kept visible whether or not the node is expanded. When the
+ * operator belongs to several pipelines the bar is split into one colored
+ * segment per pipeline. */
+.qg-pipeline-bar {
+    display: flex;
+    gap: 1px;
+    height: 4px;
+    margin: 4px auto 0 auto;
+    width: 70%;
+    min-width: 1.2em;
+}
+.qg-pipeline-bar-seg {
+    flex: 1 1 0;
+    border-radius: 2px;
+}
+
 .qg-graph-node-label {
     /*
      * Clip the label at some length; long labels can become quite unreadable

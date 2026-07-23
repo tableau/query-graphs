@@ -22,8 +22,28 @@ The main steps are:
 
 */
 
-import {TreeNode, TreeDescription, Crosslink, IconName} from "./tree-description";
+import {TreeNode, TreeDescription, Crosslink, IconName, PipelineInfo, visitTreeNodes, allChildren} from "./tree-description";
 import {Json, JsonObject, forceToString, tryToString, formatMetric, hasOwnProperty, tryGetPropertyPath} from "./loader-utils";
+
+// A categorical color palette for execution pipelines.
+// Curated for good separation and readability on a white background
+// (based on the Tableau 10 palette, with the low-contrast yellow darkened).
+const PIPELINE_PALETTE = [
+    "#4e79a7", // blue
+    "#f28e2b", // orange
+    "#59a14f", // green
+    "#e15759", // red
+    "#b07aa1", // purple
+    "#76b7b2", // teal
+    "#9c6b3f", // brown
+    "#ff9da7", // pink
+    "#b5992b", // gold
+    "#8c8c8c", // gray
+];
+
+function pipelineColor(index: number): string {
+    return PIPELINE_PALETTE[index % PIPELINE_PALETTE.length];
+}
 
 interface UnresolvedCrosslink {
     source: TreeNode;
@@ -242,22 +262,36 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
             conversionState.runtimes.push({node: convertedNode, time: execTime});
         }
 
-        // Display the cardinality on the links between the nodes
-        if (hasOwnProperty(rawNode, "cardinality") && typeof rawNode.cardinality === "number") {
-            const estimatedCard = rawNode.cardinality;
-            let actualCard = tryGetPropertyPath(rawNode, ["analyze", "tuple-count"]);
-            if (actualCard === undefined) {
-                // Backwards-compat: until recently, this was `tuple-count`, not `tuple-count`
-                actualCard = tryGetPropertyPath(rawNode, ["analyze", "tuple-count"]);
-            }
+        // Display the number of rows flowing on the links between the nodes.
+        // Edge *thickness* encodes the data volume (rows), which is the classic
+        // query-graphs semantic. The old format exposes `cardinality` (estimate)
+        // and `analyze.tuple-count` (actual); the new FORMAT JSON exposes
+        // `statistics.estimated-rows` (estimate) and `statistics.output-rows`
+        // (actual, ANALYZE only; `processed-rows` as a fallback).
+        let estimatedCard =
+            hasOwnProperty(rawNode, "cardinality") && typeof rawNode.cardinality === "number" ? rawNode.cardinality : undefined;
+        let actualCard: Json | undefined = tryGetPropertyPath(rawNode, ["analyze", "tuple-count"]);
+        if (estimatedCard === undefined) {
+            const estRows = tryGetPropertyPath(rawNode, ["statistics", "estimated-rows"]);
+            if (typeof estRows === "number") estimatedCard = estRows;
+        }
+        if (typeof actualCard !== "number") {
+            actualCard =
+                tryGetPropertyPath(rawNode, ["statistics", "output-rows"]) ??
+                tryGetPropertyPath(rawNode, ["statistics", "processed-rows"]);
+        }
+        if (estimatedCard !== undefined || typeof actualCard === "number") {
             if (typeof actualCard === "number") {
                 conversionState.edgeWidths.push({node: convertedNode, width: actualCard});
-                convertedNode.edgeLabel = formatMetric(actualCard) + "/" + formatMetric(estimatedCard);
+                convertedNode.edgeLabel =
+                    estimatedCard !== undefined
+                        ? formatMetric(actualCard) + "/" + formatMetric(estimatedCard)
+                        : formatMetric(actualCard);
                 // Highlight significant differences between planned and actual rows
-                if (estimatedCard > actualCard * 10 || actualCard * 10 < estimatedCard) {
+                if (estimatedCard !== undefined && (estimatedCard > actualCard * 10 || actualCard * 10 < estimatedCard)) {
                     convertedNode.edgeClass = "qg-label-highlighted";
                 }
-            } else {
+            } else if (estimatedCard !== undefined) {
                 conversionState.edgeWidths.push({node: convertedNode, width: estimatedCard});
                 convertedNode.edgeLabel = formatMetric(estimatedCard);
             }
@@ -359,6 +393,242 @@ function convertHyperPlan(node: Json): TreeDescription {
     return {root, crosslinks, metadata: conversionState.metadata};
 }
 
+// A raw pipeline entry, as parsed from the `pipelines` array of the plan.
+interface RawPipeline {
+    id: number;
+    operatorIds: number[];
+    statistics?: Map<string, string>;
+    // Raw ANALYZE cost counters (only present under EXPLAIN ANALYZE). In the
+    // PIPELINES output, cpu-cycles/wall-time live on the pipeline, not on the
+    // individual operators.
+    cpuCycles?: number;
+    wallTime?: number;
+}
+
+// Assign a horizontal ("x") rank to every tree node, mirroring how the tree is
+// laid out left-to-right: leaves are numbered in depth-first order, and each
+// inner node is placed at the centroid of its children. This ordering is
+// layout-independent (it does not change when nodes are expanded/collapsed),
+// which keeps pipeline colors stable while the user explores the plan.
+function computeHorizontalRanks(root: TreeNode): Map<TreeNode, number> {
+    const ranks = new Map<TreeNode, number>();
+    let nextLeaf = 0;
+    const assign = (node: TreeNode): number => {
+        const children = node.children ?? [];
+        let rank: number;
+        if (children.length === 0) {
+            rank = nextLeaf++;
+        } else {
+            let sum = 0;
+            for (const child of children) sum += assign(child);
+            rank = sum / children.length;
+        }
+        ranks.set(node, rank);
+        return rank;
+    };
+    assign(root);
+    return ranks;
+}
+
+function parsePipelineStatistics(node: Json): Map<string, string> | undefined {
+    if (typeof node !== "object" || Array.isArray(node) || node === null) return undefined;
+    const stats = new Map<string, string>();
+    // Cycle counts and wall-time are the interesting per-pipeline ANALYZE metrics.
+    const cpuCycles = node["cpu-cycles"];
+    if (typeof cpuCycles === "number") stats.set("cpu-cycles", formatMetric(cpuCycles));
+    const wallTime = node["wall-time"];
+    if (typeof wallTime === "number") stats.set("wall-time", formatDuration(wallTime));
+    if (stats.size === 0) return undefined;
+    return stats;
+}
+
+// Format a nanosecond duration into a compact, human-readable string.
+function formatDuration(nanos: number): string {
+    if (nanos < 1e3) return `${nanos.toFixed(0)} ns`;
+    if (nanos < 1e6) return `${(nanos / 1e3).toFixed(1)} µs`;
+    if (nanos < 1e9) return `${(nanos / 1e6).toFixed(1)} ms`;
+    return `${(nanos / 1e9).toFixed(2)} s`;
+}
+
+// Parse and validate the `pipelines` array of the plan.
+function parsePipelines(pipelinesJson: Json): RawPipeline[] {
+    if (!Array.isArray(pipelinesJson)) {
+        throw new Error("Invalid Hyper query plan: `pipelines` must be an array");
+    }
+    const pipelines: RawPipeline[] = [];
+    for (const entry of pipelinesJson) {
+        if (typeof entry !== "object" || Array.isArray(entry) || entry === null) continue;
+        const id = entry["id"];
+        const operators = entry["operators"];
+        if (typeof id !== "number" || !Array.isArray(operators)) continue;
+        const operatorIds = operators.filter((o): o is number => typeof o === "number");
+        const stats = entry["statistics"];
+        let cpuCycles: number | undefined;
+        let wallTime: number | undefined;
+        if (typeof stats === "object" && !Array.isArray(stats) && stats !== null) {
+            if (typeof stats["cpu-cycles"] === "number") cpuCycles = stats["cpu-cycles"];
+            if (typeof stats["wall-time"] === "number") wallTime = stats["wall-time"];
+        }
+        pipelines.push({
+            id,
+            operatorIds,
+            statistics: parsePipelineStatistics(stats),
+            cpuCycles,
+            wallTime,
+        });
+    }
+    return pipelines;
+}
+
+// Project the merged execution pipelines onto the operator tree and assign colors.
+//
+// Coloring follows two rules requested by the visualization:
+//  * Pipelines are assigned palette colors left-to-right (by their left-most
+//    operator), so neighboring pipelines get visually distinct hues.
+//  * An operator that belongs to several pipelines is colored by the *right-most*
+//    of those pipelines. This makes the UNION ALL / fork-share cases read
+//    naturally: the shared "pipeline above" a UNION ALL (executed once per input)
+//    takes on the color of the right-most input pipeline, and a forked/shared
+//    source keeps the color of the right-most consumer that reads from it.
+function assignPipelineColors(root: TreeNode, operatorsById: Map<string, TreeNode>, pipelines: RawPipeline[]): PipelineInfo[] {
+    const ranks = computeHorizontalRanks(root);
+    const nodeRank = (n: TreeNode) => ranks.get(n) ?? 0;
+
+    // Resolve each pipeline's member operators to tree nodes and compute its
+    // horizontal extent (min/max rank of any member operator).
+    interface ResolvedPipeline extends RawPipeline {
+        nodes: TreeNode[];
+        minRank: number;
+        maxRank: number;
+    }
+    const resolved: ResolvedPipeline[] = pipelines.map((p) => {
+        const nodes: TreeNode[] = [];
+        for (const opId of p.operatorIds) {
+            const node = operatorsById.get(opId.toString());
+            if (node) nodes.push(node);
+        }
+        const memberRanks = nodes.map(nodeRank);
+        return {
+            ...p,
+            nodes,
+            minRank: memberRanks.length ? Math.min(...memberRanks) : Infinity,
+            maxRank: memberRanks.length ? Math.max(...memberRanks) : -Infinity,
+        };
+    });
+
+    // Assign palette colors in left-to-right order.
+    const colorOrder = [...resolved].sort((a, b) => a.minRank - b.minRank || a.maxRank - b.maxRank || a.id - b.id);
+    const colorById = new Map<number, string>();
+    const infoById = new Map<number, PipelineInfo>();
+    const legend: PipelineInfo[] = [];
+    colorOrder.forEach((p, idx) => {
+        const color = pipelineColor(idx);
+        colorById.set(p.id, color);
+        const info: PipelineInfo = {id: p.id, color, operatorCount: p.nodes.length, statistics: p.statistics};
+        infoById.set(p.id, info);
+        legend.push(info);
+    });
+
+    // For each operator, record every pipeline it belongs to and pick the
+    // right-most one (largest maxRank, ties broken by id) as its display color.
+    const nodePipelines = new Map<TreeNode, ResolvedPipeline[]>();
+    for (const p of resolved) {
+        for (const node of p.nodes) {
+            const list = nodePipelines.get(node) ?? [];
+            list.push(p);
+            nodePipelines.set(node, list);
+        }
+    }
+    // Total CPU cost across all pipelines, used to turn per-pipeline cpu-cycles
+    // into a relative "hotness" (ANALYZE only).
+    const totalCpuCycles = resolved.reduce((sum, p) => sum + (p.cpuCycles ?? 0), 0);
+
+    for (const [node, ps] of nodePipelines) {
+        const winner = ps.reduce((best, p) =>
+            p.maxRank > best.maxRank || (p.maxRank === best.maxRank && p.id > best.id) ? p : best,
+        );
+        node.pipelineColor = colorById.get(winner.id);
+        node.pipelineIds = ps.map((p) => p.id).sort((a, b) => a - b);
+        // All pipeline colors, ordered left-to-right so the segmented bar lines
+        // up with the pipelines as they appear below the operator.
+        node.pipelineColors = [...ps]
+            .sort((a, b) => a.minRank - b.minRank || a.maxRank - b.maxRank || a.id - b.id)
+            .map((p) => colorById.get(p.id))
+            .filter((c): c is string => c !== undefined);
+
+        // Overlay the ANALYZE cost of the operator's dominant pipeline. Hue keeps
+        // encoding pipeline *identity* (icon/bar/border); the label *background*
+        // encodes the pipeline's CPU *cost* as heat -- the same channel the older
+        // per-operator cpu-cycle highlighting used, so the two compose cleanly.
+        if (winner.cpuCycles !== undefined && totalCpuCycles > 0) {
+            const share = winner.cpuCycles / totalCpuCycles;
+            if (share >= 0.05) {
+                const l = (95 + (72 - 95) * Math.min(1, share)).toFixed(1);
+                node.nodeColor = `hsl(309, 84%, ${l}%)`;
+            }
+            // Surface the per-pipeline numbers on the operator (there is no
+            // legend); shown in the expanded body.
+            if (!node.properties) node.properties = new Map<string, string>();
+            node.properties.set("pipeline", `#${winner.id}`);
+            node.properties.set("pipeline cpu-cycles", formatMetric(winner.cpuCycles));
+            if (winner.wallTime !== undefined) node.properties.set("pipeline wall-time", formatDuration(winner.wallTime));
+            node.properties.set("pipeline cost", `${(share * 100).toFixed(1)}%`);
+        }
+    }
+
+    // Color each edge by the right-most pipeline shared by both of its endpoints.
+    // If the parent and child share no pipeline, the edge is a pipeline breaker
+    // and is left neutral, so the color changes visibly at pipeline boundaries.
+    const byId = new Map<number, ResolvedPipeline>();
+    for (const p of resolved) byId.set(p.id, p);
+    const rightmostOf = (ids: number[]): number =>
+        ids.reduce((best, id) => {
+            const a = byId.get(id);
+            const b = byId.get(best);
+            if (!a) return best;
+            if (!b) return id;
+            return a.maxRank > b.maxRank || (a.maxRank === b.maxRank && id > best) ? id : best;
+        });
+    const walkEdges = (node: TreeNode, parent: TreeNode | undefined) => {
+        if (parent && node.pipelineIds && parent.pipelineIds) {
+            const parentIds = parent.pipelineIds;
+            const common = node.pipelineIds.filter((id) => parentIds.includes(id));
+            if (common.length) {
+                // All pipelines flowing across this edge, ordered left-to-right.
+                const ordered = common
+                    .map((id) => byId.get(id))
+                    .filter((p): p is ResolvedPipeline => p !== undefined)
+                    .sort((a, b) => a.minRank - b.minRank || a.maxRank - b.maxRank || a.id - b.id);
+                node.edgeColors = ordered.map((p) => colorById.get(p.id)).filter((c): c is string => c !== undefined);
+                node.edgeColor = colorById.get(rightmostOf(common));
+            }
+        }
+        for (const child of allChildren(node)) walkEdges(child, node);
+    };
+    walkEdges(root, undefined);
+
+    return legend;
+}
+
+// Load a Hyper plan that carries a merged execution-pipeline graph
+// (`EXPLAIN (FORMAT JSON, PIPELINES, ...)`), i.e. a top-level `{tree, pipelines}`.
+function convertHyperPlanWithPipelines(node: JsonObject): TreeDescription {
+    const treeDescription = convertHyperPlan(node["tree"]);
+    // Rebuild the operator-id map over the produced tree so pipelines can be resolved.
+    const operatorsById = new Map<string, TreeNode>();
+    visitTreeNodes(
+        treeDescription.root,
+        (n) => {
+            const opId = n.properties?.get("operator-id") ?? n.properties?.get("operatorId");
+            if (opId !== undefined) operatorsById.set(opId, n);
+        },
+        allChildren,
+    );
+    const pipelines = parsePipelines(node["pipelines"]);
+    treeDescription.pipelines = assignPipelineColors(treeDescription.root, operatorsById, pipelines);
+    return treeDescription;
+}
+
 function convertOptimizerSteps(node: Json): TreeDescription | undefined {
     // Check if we have a top-level object with a single key "optimizersteps" containing an array
     if (typeof node !== "object" || Array.isArray(node) || node === null) return undefined;
@@ -393,8 +663,23 @@ function convertOptimizerSteps(node: Json): TreeDescription | undefined {
     return {root, crosslinks, metadata: properties};
 }
 
+// Detect the `{tree, pipelines}` envelope emitted by `EXPLAIN (..., PIPELINES, ...)`.
+function hasPipelineEnvelope(json: Json): json is JsonObject {
+    return (
+        typeof json === "object" &&
+        !Array.isArray(json) &&
+        json !== null &&
+        hasOwnProperty(json, "tree") &&
+        hasOwnProperty(json, "pipelines") &&
+        typeof json["tree"] === "object"
+    );
+}
+
 // Loads a Hyper query plan
 export function loadHyperPlan(json: Json): TreeDescription {
+    if (hasPipelineEnvelope(json)) {
+        return convertHyperPlanWithPipelines(json);
+    }
     return convertOptimizerSteps(json) ?? convertHyperPlan(json);
 }
 

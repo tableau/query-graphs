@@ -1,0 +1,62 @@
+{
+  "tree": {
+    "operator": "output",
+    "operator-id": 1,
+    "statistics": {"estimated-rows": 9},
+    "inputs": [{
+      "operator": "unionAll",
+      "operator-id": 2,
+      "statistics": {"estimated-rows": 9},
+      "inputs": [{
+        "operator": "explicitScan",
+        "operator-id": 3,
+        "statistics": {"estimated-rows": 3},
+        "inputs": [{
+          "operator": "sort",
+          "operator-id": 4,
+          "statistics": {"estimated-rows": 3},
+          "inputs": [{
+            "operator": "tableFunction",
+            "operator-id": 5,
+            "statistics": {"estimated-rows": 6},
+            "inputs": [{
+              "operator": "tableConstruction",
+              "operator-id": 6,
+              "statistics": {"estimated-rows": 1},
+              "inputs": [],
+              "defines": [],
+              "values": [[]]
+            }],
+            "function": "sequence",
+            "defines": [{"id": "sequence", "type": {"type": "integer", "nullable": false}}],
+            "ordinality": {"defines": {"id": "ordinality", "type": {"type": "bigint", "nullable": false}}}
+          }],
+          "order": [{"order": "ascending", "nulls": "last", "value": {"expression": "reference", "id": "sequence"}}],
+          "limit": 3
+        }],
+        "mapping": [{"defines": {"id": "sequence2", "type": {"type": "integer", "nullable": false}}, "source": {"expression": "reference", "id": "sequence"}}]
+      }, {
+        "operator": "explicitScan",
+        "operator-id": 7,
+        "statistics": {"estimated-rows": 3},
+        "input-operator-id": 4,
+        "mapping": [{"defines": {"id": "sequence3", "type": {"type": "integer", "nullable": false}}, "source": {"expression": "reference", "id": "sequence"}}]
+      }, {
+        "operator": "explicitScan",
+        "operator-id": 8,
+        "statistics": {"estimated-rows": 3},
+        "input-operator-id": 4,
+        "mapping": [{"defines": {"id": "sequence4", "type": {"type": "integer", "nullable": false}}, "source": {"expression": "reference", "id": "sequence"}}]
+      }],
+      "defines": [{"id": "union", "type": {"type": "integer", "nullable": false}}],
+      "values": [[{"expression": "reference", "id": "sequence2"}], [{"expression": "reference", "id": "sequence3"}], [{"expression": "reference", "id": "sequence4"}]]
+    }],
+    "output": [{"name": "a", "expression": {"expression": "reference", "id": "union"}}]
+  },
+  "pipelines": [
+    {"id": 1, "operators": [1, 2, 3], "dependencies": [4]},
+    {"id": 4, "operators": [4, 5, 6], "dependencies": []},
+    {"id": 5, "operators": [1, 2, 7], "dependencies": [4]},
+    {"id": 6, "operators": [1, 2, 8], "dependencies": [4]}
+  ]
+}
