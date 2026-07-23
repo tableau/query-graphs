@@ -1,13 +1,13 @@
 {
   "operator": "executiontarget",
-  "operatorId": 1,
+  "operator-id": 1,
   "cardinality": 2,
-  "producesRows": true,
+  "produces-rows": true,
   "output": [{"expression": "iuref", "iu": ["tableconstruction", ["Varchar"]]}, {"expression": "iuref", "iu": ["tableconstruction2", ["Varchar"]]}],
-  "outputNames": ["column1", "column2"],
+  "output-names": ["column1", "column2"],
   "inputs": [{
     "operator": "tableconstruction",
-    "operatorId": 2,
+    "operator-id": 2,
     "sqlpos": [[22, 38]],
     "cardinality": 2,
     "output": [["tableconstruction", ["Varchar"]], ["tableconstruction2", ["Varchar"]]],

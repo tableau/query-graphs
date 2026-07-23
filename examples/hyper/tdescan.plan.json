@@ -370,7 +370,7 @@
                         "copy": false,
                         "from": "/Users/ricole/Documents/My Tableau Repository (Beta)/Datasources/flightinformation_since2013 (public.flightinformation_since2013)+ (ricole).tde",
                         "operator": "tdescan",
-                        "operatorId": 4,
+                        "operator-id": 4,
                         "options": {
                             "limit": -1,
                             "offset": 0,
@@ -499,7 +499,7 @@
                         }
                     },
                     "operator": "groupby",
-                    "operatorId": 3,
+                    "operator-id": 3,
                     "values": [
                         {
                             "value": {
@@ -522,10 +522,10 @@
                     ]
                 },
                 "operator": "select",
-                "operatorId": 2
+                "operator-id": 2
             },
             "operator": "cursorcreate",
-            "operatorId": 1,
+            "operator-id": 1,
             "values": [
                 {
                     "expression": "iuref",
