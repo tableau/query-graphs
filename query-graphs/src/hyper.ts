@@ -530,12 +530,6 @@ function assignPipelineColors(root: TreeNode, operatorsById: Map<string, TreeNod
     const totalCpuCycles = resolved.reduce((sum, p) => sum + (p.cpuCycles ?? 0), 0);
 
     for (const [node, ps] of nodePipelines) {
-        // A bar above and below the node, each showing every pipeline the
-        // operator belongs to (so multi-pipeline operators are obvious).
-        const colors = orderedColors(ps);
-        node.barsAbove = colors;
-        node.barsBelow = colors;
-
         // Overlay the ANALYZE cost of the operator's dominant (right-most)
         // pipeline as label-background heat (identity stays on the bars).
         const winner = ps.reduce((best, p) =>
@@ -557,20 +551,45 @@ function assignPipelineColors(root: TreeNode, operatorsById: Map<string, TreeNod
         }
     }
 
-    // Color each edge by the pipeline(s) shared by both of its endpoints. If the
-    // parent and child share no pipeline, the edge is a pipeline breaker and is
-    // left neutral, so the color changes visibly at pipeline boundaries.
-    const walkEdges = (node: TreeNode, parent: TreeNode | undefined) => {
+    // Walk the tree to split each operator's pipelines into an "incoming" side
+    // (shared with its children, drawn below) and an "outgoing" side (shared with
+    // its parent, drawn above). Data flows leaves->root, so children feed the
+    // node from below and the node feeds its parent above. A pipeline that starts
+    // or ends at a node (a pipeline breaker, or a source/sink) is therefore
+    // present on only one side. The incoming edge is colored to match the
+    // node's outgoing (above) side, which is exactly the pipelines it shares with
+    // its parent -- edges with no shared pipeline stay neutral (breakers).
+    const walk = (node: TreeNode, parent: TreeNode | undefined) => {
         const nodePs = nodePipelines.get(node);
-        const parentPs = parent ? nodePipelines.get(parent) : undefined;
-        if (nodePs && parentPs) {
-            const parentIds = new Set(parentPs.map((p) => p.id));
-            const common = nodePs.filter((p) => parentIds.has(p.id));
-            if (common.length) node.edgeColors = orderedColors(common);
+        if (nodePs) {
+            // Outgoing (above): pipelines shared with the parent; at the root
+            // (no parent) everything the operator drives flows out.
+            const parentPs = parent ? nodePipelines.get(parent) : undefined;
+            let outgoing = nodePs;
+            if (parent) {
+                const parentIds = parentPs ? new Set(parentPs.map((p) => p.id)) : new Set<number>();
+                outgoing = nodePs.filter((p) => parentIds.has(p.id));
+            }
+            node.barsAbove = orderedColors(outgoing);
+            if (parent && outgoing.length) node.edgeColors = orderedColors(outgoing);
+
+            // Incoming (below): pipelines shared with any operator child; a leaf
+            // (no operator children) is a source, so its pipelines originate here.
+            const childIds = new Set<number>();
+            let hasOperatorChild = false;
+            for (const child of allChildren(node)) {
+                const childPs = nodePipelines.get(child);
+                if (childPs) {
+                    hasOperatorChild = true;
+                    for (const p of childPs) childIds.add(p.id);
+                }
+            }
+            const incoming = hasOperatorChild ? nodePs.filter((p) => childIds.has(p.id)) : nodePs;
+            node.barsBelow = orderedColors(incoming);
         }
-        for (const child of allChildren(node)) walkEdges(child, node);
+        for (const child of allChildren(node)) walk(child, node);
     };
-    walkEdges(root, undefined);
+    walk(root, undefined);
 }
 
 // Load a Hyper plan that carries a merged execution-pipeline graph

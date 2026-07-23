@@ -31,10 +31,12 @@ export interface TreeNode {
     // Width of the incoming edge
     edgeWidth?: number;
 
-    // Colors of a (possibly multi-color) bar drawn just above the node.
+    // Colors of a (possibly multi-color) bar drawn just above the node
+    // (conceptually the "outgoing" side, toward the parent).
     // Empty/undefined means no bar. Segments are drawn left-to-right.
     barsAbove?: string[];
-    // Colors of a (possibly multi-color) bar drawn just below the node.
+    // Colors of a (possibly multi-color) bar drawn just below the node
+    // (conceptually the "incoming" side, toward the children).
     barsBelow?: string[];
     // Colors of the incoming edge (from this node's parent). When more than one
     // color is given, the edge is drawn as a multi-color gradient; a single
