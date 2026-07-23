@@ -25,20 +25,20 @@ The main steps are:
 import {TreeNode, TreeDescription, Crosslink, IconName, visitTreeNodes, allChildren} from "./tree-description";
 import {Json, JsonObject, forceToString, tryToString, formatMetric, hasOwnProperty, tryGetPropertyPath} from "./loader-utils";
 
-// A categorical color palette for execution pipelines.
-// Curated for good separation and readability on a white background
-// (based on the Tableau 10 palette, with the low-contrast yellow darkened).
+// A categorical color palette for execution pipelines (the Tableau 20 palette:
+// ten base hues, each followed by a lighter companion). Colors are assigned to
+// pipelines left-to-right and rotate (index % length) once exhausted.
 const PIPELINE_PALETTE = [
-    "#4e79a7", // blue
-    "#f28e2b", // orange
-    "#59a14f", // green
-    "#e15759", // red
-    "#b07aa1", // purple
-    "#76b7b2", // teal
-    "#9c6b3f", // brown
-    "#ff9da7", // pink
-    "#b5992b", // gold
-    "#8c8c8c", // gray
+    "#4e79a7", "#a0cbe8", // blue        / light blue
+    "#f28e2b", "#ffbe7d", // orange      / light orange
+    "#59a14f", "#8cd17d", // green       / light green
+    "#b6992d", "#f1ce63", // gold        / light gold
+    "#499894", "#86bcb6", // teal        / light teal
+    "#e15759", "#ff9d9a", // red         / light red
+    "#79706e", "#bab0ac", // gray        / light gray
+    "#d37295", "#fabfd2", // pink        / light pink
+    "#b07aa1", "#d4a6c8", // purple      / light purple
+    "#9d7660", "#d7b5a6", // brown       / light brown
 ];
 
 function pipelineColor(index: number): string {
