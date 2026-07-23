@@ -5,8 +5,6 @@ export interface PipelineEdgeData {
     // The colors of this edge. More than one is drawn as a contiguous
     // color-band gradient (source -> target); a single color is a solid stroke.
     colors?: string[];
-    // The edge thickness (encodes rows flowing), in pixels.
-    strokeWidth?: number;
 }
 
 // A tree edge that can carry multiple colors.

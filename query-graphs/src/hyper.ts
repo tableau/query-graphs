@@ -262,36 +262,18 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
             conversionState.runtimes.push({node: convertedNode, time: execTime});
         }
 
-        // Display the number of rows flowing on the links between the nodes.
-        // Edge *thickness* encodes the data volume (rows), which is the classic
-        // query-graphs semantic. The old format exposes `cardinality` (estimate)
-        // and `analyze.tuple-count` (actual); the new FORMAT JSON exposes
-        // `statistics.estimated-rows` (estimate) and `statistics.output-rows`
-        // (actual, ANALYZE only; `processed-rows` as a fallback).
-        let estimatedCard =
-            hasOwnProperty(rawNode, "cardinality") && typeof rawNode.cardinality === "number" ? rawNode.cardinality : undefined;
-        let actualCard: Json | undefined = tryGetPropertyPath(rawNode, ["analyze", "tuple-count"]);
-        if (estimatedCard === undefined) {
-            const estRows = tryGetPropertyPath(rawNode, ["statistics", "estimated-rows"]);
-            if (typeof estRows === "number") estimatedCard = estRows;
-        }
-        if (typeof actualCard !== "number") {
-            actualCard =
-                tryGetPropertyPath(rawNode, ["statistics", "output-rows"]) ??
-                tryGetPropertyPath(rawNode, ["statistics", "processed-rows"]);
-        }
-        if (estimatedCard !== undefined || typeof actualCard === "number") {
+        // Display the cardinality on the links between the nodes
+        if (hasOwnProperty(rawNode, "cardinality") && typeof rawNode.cardinality === "number") {
+            const estimatedCard = rawNode.cardinality;
+            const actualCard = tryGetPropertyPath(rawNode, ["analyze", "tuple-count"]);
             if (typeof actualCard === "number") {
                 conversionState.edgeWidths.push({node: convertedNode, width: actualCard});
-                convertedNode.edgeLabel =
-                    estimatedCard !== undefined
-                        ? formatMetric(actualCard) + "/" + formatMetric(estimatedCard)
-                        : formatMetric(actualCard);
+                convertedNode.edgeLabel = formatMetric(actualCard) + "/" + formatMetric(estimatedCard);
                 // Highlight significant differences between planned and actual rows
-                if (estimatedCard !== undefined && (estimatedCard > actualCard * 10 || actualCard * 10 < estimatedCard)) {
+                if (estimatedCard > actualCard * 10 || actualCard * 10 < estimatedCard) {
                     convertedNode.edgeClass = "qg-label-highlighted";
                 }
-            } else if (estimatedCard !== undefined) {
+            } else {
                 conversionState.edgeWidths.push({node: convertedNode, width: estimatedCard});
                 convertedNode.edgeLabel = formatMetric(estimatedCard);
             }
@@ -397,11 +379,6 @@ function convertHyperPlan(node: Json): TreeDescription {
 interface RawPipeline {
     id: number;
     operatorIds: number[];
-    // Raw ANALYZE cost counters (only present under EXPLAIN ANALYZE). In the
-    // PIPELINES output, cpu-cycles/wall-time live on the pipeline, not on the
-    // individual operators.
-    cpuCycles?: number;
-    wallTime?: number;
 }
 
 // Assign a horizontal ("x") rank to every tree node, mirroring how the tree is
@@ -429,14 +406,6 @@ function computeHorizontalRanks(root: TreeNode): Map<TreeNode, number> {
     return ranks;
 }
 
-// Format a nanosecond duration into a compact, human-readable string.
-function formatDuration(nanos: number): string {
-    if (nanos < 1e3) return `${nanos.toFixed(0)} ns`;
-    if (nanos < 1e6) return `${(nanos / 1e3).toFixed(1)} µs`;
-    if (nanos < 1e9) return `${(nanos / 1e6).toFixed(1)} ms`;
-    return `${(nanos / 1e9).toFixed(2)} s`;
-}
-
 // Parse and validate the `pipelines` array of the plan.
 function parsePipelines(pipelinesJson: Json): RawPipeline[] {
     if (!Array.isArray(pipelinesJson)) {
@@ -449,19 +418,7 @@ function parsePipelines(pipelinesJson: Json): RawPipeline[] {
         const operators = entry["operators"];
         if (typeof id !== "number" || !Array.isArray(operators)) continue;
         const operatorIds = operators.filter((o): o is number => typeof o === "number");
-        const stats = entry["statistics"];
-        let cpuCycles: number | undefined;
-        let wallTime: number | undefined;
-        if (typeof stats === "object" && !Array.isArray(stats) && stats !== null) {
-            if (typeof stats["cpu-cycles"] === "number") cpuCycles = stats["cpu-cycles"];
-            if (typeof stats["wall-time"] === "number") wallTime = stats["wall-time"];
-        }
-        pipelines.push({
-            id,
-            operatorIds,
-            cpuCycles,
-            wallTime,
-        });
+        pipelines.push({id, operatorIds});
     }
     return pipelines;
 }
@@ -524,32 +481,6 @@ function assignPipelineColors(root: TreeNode, operatorsById: Map<string, TreeNod
             .sort((a, b) => a.minRank - b.minRank || a.maxRank - b.maxRank || a.id - b.id)
             .map((p) => colorById.get(p.id))
             .filter((c): c is string => c !== undefined);
-
-    // Total CPU cost across all pipelines, used to turn per-pipeline cpu-cycles
-    // into a relative "hotness" (ANALYZE only).
-    const totalCpuCycles = resolved.reduce((sum, p) => sum + (p.cpuCycles ?? 0), 0);
-
-    for (const [node, ps] of nodePipelines) {
-        // Overlay the ANALYZE cost of the operator's dominant (right-most)
-        // pipeline as label-background heat (identity stays on the bars).
-        const winner = ps.reduce((best, p) =>
-            p.maxRank > best.maxRank || (p.maxRank === best.maxRank && p.id > best.id) ? p : best,
-        );
-        if (winner.cpuCycles !== undefined && totalCpuCycles > 0) {
-            const share = winner.cpuCycles / totalCpuCycles;
-            if (share >= 0.05) {
-                const l = (95 + (72 - 95) * Math.min(1, share)).toFixed(1);
-                node.nodeColor = `hsl(309, 84%, ${l}%)`;
-            }
-            // Surface the per-pipeline numbers on the operator; shown in the
-            // expanded body.
-            if (!node.properties) node.properties = new Map<string, string>();
-            node.properties.set("pipeline", `#${winner.id}`);
-            node.properties.set("pipeline cpu-cycles", formatMetric(winner.cpuCycles));
-            if (winner.wallTime !== undefined) node.properties.set("pipeline wall-time", formatDuration(winner.wallTime));
-            node.properties.set("pipeline cost", `${(share * 100).toFixed(1)}%`);
-        }
-    }
 
     // Walk the tree to split each operator's pipelines into an "incoming" side
     // (shared with its children, drawn below) and an "outgoing" side (shared with

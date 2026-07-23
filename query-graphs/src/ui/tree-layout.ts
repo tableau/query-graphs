@@ -72,18 +72,15 @@ export function layoutTree(
         const sourceId = nodeIds.get(e.source.data);
         const targetId = nodeIds.get(e.target.data);
         const style = {} as CSSProperties;
-        // Edge *thickness* encodes the number of rows flowing on the edge.
-        let width = 1.5;
         if (e.target.data.edgeWidth) {
-            width = Math.max(1, 10 * Math.min(1, e.target.data.edgeWidth));
+            const width = Math.max(1, 10 * Math.min(1, e.target.data.edgeWidth));
+            style.strokeWidth = `${width}px`;
         }
         // The incoming edge shows the color(s) assigned to it (see `edgeColors`).
         const edgeColors = e.target.data.edgeColors;
         if (edgeColors?.length) {
             style.stroke = edgeColors[edgeColors.length - 1];
-            width = Math.max(width, 2);
         }
-        style.strokeWidth = `${width}px`;
         return {
             id: `${sourceId}->${targetId}`,
             source: sourceId,
@@ -92,7 +89,7 @@ export function layoutTree(
             label: e.target.data.edgeLabel,
             className: e.target.data.edgeClass,
             style: style,
-            data: {colors: edgeColors, strokeWidth: width},
+            data: {colors: edgeColors},
             focusable: false,
         } as Edge;
     });
