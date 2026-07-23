@@ -22,7 +22,7 @@ The main steps are:
 
 */
 
-import {TreeNode, TreeDescription, Crosslink, IconName, PipelineInfo, visitTreeNodes, allChildren} from "./tree-description";
+import {TreeNode, TreeDescription, Crosslink, IconName, visitTreeNodes, allChildren} from "./tree-description";
 import {Json, JsonObject, forceToString, tryToString, formatMetric, hasOwnProperty, tryGetPropertyPath} from "./loader-utils";
 
 // A categorical color palette for execution pipelines.
@@ -397,7 +397,6 @@ function convertHyperPlan(node: Json): TreeDescription {
 interface RawPipeline {
     id: number;
     operatorIds: number[];
-    statistics?: Map<string, string>;
     // Raw ANALYZE cost counters (only present under EXPLAIN ANALYZE). In the
     // PIPELINES output, cpu-cycles/wall-time live on the pipeline, not on the
     // individual operators.
@@ -430,18 +429,6 @@ function computeHorizontalRanks(root: TreeNode): Map<TreeNode, number> {
     return ranks;
 }
 
-function parsePipelineStatistics(node: Json): Map<string, string> | undefined {
-    if (typeof node !== "object" || Array.isArray(node) || node === null) return undefined;
-    const stats = new Map<string, string>();
-    // Cycle counts and wall-time are the interesting per-pipeline ANALYZE metrics.
-    const cpuCycles = node["cpu-cycles"];
-    if (typeof cpuCycles === "number") stats.set("cpu-cycles", formatMetric(cpuCycles));
-    const wallTime = node["wall-time"];
-    if (typeof wallTime === "number") stats.set("wall-time", formatDuration(wallTime));
-    if (stats.size === 0) return undefined;
-    return stats;
-}
-
 // Format a nanosecond duration into a compact, human-readable string.
 function formatDuration(nanos: number): string {
     if (nanos < 1e3) return `${nanos.toFixed(0)} ns`;
@@ -472,7 +459,6 @@ function parsePipelines(pipelinesJson: Json): RawPipeline[] {
         pipelines.push({
             id,
             operatorIds,
-            statistics: parsePipelineStatistics(stats),
             cpuCycles,
             wallTime,
         });
@@ -490,7 +476,7 @@ function parsePipelines(pipelinesJson: Json): RawPipeline[] {
 //    naturally: the shared "pipeline above" a UNION ALL (executed once per input)
 //    takes on the color of the right-most input pipeline, and a forked/shared
 //    source keeps the color of the right-most consumer that reads from it.
-function assignPipelineColors(root: TreeNode, operatorsById: Map<string, TreeNode>, pipelines: RawPipeline[]): PipelineInfo[] {
+function assignPipelineColors(root: TreeNode, operatorsById: Map<string, TreeNode>, pipelines: RawPipeline[]): void {
     const ranks = computeHorizontalRanks(root);
     const nodeRank = (n: TreeNode) => ranks.get(n) ?? 0;
 
@@ -519,15 +505,7 @@ function assignPipelineColors(root: TreeNode, operatorsById: Map<string, TreeNod
     // Assign palette colors in left-to-right order.
     const colorOrder = [...resolved].sort((a, b) => a.minRank - b.minRank || a.maxRank - b.maxRank || a.id - b.id);
     const colorById = new Map<number, string>();
-    const infoById = new Map<number, PipelineInfo>();
-    const legend: PipelineInfo[] = [];
-    colorOrder.forEach((p, idx) => {
-        const color = pipelineColor(idx);
-        colorById.set(p.id, color);
-        const info: PipelineInfo = {id: p.id, color, operatorCount: p.nodes.length, statistics: p.statistics};
-        infoById.set(p.id, info);
-        legend.push(info);
-    });
+    colorOrder.forEach((p, idx) => colorById.set(p.id, pipelineColor(idx)));
 
     // For each operator, record every pipeline it belongs to and pick the
     // right-most one (largest maxRank, ties broken by id) as its display color.
@@ -606,8 +584,6 @@ function assignPipelineColors(root: TreeNode, operatorsById: Map<string, TreeNod
         for (const child of allChildren(node)) walkEdges(child, node);
     };
     walkEdges(root, undefined);
-
-    return legend;
 }
 
 // Load a Hyper plan that carries a merged execution-pipeline graph
@@ -625,7 +601,7 @@ function convertHyperPlanWithPipelines(node: JsonObject): TreeDescription {
         allChildren,
     );
     const pipelines = parsePipelines(node["pipelines"]);
-    treeDescription.pipelines = assignPipelineColors(treeDescription.root, operatorsById, pipelines);
+    assignPipelineColors(treeDescription.root, operatorsById, pipelines);
     return treeDescription;
 }
 

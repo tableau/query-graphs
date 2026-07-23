@@ -63,18 +63,6 @@ export interface TreeNode {
     expandedByDefault?: boolean;
 }
 
-// One merged execution unit ("pipeline"), projected onto the operator tree.
-// See the `EXPLAIN (FORMAT JSON, PIPELINES)` output of Hyper.
-export interface PipelineInfo {
-    // Opaque, document-scoped pipeline id (the driving pipeline's id).
-    id: number;
-    // The color assigned to this pipeline, for the legend and node/edge coloring.
-    color: string;
-    // Number of tree operators that belong to this pipeline.
-    operatorCount: number;
-    // Optional per-pipeline runtime statistics (only present for ANALYZE).
-    statistics?: Map<string, string>;
-}
 
 export interface Crosslink {
     source: TreeNode;
@@ -88,9 +76,6 @@ export interface TreeDescription {
     metadata?: Map<string, string>;
     /// Additional links between indirectly related nodes
     crosslinks?: Crosslink[];
-    /// The merged execution pipelines, in legend/color-assignment order.
-    /// Only present for plans emitted with the `PIPELINES` explain option.
-    pipelines?: PipelineInfo[];
 }
 
 // A recursive helper function for walking through all nodes
