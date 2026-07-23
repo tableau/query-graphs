@@ -507,8 +507,9 @@ function assignPipelineColors(root: TreeNode, operatorsById: Map<string, TreeNod
     const colorById = new Map<number, string>();
     colorOrder.forEach((p, idx) => colorById.set(p.id, pipelineColor(idx)));
 
-    // For each operator, record every pipeline it belongs to and pick the
-    // right-most one (largest maxRank, ties broken by id) as its display color.
+    // Record, per tree node, every pipeline it belongs to (kept local: the
+    // "pipeline" concept never leaks into the presentation model, which only
+    // ever sees colors).
     const nodePipelines = new Map<TreeNode, ResolvedPipeline[]>();
     for (const p of resolved) {
         for (const node of p.nodes) {
@@ -517,35 +518,37 @@ function assignPipelineColors(root: TreeNode, operatorsById: Map<string, TreeNod
             nodePipelines.set(node, list);
         }
     }
+    // Pipelines flowing through a node, ordered left-to-right, as colors.
+    const orderedColors = (ps: ResolvedPipeline[]): string[] =>
+        [...ps]
+            .sort((a, b) => a.minRank - b.minRank || a.maxRank - b.maxRank || a.id - b.id)
+            .map((p) => colorById.get(p.id))
+            .filter((c): c is string => c !== undefined);
+
     // Total CPU cost across all pipelines, used to turn per-pipeline cpu-cycles
     // into a relative "hotness" (ANALYZE only).
     const totalCpuCycles = resolved.reduce((sum, p) => sum + (p.cpuCycles ?? 0), 0);
 
     for (const [node, ps] of nodePipelines) {
+        // A bar above and below the node, each showing every pipeline the
+        // operator belongs to (so multi-pipeline operators are obvious).
+        const colors = orderedColors(ps);
+        node.barsAbove = colors;
+        node.barsBelow = colors;
+
+        // Overlay the ANALYZE cost of the operator's dominant (right-most)
+        // pipeline as label-background heat (identity stays on the bars).
         const winner = ps.reduce((best, p) =>
             p.maxRank > best.maxRank || (p.maxRank === best.maxRank && p.id > best.id) ? p : best,
         );
-        node.pipelineColor = colorById.get(winner.id);
-        node.pipelineIds = ps.map((p) => p.id).sort((a, b) => a - b);
-        // All pipeline colors, ordered left-to-right so the segmented bar lines
-        // up with the pipelines as they appear below the operator.
-        node.pipelineColors = [...ps]
-            .sort((a, b) => a.minRank - b.minRank || a.maxRank - b.maxRank || a.id - b.id)
-            .map((p) => colorById.get(p.id))
-            .filter((c): c is string => c !== undefined);
-
-        // Overlay the ANALYZE cost of the operator's dominant pipeline. Hue keeps
-        // encoding pipeline *identity* (icon/bar/border); the label *background*
-        // encodes the pipeline's CPU *cost* as heat -- the same channel the older
-        // per-operator cpu-cycle highlighting used, so the two compose cleanly.
         if (winner.cpuCycles !== undefined && totalCpuCycles > 0) {
             const share = winner.cpuCycles / totalCpuCycles;
             if (share >= 0.05) {
                 const l = (95 + (72 - 95) * Math.min(1, share)).toFixed(1);
                 node.nodeColor = `hsl(309, 84%, ${l}%)`;
             }
-            // Surface the per-pipeline numbers on the operator (there is no
-            // legend); shown in the expanded body.
+            // Surface the per-pipeline numbers on the operator; shown in the
+            // expanded body.
             if (!node.properties) node.properties = new Map<string, string>();
             node.properties.set("pipeline", `#${winner.id}`);
             node.properties.set("pipeline cpu-cycles", formatMetric(winner.cpuCycles));
@@ -554,32 +557,16 @@ function assignPipelineColors(root: TreeNode, operatorsById: Map<string, TreeNod
         }
     }
 
-    // Color each edge by the right-most pipeline shared by both of its endpoints.
-    // If the parent and child share no pipeline, the edge is a pipeline breaker
-    // and is left neutral, so the color changes visibly at pipeline boundaries.
-    const byId = new Map<number, ResolvedPipeline>();
-    for (const p of resolved) byId.set(p.id, p);
-    const rightmostOf = (ids: number[]): number =>
-        ids.reduce((best, id) => {
-            const a = byId.get(id);
-            const b = byId.get(best);
-            if (!a) return best;
-            if (!b) return id;
-            return a.maxRank > b.maxRank || (a.maxRank === b.maxRank && id > best) ? id : best;
-        });
+    // Color each edge by the pipeline(s) shared by both of its endpoints. If the
+    // parent and child share no pipeline, the edge is a pipeline breaker and is
+    // left neutral, so the color changes visibly at pipeline boundaries.
     const walkEdges = (node: TreeNode, parent: TreeNode | undefined) => {
-        if (parent && node.pipelineIds && parent.pipelineIds) {
-            const parentIds = parent.pipelineIds;
-            const common = node.pipelineIds.filter((id) => parentIds.includes(id));
-            if (common.length) {
-                // All pipelines flowing across this edge, ordered left-to-right.
-                const ordered = common
-                    .map((id) => byId.get(id))
-                    .filter((p): p is ResolvedPipeline => p !== undefined)
-                    .sort((a, b) => a.minRank - b.minRank || a.maxRank - b.maxRank || a.id - b.id);
-                node.edgeColors = ordered.map((p) => colorById.get(p.id)).filter((c): c is string => c !== undefined);
-                node.edgeColor = colorById.get(rightmostOf(common));
-            }
+        const nodePs = nodePipelines.get(node);
+        const parentPs = parent ? nodePipelines.get(parent) : undefined;
+        if (nodePs && parentPs) {
+            const parentIds = new Set(parentPs.map((p) => p.id));
+            const common = nodePs.filter((p) => parentIds.has(p.id));
+            if (common.length) node.edgeColors = orderedColors(common);
         }
         for (const child of allChildren(node)) walkEdges(child, node);
     };

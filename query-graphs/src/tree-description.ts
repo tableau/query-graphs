@@ -31,28 +31,14 @@ export interface TreeNode {
     // Width of the incoming edge
     edgeWidth?: number;
 
-    // The dominant execution pipeline color of this operator. For operators
-    // shared by multiple pipelines, this is the color of the right-most pipeline
-    // (see `hyper.ts` for the "right-most wins" rule). Used for the icon tint and
-    // the expanded border.
-    pipelineColor?: string;
-    // The colors of *all* pipelines this operator belongs to, ordered
-    // left-to-right. Rendered as a segmented bar under the label so that
-    // operators shared by several pipelines (e.g. a UNION ALL target) visibly
-    // show every pipeline they participate in.
-    pipelineColors?: string[];
-    // The ids of all execution pipelines this operator belongs to.
-    pipelineIds?: number[];
-    // Color of the incoming edge (from this node's parent). Set to the color of
-    // the right-most pipeline shared by both endpoints. Left undefined when the
-    // edge crosses a pipeline boundary (a "pipeline breaker") or when there is
-    // no pipeline information, in which case the edge is drawn neutrally.
-    edgeColor?: string;
-    // Colors of *all* pipelines shared by this node and its parent (i.e. all the
-    // pipelines that flow across the incoming edge), ordered left-to-right. An
-    // edge can belong to several pipelines at once, e.g. the edge above a
-    // UNION ALL target is executed once per input. Rendered as a segmented edge
-    // and a segmented start-bar.
+    // Colors of a (possibly multi-color) bar drawn just above the node.
+    // Empty/undefined means no bar. Segments are drawn left-to-right.
+    barsAbove?: string[];
+    // Colors of a (possibly multi-color) bar drawn just below the node.
+    barsBelow?: string[];
+    // Colors of the incoming edge (from this node's parent). When more than one
+    // color is given, the edge is drawn as a multi-color gradient; a single
+    // color is drawn as a solid stroke; empty/undefined draws a neutral edge.
     edgeColors?: string[];
 
     // All child nodes visible by default

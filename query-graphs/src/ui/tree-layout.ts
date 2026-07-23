@@ -77,12 +77,10 @@ export function layoutTree(
         if (e.target.data.edgeWidth) {
             width = Math.max(1, 10 * Math.min(1, e.target.data.edgeWidth));
         }
-        // The incoming edge shows the color(s) of the pipeline(s) flowing across
-        // it (see `edgeColors`/`edgeColor` in tree-description).
-        const pipelineColor = e.target.data.edgeColor;
-        const pipelineColors = e.target.data.edgeColors;
-        if (pipelineColor) {
-            style.stroke = pipelineColor;
+        // The incoming edge shows the color(s) assigned to it (see `edgeColors`).
+        const edgeColors = e.target.data.edgeColors;
+        if (edgeColors?.length) {
+            style.stroke = edgeColors[edgeColors.length - 1];
             width = Math.max(width, 2);
         }
         style.strokeWidth = `${width}px`;
@@ -94,7 +92,7 @@ export function layoutTree(
             label: e.target.data.edgeLabel,
             className: e.target.data.edgeClass,
             style: style,
-            data: {pipelineColor, pipelineColors, strokeWidth: width},
+            data: {colors: edgeColors, strokeWidth: width},
             focusable: false,
         } as Edge;
     });

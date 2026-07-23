@@ -52,19 +52,24 @@
     text-align: center;
 }
 
-/* A small color bar under the operator label, indicating its execution
- * pipeline(s). Kept visible whether or not the node is expanded. When the
- * operator belongs to several pipelines the bar is split into one colored
- * segment per pipeline. */
-.qg-pipeline-bar {
+/* A small (possibly multi-color) bar drawn above and/or below the node.
+ * When several colors are given the bar is split into equal segments. */
+.qg-color-bar {
     display: flex;
     gap: 1px;
     height: 4px;
-    margin: 4px auto 0 auto;
     width: 70%;
     min-width: 1.2em;
+    margin-left: auto;
+    margin-right: auto;
 }
-.qg-pipeline-bar-seg {
+.qg-color-bar-above {
+    margin-bottom: 4px;
+}
+.qg-color-bar-below {
+    margin-top: 4px;
+}
+.qg-color-bar-seg {
     flex: 1 1 0;
     border-radius: 2px;
 }

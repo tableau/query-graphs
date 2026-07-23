@@ -66,18 +66,18 @@ function QueryNode({data, id}: NodeProps<NodeData>) {
             "qg-expanded": expanded,
             "qg-collapsed": hasProperties && !expanded,
             "qg-no-props": !hasProperties,
-            "qg-has-pipeline": !!data.pipelineColor,
         },
     ]);
 
-    // The dominant pipeline color tints the operator's icon and, once expanded,
-    // its border. An explicit `iconColor` (e.g. the red error highlight) wins.
-    const effectiveIconColor = data.iconColor ?? data.pipelineColor;
-    const nodeStyle = expanded && data.pipelineColor ? {borderColor: data.pipelineColor} : undefined;
-    // A segmented color bar under the label shows *every* pipeline this operator
-    // belongs to, so multi-pipeline operators (e.g. a UNION ALL target) are
-    // obvious even while collapsed.
-    const pipelineColors = data.pipelineColors?.length ? data.pipelineColors : data.pipelineColor ? [data.pipelineColor] : [];
+    // A (possibly multi-color) bar drawn above and below the node.
+    const colorBar = (colors: string[] | undefined, position: "above" | "below") =>
+        colors?.length ? (
+            <div className={cc(["qg-color-bar", `qg-color-bar-${position}`])}>
+                {colors.map((c, i) => (
+                    <span key={i} className="qg-color-bar-seg" style={{backgroundColor: c}} />
+                ))}
+            </div>
+        ) : null;
 
     const handleClassName = cc({
         "qg-subtree-handle": hasSubtree,
@@ -88,22 +88,14 @@ function QueryNode({data, id}: NodeProps<NodeData>) {
     return (
         <>
             <Handle type="target" position={Position.Top} />
-            <div className={nodeClassName} onClick={onClick} style={nodeStyle}>
+            <div className={nodeClassName} onClick={onClick}>
                 <div className="qg-graph-node-head" ref={headRef}>
-                    <NodeIcon icon={data.icon} iconColor={effectiveIconColor} />
+                    {colorBar(data.barsAbove, "above")}
+                    <NodeIcon icon={data.icon} iconColor={data.iconColor} />
                     <div className="qg-graph-node-label" style={{background: data.nodeColor}}>
                         {data.name}
                     </div>
-                    {pipelineColors.length ? (
-                        <div
-                            className="qg-pipeline-bar"
-                            title={`${pipelineColors.length} pipeline${pipelineColors.length === 1 ? "" : "s"}`}
-                        >
-                            {pipelineColors.map((c, i) => (
-                                <span key={i} className="qg-pipeline-bar-seg" style={{backgroundColor: c}} />
-                            ))}
-                        </div>
-                    ) : null}
+                    {colorBar(data.barsBelow, "below")}
                 </div>
                 <div className="qg-graph-node-body-wrapper nowheel">
                     <div ref={bodyRef} className="qg-graph-node-body">
