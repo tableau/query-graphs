@@ -1,49 +1,49 @@
 {
   "operator": "executiontarget",
-  "operatorId": 1,
+  "operator-id": 1,
   "cardinality": 1.36603,
-  "producesRows": true,
+  "produces-rows": true,
   "output": [{"expression": "iuref", "iu": ["c.relcheck", ["SmallInt"]]}, {"expression": "iuref", "iu": ["c.relkind", ["Char1"]]}, {"expression": "iuref", "iu": ["c.relhasin", ["Bool"]]}, {"expression": "iuref", "iu": ["c.relhasru", ["Bool"]]}, {"expression": "iuref", "iu": ["c.relhastr", ["Bool"]]}, {"expression": "const", "value": {"type": ["Bool"], "value": false}}, {"expression": "iuref", "iu": ["c.reltable", ["Oid"]]}, {"expression": "iuref", "iu": ["map", ["Varchar"]]}, {"expression": "iuref", "iu": ["c.relpersi", ["Char1"]]}],
-  "outputNames": ["relchecks", "relkind", "relhasindex", "relhasrules", "relhastriggers", "relispartition", "reltablespace", "case", "relpersistence"],
+  "output-names": ["relchecks", "relkind", "relhasindex", "relhasrules", "relhastriggers", "relispartition", "reltablespace", "case", "relpersistence"],
   "inputs": [{
     "operator": "map",
-    "operatorId": 2,
+    "operator-id": 2,
     "sqlpos": [[29, 40]],
     "cardinality": 1.36603,
     "inputs": [{
       "operator": "leftouterjoin",
-      "operatorId": 3,
+      "operator-id": 3,
       "cardinality": 1.36603,
       "method": "hash",
-      "computeLeftBounds": [0],
+      "compute-left-bounds": [0],
       "inputs": [{
         "operator": "virtualtable",
-        "operatorId": 4,
+        "operator-id": 4,
         "sqlpos": [[279, 298]],
         "cardinality": 1,
         "volatility": "volatile",
-        "attributeCount": 27,
-        "attributes": [{"colId": 0, "name": "oid", "type": ["Oid"], "iu": ["c.oid", ["Oid"]]},{"colId": 4, "name": "reloftype", "type": ["Oid"], "iu": ["c.reloftyp", ["Oid"]]},{"colId": 8, "name": "reltablespace", "type": ["Oid"], "iu": ["c.reltable", ["Oid"]]},{"colId": 11, "name": "reltoastrelid", "type": ["Oid"], "iu": ["c.reltoast", ["Oid"]]},{"colId": 13, "name": "relhasindex", "type": ["Bool"], "iu": ["c.relhasin", ["Bool"]]},{"colId": 15, "name": "relpersistence", "type": ["Char1"], "iu": ["c.relpersi", ["Char1"]]},{"colId": 16, "name": "relkind", "type": ["Char1"], "iu": ["c.relkind", ["Char1"]]},{"colId": 18, "name": "relchecks", "type": ["SmallInt"], "iu": ["c.relcheck", ["SmallInt"]]},{"colId": 21, "name": "relhasrules", "type": ["Bool"], "iu": ["c.relhasru", ["Bool"]]},{"colId": 22, "name": "relhastriggers", "type": ["Bool"], "iu": ["c.relhastr", ["Bool"]]}],
-        "debugName": {"classification": "nonsensitive", "value": "c"},
+        "attribute-count": 27,
+        "attributes": [{"col-id": 0, "name": "oid", "type": ["Oid"], "iu": ["c.oid", ["Oid"]]},{"col-id": 4, "name": "reloftype", "type": ["Oid"], "iu": ["c.reloftyp", ["Oid"]]},{"col-id": 8, "name": "reltablespace", "type": ["Oid"], "iu": ["c.reltable", ["Oid"]]},{"col-id": 11, "name": "reltoastrelid", "type": ["Oid"], "iu": ["c.reltoast", ["Oid"]]},{"col-id": 13, "name": "relhasindex", "type": ["Bool"], "iu": ["c.relhasin", ["Bool"]]},{"col-id": 15, "name": "relpersistence", "type": ["Char1"], "iu": ["c.relpersi", ["Char1"]]},{"col-id": 16, "name": "relkind", "type": ["Char1"], "iu": ["c.relkind", ["Char1"]]},{"col-id": 18, "name": "relchecks", "type": ["SmallInt"], "iu": ["c.relcheck", ["SmallInt"]]},{"col-id": 21, "name": "relhasrules", "type": ["Bool"], "iu": ["c.relhasru", ["Bool"]]},{"col-id": 22, "name": "relhastriggers", "type": ["Bool"], "iu": ["c.relhastr", ["Bool"]]}],
+        "debug-name": {"classification": "nonsensitive", "value": "c"},
         "restrictions": [{"attribute": 0, "mode": "=", "selectivity": 0.01, "value": {"expression": "const", "value": {"type": ["Oid"], "value": 12}}}],
         "schema": {"type":"builtinschema"},
         "id": 1259
       }, {
         "operator": "virtualtable",
-        "operatorId": 5,
+        "operator-id": 5,
         "sqlpos": [[311, 330]],
         "cardinality": 100,
         "volatility": "volatile",
-        "attributeCount": 27,
-        "attributes": [{"colId": 0, "name": "oid", "type": ["Oid"], "iu": ["tc.oid", ["Oid", "nullable"]]}],
-        "debugName": {"classification": "nonsensitive", "value": "tc"},
-        "earlyProbes": [{"builder": 3, "attributes": [0], "numEqualityPredicates": 1, "selectivities": [0.01], "type": "hashprobe", "passOnNulls": false}],
+        "attribute-count": 27,
+        "attributes": [{"col-id": 0, "name": "oid", "type": ["Oid"], "iu": ["tc.oid", ["Oid", "nullable"]]}],
+        "debug-name": {"classification": "nonsensitive", "value": "tc"},
+        "early-probes": [{"builder": 3, "attributes": [0], "num-equality-predicates": 1, "selectivities": [0.01], "type": "hashprobe", "pass-on-nulls": false}],
         "schema": {"type":"builtinschema"},
         "id": 1259
       }],
-      "earlyProbedBy": [5],
+      "early-probed-by": [5],
       "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "c.reltoast"}, "right": {"expression": "iuref", "iu": "tc.oid"}}
     }],
-    "values": [{"iu": ["map", ["Varchar"]], "value": {"expression": "simplecase", "value": {"expression": "iuref", "iu": "c.reloftyp"}, "cases": [{"cases": [{"expression": "const", "value": {"type": ["Integer"], "value": 0}}], "value": {"expression": "const", "value": {"type": ["Varchar"], "value": ""}}}], "else": {"expression": "cast", "value": {"expression": "cast", "value": {"expression": "iuref", "iu": "c.reloftyp"}, "type": ["RegType"], "errorHandling": "trap", "allowTrustedCasts": false}, "type": ["Varchar"], "errorHandling": "trap", "allowTrustedCasts": false}}}]
+    "values": [{"iu": ["map", ["Varchar"]], "value": {"expression": "simplecase", "value": {"expression": "iuref", "iu": "c.reloftyp"}, "cases": [{"cases": [{"expression": "const", "value": {"type": ["Integer"], "value": 0}}], "value": {"expression": "const", "value": {"type": ["Varchar"], "value": ""}}}], "else": {"expression": "cast", "value": {"expression": "cast", "value": {"expression": "iuref", "iu": "c.reloftyp"}, "type": ["RegType"], "error-handling": "trap", "allowTrustedCasts": false}, "type": ["Varchar"], "error-handling": "trap", "allowTrustedCasts": false}}}]
   }]
 }

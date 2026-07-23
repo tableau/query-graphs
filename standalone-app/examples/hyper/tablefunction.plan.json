@@ -1,18 +1,18 @@
 {
   "operator": "executiontarget",
-  "operatorId": 1,
+  "operator-id": 1,
   "cardinality": 10,
-  "producesRows": true,
+  "produces-rows": true,
   "output": [{"expression": "iuref", "iu": ["sequence", ["Integer"]]}],
-  "outputNames": ["generate_series"],
+  "output-names": ["generate_series"],
   "inputs": [{
     "operator": "tablefunction",
-    "operatorId": 2,
+    "operator-id": 2,
     "sqlpos": [[36, 51]],
     "cardinality": 10,
     "inputs": [{
       "operator": "tableconstruction",
-      "operatorId": 3,
+      "operator-id": 3,
       "cardinality": 1,
       "output": [],
       "values": [[]],

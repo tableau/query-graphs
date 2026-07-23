@@ -1,32 +1,32 @@
 {
   "operator": "executiontarget",
-  "operatorId": 1,
+  "operator-id": 1,
   "cardinality": 4000,
-  "producesRows": false,
+  "produces-rows": false,
   "output": [],
-  "outputNames": [],
+  "output-names": [],
   "inputs": [{
     "operator": "insert",
-    "operatorId": 2,
+    "operator-id": 2,
     "cardinality": 4000,
     "volatility": "volatile",
-    "relationId": 1,
+    "relation-id": 1,
     "schema": {"type":"sessionschema"},
     "output": [["cast", ["Integer", "nullable"]], ["cast2", ["Integer", "nullable"]], ["cast3", ["Integer", "nullable"]]],
-    "values": [{"expression": "cast", "value": {"expression": "iuref", "iu": ["map", ["Integer"]]}, "type": ["Integer", "nullable"], "errorHandling": "trap", "allowTrustedCasts": false}, {"expression": "cast", "value": {"expression": "iuref", "iu": ["map2", ["Integer"]]}, "type": ["Integer", "nullable"], "errorHandling": "trap", "allowTrustedCasts": false}, {"expression": "cast", "value": {"expression": "iuref", "iu": ["map3", ["Integer"]]}, "type": ["Integer", "nullable"], "errorHandling": "trap", "allowTrustedCasts": false}],
+    "values": [{"expression": "cast", "value": {"expression": "iuref", "iu": ["map", ["Integer"]]}, "type": ["Integer", "nullable"], "error-handling": "trap", "allowTrustedCasts": false}, {"expression": "cast", "value": {"expression": "iuref", "iu": ["map2", ["Integer"]]}, "type": ["Integer", "nullable"], "error-handling": "trap", "allowTrustedCasts": false}, {"expression": "cast", "value": {"expression": "iuref", "iu": ["map3", ["Integer"]]}, "type": ["Integer", "nullable"], "error-handling": "trap", "allowTrustedCasts": false}],
     "inputs": [{
       "operator": "map",
-      "operatorId": 3,
+      "operator-id": 3,
       "sqlpos": [[44, 48]],
       "cardinality": 4000,
       "inputs": [{
         "operator": "join",
-        "operatorId": 4,
+        "operator-id": 4,
         "cardinality": 4000,
         "method": "bnl",
         "inputs": [{
           "operator": "tableconstruction",
-          "operatorId": 5,
+          "operator-id": 5,
           "sqlpos": [[71, 80]],
           "cardinality": 2,
           "output": [["tableconstruction", ["Integer"]]],
@@ -34,15 +34,15 @@
           "inputs": []
         }, {
           "operator": "tablescan",
-          "operatorId": 6,
+          "operator-id": 6,
           "sqlpos": [[66, 68]],
           "cardinality": 2000,
           "volatility": "stable",
-          "relationId": 0,
+          "relation-id": 0,
           "schema": {"type":"sessionschema"},
-          "attributeCount": 3,
-          "attributes": [{"colId": 0, "name": "a1", "type": ["Integer"], "iu": ["scan_a1", ["Integer"]]},{"colId": 1, "name": "b1", "type": ["Integer"], "iu": ["scan_b1", ["Integer"]]},{"colId": 2, "name": "c1", "type": ["Integer"], "iu": ["scan_c1", ["Integer"]]}],
-          "debugName": {"classification": "nonsensitive", "value": "t1"},
+          "attribute-count": 3,
+          "attributes": [{"col-id": 0, "name": "a1", "type": ["Integer"], "iu": ["scan_a1", ["Integer"]]},{"col-id": 1, "name": "b1", "type": ["Integer"], "iu": ["scan_b1", ["Integer"]]},{"col-id": 2, "name": "c1", "type": ["Integer"], "iu": ["scan_c1", ["Integer"]]}],
+          "debug-name": {"classification": "nonsensitive", "value": "t1"},
           "selectivity": 1
         }],
         "condition": {"expression": "const", "value": {"type": ["Bool"], "value": true}}
@@ -50,8 +50,8 @@
       "values": [{"iu": ["map", ["Integer"]], "value": {"expression": "mul", "left": {"expression": "iuref", "iu": "scan_a1"}, "right": {"expression": "iuref", "iu": "tableconstruction"}}}, {"iu": ["map2", ["Integer"]], "value": {"expression": "mul", "left": {"expression": "iuref", "iu": "scan_b1"}, "right": {"expression": "iuref", "iu": "tableconstruction"}}}, {"iu": ["map3", ["Integer"]], "value": {"expression": "mul", "left": {"expression": "iuref", "iu": "scan_c1"}, "right": {"expression": "iuref", "iu": "tableconstruction"}}}]
     }],
     "tid": ["tid", ["Numeric", 18]],
-    "tableOid": ["tableOid", ["RegClass"]],
-    "tupleFlags": ["tupleFlags", ["BigInt"]],
-    "bulkInsert": false
+    "table-oid": ["tableOid", ["RegClass"]],
+    "tuple-flags": ["tupleFlags", ["BigInt"]],
+    "bulk-insert": false
   }]
 }

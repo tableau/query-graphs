@@ -140,8 +140,10 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
             }
         }
 
-        // Display these properties always as properties, even if they are more complex
-        const propertyKeys = ["debugName", "analyze", "sqlpos"];
+        // Display these properties always as properties, even if they are more complex.
+        // `debugName` is the pre-kebab-case spelling of `debug-name`; we accept both for
+        // backwards compatibility with plans produced before the Hyper kebab-case cutover.
+        const propertyKeys = ["debug-name", "debugName", "analyze", "sqlpos"];
         for (const key of propertyKeys) {
             if (!rawNode.hasOwnProperty(key)) {
                 continue;
@@ -152,7 +154,9 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
         // Determine the order in which other keys are displayed.
         // For some keys, we enforce a specific order here (e.g., "left" comes before "right").
         // For all other keys, we use alphabetic order.
-        const fixedChildOrder = ["inputs", "input", "left", "right", "value", "valueForComparison"];
+        // `value-for-comparison` / `valueForComparison`: both spellings are listed so the
+        // fixed child ordering works for plans from before and after the kebab-case cutover.
+        const fixedChildOrder = ["inputs", "input", "left", "right", "value", "value-for-comparison", "valueForComparison"];
         const orderedKeys = Object.getOwnPropertyNames(rawNode)
             .filter((k) => {
                 // `propertyKeys` and `operator`/`expression` were already handled
@@ -210,7 +214,9 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
 
         // Figure out the display name
         const specificDisplayName = renderingConfig.displayNameKey ? properties.get(renderingConfig.displayNameKey) : undefined;
-        const debugNameNode = tryGetPropertyPath(rawNode, ["debugName", "value"]);
+        // Accept both `debug-name` (post kebab-case cutover) and the legacy `debugName`.
+        const debugNameNode =
+            tryGetPropertyPath(rawNode, ["debug-name", "value"]) ?? tryGetPropertyPath(rawNode, ["debugName", "value"]);
         const debugName = typeof debugNameNode === "string" ? debugNameNode : undefined;
         const displayName = debugName ?? specificDisplayName ?? properties?.get("name") ?? nodeTag ?? "";
 
@@ -257,9 +263,10 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
             }
         }
 
-        // Add to `operatorId` map if applicable
+        // Add to `operator-id` map if applicable.
+        // `operatorId` is the legacy spelling; accept both for backwards compatibility.
         if (nodeType == "operator") {
-            const operatorId = properties?.get("operatorId");
+            const operatorId = properties?.get("operator-id") ?? properties?.get("operatorId");
             if (operatorId !== undefined) {
                 conversionState.operatorsById.set(operatorId, convertedNode);
             }
