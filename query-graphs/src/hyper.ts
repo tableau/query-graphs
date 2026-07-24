@@ -400,29 +400,20 @@ interface RawPipeline {
     operatorIds: number[];
 }
 
-// Assign a horizontal ("x") rank to every tree node, mirroring how the tree is
-// laid out left-to-right: leaves are numbered in depth-first order, and each
-// inner node is placed at the centroid of its children. This ordering is
-// layout-independent (it does not change when nodes are expanded/collapsed),
-// which keeps pipeline colors stable while the user explores the plan.
-function computeHorizontalRanks(root: TreeNode): Map<TreeNode, number> {
-    const ranks = new Map<TreeNode, number>();
-    let nextLeaf = 0;
-    const assign = (node: TreeNode): number => {
-        const children = node.children ?? [];
-        let rank: number;
-        if (children.length === 0) {
-            rank = nextLeaf++;
-        } else {
-            let sum = 0;
-            for (const child of children) sum += assign(child);
-            rank = sum / children.length;
-        }
-        ranks.set(node, rank);
-        return rank;
+// Assign a pre-order depth-first index to every operator: a stable, easy-to-
+// follow left-to-right position that depends only on the tree structure, not on
+// pipeline ids. Coloring off this position keeps colors put across executions
+// even when the engine renumbers pipelines, and does not change as the user
+// expands/collapses nodes.
+function computeTreeOrder(root: TreeNode): Map<TreeNode, number> {
+    const order = new Map<TreeNode, number>();
+    let next = 0;
+    const visit = (node: TreeNode) => {
+        order.set(node, next++);
+        for (const child of node.children ?? []) visit(child);
     };
-    assign(root);
-    return ranks;
+    visit(root);
+    return order;
 }
 
 // Parse and validate the `pipelines` array of the plan.
@@ -442,46 +433,40 @@ function parsePipelines(pipelinesJson: Json): RawPipeline[] {
     return pipelines;
 }
 
-// Project the merged execution pipelines onto the operator tree and assign colors.
+// Project the merged execution pipelines onto the operator tree and color the
+// per-node bars, incoming edges and icons.
 //
-// Coloring follows two rules requested by the visualization:
-//  * Pipelines are assigned palette colors left-to-right (by their left-most
-//    operator), so neighboring pipelines get visually distinct hues.
-//  * An operator that belongs to several pipelines is colored by the *right-most*
-//    of those pipelines. This makes the UNION ALL / fork-share cases read
-//    naturally: the shared "pipeline above" a UNION ALL (executed once per input)
-//    takes on the color of the right-most input pipeline, and a forked/shared
-//    source keeps the color of the right-most consumer that reads from it.
+// A pipeline's color is derived from its position in the tree: the DFS index of
+// its deepest (last-visited) operator, taken modulo the palette. Using the
+// deepest operator keeps sibling pipelines distinct even when they share the
+// "pipeline above" operators near the root (e.g. a UNION ALL target executed
+// once per input); keying on tree position rather than pipeline id keeps colors
+// stable across executions.
+//
+// Data flows leaves->root, so a node's children feed it from below (its
+// "incoming" pipelines, drawn as the bar below) and the node feeds its parent
+// above (its "outgoing" pipelines, drawn as the bar above and the incoming
+// edge). A pipeline that starts or ends at a node (a pipeline breaker, or a
+// source/sink) shows on only one side; an edge with no shared pipeline stays
+// neutral. The icon takes the color of the node's right-most (deepest) pipeline.
 function assignPipelineColors(root: TreeNode, operatorsById: Map<string, TreeNode>, pipelines: RawPipeline[]): void {
-    const ranks = computeHorizontalRanks(root);
-    const nodeRank = (n: TreeNode) => ranks.get(n) ?? 0;
+    const order = computeTreeOrder(root);
+    const nodeOrder = (n: TreeNode) => order.get(n) ?? 0;
 
-    // Resolve each pipeline's member operators to tree nodes and compute its
-    // horizontal extent (min/max rank of any member operator).
-    interface ResolvedPipeline extends RawPipeline {
+    // Resolve each pipeline to its tree nodes, its DFS extent and its color.
+    interface ResolvedPipeline {
+        id: number;
         nodes: TreeNode[];
-        minRank: number;
-        maxRank: number;
+        maxOrder: number;
+        color: string;
     }
     const resolved: ResolvedPipeline[] = pipelines.map((p) => {
-        const nodes: TreeNode[] = [];
-        for (const opId of p.operatorIds) {
-            const node = operatorsById.get(opId.toString());
-            if (node) nodes.push(node);
-        }
-        const memberRanks = nodes.map(nodeRank);
-        return {
-            ...p,
-            nodes,
-            minRank: memberRanks.length ? Math.min(...memberRanks) : Infinity,
-            maxRank: memberRanks.length ? Math.max(...memberRanks) : -Infinity,
-        };
+        const nodes = p.operatorIds
+            .map((opId) => operatorsById.get(opId.toString()))
+            .filter((n): n is TreeNode => n !== undefined);
+        const maxOrder = nodes.length ? Math.max(...nodes.map(nodeOrder)) : 0;
+        return {id: p.id, nodes, maxOrder, color: pipelineColor(maxOrder)};
     });
-
-    // Assign palette colors in left-to-right order.
-    const colorOrder = [...resolved].sort((a, b) => a.minRank - b.minRank || a.maxRank - b.maxRank || a.id - b.id);
-    const colorById = new Map<number, string>();
-    colorOrder.forEach((p, idx) => colorById.set(p.id, pipelineColor(idx)));
 
     // Record, per tree node, every pipeline it belongs to (kept local: the
     // "pipeline" concept never leaks into the presentation model, which only
@@ -494,21 +479,13 @@ function assignPipelineColors(root: TreeNode, operatorsById: Map<string, TreeNod
             nodePipelines.set(node, list);
         }
     }
-    // Walk the tree to split each operator's pipelines into an "incoming" side
-    // (shared with its children, drawn below) and an "outgoing" side (shared with
-    // its parent, drawn above). Data flows leaves->root, so children feed the
-    // node from below and the node feeds its parent above. A pipeline that starts
-    // or ends at a node (a pipeline breaker, or a source/sink) is therefore
-    // present on only one side. The incoming edge is colored to match the
-    // node's outgoing (above) side, which is exactly the pipelines it shares with
-    // its parent -- edges with no shared pipeline stay neutral (breakers).
+
     const walk = (node: TreeNode, parent: TreeNode | undefined) => {
         const nodePs = nodePipelines.get(node);
         if (nodePs) {
-            // Order pipelines by the left-to-right position of the first child
-            // that carries them, so the bars/edges line up with the branches
-            // below. Pipelines that do not come from a child (a source, or a
-            // pipeline breaker below) fall back to their overall horizontal rank.
+            // Order segments by the left-to-right position of the first child
+            // that carries each pipeline, so the bars line up with the branches
+            // below; fall back to the pipeline's own tree position.
             const childOrder = new Map<number, number>();
             const children = allChildren(node);
             let hasOperatorChild = false;
@@ -523,12 +500,10 @@ function assignPipelineColors(root: TreeNode, operatorsById: Map<string, TreeNod
                     .sort(
                         (a, b) =>
                             (childOrder.get(a.id) ?? Infinity) - (childOrder.get(b.id) ?? Infinity) ||
-                            a.minRank - b.minRank ||
-                            a.maxRank - b.maxRank ||
+                            a.maxOrder - b.maxOrder ||
                             a.id - b.id,
                     )
-                    .map((p) => colorById.get(p.id))
-                    .filter((c): c is string => c !== undefined);
+                    .map((p) => p.color);
 
             // Outgoing (above): pipelines shared with the parent; at the root
             // (no parent) everything the operator drives flows out.
@@ -547,13 +522,13 @@ function assignPipelineColors(root: TreeNode, operatorsById: Map<string, TreeNod
             node.barsBelow = ordered(incoming);
 
             // Tint the operator icon (and thereby the minimap) with the node's
-            // dominant (right-most) pipeline color, unless it is already colored
-            // (e.g. the red error highlight, which takes precedence).
+            // right-most (deepest) pipeline color, unless already colored (e.g.
+            // the red error highlight, which takes precedence).
             if (!node.iconColor) {
                 const dominant = nodePs.reduce((best, p) =>
-                    p.maxRank > best.maxRank || (p.maxRank === best.maxRank && p.id > best.id) ? p : best,
+                    p.maxOrder > best.maxOrder || (p.maxOrder === best.maxOrder && p.id > best.id) ? p : best,
                 );
-                node.iconColor = colorById.get(dominant.id);
+                node.iconColor = dominant.color;
             }
         }
         for (const child of allChildren(node)) walk(child, node);
