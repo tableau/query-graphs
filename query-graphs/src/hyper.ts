@@ -25,20 +25,34 @@ The main steps are:
 import {TreeNode, TreeDescription, Crosslink, IconName, visitTreeNodes, allChildren} from "./tree-description";
 import {Json, JsonObject, forceToString, tryToString, formatMetric, hasOwnProperty, tryGetPropertyPath} from "./loader-utils";
 
-// A categorical color palette for execution pipelines (the Tableau 20 palette:
-// ten base hues, each followed by a lighter companion). Colors are assigned to
-// pipelines left-to-right and rotate (index % length) once exhausted.
+// A categorical color palette for execution pipelines (the Tableau 20 colors).
+// The ten saturated base hues come first, then their lighter companions, so
+// that adjacent pipelines never get near-identical shades (e.g. light-blue does
+// not follow blue). Colors are assigned to pipelines left-to-right and rotate
+// (index % length) once exhausted.
 const PIPELINE_PALETTE = [
-    "#4e79a7", "#a0cbe8", // blue        / light blue
-    "#f28e2b", "#ffbe7d", // orange      / light orange
-    "#59a14f", "#8cd17d", // green       / light green
-    "#b6992d", "#f1ce63", // gold        / light gold
-    "#499894", "#86bcb6", // teal        / light teal
-    "#e15759", "#ff9d9a", // red         / light red
-    "#79706e", "#bab0ac", // gray        / light gray
-    "#d37295", "#fabfd2", // pink        / light pink
-    "#b07aa1", "#d4a6c8", // purple      / light purple
-    "#9d7660", "#d7b5a6", // brown       / light brown
+    // Base hues.
+    "#4e79a7", // blue
+    "#f28e2b", // orange
+    "#59a14f", // green
+    "#b6992d", // gold
+    "#499894", // teal
+    "#e15759", // red
+    "#79706e", // gray
+    "#d37295", // pink
+    "#b07aa1", // purple
+    "#9d7660", // brown
+    // Lighter companions (only reached by wide plans).
+    "#a0cbe8", // light blue
+    "#ffbe7d", // light orange
+    "#8cd17d", // light green
+    "#f1ce63", // light gold
+    "#86bcb6", // light teal
+    "#ff9d9a", // light red
+    "#bab0ac", // light gray
+    "#fabfd2", // light pink
+    "#d4a6c8", // light purple
+    "#d7b5a6", // light brown
 ];
 
 function pipelineColor(index: number): string {
@@ -475,13 +489,6 @@ function assignPipelineColors(root: TreeNode, operatorsById: Map<string, TreeNod
             nodePipelines.set(node, list);
         }
     }
-    // Pipelines flowing through a node, ordered left-to-right, as colors.
-    const orderedColors = (ps: ResolvedPipeline[]): string[] =>
-        [...ps]
-            .sort((a, b) => a.minRank - b.minRank || a.maxRank - b.maxRank || a.id - b.id)
-            .map((p) => colorById.get(p.id))
-            .filter((c): c is string => c !== undefined);
-
     // Walk the tree to split each operator's pipelines into an "incoming" side
     // (shared with its children, drawn below) and an "outgoing" side (shared with
     // its parent, drawn above). Data flows leaves->root, so children feed the
@@ -493,30 +500,46 @@ function assignPipelineColors(root: TreeNode, operatorsById: Map<string, TreeNod
     const walk = (node: TreeNode, parent: TreeNode | undefined) => {
         const nodePs = nodePipelines.get(node);
         if (nodePs) {
+            // Order pipelines by the left-to-right position of the first child
+            // that carries them, so the bars/edges line up with the branches
+            // below. Pipelines that do not come from a child (a source, or a
+            // pipeline breaker below) fall back to their overall horizontal rank.
+            const childOrder = new Map<number, number>();
+            const children = allChildren(node);
+            let hasOperatorChild = false;
+            children.forEach((child, idx) => {
+                const childPs = nodePipelines.get(child);
+                if (!childPs) return;
+                hasOperatorChild = true;
+                for (const p of childPs) if (!childOrder.has(p.id)) childOrder.set(p.id, idx);
+            });
+            const ordered = (ps: ResolvedPipeline[]): string[] =>
+                [...ps]
+                    .sort(
+                        (a, b) =>
+                            (childOrder.get(a.id) ?? Infinity) - (childOrder.get(b.id) ?? Infinity) ||
+                            a.minRank - b.minRank ||
+                            a.maxRank - b.maxRank ||
+                            a.id - b.id,
+                    )
+                    .map((p) => colorById.get(p.id))
+                    .filter((c): c is string => c !== undefined);
+
             // Outgoing (above): pipelines shared with the parent; at the root
             // (no parent) everything the operator drives flows out.
-            const parentPs = parent ? nodePipelines.get(parent) : undefined;
             let outgoing = nodePs;
             if (parent) {
+                const parentPs = nodePipelines.get(parent);
                 const parentIds = parentPs ? new Set(parentPs.map((p) => p.id)) : new Set<number>();
                 outgoing = nodePs.filter((p) => parentIds.has(p.id));
             }
-            node.barsAbove = orderedColors(outgoing);
-            if (parent && outgoing.length) node.edgeColors = orderedColors(outgoing);
+            node.barsAbove = ordered(outgoing);
+            if (parent && outgoing.length) node.edgeColors = ordered(outgoing);
 
-            // Incoming (below): pipelines shared with any operator child; a leaf
+            // Incoming (below): pipelines shared with an operator child; a leaf
             // (no operator children) is a source, so its pipelines originate here.
-            const childIds = new Set<number>();
-            let hasOperatorChild = false;
-            for (const child of allChildren(node)) {
-                const childPs = nodePipelines.get(child);
-                if (childPs) {
-                    hasOperatorChild = true;
-                    for (const p of childPs) childIds.add(p.id);
-                }
-            }
-            const incoming = hasOperatorChild ? nodePs.filter((p) => childIds.has(p.id)) : nodePs;
-            node.barsBelow = orderedColors(incoming);
+            const incoming = hasOperatorChild ? nodePs.filter((p) => childOrder.has(p.id)) : nodePs;
+            node.barsBelow = ordered(incoming);
         }
         for (const child of allChildren(node)) walk(child, node);
     };
