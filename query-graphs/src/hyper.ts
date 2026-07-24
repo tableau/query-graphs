@@ -22,7 +22,7 @@ The main steps are:
 
 */
 
-import {TreeNode, TreeDescription, Crosslink, IconName, visitTreeNodes, allChildren} from "./tree-description";
+import {TreeNode, TreeDescription, Crosslink, IconName, allChildren} from "./tree-description";
 import {Json, JsonObject, forceToString, tryToString, formatMetric, hasOwnProperty, tryGetPropertyPath} from "./loader-utils";
 
 // A categorical color palette for execution pipelines (the Tableau 20 colors).
@@ -365,7 +365,7 @@ function setEdgeWidths(state: ConversionState) {
     }
 }
 
-function convertHyperPlan(node: Json): TreeDescription {
+function convertHyperPlan(node: Json, pipelines?: Json): TreeDescription {
     const conversionState = {
         operatorsById: new Map<string, TreeNode>(),
         crosslinks: [],
@@ -386,6 +386,11 @@ function convertHyperPlan(node: Json): TreeDescription {
     colorRelativeExecutionTime(conversionState);
     setEdgeWidths(conversionState);
     const crosslinks = resolveCrosslinks(conversionState);
+    // For a `{tree, pipelines}` envelope, reuse the operator-id map we just built
+    // to project the merged execution pipelines onto the tree.
+    if (pipelines !== undefined) {
+        assignPipelineColors(root, conversionState.operatorsById, parsePipelines(pipelines));
+    }
     return {root, crosslinks, metadata: conversionState.metadata};
 }
 
@@ -556,25 +561,6 @@ function assignPipelineColors(root: TreeNode, operatorsById: Map<string, TreeNod
     walk(root, undefined);
 }
 
-// Load a Hyper plan that carries a merged execution-pipeline graph
-// (`EXPLAIN (FORMAT JSON, PIPELINES, ...)`), i.e. a top-level `{tree, pipelines}`.
-function convertHyperPlanWithPipelines(node: JsonObject): TreeDescription {
-    const treeDescription = convertHyperPlan(node["tree"]);
-    // Rebuild the operator-id map over the produced tree so pipelines can be resolved.
-    const operatorsById = new Map<string, TreeNode>();
-    visitTreeNodes(
-        treeDescription.root,
-        (n) => {
-            const opId = n.properties?.get("operator-id") ?? n.properties?.get("operatorId");
-            if (opId !== undefined) operatorsById.set(opId, n);
-        },
-        allChildren,
-    );
-    const pipelines = parsePipelines(node["pipelines"]);
-    assignPipelineColors(treeDescription.root, operatorsById, pipelines);
-    return treeDescription;
-}
-
 function convertOptimizerSteps(node: Json): TreeDescription | undefined {
     // Check if we have a top-level object with a single key "optimizersteps" containing an array
     if (typeof node !== "object" || Array.isArray(node) || node === null) return undefined;
@@ -624,7 +610,7 @@ function hasPipelineEnvelope(json: Json): json is JsonObject {
 // Loads a Hyper query plan
 export function loadHyperPlan(json: Json): TreeDescription {
     if (hasPipelineEnvelope(json)) {
-        return convertHyperPlanWithPipelines(json);
+        return convertHyperPlan(json["tree"], json["pipelines"]);
     }
     return convertOptimizerSteps(json) ?? convertHyperPlan(json);
 }
