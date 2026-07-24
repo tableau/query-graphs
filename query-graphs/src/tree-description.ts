@@ -31,16 +31,16 @@ export interface TreeNode {
     // Width of the incoming edge
     edgeWidth?: number;
 
-    // Colors of a (possibly multi-color) bar drawn just above the node
+    // Colors of a bar drawn just above the node
     // (conceptually the "outgoing" side, toward the parent).
-    // Empty/undefined means no bar. Segments are drawn left-to-right.
+    // Empty/undefined means no bar. Segments are drawn in array order.
     barsAbove?: string[];
-    // Colors of a (possibly multi-color) bar drawn just below the node
+    // Colors of a bar drawn just below the node
     // (conceptually the "incoming" side, toward the children).
+    // Empty/undefined means no bar. Segments are drawn in array order.
     barsBelow?: string[];
-    // Colors of the incoming edge (from this node's parent). When more than one
-    // color is given, the edge is drawn as a multi-color gradient; a single
-    // color is drawn as a solid stroke; empty/undefined draws a neutral edge.
+    // Colors of the incoming edge. Several colors are drawn as a gradient,
+    // a single color as a solid stroke.
     edgeColors?: string[];
 
     // All child nodes visible by default
@@ -50,7 +50,6 @@ export interface TreeNode {
     // Whether collapsed children are shown by default
     expandedByDefault?: boolean;
 }
-
 
 export interface Crosslink {
     source: TreeNode;

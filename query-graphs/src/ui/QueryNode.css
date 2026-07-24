@@ -52,8 +52,8 @@
     text-align: center;
 }
 
-/* A small (possibly multi-color) bar drawn above and/or below the node.
- * When several colors are given the bar is split into equal segments. */
+/* A bar drawn above and/or below the node.
+ * Several colors are split into equal segments. */
 .qg-color-bar {
     display: flex;
     gap: 1px;

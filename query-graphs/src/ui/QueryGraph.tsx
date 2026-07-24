@@ -15,7 +15,6 @@ interface QueryGraphProps {
 }
 
 function minimapNodeColor(n: Node<TreeNode>): string {
-    if (n.data.barsBelow?.length) return n.data.barsBelow[n.data.barsBelow.length - 1];
     if (n.data.nodeColor) return n.data.nodeColor;
     if (n.data.iconColor) return n.data.iconColor;
     return "hsl(0, 0%, 72%)";
