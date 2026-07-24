@@ -540,6 +540,16 @@ function assignPipelineColors(root: TreeNode, operatorsById: Map<string, TreeNod
             // (no operator children) is a source, so its pipelines originate here.
             const incoming = hasOperatorChild ? nodePs.filter((p) => childOrder.has(p.id)) : nodePs;
             node.barsBelow = ordered(incoming);
+
+            // Tint the operator icon (and thereby the minimap) with the node's
+            // dominant (right-most) pipeline color, unless it is already colored
+            // (e.g. the red error highlight, which takes precedence).
+            if (!node.iconColor) {
+                const dominant = nodePs.reduce((best, p) =>
+                    p.maxRank > best.maxRank || (p.maxRank === best.maxRank && p.id > best.id) ? p : best,
+                );
+                node.iconColor = colorById.get(dominant.id);
+            }
         }
         for (const child of allChildren(node)) walk(child, node);
     };
