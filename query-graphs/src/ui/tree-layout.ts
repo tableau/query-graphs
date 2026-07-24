@@ -76,11 +76,8 @@ export function layoutTree(
             const width = Math.max(1, 10 * Math.min(1, e.target.data.edgeWidth));
             style.strokeWidth = `${width}px`;
         }
-        // The incoming edge shows the color(s) assigned to it (see `edgeColors`).
-        const edgeColors = e.target.data.edgeColors;
-        if (edgeColors?.length) {
-            style.stroke = edgeColors[edgeColors.length - 1];
-        }
+        // The stroke color is set by `PipelineEdge` from `data.colors` (a solid
+        // stroke for a single color, a gradient for several); see `edgeColors`.
         return {
             id: `${sourceId}->${targetId}`,
             source: sourceId,
@@ -89,7 +86,7 @@ export function layoutTree(
             label: e.target.data.edgeLabel,
             className: e.target.data.edgeClass,
             style: style,
-            data: {colors: edgeColors},
+            data: {colors: e.target.data.edgeColors},
             focusable: false,
         } as Edge;
     });
