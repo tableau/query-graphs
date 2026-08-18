@@ -1,0 +1,85 @@
+{
+  "tree": {
+    "operator": "output",
+    "operator-id": 1,
+    "statistics": {
+      "estimated-rows": 2000
+    },
+    "inputs": [{
+      "operator": "join",
+      "operator-id": 2,
+      "type": "leftSemi",
+      "statistics": {
+        "estimated-rows": 2000
+      },
+      "inputs": [{
+        "operator": "scan",
+        "operator-id": 3,
+        "statistics": {
+          "estimated-rows": 2000
+        },
+        "type": "native",
+        "attributes": [{"defines": {"id": "scan_a", "type": {"type": "integer", "nullable": false}}, "name": "a"}]
+      }, {
+        "operator": "filter",
+        "operator-id": 4,
+        "statistics": {
+          "estimated-rows": 9998.61
+        },
+        "inputs": [{
+          "operator": "groupBy",
+          "operator-id": 5,
+          "statistics": {
+            "estimated-rows": 10000
+          },
+          "inputs": [{
+            "operator": "join",
+            "operator-id": 6,
+            "type": "inner",
+            "statistics": {
+              "estimated-rows": 100000
+            },
+            "inputs": [{
+              "operator": "explicitScan",
+              "operator-id": 7,
+              "statistics": {
+                "estimated-rows": 100
+              },
+              "inputs": [{
+                "operator": "groupBy",
+                "operator-id": 8,
+                "statistics": {
+                  "estimated-rows": 100
+                },
+                "inputs": [],
+                "aggregates": [],
+                "grouping-sets": [{"key-expressions": [{"defines": {"id": "GroupByKey", "type": {"type": "integer", "nullable": false}}, "expression": {"expression": "reference", "id": "scan_a"}}]}]
+              }],
+              "mapping": [{"defines": {"id": "GroupByKey2", "type": {"type": "integer", "nullable": false}}, "source": {"expression": "reference", "id": "GroupByKey"}}]
+            }, {
+              "operator": "scan",
+              "operator-id": 9,
+              "statistics": {
+                "estimated-rows": 2000
+              },
+              "type": "native",
+              "attributes": [{"defines": {"id": "scan_c", "type": {"type": "integer", "nullable": false}}, "name": "c"}, {"defines": {"id": "scan_d", "type": {"type": "integer", "nullable": false}}, "name": "d"}]
+            }],
+            "method": "bnl",
+            "condition": {"expression": "sql", "sql": "\"GroupByKey2\" > \"scan_d\"", "arguments": [{"expression": "reference", "id": "GroupByKey2"}, {"expression": "reference", "id": "scan_d"}], "type": {"type": "bool", "nullable": false}},
+            "predicates": [{"left": {"expression": "reference", "id": "GroupByKey2"}, "right": {"expression": "reference", "id": "scan_d"}, "comparison": ">"}]
+          }],
+          "aggregates": [{"defines": {"id": "count", "type": {"type": "bigint", "nullable": false}}, "source": null, "operation": {"aggregate": "count"}}],
+          "grouping-sets": [{"key-expressions": [{"defines": {"id": "GroupByKey3", "type": {"type": "integer", "nullable": false}}, "expression": {"expression": "reference", "id": "scan_c"}}, {"defines": {"id": "GroupByKey4", "type": {"type": "integer", "nullable": false}}, "expression": {"expression": "reference", "id": "GroupByKey2"}}]}]
+        }],
+        "condition": {"expression": "sql", "sql": "\"count\" > CAST('0' AS BIGINT)", "arguments": [{"expression": "reference", "id": "count"}], "type": {"type": "bool", "nullable": false}}
+      }],
+      "magic-set-op": 8,
+      "method": "hash",
+      "condition": {"expression": "sql", "sql": "\"scan_a\" IS NOT DISTINCT FROM \"GroupByKey4\"", "arguments": [{"expression": "reference", "id": "GroupByKey4"}, {"expression": "reference", "id": "scan_a"}], "type": {"type": "bool", "nullable": false}},
+      "predicates": [{"left": {"expression": "reference", "id": "scan_a"}, "right": {"expression": "reference", "id": "GroupByKey4"}, "comparison": "is"}]
+    }],
+    "output": [{"name": "a", "expression": {"expression": "reference", "id": "scan_a"}}]
+  },
+  "pipelines": [{"id": 0, "operators": [1, 2, 4, 5], "dependencies": [1, 2]}, {"id": 1, "operators": [2, 3, 8], "dependencies": []}, {"id": 2, "operators": [5, 6, 9], "dependencies": [3]}, {"id": 3, "operators": [6, 7], "dependencies": [1]}]
+}
