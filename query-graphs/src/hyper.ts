@@ -433,16 +433,14 @@ function parsePipelines(pipelinesJson: Json): RawPipeline[] {
 // above (its "outgoing" pipelines, drawn as the bar above and the incoming
 // edge). A pipeline that starts or ends at a node (a pipeline breaker, or a
 // source/sink) shows on only one side; an edge with no shared pipeline stays
-// neutral. The icon takes the color of the node's last-appearing pipeline.
+// neutral. The icon takes the node's right-most pipeline color.
 function assignPipelineColors(root: TreeNode, operatorsById: Map<string, TreeNode>, pipelines: RawPipeline[]): void {
-    // Resolve each pipeline to its tree nodes. `color`/`rank` are filled lazily
-    // the first time the pipeline is seen during the walk (rank = appearance
-    // order, used to order bar segments and pick the icon color).
+    // Resolve each pipeline to its tree nodes. `color` is filled lazily the first
+    // time the pipeline is seen during the walk (empty string = not yet seen).
     interface ResolvedPipeline {
         id: number;
         nodes: TreeNode[];
         color: string;
-        rank: number;
     }
     const resolved: ResolvedPipeline[] = pipelines.map((p) => ({
         id: p.id,
@@ -450,7 +448,6 @@ function assignPipelineColors(root: TreeNode, operatorsById: Map<string, TreeNod
             .map((opId) => operatorsById.get(opId.toString()))
             .filter((n): n is TreeNode => n !== undefined),
         color: "",
-        rank: -1,
     }));
 
     // Record, per tree node, every pipeline it belongs to (kept local: the
@@ -470,17 +467,13 @@ function assignPipelineColors(root: TreeNode, operatorsById: Map<string, TreeNod
         const nodePs = nodePipelines.get(node);
         if (nodePs) {
             // Color the pipelines appearing here for the first time.
-            for (const p of nodePs) {
-                if (p.rank < 0) {
-                    p.rank = nextColor;
-                    p.color = pipelineColor(nextColor);
-                    nextColor++;
-                }
-            }
+            for (const p of nodePs) if (p.color === "") p.color = pipelineColor(nextColor++);
 
-            // Order segments by the left-to-right position of the first child
+            // Order segments left-to-right by the position of the first child
             // that carries each pipeline, so the bars line up with the branches
-            // below; fall back to the pipeline's appearance order.
+            // below. Ties (several pipelines entering through the same child, or
+            // pipelines with no child) keep their appearance order via the stable
+            // sort.
             const childOrder = new Map<number, number>();
             const children = allChildren(node);
             let hasOperatorChild = false;
@@ -490,13 +483,8 @@ function assignPipelineColors(root: TreeNode, operatorsById: Map<string, TreeNod
                 hasOperatorChild = true;
                 for (const p of childPs) if (!childOrder.has(p.id)) childOrder.set(p.id, idx);
             });
-            const ordered = (ps: ResolvedPipeline[]): string[] =>
-                [...ps]
-                    .sort(
-                        (a, b) =>
-                            (childOrder.get(a.id) ?? Infinity) - (childOrder.get(b.id) ?? Infinity) || a.rank - b.rank,
-                    )
-                    .map((p) => p.color);
+            const ordered = (ps: ResolvedPipeline[]): ResolvedPipeline[] =>
+                [...ps].sort((a, b) => (childOrder.get(a.id) ?? Infinity) - (childOrder.get(b.id) ?? Infinity));
 
             // Outgoing (above): pipelines shared with the parent; at the root
             // (no parent) everything the operator drives flows out.
@@ -506,20 +494,20 @@ function assignPipelineColors(root: TreeNode, operatorsById: Map<string, TreeNod
                 const parentIds = parentPs ? new Set(parentPs.map((p) => p.id)) : new Set<number>();
                 outgoing = nodePs.filter((p) => parentIds.has(p.id));
             }
-            node.barsAbove = ordered(outgoing);
-            if (parent && outgoing.length) node.edgeColors = ordered(outgoing);
+            node.barsAbove = ordered(outgoing).map((p) => p.color);
+            if (parent && outgoing.length) node.edgeColors = node.barsAbove;
 
             // Incoming (below): pipelines shared with an operator child; a leaf
             // (no operator children) is a source, so its pipelines originate here.
             const incoming = hasOperatorChild ? nodePs.filter((p) => childOrder.has(p.id)) : nodePs;
-            node.barsBelow = ordered(incoming);
+            node.barsBelow = ordered(incoming).map((p) => p.color);
 
             // Tint the operator icon (and thereby the minimap) with the node's
-            // last-appearing pipeline color, unless already colored (e.g. the
-            // red error highlight, which takes precedence).
+            // right-most pipeline color, unless already colored (e.g. the red
+            // error highlight, which takes precedence).
             if (!node.iconColor) {
-                const dominant = nodePs.reduce((best, p) => (p.rank > best.rank ? p : best));
-                node.iconColor = dominant.color;
+                const all = ordered(nodePs);
+                node.iconColor = all[all.length - 1].color;
             }
         }
         for (const child of allChildren(node)) walk(child, node);
