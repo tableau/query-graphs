@@ -69,5 +69,5 @@ function convertXML(xml: ParsedXML): TreeNode {
 
 export function loadXml(graphString: string): TreeDescription {
     const xml = typesafeXMLParse(graphString);
-    return {root: convertXML(xml)};
+    return {root: convertXML(xml), planSource: "xml"};
 }

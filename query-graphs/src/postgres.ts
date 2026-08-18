@@ -335,7 +335,7 @@ export function loadPostgresPlan(json: Json): TreeDescription {
     colorRelativeExecutionTime(root);
     setEdgeWidths(conversionState);
     const crosslinks = resolveCrosslinks(conversionState);
-    return {root: root, crosslinks: crosslinks};
+    return {root: root, planSource: "postgres", crosslinks: crosslinks};
 }
 
 // Load a JSON tree from text

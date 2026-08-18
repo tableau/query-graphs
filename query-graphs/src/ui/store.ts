@@ -1,6 +1,7 @@
 import {create} from "zustand";
 import {immer} from "zustand/middleware/immer";
 import {devtools} from "zustand/middleware";
+import {HighlightThresholds, DEFAULT_THRESHOLDS} from "../highlight-rules";
 
 export interface NodeDimensions {
     headWidth?: number;
@@ -17,6 +18,14 @@ interface GraphRenderingState {
     toggleExpandedSubtree: (nodeId: string) => void;
     nodeDimensions: Record<string, NodeDimensions>;
     updateNodeDimensions: (entries: ResizeObserverEntry[]) => unknown;
+    // When true, non-flagged nodes are dimmed so highlighted issues stand out (focus mode).
+    focusIssues: boolean;
+    setFocusIssues: (focus: boolean) => void;
+    // Live-editable thresholds behind the highlight rules. Editing one re-highlights the plan without
+    // reloading it (see highlight-rules.ts). Reset to defaults when a new plan is loaded.
+    highlightThresholds: HighlightThresholds;
+    setThreshold: (key: keyof HighlightThresholds, value: number) => void;
+    resetThresholds: () => void;
 }
 
 export const useGraphRenderingStore = create<GraphRenderingState>()(
@@ -25,13 +34,29 @@ export const useGraphRenderingStore = create<GraphRenderingState>()(
             expandedNodes: {},
             expandedSubtrees: {},
             nodeDimensions: {},
+            focusIssues: false,
+            highlightThresholds: {...DEFAULT_THRESHOLDS},
             init: (expandedSubtrees) => {
                 set((state) => {
                     state.expandedNodes = {};
                     state.expandedSubtrees = expandedSubtrees;
                     state.nodeDimensions = {};
+                    state.focusIssues = false;
+                    state.highlightThresholds = {...DEFAULT_THRESHOLDS};
                 });
             },
+            setFocusIssues: (focus) =>
+                set((state) => {
+                    state.focusIssues = focus;
+                }),
+            setThreshold: (key, value) =>
+                set((state) => {
+                    state.highlightThresholds[key] = value;
+                }),
+            resetThresholds: () =>
+                set((state) => {
+                    state.highlightThresholds = {...DEFAULT_THRESHOLDS};
+                }),
             toggleExpandedNode: (nodeId) =>
                 set((state) => {
                     state.expandedNodes[nodeId] = !get().expandedNodes[nodeId];

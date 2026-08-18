@@ -160,5 +160,5 @@ function convertXML(xml: ParsedXML): TreeNode {
 export function loadTableauPlan(graphString: string): TreeDescription {
     const xml = typesafeXMLParse(graphString);
     const root = convertXML(xml);
-    return {root: root, crosslinks: undefined};
+    return {root: root, planSource: "tableau", crosslinks: undefined};
 }

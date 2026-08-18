@@ -23,6 +23,15 @@
   font-size: .6em;
 }
 
+/* Edges carrying a "why highlighted" reason: make the label feel hoverable. */
+.query-graph .qg-edge-label-has-reason {
+  cursor: help;
+}
+.query-graph .qg-edge-label-has-reason .react-flow__edge-textbg,
+.query-graph .qg-edge-label-has-reason .react-flow__edge-text {
+  pointer-events: all;
+}
+
 .query-graph .react-flow__edge.qg-label-highlighted .react-flow__edge-text {
   fill: hsl(309, 84%, 36%);
 }

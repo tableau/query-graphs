@@ -9,6 +9,34 @@
 .qg-graph-node.qg-no-props {
     cursor: default;
 }
+/* Node-level color reflecting the node's content, visible even while collapsed. Each category's
+ * hue matches its corresponding property-row highlight: costly scan (red), index recommendation
+ * (amber), index used (blue — informational, not "all good"). Precedence is decided in the loader;
+ * only one class is applied. */
+.qg-graph-node.qg-node-costly-scan {
+    /* Proportional red set per node via `--qg-costly-scan-color` (darker = read more rows); falls
+     * back to the flat light red when the loader didn't compute a shade. */
+    background: var(--qg-costly-scan-color, hsl(0, 100%, 95%));
+    border-color: hsl(0, 75%, 60%);
+    box-shadow: 0 0 0 1px hsl(0, 75%, 60%);
+}
+.qg-graph-node.qg-node-index-rec {
+    background: hsl(50, 100%, 92%);
+    border-color: hsl(45, 90%, 50%);
+    box-shadow: 0 0 0 1px hsl(45, 90%, 50%);
+}
+.qg-graph-node.qg-node-index-used {
+    background: hsl(205, 85%, 93%);
+    border-color: hsl(205, 70%, 50%);
+    box-shadow: 0 0 0 1px hsl(205, 70%, 50%);
+}
+/* A node whose fill shows another category (e.g. a costly scan) but which also carries an index
+ * recommendation: outline it in the index-rec amber so both signals are visible at once. Listed
+ * after the category rules so it wins the border/box-shadow. */
+.qg-graph-node.qg-node-index-rec-border {
+    border-color: hsl(45, 90%, 50%);
+    box-shadow: 0 0 0 1px hsl(45, 90%, 50%);
+}
 .qg-graph-node.qg-collapsed:hover,
 .qg-graph-node.qg-expanded {
     cursor: pointer;
@@ -97,4 +125,23 @@
     -webkit-user-select: text;
     -ms-user-select: text;
     user-select: text;
+    white-space: nowrap;
+}
+
+.qg-prop-emphasized {
+    background: hsl(50, 100%, 80%);
+    border-radius: 3px;
+}
+
+/* Informational blue highlight for the `index-used` row when an index was actually used —
+ * a used index is worth noticing, not a guarantee the plan is optimal. */
+.qg-prop-index-used {
+    background: hsl(205, 85%, 82%);
+    border-radius: 3px;
+}
+
+/* Light-red highlight for a costly scan's processed-rows / rows-matching property rows. */
+.qg-prop-costly-scan {
+    background: hsl(0, 100%, 88%);
+    border-radius: 3px;
 }
