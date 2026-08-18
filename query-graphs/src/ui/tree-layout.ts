@@ -76,8 +76,6 @@ export function layoutTree(
             const width = Math.max(1, 10 * Math.min(1, e.target.data.edgeWidth));
             style.strokeWidth = `${width}px`;
         }
-        // The stroke color is set by `PipelineEdge` from `data.colors` (a solid
-        // stroke for a single color, a gradient for several); see `edgeColors`.
         return {
             id: `${sourceId}->${targetId}`,
             source: sourceId,

@@ -386,8 +386,6 @@ function convertHyperPlan(node: Json, pipelines?: Json): TreeDescription {
     colorRelativeExecutionTime(conversionState);
     setEdgeWidths(conversionState);
     const crosslinks = resolveCrosslinks(conversionState);
-    // For a `{tree, pipelines}` envelope, reuse the operator-id map we just built
-    // to project the merged execution pipelines onto the tree.
     if (pipelines !== undefined) {
         assignPipelineColors(root, conversionState.operatorsById, parsePipelines(pipelines));
     }
@@ -403,7 +401,7 @@ interface RawPipeline {
 // Parse and validate the `pipelines` array of the plan.
 function parsePipelines(pipelinesJson: Json): RawPipeline[] {
     if (!Array.isArray(pipelinesJson)) {
-        throw new Error("Invalid Hyper query plan: `pipelines` must be an array");
+        return [];
     }
     const pipelines: RawPipeline[] = [];
     for (const entry of pipelinesJson) {
@@ -444,9 +442,7 @@ function assignPipelineColors(root: TreeNode, operatorsById: Map<string, TreeNod
     }
     const resolved: ResolvedPipeline[] = pipelines.map((p) => ({
         id: p.id,
-        nodes: p.operatorIds
-            .map((opId) => operatorsById.get(opId.toString()))
-            .filter((n): n is TreeNode => n !== undefined),
+        nodes: p.operatorIds.map((opId) => operatorsById.get(opId.toString())!),
         color: "",
     }));
 
@@ -491,8 +487,8 @@ function assignPipelineColors(root: TreeNode, operatorsById: Map<string, TreeNod
             let outgoing = nodePs;
             if (parent) {
                 const parentPs = nodePipelines.get(parent);
-                const parentIds = parentPs ? new Set(parentPs.map((p) => p.id)) : new Set<number>();
-                outgoing = nodePs.filter((p) => parentIds.has(p.id));
+                const parentPipelineIds = parentPs ? new Set(parentPs.map((p) => p.id)) : new Set<number>();
+                outgoing = nodePs.filter((p) => parentPipelineIds.has(p.id));
             }
             node.barsAbove = ordered(outgoing).map((p) => p.color);
             if (parent && outgoing.length) node.edgeColors = node.barsAbove;
