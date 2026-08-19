@@ -53,19 +53,22 @@ def dump_plans(name, exec_stmt, get_plan):
 
        # Pipeline query files are self-contained scripts: setup (SET/CREATE), the
        # query to EXPLAIN, then teardown that resets the session globals and drops
-       # the temp tables. Only Hyper supports the PIPELINES option. Run every
-       # statement in order, but EXPLAIN only the query itself.
+       # the temp tables. Only Hyper supports the PIPELINES option. Run the setup
+       # now and the teardown after, so only the query itself is EXPLAINed.
+       teardown = []
        if mode in ("pipelines", "analyze-pipelines"):
            if name != "hyper":
                continue
-           plan = None
-           for stmt in (s.strip() for s in sql.split(";") if s.strip()):
-               if plan is None and re.match(r"^\s*(SELECT|WITH)\b", stmt, re.IGNORECASE):
-                   plan = get_plan(stmt, mode)
-               else:
-                   exec_stmt(stmt)
-       else:
-           plan = get_plan(sql, mode)
+           statements = [s.strip() for s in sql.split(";") if s.strip()]
+           queryIdx = next((i for i, s in enumerate(statements) if re.match(r"^\s*(SELECT|WITH)\b", s, re.IGNORECASE)), len(statements) - 1)
+           for stmt in statements[:queryIdx]:
+               exec_stmt(stmt)
+           sql = statements[queryIdx]
+           teardown = statements[queryIdx + 1:]
+
+       plan = get_plan(sql, mode)
+       for stmt in teardown:
+           exec_stmt(stmt)
 
        if not plan:
            continue
