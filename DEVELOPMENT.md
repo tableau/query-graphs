@@ -73,7 +73,7 @@ python3 dump-plans.py --hyper-path ~/workspace/hyper-db/bazel-bin/hyper/tools/hy
 The `--hyper-path` argument should point to the directory containing the `hyperd` binary.
 When omitted, the script uses the `hyperd` bundled with the pip-installed `tableauhyperapi` package.
 
-The pipeline examples (`queries/pipelines-*.sql`) use the `EXPLAIN (… PIPELINES …)` option
+The pipeline examples (`queries/*-pipelines.sql`) use the `EXPLAIN (… PIPELINES …)` option
 and are only dumped for Hyper (skipped for Postgres). They need a `--hyper-path` build of
 Hyper that supports the `PIPELINES` explain option; the pip-bundled Hyper does not yet
 support it.

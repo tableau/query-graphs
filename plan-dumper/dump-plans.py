@@ -44,8 +44,10 @@ def dump_plans(name, exec_stmt, get_plan):
        fname = f.name
        if fname.endswith("-steps.sql"):
            mode = "steps"
-       elif "pipelines" in fname:
-           mode = "analyze-pipelines" if "analyze" in fname else "pipelines"
+       elif fname.endswith("-analyze-pipelines.sql"):
+           mode = "analyze-pipelines"
+       elif fname.endswith("-pipelines.sql"):
+           mode = "pipelines"
        elif fname.endswith("-analyze.sql"):
            mode = "analyze"
        else:
