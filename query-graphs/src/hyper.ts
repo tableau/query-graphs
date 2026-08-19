@@ -117,15 +117,6 @@ const nodeRenderingConfig: Record<string, NodeRenderingConfig> = {
     "op:explicitscan": {icon: "temp-table-symbol", crosslinkSourceKey: "input"},
     "op:temp": {icon: "temp-table-symbol"},
     "op:iterationincrement": {crosslinkSourceKey: "source"},
-    // `EXPLAIN (FORMAT JSON)` operator names (camelCase); the entries above use
-    // the internal lowercase names. Alias the ones that differ so their icons
-    // render.
-    "op:output": {icon: "run-query-symbol"},
-    "op:scan": {icon: "table-symbol"},
-    "op:groupBy": {icon: "groupby-symbol"},
-    "op:filter": {icon: "filter-symbol"},
-    "op:explicitScan": {icon: "temp-table-symbol"},
-    "op:tableConstruction": {icon: "const-table-symbol"},
     // Expressions
     "exp:comparison": {displayNameKey: "mode"},
     "exp:iuref": {displayNameKey: "iu"},
@@ -410,9 +401,12 @@ function parsePipelines(pipelinesJson: Json): RawPipeline[] {
 //
 // Data flows leaves->root, so a node's children feed it from below (its
 // "incoming" pipelines, drawn as the bar below) and the node feeds its parent
-// above (its "outgoing" pipelines, drawn as the bar above and the incoming
-// edge). A pipeline that starts or ends at a node (a pipeline breaker, or a
-// source/sink) shows on only one side; an edge with no shared pipeline stays
+// from above (its "outgoing" pipelines, drawn as the bar above and on the
+// incoming edge). The endpoints are always full bars: the root "output" has no
+// parent, so every pipeline it drives is drawn as its bar above; a leaf is a
+// source, so every pipeline that starts there is drawn as its bar below. In
+// between, a pipeline that only starts or ends at a node (a pipeline breaker)
+// shows on just the one side, and a tree edge with no shared pipeline stays
 // neutral. The icon takes the node's right-most pipeline color.
 function assignPipelineColors(root: TreeNode, operatorsById: Map<string, TreeNode>, pipelines: RawPipeline[]): void {
     // Resolve each pipeline to its tree nodes. `color` is filled lazily the first
