@@ -1,0 +1,73 @@
+{
+  "tree": {
+    "operator": "output",
+    "operator-id": 1,
+    "statistics": {
+      "estimated-rows": 1
+    },
+    "inputs": [{
+      "operator": "join",
+      "operator-id": 2,
+      "type": "fullOuter",
+      "statistics": {
+        "estimated-rows": 1
+      },
+      "inputs": [{
+        "operator": "groupBy",
+        "operator-id": 3,
+        "statistics": {
+          "estimated-rows": 1
+        },
+        "inputs": [{
+          "operator": "explicitScan",
+          "operator-id": 4,
+          "statistics": {
+            "estimated-rows": 2000
+          },
+          "inputs": [{
+            "operator": "share",
+            "operator-id": 5,
+            "statistics": {
+              "estimated-rows": 2000
+            },
+            "inputs": [{
+              "operator": "scan",
+              "operator-id": 6,
+              "statistics": {
+                "estimated-rows": 2000
+              },
+              "type": "native",
+              "attributes": [{"defines": {"id": "scan_i", "type": {"type": "integer", "nullable": false}}, "name": "i"}]
+            }]
+          }],
+          "mapping": [{"defines": {"id": "scan_i2", "type": {"type": "integer", "nullable": false}}, "source": {"expression": "reference", "id": "scan_i"}}]
+        }],
+        "aggregates": [{"defines": {"id": "min", "type": {"type": "integer", "nullable": true}}, "source": {"expression": "reference", "id": "scan_i2"}, "operation": {"aggregate": "min"}}],
+        "grouping-sets": [{"key-expressions": []}]
+      }, {
+        "operator": "groupBy",
+        "operator-id": 7,
+        "statistics": {
+          "estimated-rows": 1
+        },
+        "inputs": [{
+          "operator": "explicitScan",
+          "operator-id": 8,
+          "statistics": {
+            "estimated-rows": 2000
+          },
+          "input-operator-id": 5,
+          "mapping": [{"defines": {"id": "scan_i3", "type": {"type": "integer", "nullable": false}}, "source": {"expression": "reference", "id": "scan_i"}}]
+        }],
+        "aggregates": [{"defines": {"id": "max", "type": {"type": "integer", "nullable": true}}, "source": {"expression": "reference", "id": "scan_i3"}, "operation": {"aggregate": "max"}}],
+        "grouping-sets": [{"key-expressions": []}]
+      }],
+      "method": "hash",
+      "single-match": true,
+      "condition": {"expression": "sql", "sql": "\"min\" = \"max\"", "arguments": [{"expression": "reference", "id": "max"}, {"expression": "reference", "id": "min"}], "type": {"type": "bool", "nullable": true}},
+      "predicates": [{"left": {"expression": "reference", "id": "min"}, "right": {"expression": "reference", "id": "max"}, "comparison": "="}]
+    }],
+    "output": [{"name": "min", "expression": {"expression": "reference", "id": "min"}}, {"name": "max", "expression": {"expression": "reference", "id": "max"}}]
+  },
+  "pipelines": [{"id": 0, "operators": [1, 2, 7], "dependencies": [1, 5]}, {"id": 1, "operators": [2, 3], "dependencies": [2]}, {"id": 2, "operators": [3, 4], "dependencies": [4]}, {"id": 4, "operators": [5, 6], "dependencies": []}, {"id": 5, "operators": [7, 8], "dependencies": [4]}]
+}

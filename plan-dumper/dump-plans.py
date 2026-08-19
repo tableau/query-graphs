@@ -6,6 +6,7 @@ except ImportError:
 import argparse
 import shutil
 import os
+import re
 import json
 from pathlib import Path
 
@@ -36,10 +37,8 @@ def dump_plans(name, exec_stmt, get_plan):
        copy_and_overwrite("./tpch-data-tiny", "/tmp/tpch-data-tiny")
        exec_stmt(stmt.replace("./tpch-data-tiny", "/tmp/tpch-data-tiny"))
 
-   # dump the plans. Pipeline queries toggle session globals (e.g. share_forking),
-   # so run them last to keep those settings from leaking into the other examples.
-   sqlFiles = sorted(queriesDir.glob("**/*.sql"), key=lambda p: ("pipelines" in p.name, str(p)))
-   for f in sqlFiles:
+   # dump the plans
+   for f in sorted(queriesDir.glob("**/*.sql")):
        print(f"{name}: {f}")
        sql = read_file(f)
        fname = f.name
@@ -52,20 +51,22 @@ def dump_plans(name, exec_stmt, get_plan):
        else:
            mode = None
 
-       # Pipeline query files are self-contained scripts (SET/CREATE ... final query).
-       # Only Hyper supports the PIPELINES option, and it needs a build with
-       # hyper-db#13438; run the setup statements, then EXPLAIN just the final query.
+       # Pipeline query files are self-contained scripts: setup (SET/CREATE), the
+       # query to EXPLAIN, then teardown that resets the session globals and drops
+       # the temp tables. Only Hyper supports the PIPELINES option. Run every
+       # statement in order, but EXPLAIN only the query itself.
        if mode in ("pipelines", "analyze-pipelines"):
            if name != "hyper":
                continue
-           statements = [s.strip() for s in sql.split(";") if s.strip()]
-           for stmt in statements[:-1]:
-               exec_stmt(stmt)
-           query = statements[-1]
+           plan = None
+           for stmt in (s.strip() for s in sql.split(";") if s.strip()):
+               if plan is None and re.match(r"^\s*(SELECT|WITH)\b", stmt, re.IGNORECASE):
+                   plan = get_plan(stmt, mode)
+               else:
+                   exec_stmt(stmt)
        else:
-           query = sql
+           plan = get_plan(sql, mode)
 
-       plan = get_plan(query, mode)
        if not plan:
            continue
        targetPath = targetDir / name / f.relative_to(queriesDir).with_suffix(".plan.json")
