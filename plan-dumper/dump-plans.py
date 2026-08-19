@@ -36,22 +36,42 @@ def dump_plans(name, exec_stmt, get_plan):
        copy_and_overwrite("./tpch-data-tiny", "/tmp/tpch-data-tiny")
        exec_stmt(stmt.replace("./tpch-data-tiny", "/tmp/tpch-data-tiny"))
 
-   # dump the plans
-   for f in queriesDir.glob("**/*.sql"):
+   # dump the plans. Pipeline queries toggle session globals (e.g. share_forking),
+   # so run them last to keep those settings from leaking into the other examples.
+   sqlFiles = sorted(queriesDir.glob("**/*.sql"), key=lambda p: ("pipelines" in p.name, str(p)))
+   for f in sqlFiles:
        print(f"{name}: {f}")
        sql = read_file(f)
-       if str(f).endswith("-steps.sql"):
-           plan = get_plan(sql, "steps")
-       elif str(f).endswith("-analyze.sql"):
-           plan = get_plan(sql, "analyze")
+       fname = f.name
+       if fname.endswith("-steps.sql"):
+           mode = "steps"
+       elif "pipelines" in fname:
+           mode = "analyze-pipelines" if "analyze" in fname else "pipelines"
+       elif fname.endswith("-analyze.sql"):
+           mode = "analyze"
        else:
-           plan = get_plan(sql, None)
+           mode = None
+
+       # Pipeline query files are self-contained scripts (SET/CREATE ... final query).
+       # Only Hyper supports the PIPELINES option, and it needs a build with
+       # hyper-db#13438; run the setup statements, then EXPLAIN just the final query.
+       if mode in ("pipelines", "analyze-pipelines"):
+           if name != "hyper":
+               continue
+           statements = [s.strip() for s in sql.split(";") if s.strip()]
+           for stmt in statements[:-1]:
+               exec_stmt(stmt)
+           query = statements[-1]
+       else:
+           query = sql
+
+       plan = get_plan(query, mode)
        if not plan:
            continue
        targetPath = targetDir / name / f.relative_to(queriesDir).with_suffix(".plan.json")
        targetPath.parent.mkdir(parents=True, exist_ok=True)
-       with open(targetPath, "w") as f:
-           f.write(plan)
+       with open(targetPath, "w") as out:
+           out.write(plan)
 
 
 # Postgres
@@ -98,6 +118,10 @@ with HyperProcess(telemetry=Telemetry.SEND_USAGE_DATA_TO_TABLEAU, parameters=hyp
                 explain = "EXPLAIN (FORMAT JSON, OPTIMIZE STEPS) "
             elif mode == "analyze":
                 explain = "EXPLAIN (FORMAT JSON, ANALYZE) "
+            elif mode == "pipelines":
+                explain = "EXPLAIN (FORMAT JSON, PIPELINES, EXPAND_VIEWS true, EXPRESSIONS SQL) "
+            elif mode == "analyze-pipelines":
+                explain = "EXPLAIN (FORMAT JSON, PIPELINES, ANALYZE, EXPAND_VIEWS true, EXPRESSIONS SQL) "
             elif mode is None:
                 explain = "EXPLAIN (FORMAT JSON) "
             else:
