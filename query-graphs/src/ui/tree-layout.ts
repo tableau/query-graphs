@@ -80,7 +80,7 @@ export function layoutTree(
             id: `${sourceId}->${targetId}`,
             source: sourceId,
             target: targetId,
-            type: "pipeline",
+            type: "colored",
             label: e.target.data.edgeLabel,
             className: e.target.data.edgeClass,
             style: style,

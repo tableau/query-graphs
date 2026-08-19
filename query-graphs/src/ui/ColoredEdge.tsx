@@ -1,28 +1,18 @@
 import {BaseEdge, EdgeProps, getBezierPath} from "reactflow";
 
 // Data attached to a colored edge.
-export interface PipelineEdgeData {
+export interface ColoredEdgeData {
     // The colors of this edge. More than one is drawn as a contiguous
     // color-band gradient (source -> target); a single color is a solid stroke.
     colors?: string[];
 }
 
-// A tree edge that can carry multiple colors.
-//
-// An edge can belong to several pipelines at once (e.g. the edge above a
-// UNION ALL target, executed once per input). When several colors are given the
+// A tree edge that can carry multiple colors. When several colors are given the
 // stroke is painted with a gradient of contiguous color bands (one per color,
 // running source->target); a single color is drawn as a solid stroke.
-export function PipelineEdge(props: EdgeProps<PipelineEdgeData>) {
-    const {id, sourceX, sourceY, sourcePosition, targetX, targetY, targetPosition, markerEnd, label, labelStyle, style} = props;
-    const [edgePath, labelX, labelY] = getBezierPath({
-        sourceX,
-        sourceY,
-        sourcePosition,
-        targetX,
-        targetY,
-        targetPosition,
-    });
+export function ColoredEdge(props: EdgeProps<ColoredEdgeData>) {
+    const {id, sourceX, sourceY, targetX, targetY, markerEnd, label, labelStyle, style} = props;
+    const [edgePath, labelX, labelY] = getBezierPath(props);
 
     const colors = props.data?.colors ?? [];
     const multi = colors.length > 1;
@@ -35,7 +25,14 @@ export function PipelineEdge(props: EdgeProps<PipelineEdgeData>) {
             <>
                 <defs>
                     {/* Contiguous color bands along the edge (source -> target). */}
-                    <linearGradient id={gradientId} gradientUnits="userSpaceOnUse" x1={sourceX} y1={sourceY} x2={targetX} y2={targetY}>
+                    <linearGradient
+                        id={gradientId}
+                        gradientUnits="userSpaceOnUse"
+                        x1={sourceX}
+                        y1={sourceY}
+                        x2={targetX}
+                        y2={targetY}
+                    >
                         {colors.flatMap((c, i) => [
                             <stop key={`${i}a`} offset={`${(i / colors.length) * 100}%`} stopColor={c} />,
                             <stop key={`${i}b`} offset={`${((i + 1) / colors.length) * 100}%`} stopColor={c} />,

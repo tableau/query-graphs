@@ -5,7 +5,7 @@ import {layoutTree} from "./tree-layout";
 import {TreeDescription, TreeNode, allChildren, visitTreeNodes} from "../tree-description";
 import {useMemo, useEffect, useRef, ReactNode} from "react";
 import {QueryNode} from "./QueryNode";
-import {PipelineEdge} from "./PipelineEdge";
+import {ColoredEdge} from "./ColoredEdge";
 import {useGraphRenderingStore} from "./store";
 import "./QueryGraph.css";
 
@@ -25,7 +25,7 @@ const nodeTypes = {
 };
 
 const edgeTypes = {
-    pipeline: PipelineEdge,
+    colored: ColoredEdge,
 };
 
 function QueryGraphInternal({treeDescription, children}: QueryGraphProps) {

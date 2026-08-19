@@ -117,6 +117,15 @@ const nodeRenderingConfig: Record<string, NodeRenderingConfig> = {
     "op:explicitscan": {icon: "temp-table-symbol", crosslinkSourceKey: "input"},
     "op:temp": {icon: "temp-table-symbol"},
     "op:iterationincrement": {crosslinkSourceKey: "source"},
+    // `EXPLAIN (FORMAT JSON)` operator names (camelCase); the entries above use
+    // the internal lowercase names. Alias the ones that differ so their icons
+    // render.
+    "op:output": {icon: "run-query-symbol"},
+    "op:scan": {icon: "table-symbol"},
+    "op:groupBy": {icon: "groupby-symbol"},
+    "op:filter": {icon: "filter-symbol"},
+    "op:explicitScan": {icon: "temp-table-symbol"},
+    "op:tableConstruction": {icon: "const-table-symbol"},
     // Expressions
     "exp:comparison": {displayNameKey: "mode"},
     "exp:iuref": {displayNameKey: "iu"},
@@ -365,33 +374,6 @@ function setEdgeWidths(state: ConversionState) {
     }
 }
 
-function convertHyperPlan(node: Json, pipelines?: Json): TreeDescription {
-    const conversionState = {
-        operatorsById: new Map<string, TreeNode>(),
-        crosslinks: [],
-        edgeWidths: [],
-        runtimes: [],
-        metadata: new Map<string, string>(),
-    } as ConversionState;
-    // Check if the query failed
-    const errorMsg = tryGetPropertyPath(node, ["analyze", "error", "message", "original"]);
-    if (errorMsg) {
-        conversionState.metadata.set("Error", forceToString(errorMsg));
-    }
-
-    const root = convertHyperNode(node, "result", conversionState);
-    if (Array.isArray(root)) {
-        throw new Error("Invalid Hyper query plan");
-    }
-    colorRelativeExecutionTime(conversionState);
-    setEdgeWidths(conversionState);
-    const crosslinks = resolveCrosslinks(conversionState);
-    if (pipelines !== undefined) {
-        assignPipelineColors(root, conversionState.operatorsById, parsePipelines(pipelines));
-    }
-    return {root, crosslinks, metadata: conversionState.metadata};
-}
-
 // A raw pipeline entry, as parsed from the `pipelines` array of the plan.
 interface RawPipeline {
     id: number;
@@ -509,6 +491,33 @@ function assignPipelineColors(root: TreeNode, operatorsById: Map<string, TreeNod
         for (const child of allChildren(node)) walk(child, node);
     };
     walk(root, undefined);
+}
+
+function convertHyperPlan(node: Json, pipelines?: Json): TreeDescription {
+    const conversionState = {
+        operatorsById: new Map<string, TreeNode>(),
+        crosslinks: [],
+        edgeWidths: [],
+        runtimes: [],
+        metadata: new Map<string, string>(),
+    } as ConversionState;
+    // Check if the query failed
+    const errorMsg = tryGetPropertyPath(node, ["analyze", "error", "message", "original"]);
+    if (errorMsg) {
+        conversionState.metadata.set("Error", forceToString(errorMsg));
+    }
+
+    const root = convertHyperNode(node, "result", conversionState);
+    if (Array.isArray(root)) {
+        throw new Error("Invalid Hyper query plan");
+    }
+    colorRelativeExecutionTime(conversionState);
+    setEdgeWidths(conversionState);
+    const crosslinks = resolveCrosslinks(conversionState);
+    if (pipelines !== undefined) {
+        assignPipelineColors(root, conversionState.operatorsById, parsePipelines(pipelines));
+    }
+    return {root, crosslinks, metadata: conversionState.metadata};
 }
 
 function convertOptimizerSteps(node: Json): TreeDescription | undefined {
