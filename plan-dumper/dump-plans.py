@@ -71,8 +71,8 @@ def dump_plans(name, exec_stmt, get_plan):
            continue
        targetPath = targetDir / name / f.relative_to(queriesDir).with_suffix(".plan.json")
        targetPath.parent.mkdir(parents=True, exist_ok=True)
-       with open(targetPath, "w") as out:
-           out.write(plan)
+       with open(targetPath, "w") as f:
+           f.write(plan)
 
 
 # Postgres
