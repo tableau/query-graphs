@@ -74,9 +74,7 @@ The `--hyper-path` argument should point to the directory containing the `hyperd
 When omitted, the script uses the `hyperd` bundled with the pip-installed `tableauhyperapi` package.
 
 The pipeline examples (`queries/*-pipelines.sql`) use the `EXPLAIN (… PIPELINES …)` option
-and are only dumped for Hyper (skipped for Postgres). They need a `--hyper-path` build of
-Hyper that supports the `PIPELINES` explain option; the pip-bundled Hyper does not yet
-support it.
+and are only dumped for Hyper (skipped for Postgres).
 
 If you also have a Postgres instance running on port 5433, install `psycopg2` to dump Postgres plans as well. Otherwise, the Postgres section is skipped automatically.
 
