@@ -388,26 +388,17 @@ function parsePipelines(pipelinesJson: Json): RawPipeline[] {
     return pipelines;
 }
 
-// Project the merged execution pipelines onto the operator tree and color the
-// per-node bars, incoming edges and icons -- in a single pre-order DFS.
-//
-// A pipeline is colored the first time it is encountered in the traversal (its
-// top-most operator), taking the next palette color. Because a pipeline that
-// touches a node is colored no later than that node -- either earlier at an
-// ancestor, or right here on first appearance -- every color a node needs is
-// already assigned by the time we fill its bars. Colors follow the traversal
-// order, not the pipeline ids, so renumbering the pipelines between executions
-// does not change any color.
-//
-// Data flows leaves->root, so a node's children feed it from below (its
-// "incoming" pipelines, drawn as the bar below) and the node feeds its parent
-// from above (its "outgoing" pipelines, drawn as the bar above and on the
+// Project the merged execution pipelines onto the operator tree, coloring the
+// per-node bars, incoming edges and icons in a single pre-order DFS. Each
+// pipeline is colored on first appearance (its top-most operator), so colors
+// follow traversal position rather than pipeline ids and renumbering the
+// pipelines between executions changes nothing. A node's children feed it from
+// below (its "incoming" pipelines, drawn as the bar below) and it feeds its
+// parent from above (its "outgoing" pipelines, drawn as the bar above and on the
 // incoming edge). A bar is only drawn where a pipeline actually crosses a tree
-// edge: the root "output" has no parent, so it gets no bar above, and a leaf
-// has no child, so it gets no bar below. A pipeline that only starts or ends at
-// a node (a pipeline breaker) shows on just the one side, and a tree edge with
-// no shared pipeline stays neutral. The icon takes the node's right-most
-// pipeline color.
+// edge, so the root has no bar above and a leaf none below, and an edge whose
+// endpoints share no pipeline stays neutral. The icon takes the node's
+// right-most pipeline color.
 function assignPipelineColors(root: TreeNode, operatorsById: Map<string, TreeNode>, pipelines: RawPipeline[], crosslinks: Crosslink[]): void {
     // Resolve each pipeline to its tree nodes. `color` is filled lazily the first
     // time the pipeline is seen during the walk (empty string = not yet seen).
