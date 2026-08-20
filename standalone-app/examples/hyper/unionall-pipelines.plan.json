@@ -1,74 +1,61 @@
 {
   "tree": {
-    "operator": "output",
+    "operator": "executiontarget",
     "operator-id": 1,
-    "statistics": {
-      "estimated-rows": 9
-    },
+    "estimated-rows": 6000,
+    "produces-rows": true,
+    "output": [{"expression": "iuref", "iu": ["union", ["Integer"]]}],
+    "output-names": ["a1"],
     "inputs": [{
-      "operator": "unionAll",
+      "operator": "unionall",
       "operator-id": 2,
-      "statistics": {
-        "estimated-rows": 9
-      },
+      "sqlpos": [[291, 300], [263, 272]],
+      "estimated-rows": 6000,
       "inputs": [{
-        "operator": "explicitScan",
+        "operator": "tablescan",
         "operator-id": 3,
-        "statistics": {
-          "estimated-rows": 3
-        },
-        "inputs": [{
-          "operator": "sort",
-          "operator-id": 4,
-          "statistics": {
-            "estimated-rows": 3
-          },
-          "inputs": [{
-            "operator": "tableFunction",
-            "operator-id": 5,
-            "statistics": {
-              "estimated-rows": 6
-            },
-            "inputs": [{
-              "operator": "tableConstruction",
-              "operator-id": 6,
-              "statistics": {
-                "estimated-rows": 1
-              },
-              "inputs": [],
-              "defines": [],
-              "values": [[]]
-            }],
-            "function": "sequence",
-            "args": [{"expression": "sql", "sql": "CAST('1' AS INTEGER)", "arguments": [], "type": {"type": "integer", "nullable": false}}, {"expression": "sql", "sql": "CAST('6' AS INTEGER)", "arguments": [], "type": {"type": "integer", "nullable": false}}, {"expression": "sql", "sql": "CAST('1' AS INTEGER)", "arguments": [], "type": {"type": "integer", "nullable": false}}],
-            "defines": [{"id": "sequence", "type": {"type": "integer", "nullable": false}}],
-            "ordinality": {"defines": {"id": "ordinality", "type": {"type": "bigint", "nullable": false}}}
-          }],
-          "order": [{"order": "ascending", "nulls": "last", "value": {"expression": "reference", "id": "sequence"}}],
-          "limit": 3
-        }],
-        "mapping": [{"defines": {"id": "sequence2", "type": {"type": "integer", "nullable": false}}, "source": {"expression": "reference", "id": "sequence"}}]
+        "sqlpos": [[260, 262]],
+        "estimated-rows": 2000,
+        "volatility": "stable",
+        "relation-id": 0,
+        "schema": {"type":"sessionschema"},
+        "attribute-count": 3,
+        "attributes": [{"col-id": 0, "name": "a1", "type": ["Integer"], "iu": ["scan_a1", ["Integer"]]}],
+        "debug-name": {"classification": "nonsensitive", "value": "t1"},
+        "selectivity": 1
       }, {
-        "operator": "explicitScan",
-        "operator-id": 7,
-        "statistics": {
-          "estimated-rows": 3
-        },
-        "input-operator-id": 4,
-        "mapping": [{"defines": {"id": "sequence3", "type": {"type": "integer", "nullable": false}}, "source": {"expression": "reference", "id": "sequence"}}]
+        "operator": "tablescan",
+        "operator-id": 4,
+        "sqlpos": [[288, 290]],
+        "estimated-rows": 2000,
+        "volatility": "stable",
+        "relation-id": 1,
+        "schema": {"type":"sessionschema"},
+        "attribute-count": 3,
+        "attributes": [{"col-id": 0, "name": "a2", "type": ["Integer"], "iu": ["scan_a2", ["Integer"]]}],
+        "debug-name": {"classification": "nonsensitive", "value": "t2"},
+        "selectivity": 1
       }, {
-        "operator": "explicitScan",
-        "operator-id": 8,
-        "statistics": {
-          "estimated-rows": 3
-        },
-        "input-operator-id": 4,
-        "mapping": [{"defines": {"id": "sequence4", "type": {"type": "integer", "nullable": false}}, "source": {"expression": "reference", "id": "sequence"}}]
+        "operator": "tablescan",
+        "operator-id": 5,
+        "sqlpos": [[316, 318]],
+        "estimated-rows": 2000,
+        "volatility": "stable",
+        "relation-id": 0,
+        "schema": {"type":"sessionschema"},
+        "attribute-count": 3,
+        "attributes": [{"col-id": 2, "name": "c1", "type": ["Integer"], "iu": ["scan_c1", ["Integer"]]}],
+        "debug-name": {"classification": "nonsensitive", "value": "t1"},
+        "selectivity": 1
       }],
-      "defines": [{"id": "union", "type": {"type": "integer", "nullable": false}}],
-      "values": [[{"expression": "reference", "id": "sequence2"}], [{"expression": "reference", "id": "sequence3"}], [{"expression": "reference", "id": "sequence4"}]]
-    }],
-    "output": [{"name": "a", "expression": {"expression": "reference", "id": "union"}}]
+      "ius": [["union", ["Integer"]]],
+      "values": [[{"expression": "iuref", "iu": "scan_a1"}], [{"expression": "iuref", "iu": "scan_a2"}], [{"expression": "iuref", "iu": "scan_c1"}]],
+      "collates": [null]
+    }]
   },
-  "pipelines": [{"id": 1, "operators": [1, 2, 3], "dependencies": [4]}, {"id": 4, "operators": [4, 5, 6], "dependencies": []}, {"id": 5, "operators": [1, 2, 7], "dependencies": [4]}, {"id": 6, "operators": [1, 2, 8], "dependencies": [4]}]
+  "pipelines": [
+    {"id": 1, "operators": [1, 2, 3], "dependencies": []},
+    {"id": 2, "operators": [1, 2, 4], "dependencies": []},
+    {"id": 3, "operators": [1, 2, 5], "dependencies": []}
+  ]
 }

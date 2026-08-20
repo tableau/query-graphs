@@ -1,9 +1,4 @@
--- Share-forked CTE feeding MIN and MAX of a FULL OUTER JOIN: the shared scan is
--- forked and recurs across the pipelines that compute the two aggregates.
-SET global.share_forking=true;
-SET global.view_inlining_selectivity_threshold=1;
-CREATE TEMPORARY TABLE pipeline_graph_t (i int);
-WITH v1 AS (SELECT i FROM pipeline_graph_t) SELECT * FROM (SELECT MIN(i) AS min FROM v1) FULL OUTER JOIN (SELECT MAX(i) AS max FROM v1) ON min = max;
-DROP TABLE pipeline_graph_t;
-SET global.share_forking=true;
-SET global.view_inlining_selectivity_threshold=0.5;
+-- Forked share: the selective filter keeps the scan from being inlined, so it
+-- becomes a shared scan. Its two consumers (the MIN and MAX pipelines) are
+-- independent, so the share is forked and its scan recurs across both pipelines.
+WITH v AS (SELECT a1 FROM t1 WHERE b1 < 5) SELECT * FROM (SELECT MIN(a1) AS mn FROM v) FULL OUTER JOIN (SELECT MAX(a1) AS mx FROM v) ON mn = mx;

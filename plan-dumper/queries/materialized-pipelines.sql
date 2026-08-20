@@ -1,11 +1,5 @@
--- The same shared CTE as pipelines-forkshare, but with share forking disabled, so
--- the share is materialized: the shared scan feeds a temp that both aggregates
--- read, and the pipeline breaks at the materialization instead of the scan
--- recurring across pipelines.
-SET global.share_forking=false;
-SET global.view_inlining_selectivity_threshold=1;
-CREATE TEMPORARY TABLE pipeline_graph_t (i int);
-WITH v1 AS (SELECT i FROM pipeline_graph_t) SELECT * FROM (SELECT MIN(i) AS min FROM v1) FULL OUTER JOIN (SELECT MAX(i) AS max FROM v1) ON min = max;
-DROP TABLE pipeline_graph_t;
-SET global.share_forking=true;
-SET global.view_inlining_selectivity_threshold=0.5;
+-- Materialized share: the same shared scan feeds both sides of a self-join. The
+-- build and probe pipelines depend on each other, so the share cannot be forked;
+-- it is materialized into a temp that both explicit scans read, and the pipeline
+-- breaks at the share.
+WITH v AS (SELECT a1 FROM t1 WHERE b1 < 5) SELECT * FROM v a JOIN v b ON a.a1 = b.a1;

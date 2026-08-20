@@ -1,11 +1,4 @@
--- Correlated EXISTS lowered to a magic set: operators are shared between the
--- magic groupBy and the semi-join, so pipelines have multiple dependencies.
-SET global.share_forking=true;
-SET global.view_inlining_selectivity_threshold=1;
-CREATE TEMPORARY TABLE pipeline_magic_l (a int);
-CREATE TEMPORARY TABLE pipeline_magic_r (c int, d int);
-SELECT * FROM pipeline_magic_l WHERE EXISTS (SELECT 1 FROM pipeline_magic_r WHERE pipeline_magic_l.a > pipeline_magic_r.d GROUP BY pipeline_magic_r.c HAVING COUNT(*) > 0);
-DROP TABLE pipeline_magic_l;
-DROP TABLE pipeline_magic_r;
-SET global.share_forking=true;
-SET global.view_inlining_selectivity_threshold=0.5;
+-- Magic set: a correlated EXISTS is lowered to a magic set, so operators are
+-- shared between the magic groupBy and the semi-join and the pipelines have
+-- multiple dependencies.
+SELECT * FROM t1 WHERE EXISTS (SELECT 1 FROM t2 WHERE t1.a1 > t2.a2 GROUP BY t2.b2 HAVING COUNT(*) > 0);

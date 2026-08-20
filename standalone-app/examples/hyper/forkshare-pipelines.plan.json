@@ -1,73 +1,79 @@
 {
   "tree": {
-    "operator": "output",
+    "operator": "executiontarget",
     "operator-id": 1,
-    "statistics": {
-      "estimated-rows": 1
-    },
+    "estimated-rows": 1,
+    "produces-rows": true,
+    "output": [{"expression": "iuref", "iu": ["min", ["Integer", "nullable"]]}, {"expression": "iuref", "iu": ["max", ["Integer", "nullable"]]}],
+    "output-names": ["mn", "mx"],
     "inputs": [{
-      "operator": "join",
+      "operator": "fullouterjoin",
       "operator-id": 2,
-      "type": "fullOuter",
-      "statistics": {
-        "estimated-rows": 1
-      },
-      "inputs": [{
-        "operator": "groupBy",
-        "operator-id": 3,
-        "statistics": {
-          "estimated-rows": 1
-        },
-        "inputs": [{
-          "operator": "explicitScan",
-          "operator-id": 4,
-          "statistics": {
-            "estimated-rows": 2000
-          },
-          "inputs": [{
-            "operator": "share",
-            "operator-id": 5,
-            "statistics": {
-              "estimated-rows": 2000
-            },
-            "inputs": [{
-              "operator": "scan",
-              "operator-id": 6,
-              "statistics": {
-                "estimated-rows": 2000
-              },
-              "type": "native",
-              "attributes": [{"defines": {"id": "scan_i", "type": {"type": "integer", "nullable": false}}, "name": "i"}]
-            }]
-          }],
-          "mapping": [{"defines": {"id": "scan_i2", "type": {"type": "integer", "nullable": false}}, "source": {"expression": "reference", "id": "scan_i"}}]
-        }],
-        "aggregates": [{"defines": {"id": "min", "type": {"type": "integer", "nullable": true}}, "source": {"expression": "reference", "id": "scan_i2"}, "operation": {"aggregate": "min"}}],
-        "grouping-sets": [{"key-expressions": []}]
-      }, {
-        "operator": "groupBy",
-        "operator-id": 7,
-        "statistics": {
-          "estimated-rows": 1
-        },
-        "inputs": [{
-          "operator": "explicitScan",
-          "operator-id": 8,
-          "statistics": {
-            "estimated-rows": 2000
-          },
-          "input-operator-id": 5,
-          "mapping": [{"defines": {"id": "scan_i3", "type": {"type": "integer", "nullable": false}}, "source": {"expression": "reference", "id": "scan_i"}}]
-        }],
-        "aggregates": [{"defines": {"id": "max", "type": {"type": "integer", "nullable": true}}, "source": {"expression": "reference", "id": "scan_i3"}, "operation": {"aggregate": "max"}}],
-        "grouping-sets": [{"key-expressions": []}]
-      }],
+      "estimated-rows": 1,
       "method": "hash",
       "single-match": true,
-      "condition": {"expression": "sql", "sql": "\"min\" = \"max\"", "arguments": [{"expression": "reference", "id": "max"}, {"expression": "reference", "id": "min"}], "type": {"type": "bool", "nullable": true}},
-      "predicates": [{"left": {"expression": "reference", "id": "min"}, "right": {"expression": "reference", "id": "max"}, "comparison": "="}]
-    }],
-    "output": [{"name": "min", "expression": {"expression": "reference", "id": "min"}}, {"name": "max", "expression": {"expression": "reference", "id": "max"}}]
+      "inputs": [{
+        "operator": "groupby",
+        "operator-id": 3,
+        "sqlpos": [[375, 382]],
+        "estimated-rows": 1,
+        "inputs": [{
+          "operator": "explicitscan",
+          "operator-id": 4,
+          "sqlpos": [[394, 395]],
+          "estimated-rows": 1000,
+          "mapping": [{"source": {"expression": "iuref", "iu": ["scan_a1", ["Integer"]]}, "target": ["scan_a12", ["Integer"]]}],
+          "input": {
+            "operator": "share",
+            "operator-id": 5,
+            "sqlpos": [[315, 316]],
+            "estimated-rows": 1000,
+            "inputs": [{
+              "operator": "tablescan",
+              "operator-id": 6,
+              "sqlpos": [[336, 338]],
+              "estimated-rows": 1000,
+              "volatility": "stable",
+              "relation-id": 0,
+              "schema": {"type":"sessionschema"},
+              "attribute-count": 3,
+              "attributes": [{"col-id": 0, "name": "a1", "type": ["Integer"], "iu": ["scan_a1", ["Integer"]]},{"col-id": 1, "name": "b1", "type": ["Integer"], "iu": ["scan_b1", ["Integer"]]}],
+              "debug-name": {"classification": "nonsensitive", "value": "t1"},
+              "restrictions": [{"expression": "sql", "sql": "\"scan_b1\" < CAST('5' AS INTEGER)", "arguments": [{"expression": "iuref", "iu": "scan_b1"}], "type": ["Bool"]}],
+              "selectivity": 0.5
+            }],
+            "strategy": "fork"
+          }
+        }],
+        "grouping-sets": [{"key-indices": [], "core-indices": null, "behavior": "static"}],
+        "empty-groups": true,
+        "agg-expressions": [{"value": {"expression": "iuref", "iu": "scan_a12"}}],
+        "aggregates": [{"source": 0, "operation": {"aggregate": "min"}, "iu": ["min", ["Integer", "nullable"]]}]
+      }, {
+        "operator": "groupby",
+        "operator-id": 7,
+        "sqlpos": [[421, 428]],
+        "estimated-rows": 1,
+        "inputs": [{
+          "operator": "explicitscan",
+          "operator-id": 8,
+          "sqlpos": [[440, 441]],
+          "estimated-rows": 1000,
+          "mapping": [{"source": {"expression": "iuref", "iu": "scan_a1"}, "target": ["scan_a13", ["Integer"]]}],
+          "input": 5
+        }],
+        "grouping-sets": [{"key-indices": [], "core-indices": null, "behavior": "static"}],
+        "empty-groups": true,
+        "agg-expressions": [{"value": {"expression": "iuref", "iu": "scan_a13"}}],
+        "aggregates": [{"source": 0, "operation": {"aggregate": "max"}, "iu": ["max", ["Integer", "nullable"]]}]
+      }],
+      "condition": {"expression": "sql", "sql": "\"min\" = \"max\"", "arguments": [{"expression": "iuref", "iu": "max"}, {"expression": "iuref", "iu": "min"}], "type": ["Bool", "nullable"]},
+      "predicates": [{"left": {"expression": "iuref", "iu": "min"}, "right": {"expression": "iuref", "iu": "max"}, "comparison": "="}]
+    }]
   },
-  "pipelines": [{"id": 0, "operators": [1, 2, 7], "dependencies": [1, 4]}, {"id": 1, "operators": [2, 3], "dependencies": [4]}, {"id": 4, "operators": [3, 4, 5, 6, 7, 8], "dependencies": []}]
+  "pipelines": [
+    {"id": 0, "operators": [1, 2, 7], "dependencies": [1, 4]},
+    {"id": 1, "operators": [2, 3], "dependencies": [4]},
+    {"id": 4, "operators": [3, 4, 5, 6, 7, 8], "dependencies": []}
+  ]
 }

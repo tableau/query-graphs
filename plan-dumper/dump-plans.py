@@ -6,7 +6,6 @@ except ImportError:
 import argparse
 import shutil
 import os
-import re
 import json
 from pathlib import Path
 
@@ -53,25 +52,11 @@ def dump_plans(name, exec_stmt, get_plan):
        else:
            mode = None
 
-       # Pipeline query files are self-contained scripts: setup (SET/CREATE), the
-       # query to EXPLAIN, then teardown that resets the session globals and drops
-       # the temp tables. Only Hyper supports the PIPELINES option. Run the setup
-       # now and the teardown after, so only the query itself is EXPLAINed.
-       teardown = []
-       if mode in ("pipelines", "analyze-pipelines"):
-           if name != "hyper":
-               continue
-           statements = [s.strip() for s in sql.split(";") if s.strip()]
-           queryIdx = next((i for i, s in enumerate(statements) if re.match(r"^\s*(SELECT|WITH)\b", s, re.IGNORECASE)), len(statements) - 1)
-           for stmt in statements[:queryIdx]:
-               exec_stmt(stmt)
-           sql = statements[queryIdx]
-           teardown = statements[queryIdx + 1:]
+       # Only Hyper supports the PIPELINES option.
+       if mode in ("pipelines", "analyze-pipelines") and name != "hyper":
+           continue
 
        plan = get_plan(sql, mode)
-       for stmt in teardown:
-           exec_stmt(stmt)
-
        if not plan:
            continue
        targetPath = targetDir / name / f.relative_to(queriesDir).with_suffix(".plan.json")
@@ -121,15 +106,15 @@ with HyperProcess(telemetry=Telemetry.SEND_USAGE_DATA_TO_TABLEAU, parameters=hyp
 
         def get_hyper_plan(sql, mode):
             if mode == "steps":
-                explain = "EXPLAIN (FORMAT JSON, OPTIMIZE STEPS) "
+                explain = "EXPLAIN (FORMAT INTERNAL, OPTIMIZE STEPS) "
             elif mode == "analyze":
-                explain = "EXPLAIN (FORMAT JSON, ANALYZE) "
+                explain = "EXPLAIN (FORMAT INTERNAL, ANALYZE) "
             elif mode == "pipelines":
-                explain = "EXPLAIN (FORMAT JSON, PIPELINES, EXPAND_VIEWS true, EXPRESSIONS SQL) "
+                explain = "EXPLAIN (FORMAT INTERNAL, PIPELINES, EXPAND_VIEWS true, EXPRESSIONS SQL) "
             elif mode == "analyze-pipelines":
-                explain = "EXPLAIN (FORMAT JSON, PIPELINES, ANALYZE, EXPAND_VIEWS true, EXPRESSIONS SQL) "
+                explain = "EXPLAIN (FORMAT INTERNAL, PIPELINES, ANALYZE, EXPAND_VIEWS true, EXPRESSIONS SQL) "
             elif mode is None:
-                explain = "EXPLAIN (FORMAT JSON) "
+                explain = "EXPLAIN (FORMAT INTERNAL) "
             else:
                 return None
             planRes = connection.execute_list_query(explain + sql)

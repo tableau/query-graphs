@@ -73,9 +73,6 @@ python3 dump-plans.py --hyper-path ~/workspace/hyper-db/bazel-bin/hyper/tools/hy
 The `--hyper-path` argument should point to the directory containing the `hyperd` binary.
 When omitted, the script uses the `hyperd` bundled with the pip-installed `tableauhyperapi` package.
 
-The pipeline examples (`queries/*-pipelines.sql`) use the `EXPLAIN (… PIPELINES …)` option
-and are only dumped for Hyper (skipped for Postgres).
-
 If you also have a Postgres instance running on port 5433, install `psycopg2` to dump Postgres plans as well. Otherwise, the Postgres section is skipped automatically.
 
 ### 2. Visually verify plans in the local server
