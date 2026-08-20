@@ -408,7 +408,7 @@ function parsePipelines(pipelinesJson: Json): RawPipeline[] {
 // a node (a pipeline breaker) shows on just the one side, and a tree edge with
 // no shared pipeline stays neutral. The icon takes the node's right-most
 // pipeline color.
-function assignPipelineColors(root: TreeNode, operatorsById: Map<string, TreeNode>, pipelines: RawPipeline[]): void {
+function assignPipelineColors(root: TreeNode, operatorsById: Map<string, TreeNode>, pipelines: RawPipeline[], crosslinks: Crosslink[]): void {
     // Resolve each pipeline to its tree nodes. `color` is filled lazily the first
     // time the pipeline is seen during the walk (empty string = not yet seen).
     interface ResolvedPipeline {
@@ -434,6 +434,17 @@ function assignPipelineColors(root: TreeNode, operatorsById: Map<string, TreeNod
         }
     }
 
+    // A crosslink feeds data into its source like a child would (e.g. an explicit
+    // scan reading a shared operator, or a magic join reading its magic side), but
+    // it is not a tree child. Treat the crosslink target as an extra child so a
+    // reader still gets the below-bar for the pipeline it reads through the link.
+    const crosslinkChildren = new Map<TreeNode, TreeNode[]>();
+    for (const link of crosslinks) {
+        const list = crosslinkChildren.get(link.source) ?? [];
+        list.push(link.target);
+        crosslinkChildren.set(link.source, list);
+    }
+
     let nextColor = 0;
     const walk = (node: TreeNode, parent: TreeNode | undefined) => {
         const nodePs = nodePipelines.get(node);
@@ -447,7 +458,7 @@ function assignPipelineColors(root: TreeNode, operatorsById: Map<string, TreeNod
             // pipelines with no child) keep their appearance order via the stable
             // sort.
             const childOrder = new Map<number, number>();
-            const children = allChildren(node);
+            const children = [...allChildren(node), ...(crosslinkChildren.get(node) ?? [])];
             children.forEach((child, idx) => {
                 const childPs = nodePipelines.get(child);
                 if (!childPs) return;
@@ -507,7 +518,7 @@ function convertHyperPlan(node: Json, pipelines?: Json): TreeDescription {
     setEdgeWidths(conversionState);
     const crosslinks = resolveCrosslinks(conversionState);
     if (pipelines !== undefined) {
-        assignPipelineColors(root, conversionState.operatorsById, parsePipelines(pipelines));
+        assignPipelineColors(root, conversionState.operatorsById, parsePipelines(pipelines), crosslinks);
     }
     return {root, crosslinks, metadata: conversionState.metadata};
 }
