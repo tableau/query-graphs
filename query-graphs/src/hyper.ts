@@ -388,18 +388,17 @@ function parsePipelines(pipelinesJson: Json): RawPipeline[] {
     return pipelines;
 }
 
-// Project the merged execution pipelines onto the operator tree, coloring the
-// per-node bars, incoming edges and icons in a single pre-order DFS. Each
-// pipeline is colored on first appearance (its top-most operator), so colors
-// follow traversal position rather than pipeline ids and renumbering the
-// pipelines between executions changes nothing. A node's children feed it from
-// below (its "incoming" pipelines, drawn as the bar below) and it feeds its
-// parent from above (its "outgoing" pipelines, drawn as the bar above and on the
-// incoming edge). A bar is only drawn where a pipeline actually crosses a tree
-// edge, so the root has no bar above and a leaf none below, and an edge whose
-// endpoints share no pipeline stays neutral. The icon takes the node's
-// right-most pipeline color.
-function assignPipelineColors(root: TreeNode, operatorsById: Map<string, TreeNode>, pipelines: RawPipeline[], crosslinks: Crosslink[]): void {
+// Color the per-node bars, incoming edges and icons for the merged execution
+// pipelines in one pre-order DFS, coloring each pipeline on first appearance so
+// colors track tree position, not pipeline ids. A node's bar below shows the
+// pipelines shared with its children, its bar above and edge those shared with its
+// parent; unshared edges stay neutral and the icon takes the right-most color.
+function assignPipelineColors(
+    root: TreeNode,
+    operatorsById: Map<string, TreeNode>,
+    pipelines: RawPipeline[],
+    crosslinks: Crosslink[],
+): void {
     // Resolve each pipeline to its tree nodes. `color` is filled lazily the first
     // time the pipeline is seen during the walk (empty string = not yet seen).
     interface ResolvedPipeline {
