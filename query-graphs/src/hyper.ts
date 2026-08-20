@@ -388,11 +388,7 @@ function parsePipelines(pipelinesJson: Json): RawPipeline[] {
     return pipelines;
 }
 
-// Color the per-node bars, incoming edges and icons for the merged execution
-// pipelines in one pre-order DFS, coloring each pipeline on first appearance so
-// colors track tree position, not pipeline ids. A node's bar below shows the
-// pipelines shared with its children, its bar above and edge those shared with its
-// parent; unshared edges stay neutral and the icon takes the right-most color.
+// Color the per-node bars, edges and icons for the merged execution pipelines in one pre-order DFS, coloring each pipeline on first appearance so colors track tree position, not pipeline ids.
 function assignPipelineColors(
     root: TreeNode,
     operatorsById: Map<string, TreeNode>,
