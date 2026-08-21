@@ -68,6 +68,8 @@
 }
 .qg-color-bar-below {
     margin-top: 4px;
+    /* Keep the bar above the subtree +/- handle at the bottom of the node. */
+    margin-bottom: 1em;
 }
 .qg-color-bar-seg {
     flex: 1 1 0;
@@ -106,6 +108,9 @@
     overflow: auto;
     max-width: 30em;
     max-height: 20em;
+}
+.qg-graph-node.qg-expanded .qg-graph-node-body {
+    padding-bottom: 0.6em;
 }
 
 .qg-prop-name {
