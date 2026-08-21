@@ -1,44 +1,45 @@
 {
-  "operator": "executiontarget",
+  "operator": "execution-target",
   "operator-id": 1,
-  "cardinality": 4,
+  "estimated-rows": 4,
   "produces-rows": true,
-  "output": [{"expression": "iuref", "iu": ["GroupByKey", ["Char1"]]}, {"expression": "iuref", "iu": ["GroupByKey2", ["Char1"]]}, {"expression": "iuref", "iu": ["sum", ["BigNumeric", 38, 2]]}, {"expression": "iuref", "iu": ["sum2", ["BigNumeric", 38, 2]]}, {"expression": "iuref", "iu": ["sum3", ["BigNumeric", 38, 4]]}, {"expression": "iuref", "iu": ["sum4", ["BigNumeric", 38, 6]]}, {"expression": "iuref", "iu": ["avg", ["Numeric", 16, 6]]}, {"expression": "iuref", "iu": ["avg2", ["Numeric", 16, 6]]}, {"expression": "iuref", "iu": ["avg3", ["Numeric", 16, 6]]}, {"expression": "iuref", "iu": ["count", ["BigInt"]]}],
+  "output": [{"expression": "iu-ref", "iu": ["GroupByKey", ["Char1"]]}, {"expression": "iu-ref", "iu": ["GroupByKey2", ["Char1"]]}, {"expression": "iu-ref", "iu": ["sum", ["BigNumeric", 38, 2]]}, {"expression": "iu-ref", "iu": ["sum2", ["BigNumeric", 38, 2]]}, {"expression": "iu-ref", "iu": ["sum3", ["BigNumeric", 38, 4]]}, {"expression": "iu-ref", "iu": ["sum4", ["BigNumeric", 38, 6]]}, {"expression": "iu-ref", "iu": ["avg", ["Numeric", 16, 6]]}, {"expression": "iu-ref", "iu": ["avg2", ["Numeric", 16, 6]]}, {"expression": "iu-ref", "iu": ["avg3", ["Numeric", 16, 6]]}, {"expression": "iu-ref", "iu": ["count", ["BigInt"]]}],
   "output-names": ["l_returnflag", "l_linestatus", "sum_qty", "sum_base_price", "sum_disc_price", "sum_charge", "avg_qty", "avg_price", "avg_disc", "count_order"],
   "inputs": [{
     "operator": "sort",
     "operator-id": 2,
-    "sqlpos": [[718, 730]],
-    "cardinality": 4,
-    "criterion": [{"value": {"expression": "iuref", "iu": "GroupByKey"}, "descending": false, "null-first": false}, {"value": {"expression": "iuref", "iu": "GroupByKey2"}, "descending": false, "null-first": false}],
+    "sqlpos": [[722, 734]],
+    "estimated-rows": 4,
+    "criterion": [{"value": {"expression": "iu-ref", "iu": "GroupByKey"}, "descending": false, "null-first": false}, {"value": {"expression": "iu-ref", "iu": "GroupByKey2"}, "descending": false, "null-first": false}],
     "inputs": [{
-      "operator": "groupby",
+      "operator": "group-by",
       "operator-id": 3,
-      "sqlpos": [[649, 700], [193, 208], [229, 249], [277, 316], [344, 397], [421, 436], [457, 477], [500, 515], [537, 545]],
-      "cardinality": 4,
+      "sqlpos": [[653, 704], [197, 212], [233, 253], [281, 320], [348, 401], [425, 440], [461, 481], [504, 519], [541, 549]],
+      "estimated-rows": 4,
       "inputs": [{
-        "operator": "tablescan",
+        "operator": "table-scan",
         "operator-id": 4,
-        "sqlpos": [[574, 582]],
-        "cardinality": 568,
+        "sqlpos": [[578, 586]],
+        "estimated-rows": 568,
         "volatility": "stable",
         "relation-id": 7,
         "schema": {"type":"sessionschema"},
+        "scan-type": "native",
         "attribute-count": 16,
         "attributes": [{"col-id": 4, "name": "l_quantity", "type": ["Numeric", 12, 2], "iu": ["scan_quantity", ["Numeric", 12, 2]]},{"col-id": 5, "name": "l_extendedprice", "type": ["Numeric", 12, 2], "iu": ["scan_extended", ["Numeric", 12, 2]]},{"col-id": 6, "name": "l_discount", "type": ["Numeric", 12, 2], "iu": ["scan_discount", ["Numeric", 12, 2]]},{"col-id": 7, "name": "l_tax", "type": ["Numeric", 12, 2], "iu": ["scan_l_tax", ["Numeric", 12, 2]]},{"col-id": 8, "name": "l_returnflag", "type": ["Char1"], "iu": ["scan_returnfl", ["Char1"]]},{"col-id": 9, "name": "l_linestatus", "type": ["Char1"], "iu": ["scan_linestat", ["Char1"]]},{"col-id": 10, "name": "l_shipdate", "type": ["Date"], "iu": ["scan_shipdate", ["Date"]]}],
         "debug-name": {"classification": "nonsensitive", "value": "lineitem"},
         "restrictions": [{"attribute": 10, "mode": "<=", "value": {"expression": "const", "value": {"type": ["Date"], "value": 2451059}}}],
         "selectivity": 0.993007,
-        "analyze": {"pipeline": 2, "column-count": 6, "cpu-cycles": 1794, "processed-rows": 572, "running": false, "tuple-count": 568}
+        "statistics": {"pipeline": 2, "column-count": 6, "cpu-cycles": 1577, "output-rows": 568, "processed-rows": 572, "running": false}
       }],
-      "key-expressions": [{"expression": {"value": {"expression": "iuref", "iu": "scan_returnfl"}}, "iu": ["GroupByKey", ["Char1"]]}, {"expression": {"value": {"expression": "iuref", "iu": "scan_linestat"}}, "iu": ["GroupByKey2", ["Char1"]]}],
+      "key-expressions": [{"expression": {"value": {"expression": "iu-ref", "iu": "scan_returnfl"}}, "iu": ["GroupByKey", ["Char1"]]}, {"expression": {"value": {"expression": "iu-ref", "iu": "scan_linestat"}}, "iu": ["GroupByKey2", ["Char1"]]}],
       "grouping-sets": [{"key-indices": [0, 1], "core-indices": [0, 1], "behavior": "regular"}],
       "empty-groups": false,
-      "agg-expressions": [{"value": {"expression": "iuref", "iu": "scan_quantity"}}, {"value": {"expression": "iuref", "iu": "scan_extended"}}, {"value": {"expression": "mul", "left": {"expression": "sub", "left": {"expression": "const", "value": {"type": ["Numeric", 1], "value": 1}}, "right": {"expression": "iuref", "iu": "scan_discount"}}, "right": {"expression": "iuref", "iu": "scan_extended"}}}, {"value": {"expression": "mul", "left": {"expression": "mul", "left": {"expression": "sub", "left": {"expression": "const", "value": {"type": ["Numeric", 1], "value": 1}}, "right": {"expression": "iuref", "iu": "scan_discount"}}, "right": {"expression": "iuref", "iu": "scan_extended"}}, "right": {"expression": "add", "left": {"expression": "iuref", "iu": "scan_l_tax"}, "right": {"expression": "const", "value": {"type": ["Numeric", 1], "value": 1}}}}}, {"value": {"expression": "iuref", "iu": "scan_discount"}}],
+      "agg-expressions": [{"value": {"expression": "iu-ref", "iu": "scan_quantity"}}, {"value": {"expression": "iu-ref", "iu": "scan_extended"}}, {"value": {"expression": "mul", "left": {"expression": "sub", "left": {"expression": "const", "value": {"type": ["Numeric", 1], "value": 1}}, "right": {"expression": "iu-ref", "iu": "scan_discount"}}, "right": {"expression": "iu-ref", "iu": "scan_extended"}}}, {"value": {"expression": "mul", "left": {"expression": "mul", "left": {"expression": "sub", "left": {"expression": "const", "value": {"type": ["Numeric", 1], "value": 1}}, "right": {"expression": "iu-ref", "iu": "scan_discount"}}, "right": {"expression": "iu-ref", "iu": "scan_extended"}}, "right": {"expression": "add", "left": {"expression": "iu-ref", "iu": "scan_l_tax"}, "right": {"expression": "const", "value": {"type": ["Numeric", 1], "value": 1}}}}}, {"value": {"expression": "iu-ref", "iu": "scan_discount"}}],
       "aggregates": [{"source": null, "operation": {"aggregate": "count"}, "iu": ["count", ["BigInt"]]}, {"source": 4, "operation": {"aggregate": "avg"}, "iu": ["avg3", ["Numeric", 16, 6]]}, {"source": 0, "operation": {"aggregate": "avg"}, "iu": ["avg", ["Numeric", 16, 6]]}, {"source": 3, "operation": {"aggregate": "sum"}, "iu": ["sum4", ["BigNumeric", 38, 6]]}, {"source": 1, "operation": {"aggregate": "avg"}, "iu": ["avg2", ["Numeric", 16, 6]]}, {"source": 1, "operation": {"aggregate": "sum"}, "iu": ["sum2", ["BigNumeric", 38, 2]]}, {"source": 2, "operation": {"aggregate": "sum"}, "iu": ["sum3", ["BigNumeric", 38, 4]]}, {"source": 0, "operation": {"aggregate": "sum"}, "iu": ["sum", ["BigNumeric", 38, 2]]}],
-      "analyze": {"pipeline": 1, "column-count": 10, "cpu-cycles": 267, "memory-bytes": 18552, "running": false, "tuple-count": 4}
+      "statistics": {"pipeline": 1, "column-count": 10, "cpu-cycles": 194, "memory-bytes": 18552, "output-rows": 4, "running": false}
     }],
-    "analyze": {"pipeline": 0, "column-count": 10, "cpu-cycles": 103, "memory-bytes": 262176, "running": false, "tuple-count": 4}
+    "statistics": {"pipeline": 0, "column-count": 10, "cpu-cycles": 85, "memory-bytes": 262176, "output-rows": 4, "running": false}
   }],
-  "analyze": {"error": null, "pipeline": 0, "column-count": 0}
+  "statistics": {"error": null, "pipeline": 0, "column-count": 0}
 }
