@@ -52,6 +52,30 @@
     text-align: center;
 }
 
+/* A bar drawn above and/or below the node.
+ * Several colors are split into equal segments. */
+.qg-color-bar {
+    display: flex;
+    gap: 1px;
+    height: 4px;
+    width: 70%;
+    min-width: 1.2em;
+    margin-left: auto;
+    margin-right: auto;
+}
+.qg-color-bar-above {
+    margin-bottom: 4px;
+}
+.qg-color-bar-below {
+    margin-top: 4px;
+    /* Keep the bar above the subtree +/- handle at the bottom of the node. */
+    margin-bottom: 1em;
+}
+.qg-color-bar-seg {
+    flex: 1 1 0;
+    border-radius: 2px;
+}
+
 .qg-graph-node-label {
     /*
      * Clip the label at some length; long labels can become quite unreadable
@@ -84,6 +108,9 @@
     overflow: auto;
     max-width: 30em;
     max-height: 20em;
+}
+.qg-graph-node.qg-expanded .qg-graph-node-body {
+    padding-bottom: 0.6em;
 }
 
 .qg-prop-name {

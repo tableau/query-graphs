@@ -5,6 +5,7 @@ import {layoutTree} from "./tree-layout";
 import {TreeDescription, TreeNode, allChildren, visitTreeNodes} from "../tree-description";
 import {useMemo, useEffect, useRef, ReactNode} from "react";
 import {QueryNode} from "./QueryNode";
+import {ColoredEdge} from "./ColoredEdge";
 import {useGraphRenderingStore} from "./store";
 import "./QueryGraph.css";
 
@@ -21,6 +22,10 @@ function minimapNodeColor(n: Node<TreeNode>): string {
 
 const nodeTypes = {
     querynode: QueryNode,
+};
+
+const edgeTypes = {
+    colored: ColoredEdge,
 };
 
 function QueryGraphInternal({treeDescription, children}: QueryGraphProps) {
@@ -84,6 +89,7 @@ function QueryGraphInternal({treeDescription, children}: QueryGraphProps) {
             edges={layout.edges}
             nodeOrigin={[0.5, 0]}
             nodeTypes={nodeTypes}
+            edgeTypes={edgeTypes}
             fitView
             minZoom={0.2}
             maxZoom={1.5}

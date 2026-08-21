@@ -24,12 +24,24 @@ export interface TreeNode {
     // Rendered in the tooltip
     properties?: Map<string, string>;
 
+    // Colors of a bar drawn just above the node
+    // (conceptually the "outgoing" side, toward the parent).
+    // Empty/undefined means no bar. Segments are drawn in array order.
+    barsAbove?: string[];
+    // Colors of a bar drawn just below the node
+    // (conceptually the "incoming" side, toward the children).
+    // Empty/undefined means no bar. Segments are drawn in array order.
+    barsBelow?: string[];
+
     // Additional CSS classes applied to the incoming link
     edgeClass?: string;
     // Label placed on the incoming edge
     edgeLabel?: string;
     // Width of the incoming edge
     edgeWidth?: number;
+    // Colors of the incoming edge. Several colors are drawn as a gradient,
+    // a single color as a solid stroke.
+    edgeColors?: string[];
 
     // All child nodes visible by default
     children?: TreeNode[];

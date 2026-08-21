@@ -80,9 +80,11 @@ export function layoutTree(
             id: `${sourceId}->${targetId}`,
             source: sourceId,
             target: targetId,
+            type: "colored",
             label: e.target.data.edgeLabel,
             className: e.target.data.edgeClass,
             style: style,
+            data: {colors: e.target.data.edgeColors},
             focusable: false,
         } as Edge;
     });

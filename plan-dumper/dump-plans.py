@@ -37,15 +37,26 @@ def dump_plans(name, exec_stmt, get_plan):
        exec_stmt(stmt.replace("./tpch-data-tiny", "/tmp/tpch-data-tiny"))
 
    # dump the plans
-   for f in queriesDir.glob("**/*.sql"):
+   for f in sorted(queriesDir.glob("**/*.sql")):
        print(f"{name}: {f}")
        sql = read_file(f)
-       if str(f).endswith("-steps.sql"):
-           plan = get_plan(sql, "steps")
-       elif str(f).endswith("-analyze.sql"):
-           plan = get_plan(sql, "analyze")
+       fname = f.name
+       if fname.endswith("-steps.sql"):
+           mode = "steps"
+       elif fname.endswith("-analyze-pipelines.sql"):
+           mode = "analyze-pipelines"
+       elif fname.endswith("-pipelines.sql"):
+           mode = "pipelines"
+       elif fname.endswith("-analyze.sql"):
+           mode = "analyze"
        else:
-           plan = get_plan(sql, None)
+           mode = None
+
+       # Only Hyper supports the PIPELINES option.
+       if mode in ("pipelines", "analyze-pipelines") and name != "hyper":
+           continue
+
+       plan = get_plan(sql, mode)
        if not plan:
            continue
        targetPath = targetDir / name / f.relative_to(queriesDir).with_suffix(".plan.json")
@@ -95,11 +106,15 @@ with HyperProcess(telemetry=Telemetry.SEND_USAGE_DATA_TO_TABLEAU, parameters=hyp
 
         def get_hyper_plan(sql, mode):
             if mode == "steps":
-                explain = "EXPLAIN (FORMAT JSON, OPTIMIZE STEPS) "
+                explain = "EXPLAIN (FORMAT INTERNAL, OPTIMIZE STEPS) "
             elif mode == "analyze":
-                explain = "EXPLAIN (FORMAT JSON, ANALYZE) "
+                explain = "EXPLAIN (FORMAT INTERNAL, ANALYZE) "
+            elif mode == "pipelines":
+                explain = "EXPLAIN (FORMAT INTERNAL, PIPELINES, EXPAND_VIEWS true, EXPRESSIONS SQL) "
+            elif mode == "analyze-pipelines":
+                explain = "EXPLAIN (FORMAT INTERNAL, PIPELINES, ANALYZE, EXPAND_VIEWS true, EXPRESSIONS SQL) "
             elif mode is None:
-                explain = "EXPLAIN (FORMAT JSON) "
+                explain = "EXPLAIN (FORMAT INTERNAL) "
             else:
                 return None
             planRes = connection.execute_list_query(explain + sql)

@@ -22,8 +22,42 @@ The main steps are:
 
 */
 
-import {TreeNode, TreeDescription, Crosslink, IconName} from "./tree-description";
+import {TreeNode, TreeDescription, Crosslink, IconName, allChildren} from "./tree-description";
 import {Json, JsonObject, forceToString, tryToString, formatMetric, hasOwnProperty, tryGetPropertyPath} from "./loader-utils";
+
+// A categorical color palette for execution pipelines (the Tableau 20 colors).
+// The ten saturated base hues come first, then their lighter companions, so
+// that adjacent pipelines never get near-identical shades (e.g. light-blue does
+// not follow blue). Colors are assigned to pipelines left-to-right and rotate
+// (index % length) once exhausted.
+const PIPELINE_PALETTE = [
+    // Base hues.
+    "#4e79a7", // blue
+    "#f28e2b", // orange
+    "#59a14f", // green
+    "#b6992d", // gold
+    "#499894", // teal
+    "#e15759", // red
+    "#79706e", // gray
+    "#d37295", // pink
+    "#b07aa1", // purple
+    "#9d7660", // brown
+    // Lighter companions (only reached by wide plans).
+    "#a0cbe8", // light blue
+    "#ffbe7d", // light orange
+    "#8cd17d", // light green
+    "#f1ce63", // light gold
+    "#86bcb6", // light teal
+    "#ff9d9a", // light red
+    "#bab0ac", // light gray
+    "#fabfd2", // light pink
+    "#d4a6c8", // light purple
+    "#d7b5a6", // light brown
+];
+
+function pipelineColor(index: number): string {
+    return PIPELINE_PALETTE[index % PIPELINE_PALETTE.length];
+}
 
 interface UnresolvedCrosslink {
     source: TreeNode;
@@ -245,11 +279,7 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
         // Display the cardinality on the links between the nodes
         if (hasOwnProperty(rawNode, "cardinality") && typeof rawNode.cardinality === "number") {
             const estimatedCard = rawNode.cardinality;
-            let actualCard = tryGetPropertyPath(rawNode, ["analyze", "tuple-count"]);
-            if (actualCard === undefined) {
-                // Backwards-compat: until recently, this was `tuple-count`, not `tuple-count`
-                actualCard = tryGetPropertyPath(rawNode, ["analyze", "tuple-count"]);
-            }
+            const actualCard = tryGetPropertyPath(rawNode, ["analyze", "tuple-count"]);
             if (typeof actualCard === "number") {
                 conversionState.edgeWidths.push({node: convertedNode, width: actualCard});
                 convertedNode.edgeLabel = formatMetric(actualCard) + "/" + formatMetric(estimatedCard);
@@ -335,7 +365,124 @@ function setEdgeWidths(state: ConversionState) {
     }
 }
 
-function convertHyperPlan(node: Json): TreeDescription {
+// A raw pipeline entry, as parsed from the `pipelines` array of the plan.
+interface RawPipeline {
+    id: number;
+    operatorIds: number[];
+}
+
+// Parse and validate the `pipelines` array of the plan.
+function parsePipelines(pipelinesJson: Json): RawPipeline[] {
+    if (!Array.isArray(pipelinesJson)) {
+        return [];
+    }
+    const pipelines: RawPipeline[] = [];
+    for (const entry of pipelinesJson) {
+        if (typeof entry !== "object" || Array.isArray(entry) || entry === null) continue;
+        const id = entry["id"];
+        const operators = entry["operators"];
+        if (typeof id !== "number" || !Array.isArray(operators)) continue;
+        const operatorIds = operators.filter((o): o is number => typeof o === "number");
+        pipelines.push({id, operatorIds});
+    }
+    return pipelines;
+}
+
+// Color the per-node bars, edges and icons for the merged execution pipelines in one pre-order DFS, coloring each pipeline on first appearance so colors track tree position, not pipeline ids.
+function assignPipelineColors(
+    root: TreeNode,
+    operatorsById: Map<string, TreeNode>,
+    pipelines: RawPipeline[],
+    crosslinks: Crosslink[],
+): void {
+    // Resolve each pipeline to its tree nodes. `color` is filled lazily the first
+    // time the pipeline is seen during the walk (empty string = not yet seen).
+    interface ResolvedPipeline {
+        id: number;
+        nodes: TreeNode[];
+        color: string;
+    }
+    const resolved: ResolvedPipeline[] = pipelines.map((p) => ({
+        id: p.id,
+        nodes: p.operatorIds.map((opId) => operatorsById.get(opId.toString())!),
+        color: "",
+    }));
+
+    // Record, per tree node, every pipeline it belongs to (kept local: the
+    // "pipeline" concept never leaks into the presentation model, which only
+    // ever sees colors).
+    const nodePipelines = new Map<TreeNode, ResolvedPipeline[]>();
+    for (const p of resolved) {
+        for (const node of p.nodes) {
+            const list = nodePipelines.get(node) ?? [];
+            list.push(p);
+            nodePipelines.set(node, list);
+        }
+    }
+
+    // A crosslink feeds data into its source like a child would (e.g. an explicit
+    // scan reading a shared operator, or a magic join reading its magic side), but
+    // it is not a tree child. Treat the crosslink target as an extra child so a
+    // reader still gets the below-bar for the pipeline it reads through the link.
+    const crosslinkChildren = new Map<TreeNode, TreeNode[]>();
+    for (const link of crosslinks) {
+        const list = crosslinkChildren.get(link.source) ?? [];
+        list.push(link.target);
+        crosslinkChildren.set(link.source, list);
+    }
+
+    let nextColor = 0;
+    const walk = (node: TreeNode, parent: TreeNode | undefined) => {
+        const nodePs = nodePipelines.get(node);
+        if (nodePs) {
+            // Color the pipelines appearing here for the first time.
+            for (const p of nodePs) if (p.color === "") p.color = pipelineColor(nextColor++);
+
+            // Order segments left-to-right by the position of the first child
+            // that carries each pipeline, so the bars line up with the branches
+            // below. Ties (several pipelines entering through the same child, or
+            // pipelines with no child) keep their appearance order via the stable
+            // sort.
+            const childOrder = new Map<number, number>();
+            const children = [...allChildren(node), ...(crosslinkChildren.get(node) ?? [])];
+            children.forEach((child, idx) => {
+                const childPs = nodePipelines.get(child);
+                if (!childPs) return;
+                for (const p of childPs) if (!childOrder.has(p.id)) childOrder.set(p.id, idx);
+            });
+            const ordered = (ps: ResolvedPipeline[]): ResolvedPipeline[] =>
+                [...ps].sort((a, b) => (childOrder.get(a.id) ?? Infinity) - (childOrder.get(b.id) ?? Infinity));
+
+            // Outgoing (above): pipelines shared with the parent. The root has no
+            // parent, so it gets no bar above.
+            let outgoing: ResolvedPipeline[] = [];
+            if (parent) {
+                const parentPs = nodePipelines.get(parent);
+                const parentPipelineIds = parentPs ? new Set(parentPs.map((p) => p.id)) : new Set<number>();
+                outgoing = nodePs.filter((p) => parentPipelineIds.has(p.id));
+            }
+            node.barsAbove = ordered(outgoing).map((p) => p.color);
+            if (outgoing.length) node.edgeColors = node.barsAbove;
+
+            // Incoming (below): pipelines shared with an operator child. A leaf has
+            // no operator child, so it gets no bar below.
+            const incoming = nodePs.filter((p) => childOrder.has(p.id));
+            node.barsBelow = ordered(incoming).map((p) => p.color);
+
+            // Tint the operator icon (and thereby the minimap) with the node's
+            // right-most pipeline color, unless already colored (e.g. the red
+            // error highlight, which takes precedence).
+            if (!node.iconColor) {
+                const all = ordered(nodePs);
+                node.iconColor = all[all.length - 1].color;
+            }
+        }
+        for (const child of allChildren(node)) walk(child, node);
+    };
+    walk(root, undefined);
+}
+
+function convertHyperPlan(node: Json, pipelines?: Json): TreeDescription {
     const conversionState = {
         operatorsById: new Map<string, TreeNode>(),
         crosslinks: [],
@@ -356,6 +503,9 @@ function convertHyperPlan(node: Json): TreeDescription {
     colorRelativeExecutionTime(conversionState);
     setEdgeWidths(conversionState);
     const crosslinks = resolveCrosslinks(conversionState);
+    if (pipelines !== undefined) {
+        assignPipelineColors(root, conversionState.operatorsById, parsePipelines(pipelines), crosslinks);
+    }
     return {root, crosslinks, metadata: conversionState.metadata};
 }
 
@@ -393,8 +543,23 @@ function convertOptimizerSteps(node: Json): TreeDescription | undefined {
     return {root, crosslinks, metadata: properties};
 }
 
+// Detect the `{tree, pipelines}` envelope emitted by `EXPLAIN (..., PIPELINES, ...)`.
+function hasPipelineEnvelope(json: Json): json is JsonObject {
+    return (
+        typeof json === "object" &&
+        !Array.isArray(json) &&
+        json !== null &&
+        hasOwnProperty(json, "tree") &&
+        hasOwnProperty(json, "pipelines") &&
+        typeof json["tree"] === "object"
+    );
+}
+
 // Loads a Hyper query plan
 export function loadHyperPlan(json: Json): TreeDescription {
+    if (hasPipelineEnvelope(json)) {
+        return convertHyperPlan(json["tree"], json["pipelines"]);
+    }
     return convertOptimizerSteps(json) ?? convertHyperPlan(json);
 }
 

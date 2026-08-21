@@ -69,6 +69,16 @@ function QueryNode({data, id}: NodeProps<NodeData>) {
         },
     ]);
 
+    // A (possibly multi-color) bar drawn above and below the node.
+    const colorBar = (colors: string[] | undefined, position: "above" | "below") =>
+        colors?.length ? (
+            <div className={cc(["qg-color-bar", `qg-color-bar-${position}`])}>
+                {colors.map((c, i) => (
+                    <span key={i} className="qg-color-bar-seg" style={{backgroundColor: c}} />
+                ))}
+            </div>
+        ) : null;
+
     const handleClassName = cc({
         "qg-subtree-handle": hasSubtree,
         "qg-expanded": hasSubtree && subtreeExpanded,
@@ -80,6 +90,7 @@ function QueryNode({data, id}: NodeProps<NodeData>) {
             <Handle type="target" position={Position.Top} />
             <div className={nodeClassName} onClick={onClick}>
                 <div className="qg-graph-node-head" ref={headRef}>
+                    {colorBar(data.barsAbove, "above")}
                     <NodeIcon icon={data.icon} iconColor={data.iconColor} />
                     <div className="qg-graph-node-label" style={{background: data.nodeColor}}>
                         {data.name}
@@ -90,6 +101,7 @@ function QueryNode({data, id}: NodeProps<NodeData>) {
                         {children}
                     </div>
                 </div>
+                {colorBar(data.barsBelow, "below")}
             </div>
             <Handle type="source" position={Position.Bottom} className={handleClassName} onClick={onSubtreeHandleClick}>
                 {hasSubtree ? (subtreeExpanded ? "-" : "+") : ""}

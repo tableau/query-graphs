@@ -1,0 +1,61 @@
+{
+  "tree": {
+    "operator": "executiontarget",
+    "operator-id": 1,
+    "estimated-rows": 6000,
+    "produces-rows": true,
+    "output": [{"expression": "iuref", "iu": ["union", ["Integer"]]}],
+    "output-names": ["a1"],
+    "inputs": [{
+      "operator": "unionall",
+      "operator-id": 2,
+      "sqlpos": [[291, 300], [263, 272]],
+      "estimated-rows": 6000,
+      "inputs": [{
+        "operator": "tablescan",
+        "operator-id": 3,
+        "sqlpos": [[260, 262]],
+        "estimated-rows": 2000,
+        "volatility": "stable",
+        "relation-id": 0,
+        "schema": {"type":"sessionschema"},
+        "attribute-count": 3,
+        "attributes": [{"col-id": 0, "name": "a1", "type": ["Integer"], "iu": ["scan_a1", ["Integer"]]}],
+        "debug-name": {"classification": "nonsensitive", "value": "t1"},
+        "selectivity": 1
+      }, {
+        "operator": "tablescan",
+        "operator-id": 4,
+        "sqlpos": [[288, 290]],
+        "estimated-rows": 2000,
+        "volatility": "stable",
+        "relation-id": 1,
+        "schema": {"type":"sessionschema"},
+        "attribute-count": 3,
+        "attributes": [{"col-id": 0, "name": "a2", "type": ["Integer"], "iu": ["scan_a2", ["Integer"]]}],
+        "debug-name": {"classification": "nonsensitive", "value": "t2"},
+        "selectivity": 1
+      }, {
+        "operator": "tablescan",
+        "operator-id": 5,
+        "sqlpos": [[316, 318]],
+        "estimated-rows": 2000,
+        "volatility": "stable",
+        "relation-id": 0,
+        "schema": {"type":"sessionschema"},
+        "attribute-count": 3,
+        "attributes": [{"col-id": 2, "name": "c1", "type": ["Integer"], "iu": ["scan_c1", ["Integer"]]}],
+        "debug-name": {"classification": "nonsensitive", "value": "t1"},
+        "selectivity": 1
+      }],
+      "ius": [["union", ["Integer"]]],
+      "values": [[{"expression": "iuref", "iu": "scan_a1"}], [{"expression": "iuref", "iu": "scan_a2"}], [{"expression": "iuref", "iu": "scan_c1"}]],
+      "collates": [null]
+    }]
+  },
+  "pipelines": [
+    {"id": 1, "operators": [1, 2, 3], "dependencies": []},
+    {"id": 2, "operators": [1, 2, 4], "dependencies": []},
+    {"id": 3, "operators": [1, 2, 5], "dependencies": []}
+  ]
+}
