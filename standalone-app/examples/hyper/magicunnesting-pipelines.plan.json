@@ -1,30 +1,31 @@
 {
   "tree": {
-    "operator": "executiontarget",
+    "operator": "execution-target",
     "operator-id": 1,
     "estimated-rows": 2732.06,
     "produces-rows": true,
-    "output": [{"expression": "iuref", "iu": ["scan_a1", ["Integer"]]}, {"expression": "iuref", "iu": ["sum", ["BigInt", "nullable"]]}],
+    "output": [{"expression": "iu-ref", "iu": ["scan_a1", ["Integer"]]}, {"expression": "iu-ref", "iu": ["sum", ["BigInt", "nullable"]]}],
     "output-names": ["a1", "2"],
     "inputs": [{
-      "operator": "leftouterjoin",
+      "operator": "left-outer-join",
       "operator-id": 2,
       "estimated-rows": 2732.06,
       "method": "hash",
       "inputs": [{
-        "operator": "tablescan",
+        "operator": "table-scan",
         "operator-id": 3,
         "sqlpos": [[317, 319]],
         "estimated-rows": 2000,
         "volatility": "stable",
         "relation-id": 0,
         "schema": {"type":"sessionschema"},
+        "scan-type": "native",
         "attribute-count": 3,
         "attributes": [{"col-id": 0, "name": "a1", "type": ["Integer"], "iu": ["scan_a1", ["Integer"]]}],
         "debug-name": {"classification": "nonsensitive", "value": "t1"},
         "selectivity": 1
       }, {
-        "operator": "groupby",
+        "operator": "group-by",
         "operator-id": 4,
         "sqlpos": [[281, 288]],
         "estimated-rows": 100,
@@ -34,65 +35,52 @@
           "estimated-rows": 100000,
           "method": "bnl",
           "inputs": [{
-            "operator": "explicitscan",
+            "operator": "explicit-scan",
             "operator-id": 6,
             "estimated-rows": 100,
-            "mapping": [{"source": {"expression": "iuref", "iu": ["GroupByKey", ["Integer"]]}, "target": ["GroupByKey2", ["Integer"]]}],
+            "mapping": [{"source": {"expression": "iu-ref", "iu": ["GroupByKey", ["Integer"]]}, "target": ["GroupByKey2", ["Integer"]]}],
             "input": {
-              "operator": "groupby",
+              "operator": "group-by",
               "operator-id": 7,
               "estimated-rows": 100,
               "inputs": [],
-              "key-expressions": [{"expression": {"value": {"expression": "iuref", "iu": "scan_a1"}}, "iu": ["GroupByKey", ["Integer"]]}],
+              "key-expressions": [{"expression": {"value": {"expression": "iu-ref", "iu": "scan_a1"}}, "iu": ["GroupByKey", ["Integer"]]}],
               "grouping-sets": [{"key-indices": [0], "core-indices": null, "behavior": "regular"}],
               "empty-groups": false,
               "aggregates": []
             }
           }, {
-            "operator": "tablescan",
+            "operator": "table-scan",
             "operator-id": 8,
             "sqlpos": [[294, 296]],
             "estimated-rows": 2000,
             "volatility": "stable",
             "relation-id": 1,
             "schema": {"type":"sessionschema"},
+            "scan-type": "native",
             "attribute-count": 3,
             "attributes": [{"col-id": 0, "name": "a2", "type": ["Integer"], "iu": ["scan_a2", ["Integer"]]}],
             "debug-name": {"classification": "nonsensitive", "value": "t2"},
             "selectivity": 1
           }],
-          "condition": {"expression": "sql", "sql": "\"scan_a2\" < \"GroupByKey2\"", "arguments": [{"expression": "iuref", "iu": "GroupByKey2"}, {"expression": "iuref", "iu": "scan_a2"}], "type": ["Bool"]}
+          "condition": {"expression": "sql", "sql": "\"scan_a2\" < \"GroupByKey2\"", "arguments": [{"expression": "iu-ref", "iu": "GroupByKey2"}, {"expression": "iu-ref", "iu": "scan_a2"}], "type": ["Bool"]},
+          "predicates": [{"left": {"expression": "iu-ref", "iu": "GroupByKey2"}, "right": {"expression": "iu-ref", "iu": "scan_a2"}, "comparison": ">"}]
         }],
-        "key-expressions": [{"expression": {"value": {"expression": "iuref", "iu": "GroupByKey2"}}, "iu": ["GroupByKey3", ["Integer"]]}],
+        "key-expressions": [{"expression": {"value": {"expression": "iu-ref", "iu": "GroupByKey2"}}, "iu": ["GroupByKey3", ["Integer"]]}],
         "grouping-sets": [{"key-indices": [0], "core-indices": [0], "behavior": "regular"}],
         "empty-groups": true,
-        "agg-expressions": [{"value": {"expression": "iuref", "iu": "scan_a2"}}],
+        "agg-expressions": [{"value": {"expression": "iu-ref", "iu": "scan_a2"}}],
         "aggregates": [{"source": 0, "operation": {"aggregate": "sum"}, "iu": ["sum", ["BigInt", "nullable"]]}]
       }],
-      "condition": {"expression": "sql", "sql": "\"scan_a1\" IS NOT DISTINCT FROM \"GroupByKey3\"", "arguments": [{"expression": "iuref", "iu": "GroupByKey3"}, {"expression": "iuref", "iu": "scan_a1"}], "type": ["Bool"]},
-      "magic": 7
+      "condition": {"expression": "sql", "sql": "\"scan_a1\" IS NOT DISTINCT FROM \"GroupByKey3\"", "arguments": [{"expression": "iu-ref", "iu": "GroupByKey3"}, {"expression": "iu-ref", "iu": "scan_a1"}], "type": ["Bool"]},
+      "magic": 7,
+      "predicates": [{"left": {"expression": "iu-ref", "iu": "scan_a1"}, "right": {"expression": "iu-ref", "iu": "GroupByKey3"}, "comparison": "is"}]
     }]
   },
   "pipelines": [
-    {
-      "id": 0,
-      "operators": [1, 2, 4],
-      "dependencies": [1, 2]
-    },
-    {
-      "id": 1,
-      "operators": [2, 3, 7],
-      "dependencies": []
-    },
-    {
-      "id": 2,
-      "operators": [4, 5, 8],
-      "dependencies": [3]
-    },
-    {
-      "id": 3,
-      "operators": [5, 6],
-      "dependencies": [1]
-    }
+    {"id": 0, "operators": [1, 2, 4], "dependencies": [1, 2]},
+    {"id": 1, "operators": [2, 3, 7], "dependencies": []},
+    {"id": 2, "operators": [4, 5, 8], "dependencies": [3]},
+    {"id": 3, "operators": [5, 6], "dependencies": [1]}
   ]
 }

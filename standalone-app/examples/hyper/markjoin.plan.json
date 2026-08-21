@@ -1,41 +1,44 @@
 {
-  "operator": "executiontarget",
+  "operator": "execution-target",
   "operator-id": 1,
-  "cardinality": 2000,
+  "estimated-rows": 2000,
   "produces-rows": true,
-  "output": [{"expression": "iuref", "iu": ["scan_a1", ["Integer"]]}, {"expression": "iuref", "iu": ["scan_b1", ["Integer"]]}, {"expression": "iuref", "iu": ["scan_c1", ["Integer"]]}, {"expression": "iuref", "iu": ["joinMarker", ["Bool"]]}],
+  "output": [{"expression": "iu-ref", "iu": ["scan_a1", ["Integer"]]}, {"expression": "iu-ref", "iu": ["scan_b1", ["Integer"]]}, {"expression": "iu-ref", "iu": ["scan_c1", ["Integer"]]}, {"expression": "iu-ref", "iu": ["joinMarker", ["Bool"]]}],
   "output-names": ["a1", "b1", "c1", "2"],
   "inputs": [{
-    "operator": "leftmarkjoin",
+    "operator": "left-mark-join",
     "operator-id": 2,
-    "cardinality": 2000,
+    "estimated-rows": 2000,
     "method": "hash",
     "inputs": [{
-      "operator": "tablescan",
+      "operator": "table-scan",
       "operator-id": 3,
-      "sqlpos": [[89, 91]],
-      "cardinality": 2000,
+      "sqlpos": [[93, 95]],
+      "estimated-rows": 2000,
       "volatility": "stable",
       "relation-id": 0,
       "schema": {"type":"sessionschema"},
+      "scan-type": "native",
       "attribute-count": 3,
       "attributes": [{"col-id": 0, "name": "a1", "type": ["Integer"], "iu": ["scan_a1", ["Integer"]]},{"col-id": 1, "name": "b1", "type": ["Integer"], "iu": ["scan_b1", ["Integer"]]},{"col-id": 2, "name": "c1", "type": ["Integer"], "iu": ["scan_c1", ["Integer"]]}],
       "debug-name": {"classification": "nonsensitive", "value": "t1"},
       "selectivity": 1
     }, {
-      "operator": "tablescan",
+      "operator": "table-scan",
       "operator-id": 4,
-      "sqlpos": [[54, 56]],
-      "cardinality": 2000,
+      "sqlpos": [[58, 60]],
+      "estimated-rows": 2000,
       "volatility": "stable",
       "relation-id": 1,
       "schema": {"type":"sessionschema"},
+      "scan-type": "native",
       "attribute-count": 3,
       "attributes": [{"col-id": 0, "name": "a2", "type": ["Integer"], "iu": ["scan_a2", ["Integer"]]},{"col-id": 1, "name": "b2", "type": ["Integer"], "iu": ["scan_b2", ["Integer"]]}],
       "debug-name": {"classification": "nonsensitive", "value": "t2"},
       "selectivity": 1
     }],
-    "condition": {"expression": "and", "arguments": [{"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "scan_a1"}, "right": {"expression": "iuref", "iu": "scan_a2"}}, {"expression": "comparison", "mode": "<", "left": {"expression": "iuref", "iu": "scan_b1"}, "right": {"expression": "iuref", "iu": "scan_b2"}}]},
-    "marker": ["joinMarker", ["Bool"]]
+    "condition": {"expression": "and", "arguments": [{"expression": "comparison", "mode": "=", "left": {"expression": "iu-ref", "iu": "scan_a1"}, "right": {"expression": "iu-ref", "iu": "scan_a2"}}, {"expression": "comparison", "mode": "<", "left": {"expression": "iu-ref", "iu": "scan_b1"}, "right": {"expression": "iu-ref", "iu": "scan_b2"}}]},
+    "marker": ["joinMarker", ["Bool"]],
+    "predicates": [{"left": {"expression": "iu-ref", "iu": "scan_a1"}, "right": {"expression": "iu-ref", "iu": "scan_a2"}, "comparison": "="}, {"left": {"expression": "iu-ref", "iu": "scan_b1"}, "right": {"expression": "iu-ref", "iu": "scan_b2"}, "comparison": "<"}]
   }]
 }

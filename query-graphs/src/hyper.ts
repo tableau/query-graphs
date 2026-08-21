@@ -122,6 +122,13 @@ const nodeRenderingConfig: Record<string, NodeRenderingConfig> = {
     "exp:iuref": {displayNameKey: "iu"},
 };
 
+// Hyper's post-#13883 node tags use kebab-case. Normalize only for the
+// rendering-config lookup so plans from before the cutover keep their icons,
+// display names and crosslinks too.
+function getNodeRenderingConfig(nodeType: "operator" | "expression", nodeTag: string): NodeRenderingConfig {
+    return nodeRenderingConfig[`${nodeType === "operator" ? "op" : "exp"}:${nodeTag.replace(/-/g, "")}`] ?? {};
+}
+
 // Should the entry `key` from `node` always be expanded?
 function isAlwaysExpanded(node: JsonObject, key: string): boolean {
     const child = node[key];
@@ -163,21 +170,21 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
             if (val !== undefined) {
                 nodeType = "operator";
                 nodeTag = val;
-                renderingConfig = nodeRenderingConfig[`op:${nodeTag}`] ?? {};
+                renderingConfig = getNodeRenderingConfig(nodeType, nodeTag);
             }
         } else if (rawNode.hasOwnProperty("expression")) {
             const val = tryToString(rawNode["expression"]);
             if (val !== undefined) {
                 nodeType = "expression";
                 nodeTag = val;
-                renderingConfig = nodeRenderingConfig[`exp:${nodeTag}`] ?? {};
+                renderingConfig = getNodeRenderingConfig(nodeType, nodeTag);
             }
         }
 
         // Display these properties always as properties, even if they are more complex.
         // `debugName` is the pre-kebab-case spelling of `debug-name`; we accept both for
         // backwards compatibility with plans produced before the Hyper kebab-case cutover.
-        const propertyKeys = ["debug-name", "debugName", "analyze", "sqlpos"];
+        const propertyKeys = ["debug-name", "debugName", "statistics", "analyze", "sqlpos"];
         for (const key of propertyKeys) {
             if (!rawNode.hasOwnProperty(key)) {
                 continue;
@@ -265,21 +272,31 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
         } as TreeNode;
 
         // Highlight the node which errored out, in case the query failed
-        const errored = conversionState.metadata.has("Error") && tryGetPropertyPath(rawNode, ["analyze", "running"]) === true;
+        const running =
+            tryGetPropertyPath(rawNode, ["statistics", "running"]) ?? tryGetPropertyPath(rawNode, ["analyze", "running"]);
+        const errored = conversionState.metadata.has("Error") && running === true;
         if (errored) {
             convertedNode.iconColor = "red";
         }
 
         // Information on the execution time
-        const execTime = tryGetPropertyPath(rawNode, ["analyze", "cpu-cycles"]);
+        const execTime =
+            tryGetPropertyPath(rawNode, ["statistics", "cpu-cycles"]) ?? tryGetPropertyPath(rawNode, ["analyze", "cpu-cycles"]);
         if (typeof execTime === "number") {
             conversionState.runtimes.push({node: convertedNode, time: execTime});
         }
 
         // Display the cardinality on the links between the nodes
-        if (hasOwnProperty(rawNode, "cardinality") && typeof rawNode.cardinality === "number") {
-            const estimatedCard = rawNode.cardinality;
-            const actualCard = tryGetPropertyPath(rawNode, ["analyze", "tuple-count"]);
+        const estimatedCard =
+            hasOwnProperty(rawNode, "estimated-rows") && typeof rawNode["estimated-rows"] === "number"
+                ? rawNode["estimated-rows"]
+                : hasOwnProperty(rawNode, "cardinality") && typeof rawNode.cardinality === "number"
+                  ? rawNode.cardinality
+                  : undefined;
+        if (estimatedCard !== undefined) {
+            const actualCard =
+                tryGetPropertyPath(rawNode, ["statistics", "output-rows"]) ??
+                tryGetPropertyPath(rawNode, ["analyze", "tuple-count"]);
             if (typeof actualCard === "number") {
                 conversionState.edgeWidths.push({node: convertedNode, width: actualCard});
                 convertedNode.edgeLabel = formatMetric(actualCard) + "/" + formatMetric(estimatedCard);
@@ -491,7 +508,9 @@ function convertHyperPlan(node: Json, pipelines?: Json): TreeDescription {
         metadata: new Map<string, string>(),
     } as ConversionState;
     // Check if the query failed
-    const errorMsg = tryGetPropertyPath(node, ["analyze", "error", "message", "original"]);
+    const errorMsg =
+        tryGetPropertyPath(node, ["statistics", "error", "message", "original"]) ??
+        tryGetPropertyPath(node, ["analyze", "error", "message", "original"]);
     if (errorMsg) {
         conversionState.metadata.set("Error", forceToString(errorMsg));
     }

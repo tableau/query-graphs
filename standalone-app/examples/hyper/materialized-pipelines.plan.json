@@ -1,10 +1,10 @@
 {
   "tree": {
-    "operator": "executiontarget",
+    "operator": "execution-target",
     "operator-id": 1,
     "estimated-rows": 10000,
     "produces-rows": true,
-    "output": [{"expression": "iuref", "iu": ["scan_a1", ["Integer"]]}, {"expression": "iuref", "iu": ["scan_a12", ["Integer"]]}],
+    "output": [{"expression": "iu-ref", "iu": ["scan_a1", ["Integer"]]}, {"expression": "iu-ref", "iu": ["scan_a12", ["Integer"]]}],
     "output-names": ["a1", "a1"],
     "inputs": [{
       "operator": "join",
@@ -12,42 +12,43 @@
       "estimated-rows": 10000,
       "method": "hash",
       "inputs": [{
-        "operator": "explicitscan",
+        "operator": "explicit-scan",
         "operator-id": 3,
         "sqlpos": [[408, 409]],
         "estimated-rows": 1000,
-        "mapping": [{"source": {"expression": "iuref", "iu": ["scan_a13", ["Integer"]]}, "target": ["scan_a12", ["Integer"]]}],
+        "mapping": [{"source": {"expression": "iu-ref", "iu": ["scan_a13", ["Integer"]]}, "target": ["scan_a12", ["Integer"]]}],
         "input": {
           "operator": "share",
           "operator-id": 4,
           "sqlpos": [[347, 348]],
           "estimated-rows": 1000,
           "inputs": [{
-            "operator": "tablescan",
+            "operator": "table-scan",
             "operator-id": 5,
             "sqlpos": [[368, 370]],
             "estimated-rows": 1000,
             "volatility": "stable",
             "relation-id": 0,
             "schema": {"type":"sessionschema"},
+            "scan-type": "native",
             "attribute-count": 3,
             "attributes": [{"col-id": 0, "name": "a1", "type": ["Integer"], "iu": ["scan_a13", ["Integer"]]},{"col-id": 1, "name": "b1", "type": ["Integer"], "iu": ["scan_b1", ["Integer"]]}],
             "debug-name": {"classification": "nonsensitive", "value": "t1"},
-            "restrictions": [{"expression": "sql", "sql": "\"scan_b1\" < CAST('5' AS INTEGER)", "arguments": [{"expression": "iuref", "iu": "scan_b1"}], "type": ["Bool"]}],
+            "restrictions": [{"expression": "sql", "sql": "\"scan_b1\" < CAST('5' AS INTEGER)", "arguments": [{"expression": "iu-ref", "iu": "scan_b1"}], "type": ["Bool"]}],
             "selectivity": 0.5
           }],
           "strategy": "materialize"
         }
       }, {
-        "operator": "explicitscan",
+        "operator": "explicit-scan",
         "operator-id": 6,
         "sqlpos": [[399, 400]],
         "estimated-rows": 1000,
-        "mapping": [{"source": {"expression": "iuref", "iu": "scan_a13"}, "target": ["scan_a1", ["Integer"]]}],
+        "mapping": [{"source": {"expression": "iu-ref", "iu": "scan_a13"}, "target": ["scan_a1", ["Integer"]]}],
         "input": 4
       }],
-      "condition": {"expression": "sql", "sql": "\"scan_a1\" = \"scan_a12\"", "arguments": [{"expression": "iuref", "iu": "scan_a1"}, {"expression": "iuref", "iu": "scan_a12"}], "type": ["Bool"]},
-      "predicates": [{"left": {"expression": "iuref", "iu": "scan_a12"}, "right": {"expression": "iuref", "iu": "scan_a1"}, "comparison": "="}]
+      "condition": {"expression": "sql", "sql": "\"scan_a1\" = \"scan_a12\"", "arguments": [{"expression": "iu-ref", "iu": "scan_a1"}, {"expression": "iu-ref", "iu": "scan_a12"}], "type": ["Bool"]},
+      "predicates": [{"left": {"expression": "iu-ref", "iu": "scan_a12"}, "right": {"expression": "iu-ref", "iu": "scan_a1"}, "comparison": "="}]
     }]
   },
   "pipelines": [
