@@ -22,8 +22,17 @@ We transform a Hyper JSON tree into a query-graphs tree using the following heur
 
 import type {TreeNode, TreeDescription, Crosslink, IconName} from "./tree-description";
 import {allChildren} from "./tree-description";
-import type {Json, JsonObject} from "./loader-utils";
-import {forceToString, tryToString, formatMetric, hasOwnProperty, tryGetPropertyPath} from "./loader-utils";
+import type {Json, JsonObject, UnresolvedCrosslink} from "./loader-utils";
+import {
+    forceToString,
+    tryToString,
+    hasOwnProperty,
+    tryGetPropertyPath,
+    resolveCrosslinks,
+    setEdgeWidths,
+    colorRelativeExecutionTime,
+    setCardinalityEdgeLabel,
+} from "./loader-utils";
 
 // A categorical color palette for execution pipelines (the Tableau 20 colors).
 // The ten saturated base hues come first, then their lighter companions, so
@@ -57,11 +66,6 @@ const PIPELINE_PALETTE = [
 
 function pipelineColor(index: number): string {
     return PIPELINE_PALETTE[index % PIPELINE_PALETTE.length];
-}
-
-interface UnresolvedCrosslink {
-    source: TreeNode;
-    targetOpId: string;
 }
 
 // Temporary state which we hold during converting from JSON to internal graph representation
@@ -278,19 +282,13 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
 
         // Display the cardinality on the links between the nodes
         if (hasOwnProperty(rawNode, "cardinality") && typeof rawNode.cardinality === "number") {
-            const estimatedCard = rawNode.cardinality;
             const actualCard = tryGetPropertyPath(rawNode, ["analyze", "tuple-count"]);
-            if (typeof actualCard === "number") {
-                conversionState.edgeWidths.push({node: convertedNode, width: actualCard});
-                convertedNode.edgeLabel = formatMetric(actualCard) + "/" + formatMetric(estimatedCard);
-                // Highlight significant differences between planned and actual rows
-                if (estimatedCard > actualCard * 10 || actualCard > estimatedCard * 10) {
-                    convertedNode.edgeClass = "qg-label-highlighted";
-                }
-            } else {
-                conversionState.edgeWidths.push({node: convertedNode, width: estimatedCard});
-                convertedNode.edgeLabel = formatMetric(estimatedCard);
-            }
+            setCardinalityEdgeLabel(
+                convertedNode,
+                conversionState.edgeWidths,
+                rawNode.cardinality,
+                typeof actualCard === "number" ? actualCard : undefined,
+            );
         }
 
         // Add to `operator-id` map if applicable.
@@ -308,7 +306,7 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
             if (sourceId !== undefined) {
                 conversionState.crosslinks.push({
                     source: convertedNode,
-                    targetOpId: sourceId,
+                    targetId: sourceId,
                 });
             }
         }
@@ -330,39 +328,6 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
         return listOfObjects;
     }
     throw new Error("Invalid Hyper query plan");
-}
-
-// Resolve all pending crosslinks
-function resolveCrosslinks(state: ConversionState): Crosslink[] {
-    const crosslinks = [] as Crosslink[];
-    for (const link of state.crosslinks) {
-        const target = state.operatorsById.get(link.targetOpId);
-        if (target !== undefined) {
-            crosslinks.push({source: link.source, target: target});
-        }
-    }
-    return crosslinks;
-}
-
-// Sets the edge widths, relative to the number of output tuples
-function colorRelativeExecutionTime(state: ConversionState) {
-    const totalTime = state.runtimes.reduce((p, v) => p + v.time, 0);
-    for (const op of state.runtimes) {
-        const relativeExecutionRatio = op.time / totalTime;
-        const l = (95 + (72 - 95) * relativeExecutionRatio).toFixed(3);
-        op.node.nodeColor = relativeExecutionRatio >= 0.05 ? `hsl(309, 84%, ${l}%)` : undefined;
-    }
-}
-
-// Sets the edge widths, relative to the number of output tuples
-function setEdgeWidths(state: ConversionState) {
-    const maxWidth = state.edgeWidths.reduce((p, v) => (p > v.width ? p : v.width), 0);
-    const minWidth = state.edgeWidths.reduce((p, v) => (p < v.width ? p : v.width), Infinity);
-    if (minWidth == maxWidth) return;
-    const factor = Math.max(maxWidth - minWidth, minWidth);
-    for (const edge of state.edgeWidths) {
-        edge.node.edgeWidth = (edge.width - minWidth) / factor;
-    }
 }
 
 // A raw pipeline entry, as parsed from the `pipelines` array of the plan.
@@ -500,9 +465,9 @@ function convertHyperPlan(node: Json, pipelines?: Json): TreeDescription {
     if (Array.isArray(root)) {
         throw new Error("Invalid Hyper query plan");
     }
-    colorRelativeExecutionTime(conversionState);
-    setEdgeWidths(conversionState);
-    const crosslinks = resolveCrosslinks(conversionState);
+    colorRelativeExecutionTime(conversionState.runtimes);
+    setEdgeWidths(conversionState.edgeWidths);
+    const crosslinks = resolveCrosslinks(conversionState.operatorsById, conversionState.crosslinks);
     if (pipelines !== undefined) {
         assignPipelineColors(root, conversionState.operatorsById, parsePipelines(pipelines), crosslinks);
     }

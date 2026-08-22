@@ -8,14 +8,9 @@ This is pretty much the same algorithm as the algorithm for Hyper plans
 */
 
 import * as treeDescription from "./tree-description";
-import type {TreeNode, TreeDescription, Crosslink, IconName} from "./tree-description";
-import type {Json} from "./loader-utils";
-import {assert, tryToString, formatMetric, hasOwnProperty, hasSubOject} from "./loader-utils";
-
-interface UnresolvedCrosslink {
-    source: TreeNode;
-    targetOpId: string;
-}
+import type {TreeNode, TreeDescription, IconName} from "./tree-description";
+import type {Json, UnresolvedCrosslink} from "./loader-utils";
+import {assert, tryToString, hasOwnProperty, hasSubOject, resolveCrosslinks, setCardinalityEdgeLabel} from "./loader-utils";
 
 // Temporary state which we hold during converting from JSON to internal graph representation
 interface ConversionState {
@@ -174,17 +169,12 @@ function convertPostgresNode(rawNode: Json, parentKey: string, conversionState: 
         if (rawNode.hasOwnProperty("Plan Rows") && typeof rawNode["Plan Rows"] === "number") {
             const estimatedCard = rawNode["Plan Rows"];
             const actualCard = rawNode.hasOwnProperty("Actual Rows") ? rawNode["Actual Rows"] : undefined;
-            if (typeof actualCard === "number") {
-                conversionState.edgeWidths.push({node: convertedNode, width: actualCard});
-                convertedNode.edgeLabel = formatMetric(actualCard) + "/" + formatMetric(estimatedCard);
-                // Highlight significant differences between planned and actual rows
-                if (estimatedCard > actualCard * 10 || actualCard * 10 < estimatedCard) {
-                    convertedNode.edgeClass = "qg-label-highlighted";
-                }
-            } else {
-                conversionState.edgeWidths.push({node: convertedNode, width: estimatedCard});
-                convertedNode.edgeLabel = formatMetric(rawNode["Plan Rows"]);
-            }
+            setCardinalityEdgeLabel(
+                convertedNode,
+                conversionState.edgeWidths,
+                estimatedCard,
+                typeof actualCard === "number" ? actualCard : undefined,
+            );
         }
 
         // Add to `operatorId` map if applicable
@@ -199,7 +189,7 @@ function convertPostgresNode(rawNode: Json, parentKey: string, conversionState: 
         if (crosslinkId) {
             conversionState.crosslinks.push({
                 source: convertedNode,
-                targetOpId: crosslinkId,
+                targetId: crosslinkId,
             });
         }
 
@@ -288,18 +278,6 @@ function colorChildRelativeExecutionRatio(node: TreeNode, executionTime: number,
     }
 }
 
-// Resolve all pending crosslinks
-function resolveCrosslinks(state: ConversionState): Crosslink[] {
-    const crosslinks = [] as Crosslink[];
-    for (const link of state.crosslinks) {
-        const target = state.operatorsById.get(link.targetOpId);
-        if (target !== undefined) {
-            crosslinks.push({source: link.source, target: target});
-        }
-    }
-    return crosslinks;
-}
-
 // Sets the edge widths, relative to the number of output tuples
 function setEdgeWidths(state: ConversionState) {
     const maxWidth = state.edgeWidths.reduce((p, v) => (p > v.width ? p : v.width), 0);
@@ -334,7 +312,7 @@ export function loadPostgresPlan(json: Json): TreeDescription {
     }
     colorRelativeExecutionTime(root);
     setEdgeWidths(conversionState);
-    const crosslinks = resolveCrosslinks(conversionState);
+    const crosslinks = resolveCrosslinks(conversionState.operatorsById, conversionState.crosslinks);
     return {root: root, crosslinks: crosslinks};
 }
 

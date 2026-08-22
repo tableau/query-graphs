@@ -1,3 +1,5 @@
+import type {TreeNode, Crosslink} from "./tree-description";
+
 // Stricter type for JSON data
 type JsonPrimitive = string | number | boolean | null;
 export type Json = JsonPrimitive | JsonObject | JsonArray;
@@ -96,4 +98,65 @@ export function assert(value: boolean, errorMsg = "Assertion violated"): asserts
 export function assertNotNull<T>(v: T | null | undefined): asserts v is T {
     assert(v !== null, "Unexpected null value");
     assert(v !== undefined, "Unexpected undefined value");
+}
+
+// A crosslink whose target is only known by id until the whole tree has been converted
+// (e.g. a magic join referencing its builder, or a CTE scan referencing its CTE).
+export interface UnresolvedCrosslink {
+    source: TreeNode;
+    targetId: string;
+}
+
+// Resolve all pending crosslinks against a map of id -> node, dropping links whose target
+// was never registered (e.g. because the referenced id lives outside the converted subtree).
+export function resolveCrosslinks(nodesById: Map<string, TreeNode>, crosslinks: UnresolvedCrosslink[]): Crosslink[] {
+    const resolved: Crosslink[] = [];
+    for (const link of crosslinks) {
+        const target = nodesById.get(link.targetId);
+        if (target !== undefined) {
+            resolved.push({source: link.source, target});
+        }
+    }
+    return resolved;
+}
+
+// Sets the edge widths, relative to the number of output tuples
+export function setEdgeWidths(edgeWidths: {node: TreeNode; width: number}[]): void {
+    const maxWidth = edgeWidths.reduce((p, v) => (p > v.width ? p : v.width), 0);
+    const minWidth = edgeWidths.reduce((p, v) => (p < v.width ? p : v.width), Infinity);
+    if (minWidth == maxWidth) return;
+    const factor = Math.max(maxWidth - minWidth, minWidth);
+    for (const edge of edgeWidths) {
+        edge.node.edgeWidth = (edge.width - minWidth) / factor;
+    }
+}
+
+// Colors nodes by their share of total measured runtime, drawing the eye to the expensive operators
+export function colorRelativeExecutionTime(runtimes: {node: TreeNode; time: number}[]): void {
+    const totalTime = runtimes.reduce((p, v) => p + v.time, 0);
+    for (const op of runtimes) {
+        const relativeExecutionRatio = op.time / totalTime;
+        const l = (95 + (72 - 95) * relativeExecutionRatio).toFixed(3);
+        op.node.nodeColor = relativeExecutionRatio >= 0.05 ? `hsl(309, 84%, ${l}%)` : undefined;
+    }
+}
+
+// Sets the cardinality edge label ("actual/estimated", or just "estimated" if actual is unknown),
+// highlighting the edge when the estimate is off by more than 10x.
+export function setCardinalityEdgeLabel(
+    node: TreeNode,
+    edgeWidths: {node: TreeNode; width: number}[],
+    estimatedCard: number,
+    actualCard: number | undefined,
+): void {
+    if (actualCard !== undefined) {
+        edgeWidths.push({node, width: actualCard});
+        node.edgeLabel = formatMetric(actualCard) + "/" + formatMetric(estimatedCard);
+        if (estimatedCard > actualCard * 10 || actualCard > estimatedCard * 10) {
+            node.edgeClass = "qg-label-highlighted";
+        }
+    } else {
+        edgeWidths.push({node, width: estimatedCard});
+        node.edgeLabel = formatMetric(estimatedCard);
+    }
 }
