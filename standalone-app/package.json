@@ -22,7 +22,7 @@
     "dist/**"
   ],
   "devDependencies": {
-    "@tableau/query-graphs": "^2.0.0",
+    "@tableau/query-graphs": "workspace:^",
     "@types/node": "^20.11.5",
     "@types/react": "^18.3.1",
     "@types/react-dom": "^18.3.1",

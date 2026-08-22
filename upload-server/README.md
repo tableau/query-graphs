@@ -28,7 +28,7 @@ Only run plans through an upload server you trust.
 
 ```shell
 cd upload-server
-yarn install
+pnpm install
 node upload-server.js
 ```
 

@@ -3,7 +3,7 @@
     "compilerOptions": {
         "target": "es5",
         "module": "es6",
-        "lib": ["dom", "ES6"],
+        "lib": ["dom", "ES2019"],
         "allowJs": false,
         "alwaysStrict": true,
         "declaration": true,

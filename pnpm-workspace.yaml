@@ -1,0 +1,4 @@
+packages:
+  - "query-graphs"
+  - "standalone-app"
+  - "upload-server"

@@ -49,14 +49,16 @@
   },
   "devDependencies": {
     "@types/d3-hierarchy": "^3.1.2",
+    "@types/react": "^18.3.31",
+    "@types/react-dom": "^18.3.7",
     "copyfiles": "^2.4.1",
     "rimraf": "^6.0.1",
     "typescript": "^5.6.3"
   },
   "scripts": {
-    "clean": "rimraf dist/",
+    "clean": "rimraf lib/ tsconfig.tsbuildinfo",
     "copy-files": "copyfiles -u 1 src/**/*.css lib/",
-    "build": "yarn clean && tsc --build && yarn copy-files"
+    "build": "pnpm run clean && tsc --build && pnpm run copy-files"
   },
   "sideEffects": [
     "*.css"

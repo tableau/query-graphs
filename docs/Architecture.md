@@ -18,7 +18,7 @@ The repository contains four modules.
 `query-graphs` and `standalone-app` hold the core functionality.
 `upload-server` and `plan-dumper` are supporting tools.
 
-The project is a Yarn monorepo, and each module is a Yarn workspace.
+The project is a pnpm monorepo. Its three JavaScript modules are pnpm workspaces; `plan-dumper` is a standalone Python tool and is not part of the workspace.
 
 ## The "Plan Text to Graph" Pipeline
 

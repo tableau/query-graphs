@@ -250,7 +250,7 @@ function colorChildRelativeExecutionRatio(node: TreeNode, executionTime: number,
     if (node.name === "Gather" || node.name === "Gather Merge") {
         const workersLaunched = node.properties?.get("Workers Launched");
         assert(workersLaunched !== undefined, "Unexpected Workers Launched");
-        degreeOfParallelism = Number(workersLaunched) + 1 /* leader */;
+        degreeOfParallelism = Number(workersLaunched) + 1; /* leader */
     }
     for (const child of treeDescription.allChildren(node)) {
         const actualTotalTime = child.properties?.get("Actual Total Time");
