@@ -9,54 +9,69 @@ in the tooltips.
 
 */
 
-import {Parser as XmlParser} from "xml2js/lib/parser";
 import {TreeDescription, TreeNode} from "./tree-description";
 
 export interface ParsedXML {
-    // Tag name
-    "#name": string;
-    // Text content
-    _?: string;
-    // Attributes
-    $?: Record<string, string>;
-    // Children
-    $$?: ParsedXML[];
+    tag: string;
+    text?: string;
+    attrs?: Record<string, string>;
+    nodes?: ParsedXML[];
 }
 
 export function typesafeXMLParse(str: string): ParsedXML {
-    let result!: ParsedXML;
-    const parser = new XmlParser({
-        explicitRoot: false,
-        explicitChildren: true,
-        preserveChildrenOrder: true,
-        // Don't merge attributes. XML attributes will be stored in node["$"]
-        mergeAttrs: false,
-    });
-    parser.parseString(str, (err: unknown, parsed: ParsedXML) => {
-        if (err instanceof Error) {
-            throw new Error("XML parse failed with '" + err.message + "'.");
-        } else if (err) {
-            throw new Error("XML parse failed.");
-        } else {
-            result = parsed;
-        }
-    });
-    return result;
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(str, "text/xml");
+
+    if (doc.querySelector("parsererror")) {
+        throw new Error("XML parse failed");
+    }
+
+    return domNodeToXML(doc.documentElement);
 }
 
-// Convert JS objects as returned by xml2js parser to tree description format
+function domNodeToXML(element: Element): ParsedXML {
+    const attrs: Record<string, string> = {};
+    for (const attr of Array.from(element.attributes)) {
+        attrs[attr.name] = attr.value;
+    }
+
+    const nodes: ParsedXML[] = [];
+    const textParts: string[] = [];
+
+    for (const child of Array.from(element.childNodes)) {
+        if (child.nodeType === 1) {
+            // Node.ELEMENT_NODE
+            nodes.push(domNodeToXML(child as Element));
+        } else if (child.nodeType === 3 || child.nodeType === 4) {
+            // Node.TEXT_NODE or Node.CDATA_SECTION_NODE
+            const text = child.textContent?.trim();
+            if (text) {
+                textParts.push(text);
+            }
+        }
+    }
+    const textContent = textParts.join("");
+
+    return {
+        tag: element.tagName,
+        text: textContent || undefined,
+        attrs: Object.keys(attrs).length > 0 ? attrs : undefined,
+        nodes: nodes.length > 0 ? nodes : undefined,
+    };
+}
+
 function convertXML(xml: ParsedXML): TreeNode {
-    const tag = xml["#name"];
-    const text: string | undefined = xml._;
+    const tag = xml.tag;
+    const text: string | undefined = xml.text;
     const properties = new Map<string, string>();
     if (text) properties.set("~text", text);
-    if (xml.$) {
-        for (const key of Object.getOwnPropertyNames(xml.$ ?? {})) {
-            properties.set(key, xml.$[key]);
+    if (xml.attrs) {
+        for (const key of Object.keys(xml.attrs)) {
+            properties.set(key, xml.attrs[key]);
         }
     }
     const children = [] as TreeNode[];
-    for (const child of xml.$$ ?? []) {
+    for (const child of xml.nodes ?? []) {
         children.push(convertXML(child));
     }
 

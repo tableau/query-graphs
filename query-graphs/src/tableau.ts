@@ -3,7 +3,7 @@
 Tableau query plans (e.g., logical queries)
 --------------------------
 
-Tableau's query plans are stored as XML. We first load that XML using xml2js
+Tableau's query plans are stored as XML. We first load that XML using DOMParser
 and convert it literally into a query tree using `convertJSON`. The XML
 already provides us the structure of the rendered tree.
 
@@ -106,22 +106,21 @@ function getNodeRenderingConfig(tag: string, properties: Map<string, string>): N
 }
 
 function isAlwaysExpanded(xml: ParsedXML) {
-    const tag = xml["#name"];
-    const childLogicalOp = normalizeLogicalOperator(xml["#name"], xml.$?.class) !== undefined;
+    const tag = xml.tag;
+    const childLogicalOp = normalizeLogicalOperator(xml.tag, xml.attrs?.class) !== undefined;
     return childLogicalOp || tag == "fed-op" || tag == "logical-query";
 }
 
-// Convert JSON as returned by xml2js parser to d3 tree format
 function convertXML(xml: ParsedXML): TreeNode {
-    let tag = xml["#name"];
+    let tag = xml.tag;
 
     // The properties
     const properties = new Map<string, string>();
-    const text: string | undefined = xml._?.trim();
+    const text: string | undefined = xml.text?.trim();
     if (text) properties.set("~text", text);
-    if (xml.$) {
-        for (const key of Object.getOwnPropertyNames(xml.$)) {
-            properties.set(key, xml.$[key]);
+    if (xml.attrs) {
+        for (const key of Object.keys(xml.attrs)) {
+            properties.set(key, xml.attrs[key]);
         }
     }
 
@@ -142,7 +141,7 @@ function convertXML(xml: ParsedXML): TreeNode {
 
     const expandedChildren = [] as TreeNode[];
     const collapsedChildren = [] as TreeNode[];
-    for (const child of xml.$$ ?? []) {
+    for (const child of xml.nodes ?? []) {
         const children = isAlwaysExpanded(child) ? expandedChildren : collapsedChildren;
         children.push(convertXML(child));
     }

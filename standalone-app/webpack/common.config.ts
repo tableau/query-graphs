@@ -37,12 +37,6 @@ const config: Configuration = {
     },
     resolve: {
         extensions: [".tsx", ".ts", ".js"],
-        // TODO: get rid of this fallback; need to find a replacement for `xml2js`
-        fallback: {
-            timers: require.resolve("timers-browserify"),
-            stream: require.resolve("stream-browserify"),
-            buffer: require.resolve("buffer/"),
-        },
         alias: {
             /* to enable tracing in a production build:
             'react-dom$': 'react-dom/profiling',

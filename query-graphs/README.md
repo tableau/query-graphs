@@ -93,7 +93,6 @@ It tracks three things, and the distinction between the first two is the key sub
 ## Tech Debt
 
 * `tsconfig.json` disables `strict` (and several related checks) with `TODO`s to tighten them; new code should still be written to satisfy strict mode where practical.
-* `xml2js` pulls Node core modules into the browser bundle, which the app's webpack config has to polyfill (`buffer`/`stream`/`timers`); replacing `xml2js` would remove those fallbacks.
 * The `package.json` `style` field points at `style/query-graphs.css`, which does not exist — component styles are instead imported by the components themselves and preserved via `sideEffects`. See [Embedding the Library](#embedding-the-library).
 
 ## Embedding the Library
