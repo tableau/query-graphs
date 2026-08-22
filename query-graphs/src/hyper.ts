@@ -282,7 +282,7 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
                 conversionState.edgeWidths.push({node: convertedNode, width: actualCard});
                 convertedNode.edgeLabel = formatMetric(actualCard) + "/" + formatMetric(estimatedCard);
                 // Highlight significant differences between planned and actual rows
-                if (estimatedCard > actualCard * 10 || actualCard * 10 < estimatedCard) {
+                if (estimatedCard > actualCard * 10 || actualCard > estimatedCard * 10) {
                     convertedNode.edgeClass = "qg-label-highlighted";
                 }
             } else {
