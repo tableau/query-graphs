@@ -15,10 +15,10 @@ Description
 Query graphs is based on the experience of Tableau and the Hyper team with debugging complex OLAP queries.
 In contrast to many competing plan visualizers, query graphs:
 * visualizes large and complex query plans without presenting an overwhelming amount of information,
-* immediately draws your attention to tne most critical parts of the query plan through proper color coding,
+* immediately draws your attention to the most critical parts of the query plan through proper color coding,
 * allows you to drill down on the interesting parts of the query-plan, e.g., by expanding more details by clicking on the node of interest,
-* supports multiple different plan types (currently Postgres, Hyper and PostgresQL),
-* can be easily embeded into larger tools,
+* supports multiple different plan types (currently Postgres, Hyper and Tableau logical queries),
+* can be easily embedded into larger tools,
 * works fully offline and can be installed as a "web app" from your browser.
 
 For a first impression see our [list of example visualizations](https://tableau.github.io/query-graphs/examples.html), a few particularly examples are:
@@ -31,7 +31,7 @@ Installation
 ------------
 
 You can use https://tableau.github.io/query-graphs/, you do not need to install anything.
-If you still need a local deployment, see the [Developer instructions](DEVELOPMENT.md) for instructions.
+If you still need a local deployment, see the [build and deployment guide](docs/BuildAndDeployment.md).
 
 Usage
 -----
@@ -57,7 +57,7 @@ Pull requests welcome!
 In particular, we would be happy about support for additional query plan formats from additional database systems.
 New core functionality is also welcome, but you might want to open a GitHub issue first and get some feedback, before spending considerable amounts of time on cool new features.
 
-To get started hacking on query graphs, see [DEVELOPMENT.md](DEVELOPMENT.md).
+To get started hacking on query graphs, see the [developer documentation](docs/README.md).
 
 Acknowledgements
 ----------------

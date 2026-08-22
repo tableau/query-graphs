@@ -11,10 +11,13 @@ export interface NodeDimensions {
 
 interface GraphRenderingState {
     init: (expandedSubtrees: Record<string, boolean>) => void;
+    // `expandedNodes` tracks which nodes show their property detail panel (toggled by a plain click).
     expandedNodes: Record<string, boolean>;
     toggleExpandedNode: (nodeId: string) => void;
+    // `expandedSubtrees` tracks which nodes reveal their `collapsedChildren` (toggled by shift-click or the +/- handle).
     expandedSubtrees: Record<string, boolean>;
     toggleExpandedSubtree: (nodeId: string) => void;
+    // Measured on-screen head/body sizes, reported by a ResizeObserver and fed back into layout.
     nodeDimensions: Record<string, NodeDimensions>;
     updateNodeDimensions: (entries: ResizeObserverEntry[]) => unknown;
 }
