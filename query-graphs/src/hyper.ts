@@ -3,22 +3,20 @@
 Hyper JSON Transformations
 --------------------------
 
-To perform from a Hyper JSON tree to a query-graphs tree, we apply the following heuristics:
-
-The main steps are:
+We transform a Hyper JSON tree into a query-graphs tree using the following heuristics:
 
 1. Convert the overall tree
-    * traverse breadth-first over the tree, converting from JSON to our internal representation
-    * detect the type of a node based on the `operator` or `expression` key
-      For other nodes, decide based on their value: if it is of a plain type (string, number, ...), show it as part
-      of the tooltip; otherwise show it as part of the tree. A few pre-defined keys (e.g., "analyze", are alsways rendered
-      in the tooltip, though)
-    * lookup a type-specific config which configures the icon, display name etc.
+    * traverse the tree recursively, converting from JSON to our internal representation
+    * detect the type of a node based on its `operator` or `expression` key.
+      For other keys, decide based on their value: a plain value (string, number, ...) becomes
+      part of the tooltip; anything else becomes part of the tree. A few pre-defined keys
+      (e.g., `analyze`) are always rendered in the tooltip, though.
+    * look up a type-specific config which configures the icon, display name etc.
     * render children in a logically meaningful order, i.e. render "left" before "right" etc.
-    * collapse tree by defautl:
+    * collapse the tree by default:
         * for operators: collapse all children which are not operators
         * for expressions: don't collapse anything
-2. Add additional details in a 2nd pass: edge widths, highlighting particularly long-running queries, ...
+2. Add additional details in a 2nd pass: edge widths, highlighting particularly long-running operators, ...
 
 */
 
@@ -245,11 +243,7 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
         // Display the cardinality on the links between the nodes
         if (hasOwnProperty(rawNode, "cardinality") && typeof rawNode.cardinality === "number") {
             const estimatedCard = rawNode.cardinality;
-            let actualCard = tryGetPropertyPath(rawNode, ["analyze", "tuple-count"]);
-            if (actualCard === undefined) {
-                // Backwards-compat: until recently, this was `tuple-count`, not `tuple-count`
-                actualCard = tryGetPropertyPath(rawNode, ["analyze", "tuple-count"]);
-            }
+            const actualCard = tryGetPropertyPath(rawNode, ["analyze", "tuple-count"]);
             if (typeof actualCard === "number") {
                 conversionState.edgeWidths.push({node: convertedNode, width: actualCard});
                 convertedNode.edgeLabel = formatMetric(actualCard) + "/" + formatMetric(estimatedCard);

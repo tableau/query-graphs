@@ -47,7 +47,9 @@ export function layoutTree(
                 dim.bodyWidth === undefined ||
                 dim.bodyHeight === undefined
             ) {
-                // This is just a default. We will immediately re-render with the updated actual values.
+                // Layout is a two-pass process: node sizes are only known after they are rendered and
+                // measured by the ResizeObserver. On the first pass we lay out with this placeholder size,
+                // then re-render once the measured dimensions arrive in `nodeDimensions`.
                 return [50, 50];
             }
             if (expandedNodes[id]) {
