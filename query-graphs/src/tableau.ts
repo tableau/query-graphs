@@ -22,8 +22,8 @@ function normalizeLogicalOperator(tag: string, clazz?: string) {
     if (tag == "logical-operator") {
         return clazz;
     }
-    if (clazz == "logical-operator" && tag.endsWith("Op")) {
-        return tag.substring(0, tag.length - 2);
+    if (tag.endsWith("Op")) {
+        return clazz == "logical-operator" ? tag.substring(0, tag.length - 2) : tag.substring(0, tag.length - 2);
     }
     return undefined;
 }
