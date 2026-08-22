@@ -82,10 +82,6 @@ function forwardToGUI(req, res) {
     guiLogger(`forwarded to ${forwardURL}`);
 }
 app.get("/", forwardToGUI);
-// Common names used previously by the standalone server.
-// Forward them in case somebody bookmarked the old UI.
-app.get("/upload-form.html", forwardToGUI);
-app.get("/query-graphs.html", forwardToGUI);
 
 const server = app.listen(3000, function () {
     const host = server.address().address;

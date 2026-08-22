@@ -9,7 +9,7 @@ The whole server is a single file, `upload-server.js`.
 
 The server plays two roles, wiring itself to the deployed app:
 
-1. **Entry redirect** — a `GET /` (also the legacy `/upload-form.html` and `/query-graphs.html` paths) redirects to the app's `index.html` with a `?uploadServer=<this-server>/uploads` parameter.
+1. **Entry redirect** — a `GET /` redirects to the app's `index.html` with a `?uploadServer=<this-server>/uploads` parameter.
    From then on, the app knows to upload opened plans here (see the sharing flow in [`standalone-app`](../standalone-app/README.md)).
 2. **Upload endpoint** — a `PUT /uploads` accepts the raw plan body (up to 2 MB), writes it to a file with a random name, and responds with that file's public URL.
    `GET /uploads/<file>` then serves it back, with CORS enabled so the app can fetch it from another origin.
