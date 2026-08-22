@@ -8,36 +8,25 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: pnpm/action-setup@v4
+
       - uses: actions/setup-node@v4
         with:
-          node-version: '^20.18.0'
-
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
-
-      - uses: actions/cache@v4
-        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: ${{ runner.os }}-yarn-
+          node-version: 24
+          cache: 'pnpm'
 
       - name: Install
-        run: yarn install
+        run: pnpm install --frozen-lockfile
 
       - name: Lint
-        run: yarn run lint-test
+        run: pnpm run lint-test
 
-      - name: Build query-graphs
-        run: yarn run --cwd=query-graphs build
-
-      - name: Build standalone-app
-        run: yarn run --cwd=standalone-app build
+      - name: Build
+        run: pnpm -r build
 
       - name: Deploy
         if: github.ref == 'refs/heads/main'
-        uses: peaceiris/actions-gh-pages@v3
+        uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./standalone-app/dist/

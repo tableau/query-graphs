@@ -8,6 +8,7 @@
 # Package manager
 npm-debug.log
 node_modules
+.pnpm-store
 
 # Build files
 *.tgz

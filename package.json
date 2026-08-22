@@ -1,22 +1,23 @@
 {
     "private": true,
     "name": "query-graphs",
-    "workspaces": [
-        "query-graphs",
-        "standalone-app",
-        "upload-server"
-    ],
+    "packageManager": "pnpm@11.21.0",
+    "engines": {
+        "node": ">=24"
+    },
     "scripts": {
         "lint": "eslint . --fix",
         "lint-test": "eslint ."
     },
     "devDependencies": {
         "@eslint/compat": "^1.2.1",
+        "@eslint/js": "^9.13.0",
         "eslint": "^9.13.0",
         "eslint-config-prettier": "^9.1.0",
         "eslint-plugin-prettier": "^5.2.1",
         "eslint-plugin-react": "^7.37.1",
         "eslint-plugin-react-hooks": "^5.0.0",
+        "globals": "^17.11.0",
         "prettier": "^3.3.3",
         "typescript": "^5.6.3",
         "typescript-eslint": "^8.10.0"

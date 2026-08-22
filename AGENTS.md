@@ -13,4 +13,4 @@ Start at [docs/README.md](docs/README.md) — the entry point for all developer 
 ## Gotcha
 
 `standalone-app` imports the core library from its compiled output in `query-graphs/lib/`, not from its TypeScript sources.
-Changes in `query-graphs/src` are not visible to the app until you rebuild the library with `yarn run --cwd=query-graphs build`.
+Changes in `query-graphs/src` are not visible to the app until you rebuild the library with `pnpm --filter @tableau/query-graphs build`.
