@@ -9,7 +9,7 @@ To see changes in a running UI, rebuild the library and use the app's dev server
 The library provides:
 
 * **The tree model** — `TreeDescription` and `TreeNode` (`src/tree-description.ts`), the format-independent contract between loaders and the renderer.
-* **Format loaders** — `hyper.ts`, `postgres.ts`, `tableau.ts`, and the generic `json.ts`/`xml.ts` fallbacks (`src/`), each turning plan text into a `TreeDescription`.
+* **Format loaders** — `hyper.ts`, `umbra.ts`, `postgres.ts`, `tableau.ts`, and the generic `json.ts`/`xml.ts` fallbacks (`src/`), each turning plan text into a `TreeDescription`.
 * **The renderer** — lays out and draws the tree; in `src/ui/`.
 * **Interaction state** — a Zustand store (`src/ui/store.ts`) tracking the graph state (expanded nodes, the measured node sizes, ...).
 
@@ -40,6 +40,10 @@ The `hyper.ts` loader is the richest reference:
 * It classifies a node as an operator or an expression from its `operator` / `expression` key, then looks up per-type rendering (icon, display name, crosslink source) in `nodeRenderingConfig`.
 * It enforces a meaningful child order (`input`/`left`/`right`/… before alphabetical) so a join's inputs read left-to-right.
 * It converts in two passes: first build the tree, then post-process to resolve crosslinks, compute edge widths, and color nodes by runtime.
+
+Umbra and CedarDB (CedarDB is built on top of Umbra) use the same `operator`/`expression` tagging convention, so this conversion engine is factored out into `adaptive-plan-tree.ts` and shared between `hyper.ts` and `umbra.ts`.
+It exposes the generic tree-building pass (`convertAdaptiveJsonNode`, driven by a per-format `AdaptiveTreeConfig`) plus the post-processing helpers (`buildIdMap`/`resolveCrosslinks`, `colorRelativeExecutionTime`, `setEdgeWidths`, pipeline-color assignment).
+`umbra.ts` supplies only what differs: its own icon/display-name table, and how it reads actual cardinalities and pipeline timing from `EXPLAIN (ANALYZE, FORMAT JSON)`'s `analyzePlan*` fields.
 
 Shared parsing/formatting helpers live in `loader-utils.ts` (`tryToString`, `forceToString`, `formatMetric`, `tryGetPropertyPath`, the `Json` type, `assert`).
 

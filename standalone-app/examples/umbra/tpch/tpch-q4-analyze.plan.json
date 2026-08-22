@@ -1,0 +1,71 @@
+{
+ "plan":{
+  "operator":"sort",
+  "physicalOperator":"sort",
+  "cardinality":1,
+  "operatorId":1,"analyzePlanId":0,"analyzePlanCardinality":4,
+  "input":{
+   "operator":"groupby",
+   "physicalOperator":"groupby",
+   "cardinality":1,
+   "operatorId":2,"analyzePlanId":1,"analyzePlanCardinality":4,
+   "input":{
+    "operator":"join",
+    "physicalOperator":"hashjoin",
+    "cardinality":1,
+    "operatorId":3,"analyzePlanId":2,"analyzePlanCardinality":5,
+    "left":{
+     "operator":"tablescan",
+     "physicalOperator":"tablescan",
+     "cardinality":1,
+     "operatorId":4,"analyzePlanId":3,"analyzePlanCardinality":5,
+     "attributes":[{"name":"o_orderkey", "iu":"o_orderkey", "column":0}, {"name":"o_custkey", "iu":"o_custkey", "column":1}, {"name":"o_orderstatus", "iu":"o_orderstatus", "column":2}, {"name":"o_totalprice", "iu":"o_totalprice", "column":3}, {"name":"o_orderdate", "iu":"o_orderdate", "column":4}, {"name":"o_orderpriority", "iu":"o_orderpriority", "column":5}, {"name":"o_clerk", "iu":"o_clerk", "column":6}, {"name":"o_shippriority", "iu":"o_shippriority", "column":7}, {"name":"o_comment", "iu":"o_comment", "column":8}],
+     "restrictions":[{"attribute":4, "mode":"[]", "value":{"expression":"const", "value":{"type":{"type":"date"}, "value":2449170}}, "upper":{"expression":"const", "value":{"type":{"type":"date"}, "value":2449261}}, "estimatedSelectivity":0, "collate":""}],
+     "residuals":[],
+     "tid":"tid",
+     "tableoid":"tableoid",
+     "rowstate":"rowstate",
+     "table":{"type":"temporarytable", "id":6},
+     "tableSize":128,
+     "tablename":"orders"
+    },
+    "right":{
+     "operator":"tablescan",
+     "physicalOperator":"tablescan",
+     "cardinality":286,
+     "operatorId":5,"analyzePlanId":4,"analyzePlanCardinality":11,
+     "attributes":[{"name":"l_orderkey", "iu":"l_orderkey", "column":0}, {"name":"l_partkey", "iu":"l_partkey", "column":1}, {"name":"l_suppkey", "iu":"l_suppkey", "column":2}, {"name":"l_linenumber", "iu":"l_linenumber", "column":3}, {"name":"l_quantity", "iu":"l_quantity", "column":4}, {"name":"l_extendedprice", "iu":"l_extendedprice", "column":5}, {"name":"l_discount", "iu":"l_discount", "column":6}, {"name":"l_tax", "iu":"l_tax", "column":7}, {"name":"l_returnflag", "iu":"l_returnflag", "column":8}, {"name":"l_linestatus", "iu":"l_linestatus", "column":9}, {"name":"l_shipdate", "iu":"l_shipdate", "column":10}, {"name":"l_commitdate", "iu":"l_commitdate", "column":11}, {"name":"l_receiptdate", "iu":"l_receiptdate", "column":12}, {"name":"l_shipinstruct", "iu":"l_shipinstruct", "column":13}, {"name":"l_shipmode", "iu":"l_shipmode", "column":14}, {"name":"l_comment", "iu":"l_comment", "column":15}],
+     "restrictions":[{"attribute":0, "mode":"joinfilter", "value":{"expression":"const", "value":{"type":{"type":"bool"}, "value":true}}, "upper":{"expression":"const", "value":{"type":{"type":"bool"}, "value":false}}, "op":3, "estimatedSelectivity":0.00859101835390274626, "collate":""}],
+     "residuals":[{"cond":{"expression":"compare", "left":{"expression":"iuref", "iu":"l_commitdate"}, "right":{"expression":"iuref", "iu":"l_receiptdate"}, "direction":"<", "collate":""}}],
+     "tid":"tid29",
+     "tableoid":"tableoid30",
+     "rowstate":"rowstate31",
+     "table":{"type":"temporarytable", "id":7},
+     "tableSize":572,
+     "tablename":"lineitem"
+    },
+    "condition":{"expression":"compare", "left":{"expression":"iuref", "iu":"l_orderkey"}, "right":{"expression":"iuref", "iu":"o_orderkey"}, "direction":"=", "collate":""},
+    "type":"leftsemi",
+    "filter":true
+   },
+   "values":[{"expression":"iuref", "iu":"o_orderpriority"}],
+   "key":[{"arg":0, "iu":"o_orderpriority32", "collate":""}],
+   "groupingmode":"regular",
+   "aggregates":[{"op":"countstar", "iu":"count_star(*)"}],
+   "orders":[],
+   "groupingsets":[],
+   "considerspooling":false,
+   "hasminspoolinglimit":true
+  },
+  "order":[{"value":{"expression":"iuref", "iu":"o_orderpriority32"}, "collate":""}],
+  "duplicateFree":true,
+  "type":"sort"
+ },
+ "ius":[{"iu":"o_orderkey", "outerNull":false, "type":{"type":"int32"}}, {"iu":"o_custkey", "outerNull":false, "type":{"type":"int32"}}, {"iu":"o_orderstatus", "outerNull":false, "type":{"type":"char1"}}, {"iu":"o_totalprice", "outerNull":false, "type":{"type":"numeric", "precision":12, "scale":2}}, {"iu":"o_orderdate", "outerNull":false, "type":{"type":"date"}}, {"iu":"o_orderpriority", "outerNull":false, "type":{"type":"char", "precision":15}}, {"iu":"o_clerk", "outerNull":false, "type":{"type":"char", "precision":15}}, {"iu":"o_shippriority", "outerNull":false, "type":{"type":"int32"}}, {"iu":"o_comment", "outerNull":false, "type":{"type":"text", "precision":79}}, {"iu":"tid", "outerNull":false, "type":{"type":"int64"}}, {"iu":"tableoid", "outerNull":false, "type":{"type":"int32"}}, {"iu":"rowstate", "outerNull":false, "type":{"type":"int64"}}, {"iu":"l_orderkey", "outerNull":false, "type":{"type":"int32"}}, {"iu":"l_partkey", "outerNull":false, "type":{"type":"int32"}}, {"iu":"l_suppkey", "outerNull":false, "type":{"type":"int32"}}, {"iu":"l_linenumber", "outerNull":false, "type":{"type":"int32"}}, {"iu":"l_quantity", "outerNull":false, "type":{"type":"numeric", "precision":12, "scale":2}}, {"iu":"l_extendedprice", "outerNull":false, "type":{"type":"numeric", "precision":12, "scale":2}}, {"iu":"l_discount", "outerNull":false, "type":{"type":"numeric", "precision":12, "scale":2}}, {"iu":"l_tax", "outerNull":false, "type":{"type":"numeric", "precision":12, "scale":2}}, {"iu":"l_returnflag", "outerNull":false, "type":{"type":"char1"}}, {"iu":"l_linestatus", "outerNull":false, "type":{"type":"char1"}}, {"iu":"l_shipdate", "outerNull":false, "type":{"type":"date"}}, {"iu":"l_commitdate", "outerNull":false, "type":{"type":"date"}}, {"iu":"l_receiptdate", "outerNull":false, "type":{"type":"date"}}, {"iu":"l_shipinstruct", "outerNull":false, "type":{"type":"char", "precision":25}}, {"iu":"l_shipmode", "outerNull":false, "type":{"type":"char", "precision":10}}, {"iu":"l_comment", "outerNull":false, "type":{"type":"text", "precision":44}}, {"iu":"tid29", "outerNull":false, "type":{"type":"int64"}}, {"iu":"tableoid30", "outerNull":false, "type":{"type":"int32"}}, {"iu":"rowstate31", "outerNull":false, "type":{"type":"int64"}}, {"iu":"o_orderpriority32", "outerNull":false, "type":{"type":"char", "precision":15}}, {"iu":"count_star(*)", "outerNull":false, "type":{"type":"int64"}}],
+ "output":[{"name":"o_orderpriority", "iu":{"expression":"iuref", "iu":"o_orderpriority32"}}, {"name":"order_count", "iu":{"expression":"iuref", "iu":"count_star(*)"}}],
+ "type":"select",
+ "query":true,
+ "hasParameters":false,
+ "permissions":{"planPermissions":[{"object":{"type":"temporarytable", "id":6}, "role":10, "permissions":{"value":2, "grantMask":0}}, {"object":{"type":"schema", "id":3}, "role":10, "permissions":{"value":256, "grantMask":0}}, {"object":{"type":"temporarytable", "id":7}, "role":10, "permissions":{"value":2, "grantMask":0}}], "fileReaders":[], "fileWriters":[], "objectsToLock":[]},
+ "analyzePlanPipelines":[{"start":17,"stop":22,"duration":5,"parallelism":"single-threaded","operators":[2,3]},{"start":24,"stop":151,"duration":127,"parallelism":"multi-threaded","operators":[1,2,4]},{"start":276,"stop":298,"duration":22,"parallelism":"multi-threaded","operators":[0,1]},{"start":380,"stop":384,"duration":4,"parallelism":"multi-threaded","operators":[0]}]
+}

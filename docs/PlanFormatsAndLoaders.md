@@ -9,12 +9,15 @@ Everything downstream (layout, rendering, interaction) is shared across formats.
 | Format | Loader (`query-graphs/src`) | Source shape | How it is obtained |
 | --- | --- | --- | --- |
 | Postgres | `postgres.ts` | JSON | `EXPLAIN (FORMAT JSON)`, ideally with `ANALYZE` |
+| Umbra / CedarDB | `umbra.ts` | JSON | `EXPLAIN (FORMAT JSON)`, ideally with `ANALYZE` |
 | Hyper | `hyper.ts` | JSON | Hyper's `EXPLAIN (FORMAT JSON)`, e.g. via HyperAPI |
 | Tableau logical query | `tableau.ts` | XML | Tableau Desktop / Online log files |
 | Generic JSON | `json.ts` | JSON | fallback — renders any JSON as a tree |
 | Generic XML | `xml.ts` | XML | fallback — renders any XML as a tree |
 
-The Postgres and Hyper loaders understand plan semantics: they choose icons, order and collapse children, label edges with cardinalities, and color nodes by runtime.
+The Postgres, Umbra/CedarDB, and Hyper loaders understand plan semantics: they choose icons, order and collapse children, label edges with cardinalities, and color nodes by runtime.
+CedarDB is built on top of Umbra and emits the same plan JSON, so one loader (`umbra.ts`) covers both.
+Umbra/CedarDB and Hyper share the "operator"/"expression" tagging convention for plan nodes, so both loaders build on a shared adaptive-conversion engine, `adaptive-plan-tree.ts` (see [Writing a Permissive Loader](#writing-a-permissive-loader)).
 The generic JSON and XML loaders map the input structure literally and act as catch-all fallbacks.
 
 ## Loader Dispatch
@@ -23,13 +26,13 @@ The app does not ask the user which format they pasted.
 Instead, `loadPlan` (`standalone-app/src/tree-loader.ts`) tries each loader in order and keeps the first one that does not throw:
 
 ```ts
-const loaders = [loadPostgresPlanFromText, loadHyperPlanFromText, loadJsonFromText, loadTableauPlan, loadXml];
+const loaders = [loadPostgresPlanFromText, loadUmbraPlanFromText, loadHyperPlanFromText, loadJsonFromText, loadTableauPlan, loadXml];
 ```
 
 A loader signals "this is not my format" by throwing; `loadPlan` collects the errors and, if every loader fails, reports the de-duplicated messages.
 
 **Order matters.**
-Postgres and Hyper plans are both JSON, so the Postgres loader — which checks for a distinctive signature (a top-level `Plan` object containing a `Node Type`) — is tried *before* the more permissive Hyper loader.
+Postgres, Umbra/CedarDB, and Hyper plans are all JSON, so Postgres and Umbra/CedarDB — which check for a distinctive envelope signature — are tried *before* the more permissive Hyper loader, which falls back to rendering *something* for any well-formed JSON object and would otherwise swallow the others' plans first.
 The generic `json`/`xml` loaders come last so a recognized format always wins over the literal fallback.
 
 ## Adding a New Format
@@ -40,6 +43,7 @@ To add support for another database's plans:
    Add `query-graphs/src/<db>.ts` exporting a `load<Db>FromText(text: string): TreeDescription`.
    Parse the text, then recursively convert each source node into a `TreeNode`: set `name`, pick an `icon` from the `IconName` union, put scalar attributes into `properties` (shown in the tooltip), and put real children into `children`/`collapsedChildren`.
    Use `hyper.ts` as the reference implementation and reuse the helpers in `loader-utils.ts`.
+   If the new format shares Hyper's "operator"/"expression" tagging convention (as Umbra/CedarDB does), reuse `adaptive-plan-tree.ts` instead of duplicating the conversion logic — see `umbra.ts` for an example of a loader built entirely on top of it.
    Throw an `Error` when the input is not your format, so dispatch can fall through to the next loader.
 2. **Register it** in the `loaders` array in `standalone-app/src/tree-loader.ts`, positioned so a more specific format is tried before a more permissive one.
 3. **Add an example** plan under `standalone-app/examples/<db>/` so it shows up on the `examples.html` page.

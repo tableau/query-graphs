@@ -1,4 +1,5 @@
 import {loadPostgresPlanFromText} from "@tableau/query-graphs/lib/postgres";
+import {loadUmbraPlanFromText} from "@tableau/query-graphs/lib/umbra";
 import {loadHyperPlanFromText} from "@tableau/query-graphs/lib/hyper";
 import {loadTableauPlan} from "@tableau/query-graphs/lib/tableau";
 import {loadJsonFromText} from "@tableau/query-graphs/lib/json";
@@ -7,8 +8,18 @@ import {TreeDescription} from "@tableau/query-graphs/lib/tree-description";
 import {assert} from "./assert";
 
 export function loadPlan(plan: string): TreeDescription {
-    // Try Postgres before Hyper to differentiate between them
-    const loaders = [loadPostgresPlanFromText, loadHyperPlanFromText, loadJsonFromText, loadTableauPlan, loadXml];
+    // Postgres and Umbra/CedarDB both validate their envelope strictly and throw on anything
+    // else. Hyper's loader is deliberately permissive (it falls back to rendering *something*
+    // for unrecognized JSON), so it must be tried last among the JSON-based loaders, or it
+    // would swallow Postgres/Umbra/CedarDB plans before they get a chance.
+    const loaders = [
+        loadPostgresPlanFromText,
+        loadUmbraPlanFromText,
+        loadHyperPlanFromText,
+        loadJsonFromText,
+        loadTableauPlan,
+        loadXml,
+    ];
     const errors: string[] = [];
     let loadedTree: TreeDescription | undefined;
     function tryLoad(loader: any) {

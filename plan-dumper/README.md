@@ -47,6 +47,16 @@ python3 dump-plans.py --hyper-path ~/<workspace>/bazel-bin/hyper/tools/hyperd
 To also dump Postgres plans, run a Postgres instance on port 5433 and `pip3 install psycopg2`.
 If `psycopg2` is not installed, the Postgres section is skipped automatically.
 
+To also dump Umbra/CedarDB plans, set `UMBRA_DSN` to a [libpq connection string](https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING) for a running instance, e.g.:
+
+```shell
+UMBRA_DSN="host=127.0.0.1 port=5599 user=postgres password=..." python3 dump-plans.py
+```
+
+CedarDB is built on top of Umbra and emits the same plan JSON, so this single setting drives whichever of the two is running locally; the dumped plans land in `standalone-app/examples/umbra/` either way.
+If `UMBRA_DSN` is unset, or `psycopg2` is not installed, the Umbra/CedarDB section is skipped automatically.
+A few queries are skipped for Umbra/CedarDB specifically: the `*-pipelines.sql` ones (Hyper-only), the intentional ANALYZE-with-error test (Umbra/CedarDB raises a normal error instead of returning a partial plan), and any query that happens to hit an engine bug.
+
 ## Verifying the Result
 
 After regenerating, build and start the app (see [Build and Deployment](../docs/BuildAndDeployment.md)), then open [localhost:8080/examples.html](http://localhost:8080/examples.html).
