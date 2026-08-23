@@ -57,7 +57,7 @@ export function loadJsonFromText(graphString: string): TreeDescription {
     try {
         json = JSON.parse(graphString);
     } catch (err) {
-        throw new Error("JSON parse failed with '" + err + "'.");
+        throw new Error("JSON parse failed with '" + err + "'.", {cause: err});
     }
     return loadJson(json);
 }

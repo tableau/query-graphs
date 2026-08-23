@@ -57,7 +57,7 @@ export function jsonToStringMap(json: string): Map<string, string> {
     try {
         parsedJSON = JSON.parse(json);
     } catch (err) {
-        throw new Error("JSON parse failed with '" + err + "'.");
+        throw new Error("JSON parse failed with '" + err + "'.", {cause: err});
     }
     if (typeof parsedJSON !== "object" || Array.isArray(parsedJSON) || parsedJSON === null) {
         throw new Error("Expected a JSON object");

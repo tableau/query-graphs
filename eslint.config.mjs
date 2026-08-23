@@ -5,8 +5,7 @@ import reactPlugin from "eslint-plugin-react";
 import reactHooks from "eslint-plugin-react-hooks";
 import path from "node:path";
 import {fileURLToPath} from "node:url";
-import {includeIgnoreFile} from "@eslint/compat";
-import {fixupPluginRules} from "@eslint/compat";
+import {fixupConfigRules, fixupPluginRules, includeIgnoreFile} from "@eslint/compat";
 import globals from "globals";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -16,12 +15,12 @@ const gitignorePath = path.resolve(__dirname, ".gitignore");
 export default [
     includeIgnoreFile(gitignorePath),
     eslint.configs.recommended,
-    reactPlugin.configs.flat["jsx-runtime"],
+    ...fixupConfigRules([reactPlugin.configs.flat["jsx-runtime"]]),
     eslintPluginPrettierRecommended,
     ...tseslint.configs.strict,
     ...tseslint.configs.stylistic,
     {
-        ...reactPlugin.configs.flat.recommended,
+        ...fixupConfigRules([reactPlugin.configs.flat.recommended])[0],
         settings: {
             ...reactPlugin.configs.flat.recommended.settings,
             react: {version: "detect"},

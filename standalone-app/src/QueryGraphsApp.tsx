@@ -36,8 +36,8 @@ export function QueryGraphsApp() {
                 });
                 assert(uploadResult.ok);
                 url = new URL(await uploadResult.text());
-            } catch (_e) {
-                throw new Error(`Upload to ${uploadServer} failed!`);
+            } catch (e) {
+                throw new Error(`Upload to ${uploadServer} failed!`, {cause: e});
             }
         }
         if (!url) {
@@ -88,7 +88,7 @@ export function QueryGraphsApp() {
                     response = await fetch(urlString, {signal});
                 } catch (e) {
                     if (url.protocol == "blob:") {
-                        throw new Error("Local content no longer accessible");
+                        throw new Error("Local content no longer accessible", {cause: e});
                     }
                     throw e;
                 }

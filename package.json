@@ -1,7 +1,7 @@
 {
     "private": true,
     "name": "query-graphs",
-    "packageManager": "pnpm@11.21.0",
+    "packageManager": "pnpm@11.22.0",
     "engines": {
         "node": ">=24"
     },
@@ -10,16 +10,16 @@
         "lint-test": "eslint ."
     },
     "devDependencies": {
-        "@eslint/compat": "^1.2.1",
-        "@eslint/js": "^9.13.0",
-        "eslint": "^9.13.0",
-        "eslint-config-prettier": "^9.1.0",
+        "@eslint/compat": "^2.1.0",
+        "@eslint/js": "^10.0.1",
+        "eslint": "^10.9.0",
+        "eslint-config-prettier": "^10.1.8",
         "eslint-plugin-prettier": "^5.2.1",
         "eslint-plugin-react": "^7.37.1",
-        "eslint-plugin-react-hooks": "^5.0.0",
+        "eslint-plugin-react-hooks": "^7.1.1",
         "globals": "^17.11.0",
         "prettier": "^3.3.3",
-        "typescript": "^5.6.3",
+        "typescript": "^6.0.3",
         "typescript-eslint": "^8.10.0"
     }
 }
