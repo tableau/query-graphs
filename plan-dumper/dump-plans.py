@@ -3,6 +3,10 @@ try:
     import psycopg2
 except ImportError:
     psycopg2 = None
+try:
+    import duckdb
+except ImportError:
+    duckdb = None
 import argparse
 import shutil
 import os
@@ -90,6 +94,39 @@ if psycopg2 is not None:
         dump_plans("postgres", exec_postgres, get_postgres_plan)
 else:
     print("Skipping Postgres: psycopg2 not installed")
+
+
+# DuckDB
+if duckdb is not None:
+    duckdb_con = duckdb.connect()
+
+    def exec_duckdb(sql):
+        # DuckDB's COPY has no "text" format; use CSV instead. The tiny TPC-H dataset uses `""`
+        # as literal placeholder data in some columns, which CSV would otherwise parse as a
+        # quoted empty string (NULL), so quoting is disabled too.
+        sql = sql.replace("(format text, delimiter '|')", "(format csv, delimiter '|', quote '')")
+        if sql.strip() != "":
+            duckdb_con.execute(sql)
+
+    def get_duckdb_plan(sql, mode):
+        if mode is None:
+            explain = "EXPLAIN (FORMAT JSON) "
+        elif mode == "analyze":
+            explain = "EXPLAIN (ANALYZE, FORMAT JSON) "
+        else:
+            return None
+        try:
+            records = duckdb_con.execute(explain + sql).fetchall()
+        except duckdb.Error as e:
+            # Some example queries use Postgres/Hyper-specific catalog syntax with no DuckDB
+            # equivalent (e.g. metadata-describe-table.sql); skip those rather than aborting.
+            print(f"  Skipping (DuckDB error): {e}")
+            return None
+        return records[0][1]
+
+    dump_plans("duckdb", exec_duckdb, get_duckdb_plan)
+else:
+    print("Skipping DuckDB: duckdb not installed")
 
 
 parser = argparse.ArgumentParser()

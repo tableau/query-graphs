@@ -1,0 +1,10 @@
+[
+    {
+        "name": "GENERATE_SERIES ",
+        "children": [],
+        "extra_info": {
+            "Function": "GENERATE_SERIES",
+            "Estimated Cardinality": "10"
+        }
+    }
+]
