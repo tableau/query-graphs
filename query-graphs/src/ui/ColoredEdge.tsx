@@ -1,4 +1,5 @@
-import {BaseEdge, EdgeProps, getBezierPath} from "reactflow";
+import type {EdgeProps} from "reactflow";
+import {BaseEdge, getBezierPath} from "reactflow";
 
 // Data attached to a colored edge.
 export interface ColoredEdgeData {

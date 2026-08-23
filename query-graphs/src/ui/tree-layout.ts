@@ -1,12 +1,12 @@
 import * as d3flextree from "d3-flextree";
 import * as d3hierarchy from "d3-hierarchy";
 
-import {NodeDimensions} from "./store";
-import * as treeDescription from "../tree-description";
-import {TreeNode, TreeDescription} from "../tree-description";
+import type {NodeDimensions} from "./store";
+import type * as treeDescription from "../tree-description";
+import type {TreeNode, TreeDescription} from "../tree-description";
 import type {Edge, Node} from "reactflow";
 import {assertNotNull} from "../loader-utils";
-import {CSSProperties} from "react";
+import type {CSSProperties} from "react";
 
 interface TreeLayout {
     nodes: Node<TreeNode>[];

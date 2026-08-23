@@ -7,8 +7,9 @@ Map the JSON tree directly to a D3 tree, without any modifications
 
 */
 
-import {Json, tryToString} from "./loader-utils";
-import {TreeDescription, TreeNode} from "./tree-description";
+import type {Json} from "./loader-utils";
+import {tryToString} from "./loader-utils";
+import type {TreeDescription, TreeNode} from "./tree-description";
 
 function convertChildren(node: Json): TreeNode[] {
     const strRep = tryToString(node);

@@ -1,8 +1,9 @@
 import {useCallback, useEffect, useState} from "react";
 import {useBrowserUrl, useUrlParam} from "./browserUrlHooks";
-import {FileOpener, FileOpenerData, useLoadStateController} from "./FileOpener";
+import type {FileOpenerData} from "./FileOpener";
+import {FileOpener, useLoadStateController} from "./FileOpener";
 import {QueryGraph} from "@tableau/query-graphs/lib/ui/QueryGraph";
-import {TreeDescription} from "@tableau/query-graphs/lib/tree-description";
+import type {TreeDescription} from "@tableau/query-graphs/lib/tree-description";
 import {loadPlan} from "./tree-loader";
 import {tryCreateLocalStorageUrl, isLocalStorageURL, loadLocalStorageURL} from "./LocalStorageUrl";
 import {assert} from "./assert";
@@ -64,6 +65,11 @@ export function QueryGraphsApp() {
     // We keep the displayed tree in sync with the URL parameter
     useEffect(() => {
         if (!treeUrl) {
+            // Resetting `tree` here (rather than deriving it from `treeUrl` at render
+            // time) means the old tree stays on screen for one extra frame after
+            // `treeUrl` clears, until this effect runs. We accept that flicker to
+            // keep `tree` as the single source of truth for what's displayed.
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setTree(undefined);
             return;
         }

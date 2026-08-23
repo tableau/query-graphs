@@ -8,8 +8,9 @@ This is pretty much the same algorithm as the algorithm for Hyper plans
 */
 
 import * as treeDescription from "./tree-description";
-import {TreeNode, TreeDescription, Crosslink, IconName} from "./tree-description";
-import {assert, Json, tryToString, formatMetric, hasOwnProperty, hasSubOject} from "./loader-utils";
+import type {TreeNode, TreeDescription, Crosslink, IconName} from "./tree-description";
+import type {Json} from "./loader-utils";
+import {assert, tryToString, formatMetric, hasOwnProperty, hasSubOject} from "./loader-utils";
 
 interface UnresolvedCrosslink {
     source: TreeNode;

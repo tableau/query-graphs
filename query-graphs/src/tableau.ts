@@ -10,8 +10,9 @@ already provides us the structure of the rendered tree.
 */
 
 // Require node modules
-import {IconName, TreeDescription, TreeNode} from "./tree-description";
-import {typesafeXMLParse, ParsedXML} from "./xml";
+import type {IconName, TreeDescription, TreeNode} from "./tree-description";
+import type {ParsedXML} from "./xml";
+import {typesafeXMLParse} from "./xml";
 
 function normalizeLogicalOperator(tag: string, clazz?: string) {
     // Logical queries

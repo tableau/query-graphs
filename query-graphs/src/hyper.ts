@@ -20,8 +20,10 @@ We transform a Hyper JSON tree into a query-graphs tree using the following heur
 
 */
 
-import {TreeNode, TreeDescription, Crosslink, IconName, allChildren} from "./tree-description";
-import {Json, JsonObject, forceToString, tryToString, formatMetric, hasOwnProperty, tryGetPropertyPath} from "./loader-utils";
+import type {TreeNode, TreeDescription, Crosslink, IconName} from "./tree-description";
+import {allChildren} from "./tree-description";
+import type {Json, JsonObject} from "./loader-utils";
+import {forceToString, tryToString, formatMetric, hasOwnProperty, tryGetPropertyPath} from "./loader-utils";
 
 // A categorical color palette for execution pipelines (the Tableau 20 colors).
 // The ten saturated base hues come first, then their lighter companions, so
