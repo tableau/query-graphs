@@ -10,11 +10,12 @@ Everything downstream (layout, rendering, interaction) is shared across formats.
 | --- | --- | --- | --- |
 | Postgres | `postgres.ts` | JSON | `EXPLAIN (FORMAT JSON)`, ideally with `ANALYZE` |
 | Hyper | `hyper.ts` | JSON | Hyper's `EXPLAIN (FORMAT JSON)`, e.g. via HyperAPI |
+| DuckDB | `duckdb.ts` | JSON | `EXPLAIN (FORMAT JSON)`, optionally with `ANALYZE` |
 | Tableau logical query | `tableau.ts` | XML | Tableau Desktop / Online log files |
 | Generic JSON | `json.ts` | JSON | fallback — renders any JSON as a tree |
 | Generic XML | `xml.ts` | XML | fallback — renders any XML as a tree |
 
-The Postgres and Hyper loaders understand plan semantics: they choose icons, order and collapse children, label edges with cardinalities, and color nodes by runtime.
+The Postgres, Hyper and DuckDB loaders understand plan semantics: they choose icons, order and collapse children, label edges with cardinalities, and color nodes by runtime.
 The generic JSON and XML loaders map the input structure literally and act as catch-all fallbacks.
 
 ## Loader Dispatch
@@ -23,13 +24,21 @@ The app does not ask the user which format they pasted.
 Instead, `loadPlan` (`standalone-app/src/tree-loader.ts`) tries each loader in order and keeps the first one that does not throw:
 
 ```ts
-const loaders = [loadPostgresPlanFromText, loadHyperPlanFromText, loadJsonFromText, loadTableauPlan, loadXml];
+const loaders = [
+    loadPostgresPlanFromText,
+    loadDuckDBPlanFromText,
+    loadHyperPlanFromText,
+    loadJsonFromText,
+    loadTableauPlan,
+    loadXml,
+];
 ```
 
 A loader signals "this is not my format" by throwing; `loadPlan` collects the errors and, if every loader fails, reports the de-duplicated messages.
 
 **Order matters.**
-Postgres and Hyper plans are both JSON, so the Postgres loader — which checks for a distinctive signature (a top-level `Plan` object containing a `Node Type`) — is tried *before* the more permissive Hyper loader.
+Postgres, DuckDB and Hyper plans are all JSON, so the Postgres and DuckDB loaders — which each check for a distinctive signature — are tried *before* the more permissive Hyper loader, which accepts any JSON object.
+Postgres and DuckDB reject each other's plans, so their relative order doesn't matter.
 The generic `json`/`xml` loaders come last so a recognized format always wins over the literal fallback.
 
 ## Adding a New Format

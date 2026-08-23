@@ -13,7 +13,7 @@ The repository contains four modules.
 * [`standalone-app`](../standalone-app/README.md) — the web app deployed at [tableau.github.io/query-graphs](https://tableau.github.io/query-graphs/).
   It wraps the core library with everything the library itself does not provide: opening files, pasting, drag & drop, link sharing, and the offline/PWA behavior.
 * [`upload-server`](../upload-server/README.md) — an optional Node server that accepts an uploaded plan and hands back a shareable URL.
-* [`plan-dumper`](../plan-dumper/README.md) — Python scripts that regenerate the committed example plans by running `EXPLAIN` against Hyper and Postgres.
+* [`plan-dumper`](../plan-dumper/README.md) — Python scripts that regenerate the committed example plans by running `EXPLAIN` against Hyper, Postgres and DuckDB.
 
 `query-graphs` and `standalone-app` hold the core functionality.
 `upload-server` and `plan-dumper` are supporting tools.
@@ -28,7 +28,7 @@ The core abstraction connecting the two halves is `TreeDescription`, the format-
 ```mermaid
 flowchart TD
     text["Plan text (JSON / XML)"] --> dispatch["loadPlan()<br/>(standalone-app/tree-loader.ts)"]
-    dispatch -->|tries each loader| loaders["Format loaders<br/>hyper · postgres · tableau · json · xml<br/>(query-graphs/src)"]
+    dispatch -->|tries each loader| loaders["Format loaders<br/>hyper · postgres · duckdb · tableau · json · xml<br/>(query-graphs/src)"]
     loaders --> td["TreeDescription<br/>(format-independent tree model)"]
     td --> layout["layoutTree()<br/>(d3-flextree layout)"]
     layout --> render["QueryGraph<br/>(react-flow rendering)"]

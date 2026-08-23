@@ -9,7 +9,7 @@ To see changes in a running UI, rebuild the library and use the app's dev server
 The library provides:
 
 * **The tree model** — `TreeDescription` and `TreeNode` (`src/tree-description.ts`), the format-independent contract between loaders and the renderer.
-* **Format loaders** — `hyper.ts`, `postgres.ts`, `tableau.ts`, and the generic `json.ts`/`xml.ts` fallbacks (`src/`), each turning plan text into a `TreeDescription`.
+* **Format loaders** — `hyper.ts`, `postgres.ts`, `duckdb.ts`, `tableau.ts`, and the generic `json.ts`/`xml.ts` fallbacks (`src/`), each turning plan text into a `TreeDescription`.
 * **The renderer** — lays out and draws the tree; in `src/ui/`.
 * **Interaction state** — a Zustand store (`src/ui/store.ts`) tracking the graph state (expanded nodes, the measured node sizes, ...).
 
@@ -41,7 +41,9 @@ The `hyper.ts` loader is the richest reference:
 * It enforces a meaningful child order (`input`/`left`/`right`/… before alphabetical) so a join's inputs read left-to-right.
 * It converts in two passes: first build the tree, then post-process to resolve crosslinks, compute edge widths, and color nodes by runtime.
 
-Shared parsing/formatting helpers live in `loader-utils.ts` (`tryToString`, `forceToString`, `formatMetric`, `tryGetPropertyPath`, the `Json` type, `assert`).
+The `duckdb.ts` loader instead does a direct, non-adaptive map: DuckDB's plan JSON is already uniformly `{name, children, extra_info}`, so there's no need for Hyper/Postgres's adaptive heuristic.
+
+Shared parsing/formatting helpers live in `loader-utils.ts` (`tryToString`, `forceToString`, `formatMetric`, `tryGetPropertyPath`, the `Json` type, `assert`), including crosslink resolution, edge-width scaling, and runtime-based coloring — reused by `hyper.ts`, `postgres.ts`, and `duckdb.ts`.
 
 The library intentionally exposes low-level loaders (`json`, `xml`) as generic fallbacks so that even an unrecognized plan renders as *something* rather than an error.
 
