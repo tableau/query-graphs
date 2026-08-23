@@ -11,6 +11,6 @@
       "noImplicitThis": false, // TODO: change
       "strict": false // TODO: change
     },
-    "include": ["src/**/*"],
+    "include": ["src/**/*", "../types/**/*"],
     "exclude": ["src/**/*.test.*"]
 }
