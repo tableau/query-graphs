@@ -3,7 +3,7 @@ import {loadHyperPlanFromText} from "@tableau/query-graphs/lib/hyper";
 import {loadTableauPlan} from "@tableau/query-graphs/lib/tableau";
 import {loadJsonFromText} from "@tableau/query-graphs/lib/json";
 import {loadXml} from "@tableau/query-graphs/lib/xml";
-import {TreeDescription} from "@tableau/query-graphs/lib/tree-description";
+import type {TreeDescription} from "@tableau/query-graphs/lib/tree-description";
 import {assert} from "./assert";
 
 export function loadPlan(plan: string): TreeDescription {

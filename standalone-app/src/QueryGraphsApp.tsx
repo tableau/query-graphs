@@ -1,8 +1,9 @@
 import {useCallback, useEffect, useState} from "react";
 import {useBrowserUrl, useUrlParam} from "./browserUrlHooks";
-import {FileOpener, FileOpenerData, useLoadStateController} from "./FileOpener";
+import type {FileOpenerData} from "./FileOpener";
+import {FileOpener, useLoadStateController} from "./FileOpener";
 import {QueryGraph} from "@tableau/query-graphs/lib/ui/QueryGraph";
-import {TreeDescription} from "@tableau/query-graphs/lib/tree-description";
+import type {TreeDescription} from "@tableau/query-graphs/lib/tree-description";
 import {loadPlan} from "./tree-loader";
 import {tryCreateLocalStorageUrl, isLocalStorageURL, loadLocalStorageURL} from "./LocalStorageUrl";
 import {assert} from "./assert";
@@ -61,10 +62,12 @@ export function QueryGraphsApp() {
         setTreeTitle(title);
         setTreeUrl(url.toString());
     };
-    // We keep the displayed tree in sync with the URL parameter
+    // We keep the displayed tree in sync with the URL parameter.
+    // Once `treeUrl` is cleared, `displayedTree` below hides the stale tree
+    // immediately, without waiting for this effect to reset `tree`.
+    const displayedTree = treeUrl ? tree : undefined;
     useEffect(() => {
         if (!treeUrl) {
-            setTree(undefined);
             return;
         }
         const abortController = new AbortController();
@@ -122,12 +125,12 @@ export function QueryGraphsApp() {
         }
     }, []);
 
-    if (!tree) {
+    if (!displayedTree) {
         return <FileOpener setData={openPickedData} loadStateController={loadStateController} validate={validate} />;
     } else {
         return (
-            <QueryGraph treeDescription={tree}>
-                <TreeLabel title={treeTitle ?? ""} setTitle={setTreeTitle} metadata={tree.metadata} />
+            <QueryGraph treeDescription={displayedTree}>
+                <TreeLabel title={treeTitle ?? ""} setTitle={setTreeTitle} metadata={displayedTree.metadata} />
             </QueryGraph>
         );
     }

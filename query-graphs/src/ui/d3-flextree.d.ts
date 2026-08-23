@@ -1,5 +1,5 @@
 declare module "d3-flextree" {
-    import {HierarchyNode, HierarchyPointNode} from "d3-hierarchy";
+    import type {HierarchyNode, HierarchyPointNode} from "d3-hierarchy";
     export interface FlexTreeLayout<Datum> {
         (root: HierarchyNode<Datum>): HierarchyPointNode<Datum>;
         nodeSize(size: (node: HierarchyPointNode<Datum>) => [number, number]): this;

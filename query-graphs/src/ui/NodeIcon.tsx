@@ -1,5 +1,5 @@
-import {CSSProperties, SVGAttributes} from "react";
-import {IconName} from "../tree-description";
+import type {CSSProperties, SVGAttributes} from "react";
+import type {IconName} from "../tree-description";
 import "./NodeIcon.css";
 
 interface NodeIconProps {

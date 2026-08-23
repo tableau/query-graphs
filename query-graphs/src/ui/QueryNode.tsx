@@ -1,7 +1,9 @@
-import {memo, ReactElement, MouseEvent, useCallback, useRef, useEffect, RefObject} from "react";
-import {Handle, NodeProps, Position} from "reactflow";
+import type {ReactElement, MouseEvent, RefObject} from "react";
+import {memo, useCallback, useRef, useEffect} from "react";
+import type {NodeProps} from "reactflow";
+import {Handle, Position} from "reactflow";
 import cc from "classcat";
-import {TreeNode} from "../tree-description";
+import type {TreeNode} from "../tree-description";
 import {NodeIcon} from "./NodeIcon";
 import "./QueryNode.css";
 import {useGraphRenderingStore} from "./store";

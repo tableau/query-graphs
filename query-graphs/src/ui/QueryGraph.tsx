@@ -1,9 +1,12 @@
-import ReactFlow, {MiniMap, Node, Controls, ReactFlowProvider} from "reactflow";
+import type {Node} from "reactflow";
+import ReactFlow, {MiniMap, Controls, ReactFlowProvider} from "reactflow";
 import "reactflow/dist/base.css";
 
 import {layoutTree} from "./tree-layout";
-import {TreeDescription, TreeNode, allChildren, visitTreeNodes} from "../tree-description";
-import {useMemo, useEffect, useRef, ReactNode} from "react";
+import type {TreeDescription, TreeNode} from "../tree-description";
+import {allChildren, visitTreeNodes} from "../tree-description";
+import type {ReactNode} from "react";
+import {useMemo, useEffect, useRef} from "react";
 import {QueryNode} from "./QueryNode";
 import {ColoredEdge} from "./ColoredEdge";
 import {useGraphRenderingStore} from "./store";

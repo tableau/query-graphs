@@ -11,6 +11,8 @@
         "forceConsistentCasingInFileNames": true,
         "incremental": true,
         "moduleResolution": "bundler",
+        "verbatimModuleSyntax": true,
+        "noUncheckedSideEffectImports": true,
         "noEmitOnError": true,
         "noImplicitAny": true,
         "noImplicitReturns": true,
