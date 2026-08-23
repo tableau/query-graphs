@@ -1,4 +1,5 @@
 import {loadPostgresPlanFromText} from "@tableau/query-graphs/lib/postgres";
+import {loadDuckDBPlanFromText} from "@tableau/query-graphs/lib/duckdb";
 import {loadHyperPlanFromText} from "@tableau/query-graphs/lib/hyper";
 import {loadTableauPlan} from "@tableau/query-graphs/lib/tableau";
 import {loadJsonFromText} from "@tableau/query-graphs/lib/json";
@@ -7,8 +8,16 @@ import type {TreeDescription} from "@tableau/query-graphs/lib/tree-description";
 import {assert} from "./assert";
 
 export function loadPlan(plan: string): TreeDescription {
-    // Try Postgres before Hyper to differentiate between them
-    const loaders = [loadPostgresPlanFromText, loadHyperPlanFromText, loadJsonFromText, loadTableauPlan, loadXml];
+    // Try Postgres and DuckDB before Hyper: Hyper's loader accepts any JSON object, so it would
+    // otherwise silently mis-render an unrecognized plan instead of leaving it to a better-fitting loader.
+    const loaders = [
+        loadPostgresPlanFromText,
+        loadDuckDBPlanFromText,
+        loadHyperPlanFromText,
+        loadJsonFromText,
+        loadTableauPlan,
+        loadXml,
+    ];
     const errors: string[] = [];
     let loadedTree: TreeDescription | undefined;
     function tryLoad(loader: any) {
