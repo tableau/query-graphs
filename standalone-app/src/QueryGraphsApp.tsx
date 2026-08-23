@@ -62,12 +62,15 @@ export function QueryGraphsApp() {
         setTreeTitle(title);
         setTreeUrl(url.toString());
     };
-    // We keep the displayed tree in sync with the URL parameter.
-    // Once `treeUrl` is cleared, `displayedTree` below hides the stale tree
-    // immediately, without waiting for this effect to reset `tree`.
-    const displayedTree = treeUrl ? tree : undefined;
+    // We keep the displayed tree in sync with the URL parameter
     useEffect(() => {
         if (!treeUrl) {
+            // Resetting `tree` here (rather than deriving it from `treeUrl` at render
+            // time) means the old tree stays on screen for one extra frame after
+            // `treeUrl` clears, until this effect runs. We accept that flicker to
+            // keep `tree` as the single source of truth for what's displayed.
+            // eslint-disable-next-line react-hooks/set-state-in-effect
+            setTree(undefined);
             return;
         }
         const abortController = new AbortController();
@@ -125,12 +128,12 @@ export function QueryGraphsApp() {
         }
     }, []);
 
-    if (!displayedTree) {
+    if (!tree) {
         return <FileOpener setData={openPickedData} loadStateController={loadStateController} validate={validate} />;
     } else {
         return (
-            <QueryGraph treeDescription={displayedTree}>
-                <TreeLabel title={treeTitle ?? ""} setTitle={setTreeTitle} metadata={displayedTree.metadata} />
+            <QueryGraph treeDescription={tree}>
+                <TreeLabel title={treeTitle ?? ""} setTitle={setTreeTitle} metadata={tree.metadata} />
             </QueryGraph>
         );
     }
