@@ -1,0 +1,129 @@
+[
+    {
+        "name": "LEFT_DELIM_JOIN",
+        "children": [
+            {
+                "name": "SEQ_SCAN ",
+                "children": [],
+                "extra_info": {
+                    "Table": "t1",
+                    "Type": "Sequential Scan",
+                    "Projections": "a1",
+                    "Estimated Cardinality": "0"
+                }
+            },
+            {
+                "name": "HASH_JOIN",
+                "children": [
+                    {
+                        "name": "COLUMN_DATA_SCAN",
+                        "children": [],
+                        "extra_info": {
+                            "Estimated Cardinality": "0"
+                        }
+                    },
+                    {
+                        "name": "PROJECTION",
+                        "children": [
+                            {
+                                "name": "HASH_JOIN",
+                                "children": [
+                                    {
+                                        "name": "DELIM_SCAN",
+                                        "children": [],
+                                        "extra_info": {
+                                            "Delim Index": "1",
+                                            "Estimated Cardinality": "0"
+                                        }
+                                    },
+                                    {
+                                        "name": "HASH_GROUP_BY",
+                                        "children": [
+                                            {
+                                                "name": "PROJECTION",
+                                                "children": [
+                                                    {
+                                                        "name": "NESTED_LOOP_JOIN",
+                                                        "children": [
+                                                            {
+                                                                "name": "SEQ_SCAN ",
+                                                                "children": [],
+                                                                "extra_info": {
+                                                                    "Table": "t2",
+                                                                    "Type": "Sequential Scan",
+                                                                    "Projections": "a2",
+                                                                    "Estimated Cardinality": "0"
+                                                                }
+                                                            },
+                                                            {
+                                                                "name": "DELIM_SCAN",
+                                                                "children": [],
+                                                                "extra_info": {
+                                                                    "Delim Index": "1",
+                                                                    "Estimated Cardinality": "0"
+                                                                }
+                                                            }
+                                                        ],
+                                                        "extra_info": {
+                                                            "Join Type": "INNER",
+                                                            "Conditions": "a2 < a1",
+                                                            "Estimated Cardinality": "1"
+                                                        }
+                                                    }
+                                                ],
+                                                "extra_info": {
+                                                    "Projections": [
+                                                        "a1",
+                                                        "a2"
+                                                    ],
+                                                    "Estimated Cardinality": "1"
+                                                }
+                                            }
+                                        ],
+                                        "extra_info": {
+                                            "Groups": "#0",
+                                            "Aggregates": "sum(#1)",
+                                            "Estimated Cardinality": "0"
+                                        }
+                                    }
+                                ],
+                                "extra_info": {
+                                    "Join Type": "INNER",
+                                    "Conditions": "a1 IS NOT DISTINCT FROM #0",
+                                    "Estimated Cardinality": "1"
+                                }
+                            }
+                        ],
+                        "extra_info": {
+                            "Projections": [
+                                "sum(a2)",
+                                "a1"
+                            ],
+                            "Estimated Cardinality": "1"
+                        }
+                    }
+                ],
+                "extra_info": {
+                    "Join Type": "SINGLE",
+                    "Conditions": "a1 IS NOT DISTINCT FROM a1",
+                    "Estimated Cardinality": "0"
+                }
+            },
+            {
+                "name": "HASH_GROUP_BY",
+                "children": [],
+                "extra_info": {
+                    "Groups": "#0",
+                    "Aggregates": "",
+                    "Estimated Cardinality": "0"
+                }
+            }
+        ],
+        "extra_info": {
+            "Join Type": "SINGLE",
+            "Conditions": "a1 IS NOT DISTINCT FROM a1",
+            "Estimated Cardinality": "0",
+            "Delim Index": "1"
+        }
+    }
+]

@@ -1,0 +1,98 @@
+{
+    "total_bytes_written": 0,
+    "total_bytes_read": 0,
+    "result_set_size": 0,
+    "cumulative_rows_scanned": 0,
+    "cpu_time": 0.0,
+    "blocked_thread_time": 0.0,
+    "rows_returned": 0,
+    "system_peak_temp_dir_size": 0,
+    "cumulative_cardinality": 0,
+    "system_peak_buffer_memory": 0,
+    "extra_info": {},
+    "query_name": "",
+    "latency": 0.0,
+    "children": [
+        {
+            "total_bytes_written": 0,
+            "result_set_size": 0,
+            "operator_timing": 4.2e-8,
+            "operator_rows_scanned": 0,
+            "cumulative_rows_scanned": 0,
+            "operator_cardinality": 0,
+            "operator_type": "EXPLAIN_ANALYZE",
+            "total_bytes_read": 0,
+            "operator_name": "EXPLAIN_ANALYZE",
+            "cpu_time": 0.0,
+            "extra_info": {},
+            "cumulative_cardinality": 0,
+            "children": [
+                {
+                    "cumulative_cardinality": 0,
+                    "extra_info": {
+                        "Aggregates": "sum_no_overflow(#0)"
+                    },
+                    "operator_name": "UNGROUPED_AGGREGATE",
+                    "cpu_time": 0.0,
+                    "cumulative_rows_scanned": 0,
+                    "operator_rows_scanned": 0,
+                    "operator_timing": 9.170000000000001e-7,
+                    "result_set_size": 16,
+                    "total_bytes_read": 0,
+                    "operator_type": "UNGROUPED_AGGREGATE",
+                    "total_bytes_written": 0,
+                    "operator_cardinality": 1,
+                    "children": [
+                        {
+                            "total_bytes_written": 0,
+                            "result_set_size": 160,
+                            "operator_timing": 5.83e-7,
+                            "operator_rows_scanned": 0,
+                            "cumulative_rows_scanned": 0,
+                            "operator_cardinality": 20,
+                            "operator_type": "PROJECTION",
+                            "total_bytes_read": 0,
+                            "operator_name": "PROJECTION",
+                            "cpu_time": 0.0,
+                            "extra_info": {
+                                "Projections": "(l_extendedprice * l_discount)",
+                                "Estimated Cardinality": "114"
+                            },
+                            "cumulative_cardinality": 0,
+                            "children": [
+                                {
+                                    "cumulative_cardinality": 0,
+                                    "extra_info": {
+                                        "Table": "lineitem",
+                                        "Type": "Sequential Scan",
+                                        "Projections": [
+                                            "l_discount",
+                                            "l_extendedprice"
+                                        ],
+                                        "Filters": [
+                                            "l_shipdate>='1994-01-01'::DATE AND l_shipdate<'1995-01-01'::DATE",
+                                            "l_discount>=0.05 AND l_discount<=0.07",
+                                            "l_quantity<24.00"
+                                        ],
+                                        "Estimated Cardinality": "114"
+                                    },
+                                    "operator_name": "SEQ_SCAN ",
+                                    "cpu_time": 0.0,
+                                    "cumulative_rows_scanned": 0,
+                                    "operator_rows_scanned": 572,
+                                    "operator_timing": 0.00000475,
+                                    "result_set_size": 320,
+                                    "total_bytes_read": 0,
+                                    "operator_type": "TABLE_SCAN",
+                                    "total_bytes_written": 0,
+                                    "operator_cardinality": 20,
+                                    "children": []
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

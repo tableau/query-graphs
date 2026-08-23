@@ -1,3 +1,8 @@
+-- UNSUPPORTED: postgres
+-- Postgres raises a hard "division by zero" error for the `/ 0` below, aborting the whole
+-- dump; DuckDB returns `inf` instead (no error, so it still dumps, just without exercising
+-- the error-reporting path this query is meant to test).
+--
 -- This query is derived from TPC-H query 11
 -- THE TPC SOFTWARE IS AVAILABLE WITHOUT CHARGE FROM TPC.
 -- The query was modified so that errors out during execution.
