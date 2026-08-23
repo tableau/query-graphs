@@ -9,7 +9,7 @@
       "esModuleInterop": true,
       "types": ["node"]
     },
-    "include": ["src/**/*"],
+    "include": ["src/**/*", "../types/**/*"],
     // See https://github.com/webpack/webpack-cli/issues/2458#issuecomment-846635277
     "ts-node": {
       "compilerOptions": { "module": "commonjs", "rootDir": ".", "verbatimModuleSyntax": false }

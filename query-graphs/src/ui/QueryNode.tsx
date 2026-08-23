@@ -11,7 +11,7 @@ import {assert} from "../loader-utils";
 
 type NodeData = TreeNode & {resizeObserver: ResizeObserver};
 
-function useResizeObservedRef<T extends Element>(resizeObserver: ResizeObserver): RefObject<T> {
+function useResizeObservedRef<T extends Element>(resizeObserver: ResizeObserver): RefObject<T | null> {
     const ref = useRef<T>(null);
     useEffect(() => {
         assert(ref.current !== null);

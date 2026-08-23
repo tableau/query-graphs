@@ -63,7 +63,7 @@ function QueryGraphInternal({treeDescription, children}: QueryGraphProps) {
     }, [treeDescription, initGraphStore, nodeIdMapping]);
 
     // Create a ResizeObserver to keep track of the sizes of the nodes
-    const resizeObserverRef = useRef<ResizeObserver>();
+    const resizeObserverRef = useRef<ResizeObserver | undefined>(undefined);
     const updateNodeDimensions = useGraphRenderingStore((s) => s.updateNodeDimensions);
     const resizeObserver = useMemo(() => {
         resizeObserverRef.current?.disconnect();
