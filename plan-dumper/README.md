@@ -114,7 +114,6 @@ GRANT ALL ON query_graphs_plan_dumper.* TO 'plan_dumper'@'%';
 
 Pass a `mysql://user:password@host[:port]/database` URL to `--mariadb-url`.
 For Unix-socket authentication, append `?unix_socket=/path/to/socket`.
-The `steps` mode enables the session-local optimizer trace and fails rather than committing a truncated or privilege-redacted trace.
 
 **Trino:** the official image includes the writable `memory` catalog needed by the dumper:
 
@@ -123,16 +122,15 @@ docker run --rm --name query-graphs-trino -p 8080:8080 trinodb/trino:latest
 ```
 
 Wait for `SERVER STARTED`, then pass the unauthenticated server and its `memory/query_graphs_plan_dumper` schema to `--trino-url`.
-The schema is created automatically and is destructive scratch space: the dumper replaces tables named like the bundled TPC-H tables on every run.
-Password/token-authenticated Trino is not currently supported.
+The schema is created automatically and is a scratch space.
+No password/token-authentication is used.
 
-Analyzed dumps use Trino's authenticated `GET /v1/query/<query-id>` coordinator endpoint immediately after consuming each query's results.
+Analyzed query plans are retrieved using Trino's authenticated `GET /v1/query/<query-id>` coordinator endpoint immediately after running the query.
 The configured user must be allowed to view its own queries, and the coordinator must retain completed queries long enough for that request.
 The resulting internal `QueryInfo` JSON is deliberately stored without normalization and may change between Trino versions.
 
 Trino and Presto share ancestry but are separate projects with different clients and independently evolving plan formats.
 This dumper targets Trino; Presto is not currently supported.
-MariaDB and Trino plans currently render through Query Graphs' generic JSON fallback rather than a database-specific semantic loader.
 
 ## Cleaning Up Runtime Noise
 
