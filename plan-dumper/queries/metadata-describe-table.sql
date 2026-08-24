@@ -1,4 +1,5 @@
 -- UNSUPPORTED: duckdb
+-- MODES: simple
 -- Uses Postgres catalog casts (`::pg_catalog.regtype::pg_catalog.text`) that DuckDB's
 -- pg_catalog emulation doesn't support; Hyper's does, since it's Postgres-wire-compatible.
 SELECT c.relchecks, c.relkind, c.relhasindex, c.relhasrules, c.relhastriggers,

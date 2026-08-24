@@ -1,3 +1,4 @@
+-- MODES: simple
 SELECT a2, b2 FROM t2
 UNION ALL
 SELECT a2, c2 FROM t2

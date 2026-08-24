@@ -12,16 +12,21 @@ Refresh these examples from time to time when new versions are published, so the
 * `setup.sql` — creates the ad-hoc and TPC-H tables and loads the tiny dataset, so cardinality estimates in the plans are meaningful.
 * `tpch-data-tiny/` — a tiny TPC-H dataset loaded by `setup.sql`.
 
-### Query Naming Conventions
+### EXPLAIN Modes
 
-The `EXPLAIN` mode is chosen from a query's filename suffix:
+A `-- MODES: <mode>[, <mode>...]` comment in a query file lists the `EXPLAIN` modes to dump it under.
+Defaults to `analyze` when the comment is absent.
+The available modes are:
 
-* `*-analyze.sql` → `EXPLAIN (…, ANALYZE)` — includes runtime measurements (Hyper, Postgres and DuckDB).
-* `*-steps.sql` → the optimizer's intermediate steps: `EXPLAIN (FORMAT INTERNAL, OPTIMIZE STEPS)` on Hyper, `EXPLAIN (FORMAT JSON)` with `explain_output='all'` on DuckDB (skipped for Postgres).
-* `*-pipelines.sql` / `*-analyze-pipelines.sql` → execution pipelines (Hyper only; skipped for Postgres and DuckDB).
-* anything else → a plain `EXPLAIN (FORMAT JSON)`.
+* `simple` → a plain `EXPLAIN (FORMAT JSON)`.
+* `analyze` → `EXPLAIN (…, ANALYZE)` — includes runtime measurements (Hyper, Postgres and DuckDB).
+* `steps` → the optimizer's intermediate steps: `EXPLAIN (FORMAT INTERNAL, OPTIMIZE STEPS)` on Hyper, `EXPLAIN (FORMAT JSON)` with `explain_output='all'` on DuckDB (skipped for Postgres).
+* `pipelines` / `analyze-pipelines` → execution pipelines (Hyper only; skipped for Postgres and DuckDB).
 
-If a database does not support a query, the query should be marked with a `-- UNSUPPORTED: <db>[, <db>...]` comment.
+Each requested mode is written to its own `<query>[-<mode>].plan.json` (no suffix for `simple`).
+A mode not supported by a given database is silently skipped and no file is generated.
+
+If a database can't run a query at all, mark it with a `-- UNSUPPORTED: <db>[, <db>...]` comment instead.
 
 ## Regenerating the Plans
 

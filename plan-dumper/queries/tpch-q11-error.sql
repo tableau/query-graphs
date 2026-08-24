@@ -1,4 +1,5 @@
 -- UNSUPPORTED: postgres
+-- MODES: analyze
 -- Postgres raises a hard "division by zero" error for the `/ 0` below, aborting the whole
 -- dump; DuckDB returns `inf` instead (no error, so it still dumps, just without exercising
 -- the error-reporting path this query is meant to test).
