@@ -23,7 +23,8 @@
     font-size: .7em;
     width: 1em;
     height: 1em;
-    bottom: -.8em;
+    /* Sit below the colour bar instead of overlapping it. */
+    bottom: -1.15em;
     line-height: 1em;
     text-align: center;
     border-radius: 0.5em;
@@ -70,8 +71,6 @@
 }
 .qg-color-bar-below {
     margin-top: 4px;
-    /* Keep the bar above the subtree +/- handle at the bottom of the node. */
-    margin-bottom: 1em;
 }
 .qg-color-bar-seg {
     flex: 1 1 0;
