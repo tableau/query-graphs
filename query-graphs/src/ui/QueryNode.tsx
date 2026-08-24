@@ -1,5 +1,5 @@
-import type {ReactElement, MouseEvent, RefObject} from "react";
-import {memo, useCallback, useRef, useEffect} from "react";
+import type {ReactElement, MouseEvent} from "react";
+import {memo, useCallback} from "react";
 import type {Node, NodeProps} from "@xyflow/react";
 import {Handle, Position} from "@xyflow/react";
 import cc from "classcat";
@@ -7,27 +7,10 @@ import type {TreeNode} from "../tree-description";
 import {NodeIcon} from "./NodeIcon";
 import "./QueryNode.css";
 import {useGraphRenderingStore} from "./store";
-import {assert} from "../assert";
 
-type NodeData = TreeNode & {resizeObserver: ResizeObserver};
-
-export type QueryGraphNode = Node<NodeData, "querynode">;
-
-function useResizeObservedRef<T extends Element>(resizeObserver: ResizeObserver): RefObject<T | null> {
-    const ref = useRef<T>(null);
-    useEffect(() => {
-        assert(ref.current !== null);
-        const currNode = ref.current;
-        resizeObserver.observe(currNode);
-        return () => resizeObserver.unobserve(currNode);
-    }, [resizeObserver]);
-    return ref;
-}
+export type QueryGraphNode = Node<TreeNode, "querynode">;
 
 function QueryNode({data, id}: NodeProps<QueryGraphNode>) {
-    const bodyRef = useResizeObservedRef<HTMLDivElement>(data.resizeObserver);
-    const headRef = useResizeObservedRef<HTMLDivElement>(data.resizeObserver);
-
     const expanded = useGraphRenderingStore((s) => s.expandedNodes[id]);
     const toggleNode = useGraphRenderingStore((s) => s.toggleExpandedNode);
     const subtreeExpanded = useGraphRenderingStore((s) => s.expandedSubtrees[id]);
@@ -93,7 +76,7 @@ function QueryNode({data, id}: NodeProps<QueryGraphNode>) {
         <>
             <Handle type="target" position={Position.Top} />
             <div className={nodeClassName} onClick={onClick}>
-                <div className="qg-graph-node-head" ref={headRef}>
+                <div className="qg-graph-node-head">
                     {colorBar(data.barsAbove, "above")}
                     <NodeIcon icon={data.icon} iconColor={data.iconColor} />
                     <div className="qg-graph-node-label" style={{background: data.nodeColor}}>
@@ -101,9 +84,7 @@ function QueryNode({data, id}: NodeProps<QueryGraphNode>) {
                     </div>
                 </div>
                 <div className="qg-graph-node-body-wrapper nowheel">
-                    <div ref={bodyRef} className="qg-graph-node-body">
-                        {children}
-                    </div>
+                    <div className="qg-graph-node-body">{children}</div>
                 </div>
                 {colorBar(data.barsBelow, "below")}
             </div>

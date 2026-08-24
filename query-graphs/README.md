@@ -48,10 +48,10 @@ The library intentionally exposes low-level loaders (`json`, `xml`) as generic f
 ## The Renderer
 
 `QueryGraph` (`src/ui/QueryGraph.tsx`) is the top-level component rendering a `TreeDescription`.
-It assigns a stable id to every node, seeds the interaction store from each node's `expandedByDefault` flag, and observes on-screen node sizes with a `ResizeObserver`.
+It assigns a stable id to every node, creates a graph-local rendering store seeded from each node's `expandedByDefault` flag, and retains the node dimensions measured by react-flow.
 
 `tree-layout.ts` positions the tree with [`d3-flextree`](https://github.com/Klortho/d3-flextree) on top of `d3-hierarchy`, then translates the result into react-flow nodes and edges.
-Layout is driven by the **measured** DOM size of each node, so it runs in two passes: the first render uses a placeholder size and, once the `ResizeObserver` reports real dimensions, the tree re-lays-out with the correct sizes.
+Layout is driven by the **measured** DOM size of each node, so it runs in two passes: react-flow measures new nodes after their first render, then the tree re-lays-out with the correct sizes. Those measurements are retained in the controlled node objects so react-flow does not re-initialize them on every layout.
 Edge thickness is scaled from `edgeWidth`, and `crosslinks` are added as extra edges.
 
 `QueryNode` (`src/ui/QueryNode.tsx`) draws a single node.
@@ -83,12 +83,12 @@ These are the touches that make a plan readable at a glance:
 
 ### Interaction State
 
-`store.ts` is a [Zustand](https://github.com/pmndrs/zustand) store (with the `immer` and `devtools` middleware) holding all mutable view state, so React components stay purely declarative.
+Each `QueryGraph` owns a [Zustand](https://github.com/pmndrs/zustand) store holding its mutable rendering state, so multiple graphs do not interfere with one another.
 It tracks three things, and the distinction between the first two is the key subtlety:
 
 * `expandedNodes` — which nodes have their **property detail panel** open.
 * `expandedSubtrees` — which nodes reveal their **`collapsedChildren`** in the graph.
-* `nodeDimensions` — the measured head/body size of each node, fed back into layout.
+* `nodeDimensions` — react-flow's measurements, retained across controlled-node layout updates.
 
 ## Tech Debt
 
