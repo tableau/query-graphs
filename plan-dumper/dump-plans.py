@@ -35,6 +35,7 @@ except ImportError:
 baseDir = Path(__file__).resolve().parent
 setupFile = baseDir / "setup.sql"
 queriesDir = baseDir / "queries"
+manualExamplesDir = baseDir / "manual-examples"
 targetDir = baseDir.parent / "standalone-app" / "examples"
 
 unsupportedRe = re.compile(r"^--\s*UNSUPPORTED:\s*(.+)$", re.MULTILINE | re.IGNORECASE)
@@ -45,18 +46,6 @@ copyRe = re.compile(
 )
 createTableRe = re.compile(r"\bCREATE\s+TEMP\s+TABLE\s+(\w+)", re.IGNORECASE)
 identifierRe = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
-cedarOptimizerSteps = (
-    "NoOptimizations",
-    "ExpressionSimplification",
-    "Unnesting",
-    "PredicatePushdown",
-    "InitialJoinTree",
-    "SidewayInformationPassing",
-    "OperatorReordering",
-    "EarlyProbing",
-    "CommonSubtreeElimination",
-    "PhysicalOperatorMapping",
-)
 
 
 def parse_args():
@@ -177,10 +166,10 @@ def dump_plans(
     with tempfile.TemporaryDirectory(prefix=f".{name}-", dir=targetDir) as temporary:
         staging_dir = Path(temporary) / name
         destination = targetDir / name
-        if destination.exists():
-            shutil.copytree(destination, staging_dir)
-        else:
-            staging_dir.mkdir()
+        staging_dir.mkdir()
+        manual_examples = manualExamplesDir / name
+        if manual_examples.exists():
+            shutil.copytree(manual_examples, staging_dir, dirs_exist_ok=True)
 
         for query_path in sorted(queriesDir.glob("**/*.sql")):
             sql = read_file(query_path).strip()
@@ -194,30 +183,29 @@ def dump_plans(
                 )
 
             if name in unsupported:
-                for requested_mode in parse_modes(sql):
-                    mode = map_mode(requested_mode)
-                    if mode:
-                        output_path(mode).unlink(missing_ok=True)
                 print(f"{name}: {query_path.relative_to(baseDir)} (skipped, marked UNSUPPORTED)")
                 continue
 
             modes = []
             for requested_mode in parse_modes(sql):
                 if f"{name}:{requested_mode}" in unsupported:
-                    mode = map_mode(requested_mode)
-                    if mode:
-                        output_path(mode).unlink(missing_ok=True)
                     print(
                         f"{name}: {query_path.relative_to(baseDir)} "
                         f"({requested_mode}; skipped, marked UNSUPPORTED)"
                     )
                     continue
                 mode = map_mode(requested_mode)
+                if mode is None:
+                    message = (
+                        f"{name}: {query_path.relative_to(baseDir)} "
+                        f"({requested_mode}; unsupported mode)"
+                    )
+                    print(message)
+                    failures.append(message)
+                    continue
                 if mode not in modes:
                     modes.append(mode)
             for mode in modes:
-                if mode is None:
-                    continue
                 try:
                     plan = get_plan(sql, mode)
                 except Exception as error:
@@ -229,7 +217,13 @@ def dump_plans(
                     print(message)
                     failures.append(message)
                     continue
-                if not plan:
+                if plan is None:
+                    message = (
+                        f"{name}: {query_path.relative_to(baseDir)} "
+                        f"({mode}; unsupported mode)"
+                    )
+                    print(message)
+                    failures.append(message)
                     continue
 
                 print(f"{name}: {query_path.relative_to(baseDir)} ({mode})")
@@ -300,9 +294,21 @@ def dump_postgres_compatible(name, dsn):
             elif mode == "analyze":
                 explain = "EXPLAIN (VERBOSE, ANALYZE, FORMAT JSON) "
             elif mode == "steps" and name == "cedardb":
+                optimizer_steps = (
+                    "NoOptimizations",
+                    "ExpressionSimplification",
+                    "Unnesting",
+                    "PredicatePushdown",
+                    "InitialJoinTree",
+                    "SidewayInformationPassing",
+                    "OperatorReordering",
+                    "EarlyProbing",
+                    "CommonSubtreeElimination",
+                    "PhysicalOperatorMapping",
+                )
                 plans = {}
                 with connection.cursor() as cursor:
-                    for step in cedarOptimizerSteps:
+                    for step in optimizer_steps:
                         cursor.execute(
                             f"EXPLAIN (VERBOSE, FORMAT JSON, STEP {step}) " + sql
                         )
