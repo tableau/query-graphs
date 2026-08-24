@@ -1,43 +1,46 @@
-.query-graph .react-flow__pane {
-  background: #fdfdfd;
-}
+.query-graph {
+  & .react-flow__pane {
+    background: #fdfdfd;
+  }
 
-.query-graph .react-flow__handle {
-  background-color: transparent;
-  pointer-events: none;
-}
+  & .react-flow__handle {
+    background-color: transparent;
+    pointer-events: none;
+  }
 
-.query-graph .react-flow__pane,
-.query-graph .react-flow__edge,
-.query-graph .react-flow__node {
-  cursor: default;
-}
+  & .react-flow__pane,
+  & .react-flow__edge,
+  & .react-flow__node {
+    cursor: default;
+  }
 
-.query-graph .react-flow__edge-textbg {
-  opacity: .7;
-  fill: white;
-  stroke: #777;
-}
+  & .react-flow__edge-textbg {
+    opacity: .7;
+    fill: white;
+    stroke: #777;
+  }
 
-.query-graph .react-flow__edge-text {
-  font-size: .6em;
-}
+  & .react-flow__edge-text {
+    font-size: .6em;
+  }
 
-.query-graph .react-flow__edge.qg-label-highlighted .react-flow__edge-text {
-  fill: hsl(309, 84%, 36%);
-}
+  & .react-flow__edge.qg-label-highlighted .react-flow__edge-text {
+    fill: hsl(309, 84%, 36%);
+  }
 
+  & .react-flow__edge.qg-crosslink {
+    & .react-flow__edge-path {
+      stroke: #ccc;
+      stroke-dasharray: 4 4;
+      transition-property: stroke, stroke-width, stroke-dasharray;
+      transition-duration: .5s;
+    }
 
-.query-graph .react-flow__edge.qg-crosslink .react-flow__edge-path {
-  stroke: #ccc;
-  stroke-dasharray: 4 4;
-  transition-property: stroke, stroke-width, stroke-dasharray;
-  transition-duration: .5s;
-}
-
-.query-graph .react-flow__edge.qg-crosslink:hover .react-flow__edge-path,
-.query-graph .react-flow__edge.qg-crosslink:focus .react-flow__edge-path {
-  stroke: hsl(309, 84%, 36%);
-  stroke-width: 1.5px;
-  stroke-dasharray: 6 2;
+    &:hover .react-flow__edge-path,
+    &:focus .react-flow__edge-path {
+      stroke: hsl(309, 84%, 36%);
+      stroke-width: 1.5px;
+      stroke-dasharray: 6 2;
+    }
+  }
 }

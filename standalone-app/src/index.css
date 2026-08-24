@@ -16,9 +16,10 @@ body, html, .main-app-container {
 .span-link {
     color: #5c8aff;
     cursor: pointer;
-}
 
-.span-link:hover, span-link:focus {
-    color: #2965ff;
-    text-decoration: underline;
+    &:hover,
+    &:focus {
+        color: #2965ff;
+        text-decoration: underline;
+    }
 }
