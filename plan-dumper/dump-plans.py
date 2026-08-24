@@ -35,7 +35,6 @@ except ImportError:
 baseDir = Path(__file__).resolve().parent
 setupFile = baseDir / "setup.sql"
 queriesDir = baseDir / "queries"
-manualExamplesDir = baseDir / "manual-examples"
 targetDir = baseDir.parent / "standalone-app" / "examples"
 
 unsupportedRe = re.compile(r"^--\s*UNSUPPORTED:\s*(.+)$", re.MULTILINE | re.IGNORECASE)
@@ -159,7 +158,6 @@ def dump_plans(
     setup,
     get_plan,
     recover_after_error=lambda: None,
-    map_mode=lambda mode: mode,
 ):
     setup()
     failures = []
@@ -167,9 +165,6 @@ def dump_plans(
         staging_dir = Path(temporary) / name
         destination = targetDir / name
         staging_dir.mkdir()
-        manual_examples = manualExamplesDir / name
-        if manual_examples.exists():
-            shutil.copytree(manual_examples, staging_dir, dirs_exist_ok=True)
 
         for query_path in sorted(queriesDir.glob("**/*.sql")):
             sql = read_file(query_path).strip()
@@ -187,21 +182,12 @@ def dump_plans(
                 continue
 
             modes = []
-            for requested_mode in parse_modes(sql):
-                if f"{name}:{requested_mode}" in unsupported:
+            for mode in parse_modes(sql):
+                if f"{name}:{mode}" in unsupported:
                     print(
                         f"{name}: {query_path.relative_to(baseDir)} "
-                        f"({requested_mode}; skipped, marked UNSUPPORTED)"
+                        f"({mode}; skipped, marked UNSUPPORTED)"
                     )
-                    continue
-                mode = map_mode(requested_mode)
-                if mode is None:
-                    message = (
-                        f"{name}: {query_path.relative_to(baseDir)} "
-                        f"({requested_mode}; unsupported mode)"
-                    )
-                    print(message)
-                    failures.append(message)
                     continue
                 if mode not in modes:
                     modes.append(mode)
