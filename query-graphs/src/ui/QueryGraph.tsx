@@ -1,6 +1,5 @@
-import type {Node} from "reactflow";
-import ReactFlow, {MiniMap, Controls, ReactFlowProvider} from "reactflow";
-import "reactflow/dist/base.css";
+import {ReactFlow, MiniMap, Controls, ReactFlowProvider} from "@xyflow/react";
+import "@xyflow/react/dist/base.css";
 
 import {layoutTree} from "./tree-layout";
 import type {TreeDescription, TreeNode} from "../tree-description";
@@ -8,6 +7,7 @@ import {allChildren, visitTreeNodes} from "../tree-description";
 import type {ReactNode} from "react";
 import {useMemo, useEffect, useRef} from "react";
 import {QueryNode} from "./QueryNode";
+import type {QueryGraphNode} from "./QueryNode";
 import {ColoredEdge} from "./ColoredEdge";
 import {useGraphRenderingStore} from "./store";
 import "./QueryGraph.css";
@@ -17,7 +17,7 @@ interface QueryGraphProps {
     children: ReactNode | ReactNode[];
 }
 
-function minimapNodeColor(n: Node<TreeNode>): string {
+function minimapNodeColor(n: QueryGraphNode): string {
     if (n.data.nodeColor) return n.data.nodeColor;
     if (n.data.iconColor) return n.data.iconColor;
     return "hsl(0, 0%, 72%)";

@@ -1,7 +1,7 @@
 import type {ReactElement, MouseEvent, RefObject} from "react";
 import {memo, useCallback, useRef, useEffect} from "react";
-import type {NodeProps} from "reactflow";
-import {Handle, Position} from "reactflow";
+import type {Node, NodeProps} from "@xyflow/react";
+import {Handle, Position} from "@xyflow/react";
 import cc from "classcat";
 import type {TreeNode} from "../tree-description";
 import {NodeIcon} from "./NodeIcon";
@@ -10,6 +10,8 @@ import {useGraphRenderingStore} from "./store";
 import {assert} from "../loader-utils";
 
 type NodeData = TreeNode & {resizeObserver: ResizeObserver};
+
+export type QueryGraphNode = Node<NodeData, "querynode">;
 
 function useResizeObservedRef<T extends Element>(resizeObserver: ResizeObserver): RefObject<T | null> {
     const ref = useRef<T>(null);
@@ -22,7 +24,7 @@ function useResizeObservedRef<T extends Element>(resizeObserver: ResizeObserver)
     return ref;
 }
 
-function QueryNode({data, id}: NodeProps<NodeData>) {
+function QueryNode({data, id}: NodeProps<QueryGraphNode>) {
     const bodyRef = useResizeObservedRef<HTMLDivElement>(data.resizeObserver);
     const headRef = useResizeObservedRef<HTMLDivElement>(data.resizeObserver);
 

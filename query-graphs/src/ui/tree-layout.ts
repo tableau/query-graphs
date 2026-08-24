@@ -4,13 +4,18 @@ import * as d3hierarchy from "d3-hierarchy";
 import type {NodeDimensions} from "./store";
 import type * as treeDescription from "../tree-description";
 import type {TreeNode, TreeDescription} from "../tree-description";
-import type {Edge, Node} from "reactflow";
+import type {Edge} from "@xyflow/react";
+import type {QueryGraphNode} from "./QueryNode";
+import type {ColoredGraphEdge} from "./ColoredEdge";
 import {assertNotNull} from "../loader-utils";
 import type {CSSProperties} from "react";
 
+// Crosslinks have no `type`/`data` of their own, so they stay plain `Edge`s.
+type QueryGraphEdge = ColoredGraphEdge | Edge;
+
 interface TreeLayout {
-    nodes: Node<TreeNode>[];
-    edges: Edge[];
+    nodes: QueryGraphNode[];
+    edges: QueryGraphEdge[];
 }
 
 //
@@ -62,17 +67,21 @@ export function layoutTree(
     const d3edges = layout.links();
 
     // Transform tree representation from d3 into reactflow
-    const nodes = d3nodes.map((n) => {
+    const nodes: QueryGraphNode[] = d3nodes.map((n) => {
+        const id = nodeIds.get(n.data);
+        assertNotNull(id);
         return {
-            id: nodeIds.get(n.data),
+            id,
             position: {x: n.x, y: n.y},
             type: "querynode",
             data: {...n.data, resizeObserver},
-        } as Node;
+        };
     });
-    const edges = d3edges.map((e) => {
+    const edges: QueryGraphEdge[] = d3edges.map((e) => {
         const sourceId = nodeIds.get(e.source.data);
         const targetId = nodeIds.get(e.target.data);
+        assertNotNull(sourceId);
+        assertNotNull(targetId);
         const style = {} as CSSProperties;
         if (e.target.data.edgeWidth) {
             const width = Math.max(1, 10 * Math.min(1, e.target.data.edgeWidth));
@@ -88,7 +97,7 @@ export function layoutTree(
             style: style,
             data: {colors: e.target.data.edgeColors},
             focusable: false,
-        } as Edge;
+        };
     });
 
     // Add crosslinks
@@ -98,13 +107,15 @@ export function layoutTree(
             return h.data === d;
         });
     };
-    const crosslinks = [] as Edge[];
+    const crosslinks: Edge[] = [];
     for (const link of treeData.crosslinks ?? []) {
         const sourceNode = map(link.source);
         const targetNode = map(link.target);
         if (!targetNode || !sourceNode) continue;
-        const sourceId = nodeIds.get(sourceNode.data)!;
-        const targetId = nodeIds.get(targetNode.data)!;
+        const sourceId = nodeIds.get(sourceNode.data);
+        const targetId = nodeIds.get(targetNode.data);
+        assertNotNull(sourceId);
+        assertNotNull(targetId);
         crosslinks.push({
             id: `${sourceId}->${targetId}`,
             source: sourceId,
