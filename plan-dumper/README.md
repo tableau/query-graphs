@@ -8,6 +8,7 @@ Refresh these examples from time to time when new versions are published, so the
 ## What Is Here
 
 * `dump-plans.py` — runs each query against the databases and writes the `EXPLAIN` output as JSON into `standalone-app/examples/<db>/`.
+* `filter-timing-diff.py` — strips purely timing/cycle-count noise out of a `git diff`, so regenerating the plans doesn't drown real changes in runtime jitter. See [Cleaning Up Timing-Only Noise](#cleaning-up-timing-only-noise).
 * `queries/` — the SQL queries to explain, including a `tpch/` subfolder of TPC-H queries.
 * `setup.sql` — creates the ad-hoc and TPC-H tables and loads the tiny dataset, so cardinality estimates in the plans are meaningful.
 * `tpch-data-tiny/` — a tiny TPC-H dataset loaded by `setup.sql`.
@@ -53,6 +54,18 @@ python3 dump-plans.py --hyper-path ~/<workspace>/bazel-bin/hyper/tools/hyperd
 `--hyper-path` points at the directory containing the `hyperd` binary; when omitted, the script uses the `hyperd` bundled with the pip-installed `tableauhyperapi`.
 
 To also dump Postgres plans, run a Postgres instance on port 5432 (the default)
+
+## Cleaning Up Timing-Only Noise
+
+Every run re-executes each query, so runtime measurements (Postgres' `Actual Total Time`, DuckDB's `cpu_time`, Hyper's `cpu-cycles`, …) change even when a plan itself didn't. After regenerating:
+
+```shell
+plan-dumper/filter-timing-diff.py --revert
+```
+
+This `git checkout --`s every file whose diff is *purely* timing/cycle-count jitter, so the remaining `git diff` shows only real changes. If a file has a real change alongside a timing change on the same line or hunk, that hunk is kept as-is, timing delta included — only hunks that differ *exclusively* in a volatile field are dropped.
+
+Run it without `--revert` to preview the filtered diff instead of touching the working tree (e.g. `plan-dumper/filter-timing-diff.py --cached` for the staged diff).
 
 ## Verifying the Result
 
