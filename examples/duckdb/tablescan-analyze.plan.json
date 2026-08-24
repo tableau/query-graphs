@@ -1,0 +1,53 @@
+{
+    "total_bytes_written": 0,
+    "total_bytes_read": 0,
+    "result_set_size": 0,
+    "cumulative_rows_scanned": 0,
+    "cpu_time": 0.0,
+    "blocked_thread_time": 0.0,
+    "rows_returned": 0,
+    "system_peak_temp_dir_size": 0,
+    "cumulative_cardinality": 0,
+    "system_peak_buffer_memory": 0,
+    "extra_info": {},
+    "query_name": "",
+    "latency": 0.0,
+    "children": [
+        {
+            "total_bytes_written": 0,
+            "result_set_size": 0,
+            "operator_timing": 4.1e-8,
+            "operator_rows_scanned": 0,
+            "cumulative_rows_scanned": 0,
+            "operator_cardinality": 0,
+            "operator_type": "EXPLAIN_ANALYZE",
+            "total_bytes_read": 0,
+            "operator_name": "EXPLAIN_ANALYZE",
+            "cpu_time": 0.0,
+            "extra_info": {},
+            "cumulative_cardinality": 0,
+            "children": [
+                {
+                    "cumulative_cardinality": 0,
+                    "extra_info": {
+                        "Table": "region",
+                        "Type": "Sequential Scan",
+                        "Projections": "r_name",
+                        "Estimated Cardinality": "5"
+                    },
+                    "operator_name": "SEQ_SCAN ",
+                    "cpu_time": 0.0,
+                    "cumulative_rows_scanned": 0,
+                    "operator_rows_scanned": 5,
+                    "operator_timing": 0.00000625,
+                    "result_set_size": 80,
+                    "total_bytes_read": 0,
+                    "operator_type": "TABLE_SCAN",
+                    "total_bytes_written": 0,
+                    "operator_cardinality": 5,
+                    "children": []
+                }
+            ]
+        }
+    ]
+}

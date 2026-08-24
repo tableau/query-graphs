@@ -1,0 +1,143 @@
+{
+    "total_bytes_written": 0,
+    "total_bytes_read": 0,
+    "result_set_size": 0,
+    "cumulative_rows_scanned": 0,
+    "cpu_time": 0.0,
+    "blocked_thread_time": 0.0,
+    "rows_returned": 0,
+    "system_peak_temp_dir_size": 0,
+    "cumulative_cardinality": 0,
+    "system_peak_buffer_memory": 0,
+    "extra_info": {},
+    "query_name": "",
+    "latency": 0.0,
+    "children": [
+        {
+            "total_bytes_written": 0,
+            "result_set_size": 0,
+            "operator_timing": 0.0000032590000000000047,
+            "operator_rows_scanned": 0,
+            "cumulative_rows_scanned": 0,
+            "operator_cardinality": 0,
+            "operator_type": "EXPLAIN_ANALYZE",
+            "total_bytes_read": 0,
+            "operator_name": "EXPLAIN_ANALYZE",
+            "cpu_time": 0.0,
+            "extra_info": {},
+            "cumulative_cardinality": 0,
+            "children": [
+                {
+                    "cumulative_cardinality": 0,
+                    "extra_info": {
+                        "CTE Name": "x",
+                        "Table Index": "1",
+                        "Estimated Cardinality": "1001"
+                    },
+                    "operator_name": "REC_CTE",
+                    "cpu_time": 0.0,
+                    "cumulative_rows_scanned": 0,
+                    "operator_rows_scanned": 0,
+                    "operator_timing": 0.0027076239999999996,
+                    "result_set_size": 400,
+                    "total_bytes_read": 0,
+                    "operator_type": "RECURSIVE_CTE",
+                    "total_bytes_written": 0,
+                    "operator_cardinality": 100,
+                    "children": [
+                        {
+                            "total_bytes_written": 0,
+                            "result_set_size": 4,
+                            "operator_timing": 2.5e-7,
+                            "operator_rows_scanned": 0,
+                            "cumulative_rows_scanned": 0,
+                            "operator_cardinality": 1,
+                            "operator_type": "PROJECTION",
+                            "total_bytes_read": 0,
+                            "operator_name": "PROJECTION",
+                            "cpu_time": 0.0,
+                            "extra_info": {
+                                "Projections": "1",
+                                "Estimated Cardinality": "1"
+                            },
+                            "cumulative_cardinality": 0,
+                            "children": [
+                                {
+                                    "cumulative_cardinality": 0,
+                                    "extra_info": {},
+                                    "operator_name": "DUMMY_SCAN",
+                                    "cpu_time": 0.0,
+                                    "cumulative_rows_scanned": 0,
+                                    "operator_rows_scanned": 0,
+                                    "operator_timing": 4.17e-7,
+                                    "result_set_size": 4,
+                                    "total_bytes_read": 0,
+                                    "operator_type": "DUMMY_SCAN",
+                                    "total_bytes_written": 0,
+                                    "operator_cardinality": 1,
+                                    "children": []
+                                }
+                            ]
+                        },
+                        {
+                            "total_bytes_written": 0,
+                            "result_set_size": 396,
+                            "operator_timing": 0.00019262999999999968,
+                            "operator_rows_scanned": 0,
+                            "cumulative_rows_scanned": 0,
+                            "operator_cardinality": 99,
+                            "operator_type": "PROJECTION",
+                            "total_bytes_read": 0,
+                            "operator_name": "PROJECTION",
+                            "cpu_time": 0.0,
+                            "extra_info": {
+                                "Projections": "(i + 1)",
+                                "Estimated Cardinality": "1"
+                            },
+                            "cumulative_cardinality": 0,
+                            "children": [
+                                {
+                                    "cumulative_cardinality": 0,
+                                    "extra_info": {
+                                        "Expression": "(i < 100)",
+                                        "Estimated Cardinality": "1"
+                                    },
+                                    "operator_name": "FILTER",
+                                    "cpu_time": 0.0,
+                                    "cumulative_rows_scanned": 0,
+                                    "operator_rows_scanned": 0,
+                                    "operator_timing": 0.00046291600000000007,
+                                    "result_set_size": 396,
+                                    "total_bytes_read": 0,
+                                    "operator_type": "FILTER",
+                                    "total_bytes_written": 0,
+                                    "operator_cardinality": 99,
+                                    "children": [
+                                        {
+                                            "total_bytes_written": 0,
+                                            "result_set_size": 400,
+                                            "operator_timing": 0.000028839000000000006,
+                                            "operator_rows_scanned": 0,
+                                            "cumulative_rows_scanned": 0,
+                                            "operator_cardinality": 100,
+                                            "operator_type": "RECURSIVE_CTE_SCAN",
+                                            "total_bytes_read": 0,
+                                            "operator_name": "REC_CTE_SCAN",
+                                            "cpu_time": 0.0,
+                                            "extra_info": {
+                                                "CTE Index": "1",
+                                                "Estimated Cardinality": "1"
+                                            },
+                                            "cumulative_cardinality": 0,
+                                            "children": []
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
