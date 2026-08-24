@@ -14,22 +14,10 @@ from urllib.parse import parse_qs, quote, unquote, urlparse
 from urllib.request import Request, urlopen
 
 import duckdb
+import psycopg2
+import pymysql
+import trino
 from tableauhyperapi import Connection, HyperProcess, Telemetry
-
-try:
-    import psycopg2
-except ImportError:
-    psycopg2 = None
-
-try:
-    import pymysql
-except ImportError:
-    pymysql = None
-
-try:
-    import trino
-except ImportError:
-    trino = None
 
 
 baseDir = Path(__file__).resolve().parent
@@ -239,9 +227,6 @@ def dump_postgres_compatible(name, dsn):
     if not dsn:
         print(f"Skipping {name}: no DSN configured")
         return
-    if psycopg2 is None:
-        print(f"Skipping {name}: psycopg2 is not installed")
-        return
 
     try:
         connection = psycopg2.connect(dsn)
@@ -385,9 +370,6 @@ def dump_mariadb(url):
     if not url:
         print("Skipping mariadb: --mariadb-url is not configured")
         return
-    if pymysql is None:
-        print("Skipping mariadb: PyMySQL is not installed")
-        return
 
     try:
         options = parse_mariadb_url(url)
@@ -479,9 +461,6 @@ def parse_trino_url(url):
 def dump_trino(url):
     if not url:
         print("Skipping trino: --trino-url is not configured")
-        return
-    if trino is None:
-        print("Skipping trino: the trino package is not installed")
         return
 
     try:
