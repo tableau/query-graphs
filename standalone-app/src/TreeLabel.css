@@ -5,10 +5,10 @@
     field-sizing: content;
     min-width: 10em;
     border: none;
-}
 
-.graph-title:hover {
-    background: #ffeded;
+    &:hover {
+        background: #ffeded;
+    }
 }
 
 .graph-metadata {

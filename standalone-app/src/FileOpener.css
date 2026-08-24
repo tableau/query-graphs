@@ -5,22 +5,22 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-}
 
-.file-selection-page .logo {
-    width: 1.5em;
-    margin-right: .5em;
-}
+    & .logo {
+        width: 1.5em;
+        margin-right: .5em;
+    }
 
-.file-selection-page .caption {
-    margin-top: 2em;
-    font-size: 2em;
-    margin-bottom: .5em;
-}
+    & .caption {
+        margin-top: 2em;
+        font-size: 2em;
+        margin-bottom: .5em;
+    }
 
-.file-selection-page .subcaption {
-    font-size: 1.5em;
-    margin-bottom: .5em;
+    & .subcaption {
+        font-size: 1.5em;
+        margin-bottom: .5em;
+    }
 }
 
 .file-selection-page-content {
@@ -40,10 +40,10 @@
     font-size: 0.9em;
     text-align: center;
     color: gray;
-}
 
-.github-link a {
-    color: gray;
+    & a {
+        color: gray;
+    }
 }
 
 /* Hinted text area */
@@ -55,25 +55,25 @@
     border-radius: var(--border-radius);
     overflow: hidden;
     box-shadow: 1px 2px 5px hsl(0,0%,90%);
-}
 
-.hinted-textarea > textarea {
-    resize: vertical;
-    border: none;
-    padding: 0.3em;
-}
+    & > textarea {
+        resize: vertical;
+        border: none;
+        padding: 0.3em;
 
-.hinted-textarea > textarea:focus {
-    outline: none;
-}
+        &:focus {
+            outline: none;
+        }
+    }
 
-.hinted-textarea > .textarea-hint {
-    background: white;
-    border-top: 1px solid #666;
-    border-color: hsl(0,0%, 80%);
-    padding: 0.4em;
-    color: #555;
-    font-size: .8em;
+    & > .textarea-hint {
+        background: white;
+        border-top: 1px solid #666;
+        border-color: hsl(0,0%, 80%);
+        padding: 0.4em;
+        color: #555;
+        font-size: .8em;
+    }
 }
 
 /* Error message */

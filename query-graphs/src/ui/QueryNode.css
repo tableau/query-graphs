@@ -5,16 +5,18 @@
     margin: -.3em -.5em;
     transition-property: border-color, background-color;
     transition-duration: 0.2s;
-}
-.qg-graph-node.qg-no-props {
-    cursor: default;
-}
-.qg-graph-node.qg-collapsed:hover,
-.qg-graph-node.qg-expanded {
-    cursor: pointer;
-    background: white;
-    border-color: hsl(0,0%, 80%);
-    box-shadow: 1px 2px 5px hsl(0,0%,90%);
+
+    &.qg-no-props {
+        cursor: default;
+    }
+
+    &.qg-collapsed:hover,
+    &.qg-expanded {
+        cursor: pointer;
+        background: white;
+        border-color: hsl(0,0%, 80%);
+        box-shadow: 1px 2px 5px hsl(0,0%,90%);
+    }
 }
 
 .query-graph .react-flow__handle.qg-subtree-handle {
@@ -30,17 +32,17 @@
     pointer-events: all;
     transition-property: background-color;
     transition-duration: 0.2s;
-}
 
-.query-graph .react-flow__handle.qg-subtree-handle.qg-collapsed {
-    opacity: 0;
+    &.qg-collapsed {
+        opacity: 0;
+    }
+
+    &:hover {
+        background: hsl(0,0%,70%);
+    }
 }
 .query-graph .react-flow__node-querynode:hover .react-flow__handle.qg-subtree-handle {
     opacity: 1;
-}
-
-.query-graph .react-flow__handle.qg-subtree-handle:hover {
-    background: hsl(0,0%,70%);
 }
 
 .qg-graph-node-head {
@@ -97,10 +99,11 @@
     overflow: hidden;
     transition-property: max-width, max-height;
     transition-duration: .2s;
-}
-.qg-graph-node.qg-expanded .qg-graph-node-body-wrapper {
-    max-width: 30em;
-    max-height: 20em;
+
+    .qg-graph-node.qg-expanded & {
+        max-width: 30em;
+        max-height: 20em;
+    }
 }
 .qg-graph-node-body {
     width: max-content;
@@ -108,9 +111,10 @@
     overflow: auto;
     max-width: 30em;
     max-height: 20em;
-}
-.qg-graph-node.qg-expanded .qg-graph-node-body {
-    padding-bottom: 0.6em;
+
+    .qg-graph-node.qg-expanded & {
+        padding-bottom: 0.6em;
+    }
 }
 
 .qg-prop-name {
