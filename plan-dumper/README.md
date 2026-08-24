@@ -11,9 +11,12 @@ Refresh these examples from time to time when new versions are published, so the
 * `filter-timing-diff.py` — strips volatile runtime measurements out of a `git diff`, so regenerating the plans doesn't drown real changes in noise.
   See [Cleaning Up Runtime Noise](#cleaning-up-runtime-noise).
 * `queries/` — the SQL queries to explain, including a `tpch/` subfolder of TPC-H queries.
-* `setup.sql` — creates temporary ad-hoc and TPC-H tables for Hyper, Postgres-compatible databases, and DuckDB.
-* `setup.mariadb.sql` / `setup.trino.sql` — equivalent engine-specific schemas for databases that do not use those temporary-table definitions.
-* `tpch-data-tiny/` — a tiny TPC-H dataset loaded after the schema setup, so cardinality estimates in the plans are meaningful.
+* `setup.sql` — the complete default setup used by Hyper.
+* `setup.<db>.sql` — a complete engine-specific override used instead of `setup.sql`.
+  `\include <path>` includes shared setup statements, while `\copy <table> <path>` asks the dumper to perform a client-side load.
+  Native `COPY` or `LOAD DATA` statements are used where supported.
+* `setup_schema.sql` — the temporary schema shared by Hyper, Postgres-compatible databases, and DuckDB.
+* `tpch-data-tiny/` — a tiny TPC-H dataset referenced by the setup scripts, so cardinality estimates in the plans are meaningful.
 
 ### EXPLAIN Modes
 

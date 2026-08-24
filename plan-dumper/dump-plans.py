@@ -2,6 +2,7 @@
 import argparse
 import csv
 import json
+import os
 import re
 import shutil
 import sys
@@ -27,16 +28,6 @@ TARGET_DIR = BASE_DIR.parent / "standalone-app" / "examples"
 
 UNSUPPORTED_RE = re.compile(r"^--\s*UNSUPPORTED:\s*(.+)$", re.MULTILINE | re.IGNORECASE)
 MODES_RE = re.compile(r"^--\s*MODES:\s*(.+)$", re.MULTILINE | re.IGNORECASE)
-DATA_FILES = (
-    ("customer", "customer.tbl"),
-    ("lineitem", "lineitem.tbl"),
-    ("nation", "nation.tbl"),
-    ("orders", "orders.tbl"),
-    ("partsupp", "partsupp.tbl"),
-    ("part", "part.tbl"),
-    ("region", "region.tbl"),
-    ("supplier", "supplier.tbl"),
-)
 IDENTIFIER_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 
 
@@ -97,14 +88,22 @@ def read_rows(path):
         yield from csv.reader(input_file, delimiter="|", quotechar='"')
 
 
-def load_tables(load_table):
-    for table, filename in DATA_FILES:
-        load_table(table, BASE_DIR / "tpch-data-tiny" / filename)
-
-
-def run_setup(exec_stmt, setup_file=SETUP_FILE):
+def run_setup(exec_stmt, setup_file, load_table=None):
     for statement in read_file(setup_file).split(";"):
-        if statement.strip():
+        statement = statement.strip()
+        if statement.startswith("\\include "):
+            command = statement.split()
+            if len(command) != 2:
+                raise ValueError(f"{setup_file}: expected \\include <path>")
+            run_setup(exec_stmt, setup_file.parent / command[1], load_table)
+        elif statement.startswith("\\copy "):
+            if load_table is None:
+                raise ValueError(f"{setup_file}: \\copy is not supported")
+            command = statement.split()
+            if len(command) != 3:
+                raise ValueError(f"{setup_file}: expected \\copy <table> <path>")
+            load_table(command[1], setup_file.parent / command[2])
+        elif statement:
             exec_stmt(statement)
 
 
@@ -145,11 +144,9 @@ def parse_umbra_step_plan(value):
 
 def dump_plans(
     name,
-    setup,
     get_plan,
     recover_after_error=lambda: None,
 ):
-    setup()
     failures = []
     with tempfile.TemporaryDirectory(prefix=f".{name}-", dir=TARGET_DIR) as temporary:
         staging_dir = Path(temporary) / name
@@ -257,11 +254,6 @@ def dump_postgres_compatible(name, dsn):
             with connection.cursor() as cursor:
                 cursor.executemany(f"INSERT INTO {table} VALUES ({placeholders})", rows)
 
-        def setup():
-            run_setup(exec_stmt)
-            load_tables(load_table)
-            connection.commit()
-
         def get_plan(sql, mode):
             if mode == "simple":
                 explain = "EXPLAIN (VERBOSE, FORMAT JSON) "
@@ -345,7 +337,13 @@ def dump_postgres_compatible(name, dsn):
                 cursor.execute(explain + sql)
                 return format_json(cursor.fetchone()[0])
 
-        dump_plans(name, setup, get_plan, connection.rollback)
+        run_setup(
+            exec_stmt,
+            BASE_DIR / "setup.postgres.sql",
+            load_table,
+        )
+        connection.commit()
+        dump_plans(name, get_plan, connection.rollback)
 
 
 def parse_mariadb_url(url):
@@ -363,6 +361,7 @@ def parse_mariadb_url(url):
         "password": unquote(parsed.password or ""),
         "database": database,
         "autocommit": True,
+        "local_infile": True,
     }
     if "unix_socket" in query:
         options["unix_socket"] = query["unix_socket"][-1]
@@ -385,19 +384,7 @@ def dump_mariadb(url):
         def exec_stmt(sql):
             with connection.cursor() as cursor:
                 cursor.execute(sql)
-
-        def load_table(table, path):
-            rows = list(read_rows(path))
-            placeholders = ", ".join(["%s"] * len(rows[0]))
-            with connection.cursor() as cursor:
-                cursor.executemany(f"INSERT INTO {table} VALUES ({placeholders})", rows)
-
-        def setup():
-            run_setup(exec_stmt, BASE_DIR / "setup.mariadb.sql")
-            load_tables(load_table)
-            with connection.cursor() as cursor:
-                for table, _ in DATA_FILES:
-                    cursor.execute(f"ANALYZE TABLE {table} PERSISTENT FOR ALL")
+                if cursor.description:
                     cursor.fetchall()
 
         def get_plan(sql, mode):
@@ -433,7 +420,11 @@ def dump_mariadb(url):
                 cursor.execute(explain + sql)
                 return format_json(cursor.fetchone()[0])
 
-        dump_plans("mariadb", setup, get_plan)
+        run_setup(
+            exec_stmt,
+            BASE_DIR / "setup.mariadb.sql",
+        )
+        dump_plans("mariadb", get_plan)
 
 
 def parse_trino_url(url):
@@ -504,10 +495,6 @@ def dump_trino(url):
                 cursor.execute(f"INSERT INTO {table} VALUES " + ", ".join(rows[offset:offset + 100]))
                 cursor.fetchall()
 
-        def setup():
-            run_setup(exec_stmt, BASE_DIR / "setup.trino.sql")
-            load_tables(load_table)
-
         def get_plan(sql, mode):
             query = sql.rstrip().removesuffix(";")
             if mode == "simple":
@@ -527,23 +514,18 @@ def dump_trino(url):
                     return format_json(json.load(response))
             return None
 
-        dump_plans("trino", setup, get_plan)
+        run_setup(
+            exec_stmt,
+            BASE_DIR / "setup.trino.sql",
+            load_table,
+        )
+        dump_plans("trino", get_plan)
 
 
 def dump_duckdb():
     with duckdb.connect() as connection:
         def exec_stmt(sql):
             connection.execute(sql)
-
-        def load_table(table, path):
-            exec_stmt(
-                f"COPY {table} FROM '{path}' "
-                "(format csv, delimiter '|', allow_quoted_nulls false)"
-            )
-
-        def setup():
-            run_setup(exec_stmt)
-            load_tables(load_table)
 
         def get_plan(sql, mode):
             if mode == "simple":
@@ -562,7 +544,11 @@ def dump_duckdb():
                 return json.dumps({stage: json.loads(plan) for stage, plan in records}, indent=2)
             return records[0][1]
 
-        dump_plans("duckdb", setup, get_plan)
+        run_setup(
+            exec_stmt,
+            BASE_DIR / "setup.duckdb.sql",
+        )
+        dump_plans("duckdb", get_plan)
 
 
 def dump_hyper(hyper_path):
@@ -575,13 +561,6 @@ def dump_hyper(hyper_path):
         with Connection(endpoint=hyper.endpoint) as connection:
             def exec_stmt(sql):
                 connection.execute_command(sql)
-
-            def load_table(table, path):
-                exec_stmt(f"COPY {table} FROM '{path}' (format csv, delimiter '|')")
-
-            def setup():
-                run_setup(exec_stmt)
-                load_tables(load_table)
 
             def get_plan(sql, mode):
                 options = {
@@ -608,10 +587,15 @@ def dump_hyper(hyper_path):
                     raise
                 return "\n".join(row[0] for row in result)
 
-            dump_plans("hyper", setup, get_plan)
+            run_setup(
+                exec_stmt,
+                SETUP_FILE,
+            )
+            dump_plans("hyper", get_plan)
 
 
 def main():
+    os.chdir(BASE_DIR)
     args = parse_args()
     engines = [
         ("postgres", lambda: dump_postgres_compatible("postgres", args.postgres_dsn)),
