@@ -18,6 +18,7 @@ import duckdb
 import psycopg2
 import pymysql
 import trino
+from psycopg2 import sql as psycopg2_sql
 from tableauhyperapi import Connection, HyperProcess, Telemetry
 
 
@@ -249,10 +250,14 @@ def dump_postgres_compatible(name, dsn):
                 cursor.execute(sql)
 
         def load_table(table, path):
-            rows = list(read_rows(path))
-            placeholders = ", ".join(["%s"] * len(rows[0]))
+            if not IDENTIFIER_RE.fullmatch(table):
+                raise ValueError(f"invalid table name in \\copy: {table}")
             with connection.cursor() as cursor:
-                cursor.executemany(f"INSERT INTO {table} VALUES ({placeholders})", rows)
+                copy_sql = psycopg2_sql.SQL(
+                    "COPY {} FROM STDIN (FORMAT CSV, DELIMITER '|', NULL '\\N')"
+                ).format(psycopg2_sql.Identifier(table))
+                with path.open() as input_file:
+                    cursor.copy_expert(copy_sql.as_string(cursor), input_file)
 
         def get_plan(sql, mode):
             if mode == "simple":
