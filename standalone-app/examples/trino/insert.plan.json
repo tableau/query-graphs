@@ -1,0 +1,400 @@
+{
+  "0": {
+    "id": "12",
+    "name": "Output",
+    "descriptor": {
+      "columnNames": "[rows]"
+    },
+    "outputs": [
+      {
+        "symbol": "rows",
+        "type": "bigint"
+      }
+    ],
+    "details": [],
+    "estimates": [
+      {
+        "outputRowCount": "NaN",
+        "outputSizeInBytes": "NaN",
+        "cpuCost": 0.0,
+        "memoryCost": 0.0,
+        "networkCost": 0.0
+      }
+    ],
+    "children": [
+      {
+        "id": "10",
+        "name": "TableCommit",
+        "descriptor": {
+          "target": "memory:MemoryInsertTableHandle{table=21, activeTableIds=[24, 27, 26, 23, 22, 28, 29, 25, 21, 20]}"
+        },
+        "outputs": [
+          {
+            "symbol": "rows",
+            "type": "bigint"
+          }
+        ],
+        "details": [],
+        "estimates": [],
+        "children": [
+          {
+            "id": "418",
+            "name": "LocalExchange",
+            "descriptor": {
+              "partitioning": "SINGLE",
+              "isReplicateNullsAndAny": "",
+              "hashColumn": "[]",
+              "arguments": "[]"
+            },
+            "outputs": [
+              {
+                "symbol": "partialrows",
+                "type": "bigint"
+              },
+              {
+                "symbol": "fragment",
+                "type": "varbinary"
+              }
+            ],
+            "details": [],
+            "estimates": [
+              {
+                "outputRowCount": "NaN",
+                "outputSizeInBytes": "NaN",
+                "cpuCost": 0.0,
+                "memoryCost": 0.0,
+                "networkCost": 0.0
+              }
+            ],
+            "children": [
+              {
+                "id": "342",
+                "name": "RemoteSource",
+                "descriptor": {
+                  "sourceFragmentIds": "[1]"
+                },
+                "outputs": [
+                  {
+                    "symbol": "partialrows",
+                    "type": "bigint"
+                  },
+                  {
+                    "symbol": "fragment",
+                    "type": "varbinary"
+                  }
+                ],
+                "details": [],
+                "estimates": [],
+                "children": []
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "1": {
+    "id": "11",
+    "name": "TableWriter",
+    "descriptor": {},
+    "outputs": [
+      {
+        "symbol": "partialrows",
+        "type": "bigint"
+      },
+      {
+        "symbol": "fragment",
+        "type": "varbinary"
+      }
+    ],
+    "details": [
+      "a2 := a2",
+      "b2 := b2",
+      "c2 := c2"
+    ],
+    "estimates": [],
+    "children": [
+      {
+        "id": "417",
+        "name": "LocalExchange",
+        "descriptor": {
+          "partitioning": "SINGLE",
+          "isReplicateNullsAndAny": "",
+          "hashColumn": "[]",
+          "arguments": "[]"
+        },
+        "outputs": [
+          {
+            "symbol": "b2",
+            "type": "integer"
+          },
+          {
+            "symbol": "a2",
+            "type": "integer"
+          },
+          {
+            "symbol": "c2",
+            "type": "integer"
+          }
+        ],
+        "details": [],
+        "estimates": [
+          {
+            "outputRowCount": 0.0,
+            "outputSizeInBytes": 0.0,
+            "cpuCost": 0.0,
+            "memoryCost": 0.0,
+            "networkCost": 0.0
+          }
+        ],
+        "children": [
+          {
+            "id": "341",
+            "name": "RemoteSource",
+            "descriptor": {
+              "sourceFragmentIds": "[2]"
+            },
+            "outputs": [
+              {
+                "symbol": "b2",
+                "type": "integer"
+              },
+              {
+                "symbol": "a2",
+                "type": "integer"
+              },
+              {
+                "symbol": "c2",
+                "type": "integer"
+              }
+            ],
+            "details": [],
+            "estimates": [],
+            "children": []
+          }
+        ]
+      }
+    ]
+  },
+  "2": {
+    "id": "9",
+    "name": "Project",
+    "descriptor": {},
+    "outputs": [
+      {
+        "symbol": "b2",
+        "type": "integer"
+      },
+      {
+        "symbol": "a2",
+        "type": "integer"
+      },
+      {
+        "symbol": "c2",
+        "type": "integer"
+      }
+    ],
+    "details": [
+      "b2 := (\"b1\" * \"field\")",
+      "a2 := (\"a1\" * \"field\")",
+      "c2 := (\"c1\" * \"field\")"
+    ],
+    "estimates": [
+      {
+        "outputRowCount": 0.0,
+        "outputSizeInBytes": 0.0,
+        "cpuCost": 0.0,
+        "memoryCost": 0.0,
+        "networkCost": 0.0
+      }
+    ],
+    "children": [
+      {
+        "id": "4",
+        "name": "CrossJoin",
+        "descriptor": {},
+        "outputs": [
+          {
+            "symbol": "field",
+            "type": "integer"
+          },
+          {
+            "symbol": "a1",
+            "type": "integer"
+          },
+          {
+            "symbol": "b1",
+            "type": "integer"
+          },
+          {
+            "symbol": "c1",
+            "type": "integer"
+          }
+        ],
+        "details": [
+          "Distribution: REPLICATED"
+        ],
+        "estimates": [
+          {
+            "outputRowCount": 0.0,
+            "outputSizeInBytes": 0.0,
+            "cpuCost": 10.0,
+            "memoryCost": 0.0,
+            "networkCost": 0.0
+          }
+        ],
+        "children": [
+          {
+            "id": "415",
+            "name": "LocalExchange",
+            "descriptor": {
+              "partitioning": "ROUND_ROBIN",
+              "isReplicateNullsAndAny": "",
+              "hashColumn": "[]",
+              "arguments": "[]"
+            },
+            "outputs": [
+              {
+                "symbol": "field",
+                "type": "integer"
+              }
+            ],
+            "details": [],
+            "estimates": [
+              {
+                "outputRowCount": 2.0,
+                "outputSizeInBytes": 10.0,
+                "cpuCost": 10.0,
+                "memoryCost": 0.0,
+                "networkCost": 0.0
+              }
+            ],
+            "children": [
+              {
+                "id": "1",
+                "name": "Values",
+                "descriptor": {},
+                "outputs": [
+                  {
+                    "symbol": "field",
+                    "type": "integer"
+                  }
+                ],
+                "details": [
+                  "(1)",
+                  "(2)"
+                ],
+                "estimates": [
+                  {
+                    "outputRowCount": 2.0,
+                    "outputSizeInBytes": 10.0,
+                    "cpuCost": 0.0,
+                    "memoryCost": 0.0,
+                    "networkCost": 0.0
+                  }
+                ],
+                "children": []
+              }
+            ]
+          },
+          {
+            "id": "416",
+            "name": "LocalExchange",
+            "descriptor": {
+              "partitioning": "SINGLE",
+              "isReplicateNullsAndAny": "",
+              "hashColumn": "[]",
+              "arguments": "[]"
+            },
+            "outputs": [
+              {
+                "symbol": "a1",
+                "type": "integer"
+              },
+              {
+                "symbol": "b1",
+                "type": "integer"
+              },
+              {
+                "symbol": "c1",
+                "type": "integer"
+              }
+            ],
+            "details": [],
+            "estimates": [
+              {
+                "outputRowCount": 0.0,
+                "outputSizeInBytes": 0.0,
+                "cpuCost": 0.0,
+                "memoryCost": 0.0,
+                "networkCost": 0.0
+              }
+            ],
+            "children": [
+              {
+                "id": "340",
+                "name": "RemoteSource",
+                "descriptor": {
+                  "sourceFragmentIds": "[3]"
+                },
+                "outputs": [
+                  {
+                    "symbol": "a1",
+                    "type": "integer"
+                  },
+                  {
+                    "symbol": "b1",
+                    "type": "integer"
+                  },
+                  {
+                    "symbol": "c1",
+                    "type": "integer"
+                  }
+                ],
+                "details": [],
+                "estimates": [],
+                "children": []
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "3": {
+    "id": "0",
+    "name": "TableScan",
+    "descriptor": {
+      "table": "memory:20"
+    },
+    "outputs": [
+      {
+        "symbol": "a1",
+        "type": "integer"
+      },
+      {
+        "symbol": "b1",
+        "type": "integer"
+      },
+      {
+        "symbol": "c1",
+        "type": "integer"
+      }
+    ],
+    "details": [
+      "a1 := 0",
+      "c1 := 2",
+      "b1 := 1"
+    ],
+    "estimates": [
+      {
+        "outputRowCount": 0.0,
+        "outputSizeInBytes": 0.0,
+        "cpuCost": 0.0,
+        "memoryCost": 0.0,
+        "networkCost": 0.0
+      }
+    ],
+    "children": []
+  }
+}

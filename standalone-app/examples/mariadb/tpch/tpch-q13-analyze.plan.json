@@ -1,0 +1,101 @@
+{
+  "query_optimization": {
+    "r_total_time_ms": 0.06496413
+  },
+  "query_block": {
+    "select_id": 1,
+    "r_loops": 1,
+    "r_total_time_ms": 1.002124336,
+    "filesort": {
+      "sort_key": "count(0) desc, c_orders.c_count desc",
+      "r_loops": 1,
+      "r_total_time_ms": 0.001117979,
+      "r_used_priority_queue": false,
+      "r_output_rows": 2,
+      "r_buffer_size": "480",
+      "r_sort_mode": "sort_key,rowid",
+      "temporary_table": {
+        "nested_loop": [
+          {
+            "table": {
+              "table_name": "<derived2>",
+              "access_type": "ALL",
+              "r_loops": 1,
+              "rows": 16512,
+              "r_rows": 129,
+              "r_table_time_ms": 0.004362961,
+              "r_other_time_ms": 0.026829501,
+              "filtered": 100,
+              "r_filtered": 100,
+              "materialized": {
+                "query_block": {
+                  "select_id": 2,
+                  "r_loops": 1,
+                  "r_total_time_ms": 0.980107996,
+                  "const_condition": "1",
+                  "filesort": {
+                    "sort_key": "customer.c_custkey",
+                    "r_loops": 1,
+                    "r_total_time_ms": 0.015058798,
+                    "r_used_priority_queue": false,
+                    "r_output_rows": 129,
+                    "r_buffer_size": "2Kb",
+                    "r_sort_mode": "sort_key,rowid",
+                    "temporary_table": {
+                      "nested_loop": [
+                        {
+                          "table": {
+                            "table_name": "customer",
+                            "access_type": "ALL",
+                            "r_loops": 1,
+                            "rows": 129,
+                            "r_rows": 129,
+                            "r_table_time_ms": 0.026208178,
+                            "r_other_time_ms": 0.008026725,
+                            "r_engine_stats": {
+                              "pages_accessed": 1
+                            },
+                            "filtered": 100,
+                            "r_filtered": 100
+                          }
+                        },
+                        {
+                          "block-nl-join": {
+                            "table": {
+                              "table_name": "orders",
+                              "access_type": "ALL",
+                              "r_loops": 1,
+                              "rows": 128,
+                              "r_rows": 128,
+                              "r_table_time_ms": 0.026671079,
+                              "r_other_time_ms": 0.010620972,
+                              "r_engine_stats": {
+                                "pages_accessed": 1
+                              },
+                              "filtered": 100,
+                              "r_filtered": 100,
+                              "attached_condition": "orders.o_comment  not like '%special%requests%'"
+                            },
+                            "buffer_type": "flat",
+                            "buffer_size": "909",
+                            "join_type": "BNL",
+                            "attached_condition": "trigcond(orders.o_custkey = customer.c_custkey and orders.o_comment  not like '%special%requests%')",
+                            "r_loops": 129,
+                            "r_filtered": 0.78125,
+                            "r_unpack_time_ms": 0.308096413,
+                            "r_other_time_ms": 0.566530475,
+                            "r_effective_rows": 128
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

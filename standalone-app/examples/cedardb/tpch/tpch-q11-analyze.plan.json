@@ -1,0 +1,814 @@
+{
+  "plan": {
+    "operator": "sort",
+    "physicalOperator": "sort",
+    "cardinality": 10,
+    "operatorId": 1,
+    "analyzePlanId": 0,
+    "analyzePlanCardinality": 21,
+    "input": {
+      "operator": "join",
+      "physicalOperator": "singletonjoin",
+      "cardinality": 10,
+      "operatorId": 2,
+      "analyzePlanId": 1,
+      "analyzePlanCardinality": 21,
+      "left": {
+        "operator": "groupby",
+        "physicalOperator": "ungroupedaggregation",
+        "cardinality": 1,
+        "operatorId": 3,
+        "analyzePlanId": 2,
+        "analyzePlanCardinality": 1,
+        "input": {
+          "operator": "pipelinebreakerscan",
+          "physicalOperator": "tempscan",
+          "cardinality": 23,
+          "operatorId": 4,
+          "analyzePlanId": 3,
+          "analyzePlanCardinality": 21,
+          "pipelineBreaker": {
+            "operator": "temp",
+            "physicalOperator": "temp",
+            "cardinality": 23,
+            "operatorId": 5,
+            "analyzePlanId": 4,
+            "analyzePlanCardinality": 21,
+            "input": {
+              "operator": "join",
+              "physicalOperator": "hashjoin",
+              "cardinality": 23,
+              "operatorId": 6,
+              "analyzePlanId": 5,
+              "analyzePlanCardinality": 21,
+              "left": {
+                "operator": "join",
+                "physicalOperator": "hashjoin",
+                "cardinality": 19,
+                "operatorId": 7,
+                "analyzePlanId": 6,
+                "analyzePlanCardinality": 19,
+                "left": {
+                  "operator": "tablescan",
+                  "physicalOperator": "tablescan",
+                  "cardinality": 1,
+                  "operatorId": 8,
+                  "analyzePlanId": 7,
+                  "analyzePlanCardinality": 1,
+                  "attributes": [
+                    {
+                      "name": "n_nationkey",
+                      "iu": "n_nationkey",
+                      "column": 0
+                    },
+                    {
+                      "name": "n_name",
+                      "iu": "n_name",
+                      "column": 1
+                    },
+                    {
+                      "name": "n_regionkey",
+                      "iu": "n_regionkey",
+                      "column": 2
+                    },
+                    {
+                      "name": "n_comment",
+                      "iu": "n_comment",
+                      "column": 3
+                    }
+                  ],
+                  "restrictions": [
+                    {
+                      "attribute": 1,
+                      "mode": "=",
+                      "value": {
+                        "expression": "const",
+                        "value": {
+                          "type": {
+                            "type": "char",
+                            "precision": 25
+                          },
+                          "value": "GERMANY"
+                        }
+                      },
+                      "estimatedSelectivity": 0,
+                      "collate": ""
+                    }
+                  ],
+                  "residuals": [],
+                  "tid": "tid",
+                  "tableoid": "tableoid",
+                  "rowstate": "rowstate",
+                  "table": {
+                    "type": "temporarytable",
+                    "id": 8
+                  },
+                  "tableSize": 23,
+                  "tablename": "nation"
+                },
+                "right": {
+                  "operator": "tablescan",
+                  "physicalOperator": "tablescan",
+                  "cardinality": 490,
+                  "operatorId": 9,
+                  "analyzePlanId": 8,
+                  "analyzePlanCardinality": 518,
+                  "attributes": [
+                    {
+                      "name": "s_suppkey",
+                      "iu": "s_suppkey",
+                      "column": 0
+                    },
+                    {
+                      "name": "s_name",
+                      "iu": "s_name",
+                      "column": 1
+                    },
+                    {
+                      "name": "s_address",
+                      "iu": "s_address",
+                      "column": 2
+                    },
+                    {
+                      "name": "s_nationkey",
+                      "iu": "s_nationkey",
+                      "column": 3
+                    },
+                    {
+                      "name": "s_phone",
+                      "iu": "s_phone",
+                      "column": 4
+                    },
+                    {
+                      "name": "s_acctbal",
+                      "iu": "s_acctbal",
+                      "column": 5
+                    },
+                    {
+                      "name": "s_comment",
+                      "iu": "s_comment",
+                      "column": 6
+                    }
+                  ],
+                  "restrictions": [],
+                  "residuals": [],
+                  "tid": "tid15",
+                  "tableoid": "tableoid16",
+                  "rowstate": "rowstate17",
+                  "table": {
+                    "type": "temporarytable",
+                    "id": 3
+                  },
+                  "tableSize": 490,
+                  "tablename": "supplier"
+                },
+                "condition": {
+                  "expression": "compare",
+                  "left": {
+                    "expression": "iuref",
+                    "iu": "s_nationkey"
+                  },
+                  "right": {
+                    "expression": "iuref",
+                    "iu": "n_nationkey"
+                  },
+                  "direction": "=",
+                  "collate": ""
+                },
+                "type": "inner"
+              },
+              "right": {
+                "operator": "tablescan",
+                "physicalOperator": "tablescan",
+                "cardinality": 490,
+                "operatorId": 10,
+                "analyzePlanId": 9,
+                "analyzePlanCardinality": 537,
+                "attributes": [
+                  {
+                    "name": "ps_partkey",
+                    "iu": "ps_partkey",
+                    "column": 0
+                  },
+                  {
+                    "name": "ps_suppkey",
+                    "iu": "ps_suppkey",
+                    "column": 1
+                  },
+                  {
+                    "name": "ps_availqty",
+                    "iu": "ps_availqty",
+                    "column": 2
+                  },
+                  {
+                    "name": "ps_supplycost",
+                    "iu": "ps_supplycost",
+                    "column": 3
+                  },
+                  {
+                    "name": "ps_comment",
+                    "iu": "ps_comment",
+                    "column": 4
+                  }
+                ],
+                "restrictions": [],
+                "residuals": [],
+                "tid": "tid23",
+                "tableoid": "tableoid24",
+                "rowstate": "rowstate25",
+                "table": {
+                  "type": "temporarytable",
+                  "id": 4
+                },
+                "tableSize": 490,
+                "tablename": "partsupp"
+              },
+              "condition": {
+                "expression": "compare",
+                "left": {
+                  "expression": "iuref",
+                  "iu": "ps_suppkey"
+                },
+                "right": {
+                  "expression": "iuref",
+                  "iu": "s_suppkey"
+                },
+                "direction": "=",
+                "collate": ""
+              },
+              "type": "inner"
+            }
+          },
+          "scannedOperator": 5,
+          "output": [
+            {
+              "originalIU": "ps_availqty",
+              "iu": "ps_availqty26"
+            },
+            {
+              "originalIU": "ps_supplycost",
+              "iu": "ps_supplycost27"
+            }
+          ]
+        },
+        "values": [
+          {
+            "expression": "mul",
+            "left": {
+              "expression": "iuref",
+              "iu": "ps_supplycost27"
+            },
+            "right": {
+              "expression": "cast",
+              "input": {
+                "expression": "iuref",
+                "iu": "ps_availqty26"
+              },
+              "type": {
+                "type": "numeric",
+                "precision": 10
+              },
+              "semantic": "implicit"
+            }
+          }
+        ],
+        "key": [],
+        "groupingmode": "regular",
+        "aggregates": [
+          {
+            "op": "sum",
+            "arg": 0,
+            "collate": "",
+            "iu": "sum()"
+          }
+        ],
+        "orders": [],
+        "groupingsets": [],
+        "considerspooling": false,
+        "hasminspoolinglimit": true
+      },
+      "right": {
+        "operator": "groupby",
+        "physicalOperator": "groupby",
+        "cardinality": 21,
+        "operatorId": 11,
+        "analyzePlanId": 10,
+        "analyzePlanCardinality": 21,
+        "input": {
+          "operator": "pipelinebreakerscan",
+          "physicalOperator": "tempscan",
+          "cardinality": 23,
+          "operatorId": 12,
+          "analyzePlanId": 11,
+          "analyzePlanCardinality": 21,
+          "scannedOperator": 5,
+          "output": [
+            {
+              "originalIU": "ps_partkey",
+              "iu": "ps_partkey29"
+            },
+            {
+              "originalIU": "ps_availqty",
+              "iu": "ps_availqty30"
+            },
+            {
+              "originalIU": "ps_supplycost",
+              "iu": "ps_supplycost31"
+            }
+          ]
+        },
+        "values": [
+          {
+            "expression": "iuref",
+            "iu": "ps_partkey29"
+          },
+          {
+            "expression": "mul",
+            "left": {
+              "expression": "iuref",
+              "iu": "ps_supplycost31"
+            },
+            "right": {
+              "expression": "cast",
+              "input": {
+                "expression": "iuref",
+                "iu": "ps_availqty30"
+              },
+              "type": {
+                "type": "numeric",
+                "precision": 10
+              },
+              "semantic": "implicit"
+            }
+          }
+        ],
+        "key": [
+          {
+            "arg": 0,
+            "iu": "ps_partkey32",
+            "collate": ""
+          }
+        ],
+        "groupingmode": "regular",
+        "aggregates": [
+          {
+            "op": "sum",
+            "arg": 1,
+            "collate": "",
+            "iu": "sum()33"
+          }
+        ],
+        "orders": [],
+        "groupingsets": [],
+        "considerspooling": false,
+        "hasminspoolinglimit": true
+      },
+      "condition": {
+        "expression": "compare",
+        "left": {
+          "expression": "iuref",
+          "iu": "sum()33"
+        },
+        "right": {
+          "expression": "mul",
+          "left": {
+            "expression": "iuref",
+            "iu": "sum()"
+          },
+          "right": {
+            "expression": "const",
+            "value": {
+              "type": {
+                "type": "bignumeric",
+                "precision": 5,
+                "scale": 4
+              },
+              "value": 1,
+              "value2": 0
+            }
+          }
+        },
+        "direction": ">",
+        "collate": ""
+      },
+      "type": "inner"
+    },
+    "order": [
+      {
+        "value": {
+          "expression": "iuref",
+          "iu": "sum()33"
+        },
+        "collate": "",
+        "descending": true
+      }
+    ],
+    "type": "sort"
+  },
+  "ius": [
+    {
+      "iu": "ps_partkey32",
+      "outerNull": false,
+      "type": {
+        "type": "int32"
+      }
+    },
+    {
+      "iu": "sum()33",
+      "outerNull": false,
+      "type": {
+        "type": "bignumeric",
+        "precision": 38,
+        "scale": 2
+      }
+    },
+    {
+      "iu": "ps_partkey",
+      "outerNull": false,
+      "type": {
+        "type": "int32"
+      }
+    },
+    {
+      "iu": "ps_suppkey",
+      "outerNull": false,
+      "type": {
+        "type": "int32"
+      }
+    },
+    {
+      "iu": "ps_availqty",
+      "outerNull": false,
+      "type": {
+        "type": "int32"
+      }
+    },
+    {
+      "iu": "ps_supplycost",
+      "outerNull": false,
+      "type": {
+        "type": "numeric",
+        "precision": 12,
+        "scale": 2
+      }
+    },
+    {
+      "iu": "ps_comment",
+      "outerNull": false,
+      "type": {
+        "type": "text",
+        "precision": 199
+      }
+    },
+    {
+      "iu": "tid23",
+      "outerNull": false,
+      "type": {
+        "type": "int64"
+      }
+    },
+    {
+      "iu": "tableoid24",
+      "outerNull": false,
+      "type": {
+        "type": "int32"
+      }
+    },
+    {
+      "iu": "rowstate25",
+      "outerNull": false,
+      "type": {
+        "type": "int64"
+      }
+    },
+    {
+      "iu": "s_suppkey",
+      "outerNull": false,
+      "type": {
+        "type": "int32"
+      }
+    },
+    {
+      "iu": "s_name",
+      "outerNull": false,
+      "type": {
+        "type": "char",
+        "precision": 25
+      }
+    },
+    {
+      "iu": "s_address",
+      "outerNull": false,
+      "type": {
+        "type": "text",
+        "precision": 40
+      }
+    },
+    {
+      "iu": "s_nationkey",
+      "outerNull": false,
+      "type": {
+        "type": "int32"
+      }
+    },
+    {
+      "iu": "s_phone",
+      "outerNull": false,
+      "type": {
+        "type": "char",
+        "precision": 15
+      }
+    },
+    {
+      "iu": "s_acctbal",
+      "outerNull": false,
+      "type": {
+        "type": "numeric",
+        "precision": 12,
+        "scale": 2
+      }
+    },
+    {
+      "iu": "s_comment",
+      "outerNull": false,
+      "type": {
+        "type": "text",
+        "precision": 101
+      }
+    },
+    {
+      "iu": "tid15",
+      "outerNull": false,
+      "type": {
+        "type": "int64"
+      }
+    },
+    {
+      "iu": "tableoid16",
+      "outerNull": false,
+      "type": {
+        "type": "int32"
+      }
+    },
+    {
+      "iu": "rowstate17",
+      "outerNull": false,
+      "type": {
+        "type": "int64"
+      }
+    },
+    {
+      "iu": "n_nationkey",
+      "outerNull": false,
+      "type": {
+        "type": "int32"
+      }
+    },
+    {
+      "iu": "n_name",
+      "outerNull": false,
+      "type": {
+        "type": "char",
+        "precision": 25
+      }
+    },
+    {
+      "iu": "n_regionkey",
+      "outerNull": false,
+      "type": {
+        "type": "int32"
+      }
+    },
+    {
+      "iu": "n_comment",
+      "outerNull": false,
+      "type": {
+        "type": "text",
+        "precision": 152
+      }
+    },
+    {
+      "iu": "tid",
+      "outerNull": false,
+      "type": {
+        "type": "int64"
+      }
+    },
+    {
+      "iu": "tableoid",
+      "outerNull": false,
+      "type": {
+        "type": "int32"
+      }
+    },
+    {
+      "iu": "rowstate",
+      "outerNull": false,
+      "type": {
+        "type": "int64"
+      }
+    },
+    {
+      "iu": "sum()",
+      "outerNull": false,
+      "type": {
+        "type": "bignumeric",
+        "precision": 38,
+        "scale": 2
+      }
+    },
+    {
+      "iu": "ps_availqty26",
+      "outerNull": false,
+      "type": {
+        "type": "int32"
+      }
+    },
+    {
+      "iu": "ps_supplycost27",
+      "outerNull": false,
+      "type": {
+        "type": "numeric",
+        "precision": 12,
+        "scale": 2
+      }
+    },
+    {
+      "iu": "ps_partkey29",
+      "outerNull": false,
+      "type": {
+        "type": "int32"
+      }
+    },
+    {
+      "iu": "ps_availqty30",
+      "outerNull": false,
+      "type": {
+        "type": "int32"
+      }
+    },
+    {
+      "iu": "ps_supplycost31",
+      "outerNull": false,
+      "type": {
+        "type": "numeric",
+        "precision": 12,
+        "scale": 2
+      }
+    }
+  ],
+  "output": [
+    {
+      "name": "ps_partkey",
+      "iu": {
+        "expression": "iuref",
+        "iu": "ps_partkey32"
+      }
+    },
+    {
+      "name": "value",
+      "iu": {
+        "expression": "iuref",
+        "iu": "sum()33"
+      }
+    }
+  ],
+  "type": "select",
+  "query": true,
+  "hasParameters": false,
+  "permissions": {
+    "planPermissions": [
+      {
+        "object": {
+          "type": "temporarytable",
+          "id": 4
+        },
+        "role": 10,
+        "permissions": {
+          "value": 2,
+          "grantMask": 0
+        }
+      },
+      {
+        "object": {
+          "type": "temporarytable",
+          "id": 3
+        },
+        "role": 10,
+        "permissions": {
+          "value": 2,
+          "grantMask": 0
+        }
+      },
+      {
+        "object": {
+          "type": "schema",
+          "id": 3
+        },
+        "role": 10,
+        "permissions": {
+          "value": 256,
+          "grantMask": 0
+        }
+      },
+      {
+        "object": {
+          "type": "temporarytable",
+          "id": 8
+        },
+        "role": 10,
+        "permissions": {
+          "value": 2,
+          "grantMask": 0
+        }
+      }
+    ],
+    "fileReaders": [],
+    "fileWriters": [],
+    "objectsToLock": []
+  },
+  "analyzePlanPipelines": [
+    {
+      "start": 12,
+      "stop": 15,
+      "duration": 3,
+      "parallelism": "single-threaded",
+      "operators": [
+        6,
+        7
+      ]
+    },
+    {
+      "start": 16,
+      "stop": 37,
+      "duration": 21,
+      "parallelism": "multi-threaded",
+      "operators": [
+        5,
+        6,
+        8
+      ]
+    },
+    {
+      "start": 50,
+      "stop": 66,
+      "duration": 16,
+      "parallelism": "multi-threaded",
+      "operators": [
+        4,
+        5,
+        9
+      ]
+    },
+    {
+      "start": 68,
+      "stop": 78,
+      "duration": 10,
+      "parallelism": "multi-threaded",
+      "operators": [
+        10,
+        11
+      ]
+    },
+    {
+      "start": 210,
+      "stop": 213,
+      "duration": 3,
+      "parallelism": "multi-threaded",
+      "operators": [
+        2,
+        3
+      ]
+    },
+    {
+      "start": 214,
+      "stop": 215,
+      "duration": 1,
+      "parallelism": "single-threaded",
+      "operators": [
+        1,
+        2
+      ]
+    },
+    {
+      "start": 215,
+      "stop": 234,
+      "duration": 19,
+      "parallelism": "multi-threaded",
+      "operators": [
+        0,
+        1,
+        10
+      ]
+    },
+    {
+      "start": 303,
+      "stop": 306,
+      "duration": 3,
+      "parallelism": "multi-threaded",
+      "operators": [
+        0
+      ]
+    }
+  ]
+}

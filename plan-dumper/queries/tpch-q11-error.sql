@@ -1,4 +1,4 @@
--- UNSUPPORTED: postgres
+-- UNSUPPORTED: postgres, umbra, cedardb, mariadb, trino
 -- MODES: analyze
 -- Postgres raises a hard "division by zero" error for the `/ 0` below, aborting the whole
 -- dump; DuckDB returns `inf` instead (no error, so it still dumps, just without exercising

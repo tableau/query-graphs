@@ -22,7 +22,10 @@ import subprocess
 import sys
 
 VOLATILE_FIELD_RE = re.compile(
-    r'"[^"]*(?:time|timing|latency|cycles)[^"]*"\s*:\s*[-+0-9.eE]+', re.IGNORECASE
+    r'"(?:[^"]*(?:time|timing|latency|cycles|duration)[^"]*'
+    r'|(?:addInput|getOutput|finish|blocked)(?:Cpu|Wall)|start|stop)"'
+    r'\s*:\s*(?:"(?:\\.|[^"\\])*"|[-+0-9.eE]+)',
+    re.IGNORECASE,
 )
 
 

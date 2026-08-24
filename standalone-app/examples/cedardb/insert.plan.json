@@ -1,0 +1,230 @@
+{
+  "plan": {
+    "operator": "insert",
+    "physicalOperator": "insert",
+    "cardinality": 2,
+    "operatorId": 1,
+    "input": {
+      "operator": "join",
+      "physicalOperator": "bnljoin",
+      "cardinality": 2,
+      "operatorId": 2,
+      "left": {
+        "operator": "tablescan",
+        "physicalOperator": "tablescan",
+        "cardinality": 1,
+        "operatorId": 3,
+        "attributes": [
+          {
+            "name": "a1",
+            "iu": "a1",
+            "column": 0
+          },
+          {
+            "name": "b1",
+            "iu": "b1",
+            "column": 1
+          },
+          {
+            "name": "c1",
+            "iu": "c1",
+            "column": 2
+          }
+        ],
+        "restrictions": [],
+        "residuals": [],
+        "tid": "tid",
+        "tableoid": "tableoid",
+        "rowstate": "rowstate",
+        "table": {
+          "type": "temporarytable",
+          "id": 0
+        },
+        "tableSize": 1,
+        "tablename": "t1"
+      },
+      "right": {
+        "operator": "inlinetable",
+        "physicalOperator": "inlinetable",
+        "cardinality": 2,
+        "operatorId": 4,
+        "attributes": [
+          {
+            "name": "column1",
+            "iu": "column1"
+          }
+        ],
+        "restrictions": [],
+        "residuals": [],
+        "count": 2,
+        "values": [
+          {
+            "expression": "const",
+            "value": {
+              "type": {
+                "type": "int32"
+              },
+              "value": 1
+            }
+          },
+          {
+            "expression": "const",
+            "value": {
+              "type": {
+                "type": "int32"
+              },
+              "value": 2
+            }
+          }
+        ]
+      },
+      "condition": {
+        "expression": "const",
+        "value": {
+          "type": {
+            "type": "bool"
+          },
+          "value": true
+        }
+      },
+      "type": "inner"
+    },
+    "expressions": [
+      {
+        "expression": "mul",
+        "left": {
+          "expression": "iuref",
+          "iu": "a1"
+        },
+        "right": {
+          "expression": "iuref",
+          "iu": "column1"
+        }
+      },
+      {
+        "expression": "mul",
+        "left": {
+          "expression": "iuref",
+          "iu": "b1"
+        },
+        "right": {
+          "expression": "iuref",
+          "iu": "column1"
+        }
+      },
+      {
+        "expression": "mul",
+        "left": {
+          "expression": "iuref",
+          "iu": "c1"
+        },
+        "right": {
+          "expression": "iuref",
+          "iu": "column1"
+        }
+      }
+    ],
+    "tableObjectRef": {
+      "type": "temporarytable",
+      "id": 1
+    }
+  },
+  "ius": [
+    {
+      "iu": "a1",
+      "outerNull": false,
+      "type": {
+        "type": "int32",
+        "nullable": true
+      }
+    },
+    {
+      "iu": "b1",
+      "outerNull": false,
+      "type": {
+        "type": "int32",
+        "nullable": true
+      }
+    },
+    {
+      "iu": "c1",
+      "outerNull": false,
+      "type": {
+        "type": "int32",
+        "nullable": true
+      }
+    },
+    {
+      "iu": "tid",
+      "outerNull": false,
+      "type": {
+        "type": "int64"
+      }
+    },
+    {
+      "iu": "tableoid",
+      "outerNull": false,
+      "type": {
+        "type": "int32"
+      }
+    },
+    {
+      "iu": "rowstate",
+      "outerNull": false,
+      "type": {
+        "type": "int64"
+      }
+    },
+    {
+      "iu": "column1",
+      "outerNull": false,
+      "type": {
+        "type": "int32"
+      }
+    }
+  ],
+  "output": [],
+  "type": "insert",
+  "query": false,
+  "hasParameters": false,
+  "permissions": {
+    "planPermissions": [
+      {
+        "object": {
+          "type": "temporarytable",
+          "id": 0
+        },
+        "role": 10,
+        "permissions": {
+          "value": 2,
+          "grantMask": 0
+        }
+      },
+      {
+        "object": {
+          "type": "temporarytable",
+          "id": 1
+        },
+        "role": 10,
+        "permissions": {
+          "value": 1,
+          "grantMask": 0
+        }
+      },
+      {
+        "object": {
+          "type": "schema",
+          "id": 3
+        },
+        "role": 10,
+        "permissions": {
+          "value": 256,
+          "grantMask": 0
+        }
+      }
+    ],
+    "fileReaders": [],
+    "fileWriters": [],
+    "objectsToLock": []
+  }
+}

@@ -1,0 +1,1346 @@
+{
+  "queryId": "20260824_183721_00254_v7v86",
+  "session": {
+    "queryId": "20260824_183721_00254_v7v86",
+    "querySpan": {},
+    "transactionId": "71e33ddd-4863-48c2-a2be-6bb135002326",
+    "clientTransactionSupport": true,
+    "user": "plan-dumper",
+    "originalUser": "plan-dumper",
+    "groups": [],
+    "originalUserGroups": [],
+    "principal": "plan-dumper",
+    "enabledRoles": [],
+    "source": "trino-python-client",
+    "catalog": "memory",
+    "schema": "query_graphs_plan_dumper",
+    "path": {
+      "path": [
+        {
+          "catalogName": "system",
+          "schemaName": "$query"
+        },
+        {
+          "catalogName": "system",
+          "schemaName": "builtin"
+        }
+      ],
+      "rawPath": ""
+    },
+    "timeZoneKey": 0,
+    "locale": "en_US",
+    "remoteUserAddress": "172.17.0.1",
+    "userAgent": "Trino Python Client/0.339.0",
+    "clientTags": [],
+    "clientCapabilities": [
+      "NUMBER",
+      "PARAMETRIC_DATETIME",
+      "SESSION_AUTHORIZATION"
+    ],
+    "resourceEstimates": {},
+    "start": "2026-08-24T18:37:21.575554988Z",
+    "systemProperties": {},
+    "catalogProperties": {},
+    "catalogRoles": {},
+    "preparedStatements": {},
+    "protocolName": "Trino",
+    "timeZone": "UTC"
+  },
+  "state": "FINISHED",
+  "self": "http://172.17.0.3:8080/v1/query/20260824_183721_00254_v7v86",
+  "fieldNames": [
+    "r_name"
+  ],
+  "query": "SELECT r_name FROM region",
+  "queryStats": {
+    "createTime": "2026-08-24T18:37:21.576Z",
+    "executionStartTime": "2026-08-24T18:37:21.577Z",
+    "lastHeartbeat": "2026-08-24T18:37:21.594Z",
+    "endTime": "2026-08-24T18:37:21.594Z",
+    "elapsedTime": "18.38ms",
+    "queuedTime": "192.71us",
+    "resourceWaitingTime": "889.06us",
+    "dispatchingTime": "65.05us",
+    "executionTime": "17.23ms",
+    "analysisTime": "819.89us",
+    "planningTime": "6.01ms",
+    "planningCpuTime": "6.01ms",
+    "finishingTime": "319.27us",
+    "totalTasks": 1,
+    "runningTasks": 0,
+    "completedTasks": 1,
+    "failedTasks": 0,
+    "totalDrivers": 36,
+    "queuedDrivers": 0,
+    "runningDrivers": 0,
+    "blockedDrivers": 0,
+    "completedDrivers": 36,
+    "cumulativeUserMemory": 264.85424,
+    "failedCumulativeUserMemory": 0.0,
+    "userMemoryReservation": "0B",
+    "revocableMemoryReservation": "0B",
+    "totalMemoryReservation": "0B",
+    "peakUserMemoryReservation": "400B",
+    "peakRevocableMemoryReservation": "0B",
+    "peakTotalMemoryReservation": "400B",
+    "peakTaskUserMemory": "400B",
+    "peakTaskRevocableMemory": "0B",
+    "peakTaskTotalMemory": "400B",
+    "scheduled": true,
+    "progressPercentage": 100.0,
+    "runningPercentage": 0.0,
+    "totalScheduledTime": "3.00ms",
+    "failedScheduledTime": "0.00ns",
+    "totalCpuTime": "3.00ms",
+    "failedCpuTime": "0.00ns",
+    "totalBlockedTime": "0.00ns",
+    "fullyBlocked": true,
+    "blockedReasons": [],
+    "physicalInputDataSize": "59B",
+    "failedPhysicalInputDataSize": "0B",
+    "physicalInputPositions": 5,
+    "failedPhysicalInputPositions": 0,
+    "physicalInputReadTime": "0.00ns",
+    "failedPhysicalInputReadTime": "0.00ns",
+    "internalNetworkInputDataSize": "0B",
+    "failedInternalNetworkInputDataSize": "0B",
+    "internalNetworkInputPositions": 0,
+    "failedInternalNetworkInputPositions": 0,
+    "rawInputDataSize": "59B",
+    "failedRawInputDataSize": "0B",
+    "rawInputPositions": 5,
+    "failedRawInputPositions": 0,
+    "processedInputDataSize": "59B",
+    "failedProcessedInputDataSize": "0B",
+    "processedInputPositions": 5,
+    "failedProcessedInputPositions": 0,
+    "inputBlockedTime": "0.00ns",
+    "failedInputBlockedTime": "0.00ns",
+    "outputDataSize": "59B",
+    "failedOutputDataSize": "0B",
+    "outputPositions": 5,
+    "failedOutputPositions": 0,
+    "outputBlockedTime": "0.00ns",
+    "failedOutputBlockedTime": "0.00ns",
+    "physicalWrittenDataSize": "0B",
+    "failedPhysicalWrittenDataSize": "0B",
+    "stageGcStatistics": [
+      {
+        "stageId": 0,
+        "tasks": 1,
+        "fullGcTasks": 0,
+        "minFullGcSec": 0,
+        "maxFullGcSec": 0,
+        "totalFullGcSec": 0,
+        "averageFullGcSec": 0
+      }
+    ],
+    "dynamicFiltersStats": {
+      "dynamicFilterDomainStats": [],
+      "lazyDynamicFilters": 0,
+      "replicatedDynamicFilters": 0,
+      "totalDynamicFilters": 0,
+      "dynamicFiltersCompleted": 0
+    },
+    "operatorSummaries": [
+      {
+        "stageId": 0,
+        "pipelineId": 0,
+        "operatorId": 0,
+        "planNodeId": "0",
+        "operatorType": "TableScanOperator",
+        "totalDrivers": 36,
+        "addInputCalls": 0,
+        "addInputWall": "0.00ns",
+        "addInputCpu": "0.00ns",
+        "physicalInputDataSize": "59B",
+        "physicalInputPositions": 5,
+        "physicalInputReadTime": "0.00ns",
+        "internalNetworkInputDataSize": "0B",
+        "internalNetworkInputPositions": 0,
+        "rawInputDataSize": "59B",
+        "inputDataSize": "59B",
+        "inputPositions": 5,
+        "sumSquaredInputPositions": 25.0,
+        "getOutputCalls": 36,
+        "getOutputWall": "1.23ms",
+        "getOutputCpu": "1.12ms",
+        "outputDataSize": "59B",
+        "outputPositions": 5,
+        "dynamicFilterSplitsProcessed": 0,
+        "metrics": {
+          "Scheduled time distribution (s)": {
+            "@class": "io.trino.plugin.base.metrics.TDigestHistogram",
+            "digest": "AKTYWioy5O8+tBlRIfEHID8AAAAAAABZQAAAAAAAAEJAJAAAAKTYWioy5O8+u9R/C+/I8T4LqpY/orPzPpY0B4dl0/Q+OFfjWFYb9T5t9wBKNGL1Pih2cXENmfY+Jmk7/O6D9z4drRGR/6H3PnNqHQvA9fc+//yT/5bu+D4/yKU24A/5PtVQw+fphPk+eRThOIaG+T6Eb/I/H4P6Pku/yPQZivo+NjI5/AjY+z5nJN/4HFD9PjETnUnBcf4+KYzAZwru/j4Yrahjwwr/PqnwbDFtb/8+UFii5r3H/z7eZhUp2VkAP5JsjNWacQA/HC6kiZiOAD+lF9NRsPQBP4NdJiCsGgI/ki8Ir9ToAj/PIAgHsAUDP7a6EyGyngM/zEScREBiBD9bJjKP1voNP4qza0BZOBY/GcPCZ/CZGj+0GVEh8QcgPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPw==",
+            "min": 1.5206999999999999e-05,
+            "max": 0.000122307,
+            "p25": 2.2849999999999996e-05,
+            "p50": 2.9033999999999997e-05,
+            "p75": 3.453099999999999e-05,
+            "p90": 5.718199999999999e-05,
+            "p95": 0.00010147599999999999,
+            "p99": 0.000122307,
+            "total": 36,
+            "p01": 1.5206999999999999e-05,
+            "p05": 1.6961e-05,
+            "p10": 1.9861e-05
+          },
+          "Blocked time distribution (s)": {
+            "@class": "io.trino.plugin.base.metrics.TDigestHistogram",
+            "digest": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAABZQAAAAAAAAEJAJAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPw==",
+            "min": 0.0,
+            "max": 0.0,
+            "p25": 0.0,
+            "p50": 0.0,
+            "p75": 0.0,
+            "p90": 0.0,
+            "p95": 0.0,
+            "p99": 0.0,
+            "total": 36,
+            "p01": 0.0,
+            "p05": 0.0,
+            "p10": 0.0
+          },
+          "CPU time distribution (s)": {
+            "@class": "io.trino.plugin.base.metrics.TDigestHistogram",
+            "digest": "AGA5FM4GSu4+IZU5yLEWGz8AAAAAAABZQAAAAAAAAEJAJAAAAGA5FM4GSu4+OQY5LxuL8D5OIEqGrAbyPiDLMUJACvM+54HMJKMw8z4yrR8rkIrzPsVafgurq/Q+8qU2vwEw9T7oSMvUZpT1PtwV0eHn4PU+8m6PUscy9j51d1OA3gr3Pqy4svBnC/c+60lH1m2S9z6zA7id2VX4Pov4KAXYpfg+y/NX/U7p+T6Wg1fNnsT6Pp9vnvm7yPs+iHh07jla/D6AitPeGrf8Pqr//ImNI/0+57oCZ6+S/T7Ms8wBBnL+Pg20K8KH8f4+Q/WKMhHy/j5G1UTZOrwAPzMgnswPwQA/5EbT0ViYAT9ntwgfWd8BP98yRKGn+QE/iKHSEYvbAj/qLVAYtXcNP0JONwcK5xM/I0yVS4pfFj8hlTnIsRYbPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPw==",
+            "min": 1.4442999999999997e-05,
+            "max": 0.00010333499999999999,
+            "p25": 2.0864999999999998e-05,
+            "p50": 2.6496999999999997e-05,
+            "p75": 3.1956e-05,
+            "p90": 5.6204999999999995e-05,
+            "p95": 8.534699999999998e-05,
+            "p99": 0.00010333499999999999,
+            "total": 36,
+            "p01": 1.4442999999999997e-05,
+            "p05": 1.5776999999999998e-05,
+            "p10": 1.8157999999999998e-05
+          },
+          "Input rows distribution": {
+            "@class": "io.trino.plugin.base.metrics.TDigestHistogram",
+            "digest": "AAAAAAAAAAAAAAAAAAAAFEAAAAAAAABZQAAAAAAAAEJAJAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUQAAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPw==",
+            "min": 0.0,
+            "max": 5.0,
+            "p25": 0.0,
+            "p50": 0.0,
+            "p75": 0.0,
+            "p90": 0.0,
+            "p95": 0.0,
+            "p99": 5.0,
+            "total": 36,
+            "p01": 0.0,
+            "p05": 0.0,
+            "p10": 0.0
+          }
+        },
+        "connectorMetrics": {
+          "started": {
+            "@class": "io.trino.plugin.base.metrics.LongCount",
+            "total": 36
+          },
+          "finished": {
+            "@class": "io.trino.plugin.base.metrics.LongCount",
+            "total": 36
+          },
+          "rows": {
+            "@class": "io.trino.plugin.base.metrics.LongCount",
+            "total": 5
+          }
+        },
+        "physicalWrittenDataSize": "0B",
+        "blockedWall": "0.00ns",
+        "finishCalls": 0,
+        "finishWall": "0.00ns",
+        "finishCpu": "0.00ns",
+        "userMemoryReservation": "0B",
+        "revocableMemoryReservation": "0B",
+        "peakUserMemoryReservation": "266B",
+        "peakRevocableMemoryReservation": "0B",
+        "peakTotalMemoryReservation": "266B",
+        "spilledDataSize": "0B"
+      },
+      {
+        "stageId": 0,
+        "pipelineId": 0,
+        "operatorId": 1,
+        "planNodeId": "5",
+        "operatorType": "TaskOutputOperator",
+        "totalDrivers": 36,
+        "addInputCalls": 1,
+        "addInputWall": "138.65us",
+        "addInputCpu": "129.84us",
+        "physicalInputDataSize": "0B",
+        "physicalInputPositions": 0,
+        "physicalInputReadTime": "0.00ns",
+        "internalNetworkInputDataSize": "0B",
+        "internalNetworkInputPositions": 0,
+        "rawInputDataSize": "0B",
+        "inputDataSize": "59B",
+        "inputPositions": 5,
+        "sumSquaredInputPositions": 25.0,
+        "getOutputCalls": 0,
+        "getOutputWall": "0.00ns",
+        "getOutputCpu": "0.00ns",
+        "outputDataSize": "59B",
+        "outputPositions": 5,
+        "dynamicFilterSplitsProcessed": 0,
+        "metrics": {
+          "Scheduled time distribution (s)": {
+            "@class": "io.trino.plugin.base.metrics.TDigestHistogram",
+            "digest": "ADF/XE1kB7E+tW95oqelIj8AAAAAAABZQAAAAAAAAEJAJAAAADF/XE1kB7E+vSRMUy+4uT5WgZ4pG6a7Pgu434iLL7w+TfK7mlBJvD5CkCDoqnG9PrPmE+6f674+9SDw/2QFvz7sZMaUdSO/PgTz0Y6N078+hQRFWeNfwD6BJrCj627APuw5pKmCd8A+Z/IyYh3JwD58dWLKGAPBPm/bo6kxMME+wboabvqSwT5JDWhHfLfBPqtkMuIj3sE+r28OdEBUwj71h387/V7CPly93oucdsI+CQuvo/iYwj6Nf2fHgszCPriQoimWtsM+Pj1+u2HlxD7qdo6ykhfIPuG6ZEejNcg+obirox8XyT6fEjpcaSHKPrcy93wM18w+tl8+WTFczT7icHm7REbOPk0ipGmupdA+xZivI/KD0T61b3mip6UiPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPw==",
+            "min": 1.0149999999999998e-06,
+            "max": 0.00014226599999999997,
+            "p25": 1.8969999999999998e-06,
+            "p50": 2.1299999999999995e-06,
+            "p75": 2.8859999999999996e-06,
+            "p90": 3.6089999999999997e-06,
+            "p95": 4.1759999999999995e-06,
+            "p99": 0.00014226599999999997,
+            "total": 36,
+            "p01": 1.0149999999999998e-06,
+            "p05": 1.5329999999999998e-06,
+            "p10": 1.6799999999999998e-06
+          },
+          "Blocked time distribution (s)": {
+            "@class": "io.trino.plugin.base.metrics.TDigestHistogram",
+            "digest": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAABZQAAAAAAAAEJAJAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPw==",
+            "min": 0.0,
+            "max": 0.0,
+            "p25": 0.0,
+            "p50": 0.0,
+            "p75": 0.0,
+            "p90": 0.0,
+            "p95": 0.0,
+            "p99": 0.0,
+            "total": 36,
+            "p01": 0.0,
+            "p05": 0.0,
+            "p10": 0.0
+          },
+          "CPU time distribution (s)": {
+            "@class": "io.trino.plugin.base.metrics.TDigestHistogram",
+            "digest": "AJkZJuhpn7I+JO4CPKGLIT8AAAAAAABZQAAAAAAAAEJAJAAAAJkZJuhpn7I+44Q53G82uz5nHVVNEHW/PtMwSVOnfb8+d8Lv/xO+vz5xgRXx5yXAPvnTYsppSsA+UpxK1kYUwT4LsSDrro7BPk3r/PxzqME+aipW0F7EwT5Q9tiOkB7CPoWW9n9uZcI+WN9J1qSFwj5TAbUgrZTCPuAxl68mqsI+snrqBV3Kwj7fXt6LSy/DPtaitCBcTcM+wUzMlIWYwz5FwYS4D8zDPuGWAfqMKsQ+CZ1gyoOexD67yMWX17HEPsv/EXFmAMc+uoe+moc8xz7u5tSOFQ7KPh+pXcr7Y8o+N5zTDnqUzD6A7GdEeJrNPiOrVc0JYM4+moVP0KzAzj6mITPixWzQPsXPVpAsgdA+C+jHV+mL0D4k7gI8oYshPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPw==",
+            "min": 1.1099999999999997e-06,
+            "max": 0.00013386099999999998,
+            "p25": 2.1049999999999998e-06,
+            "p50": 2.3009999999999997e-06,
+            "p75": 3.1459999999999996e-06,
+            "p90": 3.9159999999999994e-06,
+            "p95": 3.9449999999999995e-06,
+            "p99": 0.00013386099999999998,
+            "total": 36,
+            "p01": 1.1099999999999997e-06,
+            "p05": 1.6219999999999997e-06,
+            "p10": 1.8769999999999998e-06
+          },
+          "Input rows distribution": {
+            "@class": "io.trino.plugin.base.metrics.TDigestHistogram",
+            "digest": "AAAAAAAAAAAAAAAAAAAAFEAAAAAAAABZQAAAAAAAAEJAJAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUQAAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPw==",
+            "min": 0.0,
+            "max": 5.0,
+            "p25": 0.0,
+            "p50": 0.0,
+            "p75": 0.0,
+            "p90": 0.0,
+            "p95": 0.0,
+            "p99": 5.0,
+            "total": 36,
+            "p01": 0.0,
+            "p05": 0.0,
+            "p10": 0.0
+          }
+        },
+        "connectorMetrics": {},
+        "physicalWrittenDataSize": "0B",
+        "blockedWall": "0.00ns",
+        "finishCalls": 36,
+        "finishWall": "85.10us",
+        "finishCpu": "92.25us",
+        "userMemoryReservation": "0B",
+        "revocableMemoryReservation": "0B",
+        "peakUserMemoryReservation": "88B",
+        "peakRevocableMemoryReservation": "0B",
+        "peakTotalMemoryReservation": "88B",
+        "spilledDataSize": "0B"
+      }
+    ],
+    "optimizerRulesSummaries": [
+      {
+        "rule": "io.trino.sql.planner.optimizations.PredicatePushDown",
+        "invocations": 6,
+        "applied": 6,
+        "totalTime": 152646,
+        "failures": 0
+      },
+      {
+        "rule": "io.trino.sql.planner.optimizations.AddExchanges",
+        "invocations": 1,
+        "applied": 1,
+        "totalTime": 132360,
+        "failures": 0
+      },
+      {
+        "rule": "io.trino.sql.planner.iterative.rule.DetermineTableScanNodePartitioning",
+        "invocations": 3,
+        "applied": 1,
+        "totalTime": 116393,
+        "failures": 0
+      },
+      {
+        "rule": "io.trino.sql.planner.iterative.rule.ExpressionRewriteRuleSet.ProjectExpressionRewrite",
+        "invocations": 18,
+        "applied": 0,
+        "totalTime": 103757,
+        "failures": 0
+      },
+      {
+        "rule": "io.trino.sql.planner.iterative.rule.ApplyTableScanRedirection",
+        "invocations": 1,
+        "applied": 0,
+        "totalTime": 96138,
+        "failures": 0
+      },
+      {
+        "rule": "io.trino.sql.planner.iterative.rule.PruneTableScanColumns",
+        "invocations": 5,
+        "applied": 1,
+        "totalTime": 85678,
+        "failures": 0
+      },
+      {
+        "rule": "io.trino.sql.planner.iterative.rule.PruneOutputSourceColumns",
+        "invocations": 15,
+        "applied": 1,
+        "totalTime": 81558,
+        "failures": 0
+      },
+      {
+        "rule": "io.trino.sql.planner.iterative.rule.PushDownDereferenceThroughProject",
+        "invocations": 5,
+        "applied": 0,
+        "totalTime": 65666,
+        "failures": 0
+      },
+      {
+        "rule": "io.trino.sql.planner.iterative.rule.PruneProjectColumns",
+        "invocations": 5,
+        "applied": 4,
+        "totalTime": 52113,
+        "failures": 0
+      },
+      {
+        "rule": "io.trino.sql.planner.iterative.rule.RemoveRedundantIdentityProjections",
+        "invocations": 5,
+        "applied": 1,
+        "totalTime": 30974,
+        "failures": 0
+      }
+    ],
+    "logicalWrittenDataSize": "0B",
+    "writtenPositions": 0,
+    "spilledDataSize": "0B"
+  },
+  "resetAuthorizationUser": false,
+  "setSessionProperties": {},
+  "resetSessionProperties": [],
+  "setRoles": {},
+  "addedPreparedStatements": {},
+  "deallocatedPreparedStatements": [],
+  "clearTransactionId": false,
+  "outputStage": {
+    "stageId": "20260824_183721_00254_v7v86.0",
+    "state": "FINISHED",
+    "plan": {
+      "id": "0",
+      "root": {
+        "@type": "output",
+        "id": "5",
+        "source": {
+          "@type": "tablescan",
+          "id": "0",
+          "table": {
+            "catalogHandle": "memory:normal:default",
+            "connectorHandle": {
+              "@type": "memory:io.trino.plugin.memory.MemoryTableHandle",
+              "id": 29
+            },
+            "transaction": [
+              "memory:io.trino.plugin.memory.MemoryTransactionHandle",
+              "INSTANCE"
+            ]
+          },
+          "outputSymbols": [
+            "r_name"
+          ],
+          "assignments": {
+            "r_name": {
+              "@type": "memory:io.trino.plugin.memory.MemoryColumnHandle",
+              "columnIndex": 1
+            }
+          },
+          "updateTarget": false,
+          "useConnectorNodePartitioning": false
+        },
+        "columns": [
+          "r_name"
+        ],
+        "outputs": [
+          "r_name"
+        ]
+      },
+      "symbols": {
+        "r_name": "char(25)"
+      },
+      "partitioning": {
+        "connectorHandle": {
+          "@type": "system:io.trino.sql.planner.SystemPartitioningHandle",
+          "partitioning": "SOURCE",
+          "function": "UNKNOWN"
+        },
+        "scaleWriters": false
+      },
+      "partitionedSources": [
+        "0"
+      ],
+      "outputPartitioningScheme": {
+        "partitioning": {
+          "handle": {
+            "connectorHandle": {
+              "@type": "system:io.trino.sql.planner.SystemPartitioningHandle",
+              "partitioning": "SINGLE",
+              "function": "SINGLE"
+            },
+            "scaleWriters": false
+          },
+          "arguments": []
+        },
+        "outputLayout": [
+          "r_name"
+        ],
+        "replicateNullsAndAny": false
+      },
+      "statsAndCosts": {
+        "stats": {
+          "5": {
+            "outputRowCount": "NaN",
+            "symbolStatistics": {}
+          },
+          "0": {
+            "outputRowCount": "NaN",
+            "symbolStatistics": {}
+          }
+        },
+        "costs": {
+          "5": {
+            "cpuCost": "NaN",
+            "maxMemory": 0.0,
+            "maxMemoryWhenOutputting": 0.0,
+            "networkCost": 0.0,
+            "rootNodeLocalCostEstimate": {
+              "cpuCost": 0.0,
+              "maxMemory": 0.0,
+              "networkCost": 0.0
+            }
+          },
+          "0": {
+            "cpuCost": "NaN",
+            "maxMemory": 0.0,
+            "maxMemoryWhenOutputting": 0.0,
+            "networkCost": 0.0,
+            "rootNodeLocalCostEstimate": {
+              "cpuCost": "NaN",
+              "maxMemory": 0.0,
+              "networkCost": 0.0
+            }
+          }
+        }
+      },
+      "activeCatalogs": [],
+      "languageFunctions": [],
+      "jsonRepresentation": "{\n  \"id\" : \"5\",\n  \"name\" : \"Output\",\n  \"descriptor\" : {\n    \"columnNames\" : \"[r_name]\"\n  },\n  \"outputs\" : [ {\n    \"symbol\" : \"r_name\",\n    \"type\" : \"char(25)\"\n  } ],\n  \"details\" : [ ],\n  \"estimates\" : [ ],\n  \"children\" : [ {\n    \"id\" : \"0\",\n    \"name\" : \"TableScan\",\n    \"descriptor\" : {\n      \"table\" : \"memory:29\"\n    },\n    \"outputs\" : [ {\n      \"symbol\" : \"r_name\",\n      \"type\" : \"char(25)\"\n    } ],\n    \"details\" : [ \"r_name := 1\" ],\n    \"estimates\" : [ ],\n    \"children\" : [ ]\n  } ]\n}"
+    },
+    "coordinatorOnly": false,
+    "types": [
+      "char(25)"
+    ],
+    "stageStats": {
+      "schedulingComplete": "2026-08-24T18:37:21.585Z",
+      "getSplitDistribution": {
+        "count": 1.0,
+        "total": 8342.0,
+        "p01": 8342.0,
+        "p05": 8342.0,
+        "p10": 8342.0,
+        "p25": 8342.0,
+        "p50": 8342.0,
+        "p75": 8342.0,
+        "p90": 8342.0,
+        "p95": 8342.0,
+        "p99": 8342.0,
+        "min": 8342.0,
+        "max": 8342.0,
+        "avg": 8342.0
+      },
+      "totalTasks": 1,
+      "runningTasks": 0,
+      "completedTasks": 1,
+      "failedTasks": 0,
+      "totalDrivers": 36,
+      "queuedDrivers": 0,
+      "runningDrivers": 0,
+      "blockedDrivers": 0,
+      "completedDrivers": 36,
+      "cumulativeUserMemory": 264.85424,
+      "failedCumulativeUserMemory": 0.0,
+      "userMemoryReservation": "0B",
+      "revocableMemoryReservation": "0B",
+      "totalMemoryReservation": "0B",
+      "peakUserMemoryReservation": "400B",
+      "peakRevocableMemoryReservation": "0B",
+      "totalScheduledTime": "3.24ms",
+      "failedScheduledTime": "0.00s",
+      "totalCpuTime": "2.61ms",
+      "failedCpuTime": "0.00s",
+      "totalBlockedTime": "0.00s",
+      "fullyBlocked": false,
+      "blockedReasons": [],
+      "physicalInputDataSize": "59B",
+      "failedPhysicalInputDataSize": "0B",
+      "physicalInputPositions": 5,
+      "failedPhysicalInputPositions": 0,
+      "physicalInputReadTime": "0.00s",
+      "failedPhysicalInputReadTime": "0.00s",
+      "internalNetworkInputDataSize": "0B",
+      "failedInternalNetworkInputDataSize": "0B",
+      "internalNetworkInputPositions": 0,
+      "failedInternalNetworkInputPositions": 0,
+      "rawInputDataSize": "59B",
+      "failedRawInputDataSize": "0B",
+      "rawInputPositions": 5,
+      "failedRawInputPositions": 0,
+      "processedInputDataSize": "59B",
+      "failedProcessedInputDataSize": "0B",
+      "processedInputPositions": 5,
+      "failedProcessedInputPositions": 0,
+      "inputBlockedTime": "0.00s",
+      "failedInputBlockedTime": "0.00s",
+      "bufferedDataSize": "0B",
+      "outputBufferUtilization": {
+        "@class": "io.trino.plugin.base.metrics.TDigestHistogram",
+        "digest": "AAAAAAAAAAAAAAAAAAAA3D4AAAAAAABZQAAAAMAc3VRBBgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA3D4AAAAAAADcPgAAAAAhPTxBAAAAAN6eKUEAAAAAwMv4QAAAAACKWjdBAAAAAOIzI0EAAAAAsJofQQ==",
+        "min": 0.0,
+        "max": 6.67572021484375e-06,
+        "p25": 0.0,
+        "p50": 0.0,
+        "p75": 3.368958504534463e-06,
+        "p90": 6.67572021484375e-06,
+        "p95": 6.67572021484375e-06,
+        "p99": 6.67572021484375e-06,
+        "total": 5469299,
+        "p01": 0.0,
+        "p05": 0.0,
+        "p10": 0.0
+      },
+      "outputDataSize": "59B",
+      "failedOutputDataSize": "0B",
+      "outputPositions": 5,
+      "failedOutputPositions": 0,
+      "outputBlockedTime": "0.00s",
+      "failedOutputBlockedTime": "0.00s",
+      "physicalWrittenDataSize": "0B",
+      "failedPhysicalWrittenDataSize": "0B",
+      "gcInfo": {
+        "stageId": 0,
+        "tasks": 1,
+        "fullGcTasks": 0,
+        "minFullGcSec": 0,
+        "maxFullGcSec": 0,
+        "totalFullGcSec": 0,
+        "averageFullGcSec": 0
+      },
+      "operatorSummaries": [
+        {
+          "stageId": 0,
+          "pipelineId": 0,
+          "operatorId": 0,
+          "planNodeId": "0",
+          "operatorType": "TableScanOperator",
+          "totalDrivers": 36,
+          "addInputCalls": 0,
+          "addInputWall": "0.00ns",
+          "addInputCpu": "0.00ns",
+          "physicalInputDataSize": "59B",
+          "physicalInputPositions": 5,
+          "physicalInputReadTime": "0.00ns",
+          "internalNetworkInputDataSize": "0B",
+          "internalNetworkInputPositions": 0,
+          "rawInputDataSize": "59B",
+          "inputDataSize": "59B",
+          "inputPositions": 5,
+          "sumSquaredInputPositions": 25.0,
+          "getOutputCalls": 36,
+          "getOutputWall": "1.23ms",
+          "getOutputCpu": "1.12ms",
+          "outputDataSize": "59B",
+          "outputPositions": 5,
+          "dynamicFilterSplitsProcessed": 0,
+          "metrics": {
+            "Scheduled time distribution (s)": {
+              "@class": "io.trino.plugin.base.metrics.TDigestHistogram",
+              "digest": "AKTYWioy5O8+tBlRIfEHID8AAAAAAABZQAAAAAAAAEJAJAAAAKTYWioy5O8+u9R/C+/I8T4LqpY/orPzPpY0B4dl0/Q+OFfjWFYb9T5t9wBKNGL1Pih2cXENmfY+Jmk7/O6D9z4drRGR/6H3PnNqHQvA9fc+//yT/5bu+D4/yKU24A/5PtVQw+fphPk+eRThOIaG+T6Eb/I/H4P6Pku/yPQZivo+NjI5/AjY+z5nJN/4HFD9PjETnUnBcf4+KYzAZwru/j4Yrahjwwr/PqnwbDFtb/8+UFii5r3H/z7eZhUp2VkAP5JsjNWacQA/HC6kiZiOAD+lF9NRsPQBP4NdJiCsGgI/ki8Ir9ToAj/PIAgHsAUDP7a6EyGyngM/zEScREBiBD9bJjKP1voNP4qza0BZOBY/GcPCZ/CZGj+0GVEh8QcgPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPw==",
+              "min": 1.5206999999999999e-05,
+              "max": 0.000122307,
+              "p25": 2.2849999999999996e-05,
+              "p50": 2.9033999999999997e-05,
+              "p75": 3.453099999999999e-05,
+              "p90": 5.718199999999999e-05,
+              "p95": 0.00010147599999999999,
+              "p99": 0.000122307,
+              "total": 36,
+              "p01": 1.5206999999999999e-05,
+              "p05": 1.6961e-05,
+              "p10": 1.9861e-05
+            },
+            "Blocked time distribution (s)": {
+              "@class": "io.trino.plugin.base.metrics.TDigestHistogram",
+              "digest": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAABZQAAAAAAAAEJAJAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPw==",
+              "min": 0.0,
+              "max": 0.0,
+              "p25": 0.0,
+              "p50": 0.0,
+              "p75": 0.0,
+              "p90": 0.0,
+              "p95": 0.0,
+              "p99": 0.0,
+              "total": 36,
+              "p01": 0.0,
+              "p05": 0.0,
+              "p10": 0.0
+            },
+            "CPU time distribution (s)": {
+              "@class": "io.trino.plugin.base.metrics.TDigestHistogram",
+              "digest": "AGA5FM4GSu4+IZU5yLEWGz8AAAAAAABZQAAAAAAAAEJAJAAAAGA5FM4GSu4+OQY5LxuL8D5OIEqGrAbyPiDLMUJACvM+54HMJKMw8z4yrR8rkIrzPsVafgurq/Q+8qU2vwEw9T7oSMvUZpT1PtwV0eHn4PU+8m6PUscy9j51d1OA3gr3Pqy4svBnC/c+60lH1m2S9z6zA7id2VX4Pov4KAXYpfg+y/NX/U7p+T6Wg1fNnsT6Pp9vnvm7yPs+iHh07jla/D6AitPeGrf8Pqr//ImNI/0+57oCZ6+S/T7Ms8wBBnL+Pg20K8KH8f4+Q/WKMhHy/j5G1UTZOrwAPzMgnswPwQA/5EbT0ViYAT9ntwgfWd8BP98yRKGn+QE/iKHSEYvbAj/qLVAYtXcNP0JONwcK5xM/I0yVS4pfFj8hlTnIsRYbPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPw==",
+              "min": 1.4442999999999997e-05,
+              "max": 0.00010333499999999999,
+              "p25": 2.0864999999999998e-05,
+              "p50": 2.6496999999999997e-05,
+              "p75": 3.1956e-05,
+              "p90": 5.6204999999999995e-05,
+              "p95": 8.534699999999998e-05,
+              "p99": 0.00010333499999999999,
+              "total": 36,
+              "p01": 1.4442999999999997e-05,
+              "p05": 1.5776999999999998e-05,
+              "p10": 1.8157999999999998e-05
+            },
+            "Input rows distribution": {
+              "@class": "io.trino.plugin.base.metrics.TDigestHistogram",
+              "digest": "AAAAAAAAAAAAAAAAAAAAFEAAAAAAAABZQAAAAAAAAEJAJAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUQAAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPw==",
+              "min": 0.0,
+              "max": 5.0,
+              "p25": 0.0,
+              "p50": 0.0,
+              "p75": 0.0,
+              "p90": 0.0,
+              "p95": 0.0,
+              "p99": 5.0,
+              "total": 36,
+              "p01": 0.0,
+              "p05": 0.0,
+              "p10": 0.0
+            }
+          },
+          "connectorMetrics": {
+            "started": {
+              "@class": "io.trino.plugin.base.metrics.LongCount",
+              "total": 36
+            },
+            "finished": {
+              "@class": "io.trino.plugin.base.metrics.LongCount",
+              "total": 36
+            },
+            "rows": {
+              "@class": "io.trino.plugin.base.metrics.LongCount",
+              "total": 5
+            }
+          },
+          "physicalWrittenDataSize": "0B",
+          "blockedWall": "0.00ns",
+          "finishCalls": 0,
+          "finishWall": "0.00ns",
+          "finishCpu": "0.00ns",
+          "userMemoryReservation": "0B",
+          "revocableMemoryReservation": "0B",
+          "peakUserMemoryReservation": "266B",
+          "peakRevocableMemoryReservation": "0B",
+          "peakTotalMemoryReservation": "266B",
+          "spilledDataSize": "0B"
+        },
+        {
+          "stageId": 0,
+          "pipelineId": 0,
+          "operatorId": 1,
+          "planNodeId": "5",
+          "operatorType": "TaskOutputOperator",
+          "totalDrivers": 36,
+          "addInputCalls": 1,
+          "addInputWall": "138.65us",
+          "addInputCpu": "129.84us",
+          "physicalInputDataSize": "0B",
+          "physicalInputPositions": 0,
+          "physicalInputReadTime": "0.00ns",
+          "internalNetworkInputDataSize": "0B",
+          "internalNetworkInputPositions": 0,
+          "rawInputDataSize": "0B",
+          "inputDataSize": "59B",
+          "inputPositions": 5,
+          "sumSquaredInputPositions": 25.0,
+          "getOutputCalls": 0,
+          "getOutputWall": "0.00ns",
+          "getOutputCpu": "0.00ns",
+          "outputDataSize": "59B",
+          "outputPositions": 5,
+          "dynamicFilterSplitsProcessed": 0,
+          "metrics": {
+            "Scheduled time distribution (s)": {
+              "@class": "io.trino.plugin.base.metrics.TDigestHistogram",
+              "digest": "ADF/XE1kB7E+tW95oqelIj8AAAAAAABZQAAAAAAAAEJAJAAAADF/XE1kB7E+vSRMUy+4uT5WgZ4pG6a7Pgu434iLL7w+TfK7mlBJvD5CkCDoqnG9PrPmE+6f674+9SDw/2QFvz7sZMaUdSO/PgTz0Y6N078+hQRFWeNfwD6BJrCj627APuw5pKmCd8A+Z/IyYh3JwD58dWLKGAPBPm/bo6kxMME+wboabvqSwT5JDWhHfLfBPqtkMuIj3sE+r28OdEBUwj71h387/V7CPly93oucdsI+CQuvo/iYwj6Nf2fHgszCPriQoimWtsM+Pj1+u2HlxD7qdo6ykhfIPuG6ZEejNcg+obirox8XyT6fEjpcaSHKPrcy93wM18w+tl8+WTFczT7icHm7REbOPk0ipGmupdA+xZivI/KD0T61b3mip6UiPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPw==",
+              "min": 1.0149999999999998e-06,
+              "max": 0.00014226599999999997,
+              "p25": 1.8969999999999998e-06,
+              "p50": 2.1299999999999995e-06,
+              "p75": 2.8859999999999996e-06,
+              "p90": 3.6089999999999997e-06,
+              "p95": 4.1759999999999995e-06,
+              "p99": 0.00014226599999999997,
+              "total": 36,
+              "p01": 1.0149999999999998e-06,
+              "p05": 1.5329999999999998e-06,
+              "p10": 1.6799999999999998e-06
+            },
+            "Blocked time distribution (s)": {
+              "@class": "io.trino.plugin.base.metrics.TDigestHistogram",
+              "digest": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAABZQAAAAAAAAEJAJAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPw==",
+              "min": 0.0,
+              "max": 0.0,
+              "p25": 0.0,
+              "p50": 0.0,
+              "p75": 0.0,
+              "p90": 0.0,
+              "p95": 0.0,
+              "p99": 0.0,
+              "total": 36,
+              "p01": 0.0,
+              "p05": 0.0,
+              "p10": 0.0
+            },
+            "CPU time distribution (s)": {
+              "@class": "io.trino.plugin.base.metrics.TDigestHistogram",
+              "digest": "AJkZJuhpn7I+JO4CPKGLIT8AAAAAAABZQAAAAAAAAEJAJAAAAJkZJuhpn7I+44Q53G82uz5nHVVNEHW/PtMwSVOnfb8+d8Lv/xO+vz5xgRXx5yXAPvnTYsppSsA+UpxK1kYUwT4LsSDrro7BPk3r/PxzqME+aipW0F7EwT5Q9tiOkB7CPoWW9n9uZcI+WN9J1qSFwj5TAbUgrZTCPuAxl68mqsI+snrqBV3Kwj7fXt6LSy/DPtaitCBcTcM+wUzMlIWYwz5FwYS4D8zDPuGWAfqMKsQ+CZ1gyoOexD67yMWX17HEPsv/EXFmAMc+uoe+moc8xz7u5tSOFQ7KPh+pXcr7Y8o+N5zTDnqUzD6A7GdEeJrNPiOrVc0JYM4+moVP0KzAzj6mITPixWzQPsXPVpAsgdA+C+jHV+mL0D4k7gI8oYshPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPw==",
+              "min": 1.1099999999999997e-06,
+              "max": 0.00013386099999999998,
+              "p25": 2.1049999999999998e-06,
+              "p50": 2.3009999999999997e-06,
+              "p75": 3.1459999999999996e-06,
+              "p90": 3.9159999999999994e-06,
+              "p95": 3.9449999999999995e-06,
+              "p99": 0.00013386099999999998,
+              "total": 36,
+              "p01": 1.1099999999999997e-06,
+              "p05": 1.6219999999999997e-06,
+              "p10": 1.8769999999999998e-06
+            },
+            "Input rows distribution": {
+              "@class": "io.trino.plugin.base.metrics.TDigestHistogram",
+              "digest": "AAAAAAAAAAAAAAAAAAAAFEAAAAAAAABZQAAAAAAAAEJAJAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUQAAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPw==",
+              "min": 0.0,
+              "max": 5.0,
+              "p25": 0.0,
+              "p50": 0.0,
+              "p75": 0.0,
+              "p90": 0.0,
+              "p95": 0.0,
+              "p99": 5.0,
+              "total": 36,
+              "p01": 0.0,
+              "p05": 0.0,
+              "p10": 0.0
+            }
+          },
+          "connectorMetrics": {},
+          "physicalWrittenDataSize": "0B",
+          "blockedWall": "0.00ns",
+          "finishCalls": 36,
+          "finishWall": "85.10us",
+          "finishCpu": "92.25us",
+          "userMemoryReservation": "0B",
+          "revocableMemoryReservation": "0B",
+          "peakUserMemoryReservation": "88B",
+          "peakRevocableMemoryReservation": "0B",
+          "peakTotalMemoryReservation": "88B",
+          "spilledDataSize": "0B"
+        }
+      ]
+    },
+    "tasks": [
+      {
+        "taskStatus": {
+          "taskId": "20260824_183721_00254_v7v86.0.0.0",
+          "taskInstanceId": "862faf4f-0143-4d79-9f80-2a449db9c17e",
+          "version": 2,
+          "state": "FINISHED",
+          "self": "http://172.17.0.3:8080/v1/task/20260824_183721_00254_v7v86.0.0.0",
+          "nodeId": "38421cb3a6f6",
+          "speculative": false,
+          "failures": [],
+          "queuedPartitionedDrivers": 0,
+          "runningPartitionedDrivers": 0,
+          "outputBufferStatus": {
+            "outputBuffersVersion": 2,
+            "overutilized": false,
+            "exchangeSinkInstanceHandleUpdateRequired": false
+          },
+          "outputDataSize": "59B",
+          "writerInputDataSize": "0B",
+          "physicalWrittenDataSize": "0B",
+          "memoryReservation": "0B",
+          "peakMemoryReservation": "400B",
+          "revocableMemoryReservation": "0B",
+          "fullGcCount": 0,
+          "fullGcTime": "0.00ns",
+          "dynamicFiltersVersion": 0,
+          "queuedPartitionedSplitsWeight": 0,
+          "runningPartitionedSplitsWeight": 0
+        },
+        "lastHeartbeat": "2026-08-24T18:37:21.593Z",
+        "outputBuffers": {
+          "type": "PARTITIONED",
+          "state": "FINISHED",
+          "canAddBuffers": false,
+          "canAddPages": false,
+          "totalBufferedBytes": 0,
+          "totalBufferedPages": 0,
+          "totalRowsSent": 5,
+          "totalPagesSent": 1,
+          "utilization": {
+            "@class": "io.trino.plugin.base.metrics.TDigestHistogram",
+            "digest": "AAAAAAAAAAAAAAAAAAAA3D4AAAAAAABZQAAAAMAc3VRBBgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA3D4AAAAAAADcPgAAAAAhPTxBAAAAAN6eKUEAAAAAwMv4QAAAAACKWjdBAAAAAOIzI0EAAAAAsJofQQ==",
+            "min": 0.0,
+            "max": 6.67572021484375e-06,
+            "p25": 0.0,
+            "p50": 0.0,
+            "p75": 3.368958504534463e-06,
+            "p90": 6.67572021484375e-06,
+            "p95": 6.67572021484375e-06,
+            "p99": 6.67572021484375e-06,
+            "total": 5469299,
+            "p01": 0.0,
+            "p05": 0.0,
+            "p10": 0.0
+          }
+        },
+        "noMoreSplits": [
+          "0"
+        ],
+        "stats": {
+          "createTime": "2026-08-24T18:37:21.586Z",
+          "firstStartTime": "2026-08-24T18:37:21.588Z",
+          "lastStartTime": "2026-08-24T18:37:21.589Z",
+          "lastEndTime": "2026-08-24T18:37:21.589Z",
+          "endTime": "2026-08-24T18:37:21.592Z",
+          "elapsedTime": "5.26ms",
+          "queuedTime": "502.40us",
+          "totalDrivers": 36,
+          "queuedDrivers": 0,
+          "queuedPartitionedDrivers": 0,
+          "queuedPartitionedSplitsWeight": 0,
+          "runningDrivers": 0,
+          "runningPartitionedDrivers": 0,
+          "runningPartitionedSplitsWeight": 0,
+          "blockedDrivers": 0,
+          "completedDrivers": 36,
+          "cumulativeUserMemory": 264.85424,
+          "userMemoryReservation": "0B",
+          "peakUserMemoryReservation": "400B",
+          "revocableMemoryReservation": "0B",
+          "totalScheduledTime": "3.24ms",
+          "totalCpuTime": "2.61ms",
+          "totalBlockedTime": "0.00ns",
+          "fullyBlocked": false,
+          "blockedReasons": [],
+          "physicalInputDataSize": "59B",
+          "physicalInputPositions": 5,
+          "physicalInputReadTime": "0.00ns",
+          "internalNetworkInputDataSize": "0B",
+          "internalNetworkInputPositions": 0,
+          "rawInputDataSize": "59B",
+          "rawInputPositions": 5,
+          "processedInputDataSize": "59B",
+          "processedInputPositions": 5,
+          "inputBlockedTime": "0.00ns",
+          "outputDataSize": "59B",
+          "outputPositions": 5,
+          "outputBlockedTime": "0.00ns",
+          "writerInputDataSize": "0B",
+          "physicalWrittenDataSize": "0B",
+          "fullGcCount": 0,
+          "fullGcTime": "0.00ns",
+          "pipelines": [
+            {
+              "pipelineId": 0,
+              "firstStartTime": "2026-08-24T18:37:21.588Z",
+              "lastStartTime": "2026-08-24T18:37:21.589Z",
+              "lastEndTime": "2026-08-24T18:37:21.589Z",
+              "inputPipeline": true,
+              "outputPipeline": true,
+              "totalDrivers": 36,
+              "queuedDrivers": 0,
+              "queuedPartitionedDrivers": 0,
+              "queuedPartitionedSplitsWeight": 0,
+              "runningDrivers": 0,
+              "runningPartitionedDrivers": 0,
+              "runningPartitionedSplitsWeight": 0,
+              "blockedDrivers": 0,
+              "completedDrivers": 36,
+              "userMemoryReservation": "0B",
+              "revocableMemoryReservation": "0B",
+              "queuedTime": {
+                "count": 36.0,
+                "total": 28377515.0,
+                "p01": 195634.0,
+                "p05": 209383.0,
+                "p10": 247778.0,
+                "p25": 457559.0,
+                "p50": 896773.0,
+                "p75": 1141032.0,
+                "p90": 1271523.0,
+                "p95": 1349116.0,
+                "p99": 1390166.0,
+                "min": 195634.0,
+                "max": 1390166.0,
+                "avg": 788264.3055555555
+              },
+              "elapsedTime": {
+                "count": 36.0,
+                "total": 31572261.0,
+                "p01": 355042.0,
+                "p05": 386336.0,
+                "p10": 444983.0,
+                "p25": 567752.0,
+                "p50": 958077.0,
+                "p75": 1193373.0,
+                "p90": 1310816.0,
+                "p95": 1393040.0,
+                "p99": 1438394.0,
+                "min": 355042.0,
+                "max": 1438394.0,
+                "avg": 877007.25
+              },
+              "totalScheduledTime": "3.24ms",
+              "totalCpuTime": "2.61ms",
+              "totalBlockedTime": "0.00ns",
+              "fullyBlocked": false,
+              "blockedReasons": [],
+              "physicalInputDataSize": "59B",
+              "physicalInputPositions": 5,
+              "physicalInputReadTime": "0.00ns",
+              "internalNetworkInputDataSize": "0B",
+              "internalNetworkInputPositions": 0,
+              "rawInputDataSize": "59B",
+              "rawInputPositions": 5,
+              "processedInputDataSize": "59B",
+              "processedInputPositions": 5,
+              "inputBlockedTime": "0.00ns",
+              "outputDataSize": "59B",
+              "outputPositions": 5,
+              "outputBlockedTime": "0.00ns",
+              "physicalWrittenDataSize": "0B",
+              "operatorSummaries": [
+                {
+                  "stageId": 0,
+                  "pipelineId": 0,
+                  "operatorId": 0,
+                  "planNodeId": "0",
+                  "operatorType": "TableScanOperator",
+                  "totalDrivers": 36,
+                  "addInputCalls": 0,
+                  "addInputWall": "0.00ns",
+                  "addInputCpu": "0.00ns",
+                  "physicalInputDataSize": "59B",
+                  "physicalInputPositions": 5,
+                  "physicalInputReadTime": "0.00ns",
+                  "internalNetworkInputDataSize": "0B",
+                  "internalNetworkInputPositions": 0,
+                  "rawInputDataSize": "59B",
+                  "inputDataSize": "59B",
+                  "inputPositions": 5,
+                  "sumSquaredInputPositions": 25.0,
+                  "getOutputCalls": 36,
+                  "getOutputWall": "1.23ms",
+                  "getOutputCpu": "1.12ms",
+                  "outputDataSize": "59B",
+                  "outputPositions": 5,
+                  "dynamicFilterSplitsProcessed": 0,
+                  "metrics": {
+                    "Scheduled time distribution (s)": {
+                      "@class": "io.trino.plugin.base.metrics.TDigestHistogram",
+                      "digest": "AKTYWioy5O8+tBlRIfEHID8AAAAAAABZQAAAAAAAAEJAJAAAAKTYWioy5O8+u9R/C+/I8T4LqpY/orPzPpY0B4dl0/Q+OFfjWFYb9T5t9wBKNGL1Pih2cXENmfY+Jmk7/O6D9z4drRGR/6H3PnNqHQvA9fc+//yT/5bu+D4/yKU24A/5PtVQw+fphPk+eRThOIaG+T6Eb/I/H4P6Pku/yPQZivo+NjI5/AjY+z5nJN/4HFD9PjETnUnBcf4+KYzAZwru/j4Yrahjwwr/PqnwbDFtb/8+UFii5r3H/z7eZhUp2VkAP5JsjNWacQA/HC6kiZiOAD+lF9NRsPQBP4NdJiCsGgI/ki8Ir9ToAj/PIAgHsAUDP7a6EyGyngM/zEScREBiBD9bJjKP1voNP4qza0BZOBY/GcPCZ/CZGj+0GVEh8QcgPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPw==",
+                      "min": 1.5206999999999999e-05,
+                      "max": 0.000122307,
+                      "p25": 2.2849999999999996e-05,
+                      "p50": 2.9033999999999997e-05,
+                      "p75": 3.453099999999999e-05,
+                      "p90": 5.718199999999999e-05,
+                      "p95": 0.00010147599999999999,
+                      "p99": 0.000122307,
+                      "total": 36,
+                      "p01": 1.5206999999999999e-05,
+                      "p05": 1.6961e-05,
+                      "p10": 1.9861e-05
+                    },
+                    "Blocked time distribution (s)": {
+                      "@class": "io.trino.plugin.base.metrics.TDigestHistogram",
+                      "digest": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAABZQAAAAAAAAEJAJAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPw==",
+                      "min": 0.0,
+                      "max": 0.0,
+                      "p25": 0.0,
+                      "p50": 0.0,
+                      "p75": 0.0,
+                      "p90": 0.0,
+                      "p95": 0.0,
+                      "p99": 0.0,
+                      "total": 36,
+                      "p01": 0.0,
+                      "p05": 0.0,
+                      "p10": 0.0
+                    },
+                    "CPU time distribution (s)": {
+                      "@class": "io.trino.plugin.base.metrics.TDigestHistogram",
+                      "digest": "AGA5FM4GSu4+IZU5yLEWGz8AAAAAAABZQAAAAAAAAEJAJAAAAGA5FM4GSu4+OQY5LxuL8D5OIEqGrAbyPiDLMUJACvM+54HMJKMw8z4yrR8rkIrzPsVafgurq/Q+8qU2vwEw9T7oSMvUZpT1PtwV0eHn4PU+8m6PUscy9j51d1OA3gr3Pqy4svBnC/c+60lH1m2S9z6zA7id2VX4Pov4KAXYpfg+y/NX/U7p+T6Wg1fNnsT6Pp9vnvm7yPs+iHh07jla/D6AitPeGrf8Pqr//ImNI/0+57oCZ6+S/T7Ms8wBBnL+Pg20K8KH8f4+Q/WKMhHy/j5G1UTZOrwAPzMgnswPwQA/5EbT0ViYAT9ntwgfWd8BP98yRKGn+QE/iKHSEYvbAj/qLVAYtXcNP0JONwcK5xM/I0yVS4pfFj8hlTnIsRYbPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPw==",
+                      "min": 1.4442999999999997e-05,
+                      "max": 0.00010333499999999999,
+                      "p25": 2.0864999999999998e-05,
+                      "p50": 2.6496999999999997e-05,
+                      "p75": 3.1956e-05,
+                      "p90": 5.6204999999999995e-05,
+                      "p95": 8.534699999999998e-05,
+                      "p99": 0.00010333499999999999,
+                      "total": 36,
+                      "p01": 1.4442999999999997e-05,
+                      "p05": 1.5776999999999998e-05,
+                      "p10": 1.8157999999999998e-05
+                    },
+                    "Input rows distribution": {
+                      "@class": "io.trino.plugin.base.metrics.TDigestHistogram",
+                      "digest": "AAAAAAAAAAAAAAAAAAAAFEAAAAAAAABZQAAAAAAAAEJAJAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUQAAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPw==",
+                      "min": 0.0,
+                      "max": 5.0,
+                      "p25": 0.0,
+                      "p50": 0.0,
+                      "p75": 0.0,
+                      "p90": 0.0,
+                      "p95": 0.0,
+                      "p99": 5.0,
+                      "total": 36,
+                      "p01": 0.0,
+                      "p05": 0.0,
+                      "p10": 0.0
+                    }
+                  },
+                  "connectorMetrics": {
+                    "started": {
+                      "@class": "io.trino.plugin.base.metrics.LongCount",
+                      "total": 36
+                    },
+                    "finished": {
+                      "@class": "io.trino.plugin.base.metrics.LongCount",
+                      "total": 36
+                    },
+                    "rows": {
+                      "@class": "io.trino.plugin.base.metrics.LongCount",
+                      "total": 5
+                    }
+                  },
+                  "physicalWrittenDataSize": "0B",
+                  "blockedWall": "0.00ns",
+                  "finishCalls": 0,
+                  "finishWall": "0.00ns",
+                  "finishCpu": "0.00ns",
+                  "userMemoryReservation": "0B",
+                  "revocableMemoryReservation": "0B",
+                  "peakUserMemoryReservation": "266B",
+                  "peakRevocableMemoryReservation": "0B",
+                  "peakTotalMemoryReservation": "266B",
+                  "spilledDataSize": "0B"
+                },
+                {
+                  "stageId": 0,
+                  "pipelineId": 0,
+                  "operatorId": 1,
+                  "planNodeId": "5",
+                  "operatorType": "TaskOutputOperator",
+                  "totalDrivers": 36,
+                  "addInputCalls": 1,
+                  "addInputWall": "138.65us",
+                  "addInputCpu": "129.84us",
+                  "physicalInputDataSize": "0B",
+                  "physicalInputPositions": 0,
+                  "physicalInputReadTime": "0.00ns",
+                  "internalNetworkInputDataSize": "0B",
+                  "internalNetworkInputPositions": 0,
+                  "rawInputDataSize": "0B",
+                  "inputDataSize": "59B",
+                  "inputPositions": 5,
+                  "sumSquaredInputPositions": 25.0,
+                  "getOutputCalls": 0,
+                  "getOutputWall": "0.00ns",
+                  "getOutputCpu": "0.00ns",
+                  "outputDataSize": "59B",
+                  "outputPositions": 5,
+                  "dynamicFilterSplitsProcessed": 0,
+                  "metrics": {
+                    "Scheduled time distribution (s)": {
+                      "@class": "io.trino.plugin.base.metrics.TDigestHistogram",
+                      "digest": "ADF/XE1kB7E+tW95oqelIj8AAAAAAABZQAAAAAAAAEJAJAAAADF/XE1kB7E+vSRMUy+4uT5WgZ4pG6a7Pgu434iLL7w+TfK7mlBJvD5CkCDoqnG9PrPmE+6f674+9SDw/2QFvz7sZMaUdSO/PgTz0Y6N078+hQRFWeNfwD6BJrCj627APuw5pKmCd8A+Z/IyYh3JwD58dWLKGAPBPm/bo6kxMME+wboabvqSwT5JDWhHfLfBPqtkMuIj3sE+r28OdEBUwj71h387/V7CPly93oucdsI+CQuvo/iYwj6Nf2fHgszCPriQoimWtsM+Pj1+u2HlxD7qdo6ykhfIPuG6ZEejNcg+obirox8XyT6fEjpcaSHKPrcy93wM18w+tl8+WTFczT7icHm7REbOPk0ipGmupdA+xZivI/KD0T61b3mip6UiPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPw==",
+                      "min": 1.0149999999999998e-06,
+                      "max": 0.00014226599999999997,
+                      "p25": 1.8969999999999998e-06,
+                      "p50": 2.1299999999999995e-06,
+                      "p75": 2.8859999999999996e-06,
+                      "p90": 3.6089999999999997e-06,
+                      "p95": 4.1759999999999995e-06,
+                      "p99": 0.00014226599999999997,
+                      "total": 36,
+                      "p01": 1.0149999999999998e-06,
+                      "p05": 1.5329999999999998e-06,
+                      "p10": 1.6799999999999998e-06
+                    },
+                    "Blocked time distribution (s)": {
+                      "@class": "io.trino.plugin.base.metrics.TDigestHistogram",
+                      "digest": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAABZQAAAAAAAAEJAJAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPw==",
+                      "min": 0.0,
+                      "max": 0.0,
+                      "p25": 0.0,
+                      "p50": 0.0,
+                      "p75": 0.0,
+                      "p90": 0.0,
+                      "p95": 0.0,
+                      "p99": 0.0,
+                      "total": 36,
+                      "p01": 0.0,
+                      "p05": 0.0,
+                      "p10": 0.0
+                    },
+                    "CPU time distribution (s)": {
+                      "@class": "io.trino.plugin.base.metrics.TDigestHistogram",
+                      "digest": "AJkZJuhpn7I+JO4CPKGLIT8AAAAAAABZQAAAAAAAAEJAJAAAAJkZJuhpn7I+44Q53G82uz5nHVVNEHW/PtMwSVOnfb8+d8Lv/xO+vz5xgRXx5yXAPvnTYsppSsA+UpxK1kYUwT4LsSDrro7BPk3r/PxzqME+aipW0F7EwT5Q9tiOkB7CPoWW9n9uZcI+WN9J1qSFwj5TAbUgrZTCPuAxl68mqsI+snrqBV3Kwj7fXt6LSy/DPtaitCBcTcM+wUzMlIWYwz5FwYS4D8zDPuGWAfqMKsQ+CZ1gyoOexD67yMWX17HEPsv/EXFmAMc+uoe+moc8xz7u5tSOFQ7KPh+pXcr7Y8o+N5zTDnqUzD6A7GdEeJrNPiOrVc0JYM4+moVP0KzAzj6mITPixWzQPsXPVpAsgdA+C+jHV+mL0D4k7gI8oYshPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPw==",
+                      "min": 1.1099999999999997e-06,
+                      "max": 0.00013386099999999998,
+                      "p25": 2.1049999999999998e-06,
+                      "p50": 2.3009999999999997e-06,
+                      "p75": 3.1459999999999996e-06,
+                      "p90": 3.9159999999999994e-06,
+                      "p95": 3.9449999999999995e-06,
+                      "p99": 0.00013386099999999998,
+                      "total": 36,
+                      "p01": 1.1099999999999997e-06,
+                      "p05": 1.6219999999999997e-06,
+                      "p10": 1.8769999999999998e-06
+                    },
+                    "Input rows distribution": {
+                      "@class": "io.trino.plugin.base.metrics.TDigestHistogram",
+                      "digest": "AAAAAAAAAAAAAAAAAAAAFEAAAAAAAABZQAAAAAAAAEJAJAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUQAAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPw==",
+                      "min": 0.0,
+                      "max": 5.0,
+                      "p25": 0.0,
+                      "p50": 0.0,
+                      "p75": 0.0,
+                      "p90": 0.0,
+                      "p95": 0.0,
+                      "p99": 5.0,
+                      "total": 36,
+                      "p01": 0.0,
+                      "p05": 0.0,
+                      "p10": 0.0
+                    }
+                  },
+                  "connectorMetrics": {},
+                  "physicalWrittenDataSize": "0B",
+                  "blockedWall": "0.00ns",
+                  "finishCalls": 36,
+                  "finishWall": "85.10us",
+                  "finishCpu": "92.25us",
+                  "userMemoryReservation": "0B",
+                  "revocableMemoryReservation": "0B",
+                  "peakUserMemoryReservation": "88B",
+                  "peakRevocableMemoryReservation": "0B",
+                  "peakTotalMemoryReservation": "88B",
+                  "spilledDataSize": "0B"
+                }
+              ],
+              "drivers": []
+            }
+          ]
+        },
+        "needsPlan": false
+      }
+    ],
+    "subStages": [],
+    "tables": {
+      "0": {
+        "connectorName": "memory",
+        "tableName": "memory.query_graphs_plan_dumper.region",
+        "predicate": {
+          "columnDomains": []
+        }
+      }
+    }
+  },
+  "warnings": [],
+  "inputs": [
+    {
+      "catalogName": "memory",
+      "catalogVersion": "default",
+      "schema": "query_graphs_plan_dumper",
+      "table": "region",
+      "columns": [
+        {
+          "name": "r_name",
+          "type": "char(25)"
+        }
+      ],
+      "fragmentId": "0",
+      "planNodeId": "0"
+    }
+  ],
+  "referencedTables": [
+    {
+      "catalog": "memory",
+      "schema": "query_graphs_plan_dumper",
+      "table": "region",
+      "authorization": "plan-dumper",
+      "filters": [],
+      "columns": [
+        {
+          "column": "r_name"
+        }
+      ],
+      "directlyReferenced": true
+    }
+  ],
+  "routines": [],
+  "finalQueryInfo": true,
+  "resourceGroupId": [
+    "global"
+  ],
+  "queryType": "SELECT",
+  "retryPolicy": "NONE",
+  "pruned": false,
+  "version": {
+    "version": "434"
+  },
+  "scheduled": true,
+  "progressPercentage": 100.0,
+  "runningPercentage": 0.0
+}

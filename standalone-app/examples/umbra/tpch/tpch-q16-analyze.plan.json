@@ -1,0 +1,1346 @@
+{
+  "plan": {
+    "operator": "sort",
+    "physicalOperator": "sort",
+    "cardinality": 64,
+    "operatorId": 1,
+    "analyzePlanId": 0,
+    "analyzePlanCardinality": 81,
+    "analyzePlanCounters": {},
+    "sourceLocation": {
+      "startLine": 30,
+      "startColumn": 9,
+      "endLine": 30,
+      "endColumn": 26
+    },
+    "input": {
+      "operator": "groupby",
+      "physicalOperator": "groupby",
+      "cardinality": 64,
+      "operatorId": 2,
+      "analyzePlanId": 1,
+      "analyzePlanCardinality": 81,
+      "analyzePlanCounters": {},
+      "sourceLocation": {
+        "startLine": 25,
+        "startColumn": 1,
+        "endLine": 28,
+        "endColumn": 15
+      },
+      "input": {
+        "operator": "groupby",
+        "physicalOperator": "groupby",
+        "cardinality": 64,
+        "operatorId": 3,
+        "analyzePlanId": 2,
+        "analyzePlanCardinality": 81,
+        "analyzePlanCounters": {},
+        "input": {
+          "operator": "join",
+          "physicalOperator": "hashjoin",
+          "cardinality": 72,
+          "operatorId": 4,
+          "analyzePlanId": 3,
+          "analyzePlanCardinality": 81,
+          "analyzePlanCounters": {
+            "slots": 16,
+            "chains": 0,
+            "minmaxbounds": "off",
+            "hashtable": "compact",
+            "filter": "off",
+            "chaining": "off"
+          },
+          "left": {
+            "operator": "tablescan",
+            "physicalOperator": "tablescan",
+            "cardinality": 52,
+            "operatorId": 5,
+            "analyzePlanId": 4,
+            "analyzePlanCardinality": 0,
+            "analyzePlanCounters": {},
+            "sourceLocation": {
+              "startLine": 21,
+              "startColumn": 25,
+              "endLine": 21,
+              "endColumn": 33
+            },
+            "attributes": [
+              {
+                "name": "s_suppkey",
+                "iu": "s_suppkey"
+              },
+              {
+                "name": "s_name",
+                "iu": "s_name"
+              },
+              {
+                "name": "s_address",
+                "iu": "s_address"
+              },
+              {
+                "name": "s_nationkey",
+                "iu": "s_nationkey"
+              },
+              {
+                "name": "s_phone",
+                "iu": "s_phone"
+              },
+              {
+                "name": "s_acctbal",
+                "iu": "s_acctbal"
+              },
+              {
+                "name": "s_comment",
+                "iu": "s_comment"
+              }
+            ],
+            "restrictions": [
+              {
+                "attribute": 6,
+                "mode": "expression",
+                "value": {
+                  "expression": "like",
+                  "id": 29,
+                  "sourceLocation": {
+                    "startLine": 23,
+                    "startColumn": 25,
+                    "endLine": 23,
+                    "endColumn": 63
+                  },
+                  "input": [
+                    {
+                      "expression": "cast",
+                      "id": 28,
+                      "input": {
+                        "expression": "iuref",
+                        "id": 25,
+                        "sourceLocation": {
+                          "startLine": 23,
+                          "startColumn": 25,
+                          "endLine": 23,
+                          "endColumn": 34
+                        },
+                        "iu": "s_comment"
+                      },
+                      "type": {
+                        "type": "text"
+                      },
+                      "semantic": "implicit"
+                    },
+                    {
+                      "expression": "const",
+                      "id": 26,
+                      "sourceLocation": {
+                        "startLine": 23,
+                        "startColumn": 40,
+                        "endLine": 23,
+                        "endColumn": 63
+                      },
+                      "value": {
+                        "type": {
+                          "type": "text"
+                        },
+                        "value": "%Customer%Complaints%"
+                      }
+                    }
+                  ],
+                  "collate": ""
+                },
+                "estimatedSelectivity": 0.1,
+                "collate": ""
+              }
+            ],
+            "residuals": [],
+            "tid": "tid",
+            "tableoid": "tableoid",
+            "rowstate": "rowstate",
+            "schema": "pg_temp",
+            "table": {
+              "type": "temporarytable",
+              "id": 3
+            },
+            "tableSize": 518,
+            "tablename": "supplier"
+          },
+          "right": {
+            "operator": "join",
+            "physicalOperator": "hashjoin",
+            "cardinality": 81,
+            "operatorId": 6,
+            "analyzePlanId": 5,
+            "analyzePlanCardinality": 81,
+            "analyzePlanCounters": {
+              "slots": 128,
+              "chains": 58,
+              "minmaxbounds": "on",
+              "hashtable": "compact",
+              "min": "450",
+              "filter": "off",
+              "chaining": "off",
+              "max": "191824"
+            },
+            "left": {
+              "operator": "earlyexecution",
+              "physicalOperator": "earlyexecution",
+              "cardinality": 81,
+              "operatorId": 7,
+              "analyzePlanId": 6,
+              "analyzePlanCardinality": 81,
+              "analyzePlanCounters": {},
+              "attributes": [
+                {
+                  "name": "p_partkey",
+                  "iu": "p_partkey"
+                },
+                {
+                  "name": "p_brand",
+                  "iu": "p_brand"
+                },
+                {
+                  "name": "p_type",
+                  "iu": "p_type"
+                },
+                {
+                  "name": "p_size",
+                  "iu": "p_size"
+                }
+              ],
+              "restrictions": [],
+              "residuals": [],
+              "input": {
+                "operator": "tablescan",
+                "physicalOperator": "tablescan",
+                "cardinality": 1,
+                "operatorId": 8,
+                "analyzePlanId": 7,
+                "analyzePlanCardinality": 0,
+                "analyzePlanCounters": {},
+                "sourceLocation": {
+                  "startLine": 11,
+                  "startColumn": 9,
+                  "endLine": 11,
+                  "endColumn": 13
+                },
+                "attributes": [
+                  {
+                    "name": "p_partkey",
+                    "iu": "p_partkey15"
+                  },
+                  {
+                    "name": "p_name",
+                    "iu": "p_name"
+                  },
+                  {
+                    "name": "p_mfgr",
+                    "iu": "p_mfgr"
+                  },
+                  {
+                    "name": "p_brand",
+                    "iu": "p_brand18"
+                  },
+                  {
+                    "name": "p_type",
+                    "iu": "p_type19"
+                  },
+                  {
+                    "name": "p_size",
+                    "iu": "p_size20"
+                  },
+                  {
+                    "name": "p_container",
+                    "iu": "p_container"
+                  },
+                  {
+                    "name": "p_retailprice",
+                    "iu": "p_retailprice"
+                  },
+                  {
+                    "name": "p_comment",
+                    "iu": "p_comment"
+                  }
+                ],
+                "restrictions": [
+                  {
+                    "attribute": 5,
+                    "mode": "[]",
+                    "value": {
+                      "expression": "const",
+                      "id": 54,
+                      "value": {
+                        "type": {
+                          "type": "integer"
+                        },
+                        "value": 3
+                      }
+                    },
+                    "upper": {
+                      "expression": "const",
+                      "id": 55,
+                      "value": {
+                        "type": {
+                          "type": "integer"
+                        },
+                        "value": 49
+                      }
+                    },
+                    "estimatedSelectivity": -1,
+                    "collate": ""
+                  },
+                  {
+                    "attribute": 3,
+                    "mode": "!=",
+                    "value": {
+                      "expression": "const",
+                      "id": 6,
+                      "sourceLocation": {
+                        "startLine": 14,
+                        "startColumn": 24,
+                        "endLine": 14,
+                        "endColumn": 34
+                      },
+                      "value": {
+                        "type": {
+                          "type": "char",
+                          "precision": 10
+                        },
+                        "value": "Brand#45"
+                      }
+                    },
+                    "estimatedSelectivity": -1,
+                    "collate": ""
+                  },
+                  {
+                    "attribute": 4,
+                    "mode": "expression",
+                    "value": {
+                      "expression": "not",
+                      "id": 13,
+                      "sourceLocation": {
+                        "startLine": 15,
+                        "startColumn": 13,
+                        "endLine": 15,
+                        "endColumn": 47
+                      },
+                      "input": {
+                        "expression": "startswith",
+                        "id": 12,
+                        "input": [
+                          {
+                            "expression": "cast",
+                            "id": 11,
+                            "input": {
+                              "expression": "iuref",
+                              "id": 8,
+                              "sourceLocation": {
+                                "startLine": 15,
+                                "startColumn": 13,
+                                "endLine": 15,
+                                "endColumn": 19
+                              },
+                              "iu": "p_type19"
+                            },
+                            "type": {
+                              "type": "text"
+                            },
+                            "semantic": "implicit"
+                          },
+                          {
+                            "expression": "const",
+                            "id": 9,
+                            "sourceLocation": {
+                              "startLine": 15,
+                              "startColumn": 29,
+                              "endLine": 15,
+                              "endColumn": 47
+                            },
+                            "value": {
+                              "type": {
+                                "type": "text"
+                              },
+                              "value": "MEDIUM POLISHED"
+                            }
+                          }
+                        ],
+                        "collate": ""
+                      }
+                    },
+                    "estimatedSelectivity": 0.5,
+                    "collate": ""
+                  }
+                ],
+                "residuals": [
+                  {
+                    "expression": "in",
+                    "id": 52,
+                    "input": [
+                      {
+                        "expression": "iuref",
+                        "id": 22,
+                        "sourceLocation": {
+                          "startLine": 16,
+                          "startColumn": 13,
+                          "endLine": 16,
+                          "endColumn": 19
+                        },
+                        "iu": "p_size20"
+                      }
+                    ],
+                    "values": [
+                      {
+                        "type": {
+                          "type": "integer"
+                        },
+                        "value": 3
+                      },
+                      {
+                        "type": {
+                          "type": "integer"
+                        },
+                        "value": 9
+                      },
+                      {
+                        "type": {
+                          "type": "integer"
+                        },
+                        "value": 14
+                      },
+                      {
+                        "type": {
+                          "type": "integer"
+                        },
+                        "value": 19
+                      },
+                      {
+                        "type": {
+                          "type": "integer"
+                        },
+                        "value": 23
+                      },
+                      {
+                        "type": {
+                          "type": "integer"
+                        },
+                        "value": 36
+                      },
+                      {
+                        "type": {
+                          "type": "integer"
+                        },
+                        "value": 45
+                      },
+                      {
+                        "type": {
+                          "type": "integer"
+                        },
+                        "value": 49
+                      }
+                    ],
+                    "collates": [
+                      ""
+                    ]
+                  }
+                ],
+                "tid": "tid24",
+                "tableoid": "tableoid25",
+                "rowstate": "rowstate26",
+                "schema": "pg_temp",
+                "table": {
+                  "type": "temporarytable",
+                  "id": 2
+                },
+                "tableSize": 533,
+                "tablename": "part"
+              },
+              "mapping": {
+                "mapping": [
+                  {
+                    "key": "p_partkey15",
+                    "value": "p_partkey"
+                  },
+                  {
+                    "key": "p_brand18",
+                    "value": "p_brand"
+                  },
+                  {
+                    "key": "p_type19",
+                    "value": "p_type"
+                  },
+                  {
+                    "key": "p_size20",
+                    "value": "p_size"
+                  }
+                ]
+              },
+              "result": 0
+            },
+            "right": {
+              "operator": "tablescan",
+              "physicalOperator": "tablescan",
+              "cardinality": 81,
+              "operatorId": 9,
+              "analyzePlanId": 8,
+              "analyzePlanCardinality": 537,
+              "analyzePlanCounters": {},
+              "sourceLocation": {
+                "startLine": 10,
+                "startColumn": 9,
+                "endLine": 10,
+                "endColumn": 17
+              },
+              "attributes": [
+                {
+                  "name": "ps_partkey",
+                  "iu": "ps_partkey"
+                },
+                {
+                  "name": "ps_suppkey",
+                  "iu": "ps_suppkey"
+                },
+                {
+                  "name": "ps_availqty",
+                  "iu": "ps_availqty"
+                },
+                {
+                  "name": "ps_supplycost",
+                  "iu": "ps_supplycost"
+                },
+                {
+                  "name": "ps_comment",
+                  "iu": "ps_comment"
+                }
+              ],
+              "restrictions": [
+                {
+                  "attribute": 0,
+                  "mode": "minmax",
+                  "value": {
+                    "expression": "iuref",
+                    "id": 63,
+                    "iu": "p_partkey"
+                  },
+                  "op": 6,
+                  "estimatedSelectivity": 0.15083798882681565,
+                  "collate": ""
+                }
+              ],
+              "residuals": [],
+              "tid": "tid32",
+              "tableoid": "tableoid33",
+              "rowstate": "rowstate34",
+              "schema": "pg_temp",
+              "table": {
+                "type": "temporarytable",
+                "id": 4
+              },
+              "tableSize": 537,
+              "tablename": "partsupp"
+            },
+            "condition": {
+              "expression": "compare",
+              "id": 4,
+              "sourceLocation": {
+                "startLine": 13,
+                "startColumn": 9,
+                "endLine": 13,
+                "endColumn": 31
+              },
+              "left": {
+                "expression": "iuref",
+                "id": 2,
+                "sourceLocation": {
+                  "startLine": 13,
+                  "startColumn": 9,
+                  "endLine": 13,
+                  "endColumn": 18
+                },
+                "iu": "p_partkey"
+              },
+              "right": {
+                "expression": "iuref",
+                "id": 3,
+                "sourceLocation": {
+                  "startLine": 13,
+                  "startColumn": 21,
+                  "endLine": 13,
+                  "endColumn": 31
+                },
+                "iu": "ps_partkey"
+              },
+              "direction": "=",
+              "collate": ""
+            },
+            "type": "inner",
+            "minmaxbounds": true,
+            "minmaxboundius": [
+              {
+                "expression": "iuref",
+                "id": 64,
+                "iu": "p_partkey"
+              }
+            ],
+            "forcedestimate": 81
+          },
+          "condition": {
+            "expression": "compare",
+            "id": 32,
+            "left": {
+              "expression": "iuref",
+              "id": 24,
+              "sourceLocation": {
+                "startLine": 17,
+                "startColumn": 13,
+                "endLine": 17,
+                "endColumn": 23
+              },
+              "iu": "ps_suppkey"
+            },
+            "right": {
+              "expression": "iuref",
+              "id": 31,
+              "iu": "s_suppkey"
+            },
+            "direction": "=",
+            "collate": ""
+          },
+          "type": "rightanti",
+          "forcedestimate": 71.55342248996132
+        },
+        "values": [
+          {
+            "expression": "iuref",
+            "id": 36,
+            "sourceLocation": {
+              "startLine": 26,
+              "startColumn": 9,
+              "endLine": 26,
+              "endColumn": 16
+            },
+            "iu": "p_brand"
+          },
+          {
+            "expression": "iuref",
+            "id": 37,
+            "sourceLocation": {
+              "startLine": 27,
+              "startColumn": 9,
+              "endLine": 27,
+              "endColumn": 15
+            },
+            "iu": "p_type"
+          },
+          {
+            "expression": "iuref",
+            "id": 38,
+            "sourceLocation": {
+              "startLine": 28,
+              "startColumn": 9,
+              "endLine": 28,
+              "endColumn": 15
+            },
+            "iu": "p_size"
+          },
+          {
+            "expression": "iuref",
+            "id": 42,
+            "sourceLocation": {
+              "startLine": 8,
+              "startColumn": 24,
+              "endLine": 8,
+              "endColumn": 34
+            },
+            "iu": "ps_suppkey"
+          }
+        ],
+        "key": [
+          {
+            "arg": 0,
+            "iu": "p_brand35",
+            "collate": ""
+          },
+          {
+            "arg": 1,
+            "iu": "p_type36",
+            "collate": ""
+          },
+          {
+            "arg": 2,
+            "iu": "p_size37",
+            "collate": ""
+          },
+          {
+            "arg": 3,
+            "iu": "ps_suppkey38",
+            "collate": ""
+          }
+        ],
+        "groupingmode": "regular",
+        "aggregates": [],
+        "orders": [],
+        "groupingsets": [],
+        "sortlimitorder": []
+      },
+      "values": [
+        {
+          "expression": "iuref",
+          "id": 65,
+          "iu": "p_brand35"
+        },
+        {
+          "expression": "iuref",
+          "id": 66,
+          "iu": "p_type36"
+        },
+        {
+          "expression": "iuref",
+          "id": 67,
+          "iu": "p_size37"
+        },
+        {
+          "expression": "iuref",
+          "id": 68,
+          "iu": "ps_suppkey38"
+        }
+      ],
+      "key": [
+        {
+          "arg": 0,
+          "iu": "p_brand39",
+          "collate": ""
+        },
+        {
+          "arg": 1,
+          "iu": "p_type40",
+          "collate": ""
+        },
+        {
+          "arg": 2,
+          "iu": "p_size41",
+          "collate": ""
+        }
+      ],
+      "groupingmode": "regular",
+      "aggregates": [
+        {
+          "op": "count",
+          "arg": 3,
+          "collate": "",
+          "iu": "count(ps_suppkey)"
+        }
+      ],
+      "orders": [],
+      "groupingsets": [],
+      "sortlimitorder": []
+    },
+    "order": [
+      {
+        "value": {
+          "expression": "iuref",
+          "id": 44,
+          "iu": "count(ps_suppkey)"
+        },
+        "collate": "",
+        "descending": true
+      },
+      {
+        "value": {
+          "expression": "iuref",
+          "id": 45,
+          "iu": "p_brand39"
+        },
+        "collate": ""
+      },
+      {
+        "value": {
+          "expression": "iuref",
+          "id": 46,
+          "iu": "p_type40"
+        },
+        "collate": ""
+      },
+      {
+        "value": {
+          "expression": "iuref",
+          "id": 47,
+          "iu": "p_size41"
+        },
+        "collate": ""
+      }
+    ],
+    "duplicateFree": true
+  },
+  "ius": [
+    {
+      "iu": "ps_partkey",
+      "type": {
+        "type": "integer"
+      },
+      "sourceLocation": {
+        "startLine": 10,
+        "startColumn": 9,
+        "endLine": 10,
+        "endColumn": 17
+      }
+    },
+    {
+      "iu": "ps_suppkey",
+      "type": {
+        "type": "integer"
+      },
+      "sourceLocation": {
+        "startLine": 10,
+        "startColumn": 9,
+        "endLine": 10,
+        "endColumn": 17
+      }
+    },
+    {
+      "iu": "ps_availqty",
+      "type": {
+        "type": "integer"
+      },
+      "sourceLocation": {
+        "startLine": 10,
+        "startColumn": 9,
+        "endLine": 10,
+        "endColumn": 17
+      }
+    },
+    {
+      "iu": "ps_supplycost",
+      "type": {
+        "type": "numeric",
+        "precision": 12,
+        "scale": 2
+      },
+      "sourceLocation": {
+        "startLine": 10,
+        "startColumn": 9,
+        "endLine": 10,
+        "endColumn": 17
+      }
+    },
+    {
+      "iu": "ps_comment",
+      "type": {
+        "type": "text",
+        "precision": 199
+      },
+      "sourceLocation": {
+        "startLine": 10,
+        "startColumn": 9,
+        "endLine": 10,
+        "endColumn": 17
+      }
+    },
+    {
+      "iu": "tid32",
+      "type": {
+        "type": "bigint"
+      }
+    },
+    {
+      "iu": "tableoid33",
+      "type": {
+        "type": "integer"
+      }
+    },
+    {
+      "iu": "rowstate34",
+      "type": {
+        "type": "bigint"
+      }
+    },
+    {
+      "iu": "p_partkey15",
+      "type": {
+        "type": "integer"
+      },
+      "sourceLocation": {
+        "startLine": 11,
+        "startColumn": 9,
+        "endLine": 11,
+        "endColumn": 13
+      }
+    },
+    {
+      "iu": "p_name",
+      "type": {
+        "type": "text",
+        "precision": 55
+      },
+      "sourceLocation": {
+        "startLine": 11,
+        "startColumn": 9,
+        "endLine": 11,
+        "endColumn": 13
+      }
+    },
+    {
+      "iu": "p_mfgr",
+      "type": {
+        "type": "char",
+        "precision": 25
+      },
+      "sourceLocation": {
+        "startLine": 11,
+        "startColumn": 9,
+        "endLine": 11,
+        "endColumn": 13
+      }
+    },
+    {
+      "iu": "p_brand18",
+      "type": {
+        "type": "char",
+        "precision": 10
+      },
+      "sourceLocation": {
+        "startLine": 11,
+        "startColumn": 9,
+        "endLine": 11,
+        "endColumn": 13
+      }
+    },
+    {
+      "iu": "p_type19",
+      "type": {
+        "type": "text",
+        "precision": 25
+      },
+      "sourceLocation": {
+        "startLine": 11,
+        "startColumn": 9,
+        "endLine": 11,
+        "endColumn": 13
+      }
+    },
+    {
+      "iu": "p_size20",
+      "type": {
+        "type": "integer"
+      },
+      "sourceLocation": {
+        "startLine": 11,
+        "startColumn": 9,
+        "endLine": 11,
+        "endColumn": 13
+      }
+    },
+    {
+      "iu": "p_container",
+      "type": {
+        "type": "char",
+        "precision": 10
+      },
+      "sourceLocation": {
+        "startLine": 11,
+        "startColumn": 9,
+        "endLine": 11,
+        "endColumn": 13
+      }
+    },
+    {
+      "iu": "p_retailprice",
+      "type": {
+        "type": "numeric",
+        "precision": 12,
+        "scale": 2
+      },
+      "sourceLocation": {
+        "startLine": 11,
+        "startColumn": 9,
+        "endLine": 11,
+        "endColumn": 13
+      }
+    },
+    {
+      "iu": "p_comment",
+      "type": {
+        "type": "text",
+        "precision": 23
+      },
+      "sourceLocation": {
+        "startLine": 11,
+        "startColumn": 9,
+        "endLine": 11,
+        "endColumn": 13
+      }
+    },
+    {
+      "iu": "tid24",
+      "type": {
+        "type": "bigint"
+      }
+    },
+    {
+      "iu": "tableoid25",
+      "type": {
+        "type": "integer"
+      }
+    },
+    {
+      "iu": "rowstate26",
+      "type": {
+        "type": "bigint"
+      }
+    },
+    {
+      "iu": "s_suppkey",
+      "type": {
+        "type": "integer"
+      },
+      "sourceLocation": {
+        "startLine": 21,
+        "startColumn": 25,
+        "endLine": 21,
+        "endColumn": 33
+      }
+    },
+    {
+      "iu": "s_name",
+      "type": {
+        "type": "char",
+        "precision": 25
+      },
+      "sourceLocation": {
+        "startLine": 21,
+        "startColumn": 25,
+        "endLine": 21,
+        "endColumn": 33
+      }
+    },
+    {
+      "iu": "s_address",
+      "type": {
+        "type": "text",
+        "precision": 40
+      },
+      "sourceLocation": {
+        "startLine": 21,
+        "startColumn": 25,
+        "endLine": 21,
+        "endColumn": 33
+      }
+    },
+    {
+      "iu": "s_nationkey",
+      "type": {
+        "type": "integer"
+      },
+      "sourceLocation": {
+        "startLine": 21,
+        "startColumn": 25,
+        "endLine": 21,
+        "endColumn": 33
+      }
+    },
+    {
+      "iu": "s_phone",
+      "type": {
+        "type": "char",
+        "precision": 15
+      },
+      "sourceLocation": {
+        "startLine": 21,
+        "startColumn": 25,
+        "endLine": 21,
+        "endColumn": 33
+      }
+    },
+    {
+      "iu": "s_acctbal",
+      "type": {
+        "type": "numeric",
+        "precision": 12,
+        "scale": 2
+      },
+      "sourceLocation": {
+        "startLine": 21,
+        "startColumn": 25,
+        "endLine": 21,
+        "endColumn": 33
+      }
+    },
+    {
+      "iu": "s_comment",
+      "type": {
+        "type": "text",
+        "precision": 101
+      },
+      "sourceLocation": {
+        "startLine": 21,
+        "startColumn": 25,
+        "endLine": 21,
+        "endColumn": 33
+      }
+    },
+    {
+      "iu": "tid",
+      "type": {
+        "type": "bigint"
+      }
+    },
+    {
+      "iu": "tableoid",
+      "type": {
+        "type": "integer"
+      }
+    },
+    {
+      "iu": "rowstate",
+      "type": {
+        "type": "bigint"
+      }
+    },
+    {
+      "iu": "p_brand39",
+      "type": {
+        "type": "char",
+        "precision": 10
+      },
+      "sourceLocation": {
+        "startLine": 5,
+        "startColumn": 9,
+        "endLine": 5,
+        "endColumn": 16
+      }
+    },
+    {
+      "iu": "p_type40",
+      "type": {
+        "type": "text",
+        "precision": 25
+      },
+      "sourceLocation": {
+        "startLine": 6,
+        "startColumn": 9,
+        "endLine": 6,
+        "endColumn": 15
+      }
+    },
+    {
+      "iu": "p_size41",
+      "type": {
+        "type": "integer"
+      },
+      "sourceLocation": {
+        "startLine": 7,
+        "startColumn": 9,
+        "endLine": 7,
+        "endColumn": 15
+      }
+    },
+    {
+      "iu": "count(ps_suppkey)",
+      "type": {
+        "type": "bigint"
+      },
+      "sourceLocation": {
+        "startLine": 8,
+        "startColumn": 9,
+        "endLine": 8,
+        "endColumn": 35
+      }
+    },
+    {
+      "iu": "p_partkey",
+      "type": {
+        "type": "integer"
+      },
+      "sourceLocation": {
+        "startLine": 11,
+        "startColumn": 9,
+        "endLine": 11,
+        "endColumn": 13
+      }
+    },
+    {
+      "iu": "p_brand",
+      "type": {
+        "type": "char",
+        "precision": 10
+      },
+      "sourceLocation": {
+        "startLine": 11,
+        "startColumn": 9,
+        "endLine": 11,
+        "endColumn": 13
+      }
+    },
+    {
+      "iu": "p_type",
+      "type": {
+        "type": "text",
+        "precision": 25
+      },
+      "sourceLocation": {
+        "startLine": 11,
+        "startColumn": 9,
+        "endLine": 11,
+        "endColumn": 13
+      }
+    },
+    {
+      "iu": "p_size",
+      "type": {
+        "type": "integer"
+      },
+      "sourceLocation": {
+        "startLine": 11,
+        "startColumn": 9,
+        "endLine": 11,
+        "endColumn": 13
+      }
+    },
+    {
+      "iu": "p_brand35",
+      "type": {
+        "type": "char",
+        "precision": 10
+      },
+      "sourceLocation": {
+        "startLine": 5,
+        "startColumn": 9,
+        "endLine": 5,
+        "endColumn": 16
+      }
+    },
+    {
+      "iu": "p_type36",
+      "type": {
+        "type": "text",
+        "precision": 25
+      },
+      "sourceLocation": {
+        "startLine": 6,
+        "startColumn": 9,
+        "endLine": 6,
+        "endColumn": 15
+      }
+    },
+    {
+      "iu": "p_size37",
+      "type": {
+        "type": "integer"
+      },
+      "sourceLocation": {
+        "startLine": 7,
+        "startColumn": 9,
+        "endLine": 7,
+        "endColumn": 15
+      }
+    },
+    {
+      "iu": "ps_suppkey38",
+      "type": {
+        "type": "integer"
+      }
+    }
+  ],
+  "output": [
+    {
+      "name": "p_brand",
+      "iu": {
+        "expression": "iuref",
+        "id": 48,
+        "iu": "p_brand39"
+      }
+    },
+    {
+      "name": "p_type",
+      "iu": {
+        "expression": "iuref",
+        "id": 49,
+        "iu": "p_type40"
+      }
+    },
+    {
+      "name": "p_size",
+      "iu": {
+        "expression": "iuref",
+        "id": 50,
+        "iu": "p_size41"
+      }
+    },
+    {
+      "name": "supplier_cnt",
+      "iu": {
+        "expression": "iuref",
+        "id": 51,
+        "iu": "count(ps_suppkey)"
+      }
+    }
+  ],
+  "type": "select",
+  "query": true,
+  "analyzePlanPipelines": [
+    {
+      "pipelineId": 0,
+      "start": 54,
+      "stop": 116,
+      "duration": 62,
+      "parallelism": "single-threaded",
+      "operators": [
+        4
+      ],
+      "counters": {}
+    },
+    {
+      "pipelineId": 1,
+      "start": 116,
+      "stop": 135,
+      "duration": 19,
+      "parallelism": "single-threaded",
+      "operators": [
+        6
+      ],
+      "counters": {}
+    },
+    {
+      "pipelineId": 2,
+      "start": 136,
+      "stop": 292,
+      "duration": 156,
+      "parallelism": "multi-threaded",
+      "operators": [
+        3,
+        5,
+        8
+      ],
+      "counters": {}
+    },
+    {
+      "pipelineId": 3,
+      "start": 295,
+      "stop": 455,
+      "duration": 160,
+      "parallelism": "multi-threaded",
+      "operators": [
+        2
+      ],
+      "counters": {}
+    },
+    {
+      "pipelineId": 4,
+      "start": 457,
+      "stop": 571,
+      "duration": 114,
+      "parallelism": "multi-threaded",
+      "operators": [
+        1
+      ],
+      "counters": {}
+    },
+    {
+      "pipelineId": 5,
+      "start": 572,
+      "stop": 575,
+      "duration": 3,
+      "parallelism": "multi-threaded",
+      "operators": [
+        0
+      ],
+      "counters": {}
+    }
+  ]
+}

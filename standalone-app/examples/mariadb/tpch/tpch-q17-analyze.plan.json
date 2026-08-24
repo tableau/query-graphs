@@ -1,0 +1,88 @@
+{
+  "query_optimization": {
+    "r_total_time_ms": 0.050916359
+  },
+  "query_block": {
+    "select_id": 1,
+    "r_loops": 1,
+    "r_total_time_ms": 0.862017952,
+    "nested_loop": [
+      {
+        "table": {
+          "table_name": "lineitem",
+          "access_type": "ALL",
+          "r_loops": 1,
+          "rows": 476,
+          "r_rows": 572,
+          "r_table_time_ms": 0.107857775,
+          "r_other_time_ms": 0.030789053,
+          "r_engine_stats": {
+            "pages_accessed": 6
+          },
+          "filtered": 100,
+          "r_filtered": 100
+        }
+      },
+      {
+        "block-nl-join": {
+          "table": {
+            "table_name": "part",
+            "access_type": "ALL",
+            "r_loops": 2,
+            "rows": 500,
+            "r_rows": 533,
+            "r_table_time_ms": 0.192196873,
+            "r_other_time_ms": 0.053677384,
+            "r_engine_stats": {
+              "pages_accessed": 14
+            },
+            "filtered": 100,
+            "r_filtered": 0.562851782,
+            "attached_condition": "part.p_brand = 'Brand#23' and part.p_container = 'MED BOX'"
+          },
+          "buffer_type": "flat",
+          "buffer_size": "8Kb",
+          "join_type": "BNL",
+          "attached_condition": "part.p_partkey = lineitem.l_partkey and lineitem.l_quantity < (subquery#2)",
+          "r_loops": 572,
+          "r_filtered": 0.116550117,
+          "r_unpack_time_ms": 0.046620243,
+          "r_other_time_ms": 0.074297336,
+          "r_effective_rows": 3
+        }
+      }
+    ],
+    "subqueries": [
+      {
+        "expression_cache": {
+          "r_loops": 41,
+          "r_hit_ratio": 92.68292683,
+          "query_block": {
+            "select_id": 2,
+            "r_loops": 3,
+            "r_total_time_ms": 0.35126479,
+            "nested_loop": [
+              {
+                "table": {
+                  "table_name": "lineitem",
+                  "access_type": "ALL",
+                  "r_loops": 3,
+                  "rows": 476,
+                  "r_rows": 572,
+                  "r_table_time_ms": 0.289161952,
+                  "r_other_time_ms": 0.06027129,
+                  "r_engine_stats": {
+                    "pages_accessed": 18
+                  },
+                  "filtered": 100,
+                  "r_filtered": 2.389277389,
+                  "attached_condition": "lineitem.l_partkey = part.p_partkey"
+                }
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

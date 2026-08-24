@@ -1,0 +1,1654 @@
+{
+  "plan": {
+    "operator": "sort",
+    "physicalOperator": "sort",
+    "cardinality": 12,
+    "operatorId": 1,
+    "analyzePlanId": 0,
+    "analyzePlanCardinality": 8,
+    "analyzePlanCounters": {},
+    "sourceLocation": {
+      "startLine": 34,
+      "startColumn": 9,
+      "endLine": 34,
+      "endColumn": 21
+    },
+    "input": {
+      "operator": "groupby",
+      "physicalOperator": "groupby",
+      "cardinality": 12,
+      "operatorId": 2,
+      "analyzePlanId": 1,
+      "analyzePlanCardinality": 8,
+      "analyzePlanCounters": {},
+      "sourceLocation": {
+        "startLine": 25,
+        "startColumn": 1,
+        "endLine": 32,
+        "endColumn": 18
+      },
+      "input": {
+        "operator": "join",
+        "physicalOperator": "hashjoin",
+        "cardinality": 14,
+        "operatorId": 3,
+        "analyzePlanId": 2,
+        "analyzePlanCardinality": 23,
+        "analyzePlanCounters": {
+          "slots": 64,
+          "chains": 8,
+          "minmaxbounds": "on",
+          "hashtable": "compact",
+          "min": "3",
+          "filter": "on",
+          "chaining": "on",
+          "max": "353"
+        },
+        "left": {
+          "operator": "join",
+          "physicalOperator": "hashjoin",
+          "cardinality": 9,
+          "operatorId": 4,
+          "analyzePlanId": 3,
+          "analyzePlanCardinality": 9,
+          "analyzePlanCounters": {
+            "slots": 16,
+            "chains": 6,
+            "minmaxbounds": "on",
+            "hashtable": "compact",
+            "min": "2",
+            "filter": "off",
+            "chaining": "on",
+            "max": "24"
+          },
+          "left": {
+            "operator": "join",
+            "physicalOperator": "hashjoin",
+            "cardinality": 9,
+            "operatorId": 5,
+            "analyzePlanId": 4,
+            "analyzePlanCardinality": 9,
+            "analyzePlanCounters": {
+              "slots": 16,
+              "chains": 4,
+              "minmaxbounds": "on",
+              "hashtable": "compact",
+              "min": "1777",
+              "filter": "off",
+              "chaining": "off",
+              "max": "135421"
+            },
+            "left": {
+              "operator": "earlyexecution",
+              "physicalOperator": "earlyexecution",
+              "cardinality": 9,
+              "operatorId": 6,
+              "analyzePlanId": 5,
+              "analyzePlanCardinality": 9,
+              "analyzePlanCounters": {},
+              "attributes": [
+                {
+                  "name": "o_orderkey",
+                  "iu": "o_orderkey"
+                },
+                {
+                  "name": "o_custkey",
+                  "iu": "o_custkey"
+                }
+              ],
+              "restrictions": [],
+              "residuals": [],
+              "input": {
+                "operator": "tablescan",
+                "physicalOperator": "tablescan",
+                "cardinality": 1,
+                "operatorId": 7,
+                "analyzePlanId": 6,
+                "analyzePlanCardinality": 0,
+                "analyzePlanCounters": {},
+                "sourceLocation": {
+                  "startLine": 15,
+                  "startColumn": 9,
+                  "endLine": 15,
+                  "endColumn": 15
+                },
+                "attributes": [
+                  {
+                    "name": "o_orderkey",
+                    "iu": "o_orderkey3"
+                  },
+                  {
+                    "name": "o_custkey",
+                    "iu": "o_custkey4"
+                  },
+                  {
+                    "name": "o_orderstatus",
+                    "iu": "o_orderstatus"
+                  },
+                  {
+                    "name": "o_totalprice",
+                    "iu": "o_totalprice"
+                  },
+                  {
+                    "name": "o_orderdate",
+                    "iu": "o_orderdate"
+                  },
+                  {
+                    "name": "o_orderpriority",
+                    "iu": "o_orderpriority"
+                  },
+                  {
+                    "name": "o_clerk",
+                    "iu": "o_clerk"
+                  },
+                  {
+                    "name": "o_shippriority",
+                    "iu": "o_shippriority"
+                  },
+                  {
+                    "name": "o_comment",
+                    "iu": "o_comment"
+                  }
+                ],
+                "restrictions": [
+                  {
+                    "attribute": 4,
+                    "mode": "[]",
+                    "value": {
+                      "expression": "const",
+                      "id": 11,
+                      "sourceLocation": {
+                        "startLine": 21,
+                        "startColumn": 28,
+                        "endLine": 21,
+                        "endColumn": 45
+                      },
+                      "value": {
+                        "type": {
+                          "type": "date"
+                        },
+                        "value": 2449262
+                      }
+                    },
+                    "upper": {
+                      "expression": "const",
+                      "id": 14,
+                      "sourceLocation": {
+                        "startLine": 22,
+                        "startColumn": 27,
+                        "endLine": 22,
+                        "endColumn": 44
+                      },
+                      "value": {
+                        "type": {
+                          "type": "date"
+                        },
+                        "value": 2449353
+                      }
+                    },
+                    "estimatedSelectivity": -1,
+                    "collate": ""
+                  }
+                ],
+                "residuals": [],
+                "tid": "tid",
+                "tableoid": "tableoid",
+                "rowstate": "rowstate",
+                "schema": "pg_temp",
+                "table": {
+                  "type": "temporarytable",
+                  "id": 6
+                },
+                "tableSize": 128,
+                "tablename": "orders"
+              },
+              "mapping": {
+                "mapping": [
+                  {
+                    "key": "o_orderkey3",
+                    "value": "o_orderkey"
+                  },
+                  {
+                    "key": "o_custkey4",
+                    "value": "o_custkey"
+                  }
+                ]
+              },
+              "result": 0
+            },
+            "right": {
+              "operator": "tablescan",
+              "physicalOperator": "tablescan",
+              "cardinality": 9,
+              "operatorId": 8,
+              "analyzePlanId": 7,
+              "analyzePlanCardinality": 129,
+              "analyzePlanCounters": {},
+              "sourceLocation": {
+                "startLine": 14,
+                "startColumn": 9,
+                "endLine": 14,
+                "endColumn": 17
+              },
+              "attributes": [
+                {
+                  "name": "c_custkey",
+                  "iu": "c_custkey"
+                },
+                {
+                  "name": "c_name",
+                  "iu": "c_name"
+                },
+                {
+                  "name": "c_address",
+                  "iu": "c_address"
+                },
+                {
+                  "name": "c_nationkey",
+                  "iu": "c_nationkey"
+                },
+                {
+                  "name": "c_phone",
+                  "iu": "c_phone"
+                },
+                {
+                  "name": "c_acctbal",
+                  "iu": "c_acctbal"
+                },
+                {
+                  "name": "c_mktsegment",
+                  "iu": "c_mktsegment"
+                },
+                {
+                  "name": "c_comment",
+                  "iu": "c_comment"
+                }
+              ],
+              "restrictions": [
+                {
+                  "attribute": 0,
+                  "mode": "minmax",
+                  "value": {
+                    "expression": "iuref",
+                    "id": 62,
+                    "iu": "o_custkey"
+                  },
+                  "op": 5,
+                  "estimatedSelectivity": 0.06640832683238328,
+                  "collate": ""
+                }
+              ],
+              "residuals": [],
+              "tid": "tid23",
+              "tableoid": "tableoid24",
+              "rowstate": "rowstate25",
+              "schema": "pg_temp",
+              "table": {
+                "type": "temporarytable",
+                "id": 5
+              },
+              "tableSize": 129,
+              "tablename": "customer"
+            },
+            "condition": {
+              "expression": "compare",
+              "id": 6,
+              "sourceLocation": {
+                "startLine": 19,
+                "startColumn": 9,
+                "endLine": 19,
+                "endColumn": 30
+              },
+              "left": {
+                "expression": "iuref",
+                "id": 4,
+                "sourceLocation": {
+                  "startLine": 19,
+                  "startColumn": 9,
+                  "endLine": 19,
+                  "endColumn": 18
+                },
+                "iu": "c_custkey"
+              },
+              "right": {
+                "expression": "iuref",
+                "id": 5,
+                "sourceLocation": {
+                  "startLine": 19,
+                  "startColumn": 21,
+                  "endLine": 19,
+                  "endColumn": 30
+                },
+                "iu": "o_custkey"
+              },
+              "direction": "=",
+              "collate": ""
+            },
+            "type": "inner",
+            "minmaxbounds": true,
+            "minmaxboundius": [
+              {
+                "expression": "iuref",
+                "id": 63,
+                "iu": "o_custkey"
+              }
+            ],
+            "forcedestimate": 9
+          },
+          "right": {
+            "operator": "tablescan",
+            "physicalOperator": "tablescan",
+            "cardinality": 8,
+            "operatorId": 9,
+            "analyzePlanId": 8,
+            "analyzePlanCardinality": 25,
+            "analyzePlanCounters": {},
+            "sourceLocation": {
+              "startLine": 17,
+              "startColumn": 9,
+              "endLine": 17,
+              "endColumn": 15
+            },
+            "attributes": [
+              {
+                "name": "n_nationkey",
+                "iu": "n_nationkey"
+              },
+              {
+                "name": "n_name",
+                "iu": "n_name"
+              },
+              {
+                "name": "n_regionkey",
+                "iu": "n_regionkey"
+              },
+              {
+                "name": "n_comment",
+                "iu": "n_comment"
+              }
+            ],
+            "restrictions": [
+              {
+                "attribute": 0,
+                "mode": "minmax",
+                "value": {
+                  "expression": "iuref",
+                  "id": 60,
+                  "iu": "c_nationkey"
+                },
+                "op": 4,
+                "estimatedSelectivity": 0.3051579243462495,
+                "collate": ""
+              }
+            ],
+            "residuals": [],
+            "tid": "tid30",
+            "tableoid": "tableoid31",
+            "rowstate": "rowstate32",
+            "schema": "pg_temp",
+            "table": {
+              "type": "temporarytable",
+              "id": 8
+            },
+            "tableSize": 25,
+            "tablename": "nation"
+          },
+          "condition": {
+            "expression": "compare",
+            "id": 21,
+            "sourceLocation": {
+              "startLine": 24,
+              "startColumn": 13,
+              "endLine": 24,
+              "endColumn": 38
+            },
+            "left": {
+              "expression": "iuref",
+              "id": 19,
+              "sourceLocation": {
+                "startLine": 24,
+                "startColumn": 13,
+                "endLine": 24,
+                "endColumn": 24
+              },
+              "iu": "c_nationkey"
+            },
+            "right": {
+              "expression": "iuref",
+              "id": 20,
+              "sourceLocation": {
+                "startLine": 24,
+                "startColumn": 27,
+                "endLine": 24,
+                "endColumn": 38
+              },
+              "iu": "n_nationkey"
+            },
+            "direction": "=",
+            "collate": ""
+          },
+          "type": "inner",
+          "minmaxbounds": true,
+          "minmaxboundius": [
+            {
+              "expression": "iuref",
+              "id": 61,
+              "iu": "c_nationkey"
+            }
+          ],
+          "forcedestimate": 8.918493395327905
+        },
+        "right": {
+          "operator": "tablescan",
+          "physicalOperator": "tablescan",
+          "cardinality": 18,
+          "operatorId": 10,
+          "analyzePlanId": 9,
+          "analyzePlanCardinality": 152,
+          "analyzePlanCounters": {},
+          "sourceLocation": {
+            "startLine": 16,
+            "startColumn": 9,
+            "endLine": 16,
+            "endColumn": 17
+          },
+          "attributes": [
+            {
+              "name": "l_orderkey",
+              "iu": "l_orderkey"
+            },
+            {
+              "name": "l_partkey",
+              "iu": "l_partkey"
+            },
+            {
+              "name": "l_suppkey",
+              "iu": "l_suppkey"
+            },
+            {
+              "name": "l_linenumber",
+              "iu": "l_linenumber"
+            },
+            {
+              "name": "l_quantity",
+              "iu": "l_quantity"
+            },
+            {
+              "name": "l_extendedprice",
+              "iu": "l_extendedprice"
+            },
+            {
+              "name": "l_discount",
+              "iu": "l_discount"
+            },
+            {
+              "name": "l_tax",
+              "iu": "l_tax"
+            },
+            {
+              "name": "l_returnflag",
+              "iu": "l_returnflag"
+            },
+            {
+              "name": "l_linestatus",
+              "iu": "l_linestatus"
+            },
+            {
+              "name": "l_shipdate",
+              "iu": "l_shipdate"
+            },
+            {
+              "name": "l_commitdate",
+              "iu": "l_commitdate"
+            },
+            {
+              "name": "l_receiptdate",
+              "iu": "l_receiptdate"
+            },
+            {
+              "name": "l_shipinstruct",
+              "iu": "l_shipinstruct"
+            },
+            {
+              "name": "l_shipmode",
+              "iu": "l_shipmode"
+            },
+            {
+              "name": "l_comment",
+              "iu": "l_comment"
+            }
+          ],
+          "restrictions": [
+            {
+              "attribute": 8,
+              "mode": "=",
+              "value": {
+                "expression": "const",
+                "id": 17,
+                "sourceLocation": {
+                  "startLine": 23,
+                  "startColumn": 28,
+                  "endLine": 23,
+                  "endColumn": 31
+                },
+                "value": {
+                  "type": {
+                    "type": "char1"
+                  },
+                  "value": 82
+                }
+              },
+              "estimatedSelectivity": -1,
+              "collate": ""
+            },
+            {
+              "attribute": 0,
+              "mode": "minmax",
+              "value": {
+                "expression": "iuref",
+                "id": 58,
+                "iu": "o_orderkey"
+              },
+              "op": 3,
+              "estimatedSelectivity": 0.046606729939136955,
+              "collate": ""
+            },
+            {
+              "attribute": 0,
+              "mode": "joinfilter",
+              "value": {
+                "expression": "const",
+                "id": 56,
+                "value": {
+                  "type": {
+                    "type": "bool"
+                  },
+                  "value": false
+                }
+              },
+              "upper": {
+                "expression": "const",
+                "id": 57,
+                "value": {
+                  "type": {
+                    "type": "bool"
+                  },
+                  "value": false
+                }
+              },
+              "op": 3,
+              "estimatedSelectivity": 0.09660672993913696,
+              "collate": ""
+            }
+          ],
+          "residuals": [],
+          "tid": "tid49",
+          "tableoid": "tableoid50",
+          "rowstate": "rowstate51",
+          "schema": "pg_temp",
+          "table": {
+            "type": "temporarytable",
+            "id": 7
+          },
+          "tableSize": 572,
+          "tablename": "lineitem"
+        },
+        "condition": {
+          "expression": "compare",
+          "id": 9,
+          "sourceLocation": {
+            "startLine": 20,
+            "startColumn": 13,
+            "endLine": 20,
+            "endColumn": 36
+          },
+          "left": {
+            "expression": "iuref",
+            "id": 7,
+            "sourceLocation": {
+              "startLine": 20,
+              "startColumn": 13,
+              "endLine": 20,
+              "endColumn": 23
+            },
+            "iu": "l_orderkey"
+          },
+          "right": {
+            "expression": "iuref",
+            "id": 8,
+            "sourceLocation": {
+              "startLine": 20,
+              "startColumn": 26,
+              "endLine": 20,
+              "endColumn": 36
+            },
+            "iu": "o_orderkey"
+          },
+          "direction": "=",
+          "collate": ""
+        },
+        "type": "inner",
+        "filter": true,
+        "minmaxbounds": true,
+        "minmaxboundius": [
+          {
+            "expression": "iuref",
+            "id": 59,
+            "iu": "o_orderkey"
+          }
+        ],
+        "forcedestimate": 13.64294823145318
+      },
+      "values": [
+        {
+          "expression": "iuref",
+          "id": 23,
+          "sourceLocation": {
+            "startLine": 26,
+            "startColumn": 9,
+            "endLine": 26,
+            "endColumn": 18
+          },
+          "iu": "c_custkey"
+        },
+        {
+          "expression": "iuref",
+          "id": 24,
+          "sourceLocation": {
+            "startLine": 27,
+            "startColumn": 9,
+            "endLine": 27,
+            "endColumn": 15
+          },
+          "iu": "c_name"
+        },
+        {
+          "expression": "iuref",
+          "id": 25,
+          "sourceLocation": {
+            "startLine": 28,
+            "startColumn": 9,
+            "endLine": 28,
+            "endColumn": 18
+          },
+          "iu": "c_acctbal"
+        },
+        {
+          "expression": "iuref",
+          "id": 26,
+          "sourceLocation": {
+            "startLine": 29,
+            "startColumn": 9,
+            "endLine": 29,
+            "endColumn": 16
+          },
+          "iu": "c_phone"
+        },
+        {
+          "expression": "iuref",
+          "id": 27,
+          "sourceLocation": {
+            "startLine": 30,
+            "startColumn": 9,
+            "endLine": 30,
+            "endColumn": 15
+          },
+          "iu": "n_name"
+        },
+        {
+          "expression": "iuref",
+          "id": 28,
+          "sourceLocation": {
+            "startLine": 31,
+            "startColumn": 9,
+            "endLine": 31,
+            "endColumn": 18
+          },
+          "iu": "c_address"
+        },
+        {
+          "expression": "iuref",
+          "id": 29,
+          "sourceLocation": {
+            "startLine": 32,
+            "startColumn": 9,
+            "endLine": 32,
+            "endColumn": 18
+          },
+          "iu": "c_comment"
+        },
+        {
+          "expression": "mul",
+          "id": 36,
+          "sourceLocation": {
+            "startLine": 7,
+            "startColumn": 13,
+            "endLine": 7,
+            "endColumn": 47
+          },
+          "left": {
+            "expression": "iuref",
+            "id": 32,
+            "sourceLocation": {
+              "startLine": 7,
+              "startColumn": 13,
+              "endLine": 7,
+              "endColumn": 28
+            },
+            "iu": "l_extendedprice"
+          },
+          "right": {
+            "expression": "sub",
+            "id": 35,
+            "sourceLocation": {
+              "startLine": 7,
+              "startColumn": 32,
+              "endLine": 7,
+              "endColumn": 46
+            },
+            "left": {
+              "expression": "const",
+              "id": 33,
+              "sourceLocation": {
+                "startLine": 7,
+                "startColumn": 32,
+                "endLine": 7,
+                "endColumn": 33
+              },
+              "value": {
+                "type": {
+                  "type": "numeric",
+                  "precision": 10
+                },
+                "value": 1
+              }
+            },
+            "right": {
+              "expression": "iuref",
+              "id": 34,
+              "sourceLocation": {
+                "startLine": 7,
+                "startColumn": 36,
+                "endLine": 7,
+                "endColumn": 46
+              },
+              "iu": "l_discount"
+            }
+          }
+        }
+      ],
+      "key": [
+        {
+          "arg": 0,
+          "iu": "c_custkey52",
+          "collate": ""
+        },
+        {
+          "arg": 1,
+          "iu": "c_name53",
+          "collate": ""
+        },
+        {
+          "arg": 2,
+          "iu": "c_acctbal54",
+          "collate": ""
+        },
+        {
+          "arg": 3,
+          "iu": "c_phone55",
+          "collate": ""
+        },
+        {
+          "arg": 4,
+          "iu": "n_name56",
+          "collate": ""
+        },
+        {
+          "arg": 5,
+          "iu": "c_address57",
+          "collate": ""
+        },
+        {
+          "arg": 6,
+          "iu": "c_comment58",
+          "collate": ""
+        }
+      ],
+      "groupingmode": "regular",
+      "aggregates": [
+        {
+          "op": "sum",
+          "arg": 7,
+          "collate": "",
+          "iu": "sum()"
+        }
+      ],
+      "orders": [],
+      "groupingsets": [],
+      "sortlimitorder": []
+    },
+    "order": [
+      {
+        "value": {
+          "expression": "iuref",
+          "id": 43,
+          "iu": "sum()"
+        },
+        "collate": "",
+        "descending": true
+      }
+    ],
+    "limit": 20
+  },
+  "ius": [
+    {
+      "iu": "c_custkey",
+      "type": {
+        "type": "integer"
+      },
+      "sourceLocation": {
+        "startLine": 14,
+        "startColumn": 9,
+        "endLine": 14,
+        "endColumn": 17
+      }
+    },
+    {
+      "iu": "c_name",
+      "type": {
+        "type": "text",
+        "precision": 25
+      },
+      "sourceLocation": {
+        "startLine": 14,
+        "startColumn": 9,
+        "endLine": 14,
+        "endColumn": 17
+      }
+    },
+    {
+      "iu": "c_address",
+      "type": {
+        "type": "text",
+        "precision": 40
+      },
+      "sourceLocation": {
+        "startLine": 14,
+        "startColumn": 9,
+        "endLine": 14,
+        "endColumn": 17
+      }
+    },
+    {
+      "iu": "c_nationkey",
+      "type": {
+        "type": "integer"
+      },
+      "sourceLocation": {
+        "startLine": 14,
+        "startColumn": 9,
+        "endLine": 14,
+        "endColumn": 17
+      }
+    },
+    {
+      "iu": "c_phone",
+      "type": {
+        "type": "char",
+        "precision": 15
+      },
+      "sourceLocation": {
+        "startLine": 14,
+        "startColumn": 9,
+        "endLine": 14,
+        "endColumn": 17
+      }
+    },
+    {
+      "iu": "c_acctbal",
+      "type": {
+        "type": "numeric",
+        "precision": 12,
+        "scale": 2
+      },
+      "sourceLocation": {
+        "startLine": 14,
+        "startColumn": 9,
+        "endLine": 14,
+        "endColumn": 17
+      }
+    },
+    {
+      "iu": "c_mktsegment",
+      "type": {
+        "type": "char",
+        "precision": 10
+      },
+      "sourceLocation": {
+        "startLine": 14,
+        "startColumn": 9,
+        "endLine": 14,
+        "endColumn": 17
+      }
+    },
+    {
+      "iu": "c_comment",
+      "type": {
+        "type": "text",
+        "precision": 117
+      },
+      "sourceLocation": {
+        "startLine": 14,
+        "startColumn": 9,
+        "endLine": 14,
+        "endColumn": 17
+      }
+    },
+    {
+      "iu": "tid23",
+      "type": {
+        "type": "bigint"
+      }
+    },
+    {
+      "iu": "tableoid24",
+      "type": {
+        "type": "integer"
+      }
+    },
+    {
+      "iu": "rowstate25",
+      "type": {
+        "type": "bigint"
+      }
+    },
+    {
+      "iu": "o_orderkey3",
+      "type": {
+        "type": "integer"
+      },
+      "sourceLocation": {
+        "startLine": 15,
+        "startColumn": 9,
+        "endLine": 15,
+        "endColumn": 15
+      }
+    },
+    {
+      "iu": "o_custkey4",
+      "type": {
+        "type": "integer"
+      },
+      "sourceLocation": {
+        "startLine": 15,
+        "startColumn": 9,
+        "endLine": 15,
+        "endColumn": 15
+      }
+    },
+    {
+      "iu": "o_orderstatus",
+      "type": {
+        "type": "char1"
+      },
+      "sourceLocation": {
+        "startLine": 15,
+        "startColumn": 9,
+        "endLine": 15,
+        "endColumn": 15
+      }
+    },
+    {
+      "iu": "o_totalprice",
+      "type": {
+        "type": "numeric",
+        "precision": 12,
+        "scale": 2
+      },
+      "sourceLocation": {
+        "startLine": 15,
+        "startColumn": 9,
+        "endLine": 15,
+        "endColumn": 15
+      }
+    },
+    {
+      "iu": "o_orderdate",
+      "type": {
+        "type": "date"
+      },
+      "sourceLocation": {
+        "startLine": 15,
+        "startColumn": 9,
+        "endLine": 15,
+        "endColumn": 15
+      }
+    },
+    {
+      "iu": "o_orderpriority",
+      "type": {
+        "type": "char",
+        "precision": 15
+      },
+      "sourceLocation": {
+        "startLine": 15,
+        "startColumn": 9,
+        "endLine": 15,
+        "endColumn": 15
+      }
+    },
+    {
+      "iu": "o_clerk",
+      "type": {
+        "type": "char",
+        "precision": 15
+      },
+      "sourceLocation": {
+        "startLine": 15,
+        "startColumn": 9,
+        "endLine": 15,
+        "endColumn": 15
+      }
+    },
+    {
+      "iu": "o_shippriority",
+      "type": {
+        "type": "integer"
+      },
+      "sourceLocation": {
+        "startLine": 15,
+        "startColumn": 9,
+        "endLine": 15,
+        "endColumn": 15
+      }
+    },
+    {
+      "iu": "o_comment",
+      "type": {
+        "type": "text",
+        "precision": 79
+      },
+      "sourceLocation": {
+        "startLine": 15,
+        "startColumn": 9,
+        "endLine": 15,
+        "endColumn": 15
+      }
+    },
+    {
+      "iu": "tid",
+      "type": {
+        "type": "bigint"
+      }
+    },
+    {
+      "iu": "tableoid",
+      "type": {
+        "type": "integer"
+      }
+    },
+    {
+      "iu": "rowstate",
+      "type": {
+        "type": "bigint"
+      }
+    },
+    {
+      "iu": "l_orderkey",
+      "type": {
+        "type": "integer"
+      },
+      "sourceLocation": {
+        "startLine": 16,
+        "startColumn": 9,
+        "endLine": 16,
+        "endColumn": 17
+      }
+    },
+    {
+      "iu": "l_partkey",
+      "type": {
+        "type": "integer"
+      },
+      "sourceLocation": {
+        "startLine": 16,
+        "startColumn": 9,
+        "endLine": 16,
+        "endColumn": 17
+      }
+    },
+    {
+      "iu": "l_suppkey",
+      "type": {
+        "type": "integer"
+      },
+      "sourceLocation": {
+        "startLine": 16,
+        "startColumn": 9,
+        "endLine": 16,
+        "endColumn": 17
+      }
+    },
+    {
+      "iu": "l_linenumber",
+      "type": {
+        "type": "integer"
+      },
+      "sourceLocation": {
+        "startLine": 16,
+        "startColumn": 9,
+        "endLine": 16,
+        "endColumn": 17
+      }
+    },
+    {
+      "iu": "l_quantity",
+      "type": {
+        "type": "numeric",
+        "precision": 12,
+        "scale": 2
+      },
+      "sourceLocation": {
+        "startLine": 16,
+        "startColumn": 9,
+        "endLine": 16,
+        "endColumn": 17
+      }
+    },
+    {
+      "iu": "l_extendedprice",
+      "type": {
+        "type": "numeric",
+        "precision": 12,
+        "scale": 2
+      },
+      "sourceLocation": {
+        "startLine": 16,
+        "startColumn": 9,
+        "endLine": 16,
+        "endColumn": 17
+      }
+    },
+    {
+      "iu": "l_discount",
+      "type": {
+        "type": "numeric",
+        "precision": 12,
+        "scale": 2
+      },
+      "sourceLocation": {
+        "startLine": 16,
+        "startColumn": 9,
+        "endLine": 16,
+        "endColumn": 17
+      }
+    },
+    {
+      "iu": "l_tax",
+      "type": {
+        "type": "numeric",
+        "precision": 12,
+        "scale": 2
+      },
+      "sourceLocation": {
+        "startLine": 16,
+        "startColumn": 9,
+        "endLine": 16,
+        "endColumn": 17
+      }
+    },
+    {
+      "iu": "l_returnflag",
+      "type": {
+        "type": "char1"
+      },
+      "sourceLocation": {
+        "startLine": 16,
+        "startColumn": 9,
+        "endLine": 16,
+        "endColumn": 17
+      }
+    },
+    {
+      "iu": "l_linestatus",
+      "type": {
+        "type": "char1"
+      },
+      "sourceLocation": {
+        "startLine": 16,
+        "startColumn": 9,
+        "endLine": 16,
+        "endColumn": 17
+      }
+    },
+    {
+      "iu": "l_shipdate",
+      "type": {
+        "type": "date"
+      },
+      "sourceLocation": {
+        "startLine": 16,
+        "startColumn": 9,
+        "endLine": 16,
+        "endColumn": 17
+      }
+    },
+    {
+      "iu": "l_commitdate",
+      "type": {
+        "type": "date"
+      },
+      "sourceLocation": {
+        "startLine": 16,
+        "startColumn": 9,
+        "endLine": 16,
+        "endColumn": 17
+      }
+    },
+    {
+      "iu": "l_receiptdate",
+      "type": {
+        "type": "date"
+      },
+      "sourceLocation": {
+        "startLine": 16,
+        "startColumn": 9,
+        "endLine": 16,
+        "endColumn": 17
+      }
+    },
+    {
+      "iu": "l_shipinstruct",
+      "type": {
+        "type": "char",
+        "precision": 25
+      },
+      "sourceLocation": {
+        "startLine": 16,
+        "startColumn": 9,
+        "endLine": 16,
+        "endColumn": 17
+      }
+    },
+    {
+      "iu": "l_shipmode",
+      "type": {
+        "type": "char",
+        "precision": 10
+      },
+      "sourceLocation": {
+        "startLine": 16,
+        "startColumn": 9,
+        "endLine": 16,
+        "endColumn": 17
+      }
+    },
+    {
+      "iu": "l_comment",
+      "type": {
+        "type": "text",
+        "precision": 44
+      },
+      "sourceLocation": {
+        "startLine": 16,
+        "startColumn": 9,
+        "endLine": 16,
+        "endColumn": 17
+      }
+    },
+    {
+      "iu": "tid49",
+      "type": {
+        "type": "bigint"
+      }
+    },
+    {
+      "iu": "tableoid50",
+      "type": {
+        "type": "integer"
+      }
+    },
+    {
+      "iu": "rowstate51",
+      "type": {
+        "type": "bigint"
+      }
+    },
+    {
+      "iu": "n_nationkey",
+      "type": {
+        "type": "integer"
+      },
+      "sourceLocation": {
+        "startLine": 17,
+        "startColumn": 9,
+        "endLine": 17,
+        "endColumn": 15
+      }
+    },
+    {
+      "iu": "n_name",
+      "type": {
+        "type": "char",
+        "precision": 25
+      },
+      "sourceLocation": {
+        "startLine": 17,
+        "startColumn": 9,
+        "endLine": 17,
+        "endColumn": 15
+      }
+    },
+    {
+      "iu": "n_regionkey",
+      "type": {
+        "type": "integer"
+      },
+      "sourceLocation": {
+        "startLine": 17,
+        "startColumn": 9,
+        "endLine": 17,
+        "endColumn": 15
+      }
+    },
+    {
+      "iu": "n_comment",
+      "type": {
+        "type": "text",
+        "precision": 152
+      },
+      "sourceLocation": {
+        "startLine": 17,
+        "startColumn": 9,
+        "endLine": 17,
+        "endColumn": 15
+      }
+    },
+    {
+      "iu": "tid30",
+      "type": {
+        "type": "bigint"
+      }
+    },
+    {
+      "iu": "tableoid31",
+      "type": {
+        "type": "integer"
+      }
+    },
+    {
+      "iu": "rowstate32",
+      "type": {
+        "type": "bigint"
+      }
+    },
+    {
+      "iu": "c_custkey52",
+      "type": {
+        "type": "integer"
+      },
+      "sourceLocation": {
+        "startLine": 5,
+        "startColumn": 9,
+        "endLine": 5,
+        "endColumn": 18
+      }
+    },
+    {
+      "iu": "c_name53",
+      "type": {
+        "type": "text",
+        "precision": 25
+      },
+      "sourceLocation": {
+        "startLine": 6,
+        "startColumn": 9,
+        "endLine": 6,
+        "endColumn": 15
+      }
+    },
+    {
+      "iu": "c_acctbal54",
+      "type": {
+        "type": "numeric",
+        "precision": 12,
+        "scale": 2
+      },
+      "sourceLocation": {
+        "startLine": 8,
+        "startColumn": 9,
+        "endLine": 8,
+        "endColumn": 18
+      }
+    },
+    {
+      "iu": "c_phone55",
+      "type": {
+        "type": "char",
+        "precision": 15
+      },
+      "sourceLocation": {
+        "startLine": 11,
+        "startColumn": 9,
+        "endLine": 11,
+        "endColumn": 16
+      }
+    },
+    {
+      "iu": "n_name56",
+      "type": {
+        "type": "char",
+        "precision": 25
+      },
+      "sourceLocation": {
+        "startLine": 9,
+        "startColumn": 9,
+        "endLine": 9,
+        "endColumn": 15
+      }
+    },
+    {
+      "iu": "c_address57",
+      "type": {
+        "type": "text",
+        "precision": 40
+      },
+      "sourceLocation": {
+        "startLine": 10,
+        "startColumn": 9,
+        "endLine": 10,
+        "endColumn": 18
+      }
+    },
+    {
+      "iu": "c_comment58",
+      "type": {
+        "type": "text",
+        "precision": 117
+      },
+      "sourceLocation": {
+        "startLine": 12,
+        "startColumn": 9,
+        "endLine": 12,
+        "endColumn": 18
+      }
+    },
+    {
+      "iu": "sum()",
+      "type": {
+        "type": "bignumeric",
+        "precision": 38,
+        "scale": 4
+      },
+      "sourceLocation": {
+        "startLine": 7,
+        "startColumn": 9,
+        "endLine": 7,
+        "endColumn": 48
+      }
+    },
+    {
+      "iu": "o_orderkey",
+      "type": {
+        "type": "integer"
+      },
+      "sourceLocation": {
+        "startLine": 15,
+        "startColumn": 9,
+        "endLine": 15,
+        "endColumn": 15
+      }
+    },
+    {
+      "iu": "o_custkey",
+      "type": {
+        "type": "integer"
+      },
+      "sourceLocation": {
+        "startLine": 15,
+        "startColumn": 9,
+        "endLine": 15,
+        "endColumn": 15
+      }
+    }
+  ],
+  "output": [
+    {
+      "name": "c_custkey",
+      "iu": {
+        "expression": "iuref",
+        "id": 44,
+        "iu": "c_custkey52"
+      }
+    },
+    {
+      "name": "c_name",
+      "iu": {
+        "expression": "iuref",
+        "id": 45,
+        "iu": "c_name53"
+      }
+    },
+    {
+      "name": "revenue",
+      "iu": {
+        "expression": "iuref",
+        "id": 46,
+        "iu": "sum()"
+      }
+    },
+    {
+      "name": "c_acctbal",
+      "iu": {
+        "expression": "iuref",
+        "id": 47,
+        "iu": "c_acctbal54"
+      }
+    },
+    {
+      "name": "n_name",
+      "iu": {
+        "expression": "iuref",
+        "id": 48,
+        "iu": "n_name56"
+      }
+    },
+    {
+      "name": "c_address",
+      "iu": {
+        "expression": "iuref",
+        "id": 49,
+        "iu": "c_address57"
+      }
+    },
+    {
+      "name": "c_phone",
+      "iu": {
+        "expression": "iuref",
+        "id": 50,
+        "iu": "c_phone55"
+      }
+    },
+    {
+      "name": "c_comment",
+      "iu": {
+        "expression": "iuref",
+        "id": 51,
+        "iu": "c_comment58"
+      }
+    }
+  ],
+  "type": "select",
+  "query": true,
+  "analyzePlanPipelines": [
+    {
+      "pipelineId": 0,
+      "start": 27,
+      "stop": 59,
+      "duration": 32,
+      "parallelism": "single-threaded",
+      "operators": [
+        5
+      ],
+      "counters": {}
+    },
+    {
+      "pipelineId": 1,
+      "start": 60,
+      "stop": 117,
+      "duration": 57,
+      "parallelism": "multi-threaded",
+      "operators": [
+        4,
+        7
+      ],
+      "counters": {}
+    },
+    {
+      "pipelineId": 2,
+      "start": 118,
+      "stop": 169,
+      "duration": 51,
+      "parallelism": "multi-threaded",
+      "operators": [
+        3,
+        8
+      ],
+      "counters": {}
+    },
+    {
+      "pipelineId": 3,
+      "start": 170,
+      "stop": 258,
+      "duration": 88,
+      "parallelism": "multi-threaded",
+      "operators": [
+        2,
+        9
+      ],
+      "counters": {}
+    },
+    {
+      "pipelineId": 4,
+      "start": 260,
+      "stop": 343,
+      "duration": 83,
+      "parallelism": "multi-threaded",
+      "operators": [
+        1
+      ],
+      "counters": {}
+    },
+    {
+      "pipelineId": 5,
+      "start": 344,
+      "stop": 346,
+      "duration": 2,
+      "parallelism": "multi-threaded",
+      "operators": [
+        0
+      ],
+      "counters": {}
+    }
+  ]
+}

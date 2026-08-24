@@ -1,0 +1,1896 @@
+{
+  "0": {
+    "id": "35",
+    "name": "Output",
+    "descriptor": {
+      "columnNames": "[s_acctbal, s_name, n_name, p_partkey, p_mfgr, s_address, s_phone, s_comment]"
+    },
+    "outputs": [
+      {
+        "symbol": "s_acctbal",
+        "type": "decimal(12,2)"
+      },
+      {
+        "symbol": "s_name",
+        "type": "char(25)"
+      },
+      {
+        "symbol": "n_name",
+        "type": "char(25)"
+      },
+      {
+        "symbol": "p_partkey",
+        "type": "integer"
+      },
+      {
+        "symbol": "p_mfgr",
+        "type": "char(25)"
+      },
+      {
+        "symbol": "s_address",
+        "type": "varchar(40)"
+      },
+      {
+        "symbol": "s_phone",
+        "type": "char(15)"
+      },
+      {
+        "symbol": "s_comment",
+        "type": "varchar(101)"
+      }
+    ],
+    "details": [],
+    "estimates": [
+      {
+        "outputRowCount": 100.0,
+        "outputSizeInBytes": 34400.0,
+        "cpuCost": 0.0,
+        "memoryCost": 0.0,
+        "networkCost": 0.0
+      }
+    ],
+    "children": [
+      {
+        "id": "1728",
+        "name": "TopN",
+        "descriptor": {
+          "count": "100",
+          "orderBy": "[s_acctbal DESC NULLS LAST, n_name ASC NULLS LAST, s_name ASC NULLS LAST, p_partkey ASC NULLS LAST]"
+        },
+        "outputs": [
+          {
+            "symbol": "p_partkey",
+            "type": "integer"
+          },
+          {
+            "symbol": "s_comment",
+            "type": "varchar(101)"
+          },
+          {
+            "symbol": "s_phone",
+            "type": "char(15)"
+          },
+          {
+            "symbol": "s_name",
+            "type": "char(25)"
+          },
+          {
+            "symbol": "s_address",
+            "type": "varchar(40)"
+          },
+          {
+            "symbol": "s_acctbal",
+            "type": "decimal(12,2)"
+          },
+          {
+            "symbol": "p_mfgr",
+            "type": "char(25)"
+          },
+          {
+            "symbol": "n_name",
+            "type": "char(25)"
+          }
+        ],
+        "details": [],
+        "estimates": [
+          {
+            "outputRowCount": 100.0,
+            "outputSizeInBytes": 34400.0,
+            "cpuCost": "NaN",
+            "memoryCost": "NaN",
+            "networkCost": "NaN"
+          }
+        ],
+        "children": [
+          {
+            "id": "2472",
+            "name": "LocalExchange",
+            "descriptor": {
+              "partitioning": "SINGLE",
+              "isReplicateNullsAndAny": "",
+              "hashColumn": "[]",
+              "arguments": "[]"
+            },
+            "outputs": [
+              {
+                "symbol": "p_partkey",
+                "type": "integer"
+              },
+              {
+                "symbol": "s_comment",
+                "type": "varchar(101)"
+              },
+              {
+                "symbol": "s_phone",
+                "type": "char(15)"
+              },
+              {
+                "symbol": "s_name",
+                "type": "char(25)"
+              },
+              {
+                "symbol": "s_address",
+                "type": "varchar(40)"
+              },
+              {
+                "symbol": "s_acctbal",
+                "type": "decimal(12,2)"
+              },
+              {
+                "symbol": "p_mfgr",
+                "type": "char(25)"
+              },
+              {
+                "symbol": "n_name",
+                "type": "char(25)"
+              }
+            ],
+            "details": [],
+            "estimates": [
+              {
+                "outputRowCount": "NaN",
+                "outputSizeInBytes": "NaN",
+                "cpuCost": 0.0,
+                "memoryCost": 0.0,
+                "networkCost": 0.0
+              }
+            ],
+            "children": [
+              {
+                "id": "1951",
+                "name": "RemoteSource",
+                "descriptor": {
+                  "sourceFragmentIds": "[1]"
+                },
+                "outputs": [
+                  {
+                    "symbol": "p_partkey",
+                    "type": "integer"
+                  },
+                  {
+                    "symbol": "s_comment",
+                    "type": "varchar(101)"
+                  },
+                  {
+                    "symbol": "s_phone",
+                    "type": "char(15)"
+                  },
+                  {
+                    "symbol": "s_name",
+                    "type": "char(25)"
+                  },
+                  {
+                    "symbol": "s_address",
+                    "type": "varchar(40)"
+                  },
+                  {
+                    "symbol": "s_acctbal",
+                    "type": "decimal(12,2)"
+                  },
+                  {
+                    "symbol": "p_mfgr",
+                    "type": "char(25)"
+                  },
+                  {
+                    "symbol": "n_name",
+                    "type": "char(25)"
+                  }
+                ],
+                "details": [],
+                "estimates": [],
+                "children": []
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "1": {
+    "id": "1727",
+    "name": "TopNPartial",
+    "descriptor": {
+      "count": "100",
+      "orderBy": "[s_acctbal DESC NULLS LAST, n_name ASC NULLS LAST, s_name ASC NULLS LAST, p_partkey ASC NULLS LAST]"
+    },
+    "outputs": [
+      {
+        "symbol": "p_partkey",
+        "type": "integer"
+      },
+      {
+        "symbol": "s_comment",
+        "type": "varchar(101)"
+      },
+      {
+        "symbol": "s_phone",
+        "type": "char(15)"
+      },
+      {
+        "symbol": "s_name",
+        "type": "char(25)"
+      },
+      {
+        "symbol": "s_address",
+        "type": "varchar(40)"
+      },
+      {
+        "symbol": "s_acctbal",
+        "type": "decimal(12,2)"
+      },
+      {
+        "symbol": "p_mfgr",
+        "type": "char(25)"
+      },
+      {
+        "symbol": "n_name",
+        "type": "char(25)"
+      }
+    ],
+    "details": [],
+    "estimates": [],
+    "children": [
+      {
+        "id": "765",
+        "name": "FilterProject",
+        "descriptor": {
+          "filterPredicate": "(\"ps_supplycost\" = COALESCE(\"min\", \"min_21\"))"
+        },
+        "outputs": [
+          {
+            "symbol": "p_partkey",
+            "type": "integer"
+          },
+          {
+            "symbol": "s_comment",
+            "type": "varchar(101)"
+          },
+          {
+            "symbol": "s_phone",
+            "type": "char(15)"
+          },
+          {
+            "symbol": "s_name",
+            "type": "char(25)"
+          },
+          {
+            "symbol": "s_address",
+            "type": "varchar(40)"
+          },
+          {
+            "symbol": "s_acctbal",
+            "type": "decimal(12,2)"
+          },
+          {
+            "symbol": "p_mfgr",
+            "type": "char(25)"
+          },
+          {
+            "symbol": "n_name",
+            "type": "char(25)"
+          }
+        ],
+        "details": [],
+        "estimates": [
+          {
+            "outputRowCount": "NaN",
+            "outputSizeInBytes": "NaN",
+            "cpuCost": "NaN",
+            "memoryCost": 0.0,
+            "networkCost": 0.0
+          },
+          {
+            "outputRowCount": "NaN",
+            "outputSizeInBytes": "NaN",
+            "cpuCost": "NaN",
+            "memoryCost": 0.0,
+            "networkCost": 0.0
+          }
+        ],
+        "children": [
+          {
+            "id": "1026",
+            "name": "CrossJoin",
+            "descriptor": {},
+            "outputs": [
+              {
+                "symbol": "p_partkey",
+                "type": "integer"
+              },
+              {
+                "symbol": "p_mfgr",
+                "type": "char(25)"
+              },
+              {
+                "symbol": "s_name",
+                "type": "char(25)"
+              },
+              {
+                "symbol": "s_address",
+                "type": "varchar(40)"
+              },
+              {
+                "symbol": "s_phone",
+                "type": "char(15)"
+              },
+              {
+                "symbol": "s_acctbal",
+                "type": "decimal(12,2)"
+              },
+              {
+                "symbol": "s_comment",
+                "type": "varchar(101)"
+              },
+              {
+                "symbol": "ps_supplycost",
+                "type": "decimal(12,2)"
+              },
+              {
+                "symbol": "n_name",
+                "type": "char(25)"
+              },
+              {
+                "symbol": "min",
+                "type": "decimal(12,2)"
+              },
+              {
+                "symbol": "min_21",
+                "type": "decimal(12,2)"
+              }
+            ],
+            "details": [
+              "Distribution: REPLICATED"
+            ],
+            "estimates": [
+              {
+                "outputRowCount": "NaN",
+                "outputSizeInBytes": "NaN",
+                "cpuCost": "NaN",
+                "memoryCost": 9.0,
+                "networkCost": 0.0
+              }
+            ],
+            "children": [
+              {
+                "id": "524",
+                "name": "LeftJoin",
+                "descriptor": {
+                  "criteria": "(\"p_partkey\" = \"ps_partkey_0\")",
+                  "hash": "[]",
+                  "distribution": "PARTITIONED"
+                },
+                "outputs": [
+                  {
+                    "symbol": "p_partkey",
+                    "type": "integer"
+                  },
+                  {
+                    "symbol": "p_mfgr",
+                    "type": "char(25)"
+                  },
+                  {
+                    "symbol": "ps_supplycost",
+                    "type": "decimal(12,2)"
+                  },
+                  {
+                    "symbol": "s_name",
+                    "type": "char(25)"
+                  },
+                  {
+                    "symbol": "s_address",
+                    "type": "varchar(40)"
+                  },
+                  {
+                    "symbol": "s_phone",
+                    "type": "char(15)"
+                  },
+                  {
+                    "symbol": "s_acctbal",
+                    "type": "decimal(12,2)"
+                  },
+                  {
+                    "symbol": "s_comment",
+                    "type": "varchar(101)"
+                  },
+                  {
+                    "symbol": "n_name",
+                    "type": "char(25)"
+                  },
+                  {
+                    "symbol": "min",
+                    "type": "decimal(12,2)"
+                  }
+                ],
+                "details": [
+                  "Distribution: PARTITIONED"
+                ],
+                "estimates": [
+                  {
+                    "outputRowCount": "NaN",
+                    "outputSizeInBytes": "NaN",
+                    "cpuCost": "NaN",
+                    "memoryCost": "NaN",
+                    "networkCost": 0.0
+                  }
+                ],
+                "children": [
+                  {
+                    "id": "1949",
+                    "name": "RemoteSource",
+                    "descriptor": {
+                      "sourceFragmentIds": "[2]"
+                    },
+                    "outputs": [
+                      {
+                        "symbol": "p_partkey",
+                        "type": "integer"
+                      },
+                      {
+                        "symbol": "p_mfgr",
+                        "type": "char(25)"
+                      },
+                      {
+                        "symbol": "ps_supplycost",
+                        "type": "decimal(12,2)"
+                      },
+                      {
+                        "symbol": "s_name",
+                        "type": "char(25)"
+                      },
+                      {
+                        "symbol": "s_address",
+                        "type": "varchar(40)"
+                      },
+                      {
+                        "symbol": "s_phone",
+                        "type": "char(15)"
+                      },
+                      {
+                        "symbol": "s_acctbal",
+                        "type": "decimal(12,2)"
+                      },
+                      {
+                        "symbol": "s_comment",
+                        "type": "varchar(101)"
+                      },
+                      {
+                        "symbol": "n_name",
+                        "type": "char(25)"
+                      }
+                    ],
+                    "details": [],
+                    "estimates": [],
+                    "children": []
+                  },
+                  {
+                    "id": "20",
+                    "name": "Aggregate",
+                    "descriptor": {
+                      "type": "FINAL",
+                      "keys": "[ps_partkey_0]",
+                      "hash": "[]"
+                    },
+                    "outputs": [
+                      {
+                        "symbol": "ps_partkey_0",
+                        "type": "integer"
+                      },
+                      {
+                        "symbol": "min",
+                        "type": "decimal(12,2)"
+                      }
+                    ],
+                    "details": [
+                      "min := min(\"min_22\")"
+                    ],
+                    "estimates": [
+                      {
+                        "outputRowCount": "NaN",
+                        "outputSizeInBytes": "NaN",
+                        "cpuCost": "NaN",
+                        "memoryCost": "NaN",
+                        "networkCost": 0.0
+                      }
+                    ],
+                    "children": [
+                      {
+                        "id": "2617",
+                        "name": "LocalExchange",
+                        "descriptor": {
+                          "partitioning": "HASH",
+                          "isReplicateNullsAndAny": "",
+                          "hashColumn": "[]",
+                          "arguments": "[\"ps_partkey_0\"]"
+                        },
+                        "outputs": [
+                          {
+                            "symbol": "ps_partkey_0",
+                            "type": "integer"
+                          },
+                          {
+                            "symbol": "min_22",
+                            "type": "decimal(12,2)"
+                          }
+                        ],
+                        "details": [],
+                        "estimates": [
+                          {
+                            "outputRowCount": "NaN",
+                            "outputSizeInBytes": "NaN",
+                            "cpuCost": "NaN",
+                            "memoryCost": 0.0,
+                            "networkCost": 0.0
+                          }
+                        ],
+                        "children": [
+                          {
+                            "id": "2623",
+                            "name": "RemoteSource",
+                            "descriptor": {
+                              "sourceFragmentIds": "[7]"
+                            },
+                            "outputs": [
+                              {
+                                "symbol": "ps_partkey_0",
+                                "type": "integer"
+                              },
+                              {
+                                "symbol": "min_22",
+                                "type": "decimal(12,2)"
+                              }
+                            ],
+                            "details": [],
+                            "estimates": [],
+                            "children": []
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "2471",
+                "name": "LocalExchange",
+                "descriptor": {
+                  "partitioning": "SINGLE",
+                  "isReplicateNullsAndAny": "",
+                  "hashColumn": "[]",
+                  "arguments": "[]"
+                },
+                "outputs": [
+                  {
+                    "symbol": "min_21",
+                    "type": "decimal(12,2)"
+                  }
+                ],
+                "details": [],
+                "estimates": [
+                  {
+                    "outputRowCount": 1.0,
+                    "outputSizeInBytes": 9.0,
+                    "cpuCost": 0.0,
+                    "memoryCost": 0.0,
+                    "networkCost": 0.0
+                  }
+                ],
+                "children": [
+                  {
+                    "id": "1950",
+                    "name": "RemoteSource",
+                    "descriptor": {
+                      "sourceFragmentIds": "[11]"
+                    },
+                    "outputs": [
+                      {
+                        "symbol": "min_21",
+                        "type": "decimal(12,2)"
+                      }
+                    ],
+                    "details": [],
+                    "estimates": [],
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "2": {
+    "id": "1457",
+    "name": "InnerJoin",
+    "descriptor": {
+      "criteria": "(\"n_regionkey\" = \"r_regionkey\")",
+      "hash": "[]",
+      "distribution": "REPLICATED"
+    },
+    "outputs": [
+      {
+        "symbol": "p_partkey",
+        "type": "integer"
+      },
+      {
+        "symbol": "p_mfgr",
+        "type": "char(25)"
+      },
+      {
+        "symbol": "ps_supplycost",
+        "type": "decimal(12,2)"
+      },
+      {
+        "symbol": "s_name",
+        "type": "char(25)"
+      },
+      {
+        "symbol": "s_address",
+        "type": "varchar(40)"
+      },
+      {
+        "symbol": "s_phone",
+        "type": "char(15)"
+      },
+      {
+        "symbol": "s_acctbal",
+        "type": "decimal(12,2)"
+      },
+      {
+        "symbol": "s_comment",
+        "type": "varchar(101)"
+      },
+      {
+        "symbol": "n_name",
+        "type": "char(25)"
+      }
+    ],
+    "details": [
+      "Distribution: REPLICATED",
+      "dynamicFilterAssignments = {r_regionkey -> #df_2128}"
+    ],
+    "estimates": [
+      {
+        "outputRowCount": "NaN",
+        "outputSizeInBytes": "NaN",
+        "cpuCost": "NaN",
+        "memoryCost": "NaN",
+        "networkCost": 0.0
+      }
+    ],
+    "children": [
+      {
+        "id": "1456",
+        "name": "InnerJoin",
+        "descriptor": {
+          "criteria": "(\"s_nationkey\" = \"n_nationkey\")",
+          "hash": "[]",
+          "distribution": "REPLICATED"
+        },
+        "outputs": [
+          {
+            "symbol": "p_partkey",
+            "type": "integer"
+          },
+          {
+            "symbol": "p_mfgr",
+            "type": "char(25)"
+          },
+          {
+            "symbol": "ps_supplycost",
+            "type": "decimal(12,2)"
+          },
+          {
+            "symbol": "s_name",
+            "type": "char(25)"
+          },
+          {
+            "symbol": "s_address",
+            "type": "varchar(40)"
+          },
+          {
+            "symbol": "s_phone",
+            "type": "char(15)"
+          },
+          {
+            "symbol": "s_acctbal",
+            "type": "decimal(12,2)"
+          },
+          {
+            "symbol": "s_comment",
+            "type": "varchar(101)"
+          },
+          {
+            "symbol": "n_name",
+            "type": "char(25)"
+          },
+          {
+            "symbol": "n_regionkey",
+            "type": "integer"
+          }
+        ],
+        "details": [
+          "Distribution: REPLICATED",
+          "dynamicFilterAssignments = {n_nationkey -> #df_2129}"
+        ],
+        "estimates": [
+          {
+            "outputRowCount": "NaN",
+            "outputSizeInBytes": "NaN",
+            "cpuCost": "NaN",
+            "memoryCost": 1625.0,
+            "networkCost": 0.0
+          }
+        ],
+        "children": [
+          {
+            "id": "1455",
+            "name": "InnerJoin",
+            "descriptor": {
+              "criteria": "(\"ps_suppkey\" = \"s_suppkey\")",
+              "hash": "[]",
+              "distribution": "REPLICATED"
+            },
+            "outputs": [
+              {
+                "symbol": "p_partkey",
+                "type": "integer"
+              },
+              {
+                "symbol": "p_mfgr",
+                "type": "char(25)"
+              },
+              {
+                "symbol": "ps_supplycost",
+                "type": "decimal(12,2)"
+              },
+              {
+                "symbol": "s_name",
+                "type": "char(25)"
+              },
+              {
+                "symbol": "s_address",
+                "type": "varchar(40)"
+              },
+              {
+                "symbol": "s_nationkey",
+                "type": "integer"
+              },
+              {
+                "symbol": "s_phone",
+                "type": "char(15)"
+              },
+              {
+                "symbol": "s_acctbal",
+                "type": "decimal(12,2)"
+              },
+              {
+                "symbol": "s_comment",
+                "type": "varchar(101)"
+              }
+            ],
+            "details": [
+              "Distribution: REPLICATED",
+              "dynamicFilterAssignments = {s_suppkey -> #df_2130}"
+            ],
+            "estimates": [
+              {
+                "outputRowCount": "NaN",
+                "outputSizeInBytes": "NaN",
+                "cpuCost": "NaN",
+                "memoryCost": 123802.0,
+                "networkCost": 0.0
+              }
+            ],
+            "children": [
+              {
+                "id": "1454",
+                "name": "InnerJoin",
+                "descriptor": {
+                  "criteria": "(\"p_partkey\" = \"ps_partkey\")",
+                  "hash": "[]",
+                  "distribution": "REPLICATED"
+                },
+                "outputs": [
+                  {
+                    "symbol": "p_partkey",
+                    "type": "integer"
+                  },
+                  {
+                    "symbol": "p_mfgr",
+                    "type": "char(25)"
+                  },
+                  {
+                    "symbol": "ps_suppkey",
+                    "type": "integer"
+                  },
+                  {
+                    "symbol": "ps_supplycost",
+                    "type": "decimal(12,2)"
+                  }
+                ],
+                "details": [
+                  "Distribution: REPLICATED",
+                  "dynamicFilterAssignments = {ps_partkey -> #df_2131}"
+                ],
+                "estimates": [
+                  {
+                    "outputRowCount": "NaN",
+                    "outputSizeInBytes": "NaN",
+                    "cpuCost": "NaN",
+                    "memoryCost": 10203.0,
+                    "networkCost": 0.0
+                  }
+                ],
+                "children": [
+                  {
+                    "id": "2134",
+                    "name": "ScanFilterProject",
+                    "descriptor": {
+                      "table": "memory:22",
+                      "filterPredicate": "((\"p_size\" = 15) AND \"$like\"(\"p_type\", \"$literal$\"(from_base64('DgAAAFZBUklBQkxFX1dJRFRIAQAAAAEAAAALAAAAAAsAAAAGAAAAJUJSQVNTAA=='))))",
+                      "dynamicFilters": "{\"p_partkey\" = #df_2131}"
+                    },
+                    "outputs": [
+                      {
+                        "symbol": "p_partkey",
+                        "type": "integer"
+                      },
+                      {
+                        "symbol": "p_mfgr",
+                        "type": "char(25)"
+                      }
+                    ],
+                    "details": [
+                      "p_partkey := 0",
+                      "p_type := 4",
+                      "p_mfgr := 2",
+                      "p_size := 5"
+                    ],
+                    "estimates": [
+                      {
+                        "outputRowCount": 533.0,
+                        "outputSizeInBytes": 31980.0,
+                        "cpuCost": 63960.0,
+                        "memoryCost": 0.0,
+                        "networkCost": 0.0
+                      },
+                      {
+                        "outputRowCount": 479.7,
+                        "outputSizeInBytes": 28782.0,
+                        "cpuCost": 63960.0,
+                        "memoryCost": 0.0,
+                        "networkCost": 0.0
+                      },
+                      {
+                        "outputRowCount": 479.7,
+                        "outputSizeInBytes": 28782.0,
+                        "cpuCost": 28782.0,
+                        "memoryCost": 0.0,
+                        "networkCost": 0.0
+                      }
+                    ],
+                    "children": []
+                  },
+                  {
+                    "id": "2463",
+                    "name": "LocalExchange",
+                    "descriptor": {
+                      "partitioning": "SINGLE",
+                      "isReplicateNullsAndAny": "",
+                      "hashColumn": "[]",
+                      "arguments": "[]"
+                    },
+                    "outputs": [
+                      {
+                        "symbol": "ps_partkey",
+                        "type": "integer"
+                      },
+                      {
+                        "symbol": "ps_suppkey",
+                        "type": "integer"
+                      },
+                      {
+                        "symbol": "ps_supplycost",
+                        "type": "decimal(12,2)"
+                      }
+                    ],
+                    "details": [],
+                    "estimates": [
+                      {
+                        "outputRowCount": 537.0,
+                        "outputSizeInBytes": 10203.0,
+                        "cpuCost": 0.0,
+                        "memoryCost": 0.0,
+                        "networkCost": 0.0
+                      }
+                    ],
+                    "children": [
+                      {
+                        "id": "1941",
+                        "name": "RemoteSource",
+                        "descriptor": {
+                          "sourceFragmentIds": "[3]"
+                        },
+                        "outputs": [
+                          {
+                            "symbol": "ps_partkey",
+                            "type": "integer"
+                          },
+                          {
+                            "symbol": "ps_suppkey",
+                            "type": "integer"
+                          },
+                          {
+                            "symbol": "ps_supplycost",
+                            "type": "decimal(12,2)"
+                          }
+                        ],
+                        "details": [],
+                        "estimates": [],
+                        "children": []
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "2464",
+                "name": "LocalExchange",
+                "descriptor": {
+                  "partitioning": "SINGLE",
+                  "isReplicateNullsAndAny": "",
+                  "hashColumn": "[]",
+                  "arguments": "[]"
+                },
+                "outputs": [
+                  {
+                    "symbol": "s_suppkey",
+                    "type": "integer"
+                  },
+                  {
+                    "symbol": "s_name",
+                    "type": "char(25)"
+                  },
+                  {
+                    "symbol": "s_address",
+                    "type": "varchar(40)"
+                  },
+                  {
+                    "symbol": "s_nationkey",
+                    "type": "integer"
+                  },
+                  {
+                    "symbol": "s_phone",
+                    "type": "char(15)"
+                  },
+                  {
+                    "symbol": "s_acctbal",
+                    "type": "decimal(12,2)"
+                  },
+                  {
+                    "symbol": "s_comment",
+                    "type": "varchar(101)"
+                  }
+                ],
+                "details": [],
+                "estimates": [
+                  {
+                    "outputRowCount": 518.0,
+                    "outputSizeInBytes": 123802.0,
+                    "cpuCost": 0.0,
+                    "memoryCost": 0.0,
+                    "networkCost": 0.0
+                  }
+                ],
+                "children": [
+                  {
+                    "id": "1942",
+                    "name": "RemoteSource",
+                    "descriptor": {
+                      "sourceFragmentIds": "[4]"
+                    },
+                    "outputs": [
+                      {
+                        "symbol": "s_suppkey",
+                        "type": "integer"
+                      },
+                      {
+                        "symbol": "s_name",
+                        "type": "char(25)"
+                      },
+                      {
+                        "symbol": "s_address",
+                        "type": "varchar(40)"
+                      },
+                      {
+                        "symbol": "s_nationkey",
+                        "type": "integer"
+                      },
+                      {
+                        "symbol": "s_phone",
+                        "type": "char(15)"
+                      },
+                      {
+                        "symbol": "s_acctbal",
+                        "type": "decimal(12,2)"
+                      },
+                      {
+                        "symbol": "s_comment",
+                        "type": "varchar(101)"
+                      }
+                    ],
+                    "details": [],
+                    "estimates": [],
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "2465",
+            "name": "LocalExchange",
+            "descriptor": {
+              "partitioning": "SINGLE",
+              "isReplicateNullsAndAny": "",
+              "hashColumn": "[]",
+              "arguments": "[]"
+            },
+            "outputs": [
+              {
+                "symbol": "n_nationkey",
+                "type": "integer"
+              },
+              {
+                "symbol": "n_name",
+                "type": "char(25)"
+              },
+              {
+                "symbol": "n_regionkey",
+                "type": "integer"
+              }
+            ],
+            "details": [],
+            "estimates": [
+              {
+                "outputRowCount": 25.0,
+                "outputSizeInBytes": 1625.0,
+                "cpuCost": 0.0,
+                "memoryCost": 0.0,
+                "networkCost": 0.0
+              }
+            ],
+            "children": [
+              {
+                "id": "1943",
+                "name": "RemoteSource",
+                "descriptor": {
+                  "sourceFragmentIds": "[5]"
+                },
+                "outputs": [
+                  {
+                    "symbol": "n_nationkey",
+                    "type": "integer"
+                  },
+                  {
+                    "symbol": "n_name",
+                    "type": "char(25)"
+                  },
+                  {
+                    "symbol": "n_regionkey",
+                    "type": "integer"
+                  }
+                ],
+                "details": [],
+                "estimates": [],
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "2466",
+        "name": "LocalExchange",
+        "descriptor": {
+          "partitioning": "SINGLE",
+          "isReplicateNullsAndAny": "",
+          "hashColumn": "[]",
+          "arguments": "[]"
+        },
+        "outputs": [
+          {
+            "symbol": "r_regionkey",
+            "type": "integer"
+          }
+        ],
+        "details": [],
+        "estimates": [
+          {
+            "outputRowCount": "NaN",
+            "outputSizeInBytes": "NaN",
+            "cpuCost": 0.0,
+            "memoryCost": 0.0,
+            "networkCost": 0.0
+          }
+        ],
+        "children": [
+          {
+            "id": "1944",
+            "name": "RemoteSource",
+            "descriptor": {
+              "sourceFragmentIds": "[6]"
+            },
+            "outputs": [
+              {
+                "symbol": "r_regionkey",
+                "type": "integer"
+              }
+            ],
+            "details": [],
+            "estimates": [],
+            "children": []
+          }
+        ]
+      }
+    ]
+  },
+  "3": {
+    "id": "2133",
+    "name": "ScanFilter",
+    "descriptor": {
+      "table": "memory:24",
+      "filterPredicate": "",
+      "dynamicFilters": "{\"ps_suppkey\" = #df_2130}"
+    },
+    "outputs": [
+      {
+        "symbol": "ps_partkey",
+        "type": "integer"
+      },
+      {
+        "symbol": "ps_suppkey",
+        "type": "integer"
+      },
+      {
+        "symbol": "ps_supplycost",
+        "type": "decimal(12,2)"
+      }
+    ],
+    "details": [
+      "ps_suppkey := 1",
+      "ps_partkey := 0",
+      "ps_supplycost := 3"
+    ],
+    "estimates": [
+      {
+        "outputRowCount": 537.0,
+        "outputSizeInBytes": 10203.0,
+        "cpuCost": 10203.0,
+        "memoryCost": 0.0,
+        "networkCost": 0.0
+      },
+      {
+        "outputRowCount": 537.0,
+        "outputSizeInBytes": 10203.0,
+        "cpuCost": 10203.0,
+        "memoryCost": 0.0,
+        "networkCost": 0.0
+      }
+    ],
+    "children": []
+  },
+  "4": {
+    "id": "2137",
+    "name": "ScanFilter",
+    "descriptor": {
+      "table": "memory:23",
+      "filterPredicate": "",
+      "dynamicFilters": "{\"s_nationkey\" = #df_2129}"
+    },
+    "outputs": [
+      {
+        "symbol": "s_suppkey",
+        "type": "integer"
+      },
+      {
+        "symbol": "s_name",
+        "type": "char(25)"
+      },
+      {
+        "symbol": "s_address",
+        "type": "varchar(40)"
+      },
+      {
+        "symbol": "s_nationkey",
+        "type": "integer"
+      },
+      {
+        "symbol": "s_phone",
+        "type": "char(15)"
+      },
+      {
+        "symbol": "s_acctbal",
+        "type": "decimal(12,2)"
+      },
+      {
+        "symbol": "s_comment",
+        "type": "varchar(101)"
+      }
+    ],
+    "details": [
+      "s_comment := 6",
+      "s_phone := 4",
+      "s_nationkey := 3",
+      "s_name := 1",
+      "s_address := 2",
+      "s_acctbal := 5",
+      "s_suppkey := 0"
+    ],
+    "estimates": [
+      {
+        "outputRowCount": 518.0,
+        "outputSizeInBytes": 123802.0,
+        "cpuCost": 123802.0,
+        "memoryCost": 0.0,
+        "networkCost": 0.0
+      },
+      {
+        "outputRowCount": 518.0,
+        "outputSizeInBytes": 123802.0,
+        "cpuCost": 123802.0,
+        "memoryCost": 0.0,
+        "networkCost": 0.0
+      }
+    ],
+    "children": []
+  },
+  "5": {
+    "id": "2141",
+    "name": "ScanFilter",
+    "descriptor": {
+      "table": "memory:28",
+      "filterPredicate": "",
+      "dynamicFilters": "{\"n_regionkey\" = #df_2128}"
+    },
+    "outputs": [
+      {
+        "symbol": "n_nationkey",
+        "type": "integer"
+      },
+      {
+        "symbol": "n_name",
+        "type": "char(25)"
+      },
+      {
+        "symbol": "n_regionkey",
+        "type": "integer"
+      }
+    ],
+    "details": [
+      "n_nationkey := 0",
+      "n_regionkey := 2",
+      "n_name := 1"
+    ],
+    "estimates": [
+      {
+        "outputRowCount": 25.0,
+        "outputSizeInBytes": 1625.0,
+        "cpuCost": 1625.0,
+        "memoryCost": 0.0,
+        "networkCost": 0.0
+      },
+      {
+        "outputRowCount": 25.0,
+        "outputSizeInBytes": 1625.0,
+        "cpuCost": 1625.0,
+        "memoryCost": 0.0,
+        "networkCost": 0.0
+      }
+    ],
+    "children": []
+  },
+  "6": {
+    "id": "1222",
+    "name": "ScanFilterProject",
+    "descriptor": {
+      "table": "memory:29",
+      "filterPredicate": "(\"r_name\" = CAST('EUROPE' AS char(25)))"
+    },
+    "outputs": [
+      {
+        "symbol": "r_regionkey",
+        "type": "integer"
+      }
+    ],
+    "details": [
+      "r_regionkey := 0",
+      "r_name := 1"
+    ],
+    "estimates": [
+      {
+        "outputRowCount": 5.0,
+        "outputSizeInBytes": 25.0,
+        "cpuCost": 300.0,
+        "memoryCost": 0.0,
+        "networkCost": 0.0
+      },
+      {
+        "outputRowCount": "NaN",
+        "outputSizeInBytes": "NaN",
+        "cpuCost": 300.0,
+        "memoryCost": 0.0,
+        "networkCost": 0.0
+      },
+      {
+        "outputRowCount": "NaN",
+        "outputSizeInBytes": "NaN",
+        "cpuCost": "NaN",
+        "memoryCost": 0.0,
+        "networkCost": 0.0
+      }
+    ],
+    "children": []
+  },
+  "7": {
+    "id": "2621",
+    "name": "Aggregate",
+    "descriptor": {
+      "type": "PARTIAL",
+      "keys": "[ps_partkey_0]",
+      "hash": "[]"
+    },
+    "outputs": [
+      {
+        "symbol": "ps_partkey_0",
+        "type": "integer"
+      },
+      {
+        "symbol": "min_22",
+        "type": "decimal(12,2)"
+      }
+    ],
+    "details": [
+      "min_22 := min(\"ps_supplycost_3\") (mask = non_null)"
+    ],
+    "estimates": [],
+    "children": [
+      {
+        "id": "644",
+        "name": "Project",
+        "descriptor": {},
+        "outputs": [
+          {
+            "symbol": "non_null",
+            "type": "boolean"
+          },
+          {
+            "symbol": "ps_partkey_0",
+            "type": "integer"
+          },
+          {
+            "symbol": "ps_supplycost_3",
+            "type": "decimal(12,2)"
+          }
+        ],
+        "details": [
+          "non_null := true"
+        ],
+        "estimates": [
+          {
+            "outputRowCount": "NaN",
+            "outputSizeInBytes": "NaN",
+            "cpuCost": "NaN",
+            "memoryCost": 0.0,
+            "networkCost": 0.0
+          }
+        ],
+        "children": [
+          {
+            "id": "15",
+            "name": "InnerJoin",
+            "descriptor": {
+              "criteria": "(\"n_regionkey_14\" = \"r_regionkey_16\")",
+              "hash": "[]",
+              "distribution": "REPLICATED"
+            },
+            "outputs": [
+              {
+                "symbol": "ps_partkey_0",
+                "type": "integer"
+              },
+              {
+                "symbol": "ps_supplycost_3",
+                "type": "decimal(12,2)"
+              }
+            ],
+            "details": [
+              "Distribution: REPLICATED",
+              "dynamicFilterAssignments = {r_regionkey_16 -> #df_2149}"
+            ],
+            "estimates": [
+              {
+                "outputRowCount": "NaN",
+                "outputSizeInBytes": "NaN",
+                "cpuCost": "NaN",
+                "memoryCost": "NaN",
+                "networkCost": 0.0
+              }
+            ],
+            "children": [
+              {
+                "id": "13",
+                "name": "InnerJoin",
+                "descriptor": {
+                  "criteria": "(\"s_nationkey_8\" = \"n_nationkey_12\")",
+                  "hash": "[]",
+                  "distribution": "REPLICATED"
+                },
+                "outputs": [
+                  {
+                    "symbol": "ps_partkey_0",
+                    "type": "integer"
+                  },
+                  {
+                    "symbol": "ps_supplycost_3",
+                    "type": "decimal(12,2)"
+                  },
+                  {
+                    "symbol": "n_regionkey_14",
+                    "type": "integer"
+                  }
+                ],
+                "details": [
+                  "Distribution: REPLICATED",
+                  "dynamicFilterAssignments = {n_nationkey_12 -> #df_2150}"
+                ],
+                "estimates": [
+                  {
+                    "outputRowCount": "NaN",
+                    "outputSizeInBytes": "NaN",
+                    "cpuCost": "NaN",
+                    "memoryCost": 250.0,
+                    "networkCost": 0.0
+                  }
+                ],
+                "children": [
+                  {
+                    "id": "11",
+                    "name": "InnerJoin",
+                    "descriptor": {
+                      "criteria": "(\"ps_suppkey_1\" = \"s_suppkey_5\")",
+                      "hash": "[]",
+                      "distribution": "REPLICATED"
+                    },
+                    "outputs": [
+                      {
+                        "symbol": "ps_partkey_0",
+                        "type": "integer"
+                      },
+                      {
+                        "symbol": "ps_supplycost_3",
+                        "type": "decimal(12,2)"
+                      },
+                      {
+                        "symbol": "s_nationkey_8",
+                        "type": "integer"
+                      }
+                    ],
+                    "details": [
+                      "Distribution: REPLICATED",
+                      "dynamicFilterAssignments = {s_suppkey_5 -> #df_2151}"
+                    ],
+                    "estimates": [
+                      {
+                        "outputRowCount": "NaN",
+                        "outputSizeInBytes": "NaN",
+                        "cpuCost": "NaN",
+                        "memoryCost": 5180.0,
+                        "networkCost": 0.0
+                      }
+                    ],
+                    "children": [
+                      {
+                        "id": "2152",
+                        "name": "ScanFilter",
+                        "descriptor": {
+                          "table": "memory:24",
+                          "filterPredicate": "",
+                          "dynamicFilters": "{\"ps_suppkey_1\" = #df_2151}"
+                        },
+                        "outputs": [
+                          {
+                            "symbol": "ps_partkey_0",
+                            "type": "integer"
+                          },
+                          {
+                            "symbol": "ps_suppkey_1",
+                            "type": "integer"
+                          },
+                          {
+                            "symbol": "ps_supplycost_3",
+                            "type": "decimal(12,2)"
+                          }
+                        ],
+                        "details": [
+                          "ps_partkey_0 := 0",
+                          "ps_suppkey_1 := 1",
+                          "ps_supplycost_3 := 3"
+                        ],
+                        "estimates": [
+                          {
+                            "outputRowCount": 537.0,
+                            "outputSizeInBytes": 10203.0,
+                            "cpuCost": 10203.0,
+                            "memoryCost": 0.0,
+                            "networkCost": 0.0
+                          },
+                          {
+                            "outputRowCount": 537.0,
+                            "outputSizeInBytes": 10203.0,
+                            "cpuCost": 10203.0,
+                            "memoryCost": 0.0,
+                            "networkCost": 0.0
+                          }
+                        ],
+                        "children": []
+                      },
+                      {
+                        "id": "2467",
+                        "name": "LocalExchange",
+                        "descriptor": {
+                          "partitioning": "SINGLE",
+                          "isReplicateNullsAndAny": "",
+                          "hashColumn": "[]",
+                          "arguments": "[]"
+                        },
+                        "outputs": [
+                          {
+                            "symbol": "s_suppkey_5",
+                            "type": "integer"
+                          },
+                          {
+                            "symbol": "s_nationkey_8",
+                            "type": "integer"
+                          }
+                        ],
+                        "details": [],
+                        "estimates": [
+                          {
+                            "outputRowCount": 518.0,
+                            "outputSizeInBytes": 5180.0,
+                            "cpuCost": 0.0,
+                            "memoryCost": 0.0,
+                            "networkCost": 0.0
+                          }
+                        ],
+                        "children": [
+                          {
+                            "id": "1945",
+                            "name": "RemoteSource",
+                            "descriptor": {
+                              "sourceFragmentIds": "[8]"
+                            },
+                            "outputs": [
+                              {
+                                "symbol": "s_suppkey_5",
+                                "type": "integer"
+                              },
+                              {
+                                "symbol": "s_nationkey_8",
+                                "type": "integer"
+                              }
+                            ],
+                            "details": [],
+                            "estimates": [],
+                            "children": []
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "id": "2468",
+                    "name": "LocalExchange",
+                    "descriptor": {
+                      "partitioning": "SINGLE",
+                      "isReplicateNullsAndAny": "",
+                      "hashColumn": "[]",
+                      "arguments": "[]"
+                    },
+                    "outputs": [
+                      {
+                        "symbol": "n_nationkey_12",
+                        "type": "integer"
+                      },
+                      {
+                        "symbol": "n_regionkey_14",
+                        "type": "integer"
+                      }
+                    ],
+                    "details": [],
+                    "estimates": [
+                      {
+                        "outputRowCount": 25.0,
+                        "outputSizeInBytes": 250.0,
+                        "cpuCost": 0.0,
+                        "memoryCost": 0.0,
+                        "networkCost": 0.0
+                      }
+                    ],
+                    "children": [
+                      {
+                        "id": "1946",
+                        "name": "RemoteSource",
+                        "descriptor": {
+                          "sourceFragmentIds": "[9]"
+                        },
+                        "outputs": [
+                          {
+                            "symbol": "n_nationkey_12",
+                            "type": "integer"
+                          },
+                          {
+                            "symbol": "n_regionkey_14",
+                            "type": "integer"
+                          }
+                        ],
+                        "details": [],
+                        "estimates": [],
+                        "children": []
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "2469",
+                "name": "LocalExchange",
+                "descriptor": {
+                  "partitioning": "SINGLE",
+                  "isReplicateNullsAndAny": "",
+                  "hashColumn": "[]",
+                  "arguments": "[]"
+                },
+                "outputs": [
+                  {
+                    "symbol": "r_regionkey_16",
+                    "type": "integer"
+                  }
+                ],
+                "details": [],
+                "estimates": [
+                  {
+                    "outputRowCount": "NaN",
+                    "outputSizeInBytes": "NaN",
+                    "cpuCost": 0.0,
+                    "memoryCost": 0.0,
+                    "networkCost": 0.0
+                  }
+                ],
+                "children": [
+                  {
+                    "id": "1947",
+                    "name": "RemoteSource",
+                    "descriptor": {
+                      "sourceFragmentIds": "[10]"
+                    },
+                    "outputs": [
+                      {
+                        "symbol": "r_regionkey_16",
+                        "type": "integer"
+                      }
+                    ],
+                    "details": [],
+                    "estimates": [],
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "8": {
+    "id": "2153",
+    "name": "ScanFilter",
+    "descriptor": {
+      "table": "memory:23",
+      "filterPredicate": "",
+      "dynamicFilters": "{\"s_nationkey_8\" = #df_2150}"
+    },
+    "outputs": [
+      {
+        "symbol": "s_suppkey_5",
+        "type": "integer"
+      },
+      {
+        "symbol": "s_nationkey_8",
+        "type": "integer"
+      }
+    ],
+    "details": [
+      "s_suppkey_5 := 0",
+      "s_nationkey_8 := 3"
+    ],
+    "estimates": [
+      {
+        "outputRowCount": 518.0,
+        "outputSizeInBytes": 5180.0,
+        "cpuCost": 5180.0,
+        "memoryCost": 0.0,
+        "networkCost": 0.0
+      },
+      {
+        "outputRowCount": 518.0,
+        "outputSizeInBytes": 5180.0,
+        "cpuCost": 5180.0,
+        "memoryCost": 0.0,
+        "networkCost": 0.0
+      }
+    ],
+    "children": []
+  },
+  "9": {
+    "id": "2157",
+    "name": "ScanFilter",
+    "descriptor": {
+      "table": "memory:28",
+      "filterPredicate": "",
+      "dynamicFilters": "{\"n_regionkey_14\" = #df_2149}"
+    },
+    "outputs": [
+      {
+        "symbol": "n_nationkey_12",
+        "type": "integer"
+      },
+      {
+        "symbol": "n_regionkey_14",
+        "type": "integer"
+      }
+    ],
+    "details": [
+      "n_nationkey_12 := 0",
+      "n_regionkey_14 := 2"
+    ],
+    "estimates": [
+      {
+        "outputRowCount": 25.0,
+        "outputSizeInBytes": 250.0,
+        "cpuCost": 250.0,
+        "memoryCost": 0.0,
+        "networkCost": 0.0
+      },
+      {
+        "outputRowCount": 25.0,
+        "outputSizeInBytes": 250.0,
+        "cpuCost": 250.0,
+        "memoryCost": 0.0,
+        "networkCost": 0.0
+      }
+    ],
+    "children": []
+  },
+  "10": {
+    "id": "788",
+    "name": "ScanFilterProject",
+    "descriptor": {
+      "table": "memory:29",
+      "filterPredicate": "(\"r_name_17\" = CAST('EUROPE' AS char(25)))"
+    },
+    "outputs": [
+      {
+        "symbol": "r_regionkey_16",
+        "type": "integer"
+      }
+    ],
+    "details": [
+      "r_regionkey_16 := 0",
+      "r_name_17 := 1"
+    ],
+    "estimates": [
+      {
+        "outputRowCount": 5.0,
+        "outputSizeInBytes": 25.0,
+        "cpuCost": 300.0,
+        "memoryCost": 0.0,
+        "networkCost": 0.0
+      },
+      {
+        "outputRowCount": "NaN",
+        "outputSizeInBytes": "NaN",
+        "cpuCost": 300.0,
+        "memoryCost": 0.0,
+        "networkCost": 0.0
+      },
+      {
+        "outputRowCount": "NaN",
+        "outputSizeInBytes": "NaN",
+        "cpuCost": "NaN",
+        "memoryCost": 0.0,
+        "networkCost": 0.0
+      }
+    ],
+    "children": []
+  },
+  "11": {
+    "id": "1025",
+    "name": "Aggregate",
+    "descriptor": {
+      "type": "",
+      "keys": "",
+      "hash": "[]"
+    },
+    "outputs": [
+      {
+        "symbol": "min_21",
+        "type": "decimal(12,2)"
+      }
+    ],
+    "details": [
+      "min_21 := min(\"null_20\") (mask = null)"
+    ],
+    "estimates": [
+      {
+        "outputRowCount": 1.0,
+        "outputSizeInBytes": 9.0,
+        "cpuCost": 2.0,
+        "memoryCost": 9.0,
+        "networkCost": 0.0
+      }
+    ],
+    "children": [
+      {
+        "id": "1024",
+        "name": "Values",
+        "descriptor": {},
+        "outputs": [
+          {
+            "symbol": "null",
+            "type": "boolean"
+          },
+          {
+            "symbol": "null_20",
+            "type": "decimal(12,2)"
+          }
+        ],
+        "details": [
+          "(CAST(null AS boolean), CAST(null AS decimal(12, 2)))"
+        ],
+        "estimates": [
+          {
+            "outputRowCount": 1.0,
+            "outputSizeInBytes": 2.0,
+            "cpuCost": 0.0,
+            "memoryCost": 0.0,
+            "networkCost": 0.0
+          }
+        ],
+        "children": []
+      }
+    ]
+  }
+}

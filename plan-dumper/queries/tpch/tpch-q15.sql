@@ -1,3 +1,4 @@
+-- UNSUPPORTED: cedardb
 -- This query is derived from TPC-H query 15
 -- THE TPC SOFTWARE IS AVAILABLE WITHOUT CHARGE FROM TPC.
 

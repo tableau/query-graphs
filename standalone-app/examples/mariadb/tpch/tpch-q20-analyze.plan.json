@@ -1,0 +1,177 @@
+{
+  "query_optimization": {
+    "r_total_time_ms": 0.104859451
+  },
+  "query_block": {
+    "select_id": 1,
+    "r_loops": 1,
+    "r_total_time_ms": 70.06136211,
+    "filesort": {
+      "sort_key": "supplier.s_name",
+      "r_loops": 1,
+      "r_total_time_ms": 0.004571851,
+      "r_used_priority_queue": false,
+      "r_output_rows": 1,
+      "r_buffer_size": "992",
+      "r_sort_mode": "sort_key,rowid",
+      "temporary_table": {
+        "nested_loop": [
+          {
+            "table": {
+              "table_name": "nation",
+              "access_type": "ALL",
+              "r_loops": 1,
+              "rows": 25,
+              "r_rows": 25,
+              "r_table_time_ms": 0.008744304,
+              "r_other_time_ms": 0.004037092,
+              "r_engine_stats": {
+                "pages_accessed": 1
+              },
+              "filtered": 100,
+              "r_filtered": 4,
+              "attached_condition": "nation.n_name = 'CANADA'"
+            }
+          },
+          {
+            "block-nl-join": {
+              "table": {
+                "table_name": "supplier",
+                "access_type": "ALL",
+                "r_loops": 1,
+                "rows": 492,
+                "r_rows": 518,
+                "r_table_time_ms": 0.101404912,
+                "r_other_time_ms": 0.013803453,
+                "r_engine_stats": {
+                  "pages_accessed": 6
+                },
+                "filtered": 100,
+                "r_filtered": 100
+              },
+              "buffer_type": "flat",
+              "buffer_size": "2Kb",
+              "join_type": "BNL",
+              "attached_condition": "supplier.s_nationkey = nation.n_nationkey",
+              "r_loops": 1,
+              "r_filtered": 4.44015444,
+              "r_unpack_time_ms": 0.014558131,
+              "r_other_time_ms": 0.015195496,
+              "r_effective_rows": 518
+            }
+          },
+          {
+            "table": {
+              "table_name": "<subquery2>",
+              "access_type": "eq_ref",
+              "possible_keys": [
+                "distinct_key"
+              ],
+              "key": "distinct_key",
+              "key_length": "4",
+              "used_key_parts": [
+                "ps_suppkey"
+              ],
+              "ref": [
+                "func"
+              ],
+              "r_loops": 23,
+              "rows": 1,
+              "r_rows": 0.043478261,
+              "r_table_time_ms": 0.001729944,
+              "r_other_time_ms": 0.008322513,
+              "filtered": 100,
+              "r_filtered": 100,
+              "materialized": {
+                "unique": 1,
+                "query_block": {
+                  "select_id": 2,
+                  "nested_loop": [
+                    {
+                      "table": {
+                        "table_name": "part",
+                        "access_type": "ALL",
+                        "r_loops": 1,
+                        "rows": 500,
+                        "r_rows": 533,
+                        "r_table_time_ms": 0.092293296,
+                        "r_other_time_ms": 0.024379304,
+                        "r_engine_stats": {
+                          "pages_accessed": 7
+                        },
+                        "filtered": 100,
+                        "r_filtered": 0.750469043,
+                        "attached_condition": "part.p_name like 'forest%'"
+                      }
+                    },
+                    {
+                      "block-nl-join": {
+                        "table": {
+                          "table_name": "partsupp",
+                          "access_type": "ALL",
+                          "r_loops": 1,
+                          "rows": 797,
+                          "r_rows": 537,
+                          "r_table_time_ms": 0.11271873,
+                          "r_other_time_ms": 0.114534569,
+                          "r_engine_stats": {
+                            "pages_accessed": 4
+                          },
+                          "filtered": 100,
+                          "r_filtered": 27.56052142,
+                          "attached_condition": "partsupp.ps_availqty > (subquery#4)"
+                        },
+                        "buffer_type": "flat",
+                        "buffer_size": "111Kb",
+                        "join_type": "BNL",
+                        "attached_condition": "partsupp.ps_partkey = part.p_partkey",
+                        "r_loops": 4,
+                        "r_filtered": 0.168918919,
+                        "r_unpack_time_ms": 0.026253967,
+                        "r_other_time_ms": 0.018878645,
+                        "r_effective_rows": 148
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ],
+        "subqueries": [
+          {
+            "expression_cache": {
+              "state": "disabled",
+              "r_loops": 200,
+              "r_hit_ratio": 0,
+              "query_block": {
+                "select_id": 4,
+                "r_loops": 537,
+                "r_total_time_ms": 69.36970852,
+                "nested_loop": [
+                  {
+                    "table": {
+                      "table_name": "lineitem",
+                      "access_type": "ALL",
+                      "r_loops": 537,
+                      "rows": 476,
+                      "r_rows": 572,
+                      "r_table_time_ms": 57.81297539,
+                      "r_other_time_ms": 11.35137083,
+                      "r_engine_stats": {
+                        "pages_accessed": 3222
+                      },
+                      "filtered": 100,
+                      "r_filtered": 0.048833848,
+                      "attached_condition": "lineitem.l_partkey = partsupp.ps_partkey and lineitem.l_suppkey = partsupp.ps_suppkey and lineitem.l_shipdate >= DATE'1994-01-01' and lineitem.l_shipdate < DATE'1995-01-01'"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,150 @@
+{
+  "query_optimization": {
+    "r_total_time_ms": 0.092925648
+  },
+  "query_block": {
+    "select_id": 1,
+    "r_loops": 1,
+    "r_total_time_ms": 0.579947899,
+    "filesort": {
+      "sort_key": "orders.o_totalprice desc, orders.o_orderdate",
+      "r_loops": 1,
+      "r_total_time_ms": 0.002100932,
+      "r_limit": 100,
+      "r_used_priority_queue": false,
+      "r_output_rows": 2,
+      "r_buffer_size": "376",
+      "r_sort_mode": "sort_key,rowid",
+      "temporary_table": {
+        "nested_loop": [
+          {
+            "table": {
+              "table_name": "orders",
+              "access_type": "ALL",
+              "r_loops": 1,
+              "rows": 128,
+              "r_rows": 128,
+              "r_table_time_ms": 0.027976224,
+              "r_other_time_ms": 0.007931471,
+              "r_engine_stats": {
+                "pages_accessed": 1
+              },
+              "filtered": 100,
+              "r_filtered": 100
+            }
+          },
+          {
+            "table": {
+              "table_name": "<subquery2>",
+              "access_type": "eq_ref",
+              "possible_keys": [
+                "distinct_key"
+              ],
+              "key": "distinct_key",
+              "key_length": "4",
+              "used_key_parts": [
+                "l_orderkey"
+              ],
+              "ref": [
+                "query_graphs_plan_dumper.orders.o_orderkey"
+              ],
+              "r_loops": 128,
+              "rows": 1,
+              "r_rows": 0.015625,
+              "r_table_time_ms": 0.006520711,
+              "r_other_time_ms": 0.007205536,
+              "filtered": 100,
+              "r_filtered": 100,
+              "materialized": {
+                "unique": 1,
+                "materialization": {
+                  "r_strategy": "undefined",
+                  "query_block": {
+                    "select_id": 2,
+                    "r_loops": 1,
+                    "r_total_time_ms": 0.248803731,
+                    "having_condition": "sum(lineitem.l_quantity) > 300",
+                    "temporary_table": {
+                      "nested_loop": [
+                        {
+                          "table": {
+                            "table_name": "lineitem",
+                            "access_type": "ALL",
+                            "r_loops": 1,
+                            "rows": 476,
+                            "r_rows": 572,
+                            "r_table_time_ms": 0.109708374,
+                            "r_other_time_ms": 0.133821636,
+                            "r_engine_stats": {
+                              "pages_accessed": 6
+                            },
+                            "filtered": 100,
+                            "r_filtered": 100
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "block-nl-join": {
+              "table": {
+                "table_name": "customer",
+                "access_type": "ALL",
+                "r_loops": 1,
+                "rows": 129,
+                "r_rows": 129,
+                "r_table_time_ms": 0.022822155,
+                "r_other_time_ms": 0.003134019,
+                "r_engine_stats": {
+                  "pages_accessed": 1
+                },
+                "filtered": 100,
+                "r_filtered": 100
+              },
+              "buffer_type": "flat",
+              "buffer_size": "3Kb",
+              "join_type": "BNL",
+              "attached_condition": "customer.c_custkey = orders.o_custkey",
+              "r_loops": 2,
+              "r_filtered": 0.775193798,
+              "r_unpack_time_ms": 0.011185476,
+              "r_other_time_ms": 0.007049454,
+              "r_effective_rows": 129
+            }
+          },
+          {
+            "block-nl-join": {
+              "table": {
+                "table_name": "lineitem",
+                "access_type": "ALL",
+                "r_loops": 1,
+                "rows": 476,
+                "r_rows": 572,
+                "r_table_time_ms": 0.099950369,
+                "r_other_time_ms": 0.012227587,
+                "r_engine_stats": {
+                  "pages_accessed": 6
+                },
+                "filtered": 100,
+                "r_filtered": 100
+              },
+              "buffer_type": "incremental",
+              "buffer_size": "256Kb",
+              "join_type": "BNL",
+              "attached_condition": "lineitem.l_orderkey = orders.o_orderkey",
+              "r_loops": 2,
+              "r_filtered": 1.223776224,
+              "r_unpack_time_ms": 0.076196063,
+              "r_other_time_ms": 0.044919043,
+              "r_effective_rows": 572
+            }
+          }
+        ]
+      }
+    }
+  }
+}

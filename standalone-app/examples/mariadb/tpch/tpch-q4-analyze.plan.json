@@ -1,0 +1,89 @@
+{
+  "query_optimization": {
+    "r_total_time_ms": 0.064081444
+  },
+  "query_block": {
+    "select_id": 1,
+    "r_loops": 1,
+    "r_total_time_ms": 0.239101541,
+    "filesort": {
+      "sort_key": "orders.o_orderpriority",
+      "r_loops": 1,
+      "r_total_time_ms": 0.002941172,
+      "r_used_priority_queue": false,
+      "r_output_rows": 4,
+      "r_buffer_size": "696",
+      "r_sort_mode": "sort_key,rowid",
+      "temporary_table": {
+        "nested_loop": [
+          {
+            "table": {
+              "table_name": "orders",
+              "access_type": "ALL",
+              "r_loops": 1,
+              "rows": 128,
+              "r_rows": 128,
+              "r_table_time_ms": 0.026581841,
+              "r_other_time_ms": 0.010096574,
+              "r_engine_stats": {
+                "pages_accessed": 1
+              },
+              "filtered": 100,
+              "r_filtered": 3.90625,
+              "attached_condition": "orders.o_orderdate >= DATE'1993-07-01' and orders.o_orderdate < DATE'1993-10-01'"
+            }
+          },
+          {
+            "table": {
+              "table_name": "<subquery2>",
+              "access_type": "eq_ref",
+              "possible_keys": [
+                "distinct_key"
+              ],
+              "key": "distinct_key",
+              "key_length": "4",
+              "used_key_parts": [
+                "l_orderkey"
+              ],
+              "ref": [
+                "func"
+              ],
+              "r_loops": 5,
+              "rows": 1,
+              "r_rows": 1,
+              "r_table_time_ms": 0.034899675,
+              "r_other_time_ms": 0.010428459,
+              "filtered": 100,
+              "r_filtered": 100,
+              "materialized": {
+                "unique": 1,
+                "query_block": {
+                  "select_id": 2,
+                  "nested_loop": [
+                    {
+                      "table": {
+                        "table_name": "lineitem",
+                        "access_type": "ALL",
+                        "r_loops": 1,
+                        "rows": 476,
+                        "r_rows": 572,
+                        "r_table_time_ms": 0.110358439,
+                        "r_other_time_ms": 0.037788707,
+                        "r_engine_stats": {
+                          "pages_accessed": 6
+                        },
+                        "filtered": 100,
+                        "r_filtered": 61.01398601,
+                        "attached_condition": "lineitem.l_commitdate < lineitem.l_receiptdate"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

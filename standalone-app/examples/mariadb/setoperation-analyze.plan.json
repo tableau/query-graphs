@@ -1,0 +1,177 @@
+{
+  "query_optimization": {
+    "r_total_time_ms": 0.093724777
+  },
+  "query_block": {
+    "union_result": {
+      "query_specifications": [
+        {
+          "query_block": {
+            "select_id": 1,
+            "r_loops": 1,
+            "r_total_time_ms": 0.16717285,
+            "nested_loop": [
+              {
+                "table": {
+                  "table_name": "lineitem",
+                  "access_type": "ALL",
+                  "r_loops": 1,
+                  "rows": 476,
+                  "r_rows": 572,
+                  "r_table_time_ms": 0.111046941,
+                  "r_other_time_ms": 0.053208802,
+                  "r_engine_stats": {
+                    "pages_accessed": 6
+                  },
+                  "filtered": 100,
+                  "r_filtered": 100
+                }
+              }
+            ]
+          }
+        },
+        {
+          "query_block": {
+            "select_id": 2,
+            "operation": "UNION",
+            "r_loops": 1,
+            "r_total_time_ms": 0.154426882,
+            "nested_loop": [
+              {
+                "table": {
+                  "table_name": "lineitem",
+                  "access_type": "ALL",
+                  "r_loops": 1,
+                  "rows": 476,
+                  "r_rows": 572,
+                  "r_table_time_ms": 0.102237798,
+                  "r_other_time_ms": 0.051092161,
+                  "r_engine_stats": {
+                    "pages_accessed": 6
+                  },
+                  "filtered": 100,
+                  "r_filtered": 100
+                }
+              }
+            ]
+          }
+        },
+        {
+          "query_block": {
+            "select_id": 6,
+            "operation": "UNION",
+            "r_loops": 1,
+            "r_total_time_ms": 0.678791652,
+            "nested_loop": [
+              {
+                "table": {
+                  "table_name": "<derived3>",
+                  "access_type": "ALL",
+                  "r_loops": 1,
+                  "rows": 476,
+                  "r_rows": 0,
+                  "r_table_time_ms": 3.910421e-05,
+                  "r_other_time_ms": 0.000308823,
+                  "filtered": 100,
+                  "r_filtered": 100,
+                  "materialized": {
+                    "query_block": {
+                      "union_result": {
+                        "table_name": "<unit3,4,5>",
+                        "access_type": "ALL",
+                        "r_loops": 1,
+                        "r_rows": 0,
+                        "query_specifications": [
+                          {
+                            "query_block": {
+                              "select_id": 3,
+                              "r_loops": 1,
+                              "r_total_time_ms": 0.260261599,
+                              "nested_loop": [
+                                {
+                                  "table": {
+                                    "table_name": "lineitem",
+                                    "access_type": "ALL",
+                                    "r_loops": 1,
+                                    "rows": 476,
+                                    "r_rows": 572,
+                                    "r_table_time_ms": 0.117595393,
+                                    "r_other_time_ms": 0.141770152,
+                                    "r_engine_stats": {
+                                      "pages_accessed": 6
+                                    },
+                                    "filtered": 100,
+                                    "r_filtered": 50,
+                                    "attached_condition": "lineitem.l_quantity < 25"
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "query_block": {
+                              "select_id": 4,
+                              "operation": "INTERSECT",
+                              "r_loops": 1,
+                              "r_total_time_ms": 0.201562833,
+                              "nested_loop": [
+                                {
+                                  "table": {
+                                    "table_name": "lineitem",
+                                    "access_type": "ALL",
+                                    "r_loops": 1,
+                                    "rows": 476,
+                                    "r_rows": 572,
+                                    "r_table_time_ms": 0.119322328,
+                                    "r_other_time_ms": 0.081479143,
+                                    "r_engine_stats": {
+                                      "pages_accessed": 6
+                                    },
+                                    "filtered": 100,
+                                    "r_filtered": 50,
+                                    "attached_condition": "lineitem.l_quantity >= 25"
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "query_block": {
+                              "select_id": 5,
+                              "operation": "EXCEPT",
+                              "r_loops": 1,
+                              "r_total_time_ms": 0.204541104,
+                              "nested_loop": [
+                                {
+                                  "table": {
+                                    "table_name": "lineitem",
+                                    "access_type": "ALL",
+                                    "r_loops": 1,
+                                    "rows": 476,
+                                    "r_rows": 572,
+                                    "r_table_time_ms": 0.112359773,
+                                    "r_other_time_ms": 0.091391559,
+                                    "r_engine_stats": {
+                                      "pages_accessed": 6
+                                    },
+                                    "filtered": 100,
+                                    "r_filtered": 50,
+                                    "attached_condition": "lineitem.l_quantity >= 25"
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}
