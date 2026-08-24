@@ -6,7 +6,7 @@ Everything downstream (layout, rendering, interaction) is shared across formats.
 
 ## Supported Formats
 
-| Format | Loader (`query-graphs/src`) | Source shape | How it is obtained |
+| Format | Loader (`query-graphs/src/loaders`) | Source shape | How it is obtained |
 | --- | --- | --- | --- |
 | Postgres | `postgres.ts` | JSON | `EXPLAIN (FORMAT JSON)`, ideally with `ANALYZE` |
 | Hyper | `hyper.ts` | JSON | Hyper's `EXPLAIN (FORMAT JSON)`, e.g. via HyperAPI |
@@ -37,7 +37,7 @@ The generic `json`/`xml` loaders come last so a recognized format always wins ov
 To add support for another database's plans:
 
 1. **Write the loader.**
-   Add `query-graphs/src/<db>.ts` exporting a `load<Db>FromText(text: string): TreeDescription`.
+   Add `query-graphs/src/loaders/<db>.ts` exporting a `load<Db>FromText(text: string): TreeDescription`.
    Parse the text, then recursively convert each source node into a `TreeNode`: set `name`, pick an `icon` from the `IconName` union, put scalar attributes into `properties` (shown in the tooltip), and put real children into `children`/`collapsedChildren`.
    Use `hyper.ts` as the reference implementation and reuse the helpers in `loader-utils.ts`.
    Throw an `Error` when the input is not your format, so dispatch can fall through to the next loader.
@@ -46,7 +46,7 @@ To add support for another database's plans:
    If the format comes from a database that [`plan-dumper`](../plan-dumper/README.md) can drive, add a query there so the example can be regenerated instead of hand-maintained.
 4. **Verify** by loading the example in the app; see [`plan-dumper`](../plan-dumper/README.md) for the end-to-end workflow.
 
-The same loaders are exported from the published library (`@tableau/query-graphs/lib/<db>`), so a new format is immediately available to embedders too.
+The same loaders are exported from the published library (`@tableau/query-graphs/lib/loaders/<db>`), so a new format is immediately available to embedders too.
 
 ## Writing a Permissive Loader
 

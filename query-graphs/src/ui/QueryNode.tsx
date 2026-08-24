@@ -7,7 +7,7 @@ import type {TreeNode} from "../tree-description";
 import {NodeIcon} from "./NodeIcon";
 import "./QueryNode.css";
 import {useGraphRenderingStore} from "./store";
-import {assert} from "../loader-utils";
+import {assert} from "../assert";
 
 type NodeData = TreeNode & {resizeObserver: ResizeObserver};
 

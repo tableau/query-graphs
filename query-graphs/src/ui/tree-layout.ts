@@ -7,7 +7,7 @@ import type {TreeNode, TreeDescription} from "../tree-description";
 import type {Edge} from "@xyflow/react";
 import type {QueryGraphNode} from "./QueryNode";
 import type {ColoredGraphEdge} from "./ColoredEdge";
-import {assertNotNull} from "../loader-utils";
+import {assertNotNull} from "../assert";
 import type {CSSProperties} from "react";
 
 // Crosslinks have no `type`/`data` of their own, so they stay plain `Edge`s.
