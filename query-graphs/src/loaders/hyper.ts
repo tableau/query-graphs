@@ -82,52 +82,72 @@ interface NodeRenderingConfig {
 }
 
 const nodeRenderingConfig: Record<string, NodeRenderingConfig> = {
+    "op:execution-target": {icon: "run-query-symbol"},
     "op:executiontarget": {icon: "run-query-symbol"},
     "op:select": {icon: "filter-symbol"},
     "op:sort": {icon: "sort-symbol"},
+    "op:group-by": {icon: "groupby-symbol"},
     "op:groupby": {icon: "groupby-symbol"},
     // Joins
     "op:join": {icon: "inner-join-symbol", crosslinkSourceKey: "magic"},
+    "op:left-outer-join": {icon: "left-join-symbol", crosslinkSourceKey: "magic"},
     "op:leftouterjoin": {icon: "left-join-symbol", crosslinkSourceKey: "magic"},
+    "op:right-outer-join": {icon: "right-join-symbol", crosslinkSourceKey: "magic"},
     "op:rightouterjoin": {icon: "right-join-symbol", crosslinkSourceKey: "magic"},
+    "op:full-outer-join": {icon: "full-join-symbol", crosslinkSourceKey: "magic"},
     "op:fullouterjoin": {icon: "full-join-symbol", crosslinkSourceKey: "magic"},
+    "op:left-anti-join": {crosslinkSourceKey: "magic"},
     "op:leftantijoin": {crosslinkSourceKey: "magic"},
+    "op:right-anti-join": {crosslinkSourceKey: "magic"},
     "op:rightantijoin": {crosslinkSourceKey: "magic"},
+    "op:left-semi-join": {crosslinkSourceKey: "magic"},
     "op:leftsemijoin": {crosslinkSourceKey: "magic"},
+    "op:right-semi-join": {crosslinkSourceKey: "magic"},
     "op:rightsemijoin": {crosslinkSourceKey: "magic"},
+    "op:left-single-join": {crosslinkSourceKey: "magic"},
     "op:leftsinglejoin": {crosslinkSourceKey: "magic"},
+    "op:right-single-join": {crosslinkSourceKey: "magic"},
     "op:rightsinglejoin": {crosslinkSourceKey: "magic"},
+    "op:left-mark-join": {crosslinkSourceKey: "magic"},
     "op:leftmarkjoin": {crosslinkSourceKey: "magic"},
+    "op:right-mark-join": {crosslinkSourceKey: "magic"},
     "op:rightmarkjoin": {crosslinkSourceKey: "magic"},
+    "op:early-probe": {icon: "filter-symbol", crosslinkSourceKey: "builder"},
     "op:earlyprobe": {icon: "filter-symbol", crosslinkSourceKey: "builder"},
     // Various scans
+    "op:table-scan": {icon: "table-symbol"},
     "op:tablescan": {icon: "table-symbol"},
+    "op:arrow-scan": {icon: "table-symbol"},
     "op:arrowscan": {icon: "table-symbol"},
+    "op:binary-scan": {icon: "table-symbol"},
     "op:binaryscan": {icon: "table-symbol"},
+    "op:csv-scan": {icon: "table-symbol"},
     "op:csvscan": {icon: "table-symbol"},
+    "op:cloud-table-scan": {icon: "table-symbol"},
     "op:cloudtablescan": {icon: "table-symbol"},
+    "op:cursor-scan": {icon: "table-symbol"},
     "op:cursorscan": {icon: "table-symbol"},
+    "op:iceberg-scan": {icon: "table-symbol"},
     "op:icebergscan": {icon: "table-symbol"},
+    "op:parquet-scan": {icon: "table-symbol"},
     "op:parquetscan": {icon: "table-symbol"},
     "op:tdescan": {icon: "table-symbol"},
     // Other tables
+    "op:table-construction": {icon: "const-table-symbol"},
     "op:tableconstruction": {icon: "const-table-symbol"},
+    "op:virtual-table": {icon: "virtual-table-symbol"},
     "op:virtualtable": {icon: "virtual-table-symbol"},
     // Temp & Explicit scan
+    "op:explicit-scan": {icon: "temp-table-symbol", crosslinkSourceKey: "input"},
     "op:explicitscan": {icon: "temp-table-symbol", crosslinkSourceKey: "input"},
     "op:temp": {icon: "temp-table-symbol"},
+    "op:iteration-increment": {crosslinkSourceKey: "source"},
     "op:iterationincrement": {crosslinkSourceKey: "source"},
     // Expressions
     "exp:comparison": {displayNameKey: "mode"},
+    "exp:iu-ref": {displayNameKey: "iu"},
     "exp:iuref": {displayNameKey: "iu"},
 };
-
-// Hyper's post-#13883 node tags use kebab-case. Normalize only for the
-// rendering-config lookup so plans from before the cutover keep their icons,
-// display names and crosslinks too.
-function getNodeRenderingConfig(nodeType: "operator" | "expression", nodeTag: string): NodeRenderingConfig {
-    return nodeRenderingConfig[`${nodeType === "operator" ? "op" : "exp"}:${nodeTag.replace(/-/g, "")}`] ?? {};
-}
 
 // Should the entry `key` from `node` always be expanded?
 function isAlwaysExpanded(node: JsonObject, key: string): boolean {
@@ -170,14 +190,14 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
             if (val !== undefined) {
                 nodeType = "operator";
                 nodeTag = val;
-                renderingConfig = getNodeRenderingConfig(nodeType, nodeTag);
+                renderingConfig = nodeRenderingConfig[`op:${nodeTag}`] ?? {};
             }
         } else if (rawNode.hasOwnProperty("expression")) {
             const val = tryToString(rawNode["expression"]);
             if (val !== undefined) {
                 nodeType = "expression";
                 nodeTag = val;
-                renderingConfig = getNodeRenderingConfig(nodeType, nodeTag);
+                renderingConfig = nodeRenderingConfig[`exp:${nodeTag}`] ?? {};
             }
         }
 
