@@ -1,0 +1,12 @@
+[
+    {
+        "name": "SEQ_SCAN ",
+        "children": [],
+        "extra_info": {
+            "Table": "region",
+            "Type": "Sequential Scan",
+            "Projections": "r_name",
+            "Estimated Cardinality": "5"
+        }
+    }
+]

@@ -1,0 +1,42 @@
+[
+    {
+        "name": "HASH_GROUP_BY",
+        "children": [
+            {
+                "name": "PROJECTION",
+                "children": [
+                    {
+                        "name": "SEQ_SCAN ",
+                        "children": [],
+                        "extra_info": {
+                            "Table": "t1",
+                            "Type": "Sequential Scan",
+                            "Projections": [
+                                "a1",
+                                "b1",
+                                "c1"
+                            ],
+                            "Estimated Cardinality": "0"
+                        }
+                    }
+                ],
+                "extra_info": {
+                    "Projections": [
+                        "a1",
+                        "b1",
+                        "c1"
+                    ],
+                    "Estimated Cardinality": "0"
+                }
+            }
+        ],
+        "extra_info": {
+            "Groups": "#0",
+            "Aggregates": [
+                "sum(#1)",
+                "avg(#2)"
+            ],
+            "Estimated Cardinality": "0"
+        }
+    }
+]
