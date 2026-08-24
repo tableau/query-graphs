@@ -2,9 +2,8 @@
 """Filters a unified diff down to hunks that aren't purely runtime-measurement jitter.
 
 Regenerating the example plans re-runs every query, so timing, memory, and scheduler
-fields change on every run even when the plan itself didn't. A hunk is dropped if every
-removed line matches its added counterpart once those volatile fields are masked out;
-if a line differs for any other reason, the whole line is kept as-is.
+fields change on every run even when the plan itself didn't. Hunk which only differ on
+those volatile fields are dropped. If a hunk differs for any other reason, the whole line is kept as-is.
 Files left with no surviving hunks are omitted entirely.
 
 Usage:
@@ -22,10 +21,13 @@ import sys
 
 JSON_SCALAR_RE = r'\s*:\s*(?:"(?:\\.|[^"\\])*"|[-+0-9.eE]+|true|false|null)'
 
-# Postgres uses keys such as "Actual Total Time"; Hyper uses "cpu-cycles";
-# DuckDB uses "cpu_time", "operator_timing", and "latency"; MariaDB uses
-# "r_total_time_ms"/"r_table_time_ms"; Umbra uses "durationUs"; and Trino uses
-# "*Time", "*Cpu", and "*Wall" keys.
+# Volatile fields:
+# * Hyper: `cpu-cycles`;
+# * Umbra uses `durationUs`;
+# * Postgres: `Actual Total Time`
+# * DuckDB: `cpu_time`, `operator_timing`, and `latency`
+# * Trino: `*Time`, `*Cpu`, and `*Wall` keys
+# * MariaDB: `r_total_time_ms`/`r_table_time_ms`
 COMMON_VOLATILE_FIELD_RE = re.compile(
     r'"(?:[^"]*(?:time|timing|latency|cycles|duration)[^"]*'
     r'|(?:addInput|getOutput|finish|blocked)(?:Cpu|Wall)|start|stop)"'
