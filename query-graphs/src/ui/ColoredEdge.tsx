@@ -1,17 +1,23 @@
-import type {EdgeProps} from "reactflow";
-import {BaseEdge, getBezierPath} from "reactflow";
+import type {Edge, EdgeProps} from "@xyflow/react";
+import {BaseEdge, getBezierPath} from "@xyflow/react";
 
-// Data attached to a colored edge.
-export interface ColoredEdgeData {
+// Must be a `type` instead of the usual `interface`.
+// xyflow's `Node<NodeData>` requires NodeData to satisfy `Record<string, unknown>` and
+// TypeScript only infers that implicit index signature for type aliases, not interfaces.
+// Also see official docs at https://reactflow.dev/learn/advanced-use/typescript#custom-nodes
+// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+export type ColoredEdgeData = {
     // The colors of this edge. More than one is drawn as a contiguous
     // color-band gradient (source -> target); a single color is a solid stroke.
     colors?: string[];
-}
+};
+
+export type ColoredGraphEdge = Edge<ColoredEdgeData, "colored">;
 
 // A tree edge that can carry multiple colors. When several colors are given the
 // stroke is painted with a gradient of contiguous color bands (one per color,
 // running source->target); a single color is drawn as a solid stroke.
-export function ColoredEdge(props: EdgeProps<ColoredEdgeData>) {
+export function ColoredEdge(props: EdgeProps<ColoredGraphEdge>) {
     const {id, sourceX, sourceY, targetX, targetY, markerEnd, label, labelStyle, style} = props;
     const [edgePath, labelX, labelY] = getBezierPath(props);
 

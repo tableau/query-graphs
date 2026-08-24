@@ -12,7 +12,12 @@ export type IconName =
     | "virtual-table-symbol"
     | "const-table-symbol";
 
-export interface TreeNode {
+// Must be a `type` instead of the usual `interface`.
+// xyflow's `Node<NodeData>` requires NodeData to satisfy `Record<string, unknown>` and
+// TypeScript only infers that implicit index signature for type aliases, not interfaces.
+// Also see official docs at https://reactflow.dev/learn/advanced-use/typescript#custom-nodes
+// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+export type TreeNode = {
     // The displayed node name
     name?: string;
     // Color applied to node rects
@@ -49,7 +54,7 @@ export interface TreeNode {
     collapsedChildren?: TreeNode[];
     // Whether collapsed children are shown by default
     expandedByDefault?: boolean;
-}
+};
 
 export interface Crosslink {
     source: TreeNode;
