@@ -1,0 +1,347 @@
+{
+    "total_bytes_written": 0,
+    "total_bytes_read": 0,
+    "result_set_size": 0,
+    "cumulative_rows_scanned": 0,
+    "cpu_time": 0.0,
+    "blocked_thread_time": 0.0,
+    "rows_returned": 0,
+    "system_peak_temp_dir_size": 0,
+    "cumulative_cardinality": 0,
+    "system_peak_buffer_memory": 0,
+    "extra_info": {},
+    "query_name": "",
+    "latency": 0.0,
+    "children": [
+        {
+            "total_bytes_written": 0,
+            "result_set_size": 0,
+            "operator_timing": 8.3e-8,
+            "operator_rows_scanned": 0,
+            "cumulative_rows_scanned": 0,
+            "operator_cardinality": 0,
+            "operator_type": "EXPLAIN_ANALYZE",
+            "total_bytes_read": 0,
+            "operator_name": "EXPLAIN_ANALYZE",
+            "cpu_time": 0.0,
+            "extra_info": {},
+            "cumulative_cardinality": 0,
+            "children": [
+                {
+                    "cumulative_cardinality": 0,
+                    "extra_info": {},
+                    "operator_name": "UNION",
+                    "cpu_time": 0.0,
+                    "cumulative_rows_scanned": 0,
+                    "operator_rows_scanned": 0,
+                    "operator_timing": 0.0,
+                    "result_set_size": 0,
+                    "total_bytes_read": 0,
+                    "operator_type": "UNION",
+                    "total_bytes_written": 0,
+                    "operator_cardinality": 0,
+                    "children": [
+                        {
+                            "total_bytes_written": 0,
+                            "result_set_size": 0,
+                            "operator_timing": 0.0,
+                            "operator_rows_scanned": 0,
+                            "cumulative_rows_scanned": 0,
+                            "operator_cardinality": 0,
+                            "operator_type": "UNION",
+                            "total_bytes_read": 0,
+                            "operator_name": "UNION",
+                            "cpu_time": 0.0,
+                            "extra_info": {},
+                            "cumulative_cardinality": 0,
+                            "children": [
+                                {
+                                    "cumulative_cardinality": 0,
+                                    "extra_info": {
+                                        "Table": "lineitem",
+                                        "Type": "Sequential Scan",
+                                        "Projections": [
+                                            "l_orderkey",
+                                            "l_partkey"
+                                        ],
+                                        "Estimated Cardinality": "572"
+                                    },
+                                    "operator_name": "SEQ_SCAN ",
+                                    "cpu_time": 0.0,
+                                    "cumulative_rows_scanned": 0,
+                                    "operator_rows_scanned": 572,
+                                    "operator_timing": 0.000003708,
+                                    "result_set_size": 4576,
+                                    "total_bytes_read": 0,
+                                    "operator_type": "TABLE_SCAN",
+                                    "total_bytes_written": 0,
+                                    "operator_cardinality": 572,
+                                    "children": []
+                                },
+                                {
+                                    "cumulative_cardinality": 0,
+                                    "extra_info": {
+                                        "Table": "lineitem",
+                                        "Type": "Sequential Scan",
+                                        "Projections": [
+                                            "l_orderkey",
+                                            "l_suppkey"
+                                        ],
+                                        "Estimated Cardinality": "572"
+                                    },
+                                    "operator_name": "SEQ_SCAN ",
+                                    "cpu_time": 0.0,
+                                    "cumulative_rows_scanned": 0,
+                                    "operator_rows_scanned": 572,
+                                    "operator_timing": 0.000003084,
+                                    "result_set_size": 4576,
+                                    "total_bytes_read": 0,
+                                    "operator_type": "TABLE_SCAN",
+                                    "total_bytes_written": 0,
+                                    "operator_cardinality": 572,
+                                    "children": []
+                                }
+                            ]
+                        },
+                        {
+                            "total_bytes_written": 0,
+                            "result_set_size": 0,
+                            "operator_timing": 0.0,
+                            "operator_rows_scanned": 0,
+                            "cumulative_rows_scanned": 0,
+                            "operator_cardinality": 0,
+                            "operator_type": "PROJECTION",
+                            "total_bytes_read": 0,
+                            "operator_name": "PROJECTION",
+                            "cpu_time": 0.0,
+                            "extra_info": {
+                                "Projections": [
+                                    "#0",
+                                    "#1"
+                                ],
+                                "Estimated Cardinality": "114"
+                            },
+                            "cumulative_cardinality": 0,
+                            "children": [
+                                {
+                                    "cumulative_cardinality": 0,
+                                    "extra_info": {
+                                        "Join Type": "ANTI",
+                                        "Conditions": [
+                                            "#0 IS NOT DISTINCT FROM #0",
+                                            "#1 IS NOT DISTINCT FROM #1",
+                                            "#2 IS NOT DISTINCT FROM #2"
+                                        ],
+                                        "Estimated Cardinality": "114"
+                                    },
+                                    "operator_name": "HASH_JOIN",
+                                    "cpu_time": 0.0,
+                                    "cumulative_rows_scanned": 0,
+                                    "operator_rows_scanned": 0,
+                                    "operator_timing": 0.000641375,
+                                    "result_set_size": 0,
+                                    "total_bytes_read": 0,
+                                    "operator_type": "HASH_JOIN",
+                                    "total_bytes_written": 0,
+                                    "operator_cardinality": 0,
+                                    "children": [
+                                        {
+                                            "total_bytes_written": 0,
+                                            "result_set_size": 256,
+                                            "operator_timing": 0.000156124,
+                                            "operator_rows_scanned": 0,
+                                            "cumulative_rows_scanned": 0,
+                                            "operator_cardinality": 16,
+                                            "operator_type": "WINDOW",
+                                            "total_bytes_read": 0,
+                                            "operator_name": "WINDOW",
+                                            "cpu_time": 0.0,
+                                            "extra_info": {
+                                                "Projections": "ROW_NUMBER() OVER (PARTITION BY #0, #1 ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING)"
+                                            },
+                                            "cumulative_cardinality": 0,
+                                            "children": [
+                                                {
+                                                    "cumulative_cardinality": 0,
+                                                    "extra_info": {
+                                                        "Projections": [
+                                                            "#0",
+                                                            "#1"
+                                                        ],
+                                                        "Estimated Cardinality": "114"
+                                                    },
+                                                    "operator_name": "PROJECTION",
+                                                    "cpu_time": 0.0,
+                                                    "cumulative_rows_scanned": 0,
+                                                    "operator_rows_scanned": 0,
+                                                    "operator_timing": 4.58e-7,
+                                                    "result_set_size": 128,
+                                                    "total_bytes_read": 0,
+                                                    "operator_type": "PROJECTION",
+                                                    "total_bytes_written": 0,
+                                                    "operator_cardinality": 16,
+                                                    "children": [
+                                                        {
+                                                            "total_bytes_written": 0,
+                                                            "result_set_size": 256,
+                                                            "operator_timing": 0.0009810799999999998,
+                                                            "operator_rows_scanned": 0,
+                                                            "cumulative_rows_scanned": 0,
+                                                            "operator_cardinality": 16,
+                                                            "operator_type": "HASH_JOIN",
+                                                            "total_bytes_read": 0,
+                                                            "operator_name": "HASH_JOIN",
+                                                            "cpu_time": 0.0,
+                                                            "extra_info": {
+                                                                "Join Type": "SEMI",
+                                                                "Conditions": [
+                                                                    "#0 IS NOT DISTINCT FROM #0",
+                                                                    "#1 IS NOT DISTINCT FROM #1",
+                                                                    "#2 IS NOT DISTINCT FROM #2"
+                                                                ],
+                                                                "Estimated Cardinality": "114"
+                                                            },
+                                                            "cumulative_cardinality": 0,
+                                                            "children": [
+                                                                {
+                                                                    "cumulative_cardinality": 0,
+                                                                    "extra_info": {
+                                                                        "Projections": "ROW_NUMBER() OVER (PARTITION BY #0, #1 ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING)"
+                                                                    },
+                                                                    "operator_name": "WINDOW",
+                                                                    "cpu_time": 0.0,
+                                                                    "cumulative_rows_scanned": 0,
+                                                                    "operator_rows_scanned": 0,
+                                                                    "operator_timing": 0.0032007529999999998,
+                                                                    "result_set_size": 4576,
+                                                                    "total_bytes_read": 0,
+                                                                    "operator_type": "WINDOW",
+                                                                    "total_bytes_written": 0,
+                                                                    "operator_cardinality": 286,
+                                                                    "children": [
+                                                                        {
+                                                                            "total_bytes_written": 0,
+                                                                            "result_set_size": 2288,
+                                                                            "operator_timing": 0.000261416,
+                                                                            "operator_rows_scanned": 572,
+                                                                            "cumulative_rows_scanned": 0,
+                                                                            "operator_cardinality": 286,
+                                                                            "operator_type": "TABLE_SCAN",
+                                                                            "total_bytes_read": 0,
+                                                                            "operator_name": "SEQ_SCAN ",
+                                                                            "cpu_time": 0.0,
+                                                                            "extra_info": {
+                                                                                "Table": "lineitem",
+                                                                                "Type": "Sequential Scan",
+                                                                                "Projections": [
+                                                                                    "l_suppkey",
+                                                                                    "l_partkey"
+                                                                                ],
+                                                                                "Filters": "l_quantity<25.00",
+                                                                                "Estimated Cardinality": "114"
+                                                                            },
+                                                                            "cumulative_cardinality": 0,
+                                                                            "children": []
+                                                                        }
+                                                                    ]
+                                                                },
+                                                                {
+                                                                    "cumulative_cardinality": 0,
+                                                                    "extra_info": {
+                                                                        "Projections": "ROW_NUMBER() OVER (PARTITION BY #0, #1 ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING)"
+                                                                    },
+                                                                    "operator_name": "WINDOW",
+                                                                    "cpu_time": 0.0,
+                                                                    "cumulative_rows_scanned": 0,
+                                                                    "operator_rows_scanned": 0,
+                                                                    "operator_timing": 0.00206321,
+                                                                    "result_set_size": 4576,
+                                                                    "total_bytes_read": 0,
+                                                                    "operator_type": "WINDOW",
+                                                                    "total_bytes_written": 0,
+                                                                    "operator_cardinality": 286,
+                                                                    "children": [
+                                                                        {
+                                                                            "total_bytes_written": 0,
+                                                                            "result_set_size": 2288,
+                                                                            "operator_timing": 0.000230333,
+                                                                            "operator_rows_scanned": 572,
+                                                                            "cumulative_rows_scanned": 0,
+                                                                            "operator_cardinality": 286,
+                                                                            "operator_type": "TABLE_SCAN",
+                                                                            "total_bytes_read": 0,
+                                                                            "operator_name": "SEQ_SCAN ",
+                                                                            "cpu_time": 0.0,
+                                                                            "extra_info": {
+                                                                                "Table": "lineitem",
+                                                                                "Type": "Sequential Scan",
+                                                                                "Projections": [
+                                                                                    "l_suppkey",
+                                                                                    "l_partkey"
+                                                                                ],
+                                                                                "Filters": "l_quantity>=25.00",
+                                                                                "Estimated Cardinality": "114"
+                                                                            },
+                                                                            "cumulative_cardinality": 0,
+                                                                            "children": []
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "total_bytes_written": 0,
+                                            "result_set_size": 4576,
+                                            "operator_timing": 0.014990334999999999,
+                                            "operator_rows_scanned": 0,
+                                            "cumulative_rows_scanned": 0,
+                                            "operator_cardinality": 286,
+                                            "operator_type": "WINDOW",
+                                            "total_bytes_read": 0,
+                                            "operator_name": "WINDOW",
+                                            "cpu_time": 0.0,
+                                            "extra_info": {
+                                                "Projections": "ROW_NUMBER() OVER (PARTITION BY #0, #1 ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING)"
+                                            },
+                                            "cumulative_cardinality": 0,
+                                            "children": [
+                                                {
+                                                    "cumulative_cardinality": 0,
+                                                    "extra_info": {
+                                                        "Table": "lineitem",
+                                                        "Type": "Sequential Scan",
+                                                        "Projections": [
+                                                            "l_suppkey",
+                                                            "l_partkey"
+                                                        ],
+                                                        "Filters": "l_quantity>=25.00",
+                                                        "Estimated Cardinality": "114"
+                                                    },
+                                                    "operator_name": "SEQ_SCAN ",
+                                                    "cpu_time": 0.0,
+                                                    "cumulative_rows_scanned": 0,
+                                                    "operator_rows_scanned": 572,
+                                                    "operator_timing": 0.000251042,
+                                                    "result_set_size": 2288,
+                                                    "total_bytes_read": 0,
+                                                    "operator_type": "TABLE_SCAN",
+                                                    "total_bytes_written": 0,
+                                                    "operator_cardinality": 286,
+                                                    "children": []
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

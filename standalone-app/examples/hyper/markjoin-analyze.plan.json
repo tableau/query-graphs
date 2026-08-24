@@ -1,0 +1,49 @@
+{
+  "operator": "executiontarget",
+  "operator-id": 1,
+  "estimated-rows": 518,
+  "produces-rows": true,
+  "output": [{"expression": "iuref", "iu": ["scan_suppkey", ["Integer"]]}, {"expression": "iuref", "iu": ["scan_s_name", ["Char", 25]]}, {"expression": "iuref", "iu": ["scan_address", ["Varchar", 40]]}, {"expression": "iuref", "iu": ["scan_nationke", ["Integer"]]}, {"expression": "iuref", "iu": ["scan_s_phone", ["Char", 15]]}, {"expression": "iuref", "iu": ["scan_acctbal", ["Numeric", 12, 2]]}, {"expression": "iuref", "iu": ["scan_comment", ["Varchar", 101]]}, {"expression": "iuref", "iu": ["joinMarker", ["Bool"]]}],
+  "output-names": ["s_suppkey", "s_name", "s_address", "s_nationkey", "s_phone", "s_acctbal", "s_comment", "2"],
+  "inputs": [{
+    "operator": "leftmarkjoin",
+    "operator-id": 2,
+    "estimated-rows": 518,
+    "method": "hash",
+    "compute-left-bounds": [0, 1],
+    "inputs": [{
+      "operator": "tablescan",
+      "operator-id": 3,
+      "sqlpos": [[159, 167]],
+      "estimated-rows": 518,
+      "volatility": "stable",
+      "relation-id": 3,
+      "schema": {"type":"sessionschema"},
+      "attribute-count": 7,
+      "attributes": [{"col-id": 0, "name": "s_suppkey", "type": ["Integer"], "iu": ["scan_suppkey", ["Integer"]]},{"col-id": 1, "name": "s_name", "type": ["Char", 25], "iu": ["scan_s_name", ["Char", 25]]},{"col-id": 2, "name": "s_address", "type": ["Varchar", 40], "iu": ["scan_address", ["Varchar", 40]]},{"col-id": 3, "name": "s_nationkey", "type": ["Integer"], "iu": ["scan_nationke", ["Integer"]]},{"col-id": 4, "name": "s_phone", "type": ["Char", 15], "iu": ["scan_s_phone", ["Char", 15]]},{"col-id": 5, "name": "s_acctbal", "type": ["Numeric", 12, 2], "iu": ["scan_acctbal", ["Numeric", 12, 2]]},{"col-id": 6, "name": "s_comment", "type": ["Varchar", 101], "iu": ["scan_comment", ["Varchar", 101]]}],
+      "debug-name": {"classification": "nonsensitive", "value": "supplier"},
+      "selectivity": 1,
+      "statistics": {"pipeline": 1, "column-count": 7, "cpu-cycles": 349, "output-rows": 518, "processed-rows": 518, "running": false}
+    }, {
+      "operator": "tablescan",
+      "operator-id": 4,
+      "sqlpos": [[85, 93]],
+      "estimated-rows": 537,
+      "volatility": "stable",
+      "relation-id": 4,
+      "schema": {"type":"sessionschema"},
+      "attribute-count": 5,
+      "attributes": [{"col-id": 1, "name": "ps_suppkey", "type": ["Integer"], "iu": ["scan_suppkey2", ["Integer"]]},{"col-id": 3, "name": "ps_supplycost", "type": ["Numeric", 12, 2], "iu": ["scan_supplyco", ["Numeric", 12, 2]]}],
+      "debug-name": {"classification": "nonsensitive", "value": "partsupp"},
+      "early-probes": [{"builder": 2, "attributes": [1, 3], "num-equality-predicates": 1, "selectivities": [1, null], "type": "hashprobe", "pass-on-nulls": false}],
+      "selectivity": 1,
+      "statistics": {"pipeline": 0, "column-count": 2, "cpu-cycles": 9207, "output-rows": 537, "processed-rows": 537, "running": false}
+    }],
+    "early-probed-by": [4],
+    "condition": {"expression": "and", "arguments": [{"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "scan_suppkey2"}, "right": {"expression": "iuref", "iu": "scan_suppkey"}}, {"expression": "comparison", "mode": "<", "left": {"expression": "iuref", "iu": "scan_acctbal"}, "right": {"expression": "iuref", "iu": "scan_supplyco"}}]},
+    "marker": ["joinMarker", ["Bool"]],
+    "predicates": [{"left": {"expression": "iuref", "iu": "scan_suppkey"}, "right": {"expression": "iuref", "iu": "scan_suppkey2"}, "comparison": "="}, {"left": {"expression": "iuref", "iu": "scan_acctbal"}, "right": {"expression": "iuref", "iu": "scan_supplyco"}, "comparison": "<"}],
+    "statistics": {"pipeline": 0, "column-count": 8, "memory-bytes": 94576, "output-rows": 518}
+  }],
+  "statistics": {"error": null, "pipeline": 0, "column-count": 0}
+}

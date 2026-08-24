@@ -1,0 +1,59 @@
+{
+  "operator": "executiontarget",
+  "operator-id": 1,
+  "estimated-rows": 256,
+  "produces-rows": true,
+  "output": [{"expression": "iuref", "iu": ["union", ["Integer"]]}, {"expression": "iuref", "iu": ["union2", ["BigNumeric", 38, 2]]}, {"expression": "iuref", "iu": ["union3", ["Numeric", 16, 6]]}],
+  "output-names": ["l_orderkey", "sum", "avg"],
+  "inputs": [{
+    "operator": "unionall",
+    "operator-id": 2,
+    "sqlpos": [[183, 192]],
+    "estimated-rows": 256,
+    "inputs": [{
+      "operator": "explicitscan",
+      "operator-id": 3,
+      "estimated-rows": 128,
+      "mapping": [{"source": {"expression": "iuref", "iu": ["GroupByKey", ["Integer"]]}, "target": ["GroupByKey2", ["Integer"]]}, {"source": {"expression": "iuref", "iu": ["avg", ["Numeric", 16, 6]]}, "target": ["avg2", ["Numeric", 16, 6]]}, {"source": {"expression": "iuref", "iu": ["sum", ["BigNumeric", 38, 2]]}, "target": ["sum2", ["BigNumeric", 38, 2]]}],
+      "input": {
+        "operator": "groupby",
+        "operator-id": 4,
+        "sqlpos": [[143, 162], [85, 100], [102, 122]],
+        "estimated-rows": 128,
+        "inputs": [{
+          "operator": "tablescan",
+          "operator-id": 5,
+          "sqlpos": [[131, 139]],
+          "estimated-rows": 572,
+          "volatility": "stable",
+          "relation-id": 7,
+          "schema": {"type":"sessionschema"},
+          "attribute-count": 16,
+          "attributes": [{"col-id": 0, "name": "l_orderkey", "type": ["Integer"], "iu": ["scan_orderkey", ["Integer"]]},{"col-id": 4, "name": "l_quantity", "type": ["Numeric", 12, 2], "iu": ["scan_quantity", ["Numeric", 12, 2]]},{"col-id": 5, "name": "l_extendedprice", "type": ["Numeric", 12, 2], "iu": ["scan_extended", ["Numeric", 12, 2]]}],
+          "debug-name": {"classification": "nonsensitive", "value": "lineitem"},
+          "selectivity": 1,
+          "statistics": {"pipeline": 3, "column-count": 3, "cpu-cycles": 7949, "output-rows": 572, "processed-rows": 572, "running": false}
+        }],
+        "key-expressions": [{"expression": {"value": {"expression": "iuref", "iu": "scan_orderkey"}}, "iu": ["GroupByKey", ["Integer"]]}],
+        "grouping-sets": [{"key-indices": [0], "core-indices": [0], "behavior": "regular"}],
+        "empty-groups": false,
+        "agg-expressions": [{"value": {"expression": "iuref", "iu": "scan_quantity"}}, {"value": {"expression": "iuref", "iu": "scan_extended"}}],
+        "aggregates": [{"source": 1, "operation": {"aggregate": "avg"}, "iu": ["avg", ["Numeric", 16, 6]]}, {"source": 0, "operation": {"aggregate": "sum"}, "iu": ["sum", ["BigNumeric", 38, 2]]}],
+        "statistics": {"pipeline": 2, "column-count": 3, "cpu-cycles": 0, "memory-bytes": 18552, "output-rows": 0, "running": false}
+      },
+      "statistics": {"pipeline": 1, "column-count": 3, "cpu-cycles": 494, "output-rows": 128, "running": false}
+    }, {
+      "operator": "explicitscan",
+      "operator-id": 6,
+      "estimated-rows": 128,
+      "mapping": [{"source": {"expression": "iuref", "iu": "GroupByKey"}, "target": ["GroupByKey3", ["Integer"]]}, {"source": {"expression": "iuref", "iu": "avg"}, "target": ["avg3", ["Numeric", 16, 6]]}, {"source": {"expression": "iuref", "iu": "sum"}, "target": ["sum3", ["BigNumeric", 38, 2]]}],
+      "input": 4,
+      "statistics": {"pipeline": 4, "column-count": 3, "cpu-cycles": 176, "output-rows": 128, "running": false}
+    }],
+    "ius": [["union", ["Integer"]], ["union2", ["BigNumeric", 38, 2]], ["union3", ["Numeric", 16, 6]]],
+    "values": [[{"expression": "iuref", "iu": "GroupByKey2"}, {"expression": "iuref", "iu": "sum2"}, {"expression": "iuref", "iu": "avg2"}], [{"expression": "iuref", "iu": "GroupByKey3"}, {"expression": "iuref", "iu": "sum3"}, {"expression": "iuref", "iu": "avg3"}]],
+    "collates": [null, null, null],
+    "statistics": {"pipeline": 0, "column-count": 3, "output-rows": 256}
+  }],
+  "statistics": {"error": null, "pipeline": 0, "column-count": 0}
+}

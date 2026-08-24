@@ -1,0 +1,175 @@
+{
+    "total_bytes_written": 0,
+    "total_bytes_read": 0,
+    "result_set_size": 0,
+    "cumulative_rows_scanned": 0,
+    "cpu_time": 0.0,
+    "blocked_thread_time": 0.0,
+    "rows_returned": 0,
+    "system_peak_temp_dir_size": 0,
+    "cumulative_cardinality": 0,
+    "system_peak_buffer_memory": 0,
+    "extra_info": {},
+    "query_name": "",
+    "latency": 0.0,
+    "children": [
+        {
+            "total_bytes_written": 0,
+            "result_set_size": 0,
+            "operator_timing": 5.809999999999999e-7,
+            "operator_rows_scanned": 0,
+            "cumulative_rows_scanned": 0,
+            "operator_cardinality": 0,
+            "operator_type": "EXPLAIN_ANALYZE",
+            "total_bytes_read": 0,
+            "operator_name": "EXPLAIN_ANALYZE",
+            "cpu_time": 0.0,
+            "extra_info": {},
+            "cumulative_cardinality": 0,
+            "children": [
+                {
+                    "cumulative_cardinality": 0,
+                    "extra_info": {
+                        "CTE Name": "cte",
+                        "Table Index": "0",
+                        "Estimated Cardinality": "202"
+                    },
+                    "operator_name": "CTE",
+                    "cpu_time": 0.0,
+                    "cumulative_rows_scanned": 0,
+                    "operator_rows_scanned": 0,
+                    "operator_timing": 0.000034331999999999996,
+                    "result_set_size": 0,
+                    "total_bytes_read": 0,
+                    "operator_type": "CTE",
+                    "total_bytes_written": 0,
+                    "operator_cardinality": 0,
+                    "children": [
+                        {
+                            "total_bytes_written": 0,
+                            "result_set_size": 3584,
+                            "operator_timing": 0.0023034159999999995,
+                            "operator_rows_scanned": 0,
+                            "cumulative_rows_scanned": 0,
+                            "operator_cardinality": 128,
+                            "operator_type": "HASH_GROUP_BY",
+                            "total_bytes_read": 0,
+                            "operator_name": "HASH_GROUP_BY",
+                            "cpu_time": 0.0,
+                            "extra_info": {
+                                "Groups": "#0",
+                                "Aggregates": [
+                                    "sum_no_overflow(#1)",
+                                    "avg(#2)"
+                                ],
+                                "Estimated Cardinality": "101"
+                            },
+                            "cumulative_cardinality": 0,
+                            "children": [
+                                {
+                                    "cumulative_cardinality": 0,
+                                    "extra_info": {
+                                        "Projections": [
+                                            "l_orderkey",
+                                            "l_quantity",
+                                            "l_extendedprice"
+                                        ],
+                                        "Estimated Cardinality": "572"
+                                    },
+                                    "operator_name": "PROJECTION",
+                                    "cpu_time": 0.0,
+                                    "cumulative_rows_scanned": 0,
+                                    "operator_rows_scanned": 0,
+                                    "operator_timing": 2.08e-7,
+                                    "result_set_size": 11440,
+                                    "total_bytes_read": 0,
+                                    "operator_type": "PROJECTION",
+                                    "total_bytes_written": 0,
+                                    "operator_cardinality": 572,
+                                    "children": [
+                                        {
+                                            "total_bytes_written": 0,
+                                            "result_set_size": 11440,
+                                            "operator_timing": 0.000004124,
+                                            "operator_rows_scanned": 572,
+                                            "cumulative_rows_scanned": 0,
+                                            "operator_cardinality": 572,
+                                            "operator_type": "TABLE_SCAN",
+                                            "total_bytes_read": 0,
+                                            "operator_name": "SEQ_SCAN ",
+                                            "cpu_time": 0.0,
+                                            "extra_info": {
+                                                "Table": "lineitem",
+                                                "Type": "Sequential Scan",
+                                                "Projections": [
+                                                    "l_orderkey",
+                                                    "l_quantity",
+                                                    "l_extendedprice"
+                                                ],
+                                                "Estimated Cardinality": "572"
+                                            },
+                                            "cumulative_cardinality": 0,
+                                            "children": []
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "total_bytes_written": 0,
+                            "result_set_size": 0,
+                            "operator_timing": 0.0,
+                            "operator_rows_scanned": 0,
+                            "cumulative_rows_scanned": 0,
+                            "operator_cardinality": 0,
+                            "operator_type": "UNION",
+                            "total_bytes_read": 0,
+                            "operator_name": "UNION",
+                            "cpu_time": 0.0,
+                            "extra_info": {},
+                            "cumulative_cardinality": 0,
+                            "children": [
+                                {
+                                    "cumulative_cardinality": 0,
+                                    "extra_info": {
+                                        "CTE Index": "0",
+                                        "Estimated Cardinality": "101"
+                                    },
+                                    "operator_name": "CTE_SCAN",
+                                    "cpu_time": 0.0,
+                                    "cumulative_rows_scanned": 0,
+                                    "operator_rows_scanned": 0,
+                                    "operator_timing": 0.000028000999999999995,
+                                    "result_set_size": 3584,
+                                    "total_bytes_read": 0,
+                                    "operator_type": "CTE_SCAN",
+                                    "total_bytes_written": 0,
+                                    "operator_cardinality": 128,
+                                    "children": []
+                                },
+                                {
+                                    "cumulative_cardinality": 0,
+                                    "extra_info": {
+                                        "CTE Index": "0",
+                                        "Estimated Cardinality": "101"
+                                    },
+                                    "operator_name": "CTE_SCAN",
+                                    "cpu_time": 0.0,
+                                    "cumulative_rows_scanned": 0,
+                                    "operator_rows_scanned": 0,
+                                    "operator_timing": 0.000005124000000000001,
+                                    "result_set_size": 3584,
+                                    "total_bytes_read": 0,
+                                    "operator_type": "CTE_SCAN",
+                                    "total_bytes_written": 0,
+                                    "operator_cardinality": 128,
+                                    "children": []
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

@@ -1,15 +1,14 @@
--- MODES: simple
-SELECT a2, b2 FROM t2
+SELECT l_orderkey, l_partkey FROM lineitem
 UNION ALL
-SELECT a2, c2 FROM t2
+SELECT l_orderkey, l_suppkey FROM lineitem
 UNION ALL
 (
-   SELECT b1, c1 FROM t1
-   WHERE a1 < 0
+   SELECT l_suppkey, l_partkey FROM lineitem
+   WHERE l_quantity < 25
    INTERSECT ALL
-   SELECT b1, c1 FROM t1
-   WHERE a1 > 0
+   SELECT l_suppkey, l_partkey FROM lineitem
+   WHERE l_quantity >= 25
    EXCEPT ALL
-   SELECT b1, c1 FROM t1
-   WHERE a1 > 0
+   SELECT l_suppkey, l_partkey FROM lineitem
+   WHERE l_quantity >= 25
 )
