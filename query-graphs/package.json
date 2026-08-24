@@ -36,6 +36,12 @@
     "lib": "lib/"
   },
   "style": "style/query-graphs.css",
+  "browserslist": [
+    "last 2 Chrome versions",
+    "last 2 Firefox versions",
+    "last 2 Safari versions",
+    "last 2 Edge versions"
+  ],
   "dependencies": {
     "@xyflow/react": "^12.11.3",
     "classcat": "^5.0.4",
