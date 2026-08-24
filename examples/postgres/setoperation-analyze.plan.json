@@ -1,1 +1,321 @@
-[{"Plan": {"Node Type": "Append", "Parallel Aware": false, "Async Capable": false, "Startup Cost": 0.0, "Total Cost": 69.86, "Plan Rows": 467, "Plan Width": 8, "Actual Startup Time": 0.005, "Actual Total Time": 0.253, "Actual Rows": 1144, "Actual Loops": 1, "Subplans Removed": 0, "Plans": [{"Node Type": "Seq Scan", "Parent Relationship": "Member", "Parallel Aware": false, "Async Capable": false, "Relation Name": "lineitem", "Schema": "pg_temp", "Alias": "lineitem", "Startup Cost": 0.0, "Total Cost": 12.0, "Plan Rows": 200, "Plan Width": 8, "Actual Startup Time": 0.005, "Actual Total Time": 0.021, "Actual Rows": 572, "Actual Loops": 1, "Output": ["lineitem.l_orderkey", "lineitem.l_partkey"]}, {"Node Type": "Seq Scan", "Parent Relationship": "Member", "Parallel Aware": false, "Async Capable": false, "Relation Name": "lineitem", "Schema": "pg_temp", "Alias": "lineitem_1", "Startup Cost": 0.0, "Total Cost": 12.0, "Plan Rows": 200, "Plan Width": 8, "Actual Startup Time": 0.001, "Actual Total Time": 0.018, "Actual Rows": 572, "Actual Loops": 1, "Output": ["lineitem_1.l_orderkey", "lineitem_1.l_suppkey"]}, {"Node Type": "Result", "Parent Relationship": "Member", "Parallel Aware": false, "Async Capable": false, "Startup Cost": 0.0, "Total Cost": 43.53, "Plan Rows": 67, "Plan Width": 8, "Actual Startup Time": 0.181, "Actual Total Time": 0.182, "Actual Rows": 0, "Actual Loops": 1, "Output": ["\"*SELECT* 3\".l_suppkey", "\"*SELECT* 3\".l_partkey"], "Plans": [{"Node Type": "SetOp", "Strategy": "Hashed", "Parent Relationship": "Outer", "Parallel Aware": false, "Async Capable": false, "Command": "Except All", "Startup Cost": 0.0, "Total Cost": 42.86, "Plan Rows": 67, "Plan Width": 12, "Actual Startup Time": 0.181, "Actual Total Time": 0.182, "Actual Rows": 0, "Actual Loops": 1, "Output": ["\"*SELECT* 3\".l_suppkey", "\"*SELECT* 3\".l_partkey", "(0)"], "Plans": [{"Node Type": "Append", "Parent Relationship": "Outer", "Parallel Aware": false, "Async Capable": false, "Startup Cost": 0.0, "Total Cost": 42.19, "Plan Rows": 134, "Plan Width": 12, "Actual Startup Time": 0.127, "Actual Total Time": 0.174, "Actual Rows": 302, "Actual Loops": 1, "Subplans Removed": 0, "Plans": [{"Node Type": "Result", "Parent Relationship": "Member", "Parallel Aware": false, "Async Capable": false, "Startup Cost": 0.0, "Total Cost": 28.35, "Plan Rows": 67, "Plan Width": 12, "Actual Startup Time": 0.127, "Actual Total Time": 0.129, "Actual Rows": 16, "Actual Loops": 1, "Output": ["\"*SELECT* 3\".l_suppkey", "\"*SELECT* 3\".l_partkey", "0"], "Plans": [{"Node Type": "SetOp", "Strategy": "Hashed", "Parent Relationship": "Outer", "Parallel Aware": false, "Async Capable": false, "Command": "Intersect All", "Startup Cost": 0.0, "Total Cost": 27.68, "Plan Rows": 67, "Plan Width": 12, "Actual Startup Time": 0.127, "Actual Total Time": 0.128, "Actual Rows": 16, "Actual Loops": 1, "Output": ["\"*SELECT* 3\".l_suppkey", "\"*SELECT* 3\".l_partkey", "(0)"], "Plans": [{"Node Type": "Append", "Parent Relationship": "Outer", "Parallel Aware": false, "Async Capable": false, "Startup Cost": 0.0, "Total Cost": 27.01, "Plan Rows": 134, "Plan Width": 12, "Actual Startup Time": 0.002, "Actual Total Time": 0.09, "Actual Rows": 572, "Actual Loops": 1, "Subplans Removed": 0, "Plans": [{"Node Type": "Subquery Scan", "Parent Relationship": "Member", "Parallel Aware": false, "Async Capable": false, "Alias": "*SELECT* 3", "Startup Cost": 0.0, "Total Cost": 13.17, "Plan Rows": 67, "Plan Width": 12, "Actual Startup Time": 0.002, "Actual Total Time": 0.036, "Actual Rows": 286, "Actual Loops": 1, "Output": ["\"*SELECT* 3\".l_suppkey", "\"*SELECT* 3\".l_partkey", "0"], "Plans": [{"Node Type": "Seq Scan", "Parent Relationship": "Subquery", "Parallel Aware": false, "Async Capable": false, "Relation Name": "lineitem", "Schema": "pg_temp", "Alias": "lineitem_2", "Startup Cost": 0.0, "Total Cost": 12.5, "Plan Rows": 67, "Plan Width": 8, "Actual Startup Time": 0.001, "Actual Total Time": 0.027, "Actual Rows": 286, "Actual Loops": 1, "Output": ["lineitem_2.l_suppkey", "lineitem_2.l_partkey"], "Filter": "(lineitem_2.l_quantity < '25'::numeric)", "Rows Removed by Filter": 286}]}, {"Node Type": "Subquery Scan", "Parent Relationship": "Member", "Parallel Aware": false, "Async Capable": false, "Alias": "*SELECT* 4", "Startup Cost": 0.0, "Total Cost": 13.17, "Plan Rows": 67, "Plan Width": 12, "Actual Startup Time": 0.002, "Actual Total Time": 0.037, "Actual Rows": 286, "Actual Loops": 1, "Output": ["\"*SELECT* 4\".l_suppkey", "\"*SELECT* 4\".l_partkey", "1"], "Plans": [{"Node Type": "Seq Scan", "Parent Relationship": "Subquery", "Parallel Aware": false, "Async Capable": false, "Relation Name": "lineitem", "Schema": "pg_temp", "Alias": "lineitem_3", "Startup Cost": 0.0, "Total Cost": 12.5, "Plan Rows": 67, "Plan Width": 8, "Actual Startup Time": 0.001, "Actual Total Time": 0.028, "Actual Rows": 286, "Actual Loops": 1, "Output": ["lineitem_3.l_suppkey", "lineitem_3.l_partkey"], "Filter": "(lineitem_3.l_quantity >= '25'::numeric)", "Rows Removed by Filter": 286}]}]}]}]}, {"Node Type": "Subquery Scan", "Parent Relationship": "Member", "Parallel Aware": false, "Async Capable": false, "Alias": "*SELECT* 5", "Startup Cost": 0.0, "Total Cost": 13.17, "Plan Rows": 67, "Plan Width": 12, "Actual Startup Time": 0.001, "Actual Total Time": 0.036, "Actual Rows": 286, "Actual Loops": 1, "Output": ["\"*SELECT* 5\".l_suppkey", "\"*SELECT* 5\".l_partkey", "1"], "Plans": [{"Node Type": "Seq Scan", "Parent Relationship": "Subquery", "Parallel Aware": false, "Async Capable": false, "Relation Name": "lineitem", "Schema": "pg_temp", "Alias": "lineitem_4", "Startup Cost": 0.0, "Total Cost": 12.5, "Plan Rows": 67, "Plan Width": 8, "Actual Startup Time": 0.001, "Actual Total Time": 0.027, "Actual Rows": 286, "Actual Loops": 1, "Output": ["lineitem_4.l_suppkey", "lineitem_4.l_partkey"], "Filter": "(lineitem_4.l_quantity >= '25'::numeric)", "Rows Removed by Filter": 286}]}]}]}]}]}, "Planning Time": 0.038, "Triggers": [], "Execution Time": 0.304}]
+[
+  {
+    "Plan": {
+      "Node Type": "Append",
+      "Parallel Aware": false,
+      "Async Capable": false,
+      "Startup Cost": 0.0,
+      "Total Cost": 69.86,
+      "Plan Rows": 467,
+      "Plan Width": 8,
+      "Actual Startup Time": 0.004,
+      "Actual Total Time": 0.476,
+      "Actual Rows": 1144,
+      "Actual Loops": 1,
+      "Subplans Removed": 0,
+      "Plans": [
+        {
+          "Node Type": "Seq Scan",
+          "Parent Relationship": "Member",
+          "Parallel Aware": false,
+          "Async Capable": false,
+          "Relation Name": "lineitem",
+          "Schema": "pg_temp",
+          "Alias": "lineitem",
+          "Startup Cost": 0.0,
+          "Total Cost": 12.0,
+          "Plan Rows": 200,
+          "Plan Width": 8,
+          "Actual Startup Time": 0.004,
+          "Actual Total Time": 0.033,
+          "Actual Rows": 572,
+          "Actual Loops": 1,
+          "Output": [
+            "lineitem.l_orderkey",
+            "lineitem.l_partkey"
+          ]
+        },
+        {
+          "Node Type": "Seq Scan",
+          "Parent Relationship": "Member",
+          "Parallel Aware": false,
+          "Async Capable": false,
+          "Relation Name": "lineitem",
+          "Schema": "pg_temp",
+          "Alias": "lineitem_1",
+          "Startup Cost": 0.0,
+          "Total Cost": 12.0,
+          "Plan Rows": 200,
+          "Plan Width": 8,
+          "Actual Startup Time": 0.002,
+          "Actual Total Time": 0.035,
+          "Actual Rows": 572,
+          "Actual Loops": 1,
+          "Output": [
+            "lineitem_1.l_orderkey",
+            "lineitem_1.l_suppkey"
+          ]
+        },
+        {
+          "Node Type": "Result",
+          "Parent Relationship": "Member",
+          "Parallel Aware": false,
+          "Async Capable": false,
+          "Startup Cost": 0.0,
+          "Total Cost": 43.53,
+          "Plan Rows": 67,
+          "Plan Width": 8,
+          "Actual Startup Time": 0.342,
+          "Actual Total Time": 0.343,
+          "Actual Rows": 0,
+          "Actual Loops": 1,
+          "Output": [
+            "\"*SELECT* 3\".l_suppkey",
+            "\"*SELECT* 3\".l_partkey"
+          ],
+          "Plans": [
+            {
+              "Node Type": "SetOp",
+              "Strategy": "Hashed",
+              "Parent Relationship": "Outer",
+              "Parallel Aware": false,
+              "Async Capable": false,
+              "Command": "Except All",
+              "Startup Cost": 0.0,
+              "Total Cost": 42.86,
+              "Plan Rows": 67,
+              "Plan Width": 12,
+              "Actual Startup Time": 0.342,
+              "Actual Total Time": 0.342,
+              "Actual Rows": 0,
+              "Actual Loops": 1,
+              "Output": [
+                "\"*SELECT* 3\".l_suppkey",
+                "\"*SELECT* 3\".l_partkey",
+                "(0)"
+              ],
+              "Plans": [
+                {
+                  "Node Type": "Append",
+                  "Parent Relationship": "Outer",
+                  "Parallel Aware": false,
+                  "Async Capable": false,
+                  "Startup Cost": 0.0,
+                  "Total Cost": 42.19,
+                  "Plan Rows": 134,
+                  "Plan Width": 12,
+                  "Actual Startup Time": 0.235,
+                  "Actual Total Time": 0.328,
+                  "Actual Rows": 302,
+                  "Actual Loops": 1,
+                  "Subplans Removed": 0,
+                  "Plans": [
+                    {
+                      "Node Type": "Result",
+                      "Parent Relationship": "Member",
+                      "Parallel Aware": false,
+                      "Async Capable": false,
+                      "Startup Cost": 0.0,
+                      "Total Cost": 28.35,
+                      "Plan Rows": 67,
+                      "Plan Width": 12,
+                      "Actual Startup Time": 0.235,
+                      "Actual Total Time": 0.238,
+                      "Actual Rows": 16,
+                      "Actual Loops": 1,
+                      "Output": [
+                        "\"*SELECT* 3\".l_suppkey",
+                        "\"*SELECT* 3\".l_partkey",
+                        "0"
+                      ],
+                      "Plans": [
+                        {
+                          "Node Type": "SetOp",
+                          "Strategy": "Hashed",
+                          "Parent Relationship": "Outer",
+                          "Parallel Aware": false,
+                          "Async Capable": false,
+                          "Command": "Intersect All",
+                          "Startup Cost": 0.0,
+                          "Total Cost": 27.68,
+                          "Plan Rows": 67,
+                          "Plan Width": 12,
+                          "Actual Startup Time": 0.234,
+                          "Actual Total Time": 0.236,
+                          "Actual Rows": 16,
+                          "Actual Loops": 1,
+                          "Output": [
+                            "\"*SELECT* 3\".l_suppkey",
+                            "\"*SELECT* 3\".l_partkey",
+                            "(0)"
+                          ],
+                          "Plans": [
+                            {
+                              "Node Type": "Append",
+                              "Parent Relationship": "Outer",
+                              "Parallel Aware": false,
+                              "Async Capable": false,
+                              "Startup Cost": 0.0,
+                              "Total Cost": 27.01,
+                              "Plan Rows": 134,
+                              "Plan Width": 12,
+                              "Actual Startup Time": 0.003,
+                              "Actual Total Time": 0.176,
+                              "Actual Rows": 572,
+                              "Actual Loops": 1,
+                              "Subplans Removed": 0,
+                              "Plans": [
+                                {
+                                  "Node Type": "Subquery Scan",
+                                  "Parent Relationship": "Member",
+                                  "Parallel Aware": false,
+                                  "Async Capable": false,
+                                  "Alias": "*SELECT* 3",
+                                  "Startup Cost": 0.0,
+                                  "Total Cost": 13.17,
+                                  "Plan Rows": 67,
+                                  "Plan Width": 12,
+                                  "Actual Startup Time": 0.003,
+                                  "Actual Total Time": 0.073,
+                                  "Actual Rows": 286,
+                                  "Actual Loops": 1,
+                                  "Output": [
+                                    "\"*SELECT* 3\".l_suppkey",
+                                    "\"*SELECT* 3\".l_partkey",
+                                    "0"
+                                  ],
+                                  "Plans": [
+                                    {
+                                      "Node Type": "Seq Scan",
+                                      "Parent Relationship": "Subquery",
+                                      "Parallel Aware": false,
+                                      "Async Capable": false,
+                                      "Relation Name": "lineitem",
+                                      "Schema": "pg_temp",
+                                      "Alias": "lineitem_2",
+                                      "Startup Cost": 0.0,
+                                      "Total Cost": 12.5,
+                                      "Plan Rows": 67,
+                                      "Plan Width": 8,
+                                      "Actual Startup Time": 0.003,
+                                      "Actual Total Time": 0.053,
+                                      "Actual Rows": 286,
+                                      "Actual Loops": 1,
+                                      "Output": [
+                                        "lineitem_2.l_suppkey",
+                                        "lineitem_2.l_partkey"
+                                      ],
+                                      "Filter": "(lineitem_2.l_quantity < '25'::numeric)",
+                                      "Rows Removed by Filter": 286
+                                    }
+                                  ]
+                                },
+                                {
+                                  "Node Type": "Subquery Scan",
+                                  "Parent Relationship": "Member",
+                                  "Parallel Aware": false,
+                                  "Async Capable": false,
+                                  "Alias": "*SELECT* 4",
+                                  "Startup Cost": 0.0,
+                                  "Total Cost": 13.17,
+                                  "Plan Rows": 67,
+                                  "Plan Width": 12,
+                                  "Actual Startup Time": 0.003,
+                                  "Actual Total Time": 0.07,
+                                  "Actual Rows": 286,
+                                  "Actual Loops": 1,
+                                  "Output": [
+                                    "\"*SELECT* 4\".l_suppkey",
+                                    "\"*SELECT* 4\".l_partkey",
+                                    "1"
+                                  ],
+                                  "Plans": [
+                                    {
+                                      "Node Type": "Seq Scan",
+                                      "Parent Relationship": "Subquery",
+                                      "Parallel Aware": false,
+                                      "Async Capable": false,
+                                      "Relation Name": "lineitem",
+                                      "Schema": "pg_temp",
+                                      "Alias": "lineitem_3",
+                                      "Startup Cost": 0.0,
+                                      "Total Cost": 12.5,
+                                      "Plan Rows": 67,
+                                      "Plan Width": 8,
+                                      "Actual Startup Time": 0.003,
+                                      "Actual Total Time": 0.051,
+                                      "Actual Rows": 286,
+                                      "Actual Loops": 1,
+                                      "Output": [
+                                        "lineitem_3.l_suppkey",
+                                        "lineitem_3.l_partkey"
+                                      ],
+                                      "Filter": "(lineitem_3.l_quantity >= '25'::numeric)",
+                                      "Rows Removed by Filter": 286
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "Node Type": "Subquery Scan",
+                      "Parent Relationship": "Member",
+                      "Parallel Aware": false,
+                      "Async Capable": false,
+                      "Alias": "*SELECT* 5",
+                      "Startup Cost": 0.0,
+                      "Total Cost": 13.17,
+                      "Plan Rows": 67,
+                      "Plan Width": 12,
+                      "Actual Startup Time": 0.002,
+                      "Actual Total Time": 0.072,
+                      "Actual Rows": 286,
+                      "Actual Loops": 1,
+                      "Output": [
+                        "\"*SELECT* 5\".l_suppkey",
+                        "\"*SELECT* 5\".l_partkey",
+                        "1"
+                      ],
+                      "Plans": [
+                        {
+                          "Node Type": "Seq Scan",
+                          "Parent Relationship": "Subquery",
+                          "Parallel Aware": false,
+                          "Async Capable": false,
+                          "Relation Name": "lineitem",
+                          "Schema": "pg_temp",
+                          "Alias": "lineitem_4",
+                          "Startup Cost": 0.0,
+                          "Total Cost": 12.5,
+                          "Plan Rows": 67,
+                          "Plan Width": 8,
+                          "Actual Startup Time": 0.002,
+                          "Actual Total Time": 0.053,
+                          "Actual Rows": 286,
+                          "Actual Loops": 1,
+                          "Output": [
+                            "lineitem_4.l_suppkey",
+                            "lineitem_4.l_partkey"
+                          ],
+                          "Filter": "(lineitem_4.l_quantity >= '25'::numeric)",
+                          "Rows Removed by Filter": 286
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "Planning Time": 0.059,
+    "Triggers": [],
+    "Execution Time": 0.534
+  }
+]
