@@ -27,11 +27,16 @@ TARGET_DIR = BASE_DIR.parent / "standalone-app" / "examples"
 
 UNSUPPORTED_RE = re.compile(r"^--\s*UNSUPPORTED:\s*(.+)$", re.MULTILINE | re.IGNORECASE)
 MODES_RE = re.compile(r"^--\s*MODES:\s*(.+)$", re.MULTILINE | re.IGNORECASE)
-COPY_RE = re.compile(
-    r"\bcopy\s+(\w+)\s+from\s+'([^']+)'\s+\(format\s+csv,\s+delimiter\s+'\|'\)",
-    re.IGNORECASE,
+DATA_FILES = (
+    ("customer", "customer.tbl"),
+    ("lineitem", "lineitem.tbl"),
+    ("nation", "nation.tbl"),
+    ("orders", "orders.tbl"),
+    ("partsupp", "partsupp.tbl"),
+    ("part", "part.tbl"),
+    ("region", "region.tbl"),
+    ("supplier", "supplier.tbl"),
 )
-CREATE_TABLE_RE = re.compile(r"\bCREATE\s+TEMP\s+TABLE\s+(\w+)", re.IGNORECASE)
 IDENTIFIER_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 
 
@@ -92,18 +97,15 @@ def read_rows(path):
         yield from csv.reader(input_file, delimiter="|", quotechar='"')
 
 
-def copied_tables():
-    return [match.group(1) for match in COPY_RE.finditer(read_file(SETUP_FILE))]
+def load_tables(load_table):
+    for table, filename in DATA_FILES:
+        load_table(table, BASE_DIR / "tpch-data-tiny" / filename)
 
 
-def run_setup(exec_stmt, load_table, transform_ddl=lambda sql: sql):
-    for stmt in read_file(SETUP_FILE).split(";"):
-        copy_match = COPY_RE.search(stmt)
-        if copy_match:
-            table, relative_path = copy_match.groups()
-            load_table(table, BASE_DIR / relative_path)
-        elif stmt.strip():
-            exec_stmt(transform_ddl(stmt))
+def run_setup(exec_stmt, setup_file=SETUP_FILE):
+    for statement in read_file(setup_file).split(";"):
+        if statement.strip():
+            exec_stmt(statement)
 
 
 def format_json(value):
@@ -256,7 +258,8 @@ def dump_postgres_compatible(name, dsn):
                 cursor.executemany(f"INSERT INTO {table} VALUES ({placeholders})", rows)
 
         def setup():
-            run_setup(exec_stmt, load_table)
+            run_setup(exec_stmt)
+            load_tables(load_table)
             connection.commit()
 
         def get_plan(sql, mode):
@@ -380,11 +383,8 @@ def dump_mariadb(url):
 
     with connection:
         def exec_stmt(sql):
-            match = CREATE_TABLE_RE.search(sql)
             with connection.cursor() as cursor:
-                if match:
-                    cursor.execute(f"DROP TABLE IF EXISTS {match.group(1)}")
-                cursor.execute(sql.replace("CREATE TEMP TABLE", "CREATE TABLE"))
+                cursor.execute(sql)
 
         def load_table(table, path):
             rows = list(read_rows(path))
@@ -393,9 +393,10 @@ def dump_mariadb(url):
                 cursor.executemany(f"INSERT INTO {table} VALUES ({placeholders})", rows)
 
         def setup():
-            run_setup(exec_stmt, load_table)
+            run_setup(exec_stmt, BASE_DIR / "setup.mariadb.sql")
+            load_tables(load_table)
             with connection.cursor() as cursor:
-                for table in copied_tables():
+                for table, _ in DATA_FILES:
                     cursor.execute(f"ANALYZE TABLE {table} PERSISTENT FOR ALL")
                     cursor.fetchall()
 
@@ -476,19 +477,6 @@ def dump_trino(url):
         return
 
     with connection:
-        def transform_ddl(sql):
-            match = CREATE_TABLE_RE.search(sql)
-            if match:
-                cursor.execute(f"DROP TABLE IF EXISTS {match.group(1)}")
-                cursor.fetchall()
-            # The memory connector does not support NOT NULL constraints.
-            return re.sub(
-                r"\s+NOT\s+NULL",
-                "",
-                sql.replace("CREATE TEMP TABLE", "CREATE TABLE"),
-                flags=re.IGNORECASE,
-            )
-
         def exec_stmt(sql):
             cursor.execute(sql)
             cursor.fetchall()
@@ -517,7 +505,8 @@ def dump_trino(url):
                 cursor.fetchall()
 
         def setup():
-            run_setup(exec_stmt, load_table, transform_ddl)
+            run_setup(exec_stmt, BASE_DIR / "setup.trino.sql")
+            load_tables(load_table)
 
         def get_plan(sql, mode):
             query = sql.rstrip().removesuffix(";")
@@ -544,12 +533,7 @@ def dump_trino(url):
 def dump_duckdb():
     with duckdb.connect() as connection:
         def exec_stmt(sql):
-            connection.execute(
-                sql.replace(
-                    "(format csv, delimiter '|')",
-                    "(format csv, delimiter '|', allow_quoted_nulls false)",
-                )
-            )
+            connection.execute(sql)
 
         def load_table(table, path):
             exec_stmt(
@@ -558,7 +542,8 @@ def dump_duckdb():
             )
 
         def setup():
-            run_setup(exec_stmt, load_table)
+            run_setup(exec_stmt)
+            load_tables(load_table)
 
         def get_plan(sql, mode):
             if mode == "simple":
@@ -595,7 +580,8 @@ def dump_hyper(hyper_path):
                 exec_stmt(f"COPY {table} FROM '{path}' (format csv, delimiter '|')")
 
             def setup():
-                run_setup(exec_stmt, load_table)
+                run_setup(exec_stmt)
+                load_tables(load_table)
 
             def get_plan(sql, mode):
                 options = {

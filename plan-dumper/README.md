@@ -11,8 +11,9 @@ Refresh these examples from time to time when new versions are published, so the
 * `filter-timing-diff.py` — strips volatile runtime measurements out of a `git diff`, so regenerating the plans doesn't drown real changes in noise.
   See [Cleaning Up Runtime Noise](#cleaning-up-runtime-noise).
 * `queries/` — the SQL queries to explain, including a `tpch/` subfolder of TPC-H queries.
-* `setup.sql` — creates the ad-hoc and TPC-H tables and loads the tiny dataset, so cardinality estimates in the plans are meaningful.
-* `tpch-data-tiny/` — a tiny TPC-H dataset loaded by `setup.sql`.
+* `setup.sql` — creates temporary ad-hoc and TPC-H tables for Hyper, Postgres-compatible databases, and DuckDB.
+* `setup.mariadb.sql` / `setup.trino.sql` — equivalent engine-specific schemas for databases that do not use those temporary-table definitions.
+* `tpch-data-tiny/` — a tiny TPC-H dataset loaded after the schema setup, so cardinality estimates in the plans are meaningful.
 
 ### EXPLAIN Modes
 
