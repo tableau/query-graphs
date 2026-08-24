@@ -1,0 +1,274 @@
+{
+    "total_bytes_written": 0,
+    "total_bytes_read": 0,
+    "result_set_size": 0,
+    "cumulative_rows_scanned": 0,
+    "cpu_time": 0.0,
+    "blocked_thread_time": 0.0,
+    "rows_returned": 0,
+    "system_peak_temp_dir_size": 0,
+    "cumulative_cardinality": 0,
+    "system_peak_buffer_memory": 0,
+    "extra_info": {},
+    "query_name": "",
+    "latency": 0.0,
+    "children": [
+        {
+            "total_bytes_written": 0,
+            "result_set_size": 0,
+            "operator_timing": 4.1e-8,
+            "operator_rows_scanned": 0,
+            "cumulative_rows_scanned": 0,
+            "operator_cardinality": 0,
+            "operator_type": "EXPLAIN_ANALYZE",
+            "total_bytes_read": 0,
+            "operator_name": "EXPLAIN_ANALYZE",
+            "cpu_time": 0.0,
+            "extra_info": {},
+            "cumulative_cardinality": 0,
+            "children": [
+                {
+                    "cumulative_cardinality": 0,
+                    "extra_info": {
+                        "Join Type": "SINGLE",
+                        "Conditions": "o_totalprice IS NOT DISTINCT FROM o_totalprice",
+                        "Estimated Cardinality": "128",
+                        "Delim Index": "1"
+                    },
+                    "operator_name": "LEFT_DELIM_JOIN",
+                    "cpu_time": 0.0,
+                    "cumulative_rows_scanned": 0,
+                    "operator_rows_scanned": 0,
+                    "operator_timing": 0.000056959,
+                    "result_set_size": 0,
+                    "total_bytes_read": 0,
+                    "operator_type": "LEFT_DELIM_JOIN",
+                    "total_bytes_written": 0,
+                    "operator_cardinality": 0,
+                    "children": [
+                        {
+                            "total_bytes_written": 0,
+                            "result_set_size": 1536,
+                            "operator_timing": 0.000004417,
+                            "operator_rows_scanned": 128,
+                            "cumulative_rows_scanned": 0,
+                            "operator_cardinality": 128,
+                            "operator_type": "TABLE_SCAN",
+                            "total_bytes_read": 0,
+                            "operator_name": "SEQ_SCAN ",
+                            "cpu_time": 0.0,
+                            "extra_info": {
+                                "Table": "orders",
+                                "Type": "Sequential Scan",
+                                "Projections": [
+                                    "o_orderkey",
+                                    "o_totalprice"
+                                ],
+                                "Estimated Cardinality": "128"
+                            },
+                            "cumulative_cardinality": 0,
+                            "children": []
+                        },
+                        {
+                            "total_bytes_written": 0,
+                            "result_set_size": 2560,
+                            "operator_timing": 0.00007812699999999999,
+                            "operator_rows_scanned": 0,
+                            "cumulative_rows_scanned": 0,
+                            "operator_cardinality": 128,
+                            "operator_type": "HASH_JOIN",
+                            "total_bytes_read": 0,
+                            "operator_name": "HASH_JOIN",
+                            "cpu_time": 0.0,
+                            "extra_info": {
+                                "Join Type": "SINGLE",
+                                "Conditions": "o_totalprice IS NOT DISTINCT FROM o_totalprice",
+                                "Estimated Cardinality": "128"
+                            },
+                            "cumulative_cardinality": 0,
+                            "children": [
+                                {
+                                    "cumulative_cardinality": 0,
+                                    "extra_info": {
+                                        "Estimated Cardinality": "128"
+                                    },
+                                    "operator_name": "COLUMN_DATA_SCAN",
+                                    "cpu_time": 0.0,
+                                    "cumulative_rows_scanned": 0,
+                                    "operator_rows_scanned": 0,
+                                    "operator_timing": 0.000001292,
+                                    "result_set_size": 1536,
+                                    "total_bytes_read": 0,
+                                    "operator_type": "COLUMN_DATA_SCAN",
+                                    "total_bytes_written": 0,
+                                    "operator_cardinality": 128,
+                                    "children": []
+                                },
+                                {
+                                    "cumulative_cardinality": 0,
+                                    "extra_info": {
+                                        "Join Type": "INNER",
+                                        "Conditions": "#0 IS NOT DISTINCT FROM o_totalprice",
+                                        "Estimated Cardinality": "48"
+                                    },
+                                    "operator_name": "HASH_JOIN",
+                                    "cpu_time": 0.0,
+                                    "cumulative_rows_scanned": 0,
+                                    "operator_rows_scanned": 0,
+                                    "operator_timing": 0.00020624500000000003,
+                                    "result_set_size": 3072,
+                                    "total_bytes_read": 0,
+                                    "operator_type": "HASH_JOIN",
+                                    "total_bytes_written": 0,
+                                    "operator_cardinality": 128,
+                                    "children": [
+                                        {
+                                            "total_bytes_written": 0,
+                                            "result_set_size": 3072,
+                                            "operator_timing": 0.0012300459999999998,
+                                            "operator_rows_scanned": 0,
+                                            "cumulative_rows_scanned": 0,
+                                            "operator_cardinality": 128,
+                                            "operator_type": "HASH_GROUP_BY",
+                                            "total_bytes_read": 0,
+                                            "operator_name": "HASH_GROUP_BY",
+                                            "cpu_time": 0.0,
+                                            "extra_info": {
+                                                "Groups": "#0",
+                                                "Aggregates": "sum(#1)",
+                                                "Estimated Cardinality": "336"
+                                            },
+                                            "cumulative_cardinality": 0,
+                                            "children": [
+                                                {
+                                                    "cumulative_cardinality": 0,
+                                                    "extra_info": {
+                                                        "Projections": [
+                                                            "o_totalprice",
+                                                            "l_quantity"
+                                                        ],
+                                                        "Estimated Cardinality": "672"
+                                                    },
+                                                    "operator_name": "PROJECTION",
+                                                    "cpu_time": 0.0,
+                                                    "cumulative_rows_scanned": 0,
+                                                    "operator_rows_scanned": 0,
+                                                    "operator_timing": 0.0000020839999999999994,
+                                                    "result_set_size": 1074896,
+                                                    "total_bytes_read": 0,
+                                                    "operator_type": "PROJECTION",
+                                                    "total_bytes_written": 0,
+                                                    "operator_cardinality": 67181,
+                                                    "children": [
+                                                        {
+                                                            "total_bytes_written": 0,
+                                                            "result_set_size": 1612344,
+                                                            "operator_timing": 0.0013257480000000003,
+                                                            "operator_rows_scanned": 0,
+                                                            "cumulative_rows_scanned": 0,
+                                                            "operator_cardinality": 67181,
+                                                            "operator_type": "PIECEWISE_MERGE_JOIN",
+                                                            "total_bytes_read": 0,
+                                                            "operator_name": "PIECEWISE_MERGE_JOIN",
+                                                            "cpu_time": 0.0,
+                                                            "extra_info": {
+                                                                "Join Type": "INNER",
+                                                                "Conditions": "l_extendedprice < o_totalprice",
+                                                                "Estimated Cardinality": "672"
+                                                            },
+                                                            "cumulative_cardinality": 0,
+                                                            "children": [
+                                                                {
+                                                                    "cumulative_cardinality": 0,
+                                                                    "extra_info": {
+                                                                        "Table": "lineitem",
+                                                                        "Type": "Sequential Scan",
+                                                                        "Projections": [
+                                                                            "l_extendedprice",
+                                                                            "l_quantity"
+                                                                        ],
+                                                                        "Estimated Cardinality": "572"
+                                                                    },
+                                                                    "operator_name": "SEQ_SCAN ",
+                                                                    "cpu_time": 0.0,
+                                                                    "cumulative_rows_scanned": 0,
+                                                                    "operator_rows_scanned": 572,
+                                                                    "operator_timing": 0.0000036259999999999997,
+                                                                    "result_set_size": 9152,
+                                                                    "total_bytes_read": 0,
+                                                                    "operator_type": "TABLE_SCAN",
+                                                                    "total_bytes_written": 0,
+                                                                    "operator_cardinality": 572,
+                                                                    "children": []
+                                                                },
+                                                                {
+                                                                    "cumulative_cardinality": 0,
+                                                                    "extra_info": {
+                                                                        "Delim Index": "1",
+                                                                        "Estimated Cardinality": "78"
+                                                                    },
+                                                                    "operator_name": "DELIM_SCAN",
+                                                                    "cpu_time": 0.0,
+                                                                    "cumulative_rows_scanned": 0,
+                                                                    "operator_rows_scanned": 0,
+                                                                    "operator_timing": 0.0,
+                                                                    "result_set_size": 0,
+                                                                    "total_bytes_read": 0,
+                                                                    "operator_type": "DELIM_SCAN",
+                                                                    "total_bytes_written": 0,
+                                                                    "operator_cardinality": 0,
+                                                                    "children": []
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "total_bytes_written": 0,
+                                            "result_set_size": 0,
+                                            "operator_timing": 0.0,
+                                            "operator_rows_scanned": 0,
+                                            "cumulative_rows_scanned": 0,
+                                            "operator_cardinality": 0,
+                                            "operator_type": "DELIM_SCAN",
+                                            "total_bytes_read": 0,
+                                            "operator_name": "DELIM_SCAN",
+                                            "cpu_time": 0.0,
+                                            "extra_info": {
+                                                "Delim Index": "1",
+                                                "Estimated Cardinality": "78"
+                                            },
+                                            "cumulative_cardinality": 0,
+                                            "children": []
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "total_bytes_written": 0,
+                            "result_set_size": 2048,
+                            "operator_timing": 0.0006287490000000002,
+                            "operator_rows_scanned": 0,
+                            "cumulative_rows_scanned": 0,
+                            "operator_cardinality": 256,
+                            "operator_type": "HASH_GROUP_BY",
+                            "total_bytes_read": 0,
+                            "operator_name": "HASH_GROUP_BY",
+                            "cpu_time": 0.0,
+                            "extra_info": {
+                                "Groups": "#1",
+                                "Aggregates": "",
+                                "Estimated Cardinality": "78"
+                            },
+                            "cumulative_cardinality": 0,
+                            "children": []
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

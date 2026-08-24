@@ -1,0 +1,84 @@
+{
+  "operator": "executiontarget",
+  "operator-id": 1,
+  "estimated-rows": 174.904,
+  "produces-rows": true,
+  "output": [{"expression": "iuref", "iu": ["scan_orderkey", ["Integer"]]}, {"expression": "iuref", "iu": ["sum", ["BigNumeric", 38, 2, "nullable"]]}],
+  "output-names": ["o_orderkey", "2"],
+  "inputs": [{
+    "operator": "leftouterjoin",
+    "operator-id": 2,
+    "estimated-rows": 174.904,
+    "method": "hash",
+    "inputs": [{
+      "operator": "tablescan",
+      "operator-id": 3,
+      "sqlpos": [[310, 316]],
+      "estimated-rows": 128,
+      "volatility": "stable",
+      "relation-id": 6,
+      "schema": {"type":"sessionschema"},
+      "attribute-count": 9,
+      "attributes": [{"col-id": 0, "name": "o_orderkey", "type": ["Integer"], "iu": ["scan_orderkey", ["Integer"]]},{"col-id": 3, "name": "o_totalprice", "type": ["Numeric", 12, 2], "iu": ["scan_totalpri", ["Numeric", 12, 2]]}],
+      "debug-name": {"classification": "nonsensitive", "value": "orders"},
+      "selectivity": 1,
+      "statistics": {"pipeline": 1, "column-count": 2, "cpu-cycles": 77, "output-rows": 128, "processed-rows": 128, "running": false}
+    }, {
+      "operator": "groupby",
+      "operator-id": 4,
+      "sqlpos": [[237, 252]],
+      "estimated-rows": 128,
+      "inputs": [{
+        "operator": "join",
+        "operator-id": 5,
+        "estimated-rows": 36608,
+        "method": "bnl",
+        "inputs": [{
+          "operator": "explicitscan",
+          "operator-id": 6,
+          "estimated-rows": 128,
+          "mapping": [{"source": {"expression": "iuref", "iu": ["GroupByKey", ["Numeric", 12, 2]]}, "target": ["GroupByKey2", ["Numeric", 12, 2]]}],
+          "input": {
+            "operator": "groupby",
+            "operator-id": 7,
+            "estimated-rows": 128,
+            "inputs": [],
+            "key-expressions": [{"expression": {"value": {"expression": "iuref", "iu": "scan_totalpri"}}, "iu": ["GroupByKey", ["Numeric", 12, 2]]}],
+            "grouping-sets": [{"key-indices": [0], "core-indices": null, "behavior": "regular"}],
+            "empty-groups": false,
+            "aggregates": [],
+            "statistics": {"pipeline": 4, "column-count": 1, "cpu-cycles": 0, "memory-bytes": 18552, "output-rows": 0, "running": false}
+          },
+          "statistics": {"pipeline": 3, "column-count": 1, "cpu-cycles": 47, "output-rows": 128, "running": false}
+        }, {
+          "operator": "tablescan",
+          "operator-id": 8,
+          "sqlpos": [[258, 266]],
+          "estimated-rows": 572,
+          "volatility": "stable",
+          "relation-id": 7,
+          "schema": {"type":"sessionschema"},
+          "attribute-count": 16,
+          "attributes": [{"col-id": 4, "name": "l_quantity", "type": ["Numeric", 12, 2], "iu": ["scan_quantity", ["Numeric", 12, 2]]},{"col-id": 5, "name": "l_extendedprice", "type": ["Numeric", 12, 2], "iu": ["scan_extended", ["Numeric", 12, 2]]}],
+          "debug-name": {"classification": "nonsensitive", "value": "lineitem"},
+          "selectivity": 1,
+          "statistics": {"pipeline": 2, "column-count": 2, "cpu-cycles": 6640, "output-rows": 572, "processed-rows": 572, "running": false}
+        }],
+        "condition": {"expression": "comparison", "mode": "<", "left": {"expression": "iuref", "iu": "scan_extended"}, "right": {"expression": "iuref", "iu": "GroupByKey2"}},
+        "predicates": [{"left": {"expression": "iuref", "iu": "GroupByKey2"}, "right": {"expression": "iuref", "iu": "scan_extended"}, "comparison": ">"}],
+        "statistics": {"pipeline": 2, "column-count": 2, "memory-bytes": 18552, "output-rows": 67181}
+      }],
+      "key-expressions": [{"expression": {"value": {"expression": "iuref", "iu": "GroupByKey2"}}, "iu": ["GroupByKey3", ["Numeric", 12, 2]]}],
+      "grouping-sets": [{"key-indices": [0], "core-indices": [0], "behavior": "regular"}],
+      "empty-groups": true,
+      "agg-expressions": [{"value": {"expression": "iuref", "iu": "scan_quantity"}}],
+      "aggregates": [{"source": 0, "operation": {"aggregate": "sum"}, "iu": ["sum", ["BigNumeric", 38, 2, "nullable"]]}],
+      "statistics": {"pipeline": 0, "column-count": 2, "cpu-cycles": 146, "memory-bytes": 18552, "output-rows": 128, "running": false}
+    }],
+    "condition": {"expression": "comparison", "mode": "is", "left": {"expression": "iuref", "iu": "scan_totalpri"}, "right": {"expression": "iuref", "iu": "GroupByKey3"}},
+    "magic": 7,
+    "predicates": [{"left": {"expression": "iuref", "iu": "scan_totalpri"}, "right": {"expression": "iuref", "iu": "GroupByKey3"}, "comparison": "is"}],
+    "statistics": {"pipeline": 0, "column-count": 2, "memory-bytes": 18560, "output-rows": 128}
+  }],
+  "statistics": {"error": null, "pipeline": 0, "column-count": 0}
+}

@@ -1,0 +1,54 @@
+{
+  "operator": "executiontarget",
+  "operator-id": 1,
+  "estimated-rows": 11,
+  "produces-rows": true,
+  "output": [{"expression": "iuref", "iu": ["map", ["Integer"]]}],
+  "output-names": ["i"],
+  "inputs": [{
+    "operator": "iteration",
+    "operator-id": 2,
+    "estimated-rows": 11,
+    "result-ius": [["map", ["Integer"]]],
+    "left-values": [{"expression": "iuref", "iu": ["map2", ["Integer"]]}],
+    "right-values": [{"expression": "iuref", "iu": ["map3", ["Integer"]]}],
+    "union-all": true,
+    "inputs": [{
+      "operator": "tableconstruction",
+      "operator-id": 3,
+      "estimated-rows": 1,
+      "output": [["map2", ["Integer"]]],
+      "values": [[{"expression": "const", "value": {"type": ["Integer"], "value": 1}}]],
+      "inputs": [],
+      "statistics": {"pipeline": 1, "column-count": 1, "cpu-cycles": 27, "output-rows": 1, "running": false}
+    }, {
+      "operator": "map",
+      "operator-id": 4,
+      "sqlpos": [[116, 121]],
+      "estimated-rows": 1,
+      "inputs": [{
+        "operator": "filter",
+        "operator-id": 5,
+        "sqlpos": [[135, 142]],
+        "estimated-rows": 1,
+        "inputs": [{
+          "operator": "iterationincrement",
+          "operator-id": 6,
+          "sqlpos": [[127, 128]],
+          "estimated-rows": 1,
+          "values": [["map_increment", ["Integer"]]],
+          "source": 2,
+          "statistics": {"pipeline": 2, "column-count": 1, "cpu-cycles": 456158, "output-rows": 100, "running": false}
+        }],
+        "condition": {"expression": "comparison", "mode": "<", "left": {"expression": "iuref", "iu": "map_increment"}, "right": {"expression": "const", "value": {"type": ["Integer"], "value": 100}}},
+        "statistics": {"pipeline": 2, "column-count": 1, "output-rows": 99}
+      }],
+      "values": [{"iu": ["map3", ["Integer"]], "value": {"expression": "add", "left": {"expression": "iuref", "iu": "map_increment"}, "right": {"expression": "const", "value": {"type": ["Integer"], "value": 1}}}}],
+      "statistics": {"pipeline": 2, "column-count": 1, "output-rows": 99}
+    }],
+    "collates": [null],
+    "algorithm": "materializing",
+    "statistics": {"pipeline": 0, "column-count": 1, "cpu-cycles": 127330, "output-rows": 100, "running": false}
+  }],
+  "statistics": {"error": null, "pipeline": 0, "column-count": 0}
+}
