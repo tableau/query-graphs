@@ -1,0 +1,48 @@
+[
+    {
+        "name": "INSERT",
+        "children": [
+            {
+                "name": "PROJECTION",
+                "children": [
+                    {
+                        "name": "CROSS_PRODUCT",
+                        "children": [
+                            {
+                                "name": "COLUMN_DATA_SCAN",
+                                "children": [],
+                                "extra_info": {
+                                    "Estimated Cardinality": "2"
+                                }
+                            },
+                            {
+                                "name": "SEQ_SCAN ",
+                                "children": [],
+                                "extra_info": {
+                                    "Table": "t1",
+                                    "Type": "Sequential Scan",
+                                    "Projections": [
+                                        "a1",
+                                        "b1",
+                                        "c1"
+                                    ],
+                                    "Estimated Cardinality": "0"
+                                }
+                            }
+                        ],
+                        "extra_info": {}
+                    }
+                ],
+                "extra_info": {
+                    "Projections": [
+                        "(a1 * v)",
+                        "(b1 * v)",
+                        "(c1 * v)"
+                    ],
+                    "Estimated Cardinality": "2"
+                }
+            }
+        ],
+        "extra_info": {}
+    }
+]

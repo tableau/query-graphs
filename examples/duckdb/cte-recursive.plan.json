@@ -1,0 +1,52 @@
+[
+    {
+        "name": "REC_CTE",
+        "children": [
+            {
+                "name": "PROJECTION",
+                "children": [
+                    {
+                        "name": "DUMMY_SCAN",
+                        "children": [],
+                        "extra_info": {}
+                    }
+                ],
+                "extra_info": {
+                    "Projections": "1",
+                    "Estimated Cardinality": "1"
+                }
+            },
+            {
+                "name": "PROJECTION",
+                "children": [
+                    {
+                        "name": "FILTER",
+                        "children": [
+                            {
+                                "name": "REC_CTE_SCAN",
+                                "children": [],
+                                "extra_info": {
+                                    "CTE Index": "1",
+                                    "Estimated Cardinality": "1"
+                                }
+                            }
+                        ],
+                        "extra_info": {
+                            "Expression": "(i < 100)",
+                            "Estimated Cardinality": "1"
+                        }
+                    }
+                ],
+                "extra_info": {
+                    "Projections": "(i + 1)",
+                    "Estimated Cardinality": "1"
+                }
+            }
+        ],
+        "extra_info": {
+            "CTE Name": "x",
+            "Table Index": "1",
+            "Estimated Cardinality": "1001"
+        }
+    }
+]

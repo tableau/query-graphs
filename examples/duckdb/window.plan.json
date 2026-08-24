@@ -1,0 +1,60 @@
+[
+    {
+        "name": "PROJECTION",
+        "children": [
+            {
+                "name": "PROJECTION",
+                "children": [
+                    {
+                        "name": "WINDOW",
+                        "children": [
+                            {
+                                "name": "WINDOW",
+                                "children": [
+                                    {
+                                        "name": "SEQ_SCAN ",
+                                        "children": [],
+                                        "extra_info": {
+                                            "Table": "t1",
+                                            "Type": "Sequential Scan",
+                                            "Projections": [
+                                                "a1",
+                                                "b1",
+                                                "c1"
+                                            ],
+                                            "Estimated Cardinality": "0"
+                                        }
+                                    }
+                                ],
+                                "extra_info": {
+                                    "Projections": "sum(b1) OVER (ORDER BY a1 ASC NULLS LAST)"
+                                }
+                            }
+                        ],
+                        "extra_info": {
+                            "Projections": "avg(c1) OVER (ORDER BY b1 ASC NULLS LAST ROWS BETWEEN 1 PRECEDING AND 3 FOLLOWING)"
+                        }
+                    }
+                ],
+                "extra_info": {
+                    "Projections": [
+                        "#0",
+                        "#1",
+                        "#2",
+                        "#3",
+                        "#4"
+                    ],
+                    "Estimated Cardinality": "0"
+                }
+            }
+        ],
+        "extra_info": {
+            "Projections": [
+                "a1",
+                "#3",
+                "#4"
+            ],
+            "Estimated Cardinality": "0"
+        }
+    }
+]

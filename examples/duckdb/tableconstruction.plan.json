@@ -1,0 +1,9 @@
+[
+    {
+        "name": "COLUMN_DATA_SCAN",
+        "children": [],
+        "extra_info": {
+            "Estimated Cardinality": "2"
+        }
+    }
+]
