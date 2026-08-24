@@ -6,19 +6,20 @@
   "output": [{"expression": "iu-ref", "iu": ["scan_a1", ["Integer"]]}, {"expression": "iu-ref", "iu": ["sum", ["BigInt", "nullable"]]}],
   "output-names": ["a1", "2"],
   "inputs": [{
-    "operator": "left-outer-join",
+    "operator": "join",
     "operator-id": 2,
+    "type": "left-outer",
     "estimated-rows": 2732.06,
     "method": "hash",
     "inputs": [{
-      "operator": "table-scan",
+      "operator": "scan",
       "operator-id": 3,
+      "type": "native",
       "sqlpos": [[81, 83]],
       "estimated-rows": 2000,
       "volatility": "stable",
       "relation-id": 0,
       "schema": {"type":"sessionschema"},
-      "scan-type": "native",
       "attribute-count": 3,
       "attributes": [{"col-id": 0, "name": "a1", "type": ["Integer"], "iu": ["scan_a1", ["Integer"]]}],
       "debug-name": {"classification": "nonsensitive", "value": "t1"},
@@ -31,6 +32,7 @@
       "inputs": [{
         "operator": "join",
         "operator-id": 5,
+        "type": "inner",
         "estimated-rows": 100000,
         "method": "bnl",
         "inputs": [{
@@ -49,14 +51,14 @@
             "aggregates": []
           }
         }, {
-          "operator": "table-scan",
+          "operator": "scan",
           "operator-id": 8,
+          "type": "native",
           "sqlpos": [[58, 60]],
           "estimated-rows": 2000,
           "volatility": "stable",
           "relation-id": 1,
           "schema": {"type":"sessionschema"},
-          "scan-type": "native",
           "attribute-count": 3,
           "attributes": [{"col-id": 0, "name": "a2", "type": ["Integer"], "iu": ["scan_a2", ["Integer"]]}],
           "debug-name": {"classification": "nonsensitive", "value": "t2"},

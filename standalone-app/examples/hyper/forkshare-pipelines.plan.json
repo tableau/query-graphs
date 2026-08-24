@@ -1,36 +1,38 @@
 {
   "tree": {
-    "operator": "executiontarget",
+    "operator": "execution-target",
     "operator-id": 1,
     "estimated-rows": 1,
     "produces-rows": true,
-    "output": [{"expression": "iuref", "iu": ["min", ["Integer", "nullable"]]}, {"expression": "iuref", "iu": ["max", ["Integer", "nullable"]]}],
+    "output": [{"expression": "iu-ref", "iu": ["min", ["Integer", "nullable"]]}, {"expression": "iu-ref", "iu": ["max", ["Integer", "nullable"]]}],
     "output-names": ["mn", "mx"],
     "inputs": [{
-      "operator": "fullouterjoin",
+      "operator": "join",
       "operator-id": 2,
+      "type": "full-outer",
       "estimated-rows": 1,
       "method": "hash",
       "single-match": true,
       "inputs": [{
-        "operator": "groupby",
+        "operator": "group-by",
         "operator-id": 3,
         "sqlpos": [[375, 382]],
         "estimated-rows": 1,
         "inputs": [{
-          "operator": "explicitscan",
+          "operator": "explicit-scan",
           "operator-id": 4,
           "sqlpos": [[394, 395]],
           "estimated-rows": 1000,
-          "mapping": [{"source": {"expression": "iuref", "iu": ["scan_a1", ["Integer"]]}, "target": ["scan_a12", ["Integer"]]}],
+          "mapping": [{"source": {"expression": "iu-ref", "iu": ["scan_a1", ["Integer"]]}, "target": ["scan_a12", ["Integer"]]}],
           "input": {
             "operator": "share",
             "operator-id": 5,
             "sqlpos": [[315, 316]],
             "estimated-rows": 1000,
             "inputs": [{
-              "operator": "tablescan",
+              "operator": "scan",
               "operator-id": 6,
+              "type": "native",
               "sqlpos": [[336, 338]],
               "estimated-rows": 1000,
               "volatility": "stable",
@@ -39,7 +41,7 @@
               "attribute-count": 3,
               "attributes": [{"col-id": 0, "name": "a1", "type": ["Integer"], "iu": ["scan_a1", ["Integer"]]},{"col-id": 1, "name": "b1", "type": ["Integer"], "iu": ["scan_b1", ["Integer"]]}],
               "debug-name": {"classification": "nonsensitive", "value": "t1"},
-              "restrictions": [{"expression": "sql", "sql": "\"scan_b1\" < CAST('5' AS INTEGER)", "arguments": [{"expression": "iuref", "iu": "scan_b1"}], "type": ["Bool"]}],
+              "restrictions": [{"expression": "sql", "sql": "\"scan_b1\" < CAST('5' AS INTEGER)", "arguments": [{"expression": "iu-ref", "iu": "scan_b1"}], "type": ["Bool"]}],
               "selectivity": 0.5
             }],
             "strategy": "fork"
@@ -47,28 +49,28 @@
         }],
         "grouping-sets": [{"key-indices": [], "core-indices": null, "behavior": "static"}],
         "empty-groups": true,
-        "agg-expressions": [{"value": {"expression": "iuref", "iu": "scan_a12"}}],
+        "agg-expressions": [{"value": {"expression": "iu-ref", "iu": "scan_a12"}}],
         "aggregates": [{"source": 0, "operation": {"aggregate": "min"}, "iu": ["min", ["Integer", "nullable"]]}]
       }, {
-        "operator": "groupby",
+        "operator": "group-by",
         "operator-id": 7,
         "sqlpos": [[421, 428]],
         "estimated-rows": 1,
         "inputs": [{
-          "operator": "explicitscan",
+          "operator": "explicit-scan",
           "operator-id": 8,
           "sqlpos": [[440, 441]],
           "estimated-rows": 1000,
-          "mapping": [{"source": {"expression": "iuref", "iu": "scan_a1"}, "target": ["scan_a13", ["Integer"]]}],
+          "mapping": [{"source": {"expression": "iu-ref", "iu": "scan_a1"}, "target": ["scan_a13", ["Integer"]]}],
           "input": 5
         }],
         "grouping-sets": [{"key-indices": [], "core-indices": null, "behavior": "static"}],
         "empty-groups": true,
-        "agg-expressions": [{"value": {"expression": "iuref", "iu": "scan_a13"}}],
+        "agg-expressions": [{"value": {"expression": "iu-ref", "iu": "scan_a13"}}],
         "aggregates": [{"source": 0, "operation": {"aggregate": "max"}, "iu": ["max", ["Integer", "nullable"]]}]
       }],
-      "condition": {"expression": "sql", "sql": "\"min\" = \"max\"", "arguments": [{"expression": "iuref", "iu": "max"}, {"expression": "iuref", "iu": "min"}], "type": ["Bool", "nullable"]},
-      "predicates": [{"left": {"expression": "iuref", "iu": "min"}, "right": {"expression": "iuref", "iu": "max"}, "comparison": "="}]
+      "condition": {"expression": "sql", "sql": "\"min\" = \"max\"", "arguments": [{"expression": "iu-ref", "iu": "max"}, {"expression": "iu-ref", "iu": "min"}], "type": ["Bool", "nullable"]},
+      "predicates": [{"left": {"expression": "iu-ref", "iu": "min"}, "right": {"expression": "iu-ref", "iu": "max"}, "comparison": "="}]
     }]
   },
   "pipelines": [

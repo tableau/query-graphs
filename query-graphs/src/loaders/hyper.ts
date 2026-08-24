@@ -89,7 +89,19 @@ const nodeRenderingConfig: Record<string, NodeRenderingConfig> = {
     "op:group-by": {icon: "groupby-symbol"},
     "op:groupby": {icon: "groupby-symbol"},
     // Joins
-    "op:join": {icon: "inner-join-symbol", crosslinkSourceKey: "magic"},
+    "op:join": {displayNameKey: "type", icon: "inner-join-symbol", crosslinkSourceKey: "magic"},
+    "op:join:inner": {displayNameKey: "type", icon: "inner-join-symbol", crosslinkSourceKey: "magic"},
+    "op:join:left-outer": {displayNameKey: "type", icon: "left-join-symbol", crosslinkSourceKey: "magic"},
+    "op:join:right-outer": {displayNameKey: "type", icon: "right-join-symbol", crosslinkSourceKey: "magic"},
+    "op:join:full-outer": {displayNameKey: "type", icon: "full-join-symbol", crosslinkSourceKey: "magic"},
+    "op:join:left-anti": {displayNameKey: "type", crosslinkSourceKey: "magic"},
+    "op:join:right-anti": {displayNameKey: "type", crosslinkSourceKey: "magic"},
+    "op:join:left-semi": {displayNameKey: "type", crosslinkSourceKey: "magic"},
+    "op:join:right-semi": {displayNameKey: "type", crosslinkSourceKey: "magic"},
+    "op:join:left-single": {displayNameKey: "type", crosslinkSourceKey: "magic"},
+    "op:join:right-single": {displayNameKey: "type", crosslinkSourceKey: "magic"},
+    "op:join:left-mark": {displayNameKey: "type", crosslinkSourceKey: "magic"},
+    "op:join:right-mark": {displayNameKey: "type", crosslinkSourceKey: "magic"},
     "op:left-outer-join": {icon: "left-join-symbol", crosslinkSourceKey: "magic"},
     "op:leftouterjoin": {icon: "left-join-symbol", crosslinkSourceKey: "magic"},
     "op:right-outer-join": {icon: "right-join-symbol", crosslinkSourceKey: "magic"},
@@ -115,6 +127,8 @@ const nodeRenderingConfig: Record<string, NodeRenderingConfig> = {
     "op:early-probe": {icon: "filter-symbol", crosslinkSourceKey: "builder"},
     "op:earlyprobe": {icon: "filter-symbol", crosslinkSourceKey: "builder"},
     // Various scans
+    "op:scan": {displayNameKey: "type", icon: "table-symbol"},
+    "op:scan:virtual-table": {displayNameKey: "type", icon: "virtual-table-symbol"},
     "op:table-scan": {icon: "table-symbol"},
     "op:tablescan": {icon: "table-symbol"},
     "op:arrow-scan": {icon: "table-symbol"},
@@ -143,6 +157,8 @@ const nodeRenderingConfig: Record<string, NodeRenderingConfig> = {
     "op:temp": {icon: "temp-table-symbol"},
     "op:iteration-increment": {crosslinkSourceKey: "source"},
     "op:iterationincrement": {crosslinkSourceKey: "source"},
+    // Inserts
+    "op:insert": {displayNameKey: "type"},
     // Expressions
     "exp:comparison": {displayNameKey: "mode"},
     "exp:iu-ref": {displayNameKey: "iu"},
@@ -190,7 +206,12 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
             if (val !== undefined) {
                 nodeType = "operator";
                 nodeTag = val;
-                renderingConfig = nodeRenderingConfig[`op:${nodeTag}`] ?? {};
+                const configKey = `op:${nodeTag}`;
+                const subtype = tryToString(rawNode["type"]);
+                renderingConfig =
+                    (subtype !== undefined ? nodeRenderingConfig[`${configKey}:${subtype}`] : undefined) ??
+                    nodeRenderingConfig[configKey] ??
+                    {};
             }
         } else if (rawNode.hasOwnProperty("expression")) {
             const val = tryToString(rawNode["expression"]);
