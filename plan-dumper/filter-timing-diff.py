@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-"""Filters a unified diff down to the hunks that aren't purely runtime-measurement jitter.
+"""Filters a unified diff down to hunks that aren't purely runtime-measurement jitter.
 
-Regenerating the example plans re-runs every query, so timing/cycle-count fields (e.g.
-Postgres' "Actual Total Time", DuckDB's "cpu_time", Hyper's "cpu-cycles") change on every
-run even when the plan itself didn't. A hunk is dropped if every removed line matches its
-added counterpart once those volatile fields are masked out; if a line differs for any
-other reason, the whole line (including its timing/cycle-count change) is kept as-is.
+Regenerating the example plans re-runs every query, so timing, memory, and scheduler
+fields change on every run even when the plan itself didn't. A hunk is dropped if every
+removed line matches its added counterpart once those volatile fields are masked out;
+if a line differs for any other reason, the whole line is kept as-is.
 Files left with no surviving hunks are omitted entirely.
 
 Usage:
@@ -21,26 +20,58 @@ import re
 import subprocess
 import sys
 
-VOLATILE_FIELD_RE = re.compile(
+JSON_SCALAR_RE = r'\s*:\s*(?:"(?:\\.|[^"\\])*"|[-+0-9.eE]+|true|false|null)'
+
+# Postgres uses keys such as "Actual Total Time"; Hyper uses "cpu-cycles";
+# DuckDB uses "cpu_time", "operator_timing", and "latency"; MariaDB uses
+# "r_total_time_ms"/"r_table_time_ms"; Umbra uses "durationUs"; and Trino uses
+# "*Time", "*Cpu", and "*Wall" keys.
+COMMON_VOLATILE_FIELD_RE = re.compile(
     r'"(?:[^"]*(?:time|timing|latency|cycles|duration)[^"]*'
     r'|(?:addInput|getOutput|finish|blocked)(?:Cpu|Wall)|start|stop)"'
-    r'\s*:\s*(?:"(?:\\.|[^"\\])*"|[-+0-9.eE]+)',
+    + JSON_SCALAR_RE,
     re.IGNORECASE,
 )
 
+# DuckDB also reports allocator-dependent peak/total memory counters.
+DUCKDB_VOLATILE_FIELD_RE = re.compile(
+    r'"(?:system_peak_buffer_memory|total_memory_allocated)"' + JSON_SCALAR_RE
+)
 
-def normalize(line):
+# Trino QueryInfo contains coordinator-generated IDs and scheduler metrics in
+# addition to its timing keys. Percentile keys belong to runtime distributions.
+TRINO_VOLATILE_FIELD_RE = re.compile(
+    r'"(?:queryId|transactionId|stageId|taskId|taskInstanceId|self|version'
+    r'|(?:addInput|getOutput|finish)Calls'
+    r'|(?:peak|cumulative|outputBufferPeak)[^"]*Memory[^"]*'
+    r'|averageBytesPerRequest|successfulRequestsCount|totalPagesSent'
+    r'|maxBufferedBytes|digest|min|max|avg|total'
+    r'|p(?:01|05|10|25|50|75|90|95|99))"'
+    + JSON_SCALAR_RE
+)
+
+
+def mask_fields(line, pattern):
+    return pattern.sub(lambda match: match.group(0).split(":")[0] + ": ~", line)
+
+
+def normalize(line, path=None):
     """Masks volatile fields (e.g. `"cpu-cycles": 7949`) so lines that differ only
     in those values compare equal; a line with any other change still differs."""
-    return VOLATILE_FIELD_RE.sub(lambda m: m.group(0).split(":")[0] + ": ~", line)
+    line = mask_fields(line, COMMON_VOLATILE_FIELD_RE)
+    if path and "/duckdb/" in f"/{path}":
+        line = mask_fields(line, DUCKDB_VOLATILE_FIELD_RE)
+    if path and "/trino/" in f"/{path}":
+        line = mask_fields(line, TRINO_VOLATILE_FIELD_RE)
+    return line
 
 
-def hunk_is_pure_timing(hunk_lines):
+def hunk_is_pure_timing(hunk_lines, path=None):
     removed = [line[1:] for line in hunk_lines if line.startswith("-")]
     added = [line[1:] for line in hunk_lines if line.startswith("+")]
     if not removed or len(removed) != len(added):
         return False
-    return all(normalize(r) == normalize(a) for r, a in zip(removed, added))
+    return all(normalize(r, path) == normalize(a, path) for r, a in zip(removed, added))
 
 
 FILE_HEADER_RE = re.compile(r"^diff --git a/.+ b/(.+)$")
@@ -65,13 +96,13 @@ def filter_diff(text):
         nonlocal file_header, hunks, current_hunk, dropped_hunks, dropped_files
         if current_hunk is not None:
             hunks.append(current_hunk)
-        kept = [h for h in hunks if not hunk_is_pure_timing(h)]
+        path = parse_file_path(file_header) if file_header else None
+        kept = [h for h in hunks if not hunk_is_pure_timing(h, path)]
         dropped_hunks += len(hunks) - len(kept)
         if kept:
             output.append("".join(file_header))
             output.extend("".join(h) for h in kept)
         elif hunks:
-            path = parse_file_path(file_header)
             if path:
                 dropped_files.append(path)
 
@@ -98,7 +129,7 @@ def filter_diff(text):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Filters a unified diff down to hunks that aren't purely timing jitter."
+        description="Filters a diff down to hunks that aren't purely runtime jitter."
     )
     parser.add_argument("--revert", action="store_true",
                          help="`git checkout --` every file whose diff is purely timing jitter, "

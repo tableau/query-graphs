@@ -69,8 +69,7 @@ def parse_args():
     )
     parser.add_argument(
         "--postgres-dsn",
-        default="port=5432",
-        help="libpq DSN (default: port=5432; empty disables Postgres).",
+        help="libpq DSN (omitting this option disables Postgres).",
     )
     parser.add_argument(
         "--umbra-dsn",
@@ -177,20 +176,37 @@ def dump_plans(
     failures = []
     with tempfile.TemporaryDirectory(prefix=f".{name}-", dir=targetDir) as temporary:
         staging_dir = Path(temporary) / name
-        staging_dir.mkdir()
         destination = targetDir / name
+        if destination.exists():
+            shutil.copytree(destination, staging_dir)
+        else:
+            staging_dir.mkdir()
 
         for query_path in sorted(queriesDir.glob("**/*.sql")):
             sql = read_file(query_path).strip()
             unsupported = parse_unsupported(sql)
             relative_path = query_path.relative_to(queriesDir)
+
+            def output_path(mode):
+                suffix = "" if mode == "simple" else f"-{mode}"
+                return staging_dir / relative_path.with_name(
+                    relative_path.stem + suffix + ".plan.json"
+                )
+
             if name in unsupported:
+                for requested_mode in parse_modes(sql):
+                    mode = map_mode(requested_mode)
+                    if mode:
+                        output_path(mode).unlink(missing_ok=True)
                 print(f"{name}: {query_path.relative_to(baseDir)} (skipped, marked UNSUPPORTED)")
                 continue
 
             modes = []
             for requested_mode in parse_modes(sql):
                 if f"{name}:{requested_mode}" in unsupported:
+                    mode = map_mode(requested_mode)
+                    if mode:
+                        output_path(mode).unlink(missing_ok=True)
                     print(
                         f"{name}: {query_path.relative_to(baseDir)} "
                         f"({requested_mode}; skipped, marked UNSUPPORTED)"
@@ -217,12 +233,9 @@ def dump_plans(
                     continue
 
                 print(f"{name}: {query_path.relative_to(baseDir)} ({mode})")
-                suffix = "" if mode == "simple" else f"-{mode}"
-                output_path = staging_dir / relative_path.with_name(
-                    relative_path.stem + suffix + ".plan.json"
-                )
-                output_path.parent.mkdir(parents=True, exist_ok=True)
-                output_path.write_text(plan)
+                destination_path = output_path(mode)
+                destination_path.parent.mkdir(parents=True, exist_ok=True)
+                destination_path.write_text(plan)
 
         if failures:
             raise RuntimeError(f"{name}: {len(failures)} plan(s) failed")
@@ -393,8 +406,11 @@ def dump_mariadb(url):
 
     with connection:
         def exec_stmt(sql):
+            match = createTableRe.search(sql)
             with connection.cursor() as cursor:
-                cursor.execute(sql.replace("CREATE TEMP TABLE", "CREATE TEMPORARY TABLE"))
+                if match:
+                    cursor.execute(f"DROP TABLE IF EXISTS {match.group(1)}")
+                cursor.execute(sql.replace("CREATE TEMP TABLE", "CREATE TABLE"))
 
         def load_table(table, path):
             rows = list(read_rows(path))
@@ -405,8 +421,9 @@ def dump_mariadb(url):
         def setup():
             run_setup(exec_stmt, load_table)
             with connection.cursor() as cursor:
-                cursor.execute(f"ANALYZE TABLE {', '.join(copied_tables())}")
-                cursor.fetchall()
+                for table in copied_tables():
+                    cursor.execute(f"ANALYZE TABLE {table} PERSISTENT FOR ALL")
+                    cursor.fetchall()
 
         def get_plan(sql, mode):
             if mode == "simple":
