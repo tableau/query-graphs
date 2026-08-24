@@ -1,1 +1,55 @@
-[{"Plan": {"Node Type": "Seq Scan", "Parallel Aware": false, "Async Capable": false, "Relation Name": "supplier", "Schema": "pg_temp", "Alias": "supplier", "Startup Cost": 0.0, "Total Cost": 1894.0, "Plan Rows": 150, "Plan Width": 511, "Actual Startup Time": 0.718, "Actual Total Time": 20.632, "Actual Rows": 518, "Actual Loops": 1, "Output": ["supplier.s_suppkey", "supplier.s_name", "supplier.s_address", "supplier.s_nationkey", "supplier.s_phone", "supplier.s_acctbal", "supplier.s_comment", "EXISTS(SubPlan 1)"], "Plans": [{"Node Type": "Seq Scan", "Parent Relationship": "SubPlan", "Subplan Name": "SubPlan 1", "Parallel Aware": false, "Async Capable": false, "Relation Name": "partsupp", "Schema": "pg_temp", "Alias": "partsupp", "Startup Cost": 0.0, "Total Cost": 12.55, "Plan Rows": 1, "Plan Width": 0, "Actual Startup Time": 0.038, "Actual Total Time": 0.038, "Actual Rows": 0, "Actual Loops": 518, "Filter": "((supplier.s_acctbal < partsupp.ps_supplycost) AND (partsupp.ps_suppkey = supplier.s_suppkey))", "Rows Removed by Filter": 494}]}, "Planning Time": 0.101, "Triggers": [], "Execution Time": 20.658}]
+[
+  {
+    "Plan": {
+      "Node Type": "Seq Scan",
+      "Parallel Aware": false,
+      "Async Capable": false,
+      "Relation Name": "supplier",
+      "Schema": "pg_temp",
+      "Alias": "supplier",
+      "Startup Cost": 0.0,
+      "Total Cost": 1894.0,
+      "Plan Rows": 150,
+      "Plan Width": 511,
+      "Actual Startup Time": 0.085,
+      "Actual Total Time": 24.757,
+      "Actual Rows": 518,
+      "Actual Loops": 1,
+      "Output": [
+        "supplier.s_suppkey",
+        "supplier.s_name",
+        "supplier.s_address",
+        "supplier.s_nationkey",
+        "supplier.s_phone",
+        "supplier.s_acctbal",
+        "supplier.s_comment",
+        "EXISTS(SubPlan 1)"
+      ],
+      "Plans": [
+        {
+          "Node Type": "Seq Scan",
+          "Parent Relationship": "SubPlan",
+          "Subplan Name": "SubPlan 1",
+          "Parallel Aware": false,
+          "Async Capable": false,
+          "Relation Name": "partsupp",
+          "Schema": "pg_temp",
+          "Alias": "partsupp",
+          "Startup Cost": 0.0,
+          "Total Cost": 12.55,
+          "Plan Rows": 1,
+          "Plan Width": 0,
+          "Actual Startup Time": 0.047,
+          "Actual Total Time": 0.047,
+          "Actual Rows": 0,
+          "Actual Loops": 518,
+          "Filter": "((supplier.s_acctbal < partsupp.ps_supplycost) AND (partsupp.ps_suppkey = supplier.s_suppkey))",
+          "Rows Removed by Filter": 494
+        }
+      ]
+    },
+    "Planning Time": 0.092,
+    "Triggers": [],
+    "Execution Time": 24.785
+  }
+]

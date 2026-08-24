@@ -108,7 +108,7 @@ with psycopg2.connect("port=5432") as conn:
         with conn.cursor() as cur:
             cur.execute(explain + sql)
             records = cur.fetchall()
-            return json.dumps(records[0][0])
+            return json.dumps(records[0][0], indent=2)
 
     dump_plans("postgres", exec_postgres, get_postgres_plan)
 
