@@ -10,7 +10,7 @@ already provides us the structure of the rendered tree.
 */
 
 // Require node modules
-import type {IconName, TreeDescription, TreeNode} from "./tree-description";
+import type {IconName, TreeDescription, TreeNode} from "../tree-description";
 import type {ParsedXML} from "./xml";
 import {typesafeXMLParse} from "./xml";
 

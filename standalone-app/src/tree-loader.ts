@@ -1,8 +1,8 @@
-import {loadPostgresPlanFromText} from "@tableau/query-graphs/lib/postgres";
-import {loadHyperPlanFromText} from "@tableau/query-graphs/lib/hyper";
-import {loadTableauPlan} from "@tableau/query-graphs/lib/tableau";
-import {loadJsonFromText} from "@tableau/query-graphs/lib/json";
-import {loadXml} from "@tableau/query-graphs/lib/xml";
+import {loadPostgresPlanFromText} from "@tableau/query-graphs/lib/loaders/postgres";
+import {loadHyperPlanFromText} from "@tableau/query-graphs/lib/loaders/hyper";
+import {loadTableauPlan} from "@tableau/query-graphs/lib/loaders/tableau";
+import {loadJsonFromText} from "@tableau/query-graphs/lib/loaders/json";
+import {loadXml} from "@tableau/query-graphs/lib/loaders/xml";
 import type {TreeDescription} from "@tableau/query-graphs/lib/tree-description";
 import {assert} from "./assert";
 

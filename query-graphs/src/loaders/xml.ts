@@ -9,7 +9,7 @@ in the tooltips.
 
 */
 
-import type {TreeDescription, TreeNode} from "./tree-description";
+import type {TreeDescription, TreeNode} from "../tree-description";
 
 export interface ParsedXML {
     tag: string;
