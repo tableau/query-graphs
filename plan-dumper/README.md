@@ -39,11 +39,10 @@ The available modes are:
 * `pipelines` / `analyze-pipelines` → execution pipelines (Hyper only).
 
 Each requested mode is written to its own `<query>[-<mode>].plan.json` (no suffix for `simple`).
-A requested mode not supported by the active database build makes that database's dump fail.
-Mark intentionally unsupported combinations with `UNSUPPORTED` instead.
+Modes not supported by a database are skipped.
 
 If a database can't run a query at all, mark it with a `-- UNSUPPORTED: <db>[, <db>...]` comment.
-Use `<db>:<mode>` when only one mode is unsupported.
+Use `<db>:<mode>` when a normally supported mode fails for one query.
 Any unannotated query failure makes the run fail and leaves that database's previous output directory untouched.
 
 ## Regenerating the Plans
@@ -68,7 +67,7 @@ python3 dump-plans.py \
 ```
 
 Omit an option to skip its server database.
-A connection failure also skips that database without preventing the remaining dumpers from running.
+A connection or configuration failure makes the command fail after the remaining dumpers have run.
 
 Use `--hyper-path` for a custom Hyper build:
 

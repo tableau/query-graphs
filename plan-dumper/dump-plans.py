@@ -8,6 +8,7 @@ import shutil
 import sys
 import tempfile
 import uuid
+from contextlib import closing
 from datetime import date
 from decimal import Decimal
 from pathlib import Path
@@ -27,66 +28,30 @@ SETUP_FILE = BASE_DIR / "setup.sql"
 QUERIES_DIR = BASE_DIR / "queries"
 TARGET_DIR = BASE_DIR.parent / "standalone-app" / "examples"
 
-UNSUPPORTED_RE = re.compile(r"^--\s*UNSUPPORTED:\s*(.+)$", re.MULTILINE | re.IGNORECASE)
-MODES_RE = re.compile(r"^--\s*MODES:\s*(.+)$", re.MULTILINE | re.IGNORECASE)
 IDENTIFIER_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
-
-
-def parse_args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--hyper-path",
-        type=Path,
-        default=None,
-        help="Directory containing hyperd; uses the pip-installed Hyper by default.",
-    )
-    parser.add_argument(
-        "--postgres-dsn",
-        help="libpq DSN (omitting this option disables Postgres).",
-    )
-    parser.add_argument(
-        "--umbra-dsn",
-        help="libpq DSN (omitting this option disables Umbra).",
-    )
-    parser.add_argument(
-        "--cedardb-dsn",
-        help="libpq DSN (omitting this option disables CedarDB).",
-    )
-    parser.add_argument(
-        "--mariadb-url",
-        help="mysql:// URL (omitting this option disables MariaDB).",
-    )
-    parser.add_argument(
-        "--trino-url",
-        help=(
-            "http(s)://user@host:port/catalog/schema "
-            "(omitting this option disables Trino)."
-        ),
-    )
-    return parser.parse_args()
 
 
 def read_file(path):
     return path.read_text()
 
 
+unsupported_re = re.compile(
+    r"^--\s*UNSUPPORTED:\s*(.+)$",
+    re.MULTILINE | re.IGNORECASE,
+)
 def parse_unsupported(sql):
-    match = UNSUPPORTED_RE.search(sql)
+    match = unsupported_re.search(sql)
     if not match:
         return set()
     return {db.strip().lower() for db in match.group(1).split(",")}
 
 
+modes_re = re.compile(r"^--\s*MODES:\s*(.+)$", re.MULTILINE | re.IGNORECASE)
 def parse_modes(sql):
-    match = MODES_RE.search(sql)
+    match = modes_re.search(sql)
     if not match:
         return ["analyze"]
     return [mode.strip().lower() for mode in match.group(1).split(",")]
-
-
-def read_rows(path):
-    with path.open(newline="") as input_file:
-        yield from csv.reader(input_file, delimiter="|", quotechar='"')
 
 
 def run_setup(exec_stmt, setup_file, load_table=None):
@@ -108,47 +73,10 @@ def run_setup(exec_stmt, setup_file, load_table=None):
             exec_stmt(statement)
 
 
-def format_json(value):
-    if isinstance(value, str):
-        value = json.loads(value)
-    return json.dumps(value, indent=2)
-
-
-def parse_umbra_step_plan(value):
-    if not value:
-        return None
-    output = []
-    in_string = False
-    escaped = False
-    offset = 0
-    while offset < len(value):
-        character = value[offset]
-        if in_string:
-            output.append(character)
-            if escaped:
-                escaped = False
-            elif character == "\\":
-                escaped = True
-            elif character == '"':
-                in_string = False
-        elif character == '"':
-            in_string = True
-            output.append(character)
-        elif character == "\\" and value[offset:offset + 2] == "\\n":
-            output.append("\n")
-            offset += 1
-        else:
-            output.append(character)
-        offset += 1
-    return json.loads("".join(output))
-
-
 def dump_plans(
     name,
     get_plan,
-    recover_after_error=lambda: None,
 ):
-    failures = []
     with tempfile.TemporaryDirectory(prefix=f".{name}-", dir=TARGET_DIR) as temporary:
         staging_dir = Path(temporary) / name
         destination = TARGET_DIR / name
@@ -158,12 +86,6 @@ def dump_plans(
             sql = read_file(query_path).strip()
             unsupported = parse_unsupported(sql)
             relative_path = query_path.relative_to(QUERIES_DIR)
-
-            def output_path(mode):
-                suffix = "" if mode == "simple" else f"-{mode}"
-                return staging_dir / relative_path.with_name(
-                    relative_path.stem + suffix + ".plan.json"
-                )
 
             if name in unsupported:
                 print(f"{name}: {query_path.relative_to(BASE_DIR)} (skipped, marked UNSUPPORTED)")
@@ -180,47 +102,31 @@ def dump_plans(
                 if mode not in modes:
                     modes.append(mode)
             for mode in modes:
-                try:
-                    plan = get_plan(sql, mode)
-                except Exception as error:
-                    recover_after_error()
-                    message = (
-                        f"{name}: {query_path.relative_to(BASE_DIR)} ({mode}; failed: "
-                        f"{str(error).splitlines()[0]})"
-                    )
-                    print(message)
-                    failures.append(message)
-                    continue
+                plan = get_plan(sql, mode)
                 if plan is None:
-                    message = (
+                    print(
                         f"{name}: {query_path.relative_to(BASE_DIR)} "
-                        f"({mode}; unsupported mode)"
+                        f"({mode}; skipped, unsupported mode)"
                     )
-                    print(message)
-                    failures.append(message)
                     continue
 
                 print(f"{name}: {query_path.relative_to(BASE_DIR)} ({mode})")
-                destination_path = output_path(mode)
+                suffix = "" if mode == "simple" else f"-{mode}"
+                destination_path = staging_dir / relative_path.with_name(
+                    relative_path.stem + suffix + ".plan.json"
+                )
                 destination_path.parent.mkdir(parents=True, exist_ok=True)
                 destination_path.write_text(plan)
 
-        if failures:
-            raise RuntimeError(f"{name}: {len(failures)} plan(s) failed")
+        if destination.exists():
+            shutil.rmtree(destination)
+        staging_dir.rename(destination)
 
-        backup_parent = Path(tempfile.mkdtemp(prefix=f".{name}-backup-", dir=TARGET_DIR))
-        backup = backup_parent / name
-        try:
-            if destination.exists():
-                destination.rename(backup)
-            staging_dir.rename(destination)
-        except BaseException:
-            if backup.exists():
-                backup.rename(destination)
-            shutil.rmtree(backup_parent)
-            raise
-        else:
-            shutil.rmtree(backup_parent)
+
+def format_json(value):
+    if isinstance(value, str):
+        value = json.loads(value)
+    return json.dumps(value, indent=2)
 
 
 def dump_postgres_compatible(name, dsn):
@@ -228,14 +134,39 @@ def dump_postgres_compatible(name, dsn):
         print(f"Skipping {name}: no DSN configured")
         return
 
-    try:
-        connection = psycopg2.connect(dsn)
-    except psycopg2.OperationalError as error:
-        print(f"Skipping {name}: {str(error).splitlines()[0]}")
-        return
+    def decode_umbra_step_plan(value):
+        if not value:
+            return "null"
+        output = []
+        in_string = False
+        escaped = False
+        offset = 0
+        while offset < len(value):
+            character = value[offset]
+            if in_string:
+                output.append(character)
+                if escaped:
+                    escaped = False
+                elif character == "\\":
+                    escaped = True
+                elif character == '"':
+                    in_string = False
+            elif character == '"':
+                in_string = True
+                output.append(character)
+            elif character == "\\" and value[offset:offset + 2] == "\\n":
+                output.append("\n")
+                offset += 1
+            else:
+                output.append(character)
+            offset += 1
+        return "".join(output)
 
-    connection.autocommit = True
-    with connection:
+    def indent_following_lines(value, prefix):
+        return value.replace("\n", "\n" + prefix)
+
+    with closing(psycopg2.connect(dsn)) as connection:
+        connection.autocommit = True
         umbra_steps_supported = False
         if name == "umbra":
             with connection.cursor() as cursor:
@@ -277,17 +208,21 @@ def dump_postgres_compatible(name, dsn):
                     "CommonSubtreeElimination",
                     "PhysicalOperatorMapping",
                 )
-                plans = {}
+                plans = []
                 with connection.cursor() as cursor:
                     for step in optimizer_steps:
                         cursor.execute(
                             f"EXPLAIN (VERBOSE, FORMAT JSON, STEP {step}) " + sql
                         )
                         plan = cursor.fetchone()[0]
-                        if isinstance(plan, str):
-                            plan = json.loads(plan[plan.index("{"):])
-                        plans[step] = plan
-                return format_json(plans)
+                        if not isinstance(plan, str):
+                            raise TypeError("CedarDB returned a non-text JSON plan")
+                        plan = plan[plan.index("{"):].strip()
+                        plans.append(
+                            f" {json.dumps(step)}:"
+                            + indent_following_lines(plan, " ")
+                        )
+                return "{\n" + ",\n".join(plans) + "\n}"
             elif mode == "steps" and name == "umbra" and umbra_steps_supported:
                 log_path = f"/tmp/query-graphs-{uuid.uuid4().hex}.csv"
                 with connection.cursor() as cursor:
@@ -313,34 +248,38 @@ def dump_postgres_compatible(name, dsn):
                         "changed, duration_us, plan_json "
                         "FROM umbra_optimizer_steps ORDER BY event_id"
                     )
-                    events = [
-                        {
-                            "queryId": query_id,
-                            "eventId": event_id,
-                            "depth": depth,
-                            "step": step,
-                            "sourceLocation": source_location,
-                            "changed": changed,
-                            "durationUs": duration_us,
-                            "plan": parse_umbra_step_plan(plan_json),
-                        }
-                        for (
-                            query_id,
-                            event_id,
-                            depth,
-                            step,
-                            source_location,
-                            changed,
-                            duration_us,
-                            plan_json,
-                        ) in cursor.fetchall()
-                    ]
-                return format_json(events)
+                    events = []
+                    for (
+                        query_id,
+                        event_id,
+                        depth,
+                        step,
+                        source_location,
+                        changed,
+                        duration_us,
+                        plan_json,
+                    ) in cursor.fetchall():
+                        plan = decode_umbra_step_plan(plan_json)
+                        event = (
+                            "{\n"
+                            f' "queryId":{json.dumps(query_id)},\n'
+                            f' "eventId":{json.dumps(event_id)},\n'
+                            f' "depth":{json.dumps(depth)},\n'
+                            f' "step":{json.dumps(step)},\n'
+                            f' "sourceLocation":{json.dumps(source_location)},\n'
+                            f' "changed":{json.dumps(changed)},\n'
+                            f' "durationUs":{json.dumps(duration_us)},\n'
+                            f' "plan":{indent_following_lines(plan, " ")}\n'
+                            "}"
+                        )
+                        events.append(" " + indent_following_lines(event, " "))
+                return "[\n" + ",\n".join(events) + "\n]"
             else:
                 return None
             with connection.cursor() as cursor:
                 cursor.execute(explain + sql)
-                return format_json(cursor.fetchone()[0])
+                plan = cursor.fetchone()[0]
+                return plan if isinstance(plan, str) else format_json(plan)
 
         run_setup(
             exec_stmt,
@@ -348,29 +287,7 @@ def dump_postgres_compatible(name, dsn):
             load_table,
         )
         connection.commit()
-        dump_plans(name, get_plan, connection.rollback)
-
-
-def parse_mariadb_url(url):
-    parsed = urlparse(url)
-    if parsed.scheme not in ("mysql", "mariadb"):
-        raise ValueError("expected a mysql:// or mariadb:// URL")
-    database = parsed.path.lstrip("/")
-    if not IDENTIFIER_RE.fullmatch(database):
-        raise ValueError("URL must include a simple database name")
-    query = parse_qs(parsed.query)
-    options = {
-        "host": parsed.hostname or "localhost",
-        "port": parsed.port or 3306,
-        "user": unquote(parsed.username or ""),
-        "password": unquote(parsed.password or ""),
-        "database": database,
-        "autocommit": True,
-        "local_infile": True,
-    }
-    if "unix_socket" in query:
-        options["unix_socket"] = query["unix_socket"][-1]
-    return options
+        dump_plans(name, get_plan)
 
 
 def dump_mariadb(url):
@@ -378,14 +295,28 @@ def dump_mariadb(url):
         print("Skipping mariadb: --mariadb-url is not configured")
         return
 
-    try:
-        options = parse_mariadb_url(url)
-        connection = pymysql.connect(**options)
-    except (ValueError, pymysql.MySQLError) as error:
-        print(f"Skipping mariadb: {str(error).splitlines()[0]}")
-        return
+    def parse_url():
+        parsed = urlparse(url)
+        if parsed.scheme not in ("mysql", "mariadb"):
+            raise ValueError("expected a mysql:// or mariadb:// URL")
+        database = parsed.path.lstrip("/")
+        if not IDENTIFIER_RE.fullmatch(database):
+            raise ValueError("URL must include a simple database name")
+        query = parse_qs(parsed.query)
+        options = {
+            "host": parsed.hostname or "localhost",
+            "port": parsed.port or 3306,
+            "user": unquote(parsed.username or ""),
+            "password": unquote(parsed.password or ""),
+            "database": database,
+            "autocommit": True,
+            "local_infile": True,
+        }
+        if "unix_socket" in query:
+            options["unix_socket"] = query["unix_socket"][-1]
+        return options
 
-    with connection:
+    with pymysql.connect(**parse_url()) as connection:
         def exec_stmt(sql):
             with connection.cursor() as cursor:
                 cursor.execute(sql)
@@ -418,12 +349,12 @@ def dump_mariadb(url):
                     raise RuntimeError(
                         f"MariaDB optimizer trace is missing {missing_bytes} bytes"
                     )
-                return format_json(trace)
+                return trace
             else:
                 return None
             with connection.cursor() as cursor:
                 cursor.execute(explain + sql)
-                return format_json(cursor.fetchone()[0])
+                return cursor.fetchone()[0]
 
         run_setup(
             exec_stmt,
@@ -432,47 +363,47 @@ def dump_mariadb(url):
         dump_plans("mariadb", get_plan)
 
 
-def parse_trino_url(url):
-    parsed = urlparse(url)
-    if parsed.scheme not in ("http", "https"):
-        raise ValueError("expected an http:// or https:// URL")
-    if parsed.password is not None:
-        raise ValueError("password-authenticated Trino is not supported")
-    path = [unquote(part) for part in parsed.path.split("/") if part]
-    if len(path) != 2 or not all(IDENTIFIER_RE.fullmatch(part) for part in path):
-        raise ValueError("URL path must be /catalog/schema using simple identifiers")
-    if path[1] != "query_graphs_plan_dumper":
-        raise ValueError("Trino schema must be the dedicated query_graphs_plan_dumper scratch schema")
-    host = parsed.hostname or "localhost"
-    port = parsed.port or (443 if parsed.scheme == "https" else 8080)
-    url_host = f"[{host}]" if ":" in host else host
-    coordinator_url = f"{parsed.scheme}://{url_host}:{port}"
-    return {
-        "host": host,
-        "port": port,
-        "user": unquote(parsed.username or "plan-dumper"),
-        "http_scheme": parsed.scheme,
-    }, path, coordinator_url
-
-
 def dump_trino(url):
     if not url:
         print("Skipping trino: --trino-url is not configured")
         return
 
-    try:
-        options, (catalog, schema), coordinator_url = parse_trino_url(url)
-        connection = trino.dbapi.connect(catalog=catalog, **options)
+    def parse_url():
+        parsed = urlparse(url)
+        if parsed.scheme not in ("http", "https"):
+            raise ValueError("expected an http:// or https:// URL")
+        if parsed.password is not None:
+            raise ValueError("password-authenticated Trino is not supported")
+        path = [unquote(part) for part in parsed.path.split("/") if part]
+        if len(path) != 2 or not all(IDENTIFIER_RE.fullmatch(part) for part in path):
+            raise ValueError("URL path must be /catalog/schema using simple identifiers")
+        if path[1] != "query_graphs_plan_dumper":
+            raise ValueError(
+                "Trino schema must be the dedicated query_graphs_plan_dumper scratch schema"
+            )
+        host = parsed.hostname or "localhost"
+        port = parsed.port or (443 if parsed.scheme == "https" else 8080)
+        url_host = f"[{host}]" if ":" in host else host
+        coordinator_url = f"{parsed.scheme}://{url_host}:{port}"
+        return {
+            "host": host,
+            "port": port,
+            "user": unquote(parsed.username or "plan-dumper"),
+            "http_scheme": parsed.scheme,
+        }, path, coordinator_url
+
+    options, (catalog, schema), coordinator_url = parse_url()
+    with trino.dbapi.connect(catalog=catalog, **options) as connection:
         cursor = connection.cursor()
         cursor.execute(f"CREATE SCHEMA IF NOT EXISTS {catalog}.{schema}")
         cursor.fetchall()
         cursor.execute(f"USE {catalog}.{schema}")
         cursor.fetchall()
-    except (ValueError, trino.exceptions.TrinoConnectionError) as error:
-        print(f"Skipping trino: {str(error).splitlines()[0]}")
-        return
 
-    with connection:
+        def read_rows(path):
+            with path.open(newline="") as input_file:
+                yield from csv.reader(input_file, delimiter="|", quotechar='"')
+
         def exec_stmt(sql):
             cursor.execute(sql)
             cursor.fetchall()
@@ -504,7 +435,7 @@ def dump_trino(url):
             query = sql.rstrip().removesuffix(";")
             if mode == "simple":
                 cursor.execute("EXPLAIN (TYPE DISTRIBUTED, FORMAT JSON) " + query)
-                return format_json(cursor.fetchone()[0])
+                return cursor.fetchone()[0]
             if mode == "analyze":
                 cursor.execute(query)
                 cursor.fetchall()
@@ -582,14 +513,9 @@ def dump_hyper(hyper_path):
                 }
                 if mode not in options:
                     return None
-                try:
-                    result = connection.execute_list_query(
-                        f"EXPLAIN ({options[mode]}) " + sql
-                    )
-                except Exception as error:
-                    if "unknown explain option" in str(error).lower():
-                        return None
-                    raise
+                result = connection.execute_list_query(
+                    f"EXPLAIN ({options[mode]}) " + sql
+                )
                 return "\n".join(row[0] for row in result)
 
             run_setup(
@@ -600,6 +526,39 @@ def dump_hyper(hyper_path):
 
 
 def main():
+    def parse_args():
+        parser = argparse.ArgumentParser()
+        parser.add_argument(
+            "--hyper-path",
+            type=Path,
+            default=None,
+            help="Directory containing hyperd; uses the pip-installed Hyper by default.",
+        )
+        parser.add_argument(
+            "--postgres-dsn",
+            help="libpq DSN (omitting this option disables Postgres).",
+        )
+        parser.add_argument(
+            "--umbra-dsn",
+            help="libpq DSN (omitting this option disables Umbra).",
+        )
+        parser.add_argument(
+            "--cedardb-dsn",
+            help="libpq DSN (omitting this option disables CedarDB).",
+        )
+        parser.add_argument(
+            "--mariadb-url",
+            help="mysql:// URL (omitting this option disables MariaDB).",
+        )
+        parser.add_argument(
+            "--trino-url",
+            help=(
+                "http(s)://user@host:port/catalog/schema "
+                "(omitting this option disables Trino)."
+            ),
+        )
+        return parser.parse_args()
+
     os.chdir(BASE_DIR)
     args = parse_args()
     engines = [
