@@ -11,6 +11,7 @@ import {QueryNode} from "./QueryNode";
 import type {QueryGraphNode} from "./QueryNode";
 import {ColoredEdge} from "./ColoredEdge";
 import {createGraphRenderingStore, GraphRenderingStoreContext, useGraphRenderingStore} from "./store";
+import {useAnimatedGraphLayout} from "./useAnimatedGraphLayout";
 import "./QueryGraph.css";
 
 interface QueryGraphProps {
@@ -40,29 +41,34 @@ function QueryGraphInternal({treeDescription, children, nodeIdMapping}: QueryGra
     // Keep React Flow's measurements in the controlled node objects. Dropping them when
     // recomputing the layout makes React Flow repeatedly hide and re-initialize the nodes.
     const nodeDimensions = useGraphRenderingStore((s) => s.nodeDimensions);
-    const updateNodeDimensions = useGraphRenderingStore((s) => s.updateNodeDimensions);
+    const updateNodeMeasurements = useGraphRenderingStore((s) => s.updateNodeMeasurements);
     const onNodesChange = useCallback(
         (changes: NodeChange<QueryGraphNode>[]) => {
             const updates = changes.flatMap((change) => {
                 if (change.type !== "dimensions" || change.dimensions === undefined) return [];
                 return [[change.id, change.dimensions] as const];
             });
-            updateNodeDimensions(updates);
+            updateNodeMeasurements(updates);
         },
-        [updateNodeDimensions],
+        [updateNodeMeasurements],
     );
 
-    // Layout the tree using the dimensions measured by React Flow itself.
     const expandedSubtrees = useGraphRenderingStore((s) => s.expandedSubtrees);
+    const layoutAnimation = useGraphRenderingStore((s) => s.layoutAnimation);
     const layout = useMemo(
         () => layoutTree(treeDescription, nodeIdMapping, nodeDimensions, expandedSubtrees),
         [treeDescription, nodeIdMapping, nodeDimensions, expandedSubtrees],
     );
+    const animatedLayout = useAnimatedGraphLayout(
+        layout,
+        layoutAnimation,
+        layout.nodes.every((node) => nodeDimensions.has(node.id)),
+    );
 
     return (
         <ReactFlow
-            nodes={layout.nodes}
-            edges={layout.edges}
+            nodes={animatedLayout.nodes}
+            edges={animatedLayout.edges}
             nodeOrigin={[0.5, 0]}
             nodeTypes={nodeTypes}
             edgeTypes={edgeTypes}
@@ -84,13 +90,13 @@ function QueryGraphInternal({treeDescription, children, nodeIdMapping}: QueryGra
 }
 
 function createGraphState(treeDescription: TreeDescription) {
-    let nextId = 0;
+    let nextNodeId = 0;
     const nodeIdMapping = new Map<TreeNode, string>();
     const expandedSubtrees: Record<string, boolean> = {};
     visitTreeNodes(
         treeDescription.root,
         (node) => {
-            const id = "" + nextId++;
+            const id = "" + nextNodeId++;
             nodeIdMapping.set(node, id);
             if (node.expandedByDefault) expandedSubtrees[id] = true;
         },
