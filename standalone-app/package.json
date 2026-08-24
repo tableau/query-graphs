@@ -21,6 +21,12 @@
   "files": [
     "dist/**"
   ],
+  "browserslist": [
+    "last 2 Chrome versions",
+    "last 2 Firefox versions",
+    "last 2 Safari versions",
+    "last 2 Edge versions"
+  ],
   "devDependencies": {
     "@tableau/query-graphs": "workspace:^",
     "@types/node": "^24.13.3",
