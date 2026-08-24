@@ -1,1 +1,71 @@
-[{"Plan": {"Node Type": "Aggregate", "Strategy": "Hashed", "Partial Mode": "Simple", "Parallel Aware": false, "Async Capable": false, "Startup Cost": 13.5, "Total Cost": 16.5, "Plan Rows": 200, "Plan Width": 72, "Actual Startup Time": 0.175, "Actual Total Time": 0.177, "Actual Rows": 3, "Actual Loops": 1, "Output": ["l_returnflag", "sum(l_quantity)", "avg(l_discount)"], "Group Key": ["lineitem.l_returnflag"], "Planned Partitions": 0, "HashAgg Batches": 1, "Peak Memory Usage": 40, "Disk Usage": 0, "Plans": [{"Node Type": "Seq Scan", "Parent Relationship": "Outer", "Parallel Aware": false, "Async Capable": false, "Relation Name": "lineitem", "Schema": "pg_temp", "Alias": "lineitem", "Startup Cost": 0.0, "Total Cost": 12.0, "Plan Rows": 200, "Plan Width": 40, "Actual Startup Time": 0.003, "Actual Total Time": 0.035, "Actual Rows": 572, "Actual Loops": 1, "Output": ["l_orderkey", "l_partkey", "l_suppkey", "l_linenumber", "l_quantity", "l_extendedprice", "l_discount", "l_tax", "l_returnflag", "l_linestatus", "l_shipdate", "l_commitdate", "l_receiptdate", "l_shipinstruct", "l_shipmode", "l_comment"]}]}, "Planning Time": 0.039, "Triggers": [], "Execution Time": 0.194}]
+[
+  {
+    "Plan": {
+      "Node Type": "Aggregate",
+      "Strategy": "Hashed",
+      "Partial Mode": "Simple",
+      "Parallel Aware": false,
+      "Async Capable": false,
+      "Startup Cost": 13.5,
+      "Total Cost": 16.5,
+      "Plan Rows": 200,
+      "Plan Width": 72,
+      "Actual Startup Time": 0.247,
+      "Actual Total Time": 0.25,
+      "Actual Rows": 3,
+      "Actual Loops": 1,
+      "Output": [
+        "l_returnflag",
+        "sum(l_quantity)",
+        "avg(l_discount)"
+      ],
+      "Group Key": [
+        "lineitem.l_returnflag"
+      ],
+      "Planned Partitions": 0,
+      "HashAgg Batches": 1,
+      "Peak Memory Usage": 40,
+      "Disk Usage": 0,
+      "Plans": [
+        {
+          "Node Type": "Seq Scan",
+          "Parent Relationship": "Outer",
+          "Parallel Aware": false,
+          "Async Capable": false,
+          "Relation Name": "lineitem",
+          "Schema": "pg_temp",
+          "Alias": "lineitem",
+          "Startup Cost": 0.0,
+          "Total Cost": 12.0,
+          "Plan Rows": 200,
+          "Plan Width": 40,
+          "Actual Startup Time": 0.006,
+          "Actual Total Time": 0.05,
+          "Actual Rows": 572,
+          "Actual Loops": 1,
+          "Output": [
+            "l_orderkey",
+            "l_partkey",
+            "l_suppkey",
+            "l_linenumber",
+            "l_quantity",
+            "l_extendedprice",
+            "l_discount",
+            "l_tax",
+            "l_returnflag",
+            "l_linestatus",
+            "l_shipdate",
+            "l_commitdate",
+            "l_receiptdate",
+            "l_shipinstruct",
+            "l_shipmode",
+            "l_comment"
+          ]
+        }
+      ]
+    },
+    "Planning Time": 0.058,
+    "Triggers": [],
+    "Execution Time": 0.285
+  }
+]

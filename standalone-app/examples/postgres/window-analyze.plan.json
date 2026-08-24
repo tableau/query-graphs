@@ -1,1 +1,131 @@
-[{"Plan": {"Node Type": "WindowAgg", "Parallel Aware": false, "Async Capable": false, "Startup Cost": 30.81, "Total Cost": 34.29, "Plan Rows": 200, "Plan Width": 72, "Actual Startup Time": 0.335, "Actual Total Time": 0.452, "Actual Rows": 572, "Actual Loops": 1, "Output": ["l_orderkey", "sum(l_quantity) OVER (?)", "(avg(l_extendedprice) OVER (?))", "l_shipdate"], "Plans": [{"Node Type": "Sort", "Parent Relationship": "Outer", "Parallel Aware": false, "Async Capable": false, "Startup Cost": 30.79, "Total Cost": 31.29, "Plan Rows": 200, "Plan Width": 72, "Actual Startup Time": 0.325, "Actual Total Time": 0.342, "Actual Rows": 572, "Actual Loops": 1, "Output": ["l_orderkey", "l_shipdate", "l_quantity", "l_extendedprice", "(avg(l_extendedprice) OVER (?))"], "Sort Key": ["lineitem.l_orderkey"], "Sort Method": "quicksort", "Sort Space Used": 51, "Sort Space Type": "Memory", "Plans": [{"Node Type": "WindowAgg", "Parent Relationship": "Outer", "Parallel Aware": false, "Async Capable": false, "Startup Cost": 19.71, "Total Cost": 23.14, "Plan Rows": 200, "Plan Width": 72, "Actual Startup Time": 0.086, "Actual Total Time": 0.268, "Actual Rows": 572, "Actual Loops": 1, "Output": ["l_orderkey", "l_shipdate", "l_quantity", "l_extendedprice", "avg(l_extendedprice) OVER (?)"], "Plans": [{"Node Type": "Sort", "Parent Relationship": "Outer", "Parallel Aware": false, "Async Capable": false, "Startup Cost": 19.64, "Total Cost": 20.14, "Plan Rows": 200, "Plan Width": 40, "Actual Startup Time": 0.082, "Actual Total Time": 0.095, "Actual Rows": 572, "Actual Loops": 1, "Output": ["l_orderkey", "l_shipdate", "l_quantity", "l_extendedprice"], "Sort Key": ["lineitem.l_shipdate"], "Sort Method": "quicksort", "Sort Space Used": 47, "Sort Space Type": "Memory", "Plans": [{"Node Type": "Seq Scan", "Parent Relationship": "Outer", "Parallel Aware": false, "Async Capable": false, "Relation Name": "lineitem", "Schema": "pg_temp", "Alias": "lineitem", "Startup Cost": 0.0, "Total Cost": 12.0, "Plan Rows": 200, "Plan Width": 40, "Actual Startup Time": 0.003, "Actual Total Time": 0.035, "Actual Rows": 572, "Actual Loops": 1, "Output": ["l_orderkey", "l_shipdate", "l_quantity", "l_extendedprice"]}]}]}]}]}, "Planning Time": 0.026, "Triggers": [], "Execution Time": 0.471}]
+[
+  {
+    "Plan": {
+      "Node Type": "WindowAgg",
+      "Parallel Aware": false,
+      "Async Capable": false,
+      "Startup Cost": 30.81,
+      "Total Cost": 34.29,
+      "Plan Rows": 200,
+      "Plan Width": 72,
+      "Actual Startup Time": 0.453,
+      "Actual Total Time": 0.628,
+      "Actual Rows": 572,
+      "Actual Loops": 1,
+      "Output": [
+        "l_orderkey",
+        "sum(l_quantity) OVER (?)",
+        "(avg(l_extendedprice) OVER (?))",
+        "l_shipdate"
+      ],
+      "Plans": [
+        {
+          "Node Type": "Sort",
+          "Parent Relationship": "Outer",
+          "Parallel Aware": false,
+          "Async Capable": false,
+          "Startup Cost": 30.79,
+          "Total Cost": 31.29,
+          "Plan Rows": 200,
+          "Plan Width": 72,
+          "Actual Startup Time": 0.448,
+          "Actual Total Time": 0.464,
+          "Actual Rows": 572,
+          "Actual Loops": 1,
+          "Output": [
+            "l_orderkey",
+            "l_shipdate",
+            "l_quantity",
+            "l_extendedprice",
+            "(avg(l_extendedprice) OVER (?))"
+          ],
+          "Sort Key": [
+            "lineitem.l_orderkey"
+          ],
+          "Sort Method": "quicksort",
+          "Sort Space Used": 51,
+          "Sort Space Type": "Memory",
+          "Plans": [
+            {
+              "Node Type": "WindowAgg",
+              "Parent Relationship": "Outer",
+              "Parallel Aware": false,
+              "Async Capable": false,
+              "Startup Cost": 19.71,
+              "Total Cost": 23.14,
+              "Plan Rows": 200,
+              "Plan Width": 72,
+              "Actual Startup Time": 0.12,
+              "Actual Total Time": 0.371,
+              "Actual Rows": 572,
+              "Actual Loops": 1,
+              "Output": [
+                "l_orderkey",
+                "l_shipdate",
+                "l_quantity",
+                "l_extendedprice",
+                "avg(l_extendedprice) OVER (?)"
+              ],
+              "Plans": [
+                {
+                  "Node Type": "Sort",
+                  "Parent Relationship": "Outer",
+                  "Parallel Aware": false,
+                  "Async Capable": false,
+                  "Startup Cost": 19.64,
+                  "Total Cost": 20.14,
+                  "Plan Rows": 200,
+                  "Plan Width": 40,
+                  "Actual Startup Time": 0.115,
+                  "Actual Total Time": 0.131,
+                  "Actual Rows": 572,
+                  "Actual Loops": 1,
+                  "Output": [
+                    "l_orderkey",
+                    "l_shipdate",
+                    "l_quantity",
+                    "l_extendedprice"
+                  ],
+                  "Sort Key": [
+                    "lineitem.l_shipdate"
+                  ],
+                  "Sort Method": "quicksort",
+                  "Sort Space Used": 47,
+                  "Sort Space Type": "Memory",
+                  "Plans": [
+                    {
+                      "Node Type": "Seq Scan",
+                      "Parent Relationship": "Outer",
+                      "Parallel Aware": false,
+                      "Async Capable": false,
+                      "Relation Name": "lineitem",
+                      "Schema": "pg_temp",
+                      "Alias": "lineitem",
+                      "Startup Cost": 0.0,
+                      "Total Cost": 12.0,
+                      "Plan Rows": 200,
+                      "Plan Width": 40,
+                      "Actual Startup Time": 0.002,
+                      "Actual Total Time": 0.049,
+                      "Actual Rows": 572,
+                      "Actual Loops": 1,
+                      "Output": [
+                        "l_orderkey",
+                        "l_shipdate",
+                        "l_quantity",
+                        "l_extendedprice"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "Planning Time": 0.015,
+    "Triggers": [],
+    "Execution Time": 0.653
+  }
+]
