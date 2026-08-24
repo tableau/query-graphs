@@ -20,19 +20,19 @@ import trino
 from tableauhyperapi import Connection, HyperProcess, Telemetry
 
 
-baseDir = Path(__file__).resolve().parent
-setupFile = baseDir / "setup.sql"
-queriesDir = baseDir / "queries"
-targetDir = baseDir.parent / "standalone-app" / "examples"
+BASE_DIR = Path(__file__).resolve().parent
+SETUP_FILE = BASE_DIR / "setup.sql"
+QUERIES_DIR = BASE_DIR / "queries"
+TARGET_DIR = BASE_DIR.parent / "standalone-app" / "examples"
 
-unsupportedRe = re.compile(r"^--\s*UNSUPPORTED:\s*(.+)$", re.MULTILINE | re.IGNORECASE)
-modesRe = re.compile(r"^--\s*MODES:\s*(.+)$", re.MULTILINE | re.IGNORECASE)
-copyRe = re.compile(
+UNSUPPORTED_RE = re.compile(r"^--\s*UNSUPPORTED:\s*(.+)$", re.MULTILINE | re.IGNORECASE)
+MODES_RE = re.compile(r"^--\s*MODES:\s*(.+)$", re.MULTILINE | re.IGNORECASE)
+COPY_RE = re.compile(
     r"\bcopy\s+(\w+)\s+from\s+'([^']+)'\s+\(format\s+csv,\s+delimiter\s+'\|'\)",
     re.IGNORECASE,
 )
-createTableRe = re.compile(r"\bCREATE\s+TEMP\s+TABLE\s+(\w+)", re.IGNORECASE)
-identifierRe = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
+CREATE_TABLE_RE = re.compile(r"\bCREATE\s+TEMP\s+TABLE\s+(\w+)", re.IGNORECASE)
+IDENTIFIER_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 
 
 def parse_args():
@@ -74,14 +74,14 @@ def read_file(path):
 
 
 def parse_unsupported(sql):
-    match = unsupportedRe.search(sql)
+    match = UNSUPPORTED_RE.search(sql)
     if not match:
         return set()
     return {db.strip().lower() for db in match.group(1).split(",")}
 
 
 def parse_modes(sql):
-    match = modesRe.search(sql)
+    match = MODES_RE.search(sql)
     if not match:
         return ["analyze"]
     return [mode.strip().lower() for mode in match.group(1).split(",")]
@@ -93,15 +93,15 @@ def read_rows(path):
 
 
 def copied_tables():
-    return [match.group(1) for match in copyRe.finditer(read_file(setupFile))]
+    return [match.group(1) for match in COPY_RE.finditer(read_file(SETUP_FILE))]
 
 
 def run_setup(exec_stmt, load_table, transform_ddl=lambda sql: sql):
-    for stmt in read_file(setupFile).split(";"):
-        copy_match = copyRe.search(stmt)
+    for stmt in read_file(SETUP_FILE).split(";"):
+        copy_match = COPY_RE.search(stmt)
         if copy_match:
             table, relative_path = copy_match.groups()
-            load_table(table, baseDir / relative_path)
+            load_table(table, BASE_DIR / relative_path)
         elif stmt.strip():
             exec_stmt(transform_ddl(stmt))
 
@@ -149,15 +149,15 @@ def dump_plans(
 ):
     setup()
     failures = []
-    with tempfile.TemporaryDirectory(prefix=f".{name}-", dir=targetDir) as temporary:
+    with tempfile.TemporaryDirectory(prefix=f".{name}-", dir=TARGET_DIR) as temporary:
         staging_dir = Path(temporary) / name
-        destination = targetDir / name
+        destination = TARGET_DIR / name
         staging_dir.mkdir()
 
-        for query_path in sorted(queriesDir.glob("**/*.sql")):
+        for query_path in sorted(QUERIES_DIR.glob("**/*.sql")):
             sql = read_file(query_path).strip()
             unsupported = parse_unsupported(sql)
-            relative_path = query_path.relative_to(queriesDir)
+            relative_path = query_path.relative_to(QUERIES_DIR)
 
             def output_path(mode):
                 suffix = "" if mode == "simple" else f"-{mode}"
@@ -166,14 +166,14 @@ def dump_plans(
                 )
 
             if name in unsupported:
-                print(f"{name}: {query_path.relative_to(baseDir)} (skipped, marked UNSUPPORTED)")
+                print(f"{name}: {query_path.relative_to(BASE_DIR)} (skipped, marked UNSUPPORTED)")
                 continue
 
             modes = []
             for mode in parse_modes(sql):
                 if f"{name}:{mode}" in unsupported:
                     print(
-                        f"{name}: {query_path.relative_to(baseDir)} "
+                        f"{name}: {query_path.relative_to(BASE_DIR)} "
                         f"({mode}; skipped, marked UNSUPPORTED)"
                     )
                     continue
@@ -185,7 +185,7 @@ def dump_plans(
                 except Exception as error:
                     recover_after_error()
                     message = (
-                        f"{name}: {query_path.relative_to(baseDir)} ({mode}; failed: "
+                        f"{name}: {query_path.relative_to(BASE_DIR)} ({mode}; failed: "
                         f"{str(error).splitlines()[0]})"
                     )
                     print(message)
@@ -193,14 +193,14 @@ def dump_plans(
                     continue
                 if plan is None:
                     message = (
-                        f"{name}: {query_path.relative_to(baseDir)} "
+                        f"{name}: {query_path.relative_to(BASE_DIR)} "
                         f"({mode}; unsupported mode)"
                     )
                     print(message)
                     failures.append(message)
                     continue
 
-                print(f"{name}: {query_path.relative_to(baseDir)} ({mode})")
+                print(f"{name}: {query_path.relative_to(BASE_DIR)} ({mode})")
                 destination_path = output_path(mode)
                 destination_path.parent.mkdir(parents=True, exist_ok=True)
                 destination_path.write_text(plan)
@@ -208,7 +208,7 @@ def dump_plans(
         if failures:
             raise RuntimeError(f"{name}: {len(failures)} plan(s) failed")
 
-        backup_parent = Path(tempfile.mkdtemp(prefix=f".{name}-backup-", dir=targetDir))
+        backup_parent = Path(tempfile.mkdtemp(prefix=f".{name}-backup-", dir=TARGET_DIR))
         backup = backup_parent / name
         try:
             if destination.exists():
@@ -350,7 +350,7 @@ def parse_mariadb_url(url):
     if parsed.scheme not in ("mysql", "mariadb"):
         raise ValueError("expected a mysql:// or mariadb:// URL")
     database = parsed.path.lstrip("/")
-    if not identifierRe.fullmatch(database):
+    if not IDENTIFIER_RE.fullmatch(database):
         raise ValueError("URL must include a simple database name")
     query = parse_qs(parsed.query)
     options = {
@@ -380,7 +380,7 @@ def dump_mariadb(url):
 
     with connection:
         def exec_stmt(sql):
-            match = createTableRe.search(sql)
+            match = CREATE_TABLE_RE.search(sql)
             with connection.cursor() as cursor:
                 if match:
                     cursor.execute(f"DROP TABLE IF EXISTS {match.group(1)}")
@@ -442,7 +442,7 @@ def parse_trino_url(url):
     if parsed.password is not None:
         raise ValueError("password-authenticated Trino is not supported")
     path = [unquote(part) for part in parsed.path.split("/") if part]
-    if len(path) != 2 or not all(identifierRe.fullmatch(part) for part in path):
+    if len(path) != 2 or not all(IDENTIFIER_RE.fullmatch(part) for part in path):
         raise ValueError("URL path must be /catalog/schema using simple identifiers")
     if path[1] != "query_graphs_plan_dumper":
         raise ValueError("Trino schema must be the dedicated query_graphs_plan_dumper scratch schema")
@@ -477,7 +477,7 @@ def dump_trino(url):
 
     with connection:
         def transform_ddl(sql):
-            match = createTableRe.search(sql)
+            match = CREATE_TABLE_RE.search(sql)
             if match:
                 cursor.execute(f"DROP TABLE IF EXISTS {match.group(1)}")
                 cursor.fetchall()
