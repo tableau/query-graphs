@@ -1,3 +1,4 @@
+-- MODES: pipelines
 -- Materialized share: the same shared scan feeds both sides of a self-join. The
 -- build and probe pipelines depend on each other, so the share cannot be forked;
 -- it is materialized into a temp that both explicit scans read, and the pipeline

@@ -1,1 +1,2 @@
+-- MODES: simple
 SELECT *, EXISTS (SELECT * FROM t2 WHERE a1 = a2 AND b1 < b2) FROM t1

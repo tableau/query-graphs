@@ -1,3 +1,4 @@
+-- MODES: simple
 WITH RECURSIVE x(i) AS (
     SELECT 1
     UNION ALL

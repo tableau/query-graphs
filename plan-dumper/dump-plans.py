@@ -40,6 +40,19 @@ def parse_unsupported(sql):
     return {db.strip().lower() for db in m.group(1).split(",")}
 
 
+# A `-- MODES: simple, analyze, pipelines` comment anywhere in a query file lists the
+# EXPLAIN modes to dump it under (one output file per mode); defaults to `analyze` alone
+# when absent, since that's what most queries want.
+modesRe = re.compile(r"^--\s*MODES:\s*(.+)$", re.MULTILINE | re.IGNORECASE)
+
+
+def parse_modes(sql):
+    m = modesRe.search(sql)
+    if not m:
+        return ["analyze"]
+    return [mode.strip().lower() for mode in m.group(1).split(",")]
+
+
 def copy_and_overwrite(from_path, to_path):
     if os.path.exists(to_path):
         shutil.rmtree(to_path)
@@ -65,26 +78,17 @@ def dump_plans(name, exec_stmt, get_plan):
        if name in parse_unsupported(sql):
            print(f"{name}: {f} (skipped, marked UNSUPPORTED)")
            continue
-       print(f"{name}: {f}")
-       fname = f.name
-       if fname.endswith("-steps.sql"):
-           mode = "steps"
-       elif fname.endswith("-analyze-pipelines.sql"):
-           mode = "analyze-pipelines"
-       elif fname.endswith("-pipelines.sql"):
-           mode = "pipelines"
-       elif fname.endswith("-analyze.sql"):
-           mode = "analyze"
-       else:
-           mode = None
-
-       plan = get_plan(sql, mode)
-       if not plan:
-           continue
-       targetPath = targetDir / name / f.relative_to(queriesDir).with_suffix(".plan.json")
-       targetPath.parent.mkdir(parents=True, exist_ok=True)
-       with open(targetPath, "w") as f:
-           f.write(plan)
+       frel = f.relative_to(queriesDir)
+       for mode in parse_modes(sql):
+           plan = get_plan(sql, mode)
+           if not plan:
+               continue
+           print(f"{name}: {f} ({mode})")
+           suffix = "" if mode == "simple" else f"-{mode}"
+           targetPath = targetDir / name / frel.with_name(frel.stem + suffix + ".plan.json")
+           targetPath.parent.mkdir(parents=True, exist_ok=True)
+           with open(targetPath, "w") as out:
+               out.write(plan)
 
 
 # Postgres
@@ -95,12 +99,10 @@ with psycopg2.connect("port=5432") as conn:
                 cur.execute(sql)
 
     def get_postgres_plan(sql, mode):
-        if mode == "steps":
-            return None
+        if mode == "simple":
+            explain = "EXPLAIN (VERBOSE, FORMAT JSON) "
         elif mode == "analyze":
             explain = "EXPLAIN (VERBOSE, ANALYZE, FORMAT JSON) "
-        elif mode is None:
-            explain = "EXPLAIN (VERBOSE, FORMAT JSON) "
         else:
             return None
         with conn.cursor() as cur:
@@ -122,7 +124,7 @@ with duckdb.connect() as duckdb_con:
             duckdb_con.execute(sql)
 
     def get_duckdb_plan(sql, mode):
-        if mode is None:
+        if mode == "simple":
             duckdb_con.execute("SET explain_output='physical_only'")
             explain = "EXPLAIN (FORMAT JSON) "
         elif mode == "analyze":
@@ -150,7 +152,9 @@ with HyperProcess(telemetry=Telemetry.SEND_USAGE_DATA_TO_TABLEAU, parameters=hyp
             connection.execute_command(sql)
 
         def get_hyper_plan(sql, mode):
-            if mode == "steps":
+            if mode == "simple":
+                explain = "EXPLAIN (FORMAT INTERNAL) "
+            elif mode == "steps":
                 explain = "EXPLAIN (FORMAT INTERNAL, OPTIMIZE STEPS) "
             elif mode == "analyze":
                 explain = "EXPLAIN (FORMAT INTERNAL, ANALYZE) "
@@ -158,8 +162,6 @@ with HyperProcess(telemetry=Telemetry.SEND_USAGE_DATA_TO_TABLEAU, parameters=hyp
                 explain = "EXPLAIN (FORMAT INTERNAL, PIPELINES, EXPAND_VIEWS true, EXPRESSIONS SQL) "
             elif mode == "analyze-pipelines":
                 explain = "EXPLAIN (FORMAT INTERNAL, PIPELINES, ANALYZE, EXPAND_VIEWS true, EXPRESSIONS SQL) "
-            elif mode is None:
-                explain = "EXPLAIN (FORMAT INTERNAL) "
             else:
                 return None
             planRes = connection.execute_list_query(explain + sql)
