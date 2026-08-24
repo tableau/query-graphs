@@ -1,25 +1,25 @@
 {
   "query_optimization": {
-    "r_total_time_ms": 0.042916707
+    "r_total_time_ms": 0.064575093
   },
   "query_block": {
     "select_id": 1,
     "r_loops": 1,
-    "r_total_time_ms": 0.624600231,
+    "r_total_time_ms": 0.663830781,
     "nested_loop": [
       {
         "table": {
           "table_name": "lineitem",
           "access_type": "ALL",
           "r_loops": 1,
-          "rows": 476,
+          "rows": 572,
           "r_rows": 572,
-          "r_table_time_ms": 0.124914899,
-          "r_other_time_ms": 0.02956078,
+          "r_table_time_ms": 0.131467696,
+          "r_other_time_ms": 0.033239918,
           "r_engine_stats": {
             "pages_accessed": 6
           },
-          "filtered": 100,
+          "filtered": 2.34375,
           "r_filtered": 1.923076923,
           "attached_condition": "lineitem.l_shipdate >= DATE'1995-09-01' and lineitem.l_shipdate < DATE'1995-10-01'"
         }
@@ -30,10 +30,10 @@
             "table_name": "part",
             "access_type": "ALL",
             "r_loops": 1,
-            "rows": 500,
+            "rows": 533,
             "r_rows": 533,
-            "r_table_time_ms": 0.099628845,
-            "r_other_time_ms": 0.014944494,
+            "r_table_time_ms": 0.114470732,
+            "r_other_time_ms": 0.01414269,
             "r_engine_stats": {
               "pages_accessed": 7
             },
@@ -41,13 +41,13 @@
             "r_filtered": 100
           },
           "buffer_type": "flat",
-          "buffer_size": "10Kb",
+          "buffer_size": "318",
           "join_type": "BNL",
           "attached_condition": "part.p_partkey = lineitem.l_partkey",
           "r_loops": 11,
           "r_filtered": 0.187617261,
-          "r_unpack_time_ms": 0.205194846,
-          "r_other_time_ms": 0.148043203,
+          "r_unpack_time_ms": 0.203671453,
+          "r_other_time_ms": 0.164374727,
           "r_effective_rows": 533
         }
       }

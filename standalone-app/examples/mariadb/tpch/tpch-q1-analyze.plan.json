@@ -1,15 +1,15 @@
 {
   "query_optimization": {
-    "r_total_time_ms": 0.064212126
+    "r_total_time_ms": 0.090134543
   },
   "query_block": {
     "select_id": 1,
     "r_loops": 1,
-    "r_total_time_ms": 0.94138179,
+    "r_total_time_ms": 0.890347116,
     "filesort": {
       "sort_key": "lineitem.l_returnflag, lineitem.l_linestatus",
       "r_loops": 1,
-      "r_total_time_ms": 0.004866302,
+      "r_total_time_ms": 0.004515367,
       "r_used_priority_queue": false,
       "r_output_rows": 4,
       "r_buffer_size": "304",
@@ -21,14 +21,14 @@
               "table_name": "lineitem",
               "access_type": "ALL",
               "r_loops": 1,
-              "rows": 476,
+              "rows": 572,
               "r_rows": 572,
-              "r_table_time_ms": 0.172651451,
-              "r_other_time_ms": 0.75188244,
+              "r_table_time_ms": 0.159918852,
+              "r_other_time_ms": 0.714429962,
               "r_engine_stats": {
                 "pages_accessed": 6
               },
-              "filtered": 100,
+              "filtered": 99.21875,
               "r_filtered": 99.3006993,
               "attached_condition": "lineitem.l_shipdate <= '1998-09-02'"
             }

@@ -1,15 +1,15 @@
 {
   "query_optimization": {
-    "r_total_time_ms": 0.090811681
+    "r_total_time_ms": 0.1407374
   },
   "query_block": {
     "select_id": 1,
     "r_loops": 1,
-    "r_total_time_ms": 0.379644088,
+    "r_total_time_ms": 0.435278354,
     "filesort": {
       "sort_key": "substr(customer.c_phone,1,2)",
       "r_loops": 1,
-      "r_total_time_ms": 0.003353604,
+      "r_total_time_ms": 0.00340073,
       "r_used_priority_queue": false,
       "r_output_rows": 1,
       "r_buffer_size": "320",
@@ -23,8 +23,8 @@
               "r_loops": 1,
               "rows": 129,
               "r_rows": 129,
-              "r_table_time_ms": 0.028614926,
-              "r_other_time_ms": 0.024159719,
+              "r_table_time_ms": 0.032396671,
+              "r_other_time_ms": 0.027918069,
               "r_engine_stats": {
                 "pages_accessed": 1
               },
@@ -42,7 +42,7 @@
               "query_block": {
                 "select_id": 4,
                 "r_loops": 20,
-                "r_total_time_ms": 0.245213162,
+                "r_total_time_ms": 0.285628536,
                 "nested_loop": [
                   {
                     "table": {
@@ -51,8 +51,8 @@
                       "r_loops": 20,
                       "rows": 128,
                       "r_rows": 65.2,
-                      "r_table_time_ms": 0.195267055,
-                      "r_other_time_ms": 0.043895983,
+                      "r_table_time_ms": 0.230562117,
+                      "r_other_time_ms": 0.048467834,
                       "r_engine_stats": {
                         "pages_accessed": 20
                       },
@@ -69,7 +69,7 @@
             "query_block": {
               "select_id": 3,
               "r_loops": 1,
-              "r_total_time_ms": 0.047314761,
+              "r_total_time_ms": 0.053312746,
               "nested_loop": [
                 {
                   "table": {
@@ -78,12 +78,12 @@
                     "r_loops": 1,
                     "rows": 129,
                     "r_rows": 129,
-                    "r_table_time_ms": 0.024638996,
-                    "r_other_time_ms": 0.021960191,
+                    "r_table_time_ms": 0.028200822,
+                    "r_other_time_ms": 0.02396988,
                     "r_engine_stats": {
                       "pages_accessed": 1
                     },
-                    "filtered": 100,
+                    "filtered": 90.625,
                     "r_filtered": 28.68217054,
                     "attached_condition": "customer.c_acctbal > 0.00 and substr(customer.c_phone,1,2) in ('13','31','23','29','30','18','17')"
                   }

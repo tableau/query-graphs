@@ -1,25 +1,25 @@
 {
   "query_optimization": {
-    "r_total_time_ms": 0.029623948
+    "r_total_time_ms": 0.087384547
   },
   "query_block": {
     "select_id": 1,
     "r_loops": 1,
-    "r_total_time_ms": 0.177378047,
+    "r_total_time_ms": 0.190529095,
     "nested_loop": [
       {
         "table": {
           "table_name": "lineitem",
           "access_type": "ALL",
           "r_loops": 1,
-          "rows": 476,
+          "rows": 572,
           "r_rows": 572,
-          "r_table_time_ms": 0.124459018,
-          "r_other_time_ms": 0.050993899,
+          "r_table_time_ms": 0.133768828,
+          "r_other_time_ms": 0.052547373,
           "r_engine_stats": {
             "pages_accessed": 6
           },
-          "filtered": 100,
+          "filtered": 3.995418549,
           "r_filtered": 3.496503497,
           "attached_condition": "lineitem.l_shipdate >= DATE'1994-01-01' and lineitem.l_shipdate < DATE'1995-01-01' and lineitem.l_discount between 0.05 and 0.07 and lineitem.l_quantity < 24"
         }

@@ -1,21 +1,21 @@
 {
   "query_optimization": {
-    "r_total_time_ms": 0.083021587
+    "r_total_time_ms": 0.099932989
   },
   "query_block": {
     "select_id": 1,
     "r_loops": 1,
-    "r_total_time_ms": 49.71518438,
+    "r_total_time_ms": 69.24708138,
     "nested_loop": [
       {
         "table": {
           "table_name": "supplier",
           "access_type": "ALL",
           "r_loops": 1,
-          "rows": 492,
+          "rows": 518,
           "r_rows": 518,
-          "r_table_time_ms": 0.155852682,
-          "r_other_time_ms": 0.149245073,
+          "r_table_time_ms": 0.219423432,
+          "r_other_time_ms": 0.26491333,
           "r_engine_stats": {
             "pages_accessed": 6
           },
@@ -33,17 +33,17 @@
           "query_block": {
             "select_id": 2,
             "r_loops": 518,
-            "r_total_time_ms": 49.296408,
+            "r_total_time_ms": 68.56769615,
             "nested_loop": [
               {
                 "table": {
                   "table_name": "partsupp",
                   "access_type": "ALL",
                   "r_loops": 518,
-                  "rows": 797,
+                  "rows": 537,
                   "r_rows": 493.9362934,
-                  "r_table_time_ms": 40.00855146,
-                  "r_other_time_ms": 9.155436648,
+                  "r_table_time_ms": 56.40139185,
+                  "r_other_time_ms": 11.97787781,
                   "r_engine_stats": {
                     "pages_accessed": 1970
                   },

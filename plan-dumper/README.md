@@ -8,7 +8,8 @@ Refresh these examples from time to time when new versions are published, so the
 ## What Is Here
 
 * `dump-plans.py` — runs each query against every configured database and writes the `EXPLAIN` output as JSON into `standalone-app/examples/<db>/`.
-* `filter-timing-diff.py` — strips purely timing/cycle-count noise out of a `git diff`, so regenerating the plans doesn't drown real changes in runtime jitter. See [Cleaning Up Timing-Only Noise](#cleaning-up-timing-only-noise).
+* `filter-timing-diff.py` — strips volatile runtime measurements out of a `git diff`, so regenerating the plans doesn't drown real changes in noise.
+  See [Cleaning Up Runtime Noise](#cleaning-up-runtime-noise).
 * `queries/` — the SQL queries to explain, including a `tpch/` subfolder of TPC-H queries.
 * `setup.sql` — creates the ad-hoc and TPC-H tables and loads the tiny dataset, so cardinality estimates in the plans are meaningful.
 * `tpch-data-tiny/` — a tiny TPC-H dataset loaded by `setup.sql`.
@@ -20,14 +21,25 @@ Defaults to `analyze` when the comment is absent.
 The available modes are:
 
 * `simple` → a plain JSON `EXPLAIN`.
-* `analyze` → an executing plan with runtime measurements. Hyper, Postgres, DuckDB, Umbra, CedarDB, and MariaDB use their JSON `EXPLAIN ANALYZE` variants. For Trino, the dumper executes the query and fetches its raw, unpruned `QueryInfo` JSON from the coordinator; this intentionally has a different format from Trino's simple JSON plan.
-* `steps` → optimizer internals: `EXPLAIN (FORMAT INTERNAL, OPTIMIZE STEPS)` on Hyper; logical/optimized/physical plans on DuckDB; Umbra's ordered `debug.optimizer.steplog` events; all ten native `EXPLAIN (STEP ..., FORMAT JSON)` plan snapshots on CedarDB; and MariaDB's JSON `optimizer_trace`. MariaDB's output is a decision trace rather than a sequence of complete plans. Postgres and Trino currently skip this mode.
+* `analyze` → an executing plan with runtime measurements.
+  Hyper, Postgres, DuckDB, Umbra, CedarDB, and MariaDB use their JSON `EXPLAIN ANALYZE` variants.
+  For Trino, the dumper executes the query and fetches its raw, unpruned `QueryInfo` JSON from the coordinator.
+  Trino's analyzed output intentionally has a different format from its simple JSON plan.
+* `steps` → optimizer internals:
+  * Hyper: `EXPLAIN (FORMAT INTERNAL, OPTIMIZE STEPS)`.
+  * DuckDB: logical, optimized, and physical plans from `explain_output='all'`.
+  * Umbra: ordered optimizer events scraped from the CSV file written by `SET debug.optimizer.steplog`.
+  * CedarDB: all ten native `EXPLAIN (STEP ..., FORMAT JSON)` phase snapshots.
+  * MariaDB: its JSON `optimizer_trace`, which is a decision trace rather than a sequence of complete plans.
+  * Postgres and Trino currently skip this mode.
 * `pipelines` / `analyze-pipelines` → execution pipelines (Hyper only).
 
 Each requested mode is written to its own `<query>[-<mode>].plan.json` (no suffix for `simple`).
 A mode not supported by a given database is silently skipped and no file is generated.
 
-If a database can't run a query at all, mark it with a `-- UNSUPPORTED: <db>[, <db>...]` comment. Use `<db>:<mode>` when only one mode is unsupported. Any unannotated query failure makes the run fail and leaves that database's previous output directory untouched.
+If a database can't run a query at all, mark it with a `-- UNSUPPORTED: <db>[, <db>...]` comment.
+Use `<db>:<mode>` when only one mode is unsupported.
+Any unannotated query failure makes the run fail and leaves that database's previous output directory untouched.
 
 ## Regenerating the Plans
 
@@ -37,7 +49,8 @@ Install the Python dependencies:
 pip3 install -r plan-dumper/requirements.txt
 ```
 
-Hyper and DuckDB are embedded. Postgres defaults to port 5432; the other server databases are enabled through command-line options. With every server configured, one invocation dumps all databases:
+Hyper and DuckDB are embedded; all server databases are enabled through command-line options.
+With every server configured, one invocation dumps all databases:
 
 ```shell
 cd plan-dumper
@@ -49,7 +62,8 @@ python3 dump-plans.py \
   --trino-url "http://plan-dumper@127.0.0.1:8080/memory/query_graphs_plan_dumper"
 ```
 
-Omit an option to skip Umbra, CedarDB, MariaDB, or Trino. Pass `--postgres-dsn ""` to skip Postgres. A connection failure also skips that database without preventing the remaining dumpers from running.
+Omit an option to skip its server database.
+A connection failure also skips that database without preventing the remaining dumpers from running.
 
 Use `--hyper-path` for a custom Hyper build:
 
@@ -62,7 +76,8 @@ The path names the directory containing `hyperd`; when omitted, the script uses 
 
 ### Server Setup
 
-The script creates scratch tables and loads `tpch-data-tiny` in each server session (or in the configured Trino schema). The configured users therefore need permission to create tables and execute the example queries.
+The script creates scratch tables and loads `tpch-data-tiny` in each server session (or in the configured Trino schema).
+The configured users therefore need permission to create tables and execute the example queries.
 
 **Postgres:** run a server on port 5432, or pass any [libpq connection string](https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING) to `--postgres-dsn`.
 
@@ -74,7 +89,10 @@ docker run --rm --name query-graphs-umbra -p 5433:5432 \
   umbradb/umbra:latest
 ```
 
-Its default credentials are `postgres`/`postgres`; pass `--umbra-dsn` as shown above. The dumper capability-detects `debug.optimizer.steplog`, which is present in Umbra 26.08 but absent from older images. Umbra writes each requested step log to a unique server-side `/tmp` file and exposes no tested SQL function for deleting it; use the documented disposable container when generating step fixtures.
+Its default credentials are `postgres`/`postgres`; pass `--umbra-dsn` as shown above.
+The dumper capability-detects `debug.optimizer.steplog`, which is present in Umbra 26.08 but absent from older images.
+Umbra writes each requested step log to a unique server-side `/tmp` file and exposes no tested SQL function for deleting it.
+Use the documented disposable container when generating step fixtures.
 
 **CedarDB:** start a server with a known password, for example:
 
@@ -82,7 +100,9 @@ Its default credentials are `postgres`/`postgres`; pass `--umbra-dsn` as shown a
 CEDAR_PASSWORD='CedarDB1!' cedardb -address=127.0.0.1 -port=5435 -inmemory
 ```
 
-Then pass its connection string to `--cedardb-dsn`. Umbra and CedarDB share an `EXPLAIN` JSON family, but are dumped separately because their optimizer output and runtime data can differ. CedarDB additionally supports native JSON snapshots after each optimizer pass.
+Then pass its connection string to `--cedardb-dsn`.
+Umbra and CedarDB share an `EXPLAIN` JSON family, but are dumped separately because their optimizer output and runtime data can differ.
+CedarDB additionally supports native JSON snapshots after each optimizer pass.
 
 **MariaDB:** create a dedicated database and user:
 
@@ -92,7 +112,9 @@ CREATE USER 'plan_dumper'@'%' IDENTIFIED BY 'password';
 GRANT ALL ON query_graphs_plan_dumper.* TO 'plan_dumper'@'%';
 ```
 
-Pass a `mysql://user:password@host[:port]/database` URL to `--mariadb-url`. For Unix-socket authentication, append `?unix_socket=/path/to/socket`. The `steps` mode enables the session-local optimizer trace and fails rather than committing a truncated or privilege-redacted trace.
+Pass a `mysql://user:password@host[:port]/database` URL to `--mariadb-url`.
+For Unix-socket authentication, append `?unix_socket=/path/to/socket`.
+The `steps` mode enables the session-local optimizer trace and fails rather than committing a truncated or privilege-redacted trace.
 
 **Trino:** the official image includes the writable `memory` catalog needed by the dumper:
 
@@ -100,21 +122,30 @@ Pass a `mysql://user:password@host[:port]/database` URL to `--mariadb-url`. For 
 docker run --rm --name query-graphs-trino -p 8080:8080 trinodb/trino:latest
 ```
 
-Wait for `SERVER STARTED`, then pass the unauthenticated server and its `memory/query_graphs_plan_dumper` schema to `--trino-url`. The schema is created automatically and is destructive scratch space: the dumper replaces tables named like the bundled TPC-H tables on every run. Password/token-authenticated Trino is not currently supported.
+Wait for `SERVER STARTED`, then pass the unauthenticated server and its `memory/query_graphs_plan_dumper` schema to `--trino-url`.
+The schema is created automatically and is destructive scratch space: the dumper replaces tables named like the bundled TPC-H tables on every run.
+Password/token-authenticated Trino is not currently supported.
 
-Analyzed dumps use Trino's authenticated `GET /v1/query/<query-id>` coordinator endpoint immediately after consuming each query's results. The configured user must be allowed to view its own queries, and the coordinator must retain completed queries long enough for that request. The resulting internal `QueryInfo` JSON is deliberately stored without normalization and may change between Trino versions.
+Analyzed dumps use Trino's authenticated `GET /v1/query/<query-id>` coordinator endpoint immediately after consuming each query's results.
+The configured user must be allowed to view its own queries, and the coordinator must retain completed queries long enough for that request.
+The resulting internal `QueryInfo` JSON is deliberately stored without normalization and may change between Trino versions.
 
-Trino and Presto share ancestry but are separate projects with different clients and independently evolving plan formats. This dumper targets Trino; Presto is not currently supported. MariaDB and Trino plans currently render through Query Graphs' generic JSON fallback rather than a database-specific semantic loader.
+Trino and Presto share ancestry but are separate projects with different clients and independently evolving plan formats.
+This dumper targets Trino; Presto is not currently supported.
+MariaDB and Trino plans currently render through Query Graphs' generic JSON fallback rather than a database-specific semantic loader.
 
-## Cleaning Up Timing-Only Noise
+## Cleaning Up Runtime Noise
 
-Every run re-executes each query, so runtime measurements (Postgres' `Actual Total Time`, DuckDB's `cpu_time`, Hyper's `cpu-cycles`, Trino's `elapsedTime`/operator CPU and wall times, …) change even when a plan itself didn't. After regenerating:
+Every run re-executes each query, so timing, memory, scheduler IDs, and similar runtime measurements change even when a plan itself didn't.
+After regenerating:
 
 ```shell
 plan-dumper/filter-timing-diff.py --revert
 ```
 
-This `git checkout --`s every file whose diff is *purely* timing/cycle-count jitter, so the remaining `git diff` shows only real changes. If a file has a real change alongside a timing change on the same line or hunk, that hunk is kept as-is, timing delta included — only hunks that differ *exclusively* in a volatile field are dropped.
+This `git checkout --`s every file whose diff is purely runtime jitter, so the remaining `git diff` shows only real changes.
+If a file has a real change alongside a volatile measurement on the same line or hunk, that hunk is kept as-is.
+Only hunks that differ exclusively in volatile fields are dropped.
 
 Run it without `--revert` to preview the filtered diff instead of touching the working tree (e.g. `plan-dumper/filter-timing-diff.py --cached` for the staged diff).
 

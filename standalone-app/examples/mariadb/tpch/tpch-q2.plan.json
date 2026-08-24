@@ -10,8 +10,22 @@
               "table_name": "region",
               "access_type": "ALL",
               "rows": 5,
-              "filtered": 100,
+              "filtered": 20,
               "attached_condition": "region.r_name = 'EUROPE'"
+            }
+          },
+          {
+            "block-nl-join": {
+              "table": {
+                "table_name": "part",
+                "access_type": "ALL",
+                "rows": 533,
+                "filtered": 2.34375,
+                "attached_condition": "part.p_size = 15 and part.p_type like '%BRASS'"
+              },
+              "buffer_type": "flat",
+              "buffer_size": "1Kb",
+              "join_type": "BNL"
             }
           },
           {
@@ -22,8 +36,8 @@
                 "rows": 25,
                 "filtered": 100
               },
-              "buffer_type": "flat",
-              "buffer_size": "1Kb",
+              "buffer_type": "incremental",
+              "buffer_size": "2Kb",
               "join_type": "BNL",
               "attached_condition": "nation.n_regionkey = region.r_regionkey"
             }
@@ -33,11 +47,11 @@
               "table": {
                 "table_name": "supplier",
                 "access_type": "ALL",
-                "rows": 492,
+                "rows": 518,
                 "filtered": 100
               },
               "buffer_type": "incremental",
-              "buffer_size": "14Kb",
+              "buffer_size": "35Kb",
               "join_type": "BNL",
               "attached_condition": "supplier.s_nationkey = nation.n_nationkey"
             }
@@ -45,23 +59,9 @@
           {
             "block-nl-join": {
               "table": {
-                "table_name": "part",
-                "access_type": "ALL",
-                "rows": 500,
-                "filtered": 100,
-                "attached_condition": "part.p_size = 15 and part.p_type like '%BRASS'"
-              },
-              "buffer_type": "incremental",
-              "buffer_size": "256Kb",
-              "join_type": "BNL"
-            }
-          },
-          {
-            "block-nl-join": {
-              "table": {
                 "table_name": "partsupp",
                 "access_type": "ALL",
-                "rows": 797,
+                "rows": 537,
                 "filtered": 100
               },
               "buffer_type": "incremental",
@@ -83,7 +83,7 @@
                       "table_name": "region",
                       "access_type": "ALL",
                       "rows": 5,
-                      "filtered": 100,
+                      "filtered": 20,
                       "attached_condition": "region.r_name = 'EUROPE'"
                     }
                   },
@@ -106,11 +106,11 @@
                       "table": {
                         "table_name": "supplier",
                         "access_type": "ALL",
-                        "rows": 492,
+                        "rows": 518,
                         "filtered": 100
                       },
                       "buffer_type": "incremental",
-                      "buffer_size": "1Kb",
+                      "buffer_size": "362",
                       "join_type": "BNL",
                       "attached_condition": "supplier.s_nationkey = nation.n_nationkey"
                     }
@@ -120,11 +120,11 @@
                       "table": {
                         "table_name": "partsupp",
                         "access_type": "ALL",
-                        "rows": 797,
+                        "rows": 537,
                         "filtered": 100
                       },
                       "buffer_type": "incremental",
-                      "buffer_size": "256Kb",
+                      "buffer_size": "177Kb",
                       "join_type": "BNL",
                       "attached_condition": "partsupp.ps_suppkey = supplier.s_suppkey and part.p_partkey = partsupp.ps_partkey"
                     }

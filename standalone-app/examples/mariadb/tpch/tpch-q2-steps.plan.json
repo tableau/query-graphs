@@ -85,27 +85,35 @@
             "rows_estimation": [
               {
                 "selectivity_for_indexes": [],
-                "selectivity_for_columns": [],
-                "cond_selectivity": 1
+                "selectivity_for_columns": [
+                  {
+                    "column_name": "p_size",
+                    "ranges": [
+                      "15 <= p_size <= 15"
+                    ],
+                    "selectivity_from_histogram": 0.0234375
+                  }
+                ],
+                "cond_selectivity": 0.0234375
               },
               {
                 "table": "part",
                 "table_scan": {
-                  "rows": 500,
+                  "rows": 533,
                   "cost": 7
                 }
               },
               {
                 "table": "supplier",
                 "table_scan": {
-                  "rows": 492,
+                  "rows": 518,
                   "cost": 6
                 }
               },
               {
                 "table": "partsupp",
                 "table_scan": {
-                  "rows": 797,
+                  "rows": 537,
                   "cost": 4
                 }
               },
@@ -118,8 +126,16 @@
               },
               {
                 "selectivity_for_indexes": [],
-                "selectivity_for_columns": [],
-                "cond_selectivity": 1
+                "selectivity_for_columns": [
+                  {
+                    "column_name": "r_name",
+                    "ranges": [
+                      "EUROPE <= r_name <= EUROPE"
+                    ],
+                    "selectivity_from_histogram": 0.2
+                  }
+                ],
+                "cond_selectivity": 0.2
               },
               {
                 "table": "region",
@@ -141,15 +157,15 @@
                       "considered_access_paths": [
                         {
                           "access_type": "scan",
-                          "resulting_rows": 5,
-                          "cost": 1,
+                          "resulting_rows": 1,
+                          "cost": 1.8,
                           "chosen": true
                         }
                       ],
                       "chosen_access_method": {
                         "type": "scan",
-                        "records": 5,
-                        "cost": 1,
+                        "records": 1,
+                        "cost": 1.8,
                         "uses_join_buffering": false
                       }
                     }
@@ -179,14 +195,14 @@
                       "considered_access_paths": [
                         {
                           "access_type": "scan",
-                          "resulting_rows": 492,
+                          "resulting_rows": 518,
                           "cost": 6,
                           "chosen": true
                         }
                       ],
                       "chosen_access_method": {
                         "type": "scan",
-                        "records": 492,
+                        "records": 518,
                         "cost": 6,
                         "uses_join_buffering": false
                       }
@@ -198,15 +214,15 @@
                       "considered_access_paths": [
                         {
                           "access_type": "scan",
-                          "resulting_rows": 500,
-                          "cost": 7,
+                          "resulting_rows": 12.4921875,
+                          "cost": 111.1015625,
                           "chosen": true
                         }
                       ],
                       "chosen_access_method": {
                         "type": "scan",
-                        "records": 500,
-                        "cost": 7,
+                        "records": 12.4921875,
+                        "cost": 111.1015625,
                         "uses_join_buffering": false
                       }
                     }
@@ -217,14 +233,14 @@
                       "considered_access_paths": [
                         {
                           "access_type": "scan",
-                          "resulting_rows": 797,
+                          "resulting_rows": 537,
                           "cost": 4,
                           "chosen": true
                         }
                       ],
                       "chosen_access_method": {
                         "type": "scan",
-                        "records": 797,
+                        "records": 537,
                         "cost": 4,
                         "uses_join_buffering": false
                       }
@@ -235,7 +251,7 @@
               {
                 "plan_prefix": [],
                 "table": "region",
-                "rows_for_plan": 5,
+                "rows_for_plan": 1,
                 "cost_for_plan": 2,
                 "rest_of_plan": [
                   {
@@ -268,14 +284,14 @@
                           "considered_access_paths": [
                             {
                               "access_type": "scan",
-                              "resulting_rows": 492,
+                              "resulting_rows": 518,
                               "cost": 6,
                               "chosen": true
                             }
                           ],
                           "chosen_access_method": {
                             "type": "scan",
-                            "records": 492,
+                            "records": 518,
                             "cost": 6,
                             "uses_join_buffering": true
                           }
@@ -287,15 +303,15 @@
                           "considered_access_paths": [
                             {
                               "access_type": "scan",
-                              "resulting_rows": 500,
-                              "cost": 7,
+                              "resulting_rows": 12.4921875,
+                              "cost": 111.1015625,
                               "chosen": true
                             }
                           ],
                           "chosen_access_method": {
                             "type": "scan",
-                            "records": 500,
-                            "cost": 7,
+                            "records": 12.4921875,
+                            "cost": 111.1015625,
                             "uses_join_buffering": true
                           }
                         }
@@ -306,14 +322,14 @@
                           "considered_access_paths": [
                             {
                               "access_type": "scan",
-                              "resulting_rows": 797,
+                              "resulting_rows": 537,
                               "cost": 4,
                               "chosen": true
                             }
                           ],
                           "chosen_access_method": {
                             "type": "scan",
-                            "records": 797,
+                            "records": 537,
                             "cost": 4,
                             "uses_join_buffering": true
                           }
@@ -325,9 +341,225 @@
                     "plan_prefix": [
                       "region"
                     ],
+                    "table": "part",
+                    "rows_for_plan": 12.4921875,
+                    "cost_for_plan": 115.6,
+                    "rest_of_plan": [
+                      {
+                        "plan_prefix": [
+                          "region",
+                          "part"
+                        ],
+                        "get_costs_for_tables": [
+                          {
+                            "best_access_path": {
+                              "table": "supplier",
+                              "considered_access_paths": [
+                                {
+                                  "access_type": "scan",
+                                  "resulting_rows": 518,
+                                  "cost": 6,
+                                  "chosen": true
+                                }
+                              ],
+                              "chosen_access_method": {
+                                "type": "scan",
+                                "records": 518,
+                                "cost": 6,
+                                "uses_join_buffering": true
+                              }
+                            }
+                          },
+                          {
+                            "best_access_path": {
+                              "table": "nation",
+                              "considered_access_paths": [
+                                {
+                                  "access_type": "scan",
+                                  "resulting_rows": 25,
+                                  "cost": 1,
+                                  "chosen": true
+                                }
+                              ],
+                              "chosen_access_method": {
+                                "type": "scan",
+                                "records": 25,
+                                "cost": 1,
+                                "uses_join_buffering": true
+                              }
+                            }
+                          },
+                          {
+                            "best_access_path": {
+                              "table": "partsupp",
+                              "considered_access_paths": [
+                                {
+                                  "access_type": "scan",
+                                  "resulting_rows": 537,
+                                  "cost": 4,
+                                  "chosen": true
+                                }
+                              ],
+                              "chosen_access_method": {
+                                "type": "scan",
+                                "records": 537,
+                                "cost": 4,
+                                "uses_join_buffering": true
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "plan_prefix": [
+                          "region",
+                          "part"
+                        ],
+                        "table": "nation",
+                        "rows_for_plan": 312.3046875,
+                        "cost_for_plan": 179.0609375,
+                        "rest_of_plan": [
+                          {
+                            "plan_prefix": [
+                              "region",
+                              "part",
+                              "nation"
+                            ],
+                            "get_costs_for_tables": [
+                              {
+                                "best_access_path": {
+                                  "table": "supplier",
+                                  "considered_access_paths": [
+                                    {
+                                      "access_type": "scan",
+                                      "resulting_rows": 518,
+                                      "cost": 6,
+                                      "chosen": true
+                                    }
+                                  ],
+                                  "chosen_access_method": {
+                                    "type": "scan",
+                                    "records": 518,
+                                    "cost": 6,
+                                    "uses_join_buffering": true
+                                  }
+                                }
+                              },
+                              {
+                                "best_access_path": {
+                                  "table": "partsupp",
+                                  "considered_access_paths": [
+                                    {
+                                      "access_type": "scan",
+                                      "resulting_rows": 537,
+                                      "cost": 4,
+                                      "chosen": true
+                                    }
+                                  ],
+                                  "chosen_access_method": {
+                                    "type": "scan",
+                                    "records": 537,
+                                    "cost": 4,
+                                    "uses_join_buffering": true
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          {
+                            "plan_prefix": [
+                              "region",
+                              "part",
+                              "nation"
+                            ],
+                            "table": "supplier",
+                            "rows_for_plan": 161773.8281,
+                            "cost_for_plan": 32539.82656,
+                            "rest_of_plan": [
+                              {
+                                "plan_prefix": [
+                                  "region",
+                                  "part",
+                                  "nation",
+                                  "supplier"
+                                ],
+                                "get_costs_for_tables": [
+                                  {
+                                    "best_access_path": {
+                                      "table": "partsupp",
+                                      "considered_access_paths": [
+                                        {
+                                          "access_type": "scan",
+                                          "resulting_rows": 537,
+                                          "cost": 1508,
+                                          "chosen": true
+                                        }
+                                      ],
+                                      "chosen_access_method": {
+                                        "type": "scan",
+                                        "records": 537,
+                                        "cost": 1508,
+                                        "uses_join_buffering": true
+                                      }
+                                    }
+                                  }
+                                ]
+                              },
+                              {
+                                "plan_prefix": [
+                                  "region",
+                                  "part",
+                                  "nation",
+                                  "supplier"
+                                ],
+                                "table": "partsupp",
+                                "rows_for_plan": 86872545.7,
+                                "cost_for_plan": 17408556.97
+                              }
+                            ]
+                          },
+                          {
+                            "plan_prefix": [
+                              "region",
+                              "part",
+                              "nation"
+                            ],
+                            "table": "partsupp",
+                            "rows_for_plan": 167707.6172,
+                            "cost_for_plan": 33724.58437,
+                            "pruned_by_heuristic": true
+                          }
+                        ]
+                      },
+                      {
+                        "plan_prefix": [
+                          "region",
+                          "part"
+                        ],
+                        "table": "supplier",
+                        "rows_for_plan": 6470.953125,
+                        "cost_for_plan": 1415.790625,
+                        "pruned_by_heuristic": true
+                      },
+                      {
+                        "plan_prefix": [
+                          "region",
+                          "part"
+                        ],
+                        "table": "partsupp",
+                        "rows_for_plan": 6708.304688,
+                        "cost_for_plan": 1461.260937,
+                        "pruned_by_heuristic": true
+                      }
+                    ]
+                  },
+                  {
+                    "plan_prefix": [
+                      "region"
+                    ],
                     "table": "nation",
-                    "rows_for_plan": 125,
-                    "cost_for_plan": 28,
+                    "rows_for_plan": 25,
+                    "cost_for_plan": 8,
                     "rest_of_plan": [
                       {
                         "plan_prefix": [
@@ -341,14 +573,14 @@
                               "considered_access_paths": [
                                 {
                                   "access_type": "scan",
-                                  "resulting_rows": 492,
+                                  "resulting_rows": 518,
                                   "cost": 6,
                                   "chosen": true
                                 }
                               ],
                               "chosen_access_method": {
                                 "type": "scan",
-                                "records": 492,
+                                "records": 518,
                                 "cost": 6,
                                 "uses_join_buffering": true
                               }
@@ -360,15 +592,15 @@
                               "considered_access_paths": [
                                 {
                                   "access_type": "scan",
-                                  "resulting_rows": 500,
-                                  "cost": 7,
+                                  "resulting_rows": 12.4921875,
+                                  "cost": 111.1015625,
                                   "chosen": true
                                 }
                               ],
                               "chosen_access_method": {
                                 "type": "scan",
-                                "records": 500,
-                                "cost": 7,
+                                "records": 12.4921875,
+                                "cost": 111.1015625,
                                 "uses_join_buffering": true
                               }
                             }
@@ -379,14 +611,14 @@
                               "considered_access_paths": [
                                 {
                                   "access_type": "scan",
-                                  "resulting_rows": 797,
+                                  "resulting_rows": 537,
                                   "cost": 4,
                                   "chosen": true
                                 }
                               ],
                               "chosen_access_method": {
                                 "type": "scan",
-                                "records": 797,
+                                "records": 537,
                                 "cost": 4,
                                 "uses_join_buffering": true
                               }
@@ -399,32 +631,32 @@
                           "region",
                           "nation"
                         ],
-                        "table": "supplier",
-                        "rows_for_plan": 61500,
-                        "cost_for_plan": 12334,
+                        "table": "part",
+                        "rows_for_plan": 312.3046875,
+                        "cost_for_plan": 181.5625,
                         "rest_of_plan": [
                           {
                             "plan_prefix": [
                               "region",
                               "nation",
-                              "supplier"
+                              "part"
                             ],
                             "get_costs_for_tables": [
                               {
                                 "best_access_path": {
-                                  "table": "part",
+                                  "table": "supplier",
                                   "considered_access_paths": [
                                     {
                                       "access_type": "scan",
-                                      "resulting_rows": 500,
-                                      "cost": 679,
+                                      "resulting_rows": 518,
+                                      "cost": 6,
                                       "chosen": true
                                     }
                                   ],
                                   "chosen_access_method": {
                                     "type": "scan",
-                                    "records": 500,
-                                    "cost": 679,
+                                    "records": 518,
+                                    "cost": 6,
                                     "uses_join_buffering": true
                                   }
                                 }
@@ -435,15 +667,15 @@
                                   "considered_access_paths": [
                                     {
                                       "access_type": "scan",
-                                      "resulting_rows": 797,
-                                      "cost": 388,
+                                      "resulting_rows": 537,
+                                      "cost": 4,
                                       "chosen": true
                                     }
                                   ],
                                   "chosen_access_method": {
                                     "type": "scan",
-                                    "records": 797,
-                                    "cost": 388,
+                                    "records": 537,
+                                    "cost": 4,
                                     "uses_join_buffering": true
                                   }
                                 }
@@ -454,18 +686,18 @@
                             "plan_prefix": [
                               "region",
                               "nation",
-                              "supplier"
+                              "part"
                             ],
-                            "table": "part",
-                            "rows_for_plan": 30750000,
-                            "cost_for_plan": 6163013,
+                            "table": "supplier",
+                            "rows_for_plan": 161773.8281,
+                            "cost_for_plan": 32542.32812,
                             "rest_of_plan": [
                               {
                                 "plan_prefix": [
                                   "region",
                                   "nation",
-                                  "supplier",
-                                  "part"
+                                  "part",
+                                  "supplier"
                                 ],
                                 "get_costs_for_tables": [
                                   {
@@ -474,15 +706,15 @@
                                       "considered_access_paths": [
                                         {
                                           "access_type": "scan",
-                                          "resulting_rows": 797,
-                                          "cost": 290912,
+                                          "resulting_rows": 537,
+                                          "cost": 1508,
                                           "chosen": true
                                         }
                                       ],
                                       "chosen_access_method": {
                                         "type": "scan",
-                                        "records": 797,
-                                        "cost": 290912,
+                                        "records": 537,
+                                        "cost": 1508,
                                         "uses_join_buffering": true
                                       }
                                     }
@@ -493,12 +725,15 @@
                                 "plan_prefix": [
                                   "region",
                                   "nation",
-                                  "supplier",
-                                  "part"
+                                  "part",
+                                  "supplier"
                                 ],
                                 "table": "partsupp",
-                                "rows_for_plan": 24507750000,
-                                "cost_for_plan": 4908003925
+                                "rows_for_plan": 86872545.7,
+                                "cost_for_plan": 17408559.47,
+                                "pruned_by_cost": true,
+                                "current_cost": 17408559.47,
+                                "best_cost": 17408556.97
                               }
                             ]
                           },
@@ -506,11 +741,11 @@
                             "plan_prefix": [
                               "region",
                               "nation",
-                              "supplier"
+                              "part"
                             ],
                             "table": "partsupp",
-                            "rows_for_plan": 49015500,
-                            "cost_for_plan": 9815822,
+                            "rows_for_plan": 167707.6172,
+                            "cost_for_plan": 33727.08594,
                             "pruned_by_heuristic": true
                           }
                         ]
@@ -520,9 +755,9 @@
                           "region",
                           "nation"
                         ],
-                        "table": "part",
-                        "rows_for_plan": 62500,
-                        "cost_for_plan": 12535,
+                        "table": "supplier",
+                        "rows_for_plan": 12950,
+                        "cost_for_plan": 2604,
                         "pruned_by_heuristic": true
                       },
                       {
@@ -531,8 +766,8 @@
                           "nation"
                         ],
                         "table": "partsupp",
-                        "rows_for_plan": 99625,
-                        "cost_for_plan": 19957,
+                        "rows_for_plan": 13425,
+                        "cost_for_plan": 2697,
                         "pruned_by_heuristic": true
                       }
                     ]
@@ -542,29 +777,27 @@
                       "region"
                     ],
                     "table": "supplier",
-                    "rows_for_plan": 2460,
-                    "cost_for_plan": 500,
-                    "pruned_by_heuristic": true
-                  },
-                  {
-                    "plan_prefix": [
-                      "region"
-                    ],
-                    "table": "part",
-                    "rows_for_plan": 2500,
-                    "cost_for_plan": 509,
-                    "pruned_by_heuristic": true
+                    "rows_for_plan": 518,
+                    "cost_for_plan": 111.6,
+                    "pruned_by_heuristic": "min_read_time"
                   },
                   {
                     "plan_prefix": [
                       "region"
                     ],
                     "table": "partsupp",
-                    "rows_for_plan": 3985,
-                    "cost_for_plan": 803,
-                    "pruned_by_heuristic": true
+                    "rows_for_plan": 537,
+                    "cost_for_plan": 113.4,
+                    "pruned_by_heuristic": "min_read_time"
                   }
                 ]
+              },
+              {
+                "plan_prefix": [],
+                "table": "part",
+                "rows_for_plan": 12.4921875,
+                "cost_for_plan": 113.6,
+                "pruned_by_heuristic": true
               },
               {
                 "plan_prefix": [],
@@ -576,22 +809,15 @@
               {
                 "plan_prefix": [],
                 "table": "supplier",
-                "rows_for_plan": 492,
-                "cost_for_plan": 104.4,
-                "pruned_by_heuristic": true
-              },
-              {
-                "plan_prefix": [],
-                "table": "part",
-                "rows_for_plan": 500,
-                "cost_for_plan": 107,
+                "rows_for_plan": 518,
+                "cost_for_plan": 109.6,
                 "pruned_by_heuristic": true
               },
               {
                 "plan_prefix": [],
                 "table": "partsupp",
-                "rows_for_plan": 797,
-                "cost_for_plan": 163.4,
+                "rows_for_plan": 537,
+                "cost_for_plan": 111.4,
                 "pruned_by_heuristic": true
               }
             ]
@@ -599,9 +825,9 @@
           {
             "best_join_order": [
               "region",
+              "part",
               "nation",
               "supplier",
-              "part",
               "partsupp"
             ]
           },
@@ -620,16 +846,16 @@
                   "attached": "region.r_name = 'EUROPE'"
                 },
                 {
+                  "table": "part",
+                  "attached": "part.p_size = 15 and part.p_type like '%BRASS'"
+                },
+                {
                   "table": "nation",
                   "attached": "nation.n_regionkey = region.r_regionkey"
                 },
                 {
                   "table": "supplier",
                   "attached": "supplier.s_nationkey = nation.n_nationkey"
-                },
-                {
-                  "table": "part",
-                  "attached": "part.p_size = 15 and part.p_type like '%BRASS'"
                 },
                 {
                   "table": "partsupp",
@@ -698,14 +924,14 @@
                     {
                       "table": "partsupp",
                       "table_scan": {
-                        "rows": 797,
+                        "rows": 537,
                         "cost": 4
                       }
                     },
                     {
                       "table": "supplier",
                       "table_scan": {
-                        "rows": 492,
+                        "rows": 518,
                         "cost": 6
                       }
                     },
@@ -718,8 +944,16 @@
                     },
                     {
                       "selectivity_for_indexes": [],
-                      "selectivity_for_columns": [],
-                      "cond_selectivity": 1
+                      "selectivity_for_columns": [
+                        {
+                          "column_name": "r_name",
+                          "ranges": [
+                            "EUROPE <= r_name <= EUROPE"
+                          ],
+                          "selectivity_from_histogram": 0.2
+                        }
+                      ],
+                      "cond_selectivity": 0.2
                     },
                     {
                       "table": "region",
@@ -741,15 +975,15 @@
                             "considered_access_paths": [
                               {
                                 "access_type": "scan",
-                                "resulting_rows": 5,
-                                "cost": 1,
+                                "resulting_rows": 1,
+                                "cost": 1.8,
                                 "chosen": true
                               }
                             ],
                             "chosen_access_method": {
                               "type": "scan",
-                              "records": 5,
-                              "cost": 1,
+                              "records": 1,
+                              "cost": 1.8,
                               "uses_join_buffering": false
                             }
                           }
@@ -779,14 +1013,14 @@
                             "considered_access_paths": [
                               {
                                 "access_type": "scan",
-                                "resulting_rows": 492,
+                                "resulting_rows": 518,
                                 "cost": 6,
                                 "chosen": true
                               }
                             ],
                             "chosen_access_method": {
                               "type": "scan",
-                              "records": 492,
+                              "records": 518,
                               "cost": 6,
                               "uses_join_buffering": false
                             }
@@ -798,14 +1032,14 @@
                             "considered_access_paths": [
                               {
                                 "access_type": "scan",
-                                "resulting_rows": 797,
+                                "resulting_rows": 537,
                                 "cost": 4,
                                 "chosen": true
                               }
                             ],
                             "chosen_access_method": {
                               "type": "scan",
-                              "records": 797,
+                              "records": 537,
                               "cost": 4,
                               "uses_join_buffering": false
                             }
@@ -816,7 +1050,7 @@
                     {
                       "plan_prefix": [],
                       "table": "region",
-                      "rows_for_plan": 5,
+                      "rows_for_plan": 1,
                       "cost_for_plan": 2,
                       "rest_of_plan": [
                         {
@@ -849,14 +1083,14 @@
                                 "considered_access_paths": [
                                   {
                                     "access_type": "scan",
-                                    "resulting_rows": 492,
+                                    "resulting_rows": 518,
                                     "cost": 6,
                                     "chosen": true
                                   }
                                 ],
                                 "chosen_access_method": {
                                   "type": "scan",
-                                  "records": 492,
+                                  "records": 518,
                                   "cost": 6,
                                   "uses_join_buffering": true
                                 }
@@ -868,14 +1102,14 @@
                                 "considered_access_paths": [
                                   {
                                     "access_type": "scan",
-                                    "resulting_rows": 797,
+                                    "resulting_rows": 537,
                                     "cost": 4,
                                     "chosen": true
                                   }
                                 ],
                                 "chosen_access_method": {
                                   "type": "scan",
-                                  "records": 797,
+                                  "records": 537,
                                   "cost": 4,
                                   "uses_join_buffering": true
                                 }
@@ -888,8 +1122,8 @@
                             "region"
                           ],
                           "table": "nation",
-                          "rows_for_plan": 125,
-                          "cost_for_plan": 28,
+                          "rows_for_plan": 25,
+                          "cost_for_plan": 8,
                           "rest_of_plan": [
                             {
                               "plan_prefix": [
@@ -903,14 +1137,14 @@
                                     "considered_access_paths": [
                                       {
                                         "access_type": "scan",
-                                        "resulting_rows": 492,
+                                        "resulting_rows": 518,
                                         "cost": 6,
                                         "chosen": true
                                       }
                                     ],
                                     "chosen_access_method": {
                                       "type": "scan",
-                                      "records": 492,
+                                      "records": 518,
                                       "cost": 6,
                                       "uses_join_buffering": true
                                     }
@@ -922,14 +1156,14 @@
                                     "considered_access_paths": [
                                       {
                                         "access_type": "scan",
-                                        "resulting_rows": 797,
+                                        "resulting_rows": 537,
                                         "cost": 4,
                                         "chosen": true
                                       }
                                     ],
                                     "chosen_access_method": {
                                       "type": "scan",
-                                      "records": 797,
+                                      "records": 537,
                                       "cost": 4,
                                       "uses_join_buffering": true
                                     }
@@ -943,8 +1177,8 @@
                                 "nation"
                               ],
                               "table": "supplier",
-                              "rows_for_plan": 61500,
-                              "cost_for_plan": 12334,
+                              "rows_for_plan": 12950,
+                              "cost_for_plan": 2604,
                               "rest_of_plan": [
                                 {
                                   "plan_prefix": [
@@ -959,15 +1193,15 @@
                                         "considered_access_paths": [
                                           {
                                             "access_type": "scan",
-                                            "resulting_rows": 797,
-                                            "cost": 116,
+                                            "resulting_rows": 537,
+                                            "cost": 24,
                                             "chosen": true
                                           }
                                         ],
                                         "chosen_access_method": {
                                           "type": "scan",
-                                          "records": 797,
-                                          "cost": 116,
+                                          "records": 537,
+                                          "cost": 24,
                                           "uses_join_buffering": true
                                         }
                                       }
@@ -981,8 +1215,8 @@
                                     "supplier"
                                   ],
                                   "table": "partsupp",
-                                  "rows_for_plan": 49015500,
-                                  "cost_for_plan": 9815550
+                                  "rows_for_plan": 6954150,
+                                  "cost_for_plan": 1393458
                                 }
                               ]
                             },
@@ -992,8 +1226,8 @@
                                 "nation"
                               ],
                               "table": "partsupp",
-                              "rows_for_plan": 99625,
-                              "cost_for_plan": 19957,
+                              "rows_for_plan": 13425,
+                              "cost_for_plan": 2697,
                               "pruned_by_heuristic": true
                             }
                           ]
@@ -1003,8 +1237,8 @@
                             "region"
                           ],
                           "table": "supplier",
-                          "rows_for_plan": 2460,
-                          "cost_for_plan": 500,
+                          "rows_for_plan": 518,
+                          "cost_for_plan": 111.6,
                           "pruned_by_heuristic": true
                         },
                         {
@@ -1012,8 +1246,8 @@
                             "region"
                           ],
                           "table": "partsupp",
-                          "rows_for_plan": 3985,
-                          "cost_for_plan": 803,
+                          "rows_for_plan": 537,
+                          "cost_for_plan": 113.4,
                           "pruned_by_heuristic": true
                         }
                       ]
@@ -1028,15 +1262,15 @@
                     {
                       "plan_prefix": [],
                       "table": "supplier",
-                      "rows_for_plan": 492,
-                      "cost_for_plan": 104.4,
+                      "rows_for_plan": 518,
+                      "cost_for_plan": 109.6,
                       "pruned_by_heuristic": true
                     },
                     {
                       "plan_prefix": [],
                       "table": "partsupp",
-                      "rows_for_plan": 797,
-                      "cost_for_plan": 163.4,
+                      "rows_for_plan": 537,
+                      "cost_for_plan": 111.4,
                       "pruned_by_heuristic": true
                     }
                   ]

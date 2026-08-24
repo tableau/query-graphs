@@ -5,7 +5,7 @@
     "cardinality": 11,
     "operatorId": 1,
     "analyzePlanId": 0,
-    "analyzePlanCardinality": 100,
+    "analyzePlanCardinality": 10,
     "columns": [
       {
         "iu": "i",
@@ -31,14 +31,14 @@
       "cardinality": 1,
       "operatorId": 3,
       "analyzePlanId": 2,
-      "analyzePlanCardinality": 99,
+      "analyzePlanCardinality": 9,
       "input": {
         "operator": "iterationincrementscan",
         "physicalOperator": "iterationincrementscan",
         "cardinality": 1,
         "operatorId": 4,
         "analyzePlanId": 3,
-        "analyzePlanCardinality": 100,
+        "analyzePlanCardinality": 10,
         "iteration": 1,
         "output": [
           {
@@ -59,7 +59,7 @@
             "type": {
               "type": "int32"
             },
-            "value": 99
+            "value": 9
           }
         },
         "direction": "<=",
@@ -133,8 +133,8 @@
   },
   "analyzePlanPipelines": [
     {
-      "start": 9,
-      "stop": 10,
+      "start": 3,
+      "stop": 4,
       "duration": 1,
       "parallelism": "single-threaded",
       "operators": [
@@ -143,9 +143,9 @@
       ]
     },
     {
-      "start": 156,
-      "stop": 157,
-      "duration": 1,
+      "start": 31,
+      "stop": 33,
+      "duration": 2,
       "parallelism": "multi-threaded",
       "operators": [
         0,
@@ -154,9 +154,9 @@
       ]
     },
     {
-      "start": 157,
-      "stop": 237,
-      "duration": 80,
+      "start": 34,
+      "stop": 42,
+      "duration": 8,
       "parallelism": "multi-threaded",
       "operators": [
         0

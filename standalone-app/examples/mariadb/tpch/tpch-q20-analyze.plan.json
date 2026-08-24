@@ -1,15 +1,15 @@
 {
   "query_optimization": {
-    "r_total_time_ms": 0.104859451
+    "r_total_time_ms": 0.131144501
   },
   "query_block": {
     "select_id": 1,
     "r_loops": 1,
-    "r_total_time_ms": 70.06136211,
+    "r_total_time_ms": 74.99759856,
     "filesort": {
       "sort_key": "supplier.s_name",
       "r_loops": 1,
-      "r_total_time_ms": 0.004571851,
+      "r_total_time_ms": 0.005192839,
       "r_used_priority_queue": false,
       "r_output_rows": 1,
       "r_buffer_size": "992",
@@ -23,12 +23,12 @@
               "r_loops": 1,
               "rows": 25,
               "r_rows": 25,
-              "r_table_time_ms": 0.008744304,
-              "r_other_time_ms": 0.004037092,
+              "r_table_time_ms": 0.011175784,
+              "r_other_time_ms": 0.00394117,
               "r_engine_stats": {
                 "pages_accessed": 1
               },
-              "filtered": 100,
+              "filtered": 4,
               "r_filtered": 4,
               "attached_condition": "nation.n_name = 'CANADA'"
             }
@@ -39,10 +39,10 @@
                 "table_name": "supplier",
                 "access_type": "ALL",
                 "r_loops": 1,
-                "rows": 492,
+                "rows": 518,
                 "r_rows": 518,
-                "r_table_time_ms": 0.101404912,
-                "r_other_time_ms": 0.013803453,
+                "r_table_time_ms": 0.118513506,
+                "r_other_time_ms": 0.016416751,
                 "r_engine_stats": {
                   "pages_accessed": 6
                 },
@@ -50,13 +50,13 @@
                 "r_filtered": 100
               },
               "buffer_type": "flat",
-              "buffer_size": "2Kb",
+              "buffer_size": "1Kb",
               "join_type": "BNL",
               "attached_condition": "supplier.s_nationkey = nation.n_nationkey",
               "r_loops": 1,
               "r_filtered": 4.44015444,
-              "r_unpack_time_ms": 0.014558131,
-              "r_other_time_ms": 0.015195496,
+              "r_unpack_time_ms": 0.015319159,
+              "r_other_time_ms": 0.018457523,
               "r_effective_rows": 518
             }
           },
@@ -78,8 +78,8 @@
               "r_loops": 23,
               "rows": 1,
               "r_rows": 0.043478261,
-              "r_table_time_ms": 0.001729944,
-              "r_other_time_ms": 0.008322513,
+              "r_table_time_ms": 0.004188496,
+              "r_other_time_ms": 0.016495962,
               "filtered": 100,
               "r_filtered": 100,
               "materialized": {
@@ -92,14 +92,14 @@
                         "table_name": "part",
                         "access_type": "ALL",
                         "r_loops": 1,
-                        "rows": 500,
+                        "rows": 533,
                         "r_rows": 533,
-                        "r_table_time_ms": 0.092293296,
-                        "r_other_time_ms": 0.024379304,
+                        "r_table_time_ms": 0.099877173,
+                        "r_other_time_ms": 0.024940467,
                         "r_engine_stats": {
                           "pages_accessed": 7
                         },
-                        "filtered": 100,
+                        "filtered": 3.90625,
                         "r_filtered": 0.750469043,
                         "attached_condition": "part.p_name like 'forest%'"
                       }
@@ -110,10 +110,10 @@
                           "table_name": "partsupp",
                           "access_type": "ALL",
                           "r_loops": 1,
-                          "rows": 797,
+                          "rows": 537,
                           "r_rows": 537,
-                          "r_table_time_ms": 0.11271873,
-                          "r_other_time_ms": 0.114534569,
+                          "r_table_time_ms": 0.128812954,
+                          "r_other_time_ms": 0.12539284,
                           "r_engine_stats": {
                             "pages_accessed": 4
                           },
@@ -122,13 +122,13 @@
                           "attached_condition": "partsupp.ps_availqty > (subquery#4)"
                         },
                         "buffer_type": "flat",
-                        "buffer_size": "111Kb",
+                        "buffer_size": "4Kb",
                         "join_type": "BNL",
                         "attached_condition": "partsupp.ps_partkey = part.p_partkey",
                         "r_loops": 4,
                         "r_filtered": 0.168918919,
-                        "r_unpack_time_ms": 0.026253967,
-                        "r_other_time_ms": 0.018878645,
+                        "r_unpack_time_ms": 0.024398021,
+                        "r_other_time_ms": 0.019613604,
                         "r_effective_rows": 148
                       }
                     }
@@ -147,21 +147,21 @@
               "query_block": {
                 "select_id": 4,
                 "r_loops": 537,
-                "r_total_time_ms": 69.36970852,
+                "r_total_time_ms": 74.21763729,
                 "nested_loop": [
                   {
                     "table": {
                       "table_name": "lineitem",
                       "access_type": "ALL",
                       "r_loops": 537,
-                      "rows": 476,
+                      "rows": 572,
                       "r_rows": 572,
-                      "r_table_time_ms": 57.81297539,
-                      "r_other_time_ms": 11.35137083,
+                      "r_table_time_ms": 62.56106442,
+                      "r_other_time_ms": 11.43505017,
                       "r_engine_stats": {
                         "pages_accessed": 3222
                       },
-                      "filtered": 100,
+                      "filtered": 27.34375,
                       "r_filtered": 0.048833848,
                       "attached_condition": "lineitem.l_partkey = partsupp.ps_partkey and lineitem.l_suppkey = partsupp.ps_suppkey and lineitem.l_shipdate >= DATE'1994-01-01' and lineitem.l_shipdate < DATE'1995-01-01'"
                     }

@@ -1,6 +1,6 @@
 {
   "query_optimization": {
-    "r_total_time_ms": 0.15278484
+    "r_total_time_ms": 0.057497565
   },
   "query_block": {
     "union_result": {
@@ -9,28 +9,28 @@
           "query_block": {
             "select_id": 1,
             "r_loops": 1,
-            "r_total_time_ms": 1.31366426,
+            "r_total_time_ms": 0.402993982,
             "nested_loop": [
               {
                 "table": {
                   "table_name": "<derived2>",
                   "access_type": "ALL",
                   "r_loops": 1,
-                  "rows": 476,
+                  "rows": 572,
                   "r_rows": 128,
-                  "r_table_time_ms": 0.020749297,
-                  "r_other_time_ms": 0.206445512,
+                  "r_table_time_ms": 0.004474257,
+                  "r_other_time_ms": 0.049073114,
                   "filtered": 100,
                   "r_filtered": 100,
                   "materialized": {
                     "query_block": {
                       "select_id": 2,
                       "r_loops": 1,
-                      "r_total_time_ms": 1.216002991,
+                      "r_total_time_ms": 0.384373024,
                       "filesort": {
                         "sort_key": "lineitem.l_orderkey",
                         "r_loops": 1,
-                        "r_total_time_ms": 0.059486532,
+                        "r_total_time_ms": 0.016826509,
                         "r_used_priority_queue": false,
                         "r_output_rows": 128,
                         "r_buffer_size": "2Kb",
@@ -42,10 +42,10 @@
                                 "table_name": "lineitem",
                                 "access_type": "ALL",
                                 "r_loops": 1,
-                                "rows": 476,
+                                "rows": 572,
                                 "r_rows": 572,
-                                "r_table_time_ms": 0.397232294,
-                                "r_other_time_ms": 0.607878334,
+                                "r_table_time_ms": 0.126777864,
+                                "r_other_time_ms": 0.198091248,
                                 "r_engine_stats": {
                                   "pages_accessed": 6
                                 },
@@ -68,28 +68,28 @@
             "select_id": 3,
             "operation": "UNION",
             "r_loops": 1,
-            "r_total_time_ms": 1.213930134,
+            "r_total_time_ms": 0.366249057,
             "nested_loop": [
               {
                 "table": {
                   "table_name": "<derived4>",
                   "access_type": "ALL",
                   "r_loops": 1,
-                  "rows": 476,
+                  "rows": 572,
                   "r_rows": 128,
-                  "r_table_time_ms": 0.021345553,
-                  "r_other_time_ms": 0.154932563,
+                  "r_table_time_ms": 0.009468233,
+                  "r_other_time_ms": 0.046436754,
                   "filtered": 100,
                   "r_filtered": 100,
                   "materialized": {
                     "query_block": {
                       "select_id": 4,
                       "r_loops": 1,
-                      "r_total_time_ms": 1.157700949,
+                      "r_total_time_ms": 0.350410848,
                       "filesort": {
                         "sort_key": "lineitem.l_orderkey",
                         "r_loops": 1,
-                        "r_total_time_ms": 0.0469167,
+                        "r_total_time_ms": 0.012668428,
                         "r_used_priority_queue": false,
                         "r_output_rows": 128,
                         "r_buffer_size": "2Kb",
@@ -101,10 +101,10 @@
                                 "table_name": "lineitem",
                                 "access_type": "ALL",
                                 "r_loops": 1,
-                                "rows": 476,
+                                "rows": 572,
                                 "r_rows": 572,
-                                "r_table_time_ms": 0.396752348,
-                                "r_other_time_ms": 0.579182526,
+                                "r_table_time_ms": 0.121192646,
+                                "r_other_time_ms": 0.173432532,
                                 "r_engine_stats": {
                                   "pages_accessed": 6
                                 },

@@ -1,15 +1,15 @@
 {
   "query_optimization": {
-    "r_total_time_ms": 0.062881914
+    "r_total_time_ms": 0.067141265
   },
   "query_block": {
     "select_id": 1,
     "r_loops": 1,
-    "r_total_time_ms": 0.23881344,
+    "r_total_time_ms": 0.241471524,
     "filesort": {
       "sort_key": "lineitem.l_shipmode",
       "r_loops": 1,
-      "r_total_time_ms": 0.003022722,
+      "r_total_time_ms": 0.00216243,
       "r_used_priority_queue": false,
       "r_output_rows": 2,
       "r_buffer_size": "544",
@@ -18,46 +18,46 @@
         "nested_loop": [
           {
             "table": {
-              "table_name": "orders",
+              "table_name": "lineitem",
               "access_type": "ALL",
               "r_loops": 1,
-              "rows": 128,
-              "r_rows": 128,
-              "r_table_time_ms": 0.026519341,
-              "r_other_time_ms": 0.011407067,
+              "rows": 572,
+              "r_rows": 572,
+              "r_table_time_ms": 0.134684268,
+              "r_other_time_ms": 0.045840499,
               "r_engine_stats": {
-                "pages_accessed": 1
+                "pages_accessed": 6
               },
-              "filtered": 100,
-              "r_filtered": 100
+              "filtered": 7.250976562,
+              "r_filtered": 0.34965035,
+              "attached_condition": "lineitem.l_shipmode in ('MAIL','SHIP') and lineitem.l_commitdate < lineitem.l_receiptdate and lineitem.l_shipdate < lineitem.l_commitdate and lineitem.l_receiptdate >= DATE'1994-01-01' and lineitem.l_receiptdate < DATE'1995-01-01'"
             }
           },
           {
             "block-nl-join": {
               "table": {
-                "table_name": "lineitem",
+                "table_name": "orders",
                 "access_type": "ALL",
                 "r_loops": 1,
-                "rows": 476,
-                "r_rows": 572,
-                "r_table_time_ms": 0.129475386,
-                "r_other_time_ms": 0.041720853,
+                "rows": 128,
+                "r_rows": 128,
+                "r_table_time_ms": 0.024356577,
+                "r_other_time_ms": 0.003847921,
                 "r_engine_stats": {
-                  "pages_accessed": 6
+                  "pages_accessed": 1
                 },
                 "filtered": 100,
-                "r_filtered": 0.34965035,
-                "attached_condition": "lineitem.l_shipmode in ('MAIL','SHIP') and lineitem.l_commitdate < lineitem.l_receiptdate and lineitem.l_shipdate < lineitem.l_commitdate and lineitem.l_receiptdate >= DATE'1994-01-01' and lineitem.l_receiptdate < DATE'1995-01-01'"
+                "r_filtered": 100
               },
               "buffer_type": "flat",
-              "buffer_size": "8Kb",
+              "buffer_size": "2Kb",
               "join_type": "BNL",
-              "attached_condition": "lineitem.l_orderkey = orders.o_orderkey",
-              "r_loops": 128,
+              "attached_condition": "orders.o_orderkey = lineitem.l_orderkey",
+              "r_loops": 2,
               "r_filtered": 0.78125,
-              "r_unpack_time_ms": 0.007261686,
-              "r_other_time_ms": 0.013086877,
-              "r_effective_rows": 2
+              "r_unpack_time_ms": 0.011555462,
+              "r_other_time_ms": 0.013325513,
+              "r_effective_rows": 128
             }
           }
         ]

@@ -1,15 +1,15 @@
 {
   "query_optimization": {
-    "r_total_time_ms": 0.10164455
+    "r_total_time_ms": 0.165412492
   },
   "query_block": {
     "select_id": 1,
     "r_loops": 1,
-    "r_total_time_ms": 58.87236367,
+    "r_total_time_ms": 75.19292945,
     "filesort": {
       "sort_key": "supplier.s_acctbal desc, nation.n_name, supplier.s_name, part.p_partkey",
       "r_loops": 1,
-      "r_total_time_ms": 0.008340561,
+      "r_total_time_ms": 0.005719576,
       "r_limit": 100,
       "r_used_priority_queue": false,
       "r_output_rows": 2,
@@ -24,14 +24,41 @@
               "r_loops": 1,
               "rows": 5,
               "r_rows": 5,
-              "r_table_time_ms": 0.005380004,
-              "r_other_time_ms": 0.002516039,
+              "r_table_time_ms": 0.008649384,
+              "r_other_time_ms": 0.004323188,
               "r_engine_stats": {
                 "pages_accessed": 1
               },
-              "filtered": 100,
+              "filtered": 20,
               "r_filtered": 20,
               "attached_condition": "region.r_name = 'EUROPE'"
+            }
+          },
+          {
+            "block-nl-join": {
+              "table": {
+                "table_name": "part",
+                "access_type": "ALL",
+                "r_loops": 1,
+                "rows": 533,
+                "r_rows": 533,
+                "r_table_time_ms": 0.215071501,
+                "r_other_time_ms": 0.037975873,
+                "r_engine_stats": {
+                  "pages_accessed": 7
+                },
+                "filtered": 2.34375,
+                "r_filtered": 1.125703565,
+                "attached_condition": "part.p_size = 15 and part.p_type like '%BRASS'"
+              },
+              "buffer_type": "flat",
+              "buffer_size": "1Kb",
+              "join_type": "BNL",
+              "r_loops": 1,
+              "r_filtered": 100,
+              "r_unpack_time_ms": 0.0006801459,
+              "r_other_time_ms": 0.001860959,
+              "r_effective_rows": 6
             }
           },
           {
@@ -42,22 +69,22 @@
                 "r_loops": 1,
                 "rows": 25,
                 "r_rows": 25,
-                "r_table_time_ms": 0.005791768,
-                "r_other_time_ms": 0.001621989,
+                "r_table_time_ms": 0.010775717,
+                "r_other_time_ms": 0.002370651,
                 "r_engine_stats": {
                   "pages_accessed": 1
                 },
                 "filtered": 100,
                 "r_filtered": 100
               },
-              "buffer_type": "flat",
-              "buffer_size": "1Kb",
+              "buffer_type": "incremental",
+              "buffer_size": "2Kb",
               "join_type": "BNL",
               "attached_condition": "nation.n_regionkey = region.r_regionkey",
-              "r_loops": 1,
+              "r_loops": 6,
               "r_filtered": 20,
-              "r_unpack_time_ms": 0.0009826187,
-              "r_other_time_ms": 0.001627003,
+              "r_unpack_time_ms": 0.019778042,
+              "r_other_time_ms": 0.012380327,
               "r_effective_rows": 25
             }
           },
@@ -67,10 +94,10 @@
                 "table_name": "supplier",
                 "access_type": "ALL",
                 "r_loops": 1,
-                "rows": 492,
+                "rows": 518,
                 "r_rows": 518,
-                "r_table_time_ms": 0.130675585,
-                "r_other_time_ms": 0.011574513,
+                "r_table_time_ms": 0.25537491,
+                "r_other_time_ms": 0.021105246,
                 "r_engine_stats": {
                   "pages_accessed": 6
                 },
@@ -78,41 +105,14 @@
                 "r_filtered": 100
               },
               "buffer_type": "incremental",
-              "buffer_size": "14Kb",
+              "buffer_size": "35Kb",
               "join_type": "BNL",
               "attached_condition": "supplier.s_nationkey = nation.n_nationkey",
-              "r_loops": 5,
+              "r_loops": 30,
               "r_filtered": 3.474903475,
-              "r_unpack_time_ms": 0.158555218,
-              "r_other_time_ms": 0.085995846,
+              "r_unpack_time_ms": 2.846982566,
+              "r_other_time_ms": 0.827774359,
               "r_effective_rows": 518
-            }
-          },
-          {
-            "block-nl-join": {
-              "table": {
-                "table_name": "part",
-                "access_type": "ALL",
-                "r_loops": 1,
-                "rows": 500,
-                "r_rows": 533,
-                "r_table_time_ms": 0.109824015,
-                "r_other_time_ms": 0.019478577,
-                "r_engine_stats": {
-                  "pages_accessed": 7
-                },
-                "filtered": 100,
-                "r_filtered": 1.125703565,
-                "attached_condition": "part.p_size = 15 and part.p_type like '%BRASS'"
-              },
-              "buffer_type": "incremental",
-              "buffer_size": "256Kb",
-              "join_type": "BNL",
-              "r_loops": 90,
-              "r_filtered": 100,
-              "r_unpack_time_ms": 0.064258583,
-              "r_other_time_ms": 0.045055741,
-              "r_effective_rows": 6
             }
           },
           {
@@ -121,10 +121,10 @@
                 "table_name": "partsupp",
                 "access_type": "ALL",
                 "r_loops": 1,
-                "rows": 797,
+                "rows": 537,
                 "r_rows": 537,
-                "r_table_time_ms": 0.113589718,
-                "r_other_time_ms": 0.014966553,
+                "r_table_time_ms": 0.159245056,
+                "r_other_time_ms": 0.019463871,
                 "r_engine_stats": {
                   "pages_accessed": 4
                 },
@@ -137,8 +137,8 @@
               "attached_condition": "partsupp.ps_partkey = part.p_partkey and partsupp.ps_suppkey = supplier.s_suppkey and partsupp.ps_supplycost = (subquery#2)",
               "r_loops": 540,
               "r_filtered": 0.0006897027,
-              "r_unpack_time_ms": 41.97892619,
-              "r_other_time_ms": 7.159753469,
+              "r_unpack_time_ms": 52.23674636,
+              "r_other_time_ms": 9.503481858,
               "r_effective_rows": 537
             }
           }
@@ -151,7 +151,7 @@
               "query_block": {
                 "select_id": 2,
                 "r_loops": 2,
-                "r_total_time_ms": 8.926044984,
+                "r_total_time_ms": 8.970663226,
                 "nested_loop": [
                   {
                     "table": {
@@ -160,12 +160,12 @@
                       "r_loops": 2,
                       "rows": 5,
                       "r_rows": 5,
-                      "r_table_time_ms": 0.003027736,
-                      "r_other_time_ms": 0.002100264,
+                      "r_table_time_ms": 0.006817836,
+                      "r_other_time_ms": 0.004911757,
                       "r_engine_stats": {
                         "pages_accessed": 2
                       },
-                      "filtered": 100,
+                      "filtered": 20,
                       "r_filtered": 20,
                       "attached_condition": "region.r_name = 'EUROPE'"
                     }
@@ -178,8 +178,8 @@
                         "r_loops": 2,
                         "rows": 25,
                         "r_rows": 25,
-                        "r_table_time_ms": 0.010008339,
-                        "r_other_time_ms": 0.001980612,
+                        "r_table_time_ms": 0.009857604,
+                        "r_other_time_ms": 0.002796118,
                         "r_engine_stats": {
                           "pages_accessed": 2
                         },
@@ -192,8 +192,8 @@
                       "attached_condition": "nation.n_regionkey = region.r_regionkey",
                       "r_loops": 2,
                       "r_filtered": 20,
-                      "r_unpack_time_ms": 0.001453875,
-                      "r_other_time_ms": 0.002094582,
+                      "r_unpack_time_ms": 0.001476936,
+                      "r_other_time_ms": 0.002583886,
                       "r_effective_rows": 25
                     }
                   },
@@ -203,10 +203,10 @@
                         "table_name": "supplier",
                         "access_type": "ALL",
                         "r_loops": 2,
-                        "rows": 492,
+                        "rows": 518,
                         "r_rows": 518,
-                        "r_table_time_ms": 0.179404782,
-                        "r_other_time_ms": 0.020956182,
+                        "r_table_time_ms": 0.179968952,
+                        "r_other_time_ms": 0.021147692,
                         "r_engine_stats": {
                           "pages_accessed": 12
                         },
@@ -214,13 +214,13 @@
                         "r_filtered": 100
                       },
                       "buffer_type": "incremental",
-                      "buffer_size": "1Kb",
+                      "buffer_size": "362",
                       "join_type": "BNL",
                       "attached_condition": "supplier.s_nationkey = nation.n_nationkey",
                       "r_loops": 10,
                       "r_filtered": 3.474903475,
-                      "r_unpack_time_ms": 0.225321484,
-                      "r_other_time_ms": 0.137878447,
+                      "r_unpack_time_ms": 0.226496281,
+                      "r_other_time_ms": 0.142316608,
                       "r_effective_rows": 518
                     }
                   },
@@ -230,10 +230,10 @@
                         "table_name": "partsupp",
                         "access_type": "ALL",
                         "r_loops": 2,
-                        "rows": 797,
+                        "rows": 537,
                         "r_rows": 537,
-                        "r_table_time_ms": 0.215641353,
-                        "r_other_time_ms": 0.023030042,
+                        "r_table_time_ms": 0.216152381,
+                        "r_other_time_ms": 0.024976563,
                         "r_engine_stats": {
                           "pages_accessed": 8
                         },
@@ -241,13 +241,13 @@
                         "r_filtered": 100
                       },
                       "buffer_type": "incremental",
-                      "buffer_size": "256Kb",
+                      "buffer_size": "177Kb",
                       "join_type": "BNL",
                       "attached_condition": "partsupp.ps_suppkey = supplier.s_suppkey and part.p_partkey = partsupp.ps_partkey",
                       "r_loops": 180,
                       "r_filtered": 0.002069108,
-                      "r_unpack_time_ms": 5.697936047,
-                      "r_other_time_ms": 2.403496338,
+                      "r_unpack_time_ms": 5.704087441,
+                      "r_other_time_ms": 2.421471909,
                       "r_effective_rows": 537
                     }
                   }

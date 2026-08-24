@@ -1,15 +1,15 @@
 {
   "query_optimization": {
-    "r_total_time_ms": 0.073828754
+    "r_total_time_ms": 0.25739496
   },
   "query_block": {
     "select_id": 1,
     "r_loops": 1,
-    "r_total_time_ms": 6.18178551,
+    "r_total_time_ms": 36.86980333,
     "filesort": {
       "sort_key": "sum(lineitem.l_extendedprice * (1 - lineitem.l_discount)) desc",
       "r_loops": 1,
-      "r_total_time_ms": 0.003743309,
+      "r_total_time_ms": 0.005631341,
       "r_used_priority_queue": false,
       "r_output_rows": 1,
       "r_buffer_size": "592",
@@ -23,12 +23,12 @@
               "r_loops": 1,
               "rows": 5,
               "r_rows": 5,
-              "r_table_time_ms": 0.004995981,
-              "r_other_time_ms": 0.002504675,
+              "r_table_time_ms": 0.013234938,
+              "r_other_time_ms": 0.006793438,
               "r_engine_stats": {
                 "pages_accessed": 1
               },
-              "filtered": 100,
+              "filtered": 20,
               "r_filtered": 20,
               "attached_condition": "region.r_name = 'ASIA'"
             }
@@ -41,8 +41,8 @@
                 "r_loops": 1,
                 "rows": 25,
                 "r_rows": 25,
-                "r_table_time_ms": 0.005632344,
-                "r_other_time_ms": 0.00144084,
+                "r_table_time_ms": 0.018644688,
+                "r_other_time_ms": 0.004196851,
                 "r_engine_stats": {
                   "pages_accessed": 1
                 },
@@ -55,8 +55,8 @@
               "attached_condition": "nation.n_regionkey = region.r_regionkey",
               "r_loops": 1,
               "r_filtered": 20,
-              "r_unpack_time_ms": 0.0009976588,
-              "r_other_time_ms": 0.001650733,
+              "r_unpack_time_ms": 0.003069848,
+              "r_other_time_ms": 0.005569844,
               "r_effective_rows": 25
             }
           },
@@ -68,22 +68,22 @@
                 "r_loops": 1,
                 "rows": 128,
                 "r_rows": 128,
-                "r_table_time_ms": 0.025741936,
-                "r_other_time_ms": 0.00907552,
+                "r_table_time_ms": 0.088140562,
+                "r_other_time_ms": 0.027587521,
                 "r_engine_stats": {
                   "pages_accessed": 1
                 },
-                "filtered": 100,
+                "filtered": 31.25,
                 "r_filtered": 30.46875,
                 "attached_condition": "orders.o_orderdate >= DATE'1994-01-01' and orders.o_orderdate < DATE'1995-01-01'"
               },
               "buffer_type": "incremental",
-              "buffer_size": "14Kb",
+              "buffer_size": "2Kb",
               "join_type": "BNL",
               "r_loops": 5,
               "r_filtered": 100,
-              "r_unpack_time_ms": 0.012169766,
-              "r_other_time_ms": 0.00992378,
+              "r_unpack_time_ms": 0.039807086,
+              "r_other_time_ms": 0.044057748,
               "r_effective_rows": 39
             }
           },
@@ -95,8 +95,8 @@
                 "r_loops": 1,
                 "rows": 129,
                 "r_rows": 129,
-                "r_table_time_ms": 0.027284046,
-                "r_other_time_ms": 0.003174126,
+                "r_table_time_ms": 0.103138866,
+                "r_other_time_ms": 0.011164754,
                 "r_engine_stats": {
                   "pages_accessed": 1
                 },
@@ -104,41 +104,14 @@
                 "r_filtered": 100
               },
               "buffer_type": "incremental",
-              "buffer_size": "256Kb",
+              "buffer_size": "17Kb",
               "join_type": "BNL",
               "attached_condition": "customer.c_custkey = orders.o_custkey and customer.c_nationkey = nation.n_nationkey",
               "r_loops": 195,
               "r_filtered": 0.035778175,
-              "r_unpack_time_ms": 1.906762872,
-              "r_other_time_ms": 0.681438372,
+              "r_unpack_time_ms": 6.887348842,
+              "r_other_time_ms": 2.386347302,
               "r_effective_rows": 129
-            }
-          },
-          {
-            "block-nl-join": {
-              "table": {
-                "table_name": "lineitem",
-                "access_type": "ALL",
-                "r_loops": 1,
-                "rows": 476,
-                "r_rows": 572,
-                "r_table_time_ms": 0.115432295,
-                "r_other_time_ms": 0.011805462,
-                "r_engine_stats": {
-                  "pages_accessed": 6
-                },
-                "filtered": 100,
-                "r_filtered": 100
-              },
-              "buffer_type": "incremental",
-              "buffer_size": "256Kb",
-              "join_type": "BNL",
-              "attached_condition": "lineitem.l_orderkey = orders.o_orderkey",
-              "r_loops": 9,
-              "r_filtered": 0.66045066,
-              "r_unpack_time_ms": 0.484788632,
-              "r_other_time_ms": 0.141208321,
-              "r_effective_rows": 572
             }
           },
           {
@@ -147,10 +120,10 @@
                 "table_name": "supplier",
                 "access_type": "ALL",
                 "r_loops": 1,
-                "rows": 492,
+                "rows": 518,
                 "r_rows": 518,
-                "r_table_time_ms": 0.091386546,
-                "r_other_time_ms": 0.011998977,
+                "r_table_time_ms": 0.33014016,
+                "r_other_time_ms": 0.037771996,
                 "r_engine_stats": {
                   "pages_accessed": 6
                 },
@@ -160,12 +133,39 @@
               "buffer_type": "incremental",
               "buffer_size": "256Kb",
               "join_type": "BNL",
-              "attached_condition": "supplier.s_suppkey = lineitem.l_suppkey and supplier.s_nationkey = nation.n_nationkey",
-              "r_loops": 34,
-              "r_filtered": 0.005677947,
-              "r_unpack_time_ms": 2.129588371,
-              "r_other_time_ms": 0.492061013,
+              "attached_condition": "supplier.s_nationkey = nation.n_nationkey",
+              "r_loops": 9,
+              "r_filtered": 4.075504076,
+              "r_unpack_time_ms": 1.611430476,
+              "r_other_time_ms": 0.452919367,
               "r_effective_rows": 518
+            }
+          },
+          {
+            "block-nl-join": {
+              "table": {
+                "table_name": "lineitem",
+                "access_type": "ALL",
+                "r_loops": 1,
+                "rows": 572,
+                "r_rows": 572,
+                "r_table_time_ms": 0.238073134,
+                "r_other_time_ms": 0.026124622,
+                "r_engine_stats": {
+                  "pages_accessed": 6
+                },
+                "filtered": 100,
+                "r_filtered": 100
+              },
+              "buffer_type": "incremental",
+              "buffer_size": "256Kb",
+              "join_type": "BNL",
+              "attached_condition": "lineitem.l_orderkey = orders.o_orderkey and lineitem.l_suppkey = supplier.s_suppkey",
+              "r_loops": 190,
+              "r_filtered": 0.0009201325,
+              "r_unpack_time_ms": 19.84425277,
+              "r_other_time_ms": 4.665996252,
+              "r_effective_rows": 572
             }
           }
         ]

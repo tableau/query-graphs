@@ -1,15 +1,15 @@
 {
   "query_optimization": {
-    "r_total_time_ms": 0.064081444
+    "r_total_time_ms": 0.130671574
   },
   "query_block": {
     "select_id": 1,
     "r_loops": 1,
-    "r_total_time_ms": 0.239101541,
+    "r_total_time_ms": 0.855970836,
     "filesort": {
       "sort_key": "orders.o_orderpriority",
       "r_loops": 1,
-      "r_total_time_ms": 0.002941172,
+      "r_total_time_ms": 0.008561817,
       "r_used_priority_queue": false,
       "r_output_rows": 4,
       "r_buffer_size": "696",
@@ -23,12 +23,12 @@
               "r_loops": 1,
               "rows": 128,
               "r_rows": 128,
-              "r_table_time_ms": 0.026581841,
-              "r_other_time_ms": 0.010096574,
+              "r_table_time_ms": 0.086125525,
+              "r_other_time_ms": 0.033578487,
               "r_engine_stats": {
                 "pages_accessed": 1
               },
-              "filtered": 100,
+              "filtered": 4.6875,
               "r_filtered": 3.90625,
               "attached_condition": "orders.o_orderdate >= DATE'1993-07-01' and orders.o_orderdate < DATE'1993-10-01'"
             }
@@ -51,8 +51,8 @@
               "r_loops": 5,
               "rows": 1,
               "r_rows": 1,
-              "r_table_time_ms": 0.034899675,
-              "r_other_time_ms": 0.010428459,
+              "r_table_time_ms": 0.103812662,
+              "r_other_time_ms": 0.039109226,
               "filtered": 100,
               "r_filtered": 100,
               "materialized": {
@@ -65,10 +65,10 @@
                         "table_name": "lineitem",
                         "access_type": "ALL",
                         "r_loops": 1,
-                        "rows": 476,
+                        "rows": 572,
                         "r_rows": 572,
-                        "r_table_time_ms": 0.110358439,
-                        "r_other_time_ms": 0.037788707,
+                        "r_table_time_ms": 0.444074796,
+                        "r_other_time_ms": 0.123146186,
                         "r_engine_stats": {
                           "pages_accessed": 6
                         },
