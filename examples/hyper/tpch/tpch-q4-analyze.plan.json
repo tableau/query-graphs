@@ -1,68 +1,71 @@
 {
-  "operator": "executiontarget",
+  "operator": "execution-target",
   "operator-id": 1,
-  "cardinality": 4.46938,
+  "estimated-rows": 4.46938,
   "produces-rows": true,
-  "output": [{"expression": "iuref", "iu": ["GroupByKey", ["Char", 15]]}, {"expression": "iuref", "iu": ["count", ["BigInt"]]}],
+  "output": [{"expression": "iu-ref", "iu": ["GroupByKey", ["Char", 15]]}, {"expression": "iu-ref", "iu": ["count", ["BigInt"]]}],
   "output-names": ["o_orderpriority", "order_count"],
   "inputs": [{
     "operator": "sort",
     "operator-id": 2,
-    "sqlpos": [[620, 635]],
-    "cardinality": 4.46938,
-    "criterion": [{"value": {"expression": "iuref", "iu": "GroupByKey"}, "descending": false, "null-first": false}],
+    "sqlpos": [[624, 639]],
+    "estimated-rows": 4.46938,
+    "criterion": [{"value": {"expression": "iu-ref", "iu": "GroupByKey"}, "descending": false, "null-first": false}],
     "inputs": [{
-      "operator": "groupby",
+      "operator": "group-by",
       "operator-id": 3,
-      "sqlpos": [[570, 602], [174, 182]],
-      "cardinality": 4.46938,
+      "sqlpos": [[574, 606], [178, 186]],
+      "estimated-rows": 4.46938,
       "inputs": [{
-        "operator": "leftsemijoin",
+        "operator": "left-semi-join",
         "operator-id": 4,
-        "cardinality": 4.46938,
+        "estimated-rows": 4.46938,
         "method": "hash",
         "compute-left-bounds": [0],
         "inputs": [{
-          "operator": "tablescan",
+          "operator": "table-scan",
           "operator-id": 5,
-          "sqlpos": [[211, 217]],
-          "cardinality": 5,
+          "sqlpos": [[215, 221]],
+          "estimated-rows": 5,
           "volatility": "stable",
           "relation-id": 6,
           "schema": {"type":"sessionschema"},
+          "scan-type": "native",
           "attribute-count": 9,
           "attributes": [{"col-id": 0, "name": "o_orderkey", "type": ["Integer"], "iu": ["scan_orderkey", ["Integer"]]},{"col-id": 4, "name": "o_orderdate", "type": ["Date"], "iu": ["scan_orderdat", ["Date"]]},{"col-id": 5, "name": "o_orderpriority", "type": ["Char", 15], "iu": ["scan_orderpri", ["Char", 15]]}],
           "debug-name": {"classification": "nonsensitive", "value": "orders"},
           "restrictions": [{"attribute": 4, "mode": "[)", "value": {"expression": "const", "value": {"type": ["Date"], "value": 2449170}}, "value2": {"expression": "const", "value": {"type": ["Date"], "value": 2449262}}}],
           "selectivity": 0.0390625,
-          "analyze": {"pipeline": 3, "column-count": 2, "cpu-cycles": 518, "processed-rows": 128, "running": false, "tuple-count": 5}
+          "statistics": {"pipeline": 3, "column-count": 2, "cpu-cycles": 20149, "output-rows": 5, "processed-rows": 128, "running": false}
         }, {
-          "operator": "tablescan",
+          "operator": "table-scan",
           "operator-id": 6,
-          "sqlpos": [[424, 432]],
-          "cardinality": 286,
+          "sqlpos": [[428, 436]],
+          "estimated-rows": 286,
           "volatility": "stable",
           "relation-id": 7,
           "schema": {"type":"sessionschema"},
+          "scan-type": "native",
           "attribute-count": 16,
           "attributes": [{"col-id": 0, "name": "l_orderkey", "type": ["Integer"], "iu": ["scan_orderkey2", ["Integer"]]},{"col-id": 11, "name": "l_commitdate", "type": ["Date"], "iu": ["scan_commitda", ["Date"]]},{"col-id": 12, "name": "l_receiptdate", "type": ["Date"], "iu": ["scan_receiptd", ["Date"]]}],
           "debug-name": {"classification": "nonsensitive", "value": "lineitem"},
-          "residuals": [{"expression": "comparison", "mode": "<", "left": {"expression": "iuref", "iu": "scan_commitda"}, "right": {"expression": "iuref", "iu": "scan_receiptd"}}],
-          "early-probes": [{"builder": 4, "attributes": [0], "num-equality-predicates": 1, "selectivities": [0.0390625], "type": "hashprobe", "pass-on-nulls": false}],
+          "residuals": [{"expression": "comparison", "mode": "<", "left": {"expression": "iu-ref", "iu": "scan_commitda"}, "right": {"expression": "iu-ref", "iu": "scan_receiptd"}}],
+          "early-probes": [{"builder": 4, "attributes": [0], "num-equality-predicates": 1, "selectivities": [0.0390625], "type": "hash-probe", "pass-on-nulls": false}],
           "selectivity": 0.5,
-          "analyze": {"pipeline": 2, "column-count": 1, "cpu-cycles": 331, "processed-rows": 572, "running": false, "tuple-count": 21}
+          "statistics": {"pipeline": 2, "column-count": 1, "cpu-cycles": 21086, "output-rows": 11, "processed-rows": 572, "running": false}
         }],
         "early-probed-by": [6],
-        "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "scan_orderkey2"}, "right": {"expression": "iuref", "iu": "scan_orderkey"}},
-        "analyze": {"pipeline": 2, "column-count": 1, "memory-bytes": 18552, "tuple-count": 5}
+        "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iu-ref", "iu": "scan_orderkey2"}, "right": {"expression": "iu-ref", "iu": "scan_orderkey"}},
+        "predicates": [{"left": {"expression": "iu-ref", "iu": "scan_orderkey"}, "right": {"expression": "iu-ref", "iu": "scan_orderkey2"}, "comparison": "="}],
+        "statistics": {"pipeline": 2, "column-count": 1, "memory-bytes": 18552, "output-rows": 5}
       }],
-      "key-expressions": [{"expression": {"value": {"expression": "iuref", "iu": "scan_orderpri"}}, "iu": ["GroupByKey", ["Char", 15]]}],
+      "key-expressions": [{"expression": {"value": {"expression": "iu-ref", "iu": "scan_orderpri"}}, "iu": ["GroupByKey", ["Char", 15]]}],
       "grouping-sets": [{"key-indices": [0], "core-indices": [0], "behavior": "regular"}],
       "empty-groups": false,
       "aggregates": [{"source": null, "operation": {"aggregate": "count"}, "iu": ["count", ["BigInt"]]}],
-      "analyze": {"pipeline": 1, "column-count": 2, "cpu-cycles": 185, "memory-bytes": 18552, "running": false, "tuple-count": 4}
+      "statistics": {"pipeline": 1, "column-count": 2, "cpu-cycles": 31139, "memory-bytes": 18552, "output-rows": 4, "running": false}
     }],
-    "analyze": {"pipeline": 0, "column-count": 2, "cpu-cycles": 68, "memory-bytes": 262176, "running": false, "tuple-count": 4}
+    "statistics": {"pipeline": 0, "column-count": 2, "cpu-cycles": 3559, "memory-bytes": 262176, "output-rows": 4, "running": false}
   }],
-  "analyze": {"error": null, "pipeline": 0, "column-count": 0}
+  "statistics": {"error": null, "pipeline": 0, "column-count": 0}
 }

@@ -1,26 +1,26 @@
 {
-  "operator": "executiontarget",
+  "operator": "execution-target",
   "operator-id": 1,
   "estimated-rows": 11,
   "produces-rows": true,
-  "output": [{"expression": "iuref", "iu": ["map", ["Integer"]]}],
+  "output": [{"expression": "iu-ref", "iu": ["map", ["Integer"]]}],
   "output-names": ["i"],
   "inputs": [{
     "operator": "iteration",
     "operator-id": 2,
     "estimated-rows": 11,
     "result-ius": [["map", ["Integer"]]],
-    "left-values": [{"expression": "iuref", "iu": ["map2", ["Integer"]]}],
-    "right-values": [{"expression": "iuref", "iu": ["map3", ["Integer"]]}],
+    "left-values": [{"expression": "iu-ref", "iu": ["map2", ["Integer"]]}],
+    "right-values": [{"expression": "iu-ref", "iu": ["map3", ["Integer"]]}],
     "union-all": true,
     "inputs": [{
-      "operator": "tableconstruction",
+      "operator": "table-construction",
       "operator-id": 3,
       "estimated-rows": 1,
       "output": [["map2", ["Integer"]]],
       "values": [[{"expression": "const", "value": {"type": ["Integer"], "value": 1}}]],
       "inputs": [],
-      "statistics": {"pipeline": 1, "column-count": 1, "cpu-cycles": 16917, "output-rows": 1, "running": false}
+      "statistics": {"pipeline": 1, "column-count": 1, "cpu-cycles": 12699, "output-rows": 1, "running": false}
     }, {
       "operator": "map",
       "operator-id": 4,
@@ -32,23 +32,23 @@
         "sqlpos": [[117, 123]],
         "estimated-rows": 1,
         "inputs": [{
-          "operator": "iterationincrement",
+          "operator": "iteration-increment",
           "operator-id": 6,
           "sqlpos": [[109, 110]],
           "estimated-rows": 1,
           "values": [["map_increment", ["Integer"]]],
           "source": 2,
-          "statistics": {"pipeline": 2, "column-count": 1, "cpu-cycles": 32438754, "output-rows": 10, "running": false}
+          "statistics": {"pipeline": 2, "column-count": 1, "cpu-cycles": 18063162, "output-rows": 10, "running": false}
         }],
-        "condition": {"expression": "comparison", "mode": "<", "left": {"expression": "iuref", "iu": "map_increment"}, "right": {"expression": "const", "value": {"type": ["Integer"], "value": 10}}},
+        "condition": {"expression": "comparison", "mode": "<", "left": {"expression": "iu-ref", "iu": "map_increment"}, "right": {"expression": "const", "value": {"type": ["Integer"], "value": 10}}},
         "statistics": {"pipeline": 2, "column-count": 1, "output-rows": 9}
       }],
-      "values": [{"iu": ["map3", ["Integer"]], "value": {"expression": "add", "left": {"expression": "iuref", "iu": "map_increment"}, "right": {"expression": "const", "value": {"type": ["Integer"], "value": 1}}}}],
+      "values": [{"iu": ["map3", ["Integer"]], "value": {"expression": "add", "left": {"expression": "iu-ref", "iu": "map_increment"}, "right": {"expression": "const", "value": {"type": ["Integer"], "value": 1}}}}],
       "statistics": {"pipeline": 2, "column-count": 1, "output-rows": 9}
     }],
     "collates": [null],
     "algorithm": "materializing",
-    "statistics": {"pipeline": 0, "column-count": 1, "cpu-cycles": 18972021, "output-rows": 10, "running": false}
+    "statistics": {"pipeline": 0, "column-count": 1, "cpu-cycles": 14870526, "output-rows": 10, "running": false}
   }],
   "statistics": {"error": null, "pipeline": 0, "column-count": 0}
 }
