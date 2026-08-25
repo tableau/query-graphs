@@ -1,15 +1,15 @@
 {
   "query_optimization": {
-    "r_total_time_ms": 0.151254093
+    "r_total_time_ms": 0.144377434
   },
   "query_block": {
     "select_id": 1,
     "r_loops": 1,
-    "r_total_time_ms": 103390.5014,
+    "r_total_time_ms": 103670.0216,
     "filesort": {
       "sort_key": "nation.n_name, extract(year from orders.o_orderdate) desc",
       "r_loops": 1,
-      "r_total_time_ms": 0.016687472,
+      "r_total_time_ms": 0.024914397,
       "r_used_priority_queue": false,
       "r_output_rows": 27,
       "r_buffer_size": "2Kb",
@@ -23,8 +23,8 @@
               "r_loops": 1,
               "rows": 25,
               "r_rows": 25,
-              "r_table_time_ms": 0.010799447,
-              "r_other_time_ms": 0.004004338,
+              "r_table_time_ms": 0.009911748,
+              "r_other_time_ms": 0.004016036,
               "r_engine_stats": {
                 "pages_accessed": 1
               },
@@ -40,8 +40,8 @@
                 "r_loops": 1,
                 "rows": 128,
                 "r_rows": 128,
-                "r_table_time_ms": 0.024229238,
-                "r_other_time_ms": 0.00321557,
+                "r_table_time_ms": 0.024146016,
+                "r_other_time_ms": 0.003462895,
                 "r_engine_stats": {
                   "pages_accessed": 1
                 },
@@ -53,8 +53,8 @@
               "join_type": "BNL",
               "r_loops": 25,
               "r_filtered": 100,
-              "r_unpack_time_ms": 0.091079394,
-              "r_other_time_ms": 0.116387173,
+              "r_unpack_time_ms": 0.090593098,
+              "r_other_time_ms": 0.127637154,
               "r_effective_rows": 128
             }
           },
@@ -66,8 +66,8 @@
                 "r_loops": 1,
                 "rows": 518,
                 "r_rows": 518,
-                "r_table_time_ms": 0.163413498,
-                "r_other_time_ms": 0.014687476,
+                "r_table_time_ms": 0.124731744,
+                "r_other_time_ms": 0.011056466,
                 "r_engine_stats": {
                   "pages_accessed": 6
                 },
@@ -80,8 +80,8 @@
               "attached_condition": "supplier.s_nationkey = nation.n_nationkey",
               "r_loops": 3200,
               "r_filtered": 4,
-              "r_unpack_time_ms": 84.22688134,
-              "r_other_time_ms": 46.18769894,
+              "r_unpack_time_ms": 70.17787028,
+              "r_other_time_ms": 38.62754005,
               "r_effective_rows": 518
             }
           },
@@ -93,8 +93,8 @@
                 "r_loops": 4,
                 "rows": 533,
                 "r_rows": 533,
-                "r_table_time_ms": 0.578901444,
-                "r_other_time_ms": 0.700420627,
+                "r_table_time_ms": 0.582274099,
+                "r_other_time_ms": 0.711005836,
                 "r_engine_stats": {
                   "pages_accessed": 28
                 },
@@ -107,8 +107,8 @@
               "join_type": "BNL",
               "r_loops": 66304,
               "r_filtered": 100,
-              "r_unpack_time_ms": 108.3643689,
-              "r_other_time_ms": 78.22953837,
+              "r_unpack_time_ms": 107.2960913,
+              "r_other_time_ms": 78.25489394,
               "r_effective_rows": 28
             }
           },
@@ -120,8 +120,8 @@
                 "r_loops": 292,
                 "rows": 537,
                 "r_rows": 537,
-                "r_table_time_ms": 43.27498687,
-                "r_other_time_ms": 3.550767157,
+                "r_table_time_ms": 44.95408936,
+                "r_other_time_ms": 3.680218145,
                 "r_engine_stats": {
                   "pages_accessed": 1168
                 },
@@ -133,9 +133,9 @@
               "join_type": "BNL",
               "attached_condition": "partsupp.ps_suppkey = supplier.s_suppkey and partsupp.ps_partkey = part.p_partkey",
               "r_loops": 1856512,
-              "r_filtered": 0.0003594976,
-              "r_unpack_time_ms": 79479.24089,
-              "r_other_time_ms": 23271.07802,
+              "r_filtered": 3.594976e-4,
+              "r_unpack_time_ms": 78824.43553,
+              "r_other_time_ms": 24235.26718,
               "r_effective_rows": 537
             }
           },
@@ -147,8 +147,8 @@
                 "r_loops": 28,
                 "rows": 572,
                 "r_rows": 572,
-                "r_table_time_ms": 4.321805648,
-                "r_other_time_ms": 0.326464364,
+                "r_table_time_ms": 4.307083747,
+                "r_other_time_ms": 0.322355413,
                 "r_engine_stats": {
                   "pages_accessed": 168
                 },
@@ -161,8 +161,8 @@
               "attached_condition": "lineitem.l_suppkey = supplier.s_suppkey and lineitem.l_partkey = part.p_partkey and lineitem.l_orderkey = orders.o_orderkey",
               "r_loops": 3584,
               "r_filtered": 0.001365822,
-              "r_unpack_time_ms": 212.1519106,
-              "r_other_time_ms": 57.80098611,
+              "r_unpack_time_ms": 207.4010388,
+              "r_other_time_ms": 53.54952292,
               "r_effective_rows": 572
             }
           }

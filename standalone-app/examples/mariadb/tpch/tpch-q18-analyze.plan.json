@@ -1,15 +1,15 @@
 {
   "query_optimization": {
-    "r_total_time_ms": 0.087182676
+    "r_total_time_ms": 0.183716606
   },
   "query_block": {
     "select_id": 1,
     "r_loops": 1,
-    "r_total_time_ms": 0.597054154,
+    "r_total_time_ms": 1.510855108,
     "filesort": {
       "sort_key": "orders.o_totalprice desc, orders.o_orderdate",
       "r_loops": 1,
-      "r_total_time_ms": 0.002110625,
+      "r_total_time_ms": 0.008596911,
       "r_limit": 100,
       "r_used_priority_queue": false,
       "r_output_rows": 2,
@@ -24,8 +24,8 @@
               "r_loops": 1,
               "rows": 128,
               "r_rows": 128,
-              "r_table_time_ms": 0.028282707,
-              "r_other_time_ms": 0.007805803,
+              "r_table_time_ms": 0.071230831,
+              "r_other_time_ms": 0.020677773,
               "r_engine_stats": {
                 "pages_accessed": 1
               },
@@ -37,22 +37,16 @@
             "table": {
               "table_name": "<subquery2>",
               "access_type": "eq_ref",
-              "possible_keys": [
-                "distinct_key"
-              ],
+              "possible_keys": ["distinct_key"],
               "key": "distinct_key",
               "key_length": "4",
-              "used_key_parts": [
-                "l_orderkey"
-              ],
-              "ref": [
-                "query_graphs_plan_dumper.orders.o_orderkey"
-              ],
+              "used_key_parts": ["l_orderkey"],
+              "ref": ["query_graphs_plan_dumper.orders.o_orderkey"],
               "r_loops": 128,
               "rows": 1,
               "r_rows": 0.015625,
-              "r_table_time_ms": 0.006451192,
-              "r_other_time_ms": 0.007289092,
+              "r_table_time_ms": 0.021571822,
+              "r_other_time_ms": 0.017463875,
               "filtered": 100,
               "r_filtered": 100,
               "materialized": {
@@ -62,7 +56,7 @@
                   "query_block": {
                     "select_id": 2,
                     "r_loops": 1,
-                    "r_total_time_ms": 0.259320759,
+                    "r_total_time_ms": 0.656251583,
                     "having_condition": "sum(lineitem.l_quantity) > 300",
                     "temporary_table": {
                       "nested_loop": [
@@ -73,8 +67,8 @@
                             "r_loops": 1,
                             "rows": 572,
                             "r_rows": 572,
-                            "r_table_time_ms": 0.111111112,
-                            "r_other_time_ms": 0.143295885,
+                            "r_table_time_ms": 0.28891329,
+                            "r_other_time_ms": 0.350172212,
                             "r_engine_stats": {
                               "pages_accessed": 6
                             },
@@ -97,8 +91,8 @@
                 "r_loops": 1,
                 "rows": 129,
                 "r_rows": 129,
-                "r_table_time_ms": 0.024127968,
-                "r_other_time_ms": 0.003015704,
+                "r_table_time_ms": 0.060440073,
+                "r_other_time_ms": 0.007805803,
                 "r_engine_stats": {
                   "pages_accessed": 1
                 },
@@ -111,8 +105,8 @@
               "attached_condition": "customer.c_custkey = orders.o_custkey",
               "r_loops": 2,
               "r_filtered": 0.775193798,
-              "r_unpack_time_ms": 0.011218898,
-              "r_other_time_ms": 0.006914093,
+              "r_unpack_time_ms": 0.029099885,
+              "r_other_time_ms": 0.01917577,
               "r_effective_rows": 129
             }
           },
@@ -124,8 +118,8 @@
                 "r_loops": 1,
                 "rows": 572,
                 "r_rows": 572,
-                "r_table_time_ms": 0.102445685,
-                "r_other_time_ms": 0.0122951,
+                "r_table_time_ms": 0.259423365,
+                "r_other_time_ms": 0.032086177,
                 "r_engine_stats": {
                   "pages_accessed": 6
                 },
@@ -138,8 +132,8 @@
               "attached_condition": "lineitem.l_orderkey = orders.o_orderkey",
               "r_loops": 2,
               "r_filtered": 1.223776224,
-              "r_unpack_time_ms": 0.077792651,
-              "r_other_time_ms": 0.045908346,
+              "r_unpack_time_ms": 0.193408435,
+              "r_other_time_ms": 0.116144192,
               "r_effective_rows": 572
             }
           }

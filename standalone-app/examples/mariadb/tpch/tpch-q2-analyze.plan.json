@@ -1,15 +1,15 @@
 {
   "query_optimization": {
-    "r_total_time_ms": 0.165412492
+    "r_total_time_ms": 0.230271676
   },
   "query_block": {
     "select_id": 1,
     "r_loops": 1,
-    "r_total_time_ms": 75.19292945,
+    "r_total_time_ms": 136.8825906,
     "filesort": {
       "sort_key": "supplier.s_acctbal desc, nation.n_name, supplier.s_name, part.p_partkey",
       "r_loops": 1,
-      "r_total_time_ms": 0.005719576,
+      "r_total_time_ms": 0.009085546,
       "r_limit": 100,
       "r_used_priority_queue": false,
       "r_output_rows": 2,
@@ -24,8 +24,8 @@
               "r_loops": 1,
               "rows": 5,
               "r_rows": 5,
-              "r_table_time_ms": 0.008649384,
-              "r_other_time_ms": 0.004323188,
+              "r_table_time_ms": 0.007807474,
+              "r_other_time_ms": 0.004521049,
               "r_engine_stats": {
                 "pages_accessed": 1
               },
@@ -42,8 +42,8 @@
                 "r_loops": 1,
                 "rows": 533,
                 "r_rows": 533,
-                "r_table_time_ms": 0.215071501,
-                "r_other_time_ms": 0.037975873,
+                "r_table_time_ms": 0.256537341,
+                "r_other_time_ms": 0.047247582,
                 "r_engine_stats": {
                   "pages_accessed": 7
                 },
@@ -56,8 +56,8 @@
               "join_type": "BNL",
               "r_loops": 1,
               "r_filtered": 100,
-              "r_unpack_time_ms": 0.0006801459,
-              "r_other_time_ms": 0.001860959,
+              "r_unpack_time_ms": 0.001013367,
+              "r_other_time_ms": 0.002468913,
               "r_effective_rows": 6
             }
           },
@@ -69,8 +69,8 @@
                 "r_loops": 1,
                 "rows": 25,
                 "r_rows": 25,
-                "r_table_time_ms": 0.010775717,
-                "r_other_time_ms": 0.002370651,
+                "r_table_time_ms": 0.012085541,
+                "r_other_time_ms": 0.002692843,
                 "r_engine_stats": {
                   "pages_accessed": 1
                 },
@@ -83,8 +83,8 @@
               "attached_condition": "nation.n_regionkey = region.r_regionkey",
               "r_loops": 6,
               "r_filtered": 20,
-              "r_unpack_time_ms": 0.019778042,
-              "r_other_time_ms": 0.012380327,
+              "r_unpack_time_ms": 0.023034053,
+              "r_other_time_ms": 0.014868959,
               "r_effective_rows": 25
             }
           },
@@ -96,8 +96,8 @@
                 "r_loops": 1,
                 "rows": 518,
                 "r_rows": 518,
-                "r_table_time_ms": 0.25537491,
-                "r_other_time_ms": 0.021105246,
+                "r_table_time_ms": 0.438210167,
+                "r_other_time_ms": 0.041130279,
                 "r_engine_stats": {
                   "pages_accessed": 6
                 },
@@ -110,8 +110,8 @@
               "attached_condition": "supplier.s_nationkey = nation.n_nationkey",
               "r_loops": 30,
               "r_filtered": 3.474903475,
-              "r_unpack_time_ms": 2.846982566,
-              "r_other_time_ms": 0.827774359,
+              "r_unpack_time_ms": 4.876443429,
+              "r_other_time_ms": 1.613048788,
               "r_effective_rows": 518
             }
           },
@@ -123,8 +123,8 @@
                 "r_loops": 1,
                 "rows": 537,
                 "r_rows": 537,
-                "r_table_time_ms": 0.159245056,
-                "r_other_time_ms": 0.019463871,
+                "r_table_time_ms": 0.347919542,
+                "r_other_time_ms": 0.0349468,
                 "r_engine_stats": {
                   "pages_accessed": 4
                 },
@@ -136,9 +136,9 @@
               "join_type": "BNL",
               "attached_condition": "partsupp.ps_partkey = part.p_partkey and partsupp.ps_suppkey = supplier.s_suppkey and partsupp.ps_supplycost = (subquery#2)",
               "r_loops": 540,
-              "r_filtered": 0.0006897027,
-              "r_unpack_time_ms": 52.23674636,
-              "r_other_time_ms": 9.503481858,
+              "r_filtered": 6.897027e-4,
+              "r_unpack_time_ms": 94.33958645,
+              "r_other_time_ms": 20.24601112,
               "r_effective_rows": 537
             }
           }
@@ -151,7 +151,7 @@
               "query_block": {
                 "select_id": 2,
                 "r_loops": 2,
-                "r_total_time_ms": 8.970663226,
+                "r_total_time_ms": 14.51332246,
                 "nested_loop": [
                   {
                     "table": {
@@ -160,8 +160,8 @@
                       "r_loops": 2,
                       "rows": 5,
                       "r_rows": 5,
-                      "r_table_time_ms": 0.006817836,
-                      "r_other_time_ms": 0.004911757,
+                      "r_table_time_ms": 0.011981264,
+                      "r_other_time_ms": 0.014301447,
                       "r_engine_stats": {
                         "pages_accessed": 2
                       },
@@ -178,8 +178,8 @@
                         "r_loops": 2,
                         "rows": 25,
                         "r_rows": 25,
-                        "r_table_time_ms": 0.009857604,
-                        "r_other_time_ms": 0.002796118,
+                        "r_table_time_ms": 0.017409062,
+                        "r_other_time_ms": 0.005994642,
                         "r_engine_stats": {
                           "pages_accessed": 2
                         },
@@ -192,8 +192,8 @@
                       "attached_condition": "nation.n_regionkey = region.r_regionkey",
                       "r_loops": 2,
                       "r_filtered": 20,
-                      "r_unpack_time_ms": 0.001476936,
-                      "r_other_time_ms": 0.002583886,
+                      "r_unpack_time_ms": 0.002476266,
+                      "r_other_time_ms": 0.005002331,
                       "r_effective_rows": 25
                     }
                   },
@@ -205,8 +205,8 @@
                         "r_loops": 2,
                         "rows": 518,
                         "r_rows": 518,
-                        "r_table_time_ms": 0.179968952,
-                        "r_other_time_ms": 0.021147692,
+                        "r_table_time_ms": 0.299032257,
+                        "r_other_time_ms": 0.035315784,
                         "r_engine_stats": {
                           "pages_accessed": 12
                         },
@@ -219,8 +219,8 @@
                       "attached_condition": "supplier.s_nationkey = nation.n_nationkey",
                       "r_loops": 10,
                       "r_filtered": 3.474903475,
-                      "r_unpack_time_ms": 0.226496281,
-                      "r_other_time_ms": 0.142316608,
+                      "r_unpack_time_ms": 0.372804193,
+                      "r_other_time_ms": 0.227832175,
                       "r_effective_rows": 518
                     }
                   },
@@ -232,8 +232,8 @@
                         "r_loops": 2,
                         "rows": 537,
                         "r_rows": 537,
-                        "r_table_time_ms": 0.216152381,
-                        "r_other_time_ms": 0.024976563,
+                        "r_table_time_ms": 0.333633469,
+                        "r_other_time_ms": 0.039018986,
                         "r_engine_stats": {
                           "pages_accessed": 8
                         },
@@ -246,8 +246,8 @@
                       "attached_condition": "partsupp.ps_suppkey = supplier.s_suppkey and part.p_partkey = partsupp.ps_partkey",
                       "r_loops": 180,
                       "r_filtered": 0.002069108,
-                      "r_unpack_time_ms": 5.704087441,
-                      "r_other_time_ms": 2.421471909,
+                      "r_unpack_time_ms": 9.217949245,
+                      "r_other_time_ms": 3.914135871,
                       "r_effective_rows": 537
                     }
                   }

@@ -1,11 +1,11 @@
 {
   "query_optimization": {
-    "r_total_time_ms": 0.099932989
+    "r_total_time_ms": 0.035654018
   },
   "query_block": {
     "select_id": 1,
     "r_loops": 1,
-    "r_total_time_ms": 69.24708138,
+    "r_total_time_ms": 50.9289728,
     "nested_loop": [
       {
         "table": {
@@ -14,8 +14,8 @@
           "r_loops": 1,
           "rows": 518,
           "r_rows": 518,
-          "r_table_time_ms": 0.219423432,
-          "r_other_time_ms": 0.26491333,
+          "r_table_time_ms": 0.148109379,
+          "r_other_time_ms": 0.110562985,
           "r_engine_stats": {
             "pages_accessed": 6
           },
@@ -33,7 +33,7 @@
           "query_block": {
             "select_id": 2,
             "r_loops": 518,
-            "r_total_time_ms": 68.56769615,
+            "r_total_time_ms": 50.57404258,
             "nested_loop": [
               {
                 "table": {
@@ -42,10 +42,10 @@
                   "r_loops": 518,
                   "rows": 537,
                   "r_rows": 493.9362934,
-                  "r_table_time_ms": 56.40139185,
-                  "r_other_time_ms": 11.97787781,
+                  "r_table_time_ms": 41.12288115,
+                  "r_other_time_ms": 9.329473458,
                   "r_engine_stats": {
-                    "pages_accessed": 1970
+                    "pages_accessed": 1973
                   },
                   "filtered": 100,
                   "r_filtered": 0.030876381,

@@ -1,166 +1,45 @@
 {
-  "plan": {
-    "operator": "iteration",
-    "physicalOperator": "iteration",
-    "cardinality": 11,
-    "operatorId": 1,
-    "analyzePlanId": 0,
-    "analyzePlanCardinality": 10,
-    "columns": [
-      {
-        "iu": "i",
-        "collate": ""
-      }
-    ],
-    "left": {
-      "operator": "inlinetable",
-      "physicalOperator": "inlinetable",
-      "cardinality": 1,
-      "operatorId": 2,
-      "analyzePlanId": 1,
-      "analyzePlanCardinality": 1,
-      "attributes": [],
-      "restrictions": [],
-      "residuals": [],
-      "count": 1,
-      "values": []
-    },
-    "right": {
-      "operator": "select",
-      "physicalOperator": "select",
-      "cardinality": 1,
-      "operatorId": 3,
-      "analyzePlanId": 2,
-      "analyzePlanCardinality": 9,
-      "input": {
-        "operator": "iterationincrementscan",
-        "physicalOperator": "iterationincrementscan",
-        "cardinality": 1,
-        "operatorId": 4,
-        "analyzePlanId": 3,
-        "analyzePlanCardinality": 10,
-        "iteration": 1,
-        "output": [
-          {
-            "slot": 0,
-            "iu": "i2"
-          }
-        ]
-      },
-      "condition": {
-        "expression": "compare",
-        "left": {
-          "expression": "iuref",
-          "iu": "i2"
-        },
-        "right": {
-          "expression": "const",
-          "value": {
-            "type": {
-              "type": "int32"
-            },
-            "value": 9
-          }
-        },
-        "direction": "<=",
-        "collate": ""
-      }
-    },
-    "leftColumns": [
-      {
-        "expression": "const",
-        "value": {
-          "type": {
-            "type": "int32"
-          },
-          "value": 1
-        }
-      }
-    ],
-    "rightColumns": [
-      {
-        "expression": "add",
-        "left": {
-          "expression": "iuref",
-          "iu": "i2"
-        },
-        "right": {
-          "expression": "const",
-          "value": {
-            "type": {
-              "type": "int32"
-            },
-            "value": 1
-          }
-        }
-      }
-    ],
-    "unionAll": true
+ "plan":{
+  "operator":"iteration",
+  "physicalOperator":"iteration",
+  "cardinality":11,
+  "operatorId":1,"analyzePlanId":0,"analyzePlanCardinality":10,
+  "columns":[{"iu":"i", "collate":""}],
+  "left":{
+   "operator":"inlinetable",
+   "physicalOperator":"inlinetable",
+   "cardinality":1,
+   "operatorId":2,"analyzePlanId":1,"analyzePlanCardinality":1,
+   "attributes":[],
+   "restrictions":[],
+   "residuals":[],
+   "count":1,
+   "values":[]
   },
-  "ius": [
-    {
-      "iu": "i",
-      "outerNull": false,
-      "type": {
-        "type": "int32"
-      }
-    },
-    {
-      "iu": "i2",
-      "outerNull": false,
-      "type": {
-        "type": "int32"
-      }
-    }
-  ],
-  "output": [
-    {
-      "name": "i",
-      "iu": {
-        "expression": "iuref",
-        "iu": "i"
-      }
-    }
-  ],
-  "type": "select",
-  "query": true,
-  "hasParameters": false,
-  "permissions": {
-    "planPermissions": [],
-    "fileReaders": [],
-    "fileWriters": [],
-    "objectsToLock": []
+  "right":{
+   "operator":"select",
+   "physicalOperator":"select",
+   "cardinality":1,
+   "operatorId":3,"analyzePlanId":2,"analyzePlanCardinality":9,
+   "input":{
+    "operator":"iterationincrementscan",
+    "physicalOperator":"iterationincrementscan",
+    "cardinality":1,
+    "operatorId":4,"analyzePlanId":3,"analyzePlanCardinality":10,
+    "iteration":1,
+    "output":[{"slot":0, "iu":"i2"}]
+   },
+   "condition":{"expression":"compare", "left":{"expression":"iuref", "iu":"i2"}, "right":{"expression":"const", "value":{"type":{"type":"int32"}, "value":9}}, "direction":"<=", "collate":""}
   },
-  "analyzePlanPipelines": [
-    {
-      "start": 3,
-      "stop": 4,
-      "duration": 1,
-      "parallelism": "single-threaded",
-      "operators": [
-        0,
-        1
-      ]
-    },
-    {
-      "start": 31,
-      "stop": 33,
-      "duration": 2,
-      "parallelism": "multi-threaded",
-      "operators": [
-        0,
-        2,
-        3
-      ]
-    },
-    {
-      "start": 34,
-      "stop": 42,
-      "duration": 8,
-      "parallelism": "multi-threaded",
-      "operators": [
-        0
-      ]
-    }
-  ]
+  "leftColumns":[{"expression":"const", "value":{"type":{"type":"int32"}, "value":1}}],
+  "rightColumns":[{"expression":"add", "left":{"expression":"iuref", "iu":"i2"}, "right":{"expression":"const", "value":{"type":{"type":"int32"}, "value":1}}}],
+  "unionAll":true
+ },
+ "ius":[{"iu":"i", "outerNull":false, "type":{"type":"int32"}}, {"iu":"i2", "outerNull":false, "type":{"type":"int32"}}],
+ "output":[{"name":"i", "iu":{"expression":"iuref", "iu":"i"}}],
+ "type":"select",
+ "query":true,
+ "hasParameters":false,
+ "permissions":{"planPermissions":[], "fileReaders":[], "fileWriters":[], "objectsToLock":[]},
+ "analyzePlanPipelines":[{"start":5,"stop":11,"duration":6,"parallelism":"single-threaded","operators":[0,1]},{"start":53,"stop":55,"duration":2,"parallelism":"multi-threaded","operators":[0,2,3]},{"start":56,"stop":70,"duration":14,"parallelism":"multi-threaded","operators":[0]}]
 }

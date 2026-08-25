@@ -1,7 +1,6 @@
 -- MariaDB variant of setup.sql.
 -- It uses non-temporary tables because persistent statistics cannot be
--- collected for temporary tables. Unlike the Trino variant, it keeps the
--- `NOT NULL` constraints.
+-- collected for temporary tables.
 
 DROP TABLE IF EXISTS t1;
 DROP TABLE IF EXISTS t2;

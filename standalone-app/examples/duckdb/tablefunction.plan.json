@@ -1,6 +1,6 @@
 [
     {
-        "name": "GENERATE_SERIES ",
+        "name": "GENERATE_SERIES",
         "children": [],
         "extra_info": {
             "Function": "GENERATE_SERIES",

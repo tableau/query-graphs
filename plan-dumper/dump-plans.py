@@ -1,24 +1,18 @@
 #!/usr/bin/env python3
 import argparse
-import csv
 import json
 import os
 import re
 import shutil
 import sys
 import tempfile
-import uuid
 from contextlib import closing
-from datetime import date
-from decimal import Decimal
 from pathlib import Path
-from urllib.parse import parse_qs, quote, unquote, urlparse
-from urllib.request import Request, urlopen
+from urllib.parse import parse_qs, unquote, urlparse
 
 import duckdb
 import psycopg2
 import pymysql
-import trino
 from psycopg2 import sql as psycopg2_sql
 from tableauhyperapi import Connection, HyperProcess, Telemetry
 
@@ -35,6 +29,9 @@ def read_file(path):
     return path.read_text()
 
 
+# A `-- UNSUPPORTED: duckdb, postgres` comment anywhere in a query file lists the databases
+# that can't run it (incompatible syntax, or a semantic difference like division-by-zero
+# handling); those databases skip the file instead of erroring out mid-run.
 unsupported_re = re.compile(
     r"^--\s*UNSUPPORTED:\s*(.+)$",
     re.MULTILINE | re.IGNORECASE,
@@ -46,6 +43,9 @@ def parse_unsupported(sql):
     return {db.strip().lower() for db in match.group(1).split(",")}
 
 
+# A `-- MODES: simple, analyze, pipelines` comment anywhere in a query file lists the
+# EXPLAIN modes to dump it under (one output file per mode); defaults to `analyze` alone
+# when absent, since that's what most queries want.
 modes_re = re.compile(r"^--\s*MODES:\s*(.+)$", re.MULTILINE | re.IGNORECASE)
 def parse_modes(sql):
     match = modes_re.search(sql)
@@ -134,47 +134,11 @@ def dump_postgres_compatible(name, dsn):
         print(f"Skipping {name}: no DSN configured")
         return
 
-    def decode_umbra_step_plan(value):
-        if not value:
-            return "null"
-        output = []
-        in_string = False
-        escaped = False
-        offset = 0
-        while offset < len(value):
-            character = value[offset]
-            if in_string:
-                output.append(character)
-                if escaped:
-                    escaped = False
-                elif character == "\\":
-                    escaped = True
-                elif character == '"':
-                    in_string = False
-            elif character == '"':
-                in_string = True
-                output.append(character)
-            elif character == "\\" and value[offset:offset + 2] == "\\n":
-                output.append("\n")
-                offset += 1
-            else:
-                output.append(character)
-            offset += 1
-        return "".join(output)
-
     def indent_following_lines(value, prefix):
         return value.replace("\n", "\n" + prefix)
 
     with closing(psycopg2.connect(dsn)) as connection:
         connection.autocommit = True
-        umbra_steps_supported = False
-        if name == "umbra":
-            with connection.cursor() as cursor:
-                cursor.execute(
-                    "SELECT EXISTS (SELECT 1 FROM pg_settings "
-                    "WHERE name = 'debug.optimizer.steplog')"
-                )
-                umbra_steps_supported = cursor.fetchone()[0]
 
         def exec_stmt(sql):
             with connection.cursor() as cursor:
@@ -223,57 +187,6 @@ def dump_postgres_compatible(name, dsn):
                             + indent_following_lines(plan, " ")
                         )
                 return "{\n" + ",\n".join(plans) + "\n}"
-            elif mode == "steps" and name == "umbra" and umbra_steps_supported:
-                log_path = f"/tmp/query-graphs-{uuid.uuid4().hex}.csv"
-                with connection.cursor() as cursor:
-                    cursor.execute(
-                        "CREATE TEMP TABLE IF NOT EXISTS umbra_optimizer_steps ("
-                        "query_id bigint, event_id bigint, depth integer, step text, "
-                        "source_location text, changed boolean, duration_us bigint, "
-                        "plan_json text)"
-                    )
-                    cursor.execute("TRUNCATE umbra_optimizer_steps")
-                    cursor.execute(f"SET debug.optimizer.steplog = '{log_path}'")
-                    try:
-                        cursor.execute("EXPLAIN (VERBOSE, FORMAT JSON) " + sql)
-                        cursor.fetchall()
-                    finally:
-                        cursor.execute("SET debug.optimizer.steplog = off")
-                    cursor.execute(
-                        f"COPY umbra_optimizer_steps FROM '{log_path}' "
-                        "(FORMAT CSV, HEADER TRUE)"
-                    )
-                    cursor.execute(
-                        "SELECT query_id, event_id, depth, step, source_location, "
-                        "changed, duration_us, plan_json "
-                        "FROM umbra_optimizer_steps ORDER BY event_id"
-                    )
-                    events = []
-                    for (
-                        query_id,
-                        event_id,
-                        depth,
-                        step,
-                        source_location,
-                        changed,
-                        duration_us,
-                        plan_json,
-                    ) in cursor.fetchall():
-                        plan = decode_umbra_step_plan(plan_json)
-                        event = (
-                            "{\n"
-                            f' "queryId":{json.dumps(query_id)},\n'
-                            f' "eventId":{json.dumps(event_id)},\n'
-                            f' "depth":{json.dumps(depth)},\n'
-                            f' "step":{json.dumps(step)},\n'
-                            f' "sourceLocation":{json.dumps(source_location)},\n'
-                            f' "changed":{json.dumps(changed)},\n'
-                            f' "durationUs":{json.dumps(duration_us)},\n'
-                            f' "plan":{indent_following_lines(plan, " ")}\n'
-                            "}"
-                        )
-                        events.append(" " + indent_following_lines(event, " "))
-                return "[\n" + ",\n".join(events) + "\n]"
             else:
                 return None
             with connection.cursor() as cursor:
@@ -361,101 +274,6 @@ def dump_mariadb(url):
             BASE_DIR / "setup.mariadb.sql",
         )
         dump_plans("mariadb", get_plan)
-
-
-def dump_trino(url):
-    if not url:
-        print("Skipping trino: --trino-url is not configured")
-        return
-
-    def parse_url():
-        parsed = urlparse(url)
-        if parsed.scheme not in ("http", "https"):
-            raise ValueError("expected an http:// or https:// URL")
-        if parsed.password is not None:
-            raise ValueError("password-authenticated Trino is not supported")
-        path = [unquote(part) for part in parsed.path.split("/") if part]
-        if len(path) != 2 or not all(IDENTIFIER_RE.fullmatch(part) for part in path):
-            raise ValueError("URL path must be /catalog/schema using simple identifiers")
-        if path[1] != "query_graphs_plan_dumper":
-            raise ValueError(
-                "Trino schema must be the dedicated query_graphs_plan_dumper scratch schema"
-            )
-        host = parsed.hostname or "localhost"
-        port = parsed.port or (443 if parsed.scheme == "https" else 8080)
-        url_host = f"[{host}]" if ":" in host else host
-        coordinator_url = f"{parsed.scheme}://{url_host}:{port}"
-        return {
-            "host": host,
-            "port": port,
-            "user": unquote(parsed.username or "plan-dumper"),
-            "http_scheme": parsed.scheme,
-        }, path, coordinator_url
-
-    options, (catalog, schema), coordinator_url = parse_url()
-    with trino.dbapi.connect(catalog=catalog, **options) as connection:
-        cursor = connection.cursor()
-        cursor.execute(f"CREATE SCHEMA IF NOT EXISTS {catalog}.{schema}")
-        cursor.fetchall()
-        cursor.execute(f"USE {catalog}.{schema}")
-        cursor.fetchall()
-
-        def read_rows(path):
-            with path.open(newline="") as input_file:
-                yield from csv.reader(input_file, delimiter="|", quotechar='"')
-
-        def exec_stmt(sql):
-            cursor.execute(sql)
-            cursor.fetchall()
-
-        def load_table(table, path):
-            cursor.execute(f"DESCRIBE {table}")
-            column_types = [row[1].lower() for row in cursor.fetchall()]
-
-            def to_sql(value, sql_type):
-                if sql_type in ("integer", "bigint", "smallint", "tinyint"):
-                    return str(int(value))
-                if sql_type.startswith("decimal"):
-                    return str(Decimal(value))
-                if sql_type == "date":
-                    return f"DATE '{date.fromisoformat(value).isoformat()}'"
-                return "'" + value.replace("'", "''") + "'"
-
-            rows = [
-                "(" + ", ".join(
-                    to_sql(value, sql_type) for value, sql_type in zip(row, column_types)
-                ) + ")"
-                for row in read_rows(path)
-            ]
-            for offset in range(0, len(rows), 100):
-                cursor.execute(f"INSERT INTO {table} VALUES " + ", ".join(rows[offset:offset + 100]))
-                cursor.fetchall()
-
-        def get_plan(sql, mode):
-            query = sql.rstrip().removesuffix(";")
-            if mode == "simple":
-                cursor.execute("EXPLAIN (TYPE DISTRIBUTED, FORMAT JSON) " + query)
-                return cursor.fetchone()[0]
-            if mode == "analyze":
-                cursor.execute(query)
-                cursor.fetchall()
-                query_id = cursor.stats.get("queryId")
-                if not query_id:
-                    raise RuntimeError("Trino client did not report the executed query ID")
-                request = Request(
-                    f"{coordinator_url}/v1/query/{quote(query_id, safe='')}",
-                    headers={"X-Trino-User": options["user"]},
-                )
-                with urlopen(request, timeout=30) as response:
-                    return format_json(json.load(response))
-            return None
-
-        run_setup(
-            exec_stmt,
-            BASE_DIR / "setup.trino.sql",
-            load_table,
-        )
-        dump_plans("trino", get_plan)
 
 
 def dump_duckdb():
@@ -550,13 +368,6 @@ def main():
             "--mariadb-url",
             help="mysql:// URL (omitting this option disables MariaDB).",
         )
-        parser.add_argument(
-            "--trino-url",
-            help=(
-                "http(s)://user@host:port/catalog/schema "
-                "(omitting this option disables Trino)."
-            ),
-        )
         return parser.parse_args()
 
     os.chdir(BASE_DIR)
@@ -566,7 +377,6 @@ def main():
         ("umbra", lambda: dump_postgres_compatible("umbra", args.umbra_dsn)),
         ("cedardb", lambda: dump_postgres_compatible("cedardb", args.cedardb_dsn)),
         ("mariadb", lambda: dump_mariadb(args.mariadb_url)),
-        ("trino", lambda: dump_trino(args.trino_url)),
         ("duckdb", dump_duckdb),
         ("hyper", lambda: dump_hyper(args.hyper_path)),
     ]

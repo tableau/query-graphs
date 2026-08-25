@@ -16,10 +16,10 @@
                                 }
                             },
                             {
-                                "name": "SEQ_SCAN ",
+                                "name": "SEQ_SCAN",
                                 "children": [],
                                 "extra_info": {
-                                    "Table": "t1",
+                                    "Table": "\"temp\".main.t1",
                                     "Type": "Sequential Scan",
                                     "Projections": [
                                         "a1",

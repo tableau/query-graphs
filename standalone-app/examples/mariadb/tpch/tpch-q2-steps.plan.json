@@ -88,9 +88,7 @@
                 "selectivity_for_columns": [
                   {
                     "column_name": "p_size",
-                    "ranges": [
-                      "15 <= p_size <= 15"
-                    ],
+                    "ranges": ["15 <= p_size <= 15"],
                     "selectivity_from_histogram": 0.0234375
                   }
                 ],
@@ -129,9 +127,7 @@
                 "selectivity_for_columns": [
                   {
                     "column_name": "r_name",
-                    "ranges": [
-                      "EUROPE <= r_name <= EUROPE"
-                    ],
+                    "ranges": ["EUROPE <= r_name <= EUROPE"],
                     "selectivity_from_histogram": 0.2
                   }
                 ],
@@ -255,9 +251,7 @@
                 "cost_for_plan": 2,
                 "rest_of_plan": [
                   {
-                    "plan_prefix": [
-                      "region"
-                    ],
+                    "plan_prefix": ["region"],
                     "get_costs_for_tables": [
                       {
                         "best_access_path": {
@@ -338,18 +332,13 @@
                     ]
                   },
                   {
-                    "plan_prefix": [
-                      "region"
-                    ],
+                    "plan_prefix": ["region"],
                     "table": "part",
                     "rows_for_plan": 12.4921875,
                     "cost_for_plan": 115.6,
                     "rest_of_plan": [
                       {
-                        "plan_prefix": [
-                          "region",
-                          "part"
-                        ],
+                        "plan_prefix": ["region", "part"],
                         "get_costs_for_tables": [
                           {
                             "best_access_path": {
@@ -411,20 +400,13 @@
                         ]
                       },
                       {
-                        "plan_prefix": [
-                          "region",
-                          "part"
-                        ],
+                        "plan_prefix": ["region", "part"],
                         "table": "nation",
                         "rows_for_plan": 312.3046875,
                         "cost_for_plan": 179.0609375,
                         "rest_of_plan": [
                           {
-                            "plan_prefix": [
-                              "region",
-                              "part",
-                              "nation"
-                            ],
+                            "plan_prefix": ["region", "part", "nation"],
                             "get_costs_for_tables": [
                               {
                                 "best_access_path": {
@@ -467,11 +449,7 @@
                             ]
                           },
                           {
-                            "plan_prefix": [
-                              "region",
-                              "part",
-                              "nation"
-                            ],
+                            "plan_prefix": ["region", "part", "nation"],
                             "table": "supplier",
                             "rows_for_plan": 161773.8281,
                             "cost_for_plan": 32539.82656,
@@ -519,11 +497,7 @@
                             ]
                           },
                           {
-                            "plan_prefix": [
-                              "region",
-                              "part",
-                              "nation"
-                            ],
+                            "plan_prefix": ["region", "part", "nation"],
                             "table": "partsupp",
                             "rows_for_plan": 167707.6172,
                             "cost_for_plan": 33724.58437,
@@ -532,20 +506,14 @@
                         ]
                       },
                       {
-                        "plan_prefix": [
-                          "region",
-                          "part"
-                        ],
+                        "plan_prefix": ["region", "part"],
                         "table": "supplier",
                         "rows_for_plan": 6470.953125,
                         "cost_for_plan": 1415.790625,
                         "pruned_by_heuristic": true
                       },
                       {
-                        "plan_prefix": [
-                          "region",
-                          "part"
-                        ],
+                        "plan_prefix": ["region", "part"],
                         "table": "partsupp",
                         "rows_for_plan": 6708.304688,
                         "cost_for_plan": 1461.260937,
@@ -554,18 +522,13 @@
                     ]
                   },
                   {
-                    "plan_prefix": [
-                      "region"
-                    ],
+                    "plan_prefix": ["region"],
                     "table": "nation",
                     "rows_for_plan": 25,
                     "cost_for_plan": 8,
                     "rest_of_plan": [
                       {
-                        "plan_prefix": [
-                          "region",
-                          "nation"
-                        ],
+                        "plan_prefix": ["region", "nation"],
                         "get_costs_for_tables": [
                           {
                             "best_access_path": {
@@ -627,20 +590,13 @@
                         ]
                       },
                       {
-                        "plan_prefix": [
-                          "region",
-                          "nation"
-                        ],
+                        "plan_prefix": ["region", "nation"],
                         "table": "part",
                         "rows_for_plan": 312.3046875,
                         "cost_for_plan": 181.5625,
                         "rest_of_plan": [
                           {
-                            "plan_prefix": [
-                              "region",
-                              "nation",
-                              "part"
-                            ],
+                            "plan_prefix": ["region", "nation", "part"],
                             "get_costs_for_tables": [
                               {
                                 "best_access_path": {
@@ -683,11 +639,7 @@
                             ]
                           },
                           {
-                            "plan_prefix": [
-                              "region",
-                              "nation",
-                              "part"
-                            ],
+                            "plan_prefix": ["region", "nation", "part"],
                             "table": "supplier",
                             "rows_for_plan": 161773.8281,
                             "cost_for_plan": 32542.32812,
@@ -738,11 +690,7 @@
                             ]
                           },
                           {
-                            "plan_prefix": [
-                              "region",
-                              "nation",
-                              "part"
-                            ],
+                            "plan_prefix": ["region", "nation", "part"],
                             "table": "partsupp",
                             "rows_for_plan": 167707.6172,
                             "cost_for_plan": 33727.08594,
@@ -751,20 +699,14 @@
                         ]
                       },
                       {
-                        "plan_prefix": [
-                          "region",
-                          "nation"
-                        ],
+                        "plan_prefix": ["region", "nation"],
                         "table": "supplier",
                         "rows_for_plan": 12950,
                         "cost_for_plan": 2604,
                         "pruned_by_heuristic": true
                       },
                       {
-                        "plan_prefix": [
-                          "region",
-                          "nation"
-                        ],
+                        "plan_prefix": ["region", "nation"],
                         "table": "partsupp",
                         "rows_for_plan": 13425,
                         "cost_for_plan": 2697,
@@ -773,18 +715,14 @@
                     ]
                   },
                   {
-                    "plan_prefix": [
-                      "region"
-                    ],
+                    "plan_prefix": ["region"],
                     "table": "supplier",
                     "rows_for_plan": 518,
                     "cost_for_plan": 111.6,
                     "pruned_by_heuristic": "min_read_time"
                   },
                   {
-                    "plan_prefix": [
-                      "region"
-                    ],
+                    "plan_prefix": ["region"],
                     "table": "partsupp",
                     "rows_for_plan": 537,
                     "cost_for_plan": 113.4,
@@ -823,13 +761,7 @@
             ]
           },
           {
-            "best_join_order": [
-              "region",
-              "part",
-              "nation",
-              "supplier",
-              "partsupp"
-            ]
+            "best_join_order": ["region", "part", "nation", "supplier", "partsupp"]
           },
           {
             "substitute_best_equal": {
@@ -947,9 +879,7 @@
                       "selectivity_for_columns": [
                         {
                           "column_name": "r_name",
-                          "ranges": [
-                            "EUROPE <= r_name <= EUROPE"
-                          ],
+                          "ranges": ["EUROPE <= r_name <= EUROPE"],
                           "selectivity_from_histogram": 0.2
                         }
                       ],
@@ -1054,9 +984,7 @@
                       "cost_for_plan": 2,
                       "rest_of_plan": [
                         {
-                          "plan_prefix": [
-                            "region"
-                          ],
+                          "plan_prefix": ["region"],
                           "get_costs_for_tables": [
                             {
                               "best_access_path": {
@@ -1118,18 +1046,13 @@
                           ]
                         },
                         {
-                          "plan_prefix": [
-                            "region"
-                          ],
+                          "plan_prefix": ["region"],
                           "table": "nation",
                           "rows_for_plan": 25,
                           "cost_for_plan": 8,
                           "rest_of_plan": [
                             {
-                              "plan_prefix": [
-                                "region",
-                                "nation"
-                              ],
+                              "plan_prefix": ["region", "nation"],
                               "get_costs_for_tables": [
                                 {
                                   "best_access_path": {
@@ -1172,20 +1095,13 @@
                               ]
                             },
                             {
-                              "plan_prefix": [
-                                "region",
-                                "nation"
-                              ],
+                              "plan_prefix": ["region", "nation"],
                               "table": "supplier",
                               "rows_for_plan": 12950,
                               "cost_for_plan": 2604,
                               "rest_of_plan": [
                                 {
-                                  "plan_prefix": [
-                                    "region",
-                                    "nation",
-                                    "supplier"
-                                  ],
+                                  "plan_prefix": ["region", "nation", "supplier"],
                                   "get_costs_for_tables": [
                                     {
                                       "best_access_path": {
@@ -1209,11 +1125,7 @@
                                   ]
                                 },
                                 {
-                                  "plan_prefix": [
-                                    "region",
-                                    "nation",
-                                    "supplier"
-                                  ],
+                                  "plan_prefix": ["region", "nation", "supplier"],
                                   "table": "partsupp",
                                   "rows_for_plan": 6954150,
                                   "cost_for_plan": 1393458
@@ -1221,10 +1133,7 @@
                               ]
                             },
                             {
-                              "plan_prefix": [
-                                "region",
-                                "nation"
-                              ],
+                              "plan_prefix": ["region", "nation"],
                               "table": "partsupp",
                               "rows_for_plan": 13425,
                               "cost_for_plan": 2697,
@@ -1233,18 +1142,14 @@
                           ]
                         },
                         {
-                          "plan_prefix": [
-                            "region"
-                          ],
+                          "plan_prefix": ["region"],
                           "table": "supplier",
                           "rows_for_plan": 518,
                           "cost_for_plan": 111.6,
                           "pruned_by_heuristic": true
                         },
                         {
-                          "plan_prefix": [
-                            "region"
-                          ],
+                          "plan_prefix": ["region"],
                           "table": "partsupp",
                           "rows_for_plan": 537,
                           "cost_for_plan": 113.4,
@@ -1276,12 +1181,7 @@
                   ]
                 },
                 {
-                  "best_join_order": [
-                    "region",
-                    "nation",
-                    "supplier",
-                    "partsupp"
-                  ]
+                  "best_join_order": ["region", "nation", "supplier", "partsupp"]
                 },
                 {
                   "substitute_best_equal": {

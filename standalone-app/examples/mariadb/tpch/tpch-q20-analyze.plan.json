@@ -1,15 +1,15 @@
 {
   "query_optimization": {
-    "r_total_time_ms": 0.131144501
+    "r_total_time_ms": 0.140524165
   },
   "query_block": {
     "select_id": 1,
     "r_loops": 1,
-    "r_total_time_ms": 74.99759856,
+    "r_total_time_ms": 71.35263771,
     "filesort": {
       "sort_key": "supplier.s_name",
       "r_loops": 1,
-      "r_total_time_ms": 0.005192839,
+      "r_total_time_ms": 0.00586229,
       "r_used_priority_queue": false,
       "r_output_rows": 1,
       "r_buffer_size": "992",
@@ -23,8 +23,8 @@
               "r_loops": 1,
               "rows": 25,
               "r_rows": 25,
-              "r_table_time_ms": 0.011175784,
-              "r_other_time_ms": 0.00394117,
+              "r_table_time_ms": 0.008459545,
+              "r_other_time_ms": 0.004260354,
               "r_engine_stats": {
                 "pages_accessed": 1
               },
@@ -41,8 +41,8 @@
                 "r_loops": 1,
                 "rows": 518,
                 "r_rows": 518,
-                "r_table_time_ms": 0.118513506,
-                "r_other_time_ms": 0.016416751,
+                "r_table_time_ms": 0.108267868,
+                "r_other_time_ms": 0.013823506,
                 "r_engine_stats": {
                   "pages_accessed": 6
                 },
@@ -55,8 +55,8 @@
               "attached_condition": "supplier.s_nationkey = nation.n_nationkey",
               "r_loops": 1,
               "r_filtered": 4.44015444,
-              "r_unpack_time_ms": 0.015319159,
-              "r_other_time_ms": 0.018457523,
+              "r_unpack_time_ms": 0.014565484,
+              "r_other_time_ms": 0.015459199,
               "r_effective_rows": 518
             }
           },
@@ -64,22 +64,16 @@
             "table": {
               "table_name": "<subquery2>",
               "access_type": "eq_ref",
-              "possible_keys": [
-                "distinct_key"
-              ],
+              "possible_keys": ["distinct_key"],
               "key": "distinct_key",
               "key_length": "4",
-              "used_key_parts": [
-                "ps_suppkey"
-              ],
-              "ref": [
-                "func"
-              ],
+              "used_key_parts": ["ps_suppkey"],
+              "ref": ["func"],
               "r_loops": 23,
               "rows": 1,
               "r_rows": 0.043478261,
-              "r_table_time_ms": 0.004188496,
-              "r_other_time_ms": 0.016495962,
+              "r_table_time_ms": 0.005243307,
+              "r_other_time_ms": 0.013023374,
               "filtered": 100,
               "r_filtered": 100,
               "materialized": {
@@ -94,8 +88,8 @@
                         "r_loops": 1,
                         "rows": 533,
                         "r_rows": 533,
-                        "r_table_time_ms": 0.099877173,
-                        "r_other_time_ms": 0.024940467,
+                        "r_table_time_ms": 0.095305991,
+                        "r_other_time_ms": 0.024915066,
                         "r_engine_stats": {
                           "pages_accessed": 7
                         },
@@ -112,8 +106,8 @@
                           "r_loops": 1,
                           "rows": 537,
                           "r_rows": 537,
-                          "r_table_time_ms": 0.128812954,
-                          "r_other_time_ms": 0.12539284,
+                          "r_table_time_ms": 0.115975743,
+                          "r_other_time_ms": 0.112597741,
                           "r_engine_stats": {
                             "pages_accessed": 4
                           },
@@ -127,8 +121,8 @@
                         "attached_condition": "partsupp.ps_partkey = part.p_partkey",
                         "r_loops": 4,
                         "r_filtered": 0.168918919,
-                        "r_unpack_time_ms": 0.024398021,
-                        "r_other_time_ms": 0.019613604,
+                        "r_unpack_time_ms": 0.02430778,
+                        "r_other_time_ms": 0.018923097,
                         "r_effective_rows": 148
                       }
                     }
@@ -147,7 +141,7 @@
               "query_block": {
                 "select_id": 4,
                 "r_loops": 537,
-                "r_total_time_ms": 74.21763729,
+                "r_total_time_ms": 70.64345439,
                 "nested_loop": [
                   {
                     "table": {
@@ -156,8 +150,8 @@
                       "r_loops": 537,
                       "rows": 572,
                       "r_rows": 572,
-                      "r_table_time_ms": 62.56106442,
-                      "r_other_time_ms": 11.43505017,
+                      "r_table_time_ms": 58.94409283,
+                      "r_other_time_ms": 11.48988765,
                       "r_engine_stats": {
                         "pages_accessed": 3222
                       },

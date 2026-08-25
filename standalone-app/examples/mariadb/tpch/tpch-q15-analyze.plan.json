@@ -1,11 +1,11 @@
 {
   "query_optimization": {
-    "r_total_time_ms": 0.100565675
+    "r_total_time_ms": 0.098637871
   },
   "query_block": {
     "select_id": 1,
     "r_loops": 1,
-    "r_total_time_ms": 0.718050611,
+    "r_total_time_ms": 0.692237151,
     "nested_loop": [
       {
         "read_sorted_file": {
@@ -13,7 +13,7 @@
           "filesort": {
             "sort_key": "supplier.s_suppkey",
             "r_loops": 1,
-            "r_total_time_ms": 0.245571784,
+            "r_total_time_ms": 0.236744593,
             "r_used_priority_queue": false,
             "r_output_rows": 518,
             "r_buffer_size": "248Kb",
@@ -24,8 +24,8 @@
               "r_loops": 1,
               "rows": 518,
               "r_rows": 518,
-              "r_table_time_ms": 0.118370792,
-              "r_other_time_ms": 0.124264833,
+              "r_table_time_ms": 0.106399556,
+              "r_other_time_ms": 0.125539898,
               "r_engine_stats": {
                 "pages_accessed": 6
               },
@@ -39,22 +39,16 @@
         "table": {
           "table_name": "<derived2>",
           "access_type": "ref",
-          "possible_keys": [
-            "key0"
-          ],
+          "possible_keys": ["key0"],
           "key": "key0",
           "key_length": "4",
-          "used_key_parts": [
-            "supplier_no"
-          ],
-          "ref": [
-            "query_graphs_plan_dumper.supplier.s_suppkey"
-          ],
+          "used_key_parts": ["supplier_no"],
+          "ref": ["query_graphs_plan_dumper.supplier.s_suppkey"],
           "r_loops": 518,
           "rows": 5,
           "r_rows": 0.096525097,
-          "r_table_time_ms": 0.030176755,
-          "r_other_time_ms": 0.059111533,
+          "r_table_time_ms": 0.033456495,
+          "r_other_time_ms": 0.059500904,
           "filtered": 100,
           "r_filtered": 2,
           "attached_condition": "revenue.total_revenue = (subquery#3)",
@@ -62,11 +56,11 @@
             "query_block": {
               "select_id": 2,
               "r_loops": 1,
-              "r_total_time_ms": 0.208752661,
+              "r_total_time_ms": 0.189682505,
               "filesort": {
                 "sort_key": "lineitem.l_suppkey",
                 "r_loops": 1,
-                "r_total_time_ms": 0.006166099,
+                "r_total_time_ms": 0.007138691,
                 "r_used_priority_queue": false,
                 "r_output_rows": 50,
                 "r_buffer_size": "1Kb",
@@ -80,8 +74,8 @@
                         "r_loops": 1,
                         "rows": 572,
                         "r_rows": 572,
-                        "r_table_time_ms": 0.126549255,
-                        "r_other_time_ms": 0.052938415,
+                        "r_table_time_ms": 0.114687978,
+                        "r_other_time_ms": 0.051977186,
                         "r_engine_stats": {
                           "pages_accessed": 6
                         },
@@ -103,7 +97,7 @@
         "query_block": {
           "select_id": 3,
           "r_loops": 1,
-          "r_total_time_ms": 0.17795425,
+          "r_total_time_ms": 0.180142749,
           "nested_loop": [
             {
               "table": {
@@ -112,19 +106,19 @@
                 "r_loops": 1,
                 "rows": 53,
                 "r_rows": 50,
-                "r_table_time_ms": 0.002015705,
-                "r_other_time_ms": 0.009828526,
+                "r_table_time_ms": 0.004093242,
+                "r_other_time_ms": 0.009869636,
                 "filtered": 100,
                 "r_filtered": 100,
                 "materialized": {
                   "query_block": {
                     "select_id": 4,
                     "r_loops": 1,
-                    "r_total_time_ms": 0.170979328,
+                    "r_total_time_ms": 0.173087613,
                     "filesort": {
                       "sort_key": "lineitem.l_suppkey",
                       "r_loops": 1,
-                      "r_total_time_ms": 0.003960889,
+                      "r_total_time_ms": 0.005553132,
                       "r_used_priority_queue": false,
                       "r_output_rows": 50,
                       "r_buffer_size": "1Kb",
@@ -138,8 +132,8 @@
                               "r_loops": 1,
                               "rows": 572,
                               "r_rows": 572,
-                              "r_table_time_ms": 0.11471271,
-                              "r_other_time_ms": 0.045013963,
+                              "r_table_time_ms": 0.11351318,
+                              "r_other_time_ms": 0.044441437,
                               "r_engine_stats": {
                                 "pages_accessed": 6
                               },

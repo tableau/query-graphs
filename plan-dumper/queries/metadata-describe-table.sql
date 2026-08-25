@@ -1,4 +1,4 @@
--- UNSUPPORTED: duckdb, mariadb, trino, umbra
+-- UNSUPPORTED: duckdb, mariadb, umbra
 -- MODES: simple
 -- Uses PostgreSQL-specific pg_class columns and regtype casts which these engines
 -- do not expose. Hyper supports them through its PostgreSQL-compatible catalog.

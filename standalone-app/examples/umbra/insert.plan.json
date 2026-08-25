@@ -1,232 +1,28 @@
 {
-  "plan": {
-    "operator": "insert",
-    "physicalOperator": "insert",
-    "cardinality": 0,
-    "operatorId": 1,
-    "sourceLocation": {
-      "startLine": 1,
-      "startColumn": 31,
-      "endLine": 6,
-      "endColumn": 22
-    },
-    "input": {
-      "operator": "inlinetable",
-      "physicalOperator": "inlinetable",
-      "cardinality": 0,
-      "operatorId": 2,
-      "attributes": [
-        {
-          "name": "column1",
-          "iu": "column1"
-        },
-        {
-          "name": "a1",
-          "iu": "a1"
-        },
-        {
-          "name": "b1",
-          "iu": "b1"
-        },
-        {
-          "name": "c1",
-          "iu": "c1"
-        }
-      ],
-      "restrictions": [],
-      "residuals": [],
-      "count": 0,
-      "values": []
-    },
-    "values": [
-      {
-        "value": {
-          "expression": "mul",
-          "id": 6,
-          "sourceLocation": {
-            "startLine": 4,
-            "startColumn": 8,
-            "endLine": 4,
-            "endColumn": 12
-          },
-          "left": {
-            "expression": "iuref",
-            "id": 4,
-            "sourceLocation": {
-              "startLine": 4,
-              "startColumn": 8,
-              "endLine": 4,
-              "endColumn": 10
-            },
-            "iu": "a1"
-          },
-          "right": {
-            "expression": "iuref",
-            "id": 5,
-            "sourceLocation": {
-              "startLine": 4,
-              "startColumn": 11,
-              "endLine": 4,
-              "endColumn": 12
-            },
-            "iu": "column1"
-          }
-        },
-        "iu": "a2"
-      },
-      {
-        "value": {
-          "expression": "mul",
-          "id": 9,
-          "sourceLocation": {
-            "startLine": 4,
-            "startColumn": 14,
-            "endLine": 4,
-            "endColumn": 18
-          },
-          "left": {
-            "expression": "iuref",
-            "id": 7,
-            "sourceLocation": {
-              "startLine": 4,
-              "startColumn": 14,
-              "endLine": 4,
-              "endColumn": 16
-            },
-            "iu": "b1"
-          },
-          "right": {
-            "expression": "iuref",
-            "id": 8,
-            "sourceLocation": {
-              "startLine": 4,
-              "startColumn": 17,
-              "endLine": 4,
-              "endColumn": 18
-            },
-            "iu": "column1"
-          }
-        },
-        "iu": "b2"
-      },
-      {
-        "value": {
-          "expression": "mul",
-          "id": 12,
-          "sourceLocation": {
-            "startLine": 4,
-            "startColumn": 20,
-            "endLine": 4,
-            "endColumn": 24
-          },
-          "left": {
-            "expression": "iuref",
-            "id": 10,
-            "sourceLocation": {
-              "startLine": 4,
-              "startColumn": 20,
-              "endLine": 4,
-              "endColumn": 22
-            },
-            "iu": "c1"
-          },
-          "right": {
-            "expression": "iuref",
-            "id": 11,
-            "sourceLocation": {
-              "startLine": 4,
-              "startColumn": 23,
-              "endLine": 4,
-              "endColumn": 24
-            },
-            "iu": "column1"
-          }
-        },
-        "iu": "c2"
-      }
-    ],
-    "schema": "pg_temp",
-    "table": "t2",
-    "tableObjectRef": {
-      "type": "temporarytable",
-      "id": 1
-    }
+ "plan":{
+  "operator":"insert",
+  "physicalOperator":"insert",
+  "cardinality":0,
+  "operatorId":1,
+  "sourceLocation":{"startLine":1, "startColumn":31, "endLine":7, "endColumn":22},
+  "input":{
+   "operator":"inlinetable",
+   "physicalOperator":"inlinetable",
+   "cardinality":0,
+   "operatorId":2,
+   "attributes":[{"name":"column1", "iu":"column1"}, {"name":"a1", "iu":"a1"}, {"name":"b1", "iu":"b1"}, {"name":"c1", "iu":"c1"}],
+   "restrictions":[],
+   "residuals":[],
+   "count":0,
+   "values":[]
   },
-  "ius": [
-    {
-      "iu": "a2",
-      "type": {
-        "type": "integer",
-        "nullable": true
-      }
-    },
-    {
-      "iu": "b2",
-      "type": {
-        "type": "integer",
-        "nullable": true
-      }
-    },
-    {
-      "iu": "c2",
-      "type": {
-        "type": "integer",
-        "nullable": true
-      }
-    },
-    {
-      "iu": "column1",
-      "type": {
-        "type": "integer"
-      },
-      "sourceLocation": {
-        "startLine": 6,
-        "startColumn": 2,
-        "endLine": 6,
-        "endColumn": 11
-      }
-    },
-    {
-      "iu": "a1",
-      "type": {
-        "type": "integer",
-        "nullable": true
-      },
-      "sourceLocation": {
-        "startLine": 5,
-        "startColumn": 6,
-        "endLine": 5,
-        "endColumn": 8
-      }
-    },
-    {
-      "iu": "b1",
-      "type": {
-        "type": "integer",
-        "nullable": true
-      },
-      "sourceLocation": {
-        "startLine": 5,
-        "startColumn": 6,
-        "endLine": 5,
-        "endColumn": 8
-      }
-    },
-    {
-      "iu": "c1",
-      "type": {
-        "type": "integer",
-        "nullable": true
-      },
-      "sourceLocation": {
-        "startLine": 5,
-        "startColumn": 6,
-        "endLine": 5,
-        "endColumn": 8
-      }
-    }
-  ],
-  "output": [],
-  "type": "insert",
-  "query": false
+  "values":[{"value":{"expression":"mul", "id":6, "sourceLocation":{"startLine":5, "startColumn":8, "endLine":5, "endColumn":12}, "left":{"expression":"iuref", "id":4, "sourceLocation":{"startLine":5, "startColumn":8, "endLine":5, "endColumn":10}, "iu":"a1"}, "right":{"expression":"iuref", "id":5, "sourceLocation":{"startLine":5, "startColumn":11, "endLine":5, "endColumn":12}, "iu":"column1"}}, "iu":"a2"}, {"value":{"expression":"mul", "id":9, "sourceLocation":{"startLine":5, "startColumn":14, "endLine":5, "endColumn":18}, "left":{"expression":"iuref", "id":7, "sourceLocation":{"startLine":5, "startColumn":14, "endLine":5, "endColumn":16}, "iu":"b1"}, "right":{"expression":"iuref", "id":8, "sourceLocation":{"startLine":5, "startColumn":17, "endLine":5, "endColumn":18}, "iu":"column1"}}, "iu":"b2"}, {"value":{"expression":"mul", "id":12, "sourceLocation":{"startLine":5, "startColumn":20, "endLine":5, "endColumn":24}, "left":{"expression":"iuref", "id":10, "sourceLocation":{"startLine":5, "startColumn":20, "endLine":5, "endColumn":22}, "iu":"c1"}, "right":{"expression":"iuref", "id":11, "sourceLocation":{"startLine":5, "startColumn":23, "endLine":5, "endColumn":24}, "iu":"column1"}}, "iu":"c2"}],
+  "schema":"pg_temp",
+  "table":"t2",
+  "tableObjectRef":{"type":"temporarytable", "id":1}
+ },
+ "ius":[{"iu":"a2", "type":{"type":"integer", "nullable":true}}, {"iu":"b2", "type":{"type":"integer", "nullable":true}}, {"iu":"c2", "type":{"type":"integer", "nullable":true}}, {"iu":"column1", "type":{"type":"integer"}, "sourceLocation":{"startLine":7, "startColumn":2, "endLine":7, "endColumn":11}}, {"iu":"a1", "type":{"type":"integer", "nullable":true}, "sourceLocation":{"startLine":6, "startColumn":6, "endLine":6, "endColumn":8}}, {"iu":"b1", "type":{"type":"integer", "nullable":true}, "sourceLocation":{"startLine":6, "startColumn":6, "endLine":6, "endColumn":8}}, {"iu":"c1", "type":{"type":"integer", "nullable":true}, "sourceLocation":{"startLine":6, "startColumn":6, "endLine":6, "endColumn":8}}],
+ "output":[],
+ "type":"insert",
+ "query":false
 }

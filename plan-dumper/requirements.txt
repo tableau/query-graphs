@@ -2,4 +2,3 @@ tableauhyperapi
 psycopg2-binary
 duckdb
 pymysql
-trino

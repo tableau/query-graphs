@@ -1,15 +1,15 @@
 {
   "query_optimization": {
-    "r_total_time_ms": 0.162507083
+    "r_total_time_ms": 0.350501423
   },
   "query_block": {
     "select_id": 1,
     "r_loops": 1,
-    "r_total_time_ms": 1732.591567,
+    "r_total_time_ms": 1720.449937,
     "filesort": {
       "sort_key": "extract(year from orders.o_orderdate)",
       "r_loops": 1,
-      "r_total_time_ms": 0.00603007,
+      "r_total_time_ms": 0.013271368,
       "r_used_priority_queue": false,
       "r_output_rows": 1,
       "r_buffer_size": "320",
@@ -23,8 +23,8 @@
               "r_loops": 1,
               "rows": 5,
               "r_rows": 5,
-              "r_table_time_ms": 0.005962223,
-              "r_other_time_ms": 0.003423123,
+              "r_table_time_ms": 0.012993628,
+              "r_other_time_ms": 0.006933812,
               "r_engine_stats": {
                 "pages_accessed": 1
               },
@@ -41,8 +41,8 @@
                 "r_loops": 1,
                 "rows": 25,
                 "r_rows": 25,
-                "r_table_time_ms": 0.006089228,
-                "r_other_time_ms": 0.00124465,
+                "r_table_time_ms": 0.038019322,
+                "r_other_time_ms": 0.003831544,
                 "r_engine_stats": {
                   "pages_accessed": 1
                 },
@@ -55,8 +55,8 @@
               "attached_condition": "n1.n_regionkey = region.r_regionkey",
               "r_loops": 1,
               "r_filtered": 20,
-              "r_unpack_time_ms": 0.001164771,
-              "r_other_time_ms": 0.001326535,
+              "r_unpack_time_ms": 0.003127,
+              "r_other_time_ms": 0.004185488,
               "r_effective_rows": 25
             }
           },
@@ -68,8 +68,8 @@
                 "r_loops": 1,
                 "rows": 25,
                 "r_rows": 25,
-                "r_table_time_ms": 0.005288761,
-                "r_other_time_ms": 0.001209223,
+                "r_table_time_ms": 0.016865279,
+                "r_other_time_ms": 0.003415435,
                 "r_engine_stats": {
                   "pages_accessed": 1
                 },
@@ -81,8 +81,8 @@
               "join_type": "BNL",
               "r_loops": 5,
               "r_filtered": 100,
-              "r_unpack_time_ms": 0.006211888,
-              "r_other_time_ms": 0.011039086,
+              "r_unpack_time_ms": 0.020575501,
+              "r_other_time_ms": 0.035871598,
               "r_effective_rows": 25
             }
           },
@@ -94,8 +94,8 @@
                 "r_loops": 1,
                 "rows": 128,
                 "r_rows": 128,
-                "r_table_time_ms": 0.02853137,
-                "r_other_time_ms": 0.007823851,
+                "r_table_time_ms": 0.096442687,
+                "r_other_time_ms": 0.024544745,
                 "r_engine_stats": {
                   "pages_accessed": 1
                 },
@@ -108,8 +108,8 @@
               "join_type": "BNL",
               "r_loops": 125,
               "r_filtered": 100,
-              "r_unpack_time_ms": 0.411513687,
-              "r_other_time_ms": 0.26331741,
+              "r_unpack_time_ms": 1.358924879,
+              "r_other_time_ms": 0.881039645,
               "r_effective_rows": 47
             }
           },
@@ -121,8 +121,8 @@
                 "r_loops": 1,
                 "rows": 533,
                 "r_rows": 533,
-                "r_table_time_ms": 0.100400234,
-                "r_other_time_ms": 0.022103573,
+                "r_table_time_ms": 0.184198557,
+                "r_other_time_ms": 0.043910689,
                 "r_engine_stats": {
                   "pages_accessed": 7
                 },
@@ -135,8 +135,8 @@
               "join_type": "BNL",
               "r_loops": 5875,
               "r_filtered": 100,
-              "r_unpack_time_ms": 1.547036532,
-              "r_other_time_ms": 0.760333963,
+              "r_unpack_time_ms": 3.336176271,
+              "r_other_time_ms": 1.99331587,
               "r_effective_rows": 3
             }
           },
@@ -148,8 +148,8 @@
                 "r_loops": 3,
                 "rows": 129,
                 "r_rows": 129,
-                "r_table_time_ms": 0.141565273,
-                "r_other_time_ms": 0.021674763,
+                "r_table_time_ms": 0.145637124,
+                "r_other_time_ms": 0.025196482,
                 "r_engine_stats": {
                   "pages_accessed": 3
                 },
@@ -162,8 +162,8 @@
               "attached_condition": "customer.c_custkey = orders.o_custkey and customer.c_nationkey = n1.n_nationkey",
               "r_loops": 17625,
               "r_filtered": 0.029688273,
-              "r_unpack_time_ms": 268.7867041,
-              "r_other_time_ms": 62.98340697,
+              "r_unpack_time_ms": 265.1230287,
+              "r_other_time_ms": 59.94197252,
               "r_effective_rows": 129
             }
           },
@@ -175,8 +175,8 @@
                 "r_loops": 3,
                 "rows": 518,
                 "r_rows": 518,
-                "r_table_time_ms": 0.320360764,
-                "r_other_time_ms": 0.036800407,
+                "r_table_time_ms": 0.320936632,
+                "r_other_time_ms": 0.040329144,
                 "r_engine_stats": {
                   "pages_accessed": 18
                 },
@@ -189,8 +189,8 @@
               "attached_condition": "supplier.s_nationkey = n2.n_nationkey",
               "r_loops": 675,
               "r_filtered": 4,
-              "r_unpack_time_ms": 44.62581316,
-              "r_other_time_ms": 9.957459379,
+              "r_unpack_time_ms": 43.92592964,
+              "r_other_time_ms": 10.33412286,
               "r_effective_rows": 518
             }
           },
@@ -202,8 +202,8 @@
                 "r_loops": 3,
                 "rows": 572,
                 "r_rows": 572,
-                "r_table_time_ms": 0.565862361,
-                "r_other_time_ms": 0.045791702,
+                "r_table_time_ms": 0.627388328,
+                "r_other_time_ms": 0.06485417,
                 "r_engine_stats": {
                   "pages_accessed": 18
                 },
@@ -215,9 +215,9 @@
               "join_type": "BNL",
               "attached_condition": "lineitem.l_partkey = part.p_partkey and lineitem.l_suppkey = supplier.s_suppkey and lineitem.l_orderkey = orders.o_orderkey",
               "r_loops": 13986,
-              "r_filtered": 1.250001e-05,
-              "r_unpack_time_ms": 1137.868932,
-              "r_other_time_ms": 204.0209652,
+              "r_filtered": 1.250001e-5,
+              "r_unpack_time_ms": 1137.787494,
+              "r_other_time_ms": 194.007268,
               "r_effective_rows": 572
             }
           }

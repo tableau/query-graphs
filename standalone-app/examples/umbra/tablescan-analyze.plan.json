@@ -1,126 +1,26 @@
 {
-  "plan": {
-    "operator": "tablescan",
-    "physicalOperator": "tablescan",
-    "cardinality": 5,
-    "operatorId": 1,
-    "analyzePlanId": 0,
-    "analyzePlanCardinality": 5,
-    "analyzePlanCounters": {},
-    "sourceLocation": {
-      "startLine": 1,
-      "startColumn": 60,
-      "endLine": 1,
-      "endColumn": 66
-    },
-    "attributes": [
-      {
-        "name": "r_regionkey",
-        "iu": "r_regionkey"
-      },
-      {
-        "name": "r_name",
-        "iu": "r_name"
-      },
-      {
-        "name": "r_comment",
-        "iu": "r_comment"
-      }
-    ],
-    "restrictions": [],
-    "residuals": [],
-    "tid": "tid",
-    "tableoid": "tableoid",
-    "rowstate": "rowstate",
-    "schema": "pg_temp",
-    "table": {
-      "type": "temporarytable",
-      "id": 9
-    },
-    "tableSize": 5,
-    "tablename": "region"
-  },
-  "ius": [
-    {
-      "iu": "r_regionkey",
-      "type": {
-        "type": "integer"
-      },
-      "sourceLocation": {
-        "startLine": 1,
-        "startColumn": 60,
-        "endLine": 1,
-        "endColumn": 66
-      }
-    },
-    {
-      "iu": "r_name",
-      "type": {
-        "type": "char",
-        "precision": 25
-      },
-      "sourceLocation": {
-        "startLine": 1,
-        "startColumn": 60,
-        "endLine": 1,
-        "endColumn": 66
-      }
-    },
-    {
-      "iu": "r_comment",
-      "type": {
-        "type": "text",
-        "precision": 152
-      },
-      "sourceLocation": {
-        "startLine": 1,
-        "startColumn": 60,
-        "endLine": 1,
-        "endColumn": 66
-      }
-    },
-    {
-      "iu": "tid",
-      "type": {
-        "type": "bigint"
-      }
-    },
-    {
-      "iu": "tableoid",
-      "type": {
-        "type": "integer"
-      }
-    },
-    {
-      "iu": "rowstate",
-      "type": {
-        "type": "bigint"
-      }
-    }
-  ],
-  "output": [
-    {
-      "name": "r_name",
-      "iu": {
-        "expression": "iuref",
-        "id": 2,
-        "iu": "r_name"
-      }
-    }
-  ],
-  "type": "select",
-  "query": true,
-  "analyzePlanPipelines": [
-    {
-      "pipelineId": 0,
-      "start": 0,
-      "stop": 11,
-      "duration": 11,
-      "parallelism": "single-threaded",
-      "operators": [
-        0
-      ],
-      "counters": {}
-    }
-  ]
+ "plan":{
+  "operator":"tablescan",
+  "physicalOperator":"tablescan",
+  "cardinality":5,
+  "operatorId":1,"analyzePlanId":0,"analyzePlanCardinality":5,"analyzePlanCounters":{},
+  "sourceLocation":{"startLine":1, "startColumn":60, "endLine":1, "endColumn":66},
+  "attributes":[{"name":"r_regionkey", "iu":"r_regionkey"}, {"name":"r_name", "iu":"r_name"}, {"name":"r_comment", "iu":"r_comment"}],
+  "restrictions":[],
+  "residuals":[],
+  "tid":"tid",
+  "tableoid":"tableoid",
+  "rowstate":"rowstate",
+  "schema":"pg_temp",
+  "table":{"type":"temporarytable", "id":9},
+  "tableSize":5,
+  "tablename":"region"
+ },
+ "ius":[{"iu":"r_regionkey", "type":{"type":"integer"}, "sourceLocation":{"startLine":1, "startColumn":60, "endLine":1, "endColumn":66}}, {"iu":"r_name", "type":{"type":"char", "precision":25}, "sourceLocation":{"startLine":1, "startColumn":60, "endLine":1, "endColumn":66}}, {"iu":"r_comment", "type":{"type":"text", "precision":152}, "sourceLocation":{"startLine":1, "startColumn":60, "endLine":1, "endColumn":66}}, {"iu":"tid", "type":{"type":"bigint"}}, {"iu":"tableoid", "type":{"type":"integer"}}, {"iu":"rowstate", "type":{"type":"bigint"}}],
+ "output":[{"name":"r_name", "iu":{"expression":"iuref", "id":2, "iu":"r_name"}}],
+ "type":"select",
+ "query":true,
+ "analyzePlanPipelines":[
+  {"pipelineId":0,"start":1,"stop":25,"duration":24,"parallelism":"single-threaded","operators":[0],"counters":{}}
+ ]
 }
