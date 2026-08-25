@@ -21,6 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent
 SETUP_FILE = BASE_DIR / "setup.sql"
 QUERIES_DIR = BASE_DIR / "queries"
 TARGET_DIR = BASE_DIR.parent / "standalone-app" / "examples"
+INDEX_FILE = TARGET_DIR / "index.json"
 
 IDENTIFIER_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 
@@ -75,8 +76,10 @@ def run_setup(exec_stmt, setup_file, load_table=None):
 
 def dump_plans(
     name,
+    version,
     get_plan,
 ):
+    queries = {}
     with tempfile.TemporaryDirectory(prefix=f".{name}-", dir=TARGET_DIR) as temporary:
         staging_dir = Path(temporary) / name
         destination = TARGET_DIR / name
@@ -117,10 +120,20 @@ def dump_plans(
                 )
                 destination_path.parent.mkdir(parents=True, exist_ok=True)
                 destination_path.write_text(plan)
+                query = relative_path.with_suffix("").as_posix()
+                url = destination_path.relative_to(staging_dir.parent).as_posix()
+                queries.setdefault(query, {})[mode] = url
 
         if destination.exists():
             shutil.rmtree(destination)
         staging_dir.rename(destination)
+    return {
+        "version": version,
+        "queries": {
+            query: dict(sorted(modes.items()))
+            for query, modes in sorted(queries.items())
+        },
+    }
 
 
 def format_json(value):
@@ -200,7 +213,10 @@ def dump_postgres_compatible(name, dsn):
             load_table,
         )
         connection.commit()
-        dump_plans(name, get_plan)
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT VERSION()")
+            version = cursor.fetchone()[0]
+        return dump_plans(name, version, get_plan)
 
 
 def dump_mariadb(url):
@@ -273,7 +289,10 @@ def dump_mariadb(url):
             exec_stmt,
             BASE_DIR / "setup.mariadb.sql",
         )
-        dump_plans("mariadb", get_plan)
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT VERSION()")
+            version = cursor.fetchone()[0]
+        return dump_plans("mariadb", version, get_plan)
 
 
 def dump_duckdb():
@@ -302,7 +321,8 @@ def dump_duckdb():
             exec_stmt,
             BASE_DIR / "setup.duckdb.sql",
         )
-        dump_plans("duckdb", get_plan)
+        version = connection.execute("SELECT VERSION()").fetchone()[0]
+        return dump_plans("duckdb", version, get_plan)
 
 
 def dump_hyper(hyper_path):
@@ -340,7 +360,8 @@ def dump_hyper(hyper_path):
                 exec_stmt,
                 SETUP_FILE,
             )
-            dump_plans("hyper", get_plan)
+            version = connection.execute_scalar_query("SELECT VERSION()")
+            return dump_plans("hyper", version, get_plan)
 
 
 def main():
@@ -380,13 +401,18 @@ def main():
         ("duckdb", dump_duckdb),
         ("hyper", lambda: dump_hyper(args.hyper_path)),
     ]
+    engines_index = json.loads(INDEX_FILE.read_text())["engines"]
     failures = []
     for name, dump in engines:
         try:
-            dump()
+            engine_index = dump()
+            if engine_index is not None:
+                engines_index[name] = engine_index
         except Exception as error:
             failures.append((name, error))
             print(f"{name}: failed: {error}", file=sys.stderr)
+    index = {"engines": dict(sorted(engines_index.items()))}
+    INDEX_FILE.write_text(json.dumps(index, indent=2) + "\n")
     if failures:
         print(
             "Failed engines: " + ", ".join(name for name, _ in failures),
