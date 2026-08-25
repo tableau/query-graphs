@@ -14,7 +14,7 @@
       "inputs": [{
         "operator": "table-scan",
         "operator-id": 3,
-        "sqlpos": [[348, 354]],
+        "sqlpos": [[367, 373]],
         "estimated-rows": 128,
         "volatility": "stable",
         "relation-id": 6,
@@ -27,7 +27,7 @@
       }, {
         "operator": "group-by",
         "operator-id": 4,
-        "sqlpos": [[275, 290]],
+        "sqlpos": [[294, 309]],
         "estimated-rows": 128,
         "inputs": [{
           "operator": "join",
@@ -52,7 +52,7 @@
           }, {
             "operator": "table-scan",
             "operator-id": 8,
-            "sqlpos": [[296, 304]],
+            "sqlpos": [[315, 323]],
             "estimated-rows": 572,
             "volatility": "stable",
             "relation-id": 7,

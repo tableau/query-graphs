@@ -1,102 +1,106 @@
 {
-  "operator": "executiontarget",
+  "operator": "execution-target",
   "operator-id": 1,
-  "cardinality": 1,
+  "estimated-rows": 1,
   "produces-rows": true,
-  "output": [{"expression": "iuref", "iu": ["scan_suppkey", ["Integer"]]}, {"expression": "iuref", "iu": ["scan_s_name", ["Char", 25]]}, {"expression": "iuref", "iu": ["scan_address", ["Varchar", 40]]}, {"expression": "iuref", "iu": ["scan_s_phone", ["Char", 15]]}, {"expression": "iuref", "iu": ["sum", ["BigNumeric", 38, 4]]}],
+  "output": [{"expression": "iu-ref", "iu": ["scan_suppkey", ["Integer"]]}, {"expression": "iu-ref", "iu": ["scan_s_name", ["Char", 25]]}, {"expression": "iu-ref", "iu": ["scan_address", ["Varchar", 40]]}, {"expression": "iu-ref", "iu": ["scan_s_phone", ["Char", 15]]}, {"expression": "iu-ref", "iu": ["sum", ["BigNumeric", 38, 4]]}],
   "output-names": ["s_suppkey", "s_name", "s_address", "s_phone", "total_revenue"],
   "inputs": [{
     "operator": "sort",
     "operator-id": 2,
-    "sqlpos": [[572, 581]],
-    "cardinality": 1,
-    "criterion": [{"value": {"expression": "iuref", "iu": "scan_suppkey"}, "descending": false, "null-first": false}],
+    "sqlpos": [[731, 740]],
+    "estimated-rows": 1,
+    "criterion": [{"value": {"expression": "iu-ref", "iu": "scan_suppkey"}, "descending": false, "null-first": false}],
     "inputs": [{
       "operator": "join",
       "operator-id": 3,
-      "cardinality": 1,
+      "estimated-rows": 1,
       "method": "hash",
       "compute-left-bounds": [0],
       "inputs": [{
         "operator": "join",
         "operator-id": 4,
-        "cardinality": 1,
+        "estimated-rows": 1,
         "method": "hash",
         "single-match": true,
         "inputs": [{
-          "operator": "groupby",
+          "operator": "group-by",
           "operator-id": 5,
-          "sqlpos": [[522, 540]],
-          "cardinality": 1,
+          "sqlpos": [[681, 699]],
+          "estimated-rows": 1,
           "inputs": [{
-            "operator": "explicitscan",
+            "operator": "explicit-scan",
             "operator-id": 6,
-            "cardinality": 50,
-            "mapping": [{"source": {"expression": "iuref", "iu": ["GroupByKey", ["Integer"]]}, "target": ["GroupByKey2", ["Integer"]]}, {"source": {"expression": "iuref", "iu": ["sum2", ["BigNumeric", 38, 4]]}, "target": ["sum3", ["BigNumeric", 38, 4]]}],
+            "estimated-rows": 50,
+            "mapping": [{"source": {"expression": "iu-ref", "iu": ["GroupByKey", ["Integer"]]}, "target": ["GroupByKey2", ["Integer"]]}, {"source": {"expression": "iu-ref", "iu": ["sum2", ["BigNumeric", 38, 4]]}, "target": ["sum3", ["BigNumeric", 38, 4]]}],
             "input": {
-              "operator": "groupby",
+              "operator": "group-by",
               "operator-id": 7,
-              "sqlpos": [[344, 364], [191, 230]],
-              "cardinality": 50,
+              "sqlpos": [[503, 523], [350, 389]],
+              "estimated-rows": 50,
               "inputs": [{
-                "operator": "tablescan",
+                "operator": "table-scan",
                 "operator-id": 8,
-                "sqlpos": [[256, 264]],
-                "cardinality": 50,
+                "sqlpos": [[415, 423]],
+                "estimated-rows": 50,
                 "volatility": "stable",
                 "relation-id": 7,
                 "schema": {"type":"sessionschema"},
+                "scan-type": "native",
                 "attribute-count": 16,
                 "attributes": [{"col-id": 2, "name": "l_suppkey", "type": ["Integer"], "iu": ["scan_suppkey2", ["Integer"]]},{"col-id": 5, "name": "l_extendedprice", "type": ["Numeric", 12, 2], "iu": ["scan_extended", ["Numeric", 12, 2]]},{"col-id": 6, "name": "l_discount", "type": ["Numeric", 12, 2], "iu": ["scan_discount", ["Numeric", 12, 2]]},{"col-id": 10, "name": "l_shipdate", "type": ["Date"], "iu": ["scan_shipdate", ["Date"]]}],
                 "debug-name": {"classification": "nonsensitive", "value": "lineitem"},
                 "restrictions": [{"attribute": 10, "mode": "[)", "value": {"expression": "const", "value": {"type": ["Date"], "value": 2450084}}, "value2": {"expression": "const", "value": {"type": ["Date"], "value": 2450175}}}],
                 "selectivity": 0.0874126,
-                "analyze": {"pipeline": 6, "column-count": 3, "cpu-cycles": 635, "processed-rows": 572, "running": false, "tuple-count": 50}
+                "statistics": {"pipeline": 6, "column-count": 3, "cpu-cycles": 38474, "output-rows": 50, "processed-rows": 572, "running": false}
               }],
-              "key-expressions": [{"expression": {"value": {"expression": "iuref", "iu": "scan_suppkey2"}}, "iu": ["GroupByKey", ["Integer"]]}],
+              "key-expressions": [{"expression": {"value": {"expression": "iu-ref", "iu": "scan_suppkey2"}}, "iu": ["GroupByKey", ["Integer"]]}],
               "grouping-sets": [{"key-indices": [0], "core-indices": [0], "behavior": "regular"}],
               "empty-groups": false,
-              "agg-expressions": [{"value": {"expression": "mul", "left": {"expression": "sub", "left": {"expression": "const", "value": {"type": ["Numeric", 1], "value": 1}}, "right": {"expression": "iuref", "iu": "scan_discount"}}, "right": {"expression": "iuref", "iu": "scan_extended"}}}],
+              "agg-expressions": [{"value": {"expression": "mul", "left": {"expression": "sub", "left": {"expression": "const", "value": {"type": ["Numeric", 1], "value": 1}}, "right": {"expression": "iu-ref", "iu": "scan_discount"}}, "right": {"expression": "iu-ref", "iu": "scan_extended"}}}],
               "aggregates": [{"source": 0, "operation": {"aggregate": "sum"}, "iu": ["sum2", ["BigNumeric", 38, 4]]}],
-              "analyze": {"pipeline": 5, "column-count": 2, "cpu-cycles": 0, "memory-bytes": 18552, "running": false, "tuple-count": 0}
+              "statistics": {"pipeline": 5, "column-count": 2, "cpu-cycles": 0, "memory-bytes": 18552, "output-rows": 0, "running": false}
             },
-            "analyze": {"pipeline": 4, "column-count": 1, "cpu-cycles": 176, "running": false, "tuple-count": 50}
+            "statistics": {"pipeline": 4, "column-count": 1, "cpu-cycles": 13486, "output-rows": 50, "running": false}
           }],
           "grouping-sets": [{"key-indices": [], "core-indices": null, "behavior": "static"}],
           "empty-groups": true,
-          "agg-expressions": [{"value": {"expression": "iuref", "iu": "sum3"}}],
+          "agg-expressions": [{"value": {"expression": "iu-ref", "iu": "sum3"}}],
           "aggregates": [{"source": 0, "operation": {"aggregate": "max"}, "iu": ["max", ["BigNumeric", 38, 4, "nullable"]]}],
-          "analyze": {"pipeline": 3, "column-count": 1, "cpu-cycles": 37, "memory-bytes": 0, "running": false, "tuple-count": 1}
+          "statistics": {"pipeline": 3, "column-count": 1, "cpu-cycles": 1797, "memory-bytes": 0, "output-rows": 1, "running": false}
         }, {
-          "operator": "explicitscan",
+          "operator": "explicit-scan",
           "operator-id": 9,
-          "cardinality": 50,
-          "mapping": [{"source": {"expression": "iuref", "iu": "GroupByKey"}, "target": ["GroupByKey3", ["Integer"]]}, {"source": {"expression": "iuref", "iu": "sum2"}, "target": ["sum", ["BigNumeric", 38, 4]]}],
+          "estimated-rows": 50,
+          "mapping": [{"source": {"expression": "iu-ref", "iu": "GroupByKey"}, "target": ["GroupByKey3", ["Integer"]]}, {"source": {"expression": "iu-ref", "iu": "sum2"}, "target": ["sum", ["BigNumeric", 38, 4]]}],
           "input": 7,
-          "analyze": {"pipeline": 2, "column-count": 2, "cpu-cycles": 91, "running": false, "tuple-count": 50}
+          "statistics": {"pipeline": 2, "column-count": 2, "cpu-cycles": 11361, "output-rows": 50, "running": false}
         }],
-        "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "sum"}, "right": {"expression": "iuref", "iu": "max"}},
-        "analyze": {"pipeline": 2, "column-count": 2, "memory-bytes": 18552, "tuple-count": 1}
+        "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iu-ref", "iu": "sum"}, "right": {"expression": "iu-ref", "iu": "max"}},
+        "predicates": [{"left": {"expression": "iu-ref", "iu": "max"}, "right": {"expression": "iu-ref", "iu": "sum"}, "comparison": "="}],
+        "statistics": {"pipeline": 2, "column-count": 2, "memory-bytes": 18552, "output-rows": 1}
       }, {
-        "operator": "tablescan",
+        "operator": "table-scan",
         "operator-id": 10,
-        "sqlpos": [[437, 445]],
-        "cardinality": 518,
+        "sqlpos": [[596, 604]],
+        "estimated-rows": 518,
         "volatility": "stable",
         "relation-id": 3,
         "schema": {"type":"sessionschema"},
+        "scan-type": "native",
         "attribute-count": 7,
         "attributes": [{"col-id": 0, "name": "s_suppkey", "type": ["Integer"], "iu": ["scan_suppkey", ["Integer"]]},{"col-id": 1, "name": "s_name", "type": ["Char", 25], "iu": ["scan_s_name", ["Char", 25]]},{"col-id": 2, "name": "s_address", "type": ["Varchar", 40], "iu": ["scan_address", ["Varchar", 40]]},{"col-id": 4, "name": "s_phone", "type": ["Char", 15], "iu": ["scan_s_phone", ["Char", 15]]}],
         "debug-name": {"classification": "nonsensitive", "value": "supplier"},
-        "early-probes": [{"builder": 3, "attributes": [0], "num-equality-predicates": 1, "selectivities": [0.0019305], "type": "hashprobe", "pass-on-nulls": false}],
+        "early-probes": [{"builder": 3, "attributes": [0], "num-equality-predicates": 1, "selectivities": [0.0019305], "type": "hash-probe", "pass-on-nulls": false}],
         "selectivity": 1,
-        "analyze": {"pipeline": 1, "column-count": 4, "cpu-cycles": 261, "processed-rows": 518, "running": false, "tuple-count": 1}
+        "statistics": {"pipeline": 1, "column-count": 4, "cpu-cycles": 24411, "output-rows": 1, "processed-rows": 518, "running": false}
       }],
       "early-probed-by": [10],
-      "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "scan_suppkey"}, "right": {"expression": "iuref", "iu": "GroupByKey3"}},
-      "analyze": {"pipeline": 1, "column-count": 5, "memory-bytes": 18552, "tuple-count": 1}
+      "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iu-ref", "iu": "scan_suppkey"}, "right": {"expression": "iu-ref", "iu": "GroupByKey3"}},
+      "predicates": [{"left": {"expression": "iu-ref", "iu": "GroupByKey3"}, "right": {"expression": "iu-ref", "iu": "scan_suppkey"}, "comparison": "="}],
+      "statistics": {"pipeline": 1, "column-count": 5, "memory-bytes": 18552, "output-rows": 1}
     }],
-    "analyze": {"pipeline": 0, "column-count": 5, "cpu-cycles": 65, "memory-bytes": 262152, "running": false, "tuple-count": 1}
+    "statistics": {"pipeline": 0, "column-count": 5, "cpu-cycles": 7641, "memory-bytes": 262152, "output-rows": 1, "running": false}
   }],
-  "analyze": {"error": null, "pipeline": 0, "column-count": 0}
+  "statistics": {"error": null, "pipeline": 0, "column-count": 0}
 }

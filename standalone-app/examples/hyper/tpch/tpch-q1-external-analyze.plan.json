@@ -1,0 +1,45 @@
+{
+  "operator": "output",
+  "operator-id": 1,
+  "statistics": {
+    "estimated-rows": 4,
+    "column-count": 0
+  },
+  "inputs": [{
+    "operator": "sort",
+    "operator-id": 2,
+    "statistics": {
+      "estimated-rows": 4,
+      "output-rows": 4,
+      "memory-bytes": 262176,
+      "column-count": 10
+    },
+    "inputs": [{
+      "operator": "group-by",
+      "operator-id": 3,
+      "statistics": {
+        "estimated-rows": 4,
+        "output-rows": 4,
+        "memory-bytes": 18552,
+        "column-count": 10
+      },
+      "inputs": [{
+        "operator": "scan",
+        "type": "native",
+        "operator-id": 4,
+        "statistics": {
+          "estimated-rows": 568,
+          "output-rows": 568,
+          "processed-rows": 572,
+          "column-count": 6
+        },
+        "attributes": [{"defines": {"id": "scan_quantity", "type": {"type": "numeric", "precision": 12, "scale": 2, "nullable": false}}, "name": "l_quantity"}, {"defines": {"id": "scan_extended", "type": {"type": "numeric", "precision": 12, "scale": 2, "nullable": false}}, "name": "l_extendedprice"}, {"defines": {"id": "scan_discount", "type": {"type": "numeric", "precision": 12, "scale": 2, "nullable": false}}, "name": "l_discount"}, {"defines": {"id": "scan_l_tax", "type": {"type": "numeric", "precision": 12, "scale": 2, "nullable": false}}, "name": "l_tax"}, {"defines": {"id": "scan_returnfl", "type": {"type": "char", "length": 1, "nullable": false}}, "name": "l_returnflag"}, {"defines": {"id": "scan_linestat", "type": {"type": "char", "length": 1, "nullable": false}}, "name": "l_linestatus"}, {"defines": {"id": "scan_shipdate", "type": {"type": "date", "nullable": false}}, "name": "l_shipdate"}],
+        "restrictions": [{"expression": "sql", "sql": "\"scan_shipdate\" <= CAST('1998-09-02' AS DATE)", "arguments": [{"expression": "reference", "id": "scan_shipdate"}], "type": {"type": "bool", "nullable": false}}]
+      }],
+      "aggregates": [{"defines": {"id": "count", "type": {"type": "bigint", "nullable": false}}, "source": null, "operation": {"aggregate": "count"}}, {"defines": {"id": "avg3", "type": {"type": "numeric", "precision": 16, "scale": 6, "nullable": false}}, "source": {"expression": "reference", "id": "scan_discount"}, "operation": {"aggregate": "avg"}}, {"defines": {"id": "avg", "type": {"type": "numeric", "precision": 16, "scale": 6, "nullable": false}}, "source": {"expression": "reference", "id": "scan_quantity"}, "operation": {"aggregate": "avg"}}, {"defines": {"id": "sum4", "type": {"type": "numeric", "precision": 38, "scale": 6, "nullable": false}}, "source": {"expression": "sql", "sql": "((CAST('1' AS NUMERIC(1,0)) - \"scan_discount\") * \"scan_extended\") * (\"scan_l_tax\" + CAST('1' AS NUMERIC(1,0)))", "arguments": [{"expression": "reference", "id": "scan_discount"}, {"expression": "reference", "id": "scan_extended"}, {"expression": "reference", "id": "scan_l_tax"}], "type": {"type": "numeric", "precision": 38, "scale": 6, "nullable": false}}, "operation": {"aggregate": "sum"}}, {"defines": {"id": "avg2", "type": {"type": "numeric", "precision": 16, "scale": 6, "nullable": false}}, "source": {"expression": "reference", "id": "scan_extended"}, "operation": {"aggregate": "avg"}}, {"defines": {"id": "sum2", "type": {"type": "numeric", "precision": 38, "scale": 2, "nullable": false}}, "source": {"expression": "reference", "id": "scan_extended"}, "operation": {"aggregate": "sum"}}, {"defines": {"id": "sum3", "type": {"type": "numeric", "precision": 38, "scale": 4, "nullable": false}}, "source": {"expression": "sql", "sql": "(CAST('1' AS NUMERIC(1,0)) - \"scan_discount\") * \"scan_extended\"", "arguments": [{"expression": "reference", "id": "scan_discount"}, {"expression": "reference", "id": "scan_extended"}], "type": {"type": "numeric", "precision": 25, "scale": 4, "nullable": false}}, "operation": {"aggregate": "sum"}}, {"defines": {"id": "sum", "type": {"type": "numeric", "precision": 38, "scale": 2, "nullable": false}}, "source": {"expression": "reference", "id": "scan_quantity"}, "operation": {"aggregate": "sum"}}],
+      "grouping-sets": [{"key-expressions": [{"defines": {"id": "GroupByKey", "type": {"type": "char", "length": 1, "nullable": false}}, "expression": {"expression": "reference", "id": "scan_returnfl"}}, {"defines": {"id": "GroupByKey2", "type": {"type": "char", "length": 1, "nullable": false}}, "expression": {"expression": "reference", "id": "scan_linestat"}}]}]
+    }],
+    "order": [{"order": "ascending", "nulls": "last", "value": {"expression": "reference", "id": "GroupByKey"}}, {"order": "ascending", "nulls": "last", "value": {"expression": "reference", "id": "GroupByKey2"}}]
+  }],
+  "output": [{"name": "l_returnflag", "expression": {"expression": "reference", "id": "GroupByKey"}}, {"name": "l_linestatus", "expression": {"expression": "reference", "id": "GroupByKey2"}}, {"name": "sum_qty", "expression": {"expression": "reference", "id": "sum"}}, {"name": "sum_base_price", "expression": {"expression": "reference", "id": "sum2"}}, {"name": "sum_disc_price", "expression": {"expression": "reference", "id": "sum3"}}, {"name": "sum_charge", "expression": {"expression": "reference", "id": "sum4"}}, {"name": "avg_qty", "expression": {"expression": "reference", "id": "avg"}}, {"name": "avg_price", "expression": {"expression": "reference", "id": "avg2"}}, {"name": "avg_disc", "expression": {"expression": "reference", "id": "avg3"}}, {"name": "count_order", "expression": {"expression": "reference", "id": "count"}}]
+}

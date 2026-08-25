@@ -1,27 +1,28 @@
 {
-  "operator": "executiontarget",
+  "operator": "execution-target",
   "operator-id": 1,
-  "cardinality": 1.36603,
+  "estimated-rows": 1.36603,
   "produces-rows": true,
-  "output": [{"expression": "iuref", "iu": ["c.relcheck", ["SmallInt"]]}, {"expression": "iuref", "iu": ["c.relkind", ["Char1"]]}, {"expression": "iuref", "iu": ["c.relhasin", ["Bool"]]}, {"expression": "iuref", "iu": ["c.relhasru", ["Bool"]]}, {"expression": "iuref", "iu": ["c.relhastr", ["Bool"]]}, {"expression": "const", "value": {"type": ["Bool"], "value": false}}, {"expression": "iuref", "iu": ["c.reltable", ["Oid"]]}, {"expression": "iuref", "iu": ["map", ["Varchar"]]}, {"expression": "iuref", "iu": ["c.relpersi", ["Char1"]]}],
+  "output": [{"expression": "iu-ref", "iu": ["c.relcheck", ["SmallInt"]]}, {"expression": "iu-ref", "iu": ["c.relkind", ["Char1"]]}, {"expression": "iu-ref", "iu": ["c.relhasin", ["Bool"]]}, {"expression": "iu-ref", "iu": ["c.relhasru", ["Bool"]]}, {"expression": "iu-ref", "iu": ["c.relhastr", ["Bool"]]}, {"expression": "const", "value": {"type": ["Bool"], "value": false}}, {"expression": "iu-ref", "iu": ["c.reltable", ["Oid"]]}, {"expression": "iu-ref", "iu": ["map", ["Varchar"]]}, {"expression": "iu-ref", "iu": ["c.relpersi", ["Char1"]]}],
   "output-names": ["relchecks", "relkind", "relhasindex", "relhasrules", "relhastriggers", "relispartition", "reltablespace", "case", "relpersistence"],
   "inputs": [{
     "operator": "map",
     "operator-id": 2,
-    "sqlpos": [[29, 40]],
-    "cardinality": 1.36603,
+    "sqlpos": [[253, 264]],
+    "estimated-rows": 1.36603,
     "inputs": [{
-      "operator": "leftouterjoin",
+      "operator": "left-outer-join",
       "operator-id": 3,
-      "cardinality": 1.36603,
+      "estimated-rows": 1.36603,
       "method": "hash",
       "compute-left-bounds": [0],
       "inputs": [{
-        "operator": "virtualtable",
+        "operator": "virtual-table",
         "operator-id": 4,
-        "sqlpos": [[279, 298]],
-        "cardinality": 1,
+        "sqlpos": [[503, 522]],
+        "estimated-rows": 1,
         "volatility": "volatile",
+        "scan-type": "virtual-table",
         "attribute-count": 27,
         "attributes": [{"col-id": 0, "name": "oid", "type": ["Oid"], "iu": ["c.oid", ["Oid"]]},{"col-id": 4, "name": "reloftype", "type": ["Oid"], "iu": ["c.reloftyp", ["Oid"]]},{"col-id": 8, "name": "reltablespace", "type": ["Oid"], "iu": ["c.reltable", ["Oid"]]},{"col-id": 11, "name": "reltoastrelid", "type": ["Oid"], "iu": ["c.reltoast", ["Oid"]]},{"col-id": 13, "name": "relhasindex", "type": ["Bool"], "iu": ["c.relhasin", ["Bool"]]},{"col-id": 15, "name": "relpersistence", "type": ["Char1"], "iu": ["c.relpersi", ["Char1"]]},{"col-id": 16, "name": "relkind", "type": ["Char1"], "iu": ["c.relkind", ["Char1"]]},{"col-id": 18, "name": "relchecks", "type": ["SmallInt"], "iu": ["c.relcheck", ["SmallInt"]]},{"col-id": 21, "name": "relhasrules", "type": ["Bool"], "iu": ["c.relhasru", ["Bool"]]},{"col-id": 22, "name": "relhastriggers", "type": ["Bool"], "iu": ["c.relhastr", ["Bool"]]}],
         "debug-name": {"classification": "nonsensitive", "value": "c"},
@@ -29,21 +30,23 @@
         "schema": {"type":"builtinschema"},
         "id": 1259
       }, {
-        "operator": "virtualtable",
+        "operator": "virtual-table",
         "operator-id": 5,
-        "sqlpos": [[311, 330]],
-        "cardinality": 100,
+        "sqlpos": [[535, 554]],
+        "estimated-rows": 100,
         "volatility": "volatile",
+        "scan-type": "virtual-table",
         "attribute-count": 27,
         "attributes": [{"col-id": 0, "name": "oid", "type": ["Oid"], "iu": ["tc.oid", ["Oid", "nullable"]]}],
         "debug-name": {"classification": "nonsensitive", "value": "tc"},
-        "early-probes": [{"builder": 3, "attributes": [0], "num-equality-predicates": 1, "selectivities": [0.01], "type": "hashprobe", "pass-on-nulls": false}],
+        "early-probes": [{"builder": 3, "attributes": [0], "num-equality-predicates": 1, "selectivities": [0.01], "type": "hash-probe", "pass-on-nulls": false}],
         "schema": {"type":"builtinschema"},
         "id": 1259
       }],
       "early-probed-by": [5],
-      "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iuref", "iu": "c.reltoast"}, "right": {"expression": "iuref", "iu": "tc.oid"}}
+      "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iu-ref", "iu": "c.reltoast"}, "right": {"expression": "iu-ref", "iu": "tc.oid"}},
+      "predicates": [{"left": {"expression": "iu-ref", "iu": "c.reltoast"}, "right": {"expression": "iu-ref", "iu": "tc.oid"}, "comparison": "="}]
     }],
-    "values": [{"iu": ["map", ["Varchar"]], "value": {"expression": "simplecase", "value": {"expression": "iuref", "iu": "c.reloftyp"}, "cases": [{"cases": [{"expression": "const", "value": {"type": ["Integer"], "value": 0}}], "value": {"expression": "const", "value": {"type": ["Varchar"], "value": ""}}}], "else": {"expression": "cast", "value": {"expression": "cast", "value": {"expression": "iuref", "iu": "c.reloftyp"}, "type": ["RegType"], "error-handling": "trap", "allowTrustedCasts": false}, "type": ["Varchar"], "error-handling": "trap", "allowTrustedCasts": false}}}]
+    "values": [{"iu": ["map", ["Varchar"]], "value": {"expression": "simple-case", "value": {"expression": "iu-ref", "iu": "c.reloftyp"}, "cases": [{"cases": [{"expression": "const", "value": {"type": ["Integer"], "value": 0}}], "value": {"expression": "const", "value": {"type": ["Varchar"], "value": ""}}}], "else": {"expression": "cast", "value": {"expression": "cast", "value": {"expression": "iu-ref", "iu": "c.reloftyp"}, "type": ["RegType"], "error-handling": "trap"}, "type": ["Varchar"], "error-handling": "trap"}}}]
   }]
 }
