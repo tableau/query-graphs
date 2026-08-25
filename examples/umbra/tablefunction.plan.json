@@ -4,7 +4,6 @@
   "physicalOperator":"generateseries",
   "cardinality":10,
   "operatorId":1,
-  "sourceLocation":{"startLine":3, "startColumn":15, "endLine":3, "endColumn":36},
   "input":{
    "operator":"inlinetable",
    "physicalOperator":"inlinetable",
@@ -17,12 +16,12 @@
    "values":[]
   },
   "iu":"index",
-  "from":{"expression":"const", "id":1, "sourceLocation":{"startLine":3, "startColumn":31, "endLine":3, "endColumn":32}, "value":{"type":{"type":"integer"}, "value":1}},
-  "to":{"expression":"const", "id":2, "sourceLocation":{"startLine":3, "startColumn":33, "endLine":3, "endColumn":35}, "value":{"type":{"type":"integer"}, "value":10}},
-  "step":{"expression":"const", "id":3, "value":{"type":{"type":"integer"}, "value":1}}
+  "from":{"expression":"const", "value":{"type":{"type":"integer"}, "value":1}},
+  "to":{"expression":"const", "value":{"type":{"type":"integer"}, "value":10}},
+  "step":{"expression":"const", "value":{"type":{"type":"integer"}, "value":1}}
  },
  "ius":[{"iu":"index", "type":{"type":"integer"}}],
- "output":[{"name":"generate_series", "iu":{"expression":"iuref", "id":5, "iu":"index"}}],
+ "output":[{"name":"generate_series", "iu":{"expression":"iuref", "iu":"index"}}],
  "type":"select",
  "query":true
 }
