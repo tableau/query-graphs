@@ -10,7 +10,7 @@ We transform a Hyper JSON tree into a query-graphs tree using the following heur
     * detect the type of a node based on its `operator` or `expression` key.
       For other keys, decide based on their value: a plain value (string, number, ...) becomes
       part of the tooltip; anything else becomes part of the tree. A few pre-defined keys
-      (e.g., `analyze`) are always rendered in the tooltip, though.
+      (e.g., `statistics`) are always rendered in the tooltip, though.
     * look up a type-specific config which configures the icon, display name etc.
     * render children in a logically meaningful order, i.e. render "left" before "right" etc.
     * collapse the tree by default:
@@ -82,44 +82,95 @@ interface NodeRenderingConfig {
 }
 
 const nodeRenderingConfig: Record<string, NodeRenderingConfig> = {
-    "op:executiontarget": {icon: "run-query-symbol"},
-    "op:select": {icon: "filter-symbol"},
+    "op:execution-target": {icon: "run-query-symbol"},
+    "op:output": {icon: "run-query-symbol"},
+    "op:filter": {icon: "filter-symbol"},
     "op:sort": {icon: "sort-symbol"},
-    "op:groupby": {icon: "groupby-symbol"},
+    "op:group-by": {icon: "groupby-symbol"},
     // Joins
-    "op:join": {icon: "inner-join-symbol", crosslinkSourceKey: "magic"},
-    "op:leftouterjoin": {icon: "left-join-symbol", crosslinkSourceKey: "magic"},
-    "op:rightouterjoin": {icon: "right-join-symbol", crosslinkSourceKey: "magic"},
-    "op:fullouterjoin": {icon: "full-join-symbol", crosslinkSourceKey: "magic"},
-    "op:leftantijoin": {crosslinkSourceKey: "magic"},
-    "op:rightantijoin": {crosslinkSourceKey: "magic"},
-    "op:leftsemijoin": {crosslinkSourceKey: "magic"},
-    "op:rightsemijoin": {crosslinkSourceKey: "magic"},
-    "op:leftsinglejoin": {crosslinkSourceKey: "magic"},
-    "op:rightsinglejoin": {crosslinkSourceKey: "magic"},
-    "op:leftmarkjoin": {crosslinkSourceKey: "magic"},
-    "op:rightmarkjoin": {crosslinkSourceKey: "magic"},
-    "op:earlyprobe": {icon: "filter-symbol", crosslinkSourceKey: "builder"},
+    "op:join": {displayNameKey: "type", icon: "inner-join-symbol", crosslinkSourceKey: "magic"},
+    "op:join:inner": {displayNameKey: "type", icon: "inner-join-symbol", crosslinkSourceKey: "magic"},
+    "op:join:left-outer": {displayNameKey: "type", icon: "left-join-symbol", crosslinkSourceKey: "magic"},
+    "op:join:right-outer": {displayNameKey: "type", icon: "right-join-symbol", crosslinkSourceKey: "magic"},
+    "op:join:full-outer": {displayNameKey: "type", icon: "full-join-symbol", crosslinkSourceKey: "magic"},
+    "op:join:left-anti": {displayNameKey: "type", crosslinkSourceKey: "magic"},
+    "op:join:right-anti": {displayNameKey: "type", crosslinkSourceKey: "magic"},
+    "op:join:left-semi": {displayNameKey: "type", crosslinkSourceKey: "magic"},
+    "op:join:right-semi": {displayNameKey: "type", crosslinkSourceKey: "magic"},
+    "op:join:left-single": {displayNameKey: "type", crosslinkSourceKey: "magic"},
+    "op:join:right-single": {displayNameKey: "type", crosslinkSourceKey: "magic"},
+    "op:join:left-mark": {displayNameKey: "type", crosslinkSourceKey: "magic"},
+    "op:join:right-mark": {displayNameKey: "type", crosslinkSourceKey: "magic"},
+    "op:left-outer-join": {icon: "left-join-symbol", crosslinkSourceKey: "magic"},
+    "op:right-outer-join": {icon: "right-join-symbol", crosslinkSourceKey: "magic"},
+    "op:full-outer-join": {icon: "full-join-symbol", crosslinkSourceKey: "magic"},
+    "op:left-anti-join": {crosslinkSourceKey: "magic"},
+    "op:right-anti-join": {crosslinkSourceKey: "magic"},
+    "op:left-semi-join": {crosslinkSourceKey: "magic"},
+    "op:right-semi-join": {crosslinkSourceKey: "magic"},
+    "op:left-single-join": {crosslinkSourceKey: "magic"},
+    "op:right-single-join": {crosslinkSourceKey: "magic"},
+    "op:left-mark-join": {crosslinkSourceKey: "magic"},
+    "op:right-mark-join": {crosslinkSourceKey: "magic"},
+    "op:early-probe": {icon: "filter-symbol", crosslinkSourceKey: "builder"},
     // Various scans
-    "op:tablescan": {icon: "table-symbol"},
-    "op:arrowscan": {icon: "table-symbol"},
-    "op:binaryscan": {icon: "table-symbol"},
-    "op:csvscan": {icon: "table-symbol"},
-    "op:cloudtablescan": {icon: "table-symbol"},
-    "op:cursorscan": {icon: "table-symbol"},
-    "op:icebergscan": {icon: "table-symbol"},
-    "op:parquetscan": {icon: "table-symbol"},
-    "op:tdescan": {icon: "table-symbol"},
+    "op:scan": {displayNameKey: "type", icon: "table-symbol"},
+    "op:scan:virtual-table": {displayNameKey: "type", icon: "virtual-table-symbol"},
+    "op:table-scan": {icon: "table-symbol"},
+    "op:arrow-scan": {icon: "table-symbol"},
+    "op:binary-scan": {icon: "table-symbol"},
+    "op:csv-scan": {icon: "table-symbol"},
+    "op:cloud-table-scan": {icon: "table-symbol"},
+    "op:cursor-scan": {icon: "table-symbol"},
+    "op:iceberg-scan": {icon: "table-symbol"},
+    "op:parquet-scan": {icon: "table-symbol"},
+    "op:tde-scan": {icon: "table-symbol"},
     // Other tables
-    "op:tableconstruction": {icon: "const-table-symbol"},
-    "op:virtualtable": {icon: "virtual-table-symbol"},
+    "op:table-construction": {icon: "const-table-symbol"},
+    "op:virtual-table": {icon: "virtual-table-symbol"},
     // Temp & Explicit scan
-    "op:explicitscan": {icon: "temp-table-symbol", crosslinkSourceKey: "input"},
+    "op:explicit-scan": {icon: "temp-table-symbol", crosslinkSourceKey: "input"},
     "op:temp": {icon: "temp-table-symbol"},
-    "op:iterationincrement": {crosslinkSourceKey: "source"},
+    "op:iteration-increment": {crosslinkSourceKey: "source"},
+    // Inserts
+    "op:insert": {displayNameKey: "type"},
     // Expressions
     "exp:comparison": {displayNameKey: "mode"},
-    "exp:iuref": {displayNameKey: "iu"},
+    "exp:iu-ref": {displayNameKey: "iu"},
+    "exp:reference": {displayNameKey: "id"},
+};
+
+// Legacy tags before the kebab-case transition.
+const legacyNodeTags: Record<string, string> = {
+    "op:executiontarget": "op:execution-target",
+    "op:select": "op:filter",
+    "op:groupby": "op:group-by",
+    "op:leftouterjoin": "op:left-outer-join",
+    "op:rightouterjoin": "op:right-outer-join",
+    "op:fullouterjoin": "op:full-outer-join",
+    "op:leftantijoin": "op:left-anti-join",
+    "op:rightantijoin": "op:right-anti-join",
+    "op:leftsemijoin": "op:left-semi-join",
+    "op:rightsemijoin": "op:right-semi-join",
+    "op:leftsinglejoin": "op:left-single-join",
+    "op:rightsinglejoin": "op:right-single-join",
+    "op:leftmarkjoin": "op:left-mark-join",
+    "op:rightmarkjoin": "op:right-mark-join",
+    "op:earlyprobe": "op:early-probe",
+    "op:tablescan": "op:table-scan",
+    "op:arrowscan": "op:arrow-scan",
+    "op:binaryscan": "op:binary-scan",
+    "op:csvscan": "op:csv-scan",
+    "op:cloudtablescan": "op:cloud-table-scan",
+    "op:cursorscan": "op:cursor-scan",
+    "op:icebergscan": "op:iceberg-scan",
+    "op:parquetscan": "op:parquet-scan",
+    "op:tdescan": "op:tde-scan",
+    "op:tableconstruction": "op:table-construction",
+    "op:virtualtable": "op:virtual-table",
+    "op:explicitscan": "op:explicit-scan",
+    "op:iterationincrement": "op:iteration-increment",
+    "exp:iuref": "exp:iu-ref",
 };
 
 // Should the entry `key` from `node` always be expanded?
@@ -163,21 +214,26 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
             if (val !== undefined) {
                 nodeType = "operator";
                 nodeTag = val;
-                renderingConfig = nodeRenderingConfig[`op:${nodeTag}`] ?? {};
+                const configKey = legacyNodeTags[`op:${nodeTag}`] ?? `op:${nodeTag}`;
+                const subtype = tryToString(rawNode["type"]);
+                if (subtype !== undefined && nodeRenderingConfig[`${configKey}:${subtype}`]) {
+                    renderingConfig = nodeRenderingConfig[`${configKey}:${subtype}`];
+                } else {
+                    renderingConfig = nodeRenderingConfig[configKey] ?? {};
+                }
             }
         } else if (rawNode.hasOwnProperty("expression")) {
             const val = tryToString(rawNode["expression"]);
             if (val !== undefined) {
                 nodeType = "expression";
                 nodeTag = val;
-                renderingConfig = nodeRenderingConfig[`exp:${nodeTag}`] ?? {};
+                const configKey = legacyNodeTags[`exp:${nodeTag}`] ?? `exp:${nodeTag}`;
+                renderingConfig = nodeRenderingConfig[configKey] ?? {};
             }
         }
 
         // Display these properties always as properties, even if they are more complex.
-        // `debugName` is the pre-kebab-case spelling of `debug-name`; we accept both for
-        // backwards compatibility with plans produced before the Hyper kebab-case cutover.
-        const propertyKeys = ["debug-name", "debugName", "analyze", "sqlpos"];
+        const propertyKeys = ["debug-name", "statistics", "sqlpos"];
         for (const key of propertyKeys) {
             if (!rawNode.hasOwnProperty(key)) {
                 continue;
@@ -188,9 +244,7 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
         // Determine the order in which other keys are displayed.
         // For some keys, we enforce a specific order here (e.g., "left" comes before "right").
         // For all other keys, we use alphabetic order.
-        // `value-for-comparison` / `valueForComparison`: both spellings are listed so the
-        // fixed child ordering works for plans from before and after the kebab-case cutover.
-        const fixedChildOrder = ["inputs", "input", "left", "right", "value", "value-for-comparison", "valueForComparison"];
+        const fixedChildOrder = ["inputs", "input", "left", "right", "value", "value-for-comparison"];
         const orderedKeys = Object.getOwnPropertyNames(rawNode)
             .filter((k) => {
                 // `propertyKeys` and `operator`/`expression` were already handled
@@ -248,9 +302,7 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
 
         // Figure out the display name
         const specificDisplayName = renderingConfig.displayNameKey ? properties.get(renderingConfig.displayNameKey) : undefined;
-        // Accept both `debug-name` (post kebab-case cutover) and the legacy `debugName`.
-        const debugNameNode =
-            tryGetPropertyPath(rawNode, ["debug-name", "value"]) ?? tryGetPropertyPath(rawNode, ["debugName", "value"]);
+        const debugNameNode = tryGetPropertyPath(rawNode, ["debug-name", "value"]);
         const debugName = typeof debugNameNode === "string" ? debugNameNode : undefined;
         const displayName = debugName ?? specificDisplayName ?? properties?.get("name") ?? nodeTag ?? "";
 
@@ -265,21 +317,23 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
         } as TreeNode;
 
         // Highlight the node which errored out, in case the query failed
-        const errored = conversionState.metadata.has("Error") && tryGetPropertyPath(rawNode, ["analyze", "running"]) === true;
+        const errored = conversionState.metadata.has("Error") && tryGetPropertyPath(rawNode, ["statistics", "running"]) === true;
         if (errored) {
             convertedNode.iconColor = "red";
         }
 
         // Information on the execution time
-        const execTime = tryGetPropertyPath(rawNode, ["analyze", "cpu-cycles"]);
+        const execTime = tryGetPropertyPath(rawNode, ["statistics", "cpu-cycles"]);
         if (typeof execTime === "number") {
             conversionState.runtimes.push({node: convertedNode, time: execTime});
         }
 
         // Display the cardinality on the links between the nodes
-        if (hasOwnProperty(rawNode, "cardinality") && typeof rawNode.cardinality === "number") {
-            const estimatedCard = rawNode.cardinality;
-            const actualCard = tryGetPropertyPath(rawNode, ["analyze", "tuple-count"]);
+        const internalEstimate = rawNode["estimated-rows"];
+        const externalEstimate = tryGetPropertyPath(rawNode, ["statistics", "estimated-rows"]);
+        const estimatedCard = typeof internalEstimate === "number" ? internalEstimate : externalEstimate;
+        if (typeof estimatedCard === "number") {
+            const actualCard = tryGetPropertyPath(rawNode, ["statistics", "output-rows"]);
             if (typeof actualCard === "number") {
                 conversionState.edgeWidths.push({node: convertedNode, width: actualCard});
                 convertedNode.edgeLabel = formatMetric(actualCard) + "/" + formatMetric(estimatedCard);
@@ -294,9 +348,8 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
         }
 
         // Add to `operator-id` map if applicable.
-        // `operatorId` is the legacy spelling; accept both for backwards compatibility.
         if (nodeType == "operator") {
-            const operatorId = properties?.get("operator-id") ?? properties?.get("operatorId");
+            const operatorId = properties?.get("operator-id");
             if (operatorId !== undefined) {
                 conversionState.operatorsById.set(operatorId, convertedNode);
             }
@@ -491,7 +544,7 @@ function convertHyperPlan(node: Json, pipelines?: Json): TreeDescription {
         metadata: new Map<string, string>(),
     } as ConversionState;
     // Check if the query failed
-    const errorMsg = tryGetPropertyPath(node, ["analyze", "error", "message", "original"]);
+    const errorMsg = tryGetPropertyPath(node, ["statistics", "error", "message", "original"]);
     if (errorMsg) {
         conversionState.metadata.set("Error", forceToString(errorMsg));
     }
