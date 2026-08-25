@@ -1,0 +1,57 @@
+{
+  "query_optimization": {
+    "r_total_time_ms": 0.116958027
+  },
+  "query_block": {
+    "select_id": 1,
+    "r_loops": 1,
+    "r_total_time_ms": 0.506957379,
+    "nested_loop": [
+      {
+        "table": {
+          "table_name": "lineitem",
+          "access_type": "ALL",
+          "r_loops": 1,
+          "rows": 572,
+          "r_rows": 572,
+          "r_table_time_ms": 0.15113277,
+          "r_other_time_ms": 0.177189879,
+          "r_engine_stats": {
+            "pages_accessed": 6
+          },
+          "filtered": 4.406738281,
+          "r_filtered": 2.097902098,
+          "attached_condition": "lineitem.l_quantity >= 1 and lineitem.l_quantity <= <cache>(1 + 10) and lineitem.l_shipmode in ('AIR','AIR REG') and lineitem.l_shipinstruct = 'DELIVER IN PERSON' or lineitem.l_quantity >= 10 and lineitem.l_quantity <= <cache>(10 + 10) and lineitem.l_shipmode in ('AIR','AIR REG') and lineitem.l_shipinstruct = 'DELIVER IN PERSON' or lineitem.l_quantity >= 20 and lineitem.l_quantity <= <cache>(20 + 10) and lineitem.l_shipmode in ('AIR','AIR REG') and lineitem.l_shipinstruct = 'DELIVER IN PERSON'"
+        }
+      },
+      {
+        "block-nl-join": {
+          "table": {
+            "table_name": "part",
+            "access_type": "ALL",
+            "r_loops": 1,
+            "rows": 533,
+            "r_rows": 533,
+            "r_table_time_ms": 0.108046946,
+            "r_other_time_ms": 0.061157987,
+            "r_engine_stats": {
+              "pages_accessed": 7
+            },
+            "filtered": 32.8125,
+            "r_filtered": 0.562851782,
+            "attached_condition": "part.p_brand = 'Brand#12' and part.p_container in ('SM CASE','SM BOX','SM PACK','SM PKG') and part.p_size between 1 and 5 or part.p_brand = 'Brand#23' and part.p_container in ('MED BAG','MED BOX','MED PKG','MED PACK') and part.p_size between 1 and 10 or part.p_brand = 'Brand#34' and part.p_container in ('LG CASE','LG BOX','LG PACK','LG PKG') and part.p_size between 1 and 15"
+          },
+          "buffer_type": "flat",
+          "buffer_size": "4Kb",
+          "join_type": "BNL",
+          "attached_condition": "part.p_partkey = lineitem.l_partkey and part.p_brand = 'Brand#12' and part.p_container in ('SM CASE','SM BOX','SM PACK','SM PKG') and lineitem.l_quantity >= 1 and lineitem.l_quantity <= <cache>(1 + 10) and part.p_size between 1 and 5 and lineitem.l_shipmode in ('AIR','AIR REG') and lineitem.l_shipinstruct = 'DELIVER IN PERSON' or part.p_partkey = lineitem.l_partkey and part.p_brand = 'Brand#23' and part.p_container in ('MED BAG','MED BOX','MED PKG','MED PACK') and lineitem.l_quantity >= 10 and lineitem.l_quantity <= <cache>(10 + 10) and part.p_size between 1 and 10 and lineitem.l_shipmode in ('AIR','AIR REG') and lineitem.l_shipinstruct = 'DELIVER IN PERSON' or part.p_partkey = lineitem.l_partkey and part.p_brand = 'Brand#34' and part.p_container in ('LG CASE','LG BOX','LG PACK','LG PKG') and lineitem.l_quantity >= 20 and lineitem.l_quantity <= <cache>(20 + 10) and part.p_size between 1 and 15 and lineitem.l_shipmode in ('AIR','AIR REG') and lineitem.l_shipinstruct = 'DELIVER IN PERSON'",
+          "r_loops": 12,
+          "r_filtered": 2.777777778,
+          "r_unpack_time_ms": 0.002709889,
+          "r_other_time_ms": 0.004463896,
+          "r_effective_rows": 3
+        }
+      }
+    ]
+  }
+}

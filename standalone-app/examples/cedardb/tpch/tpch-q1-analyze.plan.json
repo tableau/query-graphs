@@ -1,0 +1,47 @@
+{
+ "plan":{
+  "operator":"sort",
+  "physicalOperator":"sort",
+  "cardinality":1,
+  "operatorId":1,"analyzePlanId":0,"analyzePlanCardinality":4,
+  "input":{
+   "operator":"groupby",
+   "physicalOperator":"groupby",
+   "cardinality":1,
+   "operatorId":2,"analyzePlanId":1,"analyzePlanCardinality":4,
+   "input":{
+    "operator":"tablescan",
+    "physicalOperator":"tablescan",
+    "cardinality":1,
+    "operatorId":3,"analyzePlanId":2,"analyzePlanCardinality":568,
+    "attributes":[{"name":"l_orderkey", "iu":"l_orderkey", "column":0}, {"name":"l_partkey", "iu":"l_partkey", "column":1}, {"name":"l_suppkey", "iu":"l_suppkey", "column":2}, {"name":"l_linenumber", "iu":"l_linenumber", "column":3}, {"name":"l_quantity", "iu":"l_quantity", "column":4}, {"name":"l_extendedprice", "iu":"l_extendedprice", "column":5}, {"name":"l_discount", "iu":"l_discount", "column":6}, {"name":"l_tax", "iu":"l_tax", "column":7}, {"name":"l_returnflag", "iu":"l_returnflag", "column":8}, {"name":"l_linestatus", "iu":"l_linestatus", "column":9}, {"name":"l_shipdate", "iu":"l_shipdate", "column":10}, {"name":"l_commitdate", "iu":"l_commitdate", "column":11}, {"name":"l_receiptdate", "iu":"l_receiptdate", "column":12}, {"name":"l_shipinstruct", "iu":"l_shipinstruct", "column":13}, {"name":"l_shipmode", "iu":"l_shipmode", "column":14}, {"name":"l_comment", "iu":"l_comment", "column":15}],
+    "restrictions":[{"attribute":10, "mode":"<=", "value":{"expression":"const", "value":{"type":{"type":"date"}, "value":2451059}}, "estimatedSelectivity":0, "collate":""}],
+    "residuals":[],
+    "tid":"tid",
+    "tableoid":"tableoid",
+    "rowstate":"rowstate",
+    "table":{"type":"temporarytable", "id":7},
+    "tableSize":572,
+    "tablename":"lineitem"
+   },
+   "values":[{"expression":"iuref", "iu":"l_returnflag"}, {"expression":"iuref", "iu":"l_linestatus"}, {"expression":"iuref", "iu":"l_quantity"}, {"expression":"iuref", "iu":"l_extendedprice"}, {"expression":"mul", "left":{"expression":"iuref", "iu":"l_extendedprice"}, "right":{"expression":"sub", "left":{"expression":"const", "value":{"type":{"type":"numeric", "precision":10}, "value":1}}, "right":{"expression":"iuref", "iu":"l_discount"}}}, {"expression":"mul", "left":{"expression":"mul", "left":{"expression":"iuref", "iu":"l_extendedprice"}, "right":{"expression":"sub", "left":{"expression":"const", "value":{"type":{"type":"numeric", "precision":10}, "value":1}}, "right":{"expression":"iuref", "iu":"l_discount"}}}, "right":{"expression":"cast", "input":{"expression":"add", "left":{"expression":"const", "value":{"type":{"type":"numeric", "precision":10}, "value":1}}, "right":{"expression":"iuref", "iu":"l_tax"}}, "type":{"type":"bignumeric", "precision":13, "scale":2}, "semantic":"implicit"}}, {"expression":"iuref", "iu":"l_discount"}],
+   "key":[{"arg":0, "iu":"l_returnflag20", "collate":""}, {"arg":1, "iu":"l_linestatus21", "collate":""}],
+   "groupingmode":"regular",
+   "aggregates":[{"op":"sum", "arg":2, "collate":"", "iu":"sum(l_quantity)"}, {"op":"sum", "arg":3, "collate":"", "iu":"sum(l_extendedprice)"}, {"op":"sum", "arg":4, "collate":"", "iu":"sum()"}, {"op":"sum", "arg":5, "collate":"", "iu":"sum()25"}, {"op":"avg", "arg":2, "collate":"", "iu":"avg(l_quantity)"}, {"op":"avg", "arg":3, "collate":"", "iu":"avg(l_extendedprice)"}, {"op":"avg", "arg":6, "collate":"", "iu":"avg(l_discount)"}, {"op":"countstar", "iu":"count_star(*)"}],
+   "orders":[],
+   "groupingsets":[],
+   "considerspooling":false,
+   "hasminspoolinglimit":true
+  },
+  "order":[{"value":{"expression":"iuref", "iu":"l_returnflag20"}, "collate":""}, {"value":{"expression":"iuref", "iu":"l_linestatus21"}, "collate":""}],
+  "duplicateFree":true,
+  "type":"sort"
+ },
+ "ius":[{"iu":"l_orderkey", "outerNull":false, "type":{"type":"int32"}}, {"iu":"l_partkey", "outerNull":false, "type":{"type":"int32"}}, {"iu":"l_suppkey", "outerNull":false, "type":{"type":"int32"}}, {"iu":"l_linenumber", "outerNull":false, "type":{"type":"int32"}}, {"iu":"l_quantity", "outerNull":false, "type":{"type":"numeric", "precision":12, "scale":2}}, {"iu":"l_extendedprice", "outerNull":false, "type":{"type":"numeric", "precision":12, "scale":2}}, {"iu":"l_discount", "outerNull":false, "type":{"type":"numeric", "precision":12, "scale":2}}, {"iu":"l_tax", "outerNull":false, "type":{"type":"numeric", "precision":12, "scale":2}}, {"iu":"l_returnflag", "outerNull":false, "type":{"type":"char1"}}, {"iu":"l_linestatus", "outerNull":false, "type":{"type":"char1"}}, {"iu":"l_shipdate", "outerNull":false, "type":{"type":"date"}}, {"iu":"l_commitdate", "outerNull":false, "type":{"type":"date"}}, {"iu":"l_receiptdate", "outerNull":false, "type":{"type":"date"}}, {"iu":"l_shipinstruct", "outerNull":false, "type":{"type":"char", "precision":25}}, {"iu":"l_shipmode", "outerNull":false, "type":{"type":"char", "precision":10}}, {"iu":"l_comment", "outerNull":false, "type":{"type":"text", "precision":44}}, {"iu":"tid", "outerNull":false, "type":{"type":"int64"}}, {"iu":"tableoid", "outerNull":false, "type":{"type":"int32"}}, {"iu":"rowstate", "outerNull":false, "type":{"type":"int64"}}, {"iu":"l_returnflag20", "outerNull":false, "type":{"type":"char1"}}, {"iu":"l_linestatus21", "outerNull":false, "type":{"type":"char1"}}, {"iu":"sum(l_quantity)", "outerNull":false, "type":{"type":"numeric", "precision":18, "scale":2}}, {"iu":"sum(l_extendedprice)", "outerNull":false, "type":{"type":"numeric", "precision":18, "scale":2}}, {"iu":"sum()", "outerNull":false, "type":{"type":"bignumeric", "precision":38, "scale":4}}, {"iu":"sum()25", "outerNull":false, "type":{"type":"bignumeric", "precision":38, "scale":6}}, {"iu":"avg(l_quantity)", "outerNull":false, "type":{"type":"bignumeric", "precision":31, "scale":21}}, {"iu":"avg(l_extendedprice)", "outerNull":false, "type":{"type":"bignumeric", "precision":31, "scale":21}}, {"iu":"avg(l_discount)", "outerNull":false, "type":{"type":"bignumeric", "precision":31, "scale":21}}, {"iu":"count_star(*)", "outerNull":false, "type":{"type":"int64"}}],
+ "output":[{"name":"l_returnflag", "iu":{"expression":"iuref", "iu":"l_returnflag20"}}, {"name":"l_linestatus", "iu":{"expression":"iuref", "iu":"l_linestatus21"}}, {"name":"sum_qty", "iu":{"expression":"iuref", "iu":"sum(l_quantity)"}}, {"name":"sum_base_price", "iu":{"expression":"iuref", "iu":"sum(l_extendedprice)"}}, {"name":"sum_disc_price", "iu":{"expression":"iuref", "iu":"sum()"}}, {"name":"sum_charge", "iu":{"expression":"iuref", "iu":"sum()25"}}, {"name":"avg_qty", "iu":{"expression":"iuref", "iu":"avg(l_quantity)"}}, {"name":"avg_price", "iu":{"expression":"iuref", "iu":"avg(l_extendedprice)"}}, {"name":"avg_disc", "iu":{"expression":"iuref", "iu":"avg(l_discount)"}}, {"name":"count_order", "iu":{"expression":"iuref", "iu":"count_star(*)"}}],
+ "type":"select",
+ "query":true,
+ "hasParameters":false,
+ "permissions":{"planPermissions":[{"object":{"type":"temporarytable", "id":7}, "role":10, "permissions":{"value":2, "grantMask":0}}, {"object":{"type":"schema", "id":3}, "role":10, "permissions":{"value":256, "grantMask":0}}], "fileReaders":[], "fileWriters":[], "objectsToLock":[]},
+ "analyzePlanPipelines":[{"start":26,"stop":182,"duration":156,"parallelism":"multi-threaded","operators":[1,2]},{"start":334,"stop":365,"duration":31,"parallelism":"multi-threaded","operators":[0,1]},{"start":428,"stop":432,"duration":4,"parallelism":"multi-threaded","operators":[0]}]
+}

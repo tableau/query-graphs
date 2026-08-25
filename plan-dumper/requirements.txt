@@ -1,3 +1,4 @@
 tableauhyperapi
-psycopg2
+psycopg2-binary
 duckdb
+pymysql

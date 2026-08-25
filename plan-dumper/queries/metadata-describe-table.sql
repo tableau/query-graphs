@@ -1,7 +1,7 @@
--- UNSUPPORTED: duckdb
+-- UNSUPPORTED: duckdb, mariadb, umbra
 -- MODES: simple
--- Uses Postgres catalog casts (`::pg_catalog.regtype::pg_catalog.text`) that DuckDB's
--- pg_catalog emulation doesn't support; Hyper's does, since it's Postgres-wire-compatible.
+-- Uses PostgreSQL-specific pg_class columns and regtype casts which these engines
+-- do not expose. Hyper supports them through its PostgreSQL-compatible catalog.
 SELECT c.relchecks, c.relkind, c.relhasindex, c.relhasrules, c.relhastriggers,
        false as relispartition, c.reltablespace,
        CASE WHEN c.reloftype = 0 THEN '' ELSE c.reloftype::pg_catalog.regtype::pg_catalog.text END,

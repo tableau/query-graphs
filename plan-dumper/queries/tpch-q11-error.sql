@@ -1,8 +1,7 @@
--- UNSUPPORTED: postgres
+-- UNSUPPORTED: postgres, umbra, cedardb, mariadb
 -- MODES: analyze
--- Postgres raises a hard "division by zero" error for the `/ 0` below, aborting the whole
--- dump; DuckDB returns `inf` instead (no error, so it still dumps, just without exercising
--- the error-reporting path this query is meant to test).
+-- These engines raise a hard division-by-zero error for the `/ 0` below and abort
+-- the dump. DuckDB returns `inf`; Hyper represents the execution error in its plan.
 --
 -- This query is derived from TPC-H query 11
 -- THE TPC SOFTWARE IS AVAILABLE WITHOUT CHARGE FROM TPC.

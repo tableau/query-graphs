@@ -32,7 +32,7 @@
                                           "children": [],
                                           "extra_info": {
                                             "Filters": "",
-                                            "Table": "part",
+                                            "Table": "\"temp\".main.part",
                                             "Type": "Sequential Scan"
                                           }
                                         },
@@ -41,7 +41,7 @@
                                           "children": [],
                                           "extra_info": {
                                             "Filters": "",
-                                            "Table": "supplier",
+                                            "Table": "\"temp\".main.supplier",
                                             "Type": "Sequential Scan"
                                           }
                                         }
@@ -55,7 +55,7 @@
                                       "children": [],
                                       "extra_info": {
                                         "Filters": "",
-                                        "Table": "partsupp",
+                                        "Table": "\"temp\".main.partsupp",
                                         "Type": "Sequential Scan"
                                       }
                                     }
@@ -69,7 +69,7 @@
                                   "children": [],
                                   "extra_info": {
                                     "Filters": "",
-                                    "Table": "nation",
+                                    "Table": "\"temp\".main.nation",
                                     "Type": "Sequential Scan"
                                   }
                                 }
@@ -83,7 +83,7 @@
                               "children": [],
                               "extra_info": {
                                 "Filters": "",
-                                "Table": "region",
+                                "Table": "\"temp\".main.region",
                                 "Type": "Sequential Scan"
                               }
                             }
@@ -115,7 +115,7 @@
                                                   "children": [],
                                                   "extra_info": {
                                                     "Filters": "",
-                                                    "Table": "partsupp",
+                                                    "Table": "\"temp\".main.partsupp",
                                                     "Type": "Sequential Scan"
                                                   }
                                                 },
@@ -124,7 +124,7 @@
                                                   "children": [],
                                                   "extra_info": {
                                                     "Filters": "",
-                                                    "Table": "supplier",
+                                                    "Table": "\"temp\".main.supplier",
                                                     "Type": "Sequential Scan"
                                                   }
                                                 }
@@ -138,7 +138,7 @@
                                               "children": [],
                                               "extra_info": {
                                                 "Filters": "",
-                                                "Table": "nation",
+                                                "Table": "\"temp\".main.nation",
                                                 "Type": "Sequential Scan"
                                               }
                                             }
@@ -152,7 +152,7 @@
                                           "children": [],
                                           "extra_info": {
                                             "Filters": "",
-                                            "Table": "region",
+                                            "Table": "\"temp\".main.region",
                                             "Type": "Sequential Scan"
                                           }
                                         }
@@ -257,7 +257,7 @@
                               "children": [],
                               "extra_info": {
                                 "Filters": "",
-                                "Table": "supplier",
+                                "Table": "\"temp\".main.supplier",
                                 "Type": "Sequential Scan",
                                 "Estimated Cardinality": "518"
                               }
@@ -270,7 +270,7 @@
                                   "children": [],
                                   "extra_info": {
                                     "Filters": "",
-                                    "Table": "partsupp",
+                                    "Table": "\"temp\".main.partsupp",
                                     "Type": "Sequential Scan",
                                     "Estimated Cardinality": "537"
                                   }
@@ -283,7 +283,7 @@
                                       "suffix(p_type, 'BRASS')",
                                       "p_size=15"
                                     ],
-                                    "Table": "part",
+                                    "Table": "\"temp\".main.part",
                                     "Type": "Sequential Scan",
                                     "Estimated Cardinality": "12"
                                   }
@@ -310,7 +310,7 @@
                               "children": [],
                               "extra_info": {
                                 "Filters": "",
-                                "Table": "nation",
+                                "Table": "\"temp\".main.nation",
                                 "Type": "Sequential Scan",
                                 "Estimated Cardinality": "25"
                               }
@@ -320,7 +320,7 @@
                               "children": [],
                               "extra_info": {
                                 "Filters": "r_name='EUROPE'",
-                                "Table": "region",
+                                "Table": "\"temp\".main.region",
                                 "Type": "Sequential Scan",
                                 "Estimated Cardinality": "1"
                               }
@@ -362,7 +362,7 @@
                                               "children": [],
                                               "extra_info": {
                                                 "Filters": "",
-                                                "Table": "nation",
+                                                "Table": "\"temp\".main.nation",
                                                 "Type": "Sequential Scan",
                                                 "Estimated Cardinality": "25"
                                               }
@@ -375,7 +375,7 @@
                                                   "children": [],
                                                   "extra_info": {
                                                     "Filters": "",
-                                                    "Table": "supplier",
+                                                    "Table": "\"temp\".main.supplier",
                                                     "Type": "Sequential Scan",
                                                     "Estimated Cardinality": "518"
                                                   }
@@ -388,7 +388,7 @@
                                                       "children": [],
                                                       "extra_info": {
                                                         "Filters": "",
-                                                        "Table": "partsupp",
+                                                        "Table": "\"temp\".main.partsupp",
                                                         "Type": "Sequential Scan",
                                                         "Estimated Cardinality": "537"
                                                       }
@@ -427,7 +427,7 @@
                                           "children": [],
                                           "extra_info": {
                                             "Filters": "r_name='EUROPE'",
-                                            "Table": "region",
+                                            "Table": "\"temp\".main.region",
                                             "Type": "Sequential Scan",
                                             "Estimated Cardinality": "1"
                                           }
@@ -531,10 +531,10 @@
                               "name": "HASH_JOIN",
                               "children": [
                                 {
-                                  "name": "SEQ_SCAN ",
+                                  "name": "SEQ_SCAN",
                                   "children": [],
                                   "extra_info": {
-                                    "Table": "supplier",
+                                    "Table": "\"temp\".main.supplier",
                                     "Type": "Sequential Scan",
                                     "Projections": [
                                       "s_suppkey",
@@ -552,10 +552,10 @@
                                   "name": "HASH_JOIN",
                                   "children": [
                                     {
-                                      "name": "SEQ_SCAN ",
+                                      "name": "SEQ_SCAN",
                                       "children": [],
                                       "extra_info": {
-                                        "Table": "partsupp",
+                                        "Table": "\"temp\".main.partsupp",
                                         "Type": "Sequential Scan",
                                         "Projections": [
                                           "ps_partkey",
@@ -566,10 +566,10 @@
                                       }
                                     },
                                     {
-                                      "name": "SEQ_SCAN ",
+                                      "name": "SEQ_SCAN",
                                       "children": [],
                                       "extra_info": {
-                                        "Table": "part",
+                                        "Table": "\"temp\".main.part",
                                         "Type": "Sequential Scan",
                                         "Projections": [
                                           "p_partkey",
@@ -600,10 +600,10 @@
                               "name": "HASH_JOIN",
                               "children": [
                                 {
-                                  "name": "SEQ_SCAN ",
+                                  "name": "SEQ_SCAN",
                                   "children": [],
                                   "extra_info": {
-                                    "Table": "nation",
+                                    "Table": "\"temp\".main.nation",
                                     "Type": "Sequential Scan",
                                     "Projections": [
                                       "n_nationkey",
@@ -614,10 +614,10 @@
                                   }
                                 },
                                 {
-                                  "name": "SEQ_SCAN ",
+                                  "name": "SEQ_SCAN",
                                   "children": [],
                                   "extra_info": {
-                                    "Table": "region",
+                                    "Table": "\"temp\".main.region",
                                     "Type": "Sequential Scan",
                                     "Projections": "r_regionkey",
                                     "Filters": "r_name='EUROPE'",
@@ -667,10 +667,10 @@
                                                   "name": "HASH_JOIN",
                                                   "children": [
                                                     {
-                                                      "name": "SEQ_SCAN ",
+                                                      "name": "SEQ_SCAN",
                                                       "children": [],
                                                       "extra_info": {
-                                                        "Table": "nation",
+                                                        "Table": "\"temp\".main.nation",
                                                         "Type": "Sequential Scan",
                                                         "Projections": [
                                                           "n_nationkey",
@@ -683,10 +683,10 @@
                                                       "name": "HASH_JOIN",
                                                       "children": [
                                                         {
-                                                          "name": "SEQ_SCAN ",
+                                                          "name": "SEQ_SCAN",
                                                           "children": [],
                                                           "extra_info": {
-                                                            "Table": "supplier",
+                                                            "Table": "\"temp\".main.supplier",
                                                             "Type": "Sequential Scan",
                                                             "Projections": [
                                                               "s_suppkey",
@@ -699,10 +699,10 @@
                                                           "name": "HASH_JOIN",
                                                           "children": [
                                                             {
-                                                              "name": "SEQ_SCAN ",
+                                                              "name": "SEQ_SCAN",
                                                               "children": [],
                                                               "extra_info": {
-                                                                "Table": "partsupp",
+                                                                "Table": "\"temp\".main.partsupp",
                                                                 "Type": "Sequential Scan",
                                                                 "Projections": [
                                                                   "ps_partkey",
@@ -742,10 +742,10 @@
                                                   }
                                                 },
                                                 {
-                                                  "name": "SEQ_SCAN ",
+                                                  "name": "SEQ_SCAN",
                                                   "children": [],
                                                   "extra_info": {
-                                                    "Table": "region",
+                                                    "Table": "\"temp\".main.region",
                                                     "Type": "Sequential Scan",
                                                     "Projections": "r_regionkey",
                                                     "Filters": "r_name='EUROPE'",

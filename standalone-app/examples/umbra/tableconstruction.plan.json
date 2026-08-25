@@ -1,0 +1,18 @@
+{
+ "plan":{
+  "operator":"inlinetable",
+  "physicalOperator":"inlinetable",
+  "cardinality":2,
+  "operatorId":1,
+  "sourceLocation":{"startLine":2, "startColumn":1, "endLine":2, "endColumn":17},
+  "attributes":[{"name":"column1", "iu":"column1"}, {"name":"column2", "iu":"column2"}],
+  "restrictions":[],
+  "residuals":[],
+  "count":2,
+  "values":[{"expression":"const", "id":1, "sourceLocation":{"startLine":2, "startColumn":8, "endLine":2, "endColumn":11}, "value":{"type":{"type":"text"}, "value":"a"}}, {"expression":"const", "id":2, "sourceLocation":{"startLine":2, "startColumn":13, "endLine":2, "endColumn":16}, "value":{"type":{"type":"text"}, "value":"b"}}, {"expression":"const", "id":3, "sourceLocation":{"startLine":2, "startColumn":19, "endLine":2, "endColumn":22}, "value":{"type":{"type":"text"}, "value":"c"}}, {"expression":"const", "id":4, "sourceLocation":{"startLine":2, "startColumn":24, "endLine":2, "endColumn":27}, "value":{"type":{"type":"text"}, "value":"d"}}]
+ },
+ "ius":[{"iu":"column1", "type":{"type":"text"}, "sourceLocation":{"startLine":2, "startColumn":1, "endLine":2, "endColumn":17}}, {"iu":"column2", "type":{"type":"text"}, "sourceLocation":{"startLine":2, "startColumn":1, "endLine":2, "endColumn":17}}],
+ "output":[{"name":"column1", "iu":{"expression":"iuref", "id":5, "iu":"column1"}}, {"name":"column2", "iu":{"expression":"iuref", "id":6, "iu":"column2"}}],
+ "type":"select",
+ "query":true
+}

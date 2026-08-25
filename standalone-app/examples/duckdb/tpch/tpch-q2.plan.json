@@ -21,10 +21,10 @@
                                                         "name": "HASH_JOIN",
                                                         "children": [
                                                             {
-                                                                "name": "SEQ_SCAN ",
+                                                                "name": "SEQ_SCAN",
                                                                 "children": [],
                                                                 "extra_info": {
-                                                                    "Table": "supplier",
+                                                                    "Table": "\"temp\".main.supplier",
                                                                     "Type": "Sequential Scan",
                                                                     "Projections": [
                                                                         "s_suppkey",
@@ -42,10 +42,10 @@
                                                                 "name": "HASH_JOIN",
                                                                 "children": [
                                                                     {
-                                                                        "name": "SEQ_SCAN ",
+                                                                        "name": "SEQ_SCAN",
                                                                         "children": [],
                                                                         "extra_info": {
-                                                                            "Table": "partsupp",
+                                                                            "Table": "\"temp\".main.partsupp",
                                                                             "Type": "Sequential Scan",
                                                                             "Projections": [
                                                                                 "ps_partkey",
@@ -56,10 +56,10 @@
                                                                         }
                                                                     },
                                                                     {
-                                                                        "name": "SEQ_SCAN ",
+                                                                        "name": "SEQ_SCAN",
                                                                         "children": [],
                                                                         "extra_info": {
-                                                                            "Table": "part",
+                                                                            "Table": "\"temp\".main.part",
                                                                             "Type": "Sequential Scan",
                                                                             "Projections": [
                                                                                 "p_partkey",
@@ -90,10 +90,10 @@
                                                         "name": "HASH_JOIN",
                                                         "children": [
                                                             {
-                                                                "name": "SEQ_SCAN ",
+                                                                "name": "SEQ_SCAN",
                                                                 "children": [],
                                                                 "extra_info": {
-                                                                    "Table": "nation",
+                                                                    "Table": "\"temp\".main.nation",
                                                                     "Type": "Sequential Scan",
                                                                     "Projections": [
                                                                         "n_nationkey",
@@ -104,10 +104,10 @@
                                                                 }
                                                             },
                                                             {
-                                                                "name": "SEQ_SCAN ",
+                                                                "name": "SEQ_SCAN",
                                                                 "children": [],
                                                                 "extra_info": {
-                                                                    "Table": "region",
+                                                                    "Table": "\"temp\".main.region",
                                                                     "Type": "Sequential Scan",
                                                                     "Projections": "r_regionkey",
                                                                     "Filters": "r_name='EUROPE'",
@@ -157,10 +157,10 @@
                                                                                                 "name": "HASH_JOIN",
                                                                                                 "children": [
                                                                                                     {
-                                                                                                        "name": "SEQ_SCAN ",
+                                                                                                        "name": "SEQ_SCAN",
                                                                                                         "children": [],
                                                                                                         "extra_info": {
-                                                                                                            "Table": "nation",
+                                                                                                            "Table": "\"temp\".main.nation",
                                                                                                             "Type": "Sequential Scan",
                                                                                                             "Projections": [
                                                                                                                 "n_nationkey",
@@ -173,10 +173,10 @@
                                                                                                         "name": "HASH_JOIN",
                                                                                                         "children": [
                                                                                                             {
-                                                                                                                "name": "SEQ_SCAN ",
+                                                                                                                "name": "SEQ_SCAN",
                                                                                                                 "children": [],
                                                                                                                 "extra_info": {
-                                                                                                                    "Table": "supplier",
+                                                                                                                    "Table": "\"temp\".main.supplier",
                                                                                                                     "Type": "Sequential Scan",
                                                                                                                     "Projections": [
                                                                                                                         "s_suppkey",
@@ -189,10 +189,10 @@
                                                                                                                 "name": "HASH_JOIN",
                                                                                                                 "children": [
                                                                                                                     {
-                                                                                                                        "name": "SEQ_SCAN ",
+                                                                                                                        "name": "SEQ_SCAN",
                                                                                                                         "children": [],
                                                                                                                         "extra_info": {
-                                                                                                                            "Table": "partsupp",
+                                                                                                                            "Table": "\"temp\".main.partsupp",
                                                                                                                             "Type": "Sequential Scan",
                                                                                                                             "Projections": [
                                                                                                                                 "ps_partkey",
@@ -232,10 +232,10 @@
                                                                                                 }
                                                                                             },
                                                                                             {
-                                                                                                "name": "SEQ_SCAN ",
+                                                                                                "name": "SEQ_SCAN",
                                                                                                 "children": [],
                                                                                                 "extra_info": {
-                                                                                                    "Table": "region",
+                                                                                                    "Table": "\"temp\".main.region",
                                                                                                     "Type": "Sequential Scan",
                                                                                                     "Projections": "r_regionkey",
                                                                                                     "Filters": "r_name='EUROPE'",

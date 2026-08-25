@@ -1,0 +1,60 @@
+{
+  "query_optimization": {
+    "r_total_time_ms": 0.029538387
+  },
+  "query_block": {
+    "select_id": 1,
+    "r_loops": 1,
+    "r_total_time_ms": 22.78135149,
+    "nested_loop": [
+      {
+        "table": {
+          "table_name": "orders",
+          "access_type": "ALL",
+          "r_loops": 1,
+          "rows": 128,
+          "r_rows": 128,
+          "r_table_time_ms": 0.028726222,
+          "r_other_time_ms": 0.045551729,
+          "r_engine_stats": {
+            "pages_accessed": 1
+          },
+          "filtered": 100,
+          "r_filtered": 100
+        }
+      }
+    ],
+    "subqueries": [
+      {
+        "expression_cache": {
+          "r_loops": 128,
+          "r_hit_ratio": 0,
+          "query_block": {
+            "select_id": 2,
+            "r_loops": 128,
+            "r_total_time_ms": 22.65446033,
+            "nested_loop": [
+              {
+                "table": {
+                  "table_name": "lineitem",
+                  "access_type": "ALL",
+                  "r_loops": 128,
+                  "rows": 572,
+                  "r_rows": 572,
+                  "r_table_time_ms": 13.09417843,
+                  "r_other_time_ms": 9.521519262,
+                  "r_engine_stats": {
+                    "pages_accessed": 768
+                  },
+                  "filtered": 100,
+                  "r_filtered": 91.75726617,
+                  "attached_condition": "lineitem.l_extendedprice < orders.o_totalprice"
+                }
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

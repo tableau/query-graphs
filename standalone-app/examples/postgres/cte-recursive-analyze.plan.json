@@ -6,13 +6,13 @@
       "Async Capable": false,
       "CTE Name": "x",
       "Alias": "x",
-      "Startup Cost": 2.65,
-      "Total Cost": 3.27,
+      "Startup Cost": 2.64,
+      "Total Cost": 3.26,
       "Plan Rows": 31,
       "Plan Width": 4,
       "Actual Startup Time": 0.003,
-      "Actual Total Time": 0.071,
-      "Actual Rows": 100,
+      "Actual Total Time": 0.012,
+      "Actual Rows": 10,
       "Actual Loops": 1,
       "Output": [
         "x.i"
@@ -25,12 +25,12 @@
           "Parallel Aware": false,
           "Async Capable": false,
           "Startup Cost": 0.0,
-          "Total Cost": 2.65,
+          "Total Cost": 2.64,
           "Plan Rows": 31,
           "Plan Width": 4,
           "Actual Startup Time": 0.002,
-          "Actual Total Time": 0.051,
-          "Actual Rows": 100,
+          "Actual Total Time": 0.009,
+          "Actual Rows": 10,
           "Actual Loops": 1,
           "Plans": [
             {
@@ -64,19 +64,19 @@
               "Actual Startup Time": 0.0,
               "Actual Total Time": 0.0,
               "Actual Rows": 1,
-              "Actual Loops": 100,
+              "Actual Loops": 10,
               "Output": [
                 "(x_1.i + 1)"
               ],
-              "Filter": "(x_1.i < 100)",
+              "Filter": "(x_1.i < 10)",
               "Rows Removed by Filter": 0
             }
           ]
         }
       ]
     },
-    "Planning Time": 0.8,
+    "Planning Time": 0.07,
     "Triggers": [],
-    "Execution Time": 0.116
+    "Execution Time": 0.032
   }
 ]

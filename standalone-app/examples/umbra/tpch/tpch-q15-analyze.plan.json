@@ -1,0 +1,133 @@
+{
+ "plan":{
+  "operator":"sort",
+  "physicalOperator":"sort",
+  "cardinality":56,
+  "operatorId":1,"analyzePlanId":0,"analyzePlanCardinality":1,"analyzePlanCounters":{},
+  "sourceLocation":{"startLine":36, "startColumn":2, "endLine":36, "endColumn":11},
+  "input":{
+   "operator":"join",
+   "physicalOperator":"hashjoin",
+   "cardinality":56,
+   "operatorId":2,"analyzePlanId":1,"analyzePlanCardinality":1,"analyzePlanCounters":{"slots":16,"chains":1,"minmaxbounds":"on","hashtable":"compact","min":"5226","filter":"off","chaining":"on","max":"5226"},
+   "left":{
+    "operator":"join",
+    "physicalOperator":"singletonjoin",
+    "cardinality":45,
+    "operatorId":3,"analyzePlanId":2,"analyzePlanCardinality":1,"analyzePlanCounters":{},
+    "left":{
+     "operator":"groupby",
+     "physicalOperator":"ungroupedaggregation",
+     "cardinality":1,
+     "operatorId":4,"analyzePlanId":3,"analyzePlanCardinality":1,"analyzePlanCounters":{},
+     "sourceLocation":{"startLine":30, "startColumn":3, "endLine":33, "endColumn":11},
+     "input":{
+      "operator":"pipelinebreakerscan",
+      "physicalOperator":"groupbyscan",
+      "cardinality":45,
+      "operatorId":5,"analyzePlanId":4,"analyzePlanCardinality":50,"analyzePlanCounters":{},
+      "sourceLocation":{"startLine":33, "startColumn":4, "endLine":33, "endColumn":11},
+      "pipelineBreaker":{
+       "operator":"groupby",
+       "physicalOperator":"groupby",
+       "cardinality":45,
+       "operatorId":6,"analyzePlanId":5,"analyzePlanCardinality":50,"analyzePlanCounters":{},
+       "sourceLocation":{"startLine":16, "startColumn":2, "endLine":17, "endColumn":12},
+       "input":{
+        "operator":"earlyexecution",
+        "physicalOperator":"earlyexecution",
+        "cardinality":50,
+        "operatorId":7,"analyzePlanId":6,"analyzePlanCardinality":50,"analyzePlanCounters":{},
+        "attributes":[{"name":"l_suppkey", "iu":"l_suppkey"}, {"name":"l_extendedprice", "iu":"l_extendedprice"}, {"name":"l_discount", "iu":"l_discount"}],
+        "restrictions":[],
+        "residuals":[],
+        "input":{
+         "operator":"tablescan",
+         "physicalOperator":"tablescan",
+         "cardinality":1,
+         "operatorId":8,"analyzePlanId":7,"analyzePlanCardinality":0,"analyzePlanCounters":{},
+         "sourceLocation":{"startLine":12, "startColumn":3, "endLine":12, "endColumn":11},
+         "attributes":[{"name":"l_orderkey", "iu":"l_orderkey"}, {"name":"l_partkey", "iu":"l_partkey"}, {"name":"l_suppkey", "iu":"l_suppkey6"}, {"name":"l_linenumber", "iu":"l_linenumber"}, {"name":"l_quantity", "iu":"l_quantity"}, {"name":"l_extendedprice", "iu":"l_extendedprice9"}, {"name":"l_discount", "iu":"l_discount10"}, {"name":"l_tax", "iu":"l_tax"}, {"name":"l_returnflag", "iu":"l_returnflag"}, {"name":"l_linestatus", "iu":"l_linestatus"}, {"name":"l_shipdate", "iu":"l_shipdate"}, {"name":"l_commitdate", "iu":"l_commitdate"}, {"name":"l_receiptdate", "iu":"l_receiptdate"}, {"name":"l_shipinstruct", "iu":"l_shipinstruct"}, {"name":"l_shipmode", "iu":"l_shipmode"}, {"name":"l_comment", "iu":"l_comment"}],
+         "restrictions":[{"attribute":10, "mode":"[]", "value":{"expression":"const", "id":2, "sourceLocation":{"startLine":14, "startColumn":17, "endLine":14, "endColumn":34}, "value":{"type":{"type":"date"}, "value":2450084}}, "upper":{"expression":"const", "id":5, "sourceLocation":{"startLine":15, "startColumn":20, "endLine":15, "endColumn":37}, "value":{"type":{"type":"date"}, "value":2450174}}, "estimatedSelectivity":-1, "collate":""}],
+         "residuals":[],
+         "tid":"tid",
+         "tableoid":"tableoid",
+         "rowstate":"rowstate",
+         "schema":"pg_temp",
+         "table":{"type":"temporarytable", "id":7},
+         "tableSize":572,
+         "tablename":"lineitem"
+        },
+        "mapping":{"mapping":[{"key":"l_suppkey6", "value":"l_suppkey"}, {"key":"l_extendedprice9", "value":"l_extendedprice"}, {"key":"l_discount10", "value":"l_discount"}]},
+        "result":0
+       },
+       "values":[{"expression":"iuref", "id":8, "sourceLocation":{"startLine":17, "startColumn":3, "endLine":17, "endColumn":12}, "iu":"l_suppkey"}, {"expression":"mul", "id":14, "sourceLocation":{"startLine":10, "startColumn":7, "endLine":10, "endColumn":41}, "left":{"expression":"iuref", "id":10, "sourceLocation":{"startLine":10, "startColumn":7, "endLine":10, "endColumn":22}, "iu":"l_extendedprice"}, "right":{"expression":"sub", "id":13, "sourceLocation":{"startLine":10, "startColumn":26, "endLine":10, "endColumn":40}, "left":{"expression":"const", "id":11, "sourceLocation":{"startLine":10, "startColumn":26, "endLine":10, "endColumn":27}, "value":{"type":{"type":"numeric", "precision":10}, "value":1}}, "right":{"expression":"iuref", "id":12, "sourceLocation":{"startLine":10, "startColumn":30, "endLine":10, "endColumn":40}, "iu":"l_discount"}}}],
+       "key":[{"arg":0, "iu":"l_suppkey23", "collate":""}],
+       "groupingmode":"regular",
+       "aggregates":[{"op":"sum", "arg":1, "collate":"", "iu":"sum()"}],
+       "orders":[],
+       "groupingsets":[],
+       "sortlimitorder":[]
+      },
+      "scannedOperator":6,
+      "output":[{"originalIU":"sum()", "iu":"total_revenue"}]
+     },
+     "values":[{"expression":"iuref", "id":33, "sourceLocation":{"startLine":31, "startColumn":8, "endLine":31, "endColumn":21}, "iu":"total_revenue"}],
+     "key":[],
+     "groupingmode":"regular",
+     "aggregates":[{"op":"max", "arg":0, "collate":"", "iu":"max(total_revenue)"}],
+     "orders":[],
+     "groupingsets":[],
+     "sortlimitorder":[]
+    },
+    "right":{
+     "operator":"pipelinebreakerscan",
+     "physicalOperator":"groupbyscan",
+     "cardinality":45,
+     "operatorId":9,"analyzePlanId":8,"analyzePlanCardinality":50,"analyzePlanCounters":{},
+     "sourceLocation":{"startLine":26, "startColumn":2, "endLine":26, "endColumn":9},
+     "scannedOperator":6,
+     "output":[{"originalIU":"l_suppkey23", "iu":"supplier_no"}, {"originalIU":"sum()", "iu":"total_revenue28"}]
+    },
+    "condition":{"expression":"compare", "id":37, "sourceLocation":{"startLine":29, "startColumn":6, "endLine":34, "endColumn":3}, "left":{"expression":"iuref", "id":26, "sourceLocation":{"startLine":29, "startColumn":6, "endLine":29, "endColumn":19}, "iu":"total_revenue28"}, "right":{"expression":"iuref", "id":35, "sourceLocation":{"startLine":29, "startColumn":22, "endLine":34, "endColumn":3}, "iu":"max(total_revenue)"}, "direction":"=", "collate":""},
+    "type":"inner",
+    "forcedestimate":45
+   },
+   "right":{
+    "operator":"tablescan",
+    "physicalOperator":"tablescan",
+    "cardinality":1,
+    "operatorId":10,"analyzePlanId":9,"analyzePlanCardinality":518,"analyzePlanCounters":{},
+    "sourceLocation":{"startLine":25, "startColumn":2, "endLine":25, "endColumn":10},
+    "attributes":[{"name":"s_suppkey", "iu":"s_suppkey"}, {"name":"s_name", "iu":"s_name"}, {"name":"s_address", "iu":"s_address"}, {"name":"s_nationkey", "iu":"s_nationkey"}, {"name":"s_phone", "iu":"s_phone"}, {"name":"s_acctbal", "iu":"s_acctbal"}, {"name":"s_comment", "iu":"s_comment"}],
+    "restrictions":[{"attribute":0, "mode":"minmax", "value":{"expression":"iuref", "id":60, "iu":"supplier_no"}, "op":2, "estimatedSelectivity":0.0023910522417859, "collate":""}],
+    "residuals":[],
+    "tid":"tid36",
+    "tableoid":"tableoid37",
+    "rowstate":"rowstate38",
+    "schema":"pg_temp",
+    "table":{"type":"temporarytable", "id":3},
+    "tableSize":518,
+    "tablename":"supplier"
+   },
+   "condition":{"expression":"compare", "id":25, "sourceLocation":{"startLine":28, "startColumn":2, "endLine":28, "endColumn":25}, "left":{"expression":"iuref", "id":23, "sourceLocation":{"startLine":28, "startColumn":2, "endLine":28, "endColumn":11}, "iu":"s_suppkey"}, "right":{"expression":"iuref", "id":24, "sourceLocation":{"startLine":28, "startColumn":14, "endLine":28, "endColumn":25}, "iu":"supplier_no"}, "direction":"=", "collate":""},
+   "type":"inner",
+   "minmaxbounds":true,
+   "minmaxboundius":[{"expression":"iuref", "id":61, "iu":"supplier_no"}],
+   "forcedestimate":55.73542775602933
+  },
+  "order":[{"value":{"expression":"iuref", "id":44, "iu":"s_suppkey"}, "collate":""}]
+ },
+ "ius":[{"iu":"l_orderkey", "type":{"type":"integer"}, "sourceLocation":{"startLine":12, "startColumn":3, "endLine":12, "endColumn":11}}, {"iu":"l_partkey", "type":{"type":"integer"}, "sourceLocation":{"startLine":12, "startColumn":3, "endLine":12, "endColumn":11}}, {"iu":"l_suppkey6", "type":{"type":"integer"}, "sourceLocation":{"startLine":12, "startColumn":3, "endLine":12, "endColumn":11}}, {"iu":"l_linenumber", "type":{"type":"integer"}, "sourceLocation":{"startLine":12, "startColumn":3, "endLine":12, "endColumn":11}}, {"iu":"l_quantity", "type":{"type":"numeric", "precision":12, "scale":2}, "sourceLocation":{"startLine":12, "startColumn":3, "endLine":12, "endColumn":11}}, {"iu":"l_extendedprice9", "type":{"type":"numeric", "precision":12, "scale":2}, "sourceLocation":{"startLine":12, "startColumn":3, "endLine":12, "endColumn":11}}, {"iu":"l_discount10", "type":{"type":"numeric", "precision":12, "scale":2}, "sourceLocation":{"startLine":12, "startColumn":3, "endLine":12, "endColumn":11}}, {"iu":"l_tax", "type":{"type":"numeric", "precision":12, "scale":2}, "sourceLocation":{"startLine":12, "startColumn":3, "endLine":12, "endColumn":11}}, {"iu":"l_returnflag", "type":{"type":"char1"}, "sourceLocation":{"startLine":12, "startColumn":3, "endLine":12, "endColumn":11}}, {"iu":"l_linestatus", "type":{"type":"char1"}, "sourceLocation":{"startLine":12, "startColumn":3, "endLine":12, "endColumn":11}}, {"iu":"l_shipdate", "type":{"type":"date"}, "sourceLocation":{"startLine":12, "startColumn":3, "endLine":12, "endColumn":11}}, {"iu":"l_commitdate", "type":{"type":"date"}, "sourceLocation":{"startLine":12, "startColumn":3, "endLine":12, "endColumn":11}}, {"iu":"l_receiptdate", "type":{"type":"date"}, "sourceLocation":{"startLine":12, "startColumn":3, "endLine":12, "endColumn":11}}, {"iu":"l_shipinstruct", "type":{"type":"char", "precision":25}, "sourceLocation":{"startLine":12, "startColumn":3, "endLine":12, "endColumn":11}}, {"iu":"l_shipmode", "type":{"type":"char", "precision":10}, "sourceLocation":{"startLine":12, "startColumn":3, "endLine":12, "endColumn":11}}, {"iu":"l_comment", "type":{"type":"text", "precision":44}, "sourceLocation":{"startLine":12, "startColumn":3, "endLine":12, "endColumn":11}}, {"iu":"tid", "type":{"type":"bigint"}}, {"iu":"tableoid", "type":{"type":"integer"}}, {"iu":"rowstate", "type":{"type":"bigint"}}, {"iu":"l_suppkey23", "type":{"type":"integer"}, "sourceLocation":{"startLine":9, "startColumn":3, "endLine":9, "endColumn":12}}, {"iu":"sum()", "type":{"type":"bignumeric", "precision":38, "scale":4}, "sourceLocation":{"startLine":10, "startColumn":3, "endLine":10, "endColumn":42}}, {"iu":"s_suppkey", "type":{"type":"integer"}, "sourceLocation":{"startLine":25, "startColumn":2, "endLine":25, "endColumn":10}}, {"iu":"s_name", "type":{"type":"char", "precision":25}, "sourceLocation":{"startLine":25, "startColumn":2, "endLine":25, "endColumn":10}}, {"iu":"s_address", "type":{"type":"text", "precision":40}, "sourceLocation":{"startLine":25, "startColumn":2, "endLine":25, "endColumn":10}}, {"iu":"s_nationkey", "type":{"type":"integer"}, "sourceLocation":{"startLine":25, "startColumn":2, "endLine":25, "endColumn":10}}, {"iu":"s_phone", "type":{"type":"char", "precision":15}, "sourceLocation":{"startLine":25, "startColumn":2, "endLine":25, "endColumn":10}}, {"iu":"s_acctbal", "type":{"type":"numeric", "precision":12, "scale":2}, "sourceLocation":{"startLine":25, "startColumn":2, "endLine":25, "endColumn":10}}, {"iu":"s_comment", "type":{"type":"text", "precision":101}, "sourceLocation":{"startLine":25, "startColumn":2, "endLine":25, "endColumn":10}}, {"iu":"tid36", "type":{"type":"bigint"}}, {"iu":"tableoid37", "type":{"type":"integer"}}, {"iu":"rowstate38", "type":{"type":"bigint"}}, {"iu":"supplier_no", "type":{"type":"integer"}, "sourceLocation":{"startLine":9, "startColumn":3, "endLine":9, "endColumn":12}}, {"iu":"total_revenue28", "type":{"type":"bignumeric", "precision":38, "scale":4}, "sourceLocation":{"startLine":10, "startColumn":3, "endLine":10, "endColumn":42}}, {"iu":"total_revenue", "type":{"type":"bignumeric", "precision":38, "scale":4}, "sourceLocation":{"startLine":10, "startColumn":3, "endLine":10, "endColumn":42}}, {"iu":"max(total_revenue)", "type":{"type":"bignumeric", "precision":38, "scale":4}, "sourceLocation":{"startLine":31, "startColumn":4, "endLine":31, "endColumn":22}}, {"iu":"l_suppkey", "type":{"type":"integer"}, "sourceLocation":{"startLine":12, "startColumn":3, "endLine":12, "endColumn":11}}, {"iu":"l_extendedprice", "type":{"type":"numeric", "precision":12, "scale":2}, "sourceLocation":{"startLine":12, "startColumn":3, "endLine":12, "endColumn":11}}, {"iu":"l_discount", "type":{"type":"numeric", "precision":12, "scale":2}, "sourceLocation":{"startLine":12, "startColumn":3, "endLine":12, "endColumn":11}}],
+ "output":[{"name":"s_suppkey", "iu":{"expression":"iuref", "id":45, "iu":"s_suppkey"}}, {"name":"s_name", "iu":{"expression":"iuref", "id":46, "iu":"s_name"}}, {"name":"s_address", "iu":{"expression":"iuref", "id":47, "iu":"s_address"}}, {"name":"s_phone", "iu":{"expression":"iuref", "id":48, "iu":"s_phone"}}, {"name":"total_revenue", "iu":{"expression":"iuref", "id":49, "iu":"total_revenue28"}}],
+ "type":"select",
+ "query":true,
+ "analyzePlanPipelines":[
+  {"pipelineId":0,"start":25,"stop":150,"duration":125,"parallelism":"multi-threaded","operators":[6],"counters":{}},
+  {"pipelineId":1,"start":152,"stop":228,"duration":76,"parallelism":"multi-threaded","operators":[4],"counters":{}},
+  {"pipelineId":2,"start":229,"stop":231,"duration":2,"parallelism":"single-threaded","operators":[3],"counters":{}},
+  {"pipelineId":3,"start":231,"stop":414,"duration":183,"parallelism":"multi-threaded","operators":[2,8],"counters":{}},
+  {"pipelineId":4,"start":416,"stop":477,"duration":61,"parallelism":"multi-threaded","operators":[1,9],"counters":{}},
+  {"pipelineId":5,"start":479,"stop":482,"duration":3,"parallelism":"multi-threaded","operators":[0],"counters":{}}
+ ]
+}

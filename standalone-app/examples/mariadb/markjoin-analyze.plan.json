@@ -1,0 +1,61 @@
+{
+  "query_optimization": {
+    "r_total_time_ms": 0.035654018
+  },
+  "query_block": {
+    "select_id": 1,
+    "r_loops": 1,
+    "r_total_time_ms": 50.9289728,
+    "nested_loop": [
+      {
+        "table": {
+          "table_name": "supplier",
+          "access_type": "ALL",
+          "r_loops": 1,
+          "rows": 518,
+          "r_rows": 518,
+          "r_table_time_ms": 0.148109379,
+          "r_other_time_ms": 0.110562985,
+          "r_engine_stats": {
+            "pages_accessed": 6
+          },
+          "filtered": 100,
+          "r_filtered": 100
+        }
+      }
+    ],
+    "subqueries": [
+      {
+        "expression_cache": {
+          "state": "disabled",
+          "r_loops": 200,
+          "r_hit_ratio": 0,
+          "query_block": {
+            "select_id": 2,
+            "r_loops": 518,
+            "r_total_time_ms": 50.57404258,
+            "nested_loop": [
+              {
+                "table": {
+                  "table_name": "partsupp",
+                  "access_type": "ALL",
+                  "r_loops": 518,
+                  "rows": 537,
+                  "r_rows": 493.9362934,
+                  "r_table_time_ms": 41.12288115,
+                  "r_other_time_ms": 9.329473458,
+                  "r_engine_stats": {
+                    "pages_accessed": 1973
+                  },
+                  "filtered": 100,
+                  "r_filtered": 0.030876381,
+                  "attached_condition": "partsupp.ps_suppkey = supplier.s_suppkey and supplier.s_acctbal < partsupp.ps_supplycost"
+                }
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

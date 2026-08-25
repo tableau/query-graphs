@@ -1,0 +1,184 @@
+{
+  "query_optimization": {
+    "r_total_time_ms": 0.366298856
+  },
+  "query_block": {
+    "select_id": 1,
+    "r_loops": 1,
+    "r_total_time_ms": 87.83490208,
+    "filesort": {
+      "sort_key": "count(0) desc, supplier.s_name",
+      "r_loops": 1,
+      "r_total_time_ms": 0.006377329,
+      "r_limit": 100,
+      "r_used_priority_queue": false,
+      "r_output_rows": 1,
+      "r_buffer_size": "1Kb",
+      "r_sort_mode": "sort_key,rowid",
+      "temporary_table": {
+        "nested_loop": [
+          {
+            "table": {
+              "table_name": "nation",
+              "access_type": "ALL",
+              "r_loops": 1,
+              "rows": 25,
+              "r_rows": 25,
+              "r_table_time_ms": 0.02757081,
+              "r_other_time_ms": 0.013076516,
+              "r_engine_stats": {
+                "pages_accessed": 1
+              },
+              "filtered": 4,
+              "r_filtered": 4,
+              "attached_condition": "nation.n_name = 'SAUDI ARABIA'"
+            }
+          },
+          {
+            "block-nl-join": {
+              "table": {
+                "table_name": "orders",
+                "access_type": "ALL",
+                "r_loops": 1,
+                "rows": 128,
+                "r_rows": 128,
+                "r_table_time_ms": 0.083209755,
+                "r_other_time_ms": 0.020450167,
+                "r_engine_stats": {
+                  "pages_accessed": 1
+                },
+                "filtered": 56.25,
+                "r_filtered": 57.03125,
+                "attached_condition": "orders.o_orderstatus = 'F'"
+              },
+              "buffer_type": "flat",
+              "buffer_size": "1Kb",
+              "join_type": "BNL",
+              "r_loops": 1,
+              "r_filtered": 100,
+              "r_unpack_time_ms": 0.00805012,
+              "r_other_time_ms": 0.012777719,
+              "r_effective_rows": 73
+            }
+          },
+          {
+            "block-nl-join": {
+              "table": {
+                "table_name": "supplier",
+                "access_type": "ALL",
+                "r_loops": 1,
+                "rows": 518,
+                "r_rows": 518,
+                "r_table_time_ms": 0.350442265,
+                "r_other_time_ms": 0.038866246,
+                "r_engine_stats": {
+                  "pages_accessed": 6
+                },
+                "filtered": 100,
+                "r_filtered": 100
+              },
+              "buffer_type": "incremental",
+              "buffer_size": "1022",
+              "join_type": "BNL",
+              "attached_condition": "supplier.s_nationkey = nation.n_nationkey",
+              "r_loops": 73,
+              "r_filtered": 6.756756757,
+              "r_unpack_time_ms": 5.686008259,
+              "r_other_time_ms": 3.271976177,
+              "r_effective_rows": 518
+            }
+          },
+          {
+            "block-nl-join": {
+              "table": {
+                "table_name": "l1",
+                "access_type": "ALL",
+                "r_loops": 1,
+                "rows": 572,
+                "r_rows": 572,
+                "r_table_time_ms": 0.344422221,
+                "r_other_time_ms": 0.317513509,
+                "r_engine_stats": {
+                  "pages_accessed": 6
+                },
+                "filtered": 100,
+                "r_filtered": 4.72027972,
+                "attached_condition": "l1.l_receiptdate > l1.l_commitdate and !<in_optimizer>(1,exists(subquery#3))"
+              },
+              "buffer_type": "incremental",
+              "buffer_size": "256Kb",
+              "join_type": "BNL",
+              "attached_condition": "l1.l_suppkey = supplier.s_suppkey and l1.l_orderkey = orders.o_orderkey",
+              "r_loops": 2555,
+              "r_filtered": 0.005798362,
+              "r_unpack_time_ms": 13.56665725,
+              "r_other_time_ms": 5.13273077,
+              "r_effective_rows": 27
+            }
+          },
+          {
+            "block-nl-join": {
+              "table": {
+                "table_name": "l2",
+                "access_type": "ALL",
+                "r_loops": 1,
+                "rows": 572,
+                "r_rows": 572,
+                "r_table_time_ms": 0.092793629,
+                "r_other_time_ms": 0.017950505,
+                "r_engine_stats": {
+                  "pages_accessed": 6
+                },
+                "filtered": 100,
+                "r_filtered": 100,
+                "first_match": "l1"
+              },
+              "buffer_type": "incremental",
+              "buffer_size": "256Kb",
+              "join_type": "BNL",
+              "attached_condition": "l2.l_orderkey = orders.o_orderkey and l2.l_suppkey <> supplier.s_suppkey",
+              "r_loops": 4,
+              "r_filtered": 0.043706294,
+              "r_unpack_time_ms": 0.171199916,
+              "r_other_time_ms": 0.083567374,
+              "r_effective_rows": 572
+            }
+          }
+        ],
+        "subqueries": [
+          {
+            "expression_cache": {
+              "state": "disabled",
+              "r_loops": 200,
+              "r_hit_ratio": 0,
+              "query_block": {
+                "select_id": 3,
+                "r_loops": 349,
+                "r_total_time_ms": 58.32087829,
+                "nested_loop": [
+                  {
+                    "table": {
+                      "table_name": "l3",
+                      "access_type": "ALL",
+                      "r_loops": 349,
+                      "rows": 572,
+                      "r_rows": 314.0744986,
+                      "r_table_time_ms": 49.23091212,
+                      "r_other_time_ms": 8.72118336,
+                      "r_engine_stats": {
+                        "pages_accessed": 1536
+                      },
+                      "filtered": 100,
+                      "r_filtered": 0.293763457,
+                      "attached_condition": "l3.l_orderkey = l1.l_orderkey and l3.l_suppkey <> l1.l_suppkey and l3.l_receiptdate > l3.l_commitdate"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

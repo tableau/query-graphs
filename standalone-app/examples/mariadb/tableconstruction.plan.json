@@ -1,0 +1,16 @@
+{
+  "query_block": {
+    "union_result": {
+      "query_specifications": [
+        {
+          "query_block": {
+            "select_id": 1,
+            "table": {
+              "message": "No tables used"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

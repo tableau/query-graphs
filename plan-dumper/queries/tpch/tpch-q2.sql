@@ -1,3 +1,6 @@
+-- UNSUPPORTED: cedardb:analyze
+-- CedarDB v2026-08-13 hits an internal Pipeline::getRawLocalStatePtr assertion
+-- during EXPLAIN ANALYZE; plain EXPLAIN succeeds.
 -- MODES: simple, analyze, steps
 -- This query is derived from TPC-H query 2
 -- THE TPC SOFTWARE IS AVAILABLE WITHOUT CHARGE FROM TPC.
