@@ -7,7 +7,7 @@ Refresh these examples from time to time when new versions are published, so the
 
 ## What Is Here
 
-* `dump-plans.py` — runs each query against every configured database and writes the `EXPLAIN` output as JSON into `standalone-app/examples/<db>/`.
+* `dump-plans.py` — runs each query against every configured database, writes the `EXPLAIN` output as JSON into `standalone-app/examples/<db>/`, and updates `standalone-app/examples/index.json` with the database versions and generated plan paths.
 * `filter-timing-diff.py` — strips volatile runtime measurements out of a `git diff`, so regenerating the plans doesn't drown real changes in noise.
   See [Cleaning Up Runtime Noise](#cleaning-up-runtime-noise).
 * `queries/` — the SQL queries to explain, including a `tpch/` subfolder of TPC-H queries.
