@@ -1,0 +1,157 @@
+{
+  "query_optimization": {
+    "r_total_time_ms": 0.098637871
+  },
+  "query_block": {
+    "select_id": 1,
+    "r_loops": 1,
+    "r_total_time_ms": 0.692237151,
+    "nested_loop": [
+      {
+        "read_sorted_file": {
+          "r_rows": 518,
+          "filesort": {
+            "sort_key": "supplier.s_suppkey",
+            "r_loops": 1,
+            "r_total_time_ms": 0.236744593,
+            "r_used_priority_queue": false,
+            "r_output_rows": 518,
+            "r_buffer_size": "248Kb",
+            "r_sort_mode": "sort_key,packed_addon_fields",
+            "table": {
+              "table_name": "supplier",
+              "access_type": "ALL",
+              "r_loops": 1,
+              "rows": 518,
+              "r_rows": 518,
+              "r_table_time_ms": 0.106399556,
+              "r_other_time_ms": 0.125539898,
+              "r_engine_stats": {
+                "pages_accessed": 6
+              },
+              "filtered": 100,
+              "r_filtered": 100
+            }
+          }
+        }
+      },
+      {
+        "table": {
+          "table_name": "<derived2>",
+          "access_type": "ref",
+          "possible_keys": ["key0"],
+          "key": "key0",
+          "key_length": "4",
+          "used_key_parts": ["supplier_no"],
+          "ref": ["query_graphs_plan_dumper.supplier.s_suppkey"],
+          "r_loops": 518,
+          "rows": 5,
+          "r_rows": 0.096525097,
+          "r_table_time_ms": 0.033456495,
+          "r_other_time_ms": 0.059500904,
+          "filtered": 100,
+          "r_filtered": 2,
+          "attached_condition": "revenue.total_revenue = (subquery#3)",
+          "materialized": {
+            "query_block": {
+              "select_id": 2,
+              "r_loops": 1,
+              "r_total_time_ms": 0.189682505,
+              "filesort": {
+                "sort_key": "lineitem.l_suppkey",
+                "r_loops": 1,
+                "r_total_time_ms": 0.007138691,
+                "r_used_priority_queue": false,
+                "r_output_rows": 50,
+                "r_buffer_size": "1Kb",
+                "r_sort_mode": "sort_key,rowid",
+                "temporary_table": {
+                  "nested_loop": [
+                    {
+                      "table": {
+                        "table_name": "lineitem",
+                        "access_type": "ALL",
+                        "r_loops": 1,
+                        "rows": 572,
+                        "r_rows": 572,
+                        "r_table_time_ms": 0.114687978,
+                        "r_other_time_ms": 0.051977186,
+                        "r_engine_stats": {
+                          "pages_accessed": 6
+                        },
+                        "filtered": 9.375,
+                        "r_filtered": 8.741258741,
+                        "attached_condition": "lineitem.l_shipdate >= DATE'1996-01-01' and lineitem.l_shipdate < DATE'1996-04-01'"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    ],
+    "subqueries": [
+      {
+        "query_block": {
+          "select_id": 3,
+          "r_loops": 1,
+          "r_total_time_ms": 0.180142749,
+          "nested_loop": [
+            {
+              "table": {
+                "table_name": "<derived4>",
+                "access_type": "ALL",
+                "r_loops": 1,
+                "rows": 53,
+                "r_rows": 50,
+                "r_table_time_ms": 0.004093242,
+                "r_other_time_ms": 0.009869636,
+                "filtered": 100,
+                "r_filtered": 100,
+                "materialized": {
+                  "query_block": {
+                    "select_id": 4,
+                    "r_loops": 1,
+                    "r_total_time_ms": 0.173087613,
+                    "filesort": {
+                      "sort_key": "lineitem.l_suppkey",
+                      "r_loops": 1,
+                      "r_total_time_ms": 0.005553132,
+                      "r_used_priority_queue": false,
+                      "r_output_rows": 50,
+                      "r_buffer_size": "1Kb",
+                      "r_sort_mode": "sort_key,rowid",
+                      "temporary_table": {
+                        "nested_loop": [
+                          {
+                            "table": {
+                              "table_name": "lineitem",
+                              "access_type": "ALL",
+                              "r_loops": 1,
+                              "rows": 572,
+                              "r_rows": 572,
+                              "r_table_time_ms": 0.11351318,
+                              "r_other_time_ms": 0.044441437,
+                              "r_engine_stats": {
+                                "pages_accessed": 6
+                              },
+                              "filtered": 9.375,
+                              "r_filtered": 8.741258741,
+                              "attached_condition": "lineitem.l_shipdate >= DATE'1996-01-01' and lineitem.l_shipdate < DATE'1996-04-01'"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

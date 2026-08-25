@@ -1,0 +1,110 @@
+{
+  "query_optimization": {
+    "r_total_time_ms": 0.102939
+  },
+  "query_block": {
+    "select_id": 1,
+    "r_loops": 1,
+    "r_total_time_ms": 3.368998075,
+    "filesort": {
+      "sort_key": "count(distinct partsupp.ps_suppkey) desc, part.p_brand, part.p_type, part.p_size",
+      "r_loops": 1,
+      "r_total_time_ms": 0.015558463,
+      "r_used_priority_queue": false,
+      "r_output_rows": 81,
+      "r_buffer_size": "15Kb",
+      "r_sort_mode": "packed_sort_key,rowid",
+      "temporary_table": {
+        "filesort": {
+          "sort_key": "part.p_brand, part.p_type, part.p_size",
+          "r_loops": 1,
+          "r_total_time_ms": 0.020990273,
+          "r_used_priority_queue": false,
+          "r_output_rows": 81,
+          "r_buffer_size": "14Kb",
+          "r_sort_mode": "packed_sort_key,rowid",
+          "temporary_table": {
+            "nested_loop": [
+              {
+                "table": {
+                  "table_name": "part",
+                  "access_type": "ALL",
+                  "r_loops": 1,
+                  "rows": 533,
+                  "r_rows": 533,
+                  "r_table_time_ms": 0.115319995,
+                  "r_other_time_ms": 0.079573063,
+                  "r_engine_stats": {
+                    "pages_accessed": 7
+                  },
+                  "filtered": 16.40625,
+                  "r_filtered": 15.19699812,
+                  "attached_condition": "part.p_brand <> 'Brand#45' and part.p_type  not like 'MEDIUM POLISHED%' and part.p_size in (49,14,23,45,19,3,36,9)"
+                }
+              },
+              {
+                "block-nl-join": {
+                  "table": {
+                    "table_name": "partsupp",
+                    "access_type": "ALL",
+                    "r_loops": 1,
+                    "rows": 537,
+                    "r_rows": 537,
+                    "r_table_time_ms": 0.092801985,
+                    "r_other_time_ms": 0.087956739,
+                    "r_engine_stats": {
+                      "pages_accessed": 4
+                    },
+                    "filtered": 100,
+                    "r_filtered": 100,
+                    "attached_condition": "!<in_optimizer>(partsupp.ps_suppkey,partsupp.ps_suppkey in (subquery#2))"
+                  },
+                  "buffer_type": "flat",
+                  "buffer_size": "13Kb",
+                  "join_type": "BNL",
+                  "attached_condition": "partsupp.ps_partkey = part.p_partkey",
+                  "r_loops": 81,
+                  "r_filtered": 0.186219739,
+                  "r_unpack_time_ms": 1.795175157,
+                  "r_other_time_ms": 1.017882666,
+                  "r_effective_rows": 537
+                }
+              }
+            ],
+            "subqueries": [
+              {
+                "materialization": {
+                  "r_strategy": "undefined",
+                  "query_block": {
+                    "select_id": 2,
+                    "r_loops": 1,
+                    "r_total_time_ms": 0.112168597,
+                    "nested_loop": [
+                      {
+                        "table": {
+                          "table_name": "supplier",
+                          "access_type": "ALL",
+                          "r_loops": 1,
+                          "rows": 518,
+                          "r_rows": 518,
+                          "r_table_time_ms": 0.088060348,
+                          "r_other_time_ms": 0.023323825,
+                          "r_engine_stats": {
+                            "pages_accessed": 6
+                          },
+                          "filtered": 100,
+                          "r_filtered": 0,
+                          "attached_condition": "supplier.s_comment like '%Customer%Complaints%'"
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,173 @@
+{
+  "query_optimization": {
+    "r_total_time_ms": 0.144377434
+  },
+  "query_block": {
+    "select_id": 1,
+    "r_loops": 1,
+    "r_total_time_ms": 103670.0216,
+    "filesort": {
+      "sort_key": "nation.n_name, extract(year from orders.o_orderdate) desc",
+      "r_loops": 1,
+      "r_total_time_ms": 0.024914397,
+      "r_used_priority_queue": false,
+      "r_output_rows": 27,
+      "r_buffer_size": "2Kb",
+      "r_sort_mode": "sort_key,rowid",
+      "temporary_table": {
+        "nested_loop": [
+          {
+            "table": {
+              "table_name": "nation",
+              "access_type": "ALL",
+              "r_loops": 1,
+              "rows": 25,
+              "r_rows": 25,
+              "r_table_time_ms": 0.009911748,
+              "r_other_time_ms": 0.004016036,
+              "r_engine_stats": {
+                "pages_accessed": 1
+              },
+              "filtered": 100,
+              "r_filtered": 100
+            }
+          },
+          {
+            "block-nl-join": {
+              "table": {
+                "table_name": "orders",
+                "access_type": "ALL",
+                "r_loops": 1,
+                "rows": 128,
+                "r_rows": 128,
+                "r_table_time_ms": 0.024146016,
+                "r_other_time_ms": 0.003462895,
+                "r_engine_stats": {
+                  "pages_accessed": 1
+                },
+                "filtered": 100,
+                "r_filtered": 100
+              },
+              "buffer_type": "flat",
+              "buffer_size": "2Kb",
+              "join_type": "BNL",
+              "r_loops": 25,
+              "r_filtered": 100,
+              "r_unpack_time_ms": 0.090593098,
+              "r_other_time_ms": 0.127637154,
+              "r_effective_rows": 128
+            }
+          },
+          {
+            "block-nl-join": {
+              "table": {
+                "table_name": "supplier",
+                "access_type": "ALL",
+                "r_loops": 1,
+                "rows": 518,
+                "r_rows": 518,
+                "r_table_time_ms": 0.124731744,
+                "r_other_time_ms": 0.011056466,
+                "r_engine_stats": {
+                  "pages_accessed": 6
+                },
+                "filtered": 100,
+                "r_filtered": 100
+              },
+              "buffer_type": "incremental",
+              "buffer_size": "40Kb",
+              "join_type": "BNL",
+              "attached_condition": "supplier.s_nationkey = nation.n_nationkey",
+              "r_loops": 3200,
+              "r_filtered": 4,
+              "r_unpack_time_ms": 70.17787028,
+              "r_other_time_ms": 38.62754005,
+              "r_effective_rows": 518
+            }
+          },
+          {
+            "block-nl-join": {
+              "table": {
+                "table_name": "part",
+                "access_type": "ALL",
+                "r_loops": 4,
+                "rows": 533,
+                "r_rows": 533,
+                "r_table_time_ms": 0.582274099,
+                "r_other_time_ms": 0.711005836,
+                "r_engine_stats": {
+                  "pages_accessed": 28
+                },
+                "filtered": 100,
+                "r_filtered": 5.253283302,
+                "attached_condition": "part.p_name like '%green%'"
+              },
+              "buffer_type": "incremental",
+              "buffer_size": "256Kb",
+              "join_type": "BNL",
+              "r_loops": 66304,
+              "r_filtered": 100,
+              "r_unpack_time_ms": 107.2960913,
+              "r_other_time_ms": 78.25489394,
+              "r_effective_rows": 28
+            }
+          },
+          {
+            "block-nl-join": {
+              "table": {
+                "table_name": "partsupp",
+                "access_type": "ALL",
+                "r_loops": 292,
+                "rows": 537,
+                "r_rows": 537,
+                "r_table_time_ms": 44.95408936,
+                "r_other_time_ms": 3.680218145,
+                "r_engine_stats": {
+                  "pages_accessed": 1168
+                },
+                "filtered": 100,
+                "r_filtered": 100
+              },
+              "buffer_type": "incremental",
+              "buffer_size": "256Kb",
+              "join_type": "BNL",
+              "attached_condition": "partsupp.ps_suppkey = supplier.s_suppkey and partsupp.ps_partkey = part.p_partkey",
+              "r_loops": 1856512,
+              "r_filtered": 3.594976e-4,
+              "r_unpack_time_ms": 78824.43553,
+              "r_other_time_ms": 24235.26718,
+              "r_effective_rows": 537
+            }
+          },
+          {
+            "block-nl-join": {
+              "table": {
+                "table_name": "lineitem",
+                "access_type": "ALL",
+                "r_loops": 28,
+                "rows": 572,
+                "r_rows": 572,
+                "r_table_time_ms": 4.307083747,
+                "r_other_time_ms": 0.322355413,
+                "r_engine_stats": {
+                  "pages_accessed": 168
+                },
+                "filtered": 100,
+                "r_filtered": 100
+              },
+              "buffer_type": "incremental",
+              "buffer_size": "256Kb",
+              "join_type": "BNL",
+              "attached_condition": "lineitem.l_suppkey = supplier.s_suppkey and lineitem.l_partkey = part.p_partkey and lineitem.l_orderkey = orders.o_orderkey",
+              "r_loops": 3584,
+              "r_filtered": 0.001365822,
+              "r_unpack_time_ms": 207.4010388,
+              "r_other_time_ms": 53.54952292,
+              "r_effective_rows": 572
+            }
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "query_optimization": {
+    "r_total_time_ms": 0.070908639
+  },
+  "query_block": {
+    "select_id": 1,
+    "r_loops": 1,
+    "r_total_time_ms": 0.826041407,
+    "window_functions_computation": {
+      "sorts": [
+        {
+          "filesort": {
+            "sort_key": "lineitem.l_shipdate",
+            "r_loops": 1,
+            "r_total_time_ms": 0.06179836,
+            "r_used_priority_queue": false,
+            "r_output_rows": 572,
+            "r_buffer_size": "11Kb",
+            "r_sort_mode": "sort_key,rowid"
+          }
+        },
+        {
+          "filesort": {
+            "sort_key": "lineitem.l_orderkey",
+            "r_loops": 1,
+            "r_total_time_ms": 0.055396298,
+            "r_used_priority_queue": false,
+            "r_output_rows": 572,
+            "r_buffer_size": "11Kb",
+            "r_sort_mode": "sort_key,rowid"
+          }
+        }
+      ],
+      "temporary_table": {
+        "nested_loop": [
+          {
+            "table": {
+              "table_name": "lineitem",
+              "access_type": "ALL",
+              "r_loops": 1,
+              "rows": 572,
+              "r_rows": 572,
+              "r_table_time_ms": 0.129797578,
+              "r_other_time_ms": 0.173499377,
+              "r_engine_stats": {
+                "pages_accessed": 6
+              },
+              "filtered": 100,
+              "r_filtered": 100
+            }
+          }
+        ]
+      }
+    }
+  }
+}

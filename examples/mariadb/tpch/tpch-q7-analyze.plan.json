@@ -1,0 +1,176 @@
+{
+  "query_optimization": {
+    "r_total_time_ms": 0.181116343
+  },
+  "query_block": {
+    "select_id": 1,
+    "r_loops": 1,
+    "r_total_time_ms": 6.056167737,
+    "filesort": {
+      "sort_key": "n1.n_name, n2.n_name, extract(year from lineitem.l_shipdate)",
+      "r_loops": 1,
+      "r_total_time_ms": 0.004784417,
+      "r_used_priority_queue": false,
+      "r_output_rows": 1,
+      "r_buffer_size": "3Kb",
+      "r_sort_mode": "packed_sort_key,rowid",
+      "temporary_table": {
+        "nested_loop": [
+          {
+            "table": {
+              "table_name": "n1",
+              "access_type": "ALL",
+              "r_loops": 1,
+              "rows": 25,
+              "r_rows": 25,
+              "r_table_time_ms": 0.013678119,
+              "r_other_time_ms": 0.008351925,
+              "r_engine_stats": {
+                "pages_accessed": 1
+              },
+              "filtered": 8,
+              "r_filtered": 8,
+              "attached_condition": "n1.n_name = 'FRANCE' or n1.n_name = 'GERMANY'"
+            }
+          },
+          {
+            "block-nl-join": {
+              "table": {
+                "table_name": "n2",
+                "access_type": "ALL",
+                "r_loops": 1,
+                "rows": 25,
+                "r_rows": 25,
+                "r_table_time_ms": 0.008980266,
+                "r_other_time_ms": 0.005640699,
+                "r_engine_stats": {
+                  "pages_accessed": 1
+                },
+                "filtered": 8,
+                "r_filtered": 8,
+                "attached_condition": "n2.n_name = 'GERMANY' or n2.n_name = 'FRANCE'"
+              },
+              "buffer_type": "flat",
+              "buffer_size": "1Kb",
+              "join_type": "BNL",
+              "attached_condition": "n1.n_name = 'FRANCE' and n2.n_name = 'GERMANY' or n1.n_name = 'GERMANY' and n2.n_name = 'FRANCE'",
+              "r_loops": 2,
+              "r_filtered": 50,
+              "r_unpack_time_ms": 0.0005227264,
+              "r_other_time_ms": 0.001601602,
+              "r_effective_rows": 2
+            }
+          },
+          {
+            "block-nl-join": {
+              "table": {
+                "table_name": "orders",
+                "access_type": "ALL",
+                "r_loops": 1,
+                "rows": 128,
+                "r_rows": 128,
+                "r_table_time_ms": 0.044495581,
+                "r_other_time_ms": 0.005774389,
+                "r_engine_stats": {
+                  "pages_accessed": 1
+                },
+                "filtered": 100,
+                "r_filtered": 100
+              },
+              "buffer_type": "incremental",
+              "buffer_size": "1Kb",
+              "join_type": "BNL",
+              "r_loops": 2,
+              "r_filtered": 100,
+              "r_unpack_time_ms": 0.026221882,
+              "r_other_time_ms": 0.023117274,
+              "r_effective_rows": 128
+            }
+          },
+          {
+            "block-nl-join": {
+              "table": {
+                "table_name": "customer",
+                "access_type": "ALL",
+                "r_loops": 1,
+                "rows": 129,
+                "r_rows": 129,
+                "r_table_time_ms": 0.031829493,
+                "r_other_time_ms": 0.006371981,
+                "r_engine_stats": {
+                  "pages_accessed": 1
+                },
+                "filtered": 100,
+                "r_filtered": 100
+              },
+              "buffer_type": "incremental",
+              "buffer_size": "7Kb",
+              "join_type": "BNL",
+              "attached_condition": "customer.c_custkey = orders.o_custkey and customer.c_nationkey = n2.n_nationkey",
+              "r_loops": 256,
+              "r_filtered": 0.036337209,
+              "r_unpack_time_ms": 2.192433854,
+              "r_other_time_ms": 0.911482442,
+              "r_effective_rows": 129
+            }
+          },
+          {
+            "block-nl-join": {
+              "table": {
+                "table_name": "lineitem",
+                "access_type": "ALL",
+                "r_loops": 1,
+                "rows": 572,
+                "r_rows": 572,
+                "r_table_time_ms": 0.123606412,
+                "r_other_time_ms": 0.025017672,
+                "r_engine_stats": {
+                  "pages_accessed": 6
+                },
+                "filtered": 42.96875,
+                "r_filtered": 42.13286713,
+                "attached_condition": "lineitem.l_shipdate between DATE'1995-01-01' and DATE'1996-12-31'"
+              },
+              "buffer_type": "incremental",
+              "buffer_size": "256Kb",
+              "join_type": "BNL",
+              "attached_condition": "lineitem.l_orderkey = orders.o_orderkey",
+              "r_loops": 12,
+              "r_filtered": 1.037344398,
+              "r_unpack_time_ms": 0.236209166,
+              "r_other_time_ms": 0.071226152,
+              "r_effective_rows": 241
+            }
+          },
+          {
+            "block-nl-join": {
+              "table": {
+                "table_name": "supplier",
+                "access_type": "ALL",
+                "r_loops": 1,
+                "rows": 518,
+                "r_rows": 518,
+                "r_table_time_ms": 0.093340085,
+                "r_other_time_ms": 0.014901379,
+                "r_engine_stats": {
+                  "pages_accessed": 6
+                },
+                "filtered": 100,
+                "r_filtered": 100
+              },
+              "buffer_type": "incremental",
+              "buffer_size": "256Kb",
+              "join_type": "BNL",
+              "attached_condition": "supplier.s_suppkey = lineitem.l_suppkey and supplier.s_nationkey = n1.n_nationkey",
+              "r_loops": 30,
+              "r_filtered": 0.006435006,
+              "r_unpack_time_ms": 1.762181228,
+              "r_other_time_ms": 0.430134312,
+              "r_effective_rows": 518
+            }
+          }
+        ]
+      }
+    }
+  }
+}

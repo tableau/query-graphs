@@ -1,0 +1,97 @@
+{
+  "query_optimization": {
+    "r_total_time_ms": 0.093961408
+  },
+  "query_block": {
+    "select_id": 1,
+    "r_loops": 1,
+    "r_total_time_ms": 0.727265502,
+    "filesort": {
+      "sort_key": "sum(lineitem.l_extendedprice * (1 - lineitem.l_discount)) desc, orders.o_orderdate",
+      "r_loops": 1,
+      "r_total_time_ms": 0.003295783,
+      "r_limit": 10,
+      "r_used_priority_queue": false,
+      "r_output_rows": 3,
+      "r_buffer_size": "632",
+      "r_sort_mode": "sort_key,rowid",
+      "temporary_table": {
+        "nested_loop": [
+          {
+            "table": {
+              "table_name": "customer",
+              "access_type": "ALL",
+              "r_loops": 1,
+              "rows": 129,
+              "r_rows": 129,
+              "r_table_time_ms": 0.030034375,
+              "r_other_time_ms": 0.010980931,
+              "r_engine_stats": {
+                "pages_accessed": 1
+              },
+              "filtered": 22.65625,
+              "r_filtered": 22.48062016,
+              "attached_condition": "customer.c_mktsegment = 'BUILDING'"
+            }
+          },
+          {
+            "block-nl-join": {
+              "table": {
+                "table_name": "orders",
+                "access_type": "ALL",
+                "r_loops": 1,
+                "rows": 128,
+                "r_rows": 128,
+                "r_table_time_ms": 0.028492934,
+                "r_other_time_ms": 0.007066165,
+                "r_engine_stats": {
+                  "pages_accessed": 1
+                },
+                "filtered": 58.59375,
+                "r_filtered": 58.59375,
+                "attached_condition": "orders.o_orderdate < DATE'1995-03-15'"
+              },
+              "buffer_type": "flat",
+              "buffer_size": "1Kb",
+              "join_type": "BNL",
+              "attached_condition": "orders.o_custkey = customer.c_custkey",
+              "r_loops": 29,
+              "r_filtered": 0.689655172,
+              "r_unpack_time_ms": 0.057557057,
+              "r_other_time_ms": 0.058709795,
+              "r_effective_rows": 75
+            }
+          },
+          {
+            "block-nl-join": {
+              "table": {
+                "table_name": "lineitem",
+                "access_type": "ALL",
+                "r_loops": 1,
+                "rows": 572,
+                "r_rows": 572,
+                "r_table_time_ms": 0.127924253,
+                "r_other_time_ms": 0.023728904,
+                "r_engine_stats": {
+                  "pages_accessed": 6
+                },
+                "filtered": 49.21875,
+                "r_filtered": 49.3006993,
+                "attached_condition": "lineitem.l_shipdate > DATE'1995-03-15'"
+              },
+              "buffer_type": "incremental",
+              "buffer_size": "49Kb",
+              "join_type": "BNL",
+              "attached_condition": "lineitem.l_orderkey = orders.o_orderkey",
+              "r_loops": 15,
+              "r_filtered": 0.260047281,
+              "r_unpack_time_ms": 0.245026665,
+              "r_other_time_ms": 0.127294574,
+              "r_effective_rows": 282
+            }
+          }
+        ]
+      }
+    }
+  }
+}

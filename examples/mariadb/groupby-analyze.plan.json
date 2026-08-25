@@ -1,0 +1,39 @@
+{
+  "query_optimization": {
+    "r_total_time_ms": 0.023417742
+  },
+  "query_block": {
+    "select_id": 1,
+    "r_loops": 1,
+    "r_total_time_ms": 0.337552915,
+    "filesort": {
+      "sort_key": "lineitem.l_returnflag",
+      "r_loops": 1,
+      "r_total_time_ms": 0.002342911,
+      "r_used_priority_queue": false,
+      "r_output_rows": 3,
+      "r_buffer_size": "272",
+      "r_sort_mode": "sort_key,rowid",
+      "temporary_table": {
+        "nested_loop": [
+          {
+            "table": {
+              "table_name": "lineitem",
+              "access_type": "ALL",
+              "r_loops": 1,
+              "rows": 572,
+              "r_rows": 572,
+              "r_table_time_ms": 0.131721372,
+              "r_other_time_ms": 0.197698869,
+              "r_engine_stats": {
+                "pages_accessed": 6
+              },
+              "filtered": 100,
+              "r_filtered": 100
+            }
+          }
+        ]
+      }
+    }
+  }
+}
