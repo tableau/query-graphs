@@ -44,7 +44,7 @@ def parse_unsupported(sql):
     return {db.strip().lower() for db in match.group(1).split(",")}
 
 
-# A `-- MODES: simple, analyze, pipelines` comment anywhere in a query file lists the
+# A `-- MODES: simple, analyze, external-analyze, pipelines` comment anywhere in a query file lists the
 # EXPLAIN modes to dump it under (one output file per mode); defaults to `analyze` alone
 # when absent, since that's what most queries want.
 modes_re = re.compile(r"^--\s*MODES:\s*(.+)$", re.MULTILINE | re.IGNORECASE)
@@ -341,6 +341,7 @@ def dump_hyper(hyper_path):
                     "simple": "FORMAT INTERNAL",
                     "steps": "FORMAT INTERNAL, OPTIMIZE STEPS",
                     "analyze": "FORMAT INTERNAL, ANALYZE",
+                    "external-analyze": "FORMAT JSON, ANALYZE, EXPAND_VIEWS true",
                     "pipelines": (
                         "FORMAT INTERNAL, PIPELINES, EXPAND_VIEWS true, EXPRESSIONS SQL"
                     ),

@@ -215,7 +215,7 @@
       }
     },
     "hyper": {
-      "version": "Hyper 9.1.0 emulation, hyper version main.0.0.26359.r07abb490",
+      "version": "Hyper 9.1.0 emulation, hyper version __UNVERSIONED_HYPER__.0.0.0.r0dedff7f",
       "queries": {
         "cte": {
           "analyze": "hyper/cte-analyze.plan.json"
@@ -262,7 +262,8 @@
           "analyze": "hyper/tpch-q11-error-analyze.plan.json"
         },
         "tpch/tpch-q1": {
-          "analyze": "hyper/tpch/tpch-q1-analyze.plan.json"
+          "analyze": "hyper/tpch/tpch-q1-analyze.plan.json",
+          "external-analyze": "hyper/tpch/tpch-q1-external-analyze.plan.json"
         },
         "tpch/tpch-q10": {
           "analyze": "hyper/tpch/tpch-q10-analyze.plan.json"

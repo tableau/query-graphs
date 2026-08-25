@@ -1,23 +1,24 @@
 {
-  "operator": "executiontarget",
+  "operator": "execution-target",
   "operator-id": 1,
   "estimated-rows": 5,
   "produces-rows": true,
-  "output": [{"expression": "iuref", "iu": ["scan_r_name", ["Char", 25]]}],
+  "output": [{"expression": "iu-ref", "iu": ["scan_r_name", ["Char", 25]]}],
   "output-names": ["r_name"],
   "inputs": [{
-    "operator": "tablescan",
+    "operator": "table-scan",
     "operator-id": 2,
-    "sqlpos": [[72, 78]],
+    "sqlpos": [[54, 60]],
     "estimated-rows": 5,
     "volatility": "stable",
     "relation-id": 9,
     "schema": {"type":"sessionschema"},
+    "scan-type": "native",
     "attribute-count": 3,
     "attributes": [{"col-id": 1, "name": "r_name", "type": ["Char", 25], "iu": ["scan_r_name", ["Char", 25]]}],
     "debug-name": {"classification": "nonsensitive", "value": "region"},
     "selectivity": 1,
-    "statistics": {"pipeline": 0, "column-count": 1, "cpu-cycles": 27, "output-rows": 5, "processed-rows": 5, "running": false}
+    "statistics": {"pipeline": 0, "column-count": 1, "cpu-cycles": 14625, "output-rows": 5, "processed-rows": 5, "running": false}
   }],
   "statistics": {"error": null, "pipeline": 0, "column-count": 0}
 }

@@ -27,6 +27,7 @@ The available modes are:
 * `simple` → a plain JSON `EXPLAIN`.
 * `analyze` → an executing plan with runtime measurements.
   Hyper, Postgres, DuckDB, Umbra, CedarDB, and MariaDB use their JSON `EXPLAIN ANALYZE` variants.
+* `external-analyze` → Hyper's external JSON executing plan (`FORMAT JSON, ANALYZE`).
 * `steps` → optimizer internals:
   * Hyper: `EXPLAIN (FORMAT INTERNAL, OPTIMIZE STEPS)`.
   * DuckDB: logical, optimized, and physical plans from `explain_output='all'`.
