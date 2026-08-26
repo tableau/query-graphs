@@ -43,4 +43,9 @@
       stroke-dasharray: 6 2;
     }
   }
+
+  & [data-id^="backdrop-"] {
+    pointer-events: none;
+    z-index: -1;
+  }
 }

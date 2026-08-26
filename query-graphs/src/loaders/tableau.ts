@@ -112,7 +112,7 @@ function isAlwaysExpanded(xml: ParsedXML) {
     return childLogicalOp || tag == "fed-op" || tag == "logical-query";
 }
 
-function convertXML(xml: ParsedXML): TreeNode {
+function convertXML(xml: ParsedXML, parentGroup?: string): TreeNode {
     let tag = xml.tag;
 
     // The properties
@@ -140,14 +140,23 @@ function convertXML(xml: ParsedXML): TreeNode {
     const name = nodeRendering.displayName ?? tag;
     const icon = nodeRendering.icon;
 
+    // Determine if this node is a createtemptable group.
+    // Note: `tag` stays "fed-op" here — normalizeLogicalOperator/normalizeLogicalExpression
+    // only rewrite tags for "logical-operator"/"logical-expression" elements or
+    // *Op/*Exp-suffixed tags, so the "class" attribute must be checked directly.
+    const clazz = xml.attrs?.class;
+    const isCreateTempTable =
+        clazz === "createtemptable" || clazz === "createtemptablefromquery" || clazz === "createtemptablefromtuples";
+    const currentGroup = isCreateTempTable ? properties.get("table") || clazz : parentGroup;
+
     const expandedChildren = [] as TreeNode[];
     const collapsedChildren = [] as TreeNode[];
     for (const child of xml.nodes ?? []) {
         const children = isAlwaysExpanded(child) ? expandedChildren : collapsedChildren;
-        children.push(convertXML(child));
+        children.push(convertXML(child, currentGroup));
     }
 
-    return {
+    const node: TreeNode = {
         name,
         icon,
         properties: properties,
@@ -155,6 +164,13 @@ function convertXML(xml: ParsedXML): TreeNode {
         collapsedChildren,
         expandedByDefault: !isAlwaysExpanded(xml) && expandedChildren.length == 0,
     };
+
+    // Mark everything below a createtemptable with the group
+    if (parentGroup && !isCreateTempTable) {
+        node.group = parentGroup;
+    }
+
+    return node;
 }
 
 export function loadTableauPlan(graphString: string): TreeDescription {

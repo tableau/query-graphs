@@ -54,6 +54,11 @@ export type TreeNode = {
     collapsedChildren?: TreeNode[];
     // Whether collapsed children are shown by default
     expandedByDefault?: boolean;
+
+    // Semantic group identifier (e.g., for grouping nodes by parent createtemptable)
+    group?: string;
+    // Background color for the group's hull backdrop
+    groupColor?: string;
 };
 
 export interface Crosslink {

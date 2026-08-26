@@ -9,6 +9,7 @@ import {useMemo, useEffect, useRef} from "react";
 import {QueryNode} from "./QueryNode";
 import type {QueryGraphNode} from "./QueryNode";
 import {ColoredEdge} from "./ColoredEdge";
+import {GroupBackdrop} from "./GroupBackdrop";
 import {useGraphRenderingStore} from "./store";
 import "./QueryGraph.css";
 
@@ -25,6 +26,7 @@ function minimapNodeColor(n: QueryGraphNode): string {
 
 const nodeTypes = {
     querynode: QueryNode,
+    groupBackdrop: GroupBackdrop,
 };
 
 const edgeTypes = {
