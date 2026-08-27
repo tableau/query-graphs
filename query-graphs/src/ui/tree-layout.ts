@@ -154,25 +154,38 @@ export function layoutTree(
 
     // Add group backdrops
     const backdrops = computeGroupBackdrops(groupPoints);
-    const backdropNodes = backdrops.map((b) => ({
-        id: `backdrop-${b.groupId}`,
-        type: "groupBackdrop",
-        position: {x: b.x, y: b.y},
-        // The backdrop's position is its top-left corner, unlike the top-center
-        // origin used for query nodes (see `nodeOrigin` on <ReactFlow>).
-        origin: [0, 0] as [number, number],
-        data: {
-            width: b.width,
-            height: b.height,
-            pathData: b.pathData,
-            points: b.points,
-            color: b.color,
-            groupId: b.groupId,
-        },
-        selectable: false,
-        draggable: false,
-        style: {zIndex: -1} as CSSProperties,
-    } as Node));
+    // The backdrop's position is its top-left corner, unlike the top-center
+    // origin used for query nodes (see `nodeOrigin` on <ReactFlow>).
+    const backdropOrigin: [number, number] = [0, 0];
+    const backdropFillNodes = backdrops.map(
+        (b) =>
+            ({
+                id: `backdrop-fill-${b.groupId}`,
+                type: "groupBackdrop",
+                position: {x: b.x, y: b.y},
+                origin: backdropOrigin,
+                data: {width: b.width, height: b.height, pathData: b.pathData, points: [], color: b.color, groupId: b.groupId, role: "fill"},
+                selectable: false,
+                draggable: false,
+                style: {zIndex: -1} as CSSProperties,
+            }) as Node,
+    );
+    // Debug vertex markers: a separate node per group, appended after every other node with
+    // a high z-index, so they're always visible on top — regardless of stacking order between
+    // overlapping backdrop fills or query nodes.
+    const backdropMarkerNodes = backdrops.map(
+        (b) =>
+            ({
+                id: `backdrop-markers-${b.groupId}`,
+                type: "groupBackdrop",
+                position: {x: b.x, y: b.y},
+                origin: backdropOrigin,
+                data: {width: b.width, height: b.height, pathData: "", points: b.points, color: b.color, groupId: b.groupId, role: "markers"},
+                selectable: false,
+                draggable: false,
+                style: {zIndex: 1000} as CSSProperties,
+            }) as Node,
+    );
 
-    return {nodes: [...backdropNodes, ...nodes], edges: edges.concat(crosslinks)};
+    return {nodes: [...backdropFillNodes, ...nodes, ...backdropMarkerNodes], edges: edges.concat(crosslinks)};
 }

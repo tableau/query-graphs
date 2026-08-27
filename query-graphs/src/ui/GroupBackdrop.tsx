@@ -8,6 +8,11 @@ interface GroupBackdropData extends Record<string, unknown> {
   points: {x: number; y: number}[];
   color: string;
   groupId: string;
+  // "fill" draws the translucent hull/bbox shape (rendered behind query nodes, z-index -1).
+  // "markers" draws just the debug vertex dots, as a separate node rendered after every
+  // other node with a high z-index, so they're never hidden behind an overlapping backdrop's
+  // fill or a query node — see the call site in tree-layout.ts.
+  role: "fill" | "markers";
 }
 
 export type GroupBackdropNode = Node<GroupBackdropData, "groupBackdrop">;
@@ -22,15 +27,16 @@ export function GroupBackdrop({ data }: NodeProps<GroupBackdropNode>) {
       height={data.height as number}
       style={{pointerEvents: "none", overflow: "visible"}}
     >
-      <path
-        d={data.pathData as string}
-        fill={fillColor}
-        stroke={strokeColor}
-        strokeWidth="2"
-      />
-      {points.map((p, i) => (
-        <circle key={i} cx={p.x} cy={p.y} r={4} fill={strokeColor} />
-      ))}
+      {data.role === "fill" && (
+        <path
+          d={data.pathData as string}
+          fill={fillColor}
+          stroke={strokeColor}
+          strokeWidth="2"
+        />
+      )}
+      {data.role === "markers" &&
+        points.map((p, i) => <circle key={i} cx={p.x} cy={p.y} r={5} fill="red" stroke="white" strokeWidth={1} />)}
     </svg>
   );
 }
