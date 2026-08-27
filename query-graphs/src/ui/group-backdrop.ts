@@ -118,22 +118,38 @@ function expandPolygonWithRounding(
   const maxY = Math.max(...expanded.map((p) => p.y));
   const local = expanded.map((p) => ({x: p.x - minX, y: p.y - minY}));
 
-  // Step 3: Build SVG path with rounded corners using cubic Bézier curves
-  let pathData = `M ${local[0].x} ${local[0].y}`;
+  // Step 3: Build an SVG path that rounds each corner by cutting in along both adjacent
+  // edges and bridging the cut with a quadratic Bézier through the original vertex — the
+  // standard "rounded polygon" construction. (An earlier version instead ran a Catmull-Rom-ish
+  // curve *through* every vertex, which doesn't cut the corner at all and overshoots into
+  // loops/spikes at sharp or near-flat turns — e.g. a visible dip to a negative coordinate
+  // on an otherwise near-straight edge.)
+  const n = local.length;
+  const edgeLength = (a: {x: number; y: number}, b: {x: number; y: number}) => Math.hypot(b.x - a.x, b.y - a.y);
+  // For each vertex, the point on each adjacent edge where the rounding starts/ends, clamped
+  // to at most half that edge's length so cuts from adjacent vertices never cross.
+  const cuts = local.map((v, i) => {
+    const prev = local[(i - 1 + n) % n];
+    const next = local[(i + 1) % n];
+    const rIn = Math.min(cornerRadius, edgeLength(prev, v) / 2);
+    const rOut = Math.min(cornerRadius, edgeLength(v, next) / 2);
+    const toPrev = normalize([prev.x - v.x, prev.y - v.y]);
+    const toNext = normalize([next.x - v.x, next.y - v.y]);
+    return {
+      in: {x: v.x + toPrev[0] * rIn, y: v.y + toPrev[1] * rIn},
+      out: {x: v.x + toNext[0] * rOut, y: v.y + toNext[1] * rOut},
+    };
+  });
 
-  for (let i = 1; i <= local.length; i++) {
-    const curr = local[i % local.length];
-    const prev = local[(i - 1) % local.length];
-    const next = local[(i + 1) % local.length];
-
-    const [dx, dy] = normalize([next.x - prev.x, next.y - prev.y]);
-    const tx = dx * cornerRadius;
-    const ty = dy * cornerRadius;
-
-    pathData += ` C ${prev.x + tx} ${prev.y + ty}, ${curr.x - tx} ${curr.y - ty}, ${curr.x} ${curr.y}`;
+  let pathData = `M ${cuts[0].out.x} ${cuts[0].out.y}`;
+  for (let i = 1; i <= n; i++) {
+    const vertex = local[i % n];
+    const cut = cuts[i % n];
+    pathData += ` L ${cut.in.x} ${cut.in.y}`;
+    pathData += ` Q ${vertex.x} ${vertex.y}, ${cut.out.x} ${cut.out.y}`;
   }
-
   pathData += " Z";
+
   return {x: minX, y: minY, width: maxX - minX, height: maxY - minY, pathData, points: local};
 }
 
