@@ -165,6 +165,7 @@ export function layoutTree(
             width: b.width,
             height: b.height,
             pathData: b.pathData,
+            points: b.points,
             color: b.color,
             groupId: b.groupId,
         },

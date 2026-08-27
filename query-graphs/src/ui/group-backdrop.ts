@@ -13,6 +13,10 @@ export interface GroupBackdrop {
   height: number;
   // Path data, in coordinates local to (x, y) — i.e. already shifted so the bounding box starts at (0, 0)
   pathData: string;
+  // The polygon vertices `pathData` was built from (padded hull corners, or bounding-box
+  // corners in the fallback case), in the same local coordinates. Exposed so the shape's
+  // defining points can be drawn explicitly, e.g. to debug the hull/padding computation.
+  points: {x: number; y: number}[];
   color: string;
 }
 
@@ -57,6 +61,8 @@ interface ExpandedPolygon {
   height: number;
   // Path data, shifted so the bounding box's top-left corner is at (0, 0)
   pathData: string;
+  // The polygon vertices, in the same local coordinates as `pathData`
+  points: {x: number; y: number}[];
 }
 
 function expandPolygonWithRounding(
@@ -128,18 +134,18 @@ function expandPolygonWithRounding(
   }
 
   pathData += " Z";
-  return {x: minX, y: minY, width: maxX - minX, height: maxY - minY, pathData};
+  return {x: minX, y: minY, width: maxX - minX, height: maxY - minY, pathData, points: local};
 }
 
 // Fallback for groups whose convex hull is degenerate (fewer than 3 points, or all
 // points collinear — e.g. a straight, unbranched chain of nodes, which lays out as a
 // single vertical line with no lateral spread). Draws a padded, rounded bounding box
 // around the raw points instead, which trivially covers them regardless of their layout.
-function boundingBoxBackdrop(points: [number, number][], padding: number, cornerRadius: number): ExpandedPolygon {
-  const minX = Math.min(...points.map((p) => p[0])) - padding;
-  const minY = Math.min(...points.map((p) => p[1])) - padding;
-  const maxX = Math.max(...points.map((p) => p[0])) + padding;
-  const maxY = Math.max(...points.map((p) => p[1])) + padding;
+function boundingBoxBackdrop(rawPoints: [number, number][], padding: number, cornerRadius: number): ExpandedPolygon {
+  const minX = Math.min(...rawPoints.map((p) => p[0])) - padding;
+  const minY = Math.min(...rawPoints.map((p) => p[1])) - padding;
+  const maxX = Math.max(...rawPoints.map((p) => p[0])) + padding;
+  const maxY = Math.max(...rawPoints.map((p) => p[1])) + padding;
   const width = maxX - minX;
   const height = maxY - minY;
   const r = Math.min(cornerRadius, width / 2, height / 2);
@@ -156,7 +162,13 @@ function boundingBoxBackdrop(points: [number, number][], padding: number, corner
     ` A ${r} ${r} 0 0 1 ${r} 0` +
     ` Z`;
 
-  return {x: minX, y: minY, width, height, pathData};
+  const points = [
+    {x: 0, y: 0},
+    {x: width, y: 0},
+    {x: width, y: height},
+    {x: 0, y: height},
+  ];
+  return {x: minX, y: minY, width, height, pathData, points};
 }
 
 // Color palette for group backdrops
@@ -222,6 +234,7 @@ export function computeGroupBackdrops(
       width: expanded.width,
       height: expanded.height,
       pathData: expanded.pathData,
+      points: expanded.points,
       color: `${color}|${strokeColor}`, // Store both in pipe-separated format for rendering
     });
 
