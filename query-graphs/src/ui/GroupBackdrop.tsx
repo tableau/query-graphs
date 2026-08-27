@@ -36,7 +36,7 @@ export function GroupBackdrop({ data }: NodeProps<GroupBackdropNode>) {
         />
       )}
       {data.role === "markers" &&
-        points.map((p, i) => <circle key={i} cx={p.x} cy={p.y} r={5} fill="red" stroke="white" strokeWidth={1} />)}
+        points.map((p, i) => <circle key={i} cx={p.x} cy={p.y} r={2} fill="red" stroke="white" strokeWidth={0.5} />)}
     </svg>
   );
 }
