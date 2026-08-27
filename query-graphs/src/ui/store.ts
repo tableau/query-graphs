@@ -7,6 +7,13 @@ export interface NodeDimensions {
     headHeight?: number;
     bodyWidth?: number;
     bodyHeight?: number;
+    // The outer `.qg-graph-node` element's own rendered size — unlike `head*`/`body*`, this
+    // includes the card's padding and border, i.e. its true visible extent. Used for the group
+    // backdrop, which should hug the painted card; layout spacing still uses head/body alone
+    // (see `measuredNodeSize` in tree-layout.ts) so it doesn't jump while the expand transition
+    // animates the body's height.
+    nodeWidth?: number;
+    nodeHeight?: number;
 }
 
 interface GraphRenderingState {
@@ -61,6 +68,9 @@ export const useGraphRenderingStore = create<GraphRenderingState>()(
                         } else if (target.classList.contains("qg-graph-node-body")) {
                             state.nodeDimensions[id].bodyWidth = target.offsetWidth;
                             state.nodeDimensions[id].bodyHeight = target.offsetHeight;
+                        } else if (target.classList.contains("qg-graph-node")) {
+                            state.nodeDimensions[id].nodeWidth = target.offsetWidth;
+                            state.nodeDimensions[id].nodeHeight = target.offsetHeight;
                         }
                     }
                 }),

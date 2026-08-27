@@ -27,6 +27,7 @@ function useResizeObservedRef<T extends Element>(resizeObserver: ResizeObserver)
 function QueryNode({data, id}: NodeProps<QueryGraphNode>) {
     const bodyRef = useResizeObservedRef<HTMLDivElement>(data.resizeObserver);
     const headRef = useResizeObservedRef<HTMLDivElement>(data.resizeObserver);
+    const nodeRef = useResizeObservedRef<HTMLDivElement>(data.resizeObserver);
 
     const expanded = useGraphRenderingStore((s) => s.expandedNodes[id]);
     const toggleNode = useGraphRenderingStore((s) => s.toggleExpandedNode);
@@ -92,7 +93,7 @@ function QueryNode({data, id}: NodeProps<QueryGraphNode>) {
     return (
         <>
             <Handle type="target" position={Position.Top} />
-            <div className={nodeClassName} onClick={onClick}>
+            <div className={nodeClassName} ref={nodeRef} onClick={onClick}>
                 <div className="qg-graph-node-head" ref={headRef}>
                     {colorBar(data.barsAbove, "above")}
                     <NodeIcon icon={data.icon} iconColor={data.iconColor} />

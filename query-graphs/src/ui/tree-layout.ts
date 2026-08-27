@@ -38,6 +38,19 @@ function measuredNodeSize(dim: NodeDimensions | undefined, expanded: boolean): [
     return [dim.headWidth, dim.headHeight];
 }
 
+// The rendered width/height of the outer `.qg-graph-node` card itself, i.e. including its
+// padding and border — unlike `measuredNodeSize()`, which only covers the head/body content and
+// is used for layout spacing so hovering (which paints, but doesn't resize, that padding/border)
+// can't shift sibling nodes. The group backdrop should hug the actual painted card, so it uses
+// this instead. Falls back to the content-only size while the outer element hasn't been measured
+// yet (e.g. during the layout's first pass, before the `ResizeObserver` has reported).
+function measuredCardSize(dim: NodeDimensions | undefined, expanded: boolean): [number, number] | undefined {
+    if (dim?.nodeWidth !== undefined && dim.nodeHeight !== undefined) {
+        return [dim.nodeWidth, dim.nodeHeight];
+    }
+    return measuredNodeSize(dim, expanded);
+}
+
 //
 // Layout a tree
 //
@@ -90,7 +103,7 @@ export function layoutTree(
         if (n.data.group) {
             // Nodes are top-center anchored (see `nodeOrigin` on <ReactFlow>): x is the
             // horizontal center, y is the top edge.
-            const size = measuredNodeSize(nodeDimensions[id], !!expandedNodes[id]);
+            const size = measuredCardSize(nodeDimensions[id], !!expandedNodes[id]);
             const [width, height] = size ?? [0, 0];
             const left = n.x - width / 2;
             const right = n.x + width / 2;
