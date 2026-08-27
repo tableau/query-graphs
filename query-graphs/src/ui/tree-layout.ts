@@ -9,7 +9,7 @@ import type {QueryGraphNode} from "./QueryNode";
 import type {ColoredGraphEdge} from "./ColoredEdge";
 import {assertNotNull} from "../assert";
 import type {CSSProperties} from "react";
-import type {GroupPoint} from "./group-backdrop";
+import type {GroupNodeBox, GroupEdge} from "./group-backdrop";
 import {computeGroupBackdrops} from "./group-backdrop";
 
 // Crosslinks have no `type`/`data` of their own, so they stay plain `Edge`s.
@@ -24,7 +24,12 @@ interface TreeLayout {
 // on-screen box — as opposed to the `nodeSize` used for flextree spacing, which additionally
 // bakes in inter-sibling/inter-level margins that aren't part of the node's own visual extent.
 function measuredNodeSize(dim: NodeDimensions | undefined, expanded: boolean): [number, number] | undefined {
-    if (dim?.headWidth === undefined || dim.headHeight === undefined || dim.bodyWidth === undefined || dim.bodyHeight === undefined) {
+    if (
+        dim?.headWidth === undefined ||
+        dim.headHeight === undefined ||
+        dim.bodyWidth === undefined ||
+        dim.bodyHeight === undefined
+    ) {
         return undefined;
     }
     if (expanded) {
@@ -75,27 +80,20 @@ export function layoutTree(
     const d3edges = layout.links();
 
     // Transform tree representation from d3 into reactflow
-    const groupPoints: GroupPoint[] = [];
+    const groupBoxes: GroupNodeBox[] = [];
+    // Position/size of every grouped node, keyed by its underlying tree-data object — used
+    // below to build the per-edge connector capsules between grouped nodes.
+    const groupNodeInfo = new Map<treeDescription.TreeNode, {x: number; y: number; width: number; height: number}>();
     const nodes: QueryGraphNode[] = d3nodes.map((n) => {
         const id = nodeIds.get(n.data);
         assertNotNull(id);
         if (n.data.group) {
             // Nodes are top-center anchored (see `nodeOrigin` on <ReactFlow>): x is the
-            // horizontal center, y is the top edge. Using all 4 corners of the actual
-            // rendered box (rather than just this anchor point) ensures the backdrop
-            // hull covers the full hoverable area of every grouped node, not just its center.
+            // horizontal center, y is the top edge.
             const size = measuredNodeSize(nodeDimensions[id], !!expandedNodes[id]);
             const [width, height] = size ?? [0, 0];
-            const left = n.x - width / 2;
-            const right = n.x + width / 2;
-            const top = n.y;
-            const bottom = n.y + height;
-            groupPoints.push(
-                {group: n.data.group, x: left, y: top},
-                {group: n.data.group, x: right, y: top},
-                {group: n.data.group, x: left, y: bottom},
-                {group: n.data.group, x: right, y: bottom},
-            );
+            groupBoxes.push({group: n.data.group, x: n.x - width / 2, y: n.y, width, height});
+            groupNodeInfo.set(n.data, {x: n.x, y: n.y, width, height});
         }
         return {
             id,
@@ -104,6 +102,7 @@ export function layoutTree(
             data: {...n.data, resizeObserver},
         };
     });
+    const groupEdges: GroupEdge[] = [];
     const edges: QueryGraphEdge[] = d3edges.map((e) => {
         const sourceId = nodeIds.get(e.source.data);
         const targetId = nodeIds.get(e.target.data);
@@ -113,6 +112,22 @@ export function layoutTree(
         if (e.target.data.edgeWidth) {
             const width = Math.max(1, 10 * Math.min(1, e.target.data.edgeWidth));
             style.strokeWidth = `${width}px`;
+        }
+        // Only connect two nodes that both belong to the same group — this deliberately
+        // excludes the edge from a group's un-grouped createtemptable boundary node down to
+        // its first grouped descendant, so the backdrop starts below that boundary.
+        if (e.source.data.group && e.source.data.group === e.target.data.group) {
+            const sourceInfo = groupNodeInfo.get(e.source.data);
+            const targetInfo = groupNodeInfo.get(e.target.data);
+            if (sourceInfo && targetInfo) {
+                groupEdges.push({
+                    group: e.source.data.group,
+                    x1: sourceInfo.x,
+                    y1: sourceInfo.y + sourceInfo.height,
+                    x2: targetInfo.x,
+                    y2: targetInfo.y,
+                });
+            }
         }
         return {
             id: `${sourceId}->${targetId}`,
@@ -153,7 +168,7 @@ export function layoutTree(
     }
 
     // Add group backdrops
-    const backdrops = computeGroupBackdrops(groupPoints);
+    const backdrops = computeGroupBackdrops(groupBoxes, groupEdges);
     // The backdrop's position is its top-left corner, unlike the top-center
     // origin used for query nodes (see `nodeOrigin` on <ReactFlow>).
     const backdropOrigin: [number, number] = [0, 0];
@@ -164,7 +179,15 @@ export function layoutTree(
                 type: "groupBackdrop",
                 position: {x: b.x, y: b.y},
                 origin: backdropOrigin,
-                data: {width: b.width, height: b.height, pathData: b.pathData, points: [], color: b.color, groupId: b.groupId, role: "fill"},
+                data: {
+                    width: b.width,
+                    height: b.height,
+                    pathData: b.pathData,
+                    points: [],
+                    color: b.color,
+                    groupId: b.groupId,
+                    role: "fill",
+                },
                 selectable: false,
                 draggable: false,
                 style: {zIndex: -1} as CSSProperties,
@@ -180,7 +203,15 @@ export function layoutTree(
                 type: "groupBackdrop",
                 position: {x: b.x, y: b.y},
                 origin: backdropOrigin,
-                data: {width: b.width, height: b.height, pathData: "", points: b.points, color: b.color, groupId: b.groupId, role: "markers"},
+                data: {
+                    width: b.width,
+                    height: b.height,
+                    pathData: "",
+                    points: b.points,
+                    color: b.color,
+                    groupId: b.groupId,
+                    role: "markers",
+                },
                 selectable: false,
                 draggable: false,
                 style: {zIndex: 1000} as CSSProperties,

@@ -45,6 +45,7 @@
   "dependencies": {
     "@xyflow/react": "^12.11.3",
     "classcat": "^5.0.4",
+    "clipper-lib": "^6.4.2",
     "d3-flextree": "^2.1.2",
     "d3-hierarchy": "^3.1.2",
     "immer": "^11.1.18",
@@ -53,6 +54,7 @@
     "zustand": "^5.0.0"
   },
   "devDependencies": {
+    "@types/clipper-lib": "^6.4.0",
     "@types/d3-hierarchy": "^3.1.2",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",

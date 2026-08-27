@@ -1,261 +1,154 @@
-export interface GroupPoint {
-  group: string;
-  x: number;
-  y: number;
+import * as ClipperLib from "clipper-lib";
+
+// One padded rectangle per grouped node.
+export interface GroupNodeBox {
+    group: string;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+}
+
+// One capsule-shaped connector per parent-child edge that stays within a single group —
+// i.e. it does not include the edge from a group's un-grouped createtemptable boundary
+// node down to its first grouped descendant.
+export interface GroupEdge {
+    group: string;
+    x1: number;
+    y1: number;
+    x2: number;
+    y2: number;
 }
 
 export interface GroupBackdrop {
-  groupId: string;
-  // Position of the backdrop's bounding box, in the same coordinate space as node positions
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  // Path data, in coordinates local to (x, y) — i.e. already shifted so the bounding box starts at (0, 0)
-  pathData: string;
-  // The polygon vertices `pathData` was built from (padded hull corners, or bounding-box
-  // corners in the fallback case), in the same local coordinates. Exposed so the shape's
-  // defining points can be drawn explicitly, e.g. to debug the hull/padding computation.
-  points: {x: number; y: number}[];
-  color: string;
+    groupId: string;
+    // Position of the backdrop's bounding box, in the same coordinate space as node positions
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    // Path data, in coordinates local to (x, y) — i.e. already shifted so the bounding box starts at (0, 0)
+    pathData: string;
+    // The polygon vertices `pathData` was built from, in the same local coordinates. Exposed so
+    // the shape's defining points can be drawn explicitly, e.g. to debug the outline computation.
+    points: {x: number; y: number}[];
+    color: string;
 }
 
-function normalize([x, y]: [number, number]): [number, number] {
-  const len = Math.sqrt(x * x + y * y);
-  return len > 0 ? [x / len, y / len] : [0, 0];
+// Clipper requires integer coordinates for numerical robustness, so pixel coordinates are
+// scaled up before being handed to it (and scaled back down on the way out). A factor of 100
+// keeps 0.01px precision, which is far below what's visually distinguishable.
+const CLIPPER_SCALE = 100;
+// How closely Clipper's polyline approximation of a rounded join/cap is allowed to deviate
+// from the true circular arc, in scaled units. Small enough to look smooth, large enough that
+// a corner doesn't turn into hundreds of vertices.
+const ARC_TOLERANCE = 0.25 * CLIPPER_SCALE;
+
+function toClipperPoint(x: number, y: number): ClipperLib.IntPoint {
+    return {X: Math.round(x * CLIPPER_SCALE), Y: Math.round(y * CLIPPER_SCALE)};
 }
 
-function cross(o: [number, number], a: [number, number], b: [number, number]): number {
-  return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+function fromClipperPath(path: ClipperLib.Path): {x: number; y: number}[] {
+    return path.map((p) => ({x: p.X / CLIPPER_SCALE, y: p.Y / CLIPPER_SCALE}));
 }
 
-function convexHull(points: [number, number][]): [number, number][] {
-  if (points.length < 3) return [];
-
-  const sorted = [...points].sort((a, b) => a[0] - b[0] || a[1] - b[1]);
-
-  const lower: [number, number][] = [];
-  for (const p of sorted) {
-    while (lower.length >= 2 && cross(lower[lower.length - 2], lower[lower.length - 1], p) <= 0) {
-      lower.pop();
+// Unions the padded node rectangles and edge capsules of a single group into one (or, only if
+// the group is disconnected, several) rounded outline(s) — replacing the previous convex-hull +
+// hand-rolled miter-offset + corner-rounding pipeline, which could swallow unrelated nodes
+// sitting in the "notch" of a non-convex point set and had repeated corner-rounding bugs.
+function computeGroupOutline(boxes: GroupNodeBox[], edges: GroupEdge[], padding: number): {x: number; y: number}[][] {
+    const offset = new ClipperLib.ClipperOffset(2, ARC_TOLERANCE);
+    for (const box of boxes) {
+        const rect: ClipperLib.Path = [
+            toClipperPoint(box.x, box.y),
+            toClipperPoint(box.x + box.width, box.y),
+            toClipperPoint(box.x + box.width, box.y + box.height),
+            toClipperPoint(box.x, box.y + box.height),
+        ];
+        offset.AddPath(rect, ClipperLib.JoinType.jtRound, ClipperLib.EndType.etClosedPolygon);
     }
-    lower.push(p);
-  }
-
-  const upper: [number, number][] = [];
-  for (let i = sorted.length - 1; i >= 0; i--) {
-    const p = sorted[i];
-    while (upper.length >= 2 && cross(upper[upper.length - 2], upper[upper.length - 1], p) <= 0) {
-      upper.pop();
+    for (const edge of edges) {
+        const line: ClipperLib.Path = [toClipperPoint(edge.x1, edge.y1), toClipperPoint(edge.x2, edge.y2)];
+        offset.AddPath(line, ClipperLib.JoinType.jtRound, ClipperLib.EndType.etOpenRound);
     }
-    upper.push(p);
-  }
 
-  return lower.slice(0, -1).concat(upper.slice(0, -1));
-}
-
-interface ExpandedPolygon {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  // Path data, shifted so the bounding box's top-left corner is at (0, 0)
-  pathData: string;
-  // The polygon vertices, in the same local coordinates as `pathData`
-  points: {x: number; y: number}[];
-}
-
-function expandPolygonWithRounding(
-  hull: [number, number][],
-  padding: number,
-  cornerRadius: number = padding
-): ExpandedPolygon | null {
-  if (hull.length < 3) return null;
-
-  // `convexHull` produces vertices in clockwise order in screen coordinates (y grows down).
-  // For a clockwise polygon, rotating an edge's direction vector (dx, dy) by (dy, -dx) points
-  // outward. (Rotating by (-dy, dx) — as an earlier version of this code did — points inward,
-  // shrinking the hull below the actual node extents instead of padding outward from them.)
-  //
-  // Step 1: expand each vertex outward along the miter direction (average of the two
-  // adjacent edge normals). A plain per-vertex offset of exactly `padding` along that
-  // direction undershoots at corners — the edges themselves would end up closer than
-  // `padding` to the original hull — so the offset is scaled up by 1/cos(half the angle
-  // between the normals), the standard miter-join length. Sharp/acute corners are clamped
-  // to avoid the miter shooting off to a very long spike.
-  const maxMiterFactor = 4;
-  const expanded = hull.map((vertex, i) => {
-    const prev = hull[(i - 1 + hull.length) % hull.length];
-    const next = hull[(i + 1) % hull.length];
-
-    const edge1 = [vertex[0] - prev[0], vertex[1] - prev[1]] as [number, number];
-    const edge2 = [next[0] - vertex[0], next[1] - vertex[1]] as [number, number];
-
-    const normal1 = normalize([edge1[1], -edge1[0]]);
-    const normal2 = normalize([edge2[1], -edge2[0]]);
-    const avgNormal = normalize([
-      normal1[0] + normal2[0],
-      normal1[1] + normal2[1],
-    ]);
-
-    const cosHalfAngle = avgNormal[0] * normal1[0] + avgNormal[1] * normal1[1];
-    const miterFactor = cosHalfAngle > 0 ? Math.min(1 / cosHalfAngle, maxMiterFactor) : maxMiterFactor;
-
-    return {
-      x: vertex[0] + avgNormal[0] * padding * miterFactor,
-      y: vertex[1] + avgNormal[1] * padding * miterFactor,
-    };
-  });
-
-  // Step 2: Compute the bounding box, so we can express the path in local coordinates.
-  // A backdrop is rendered as a plain react-flow node; nodes are auto-sized from their
-  // rendered content, and an absolutely-positioned <svg width="100%"> inside a node with
-  // no intrinsic size collapses to 0x0 (and gets clipped) — so the node needs an explicit
-  // width/height, and the path coordinates must be local to that box.
-  const minX = Math.min(...expanded.map((p) => p.x));
-  const minY = Math.min(...expanded.map((p) => p.y));
-  const maxX = Math.max(...expanded.map((p) => p.x));
-  const maxY = Math.max(...expanded.map((p) => p.y));
-  const local = expanded.map((p) => ({x: p.x - minX, y: p.y - minY}));
-
-  // Step 3: Build an SVG path that rounds each corner by cutting in along both adjacent
-  // edges and bridging the cut with a quadratic Bézier through the original vertex — the
-  // standard "rounded polygon" construction. (An earlier version instead ran a Catmull-Rom-ish
-  // curve *through* every vertex, which doesn't cut the corner at all and overshoots into
-  // loops/spikes at sharp or near-flat turns — e.g. a visible dip to a negative coordinate
-  // on an otherwise near-straight edge.)
-  const n = local.length;
-  const edgeLength = (a: {x: number; y: number}, b: {x: number; y: number}) => Math.hypot(b.x - a.x, b.y - a.y);
-  // For each vertex, the point on each adjacent edge where the rounding starts/ends, clamped
-  // to at most half that edge's length so cuts from adjacent vertices never cross.
-  const cuts = local.map((v, i) => {
-    const prev = local[(i - 1 + n) % n];
-    const next = local[(i + 1) % n];
-    const rIn = Math.min(cornerRadius, edgeLength(prev, v) / 2);
-    const rOut = Math.min(cornerRadius, edgeLength(v, next) / 2);
-    const toPrev = normalize([prev.x - v.x, prev.y - v.y]);
-    const toNext = normalize([next.x - v.x, next.y - v.y]);
-    return {
-      in: {x: v.x + toPrev[0] * rIn, y: v.y + toPrev[1] * rIn},
-      out: {x: v.x + toNext[0] * rOut, y: v.y + toNext[1] * rOut},
-    };
-  });
-
-  let pathData = `M ${cuts[0].out.x} ${cuts[0].out.y}`;
-  for (let i = 1; i <= n; i++) {
-    const vertex = local[i % n];
-    const cut = cuts[i % n];
-    pathData += ` L ${cut.in.x} ${cut.in.y}`;
-    pathData += ` Q ${vertex.x} ${vertex.y}, ${cut.out.x} ${cut.out.y}`;
-  }
-  pathData += " Z";
-
-  return {x: minX, y: minY, width: maxX - minX, height: maxY - minY, pathData, points: local};
-}
-
-// Fallback for groups whose convex hull is degenerate (fewer than 3 points, or all
-// points collinear — e.g. a straight, unbranched chain of nodes, which lays out as a
-// single vertical line with no lateral spread). Draws a padded, rounded bounding box
-// around the raw points instead, which trivially covers them regardless of their layout.
-function boundingBoxBackdrop(rawPoints: [number, number][], padding: number, cornerRadius: number): ExpandedPolygon {
-  const minX = Math.min(...rawPoints.map((p) => p[0])) - padding;
-  const minY = Math.min(...rawPoints.map((p) => p[1])) - padding;
-  const maxX = Math.max(...rawPoints.map((p) => p[0])) + padding;
-  const maxY = Math.max(...rawPoints.map((p) => p[1])) + padding;
-  const width = maxX - minX;
-  const height = maxY - minY;
-  const r = Math.min(cornerRadius, width / 2, height / 2);
-
-  const pathData =
-    `M ${r} 0` +
-    ` H ${width - r}` +
-    ` A ${r} ${r} 0 0 1 ${width} ${r}` +
-    ` V ${height - r}` +
-    ` A ${r} ${r} 0 0 1 ${width - r} ${height}` +
-    ` H ${r}` +
-    ` A ${r} ${r} 0 0 1 0 ${height - r}` +
-    ` V ${r}` +
-    ` A ${r} ${r} 0 0 1 ${r} 0` +
-    ` Z`;
-
-  const points = [
-    {x: 0, y: 0},
-    {x: width, y: 0},
-    {x: width, y: height},
-    {x: 0, y: height},
-  ];
-  return {x: minX, y: minY, width, height, pathData, points};
+    const solution: ClipperLib.Paths = [];
+    offset.Execute(solution, padding * CLIPPER_SCALE);
+    return solution.map(fromClipperPath);
 }
 
 // Color palette for group backdrops
 const groupColors = [
-  "rgba(100, 150, 200, 0.15)", // blue
-  "rgba(150, 100, 200, 0.15)", // purple
-  "rgba(100, 200, 150, 0.15)", // teal
-  "rgba(200, 150, 100, 0.15)", // orange
-  "rgba(200, 100, 150, 0.15)", // pink
-  "rgba(150, 200, 100, 0.15)", // lime
+    "rgba(100, 150, 200, 0.15)", // blue
+    "rgba(150, 100, 200, 0.15)", // purple
+    "rgba(100, 200, 150, 0.15)", // teal
+    "rgba(200, 150, 100, 0.15)", // orange
+    "rgba(200, 100, 150, 0.15)", // pink
+    "rgba(150, 200, 100, 0.15)", // lime
 ];
 
 const groupStrokeColors = [
-  "rgba(100, 150, 200, 0.4)", // blue
-  "rgba(150, 100, 200, 0.4)", // purple
-  "rgba(100, 200, 150, 0.4)", // teal
-  "rgba(200, 150, 100, 0.4)", // orange
-  "rgba(200, 100, 150, 0.4)", // pink
-  "rgba(150, 200, 100, 0.4)", // lime
+    "rgba(100, 150, 200, 0.4)", // blue
+    "rgba(150, 100, 200, 0.4)", // purple
+    "rgba(100, 200, 150, 0.4)", // teal
+    "rgba(200, 150, 100, 0.4)", // orange
+    "rgba(200, 100, 150, 0.4)", // pink
+    "rgba(150, 200, 100, 0.4)", // lime
 ];
 
 function getColorForGroup(groupId: string, index: number): string {
-  return groupColors[index % groupColors.length];
+    return groupColors[index % groupColors.length];
 }
 
 function getStrokeColorForGroup(groupId: string, index: number): string {
-  return groupStrokeColors[index % groupStrokeColors.length];
+    return groupStrokeColors[index % groupStrokeColors.length];
 }
 
-export function computeGroupBackdrops(
-  // One point per node corner (not one point per node) — see the call site, which
-  // expands each grouped node into its 4 rendered corners. Using only node anchor
-  // points would let a wide/tall node's edges stick out past the backdrop.
-  points: GroupPoint[],
-  padding: number = 20,
-  cornerRadius: number = 15
-): GroupBackdrop[] {
-  // Group points by their semantic group
-  const groups = new Map<string, [number, number][]>();
-  for (const point of points) {
-    if (!groups.has(point.group)) groups.set(point.group, []);
-    groups.get(point.group)!.push([point.x, point.y]);
-  }
+export function computeGroupBackdrops(nodeBoxes: GroupNodeBox[], groupEdges: GroupEdge[], padding = 20): GroupBackdrop[] {
+    const boxesByGroup = new Map<string, GroupNodeBox[]>();
+    for (const box of nodeBoxes) {
+        if (!boxesByGroup.has(box.group)) boxesByGroup.set(box.group, []);
+        boxesByGroup.get(box.group)!.push(box);
+    }
+    const edgesByGroup = new Map<string, GroupEdge[]>();
+    for (const edge of groupEdges) {
+        if (!edgesByGroup.has(edge.group)) edgesByGroup.set(edge.group, []);
+        edgesByGroup.get(edge.group)!.push(edge);
+    }
 
-  // For each group, compute convex hull (falling back to a bounding box when the hull is degenerate)
-  const backdrops: GroupBackdrop[] = [];
-  let groupIndex = 0;
-  for (const [groupId, positions] of groups) {
-    const hull = positions.length >= 3 ? convexHull(positions) : [];
-    const expanded =
-      hull.length >= 3
-        ? expandPolygonWithRounding(hull, padding, cornerRadius)
-        : boundingBoxBackdrop(positions, padding, cornerRadius);
-    if (!expanded) continue;
+    const backdrops: GroupBackdrop[] = [];
+    let groupIndex = 0;
+    for (const [groupId, boxes] of boxesByGroup) {
+        const loops = computeGroupOutline(boxes, edgesByGroup.get(groupId) ?? [], padding).filter((loop) => loop.length > 0);
+        if (loops.length === 0) continue;
 
-    const color = getColorForGroup(groupId, groupIndex);
-    const strokeColor = getStrokeColorForGroup(groupId, groupIndex);
+        const allPoints = loops.flat();
+        const minX = Math.min(...allPoints.map((p) => p.x));
+        const minY = Math.min(...allPoints.map((p) => p.y));
+        const maxX = Math.max(...allPoints.map((p) => p.x));
+        const maxY = Math.max(...allPoints.map((p) => p.y));
+        const localLoops = loops.map((loop) => loop.map((p) => ({x: p.x - minX, y: p.y - minY})));
 
-    backdrops.push({
-      groupId,
-      x: expanded.x,
-      y: expanded.y,
-      width: expanded.width,
-      height: expanded.height,
-      pathData: expanded.pathData,
-      points: expanded.points,
-      color: `${color}|${strokeColor}`, // Store both in pipe-separated format for rendering
-    });
+        const pathData = localLoops
+            .map(([first, ...rest]) => `M ${first.x} ${first.y} ` + rest.map((p) => `L ${p.x} ${p.y}`).join(" ") + " Z")
+            .join(" ");
 
-    groupIndex++;
-  }
+        const color = getColorForGroup(groupId, groupIndex);
+        const strokeColor = getStrokeColorForGroup(groupId, groupIndex);
 
-  return backdrops;
+        backdrops.push({
+            groupId,
+            x: minX,
+            y: minY,
+            width: maxX - minX,
+            height: maxY - minY,
+            pathData,
+            points: localLoops.flat(),
+            color: `${color}|${strokeColor}`, // Store both in pipe-separated format for rendering
+        });
+
+        groupIndex++;
+    }
+
+    return backdrops;
 }
