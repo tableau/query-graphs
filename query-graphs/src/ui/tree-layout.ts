@@ -81,9 +81,9 @@ export function layoutTree(
 
     // Transform tree representation from d3 into reactflow
     const groupBoxes: GroupNodeBox[] = [];
-    // Position/size of every grouped node, keyed by its underlying tree-data object — used
-    // below to build the per-edge connector capsules between grouped nodes.
-    const groupNodeInfo = new Map<treeDescription.TreeNode, {x: number; y: number; width: number; height: number}>();
+    // Bounding box of every grouped node, keyed by its underlying tree-data object — used
+    // below to build the per-edge connectors between grouped nodes.
+    const groupNodeInfo = new Map<treeDescription.TreeNode, {left: number; right: number; top: number; bottom: number}>();
     const nodes: QueryGraphNode[] = d3nodes.map((n) => {
         const id = nodeIds.get(n.data);
         assertNotNull(id);
@@ -92,8 +92,12 @@ export function layoutTree(
             // horizontal center, y is the top edge.
             const size = measuredNodeSize(nodeDimensions[id], !!expandedNodes[id]);
             const [width, height] = size ?? [0, 0];
-            groupBoxes.push({group: n.data.group, x: n.x - width / 2, y: n.y, width, height});
-            groupNodeInfo.set(n.data, {x: n.x, y: n.y, width, height});
+            const left = n.x - width / 2;
+            const right = n.x + width / 2;
+            const top = n.y;
+            const bottom = n.y + height;
+            groupBoxes.push({group: n.data.group, x: left, y: top, width, height});
+            groupNodeInfo.set(n.data, {left, right, top, bottom});
         }
         return {
             id,
@@ -122,10 +126,12 @@ export function layoutTree(
             if (sourceInfo && targetInfo) {
                 groupEdges.push({
                     group: e.source.data.group,
-                    x1: sourceInfo.x,
-                    y1: sourceInfo.y + sourceInfo.height,
-                    x2: targetInfo.x,
-                    y2: targetInfo.y,
+                    sourceLeft: sourceInfo.left,
+                    sourceRight: sourceInfo.right,
+                    sourceBottom: sourceInfo.bottom,
+                    targetLeft: targetInfo.left,
+                    targetRight: targetInfo.right,
+                    targetTop: targetInfo.top,
                 });
             }
         }

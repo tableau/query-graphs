@@ -9,15 +9,19 @@ export interface GroupNodeBox {
     height: number;
 }
 
-// One capsule-shaped connector per parent-child edge that stays within a single group —
-// i.e. it does not include the edge from a group's un-grouped createtemptable boundary
-// node down to its first grouped descendant.
+// One connector per parent-child edge that stays within a single group — i.e. it does not
+// include the edge from a group's un-grouped createtemptable boundary node down to its first
+// grouped descendant. Traced as a quadrilateral from the source node's bottom edge to the
+// target node's top edge, so its width tapers to match each endpoint's actual node width
+// rather than being a fixed-width tube.
 export interface GroupEdge {
     group: string;
-    x1: number;
-    y1: number;
-    x2: number;
-    y2: number;
+    sourceLeft: number;
+    sourceRight: number;
+    sourceBottom: number;
+    targetLeft: number;
+    targetRight: number;
+    targetTop: number;
 }
 
 export interface GroupBackdrop {
@@ -68,8 +72,16 @@ function computeGroupOutline(boxes: GroupNodeBox[], edges: GroupEdge[], padding:
         offset.AddPath(rect, ClipperLib.JoinType.jtRound, ClipperLib.EndType.etClosedPolygon);
     }
     for (const edge of edges) {
-        const line: ClipperLib.Path = [toClipperPoint(edge.x1, edge.y1), toClipperPoint(edge.x2, edge.y2)];
-        offset.AddPath(line, ClipperLib.JoinType.jtRound, ClipperLib.EndType.etOpenRound);
+        // A quadrilateral connecting the source node's bottom-left/bottom-right corners to the
+        // target node's top-left/top-right corners — connecting left-to-left and right-to-right
+        // keeps it simple (non-self-intersecting) even when the two nodes are horizontally offset.
+        const quad: ClipperLib.Path = [
+            toClipperPoint(edge.sourceLeft, edge.sourceBottom),
+            toClipperPoint(edge.sourceRight, edge.sourceBottom),
+            toClipperPoint(edge.targetRight, edge.targetTop),
+            toClipperPoint(edge.targetLeft, edge.targetTop),
+        ];
+        offset.AddPath(quad, ClipperLib.JoinType.jtRound, ClipperLib.EndType.etClosedPolygon);
     }
 
     const solution: ClipperLib.Paths = [];
