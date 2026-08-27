@@ -69,7 +69,13 @@ function QueryGraphInternal({treeDescription, children}: QueryGraphProps) {
     const updateNodeDimensions = useGraphRenderingStore((s) => s.updateNodeDimensions);
     const resizeObserver = useMemo(() => {
         resizeObserverRef.current?.disconnect();
-        const observer = new ResizeObserver(updateNodeDimensions);
+        // Deferred to the next frame: observing both a node and its own head/body descendants
+        // means a content resize necessarily resizes its ancestor within the same layout pass,
+        // which otherwise trips the browser's "ResizeObserver loop completed with undelivered
+        // notifications" error.
+        const observer = new ResizeObserver((entries) => {
+            window.requestAnimationFrame(() => updateNodeDimensions(entries));
+        });
         resizeObserverRef.current = observer;
         return observer;
     }, [updateNodeDimensions]);
