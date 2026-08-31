@@ -155,11 +155,15 @@ export function layoutTree(
         if (!targetNode || !sourceNode) continue;
         const sourceId = nodeIds.get(sourceNode.data)!;
         const targetId = nodeIds.get(targetNode.data)!;
+        // Dim the crosslink when either endpoint is dimmed, so focus mode never leaves a fully-opaque
+        // crosslink pointing at (or from) a greyed-out node — matching how tree edges dim with their
+        // target.
+        const linkDimmed = dimmedNodeIds.has(sourceId) || dimmedNodeIds.has(targetId);
         crosslinks.push({
             id: `${sourceId}->${targetId}`,
             source: sourceId,
             target: targetId,
-            className: "qg-crosslink",
+            className: ["qg-crosslink", linkDimmed ? "qg-edge-dimmed" : undefined].filter(Boolean).join(" "),
             focusable: true,
         });
     }

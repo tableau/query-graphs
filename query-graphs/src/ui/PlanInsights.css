@@ -212,6 +212,124 @@
     font-weight: 600;
 }
 
+/* Scan-types breakdown: a plain read-only list of scan source types and their counts. Structure and
+ * separator mirror the offenders list; rows are not clickable (informational). */
+.qg-insights-scantypes {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    margin: 8px 0;
+    padding-top: 8px;
+    border-top: 1px solid hsl(0, 0%, 92%);
+}
+.qg-insights-scantypes-title {
+    margin-bottom: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: hsl(0, 0%, 55%);
+}
+.qg-insights-scantype {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    width: 100%;
+    font: inherit;
+    text-align: left;
+    background: none;
+    border: none;
+    outline: none;
+    padding: 4px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    color: hsl(0, 0%, 25%);
+    transition: background 0.12s ease;
+}
+.qg-insights-scantype:hover {
+    background: hsl(0, 0%, 95%);
+}
+.qg-insights-scantype:focus-visible {
+    box-shadow: 0 0 0 2px hsl(210, 90%, 65%);
+}
+.qg-insights-scantype-label {
+    flex: 1;
+    white-space: nowrap;
+}
+.qg-insights-scantype-count {
+    margin-left: auto;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+    color: hsl(0, 0%, 40%);
+}
+
+/* Hybrid / vector search callout: a notable plan characteristic, not an issue, so it uses a distinct
+ * teal accent — a hue used nowhere else in the graph (node highlights are red/amber/blue, the runtime
+ * heatmap is purple ~265, crosslink edges are magenta ~309), so it never collides with them. Structure
+ * mirrors the offenders list. */
+.qg-insights-search {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    margin: 8px 0;
+    padding-top: 8px;
+    border-top: 1px solid hsl(0, 0%, 92%);
+}
+.qg-insights-search-title {
+    margin-bottom: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: hsl(182, 60%, 32%);
+}
+.qg-insights-search-item {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    width: 100%;
+    font: inherit;
+    text-align: left;
+    background: none;
+    border: none;
+    outline: none;
+    padding: 4px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    color: hsl(0, 0%, 25%);
+    transition: background 0.12s ease;
+}
+.qg-insights-search-item:hover {
+    background: hsl(182, 55%, 95%);
+}
+.qg-insights-search-item:focus-visible {
+    box-shadow: 0 0 0 2px hsl(182, 65%, 50%);
+}
+.qg-insights-search-badge {
+    flex: none;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 1px 5px;
+    border-radius: 4px;
+    color: hsl(182, 65%, 26%);
+    background: hsl(182, 50%, 88%);
+}
+.qg-insights-search-label {
+    flex: none;
+    white-space: nowrap;
+    font-weight: 500;
+}
+.qg-insights-search-detail {
+    margin-left: auto;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: hsl(0, 0%, 50%);
+    font-size: 11px;
+}
+
 .qg-insights-actions {
     display: flex;
     gap: 8px;

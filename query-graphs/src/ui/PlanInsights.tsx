@@ -35,6 +35,15 @@ interface Offender {
     costlyScan: boolean;
 }
 
+// A vector / hybrid search node (e.g. Data Cloud `hybrid_search`), called out so the user can spot
+// and jump to it. `label` is the index searched (falling back to the function name).
+interface SearchNode {
+    id: string;
+    label: string;
+    detail: string;
+    hybrid: boolean;
+}
+
 interface PlanInsightsProps {
     treeDescription: TreeDescription;
     // Maps each tree node to the id react-flow assigns it, so we can pan to it.
@@ -72,10 +81,14 @@ export function PlanInsights({treeDescription, nodeIdMapping}: PlanInsightsProps
     // and use an index — so membership is read from the per-category flags rather than the single
     // `highlightNode` display color (which can only reflect one category by precedence). This keeps
     // the legend counts honest: an index-rec on a costly scan still counts under "index-rec".
-    const {byCategory, totalProcessed, offenders} = useMemo(() => {
+    const {byCategory, totalProcessed, offenders, searchNodes, scanTypes} = useMemo(() => {
         const byCategory: Record<CategoryKey, string[]> = {"costly-scan": [], "index-rec": [], "index-used": []};
         let totalProcessed = 0;
         const scans: Offender[] = [];
+        const searchNodes: SearchNode[] = [];
+        // Group scan-node ids by their source type (`data-lake-object`, `tablescan`, …) for the
+        // "Scan types" breakdown; the count is the list length and the ids drive click-to-drill.
+        const scanTypeIds = new Map<string, string[]>();
         visitTreeNodes(
             treeDescription.root,
             (n) => {
@@ -84,6 +97,11 @@ export function PlanInsights({treeDescription, nodeIdMapping}: PlanInsightsProps
                 }
                 const id = nodeIdMapping.get(n);
                 if (id === undefined) return;
+                if (n.scanType) {
+                    const ids = scanTypeIds.get(n.scanType);
+                    if (ids) ids.push(id);
+                    else scanTypeIds.set(n.scanType, [id]);
+                }
                 const costly = costlyOf(n);
                 if (costly) byCategory["costly-scan"].push(id);
                 if (n.hasIndexRec) byCategory["index-rec"].push(id);
@@ -99,13 +117,30 @@ export function PlanInsights({treeDescription, nodeIdMapping}: PlanInsightsProps
                         costlyScan: costly,
                     });
                 }
+                // A vector / hybrid search node (Data Cloud `hybrid_search` etc.).
+                if (n.vectorSearch) {
+                    const vs = n.vectorSearch;
+                    // Prefer the index searched as the primary label; the vector DB + embedding model
+                    // make the informative detail line.
+                    const detailParts = [vs.vectorDb, vs.embeddingModel].filter((p): p is string => !!p);
+                    searchNodes.push({
+                        id,
+                        label: vs.index ?? vs.function ?? n.name ?? "search",
+                        detail: detailParts.join(" · "),
+                        hybrid: !!vs.hybrid,
+                    });
+                }
             },
             allChildren,
         );
         // Rank worst-first by raw processed volume — the rows Hyper actually had to read.
         scans.sort((a, b) => b.processed - a.processed);
         const offenders = scans.slice(0, TOP_OFFENDERS_LIMIT);
-        return {byCategory, totalProcessed, offenders};
+        // Most-frequent type first; ties broken alphabetically for a stable order.
+        const scanTypes = [...scanTypeIds.entries()]
+            .map(([type, ids]) => ({type, ids}))
+            .sort((a, b) => b.ids.length - a.ids.length || a.type.localeCompare(b.type));
+        return {byCategory, totalProcessed, offenders, searchNodes, scanTypes};
     }, [treeDescription, nodeIdMapping, costlyOf]);
 
     const counts: Record<CategoryKey, number> = {
@@ -181,6 +216,18 @@ export function PlanInsights({treeDescription, nodeIdMapping}: PlanInsightsProps
     if (counts["costly-scan"]) summaryParts.push(`${counts["costly-scan"]} costly scan${counts["costly-scan"] > 1 ? "s" : ""}`);
     if (counts["index-rec"]) summaryParts.push(`${counts["index-rec"]} index recommendation${counts["index-rec"] > 1 ? "s" : ""}`);
     if (totalProcessed > 0) summaryParts.push(`${formatMetric(totalProcessed)} rows processed`);
+    // A hybrid/vector search node is a notable plan characteristic (not an issue), so it is mentioned
+    // in the summary but does not flip the verdict to "warn".
+    if (searchNodes.length) {
+        // Hybrid and pure-vector searches can coexist in one plan; label each group by its own count
+        // rather than calling the whole set "hybrid" whenever a single node is (which mislabels the
+        // pure-vector ones). Uses "search"/"searches" per group so "1 hybrid search" reads correctly.
+        const hybridCount = searchNodes.filter((s) => s.hybrid).length;
+        const vectorCount = searchNodes.length - hybridCount;
+        const label = (n: number, kind: string) => `${n} ${kind} search${n > 1 ? "es" : ""}`;
+        if (hybridCount) summaryParts.push(label(hybridCount, "hybrid"));
+        if (vectorCount) summaryParts.push(label(vectorCount, "vector"));
+    }
     const summary = summaryParts.length ? summaryParts.join(", ") : "No scan issues detected";
 
     return (
@@ -253,6 +300,47 @@ export function PlanInsights({treeDescription, nodeIdMapping}: PlanInsightsProps
                                         <span className="qg-insights-offender-rank">{i + 1}.</span>
                                         <span className="qg-insights-offender-label">{trimLabel(o.label)}</span>
                                         <span className="qg-insights-offender-metric">{formatMetric(o.processed)}</span>
+                                    </button>
+                                ))}
+                            </div>
+                        ) : null}
+                        {scanTypes.length > 0 ? (
+                            <div className="qg-insights-scantypes">
+                                <div className="qg-insights-scantypes-title">Scan types</div>
+                                {scanTypes.map((s) => (
+                                    <button
+                                        key={s.type}
+                                        type="button"
+                                        className="qg-insights-scantype"
+                                        onClick={() => drillInto(s.ids, `scantype:${s.type}`)}
+                                        title={`${s.ids.length} ${s.type} scan${s.ids.length > 1 ? "s" : ""}. Click to jump${s.ids.length > 1 ? " (cycles through them)" : ""}.`}
+                                    >
+                                        <span className="qg-insights-scantype-label">{s.type}</span>
+                                        <span className="qg-insights-scantype-count">{s.ids.length}</span>
+                                    </button>
+                                ))}
+                            </div>
+                        ) : null}
+                        {searchNodes.length > 0 ? (
+                            <div className="qg-insights-search">
+                                <div className="qg-insights-search-title">
+                                    {searchNodes.some((s) => s.hybrid) ? "Hybrid / vector search" : "Vector search"}
+                                </div>
+                                {searchNodes.map((s) => (
+                                    <button
+                                        key={s.id}
+                                        type="button"
+                                        className="qg-insights-search-item"
+                                        onClick={() => centerOnNode(s.id)}
+                                        title={
+                                            `${s.hybrid ? "Hybrid" : "Vector"} search on ${s.label}` +
+                                            (s.detail ? ` (${s.detail})` : "") +
+                                            ". Click to jump."
+                                        }
+                                    >
+                                        <span className="qg-insights-search-badge">{s.hybrid ? "hybrid" : "vector"}</span>
+                                        <span className="qg-insights-search-label">{trimLabel(s.label)}</span>
+                                        {s.detail ? <span className="qg-insights-search-detail">{s.detail}</span> : null}
                                     </button>
                                 ))}
                             </div>

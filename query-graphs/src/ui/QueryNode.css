@@ -37,6 +37,13 @@
     border-color: hsl(45, 90%, 50%);
     box-shadow: 0 0 0 1px hsl(45, 90%, 50%);
 }
+/* Hybrid / vector search node: teal border matching the plan-insights legend accent (hsl(182)). It is
+ * a plan characteristic, not an issue, so only the border is tinted — no fill — and it doesn't compete
+ * with the costly-scan / index category colors. */
+.qg-graph-node.qg-node-vector-search {
+    border-color: hsl(182, 60%, 42%);
+    box-shadow: 0 0 0 1px hsl(182, 60%, 42%);
+}
 .qg-graph-node.qg-collapsed:hover,
 .qg-graph-node.qg-expanded {
     cursor: pointer;
@@ -104,14 +111,20 @@
 }
 .qg-graph-node.qg-expanded .qg-graph-node-body-wrapper {
     max-width: 30em;
-    max-height: 20em;
+    /* Show up to ~20 property rows, then scroll. Kept in sync with `.qg-graph-node-body` below:
+     * 20 rows * 1.5em line-height = 30em. */
+    max-height: 30em;
 }
 .qg-graph-node-body {
     width: max-content;
     height: max-content;
     overflow: auto;
     max-width: 30em;
-    max-height: 20em;
+    /* Fix the row line-height so the height cap maps to a predictable line count: at 1.5em/row a 30em
+     * cap shows 20 rows before the body starts scrolling (the wrapper carries `.nowheel`, so scrolling
+     * here never pans the canvas). */
+    line-height: 1.5em;
+    max-height: 30em;
 }
 
 .qg-prop-name {
@@ -126,6 +139,27 @@
     -ms-user-select: text;
     user-select: text;
     white-space: nowrap;
+}
+
+/* The clickable `... [n]` marker on a truncated column list. Reads as an inline link (no button
+ * chrome) so it sits naturally at the end of the column names; clicking reveals more columns. */
+.qg-prop-more {
+    font: inherit;
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    color: hsl(210, 70%, 45%);
+    cursor: pointer;
+    white-space: nowrap;
+}
+.qg-prop-more:hover {
+    text-decoration: underline;
+}
+.qg-prop-more:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px hsl(210, 90%, 80%);
+    border-radius: 3px;
 }
 
 .qg-prop-emphasized {
@@ -144,4 +178,24 @@
 .qg-prop-costly-scan {
     background: hsl(0, 100%, 88%);
     border-radius: 3px;
+}
+
+/* Teal highlight for a hybrid/vector search node's `function` row, matching the plan-insights legend
+ * accent (hsl(182)) and the node's teal border. */
+.qg-prop-vector-search {
+    background: hsl(182, 50%, 85%);
+    border-radius: 3px;
+}
+
+/* Grouped property (e.g. `table-metadata`): a header row whose sub-items are rendered as flush
+ * `- label: value` bullet rows below it (the "- " prefix is the only indentation cue; see QueryNode.tsx).
+ * The header carries no value, so its name reads as a section label. */
+.qg-prop-group-header .qg-prop-name {
+    color: hsl(0, 0%, 40%);
+}
+
+/* Green highlight for the "(likely early probe)" annotation on a 0-row processed-rows value:
+ * a 0-row scan pruned by an early probe is benign (work saved), so it reads as good, not a problem. */
+.qg-prop-early-probe {
+    color: hsl(140, 65%, 32%);
 }

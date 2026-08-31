@@ -3,6 +3,7 @@ export type IconName =
     | "filter-symbol"
     | "groupby-symbol"
     | "sort-symbol"
+    | "limit-symbol"
     | "inner-join-symbol"
     | "left-join-symbol"
     | "right-join-symbol"
@@ -23,6 +24,10 @@ export interface TreeNode {
     iconColor?: string;
     // Rendered in the tooltip
     properties?: Map<string, string>;
+    // Full relevant-first column name lists for truncated column-preview properties (keyed by the same
+    // property name, e.g. `columns`, `outputs`). Present only when the preview was elided; lets the UI
+    // progressively reveal the hidden columns when the `... [n]` marker is clicked.
+    columnLists?: Map<string, string[]>;
     // Colors the whole node based on its content so it can be spotted while collapsed, without
     // expanding to see the properties. The category (chosen by precedence: costly-scan > index-rec >
     // index-used) drives the highlight color, matching the corresponding property-row highlight.
@@ -40,6 +45,11 @@ export interface TreeNode {
     // Raw rows-matching-restrictions count for a scan node (unformatted). Paired with
     // scanProcessedRows to compute the processed-to-matching ratio in the offenders list.
     scanRowsMatching?: number;
+    // The scan's source type, used for the plan-insights "Scan types" breakdown. For the newer generic
+    // `scan` operator this is its `type` field (e.g. `data-lake-object`); for the older per-format
+    // operators it is the operator tag itself (`tablescan`, `icebergscan`, `parquetscan`, …). Only set
+    // on scan nodes.
+    scanType?: string;
     // Marks a costly scan: one whose processed-rows dwarf rows-matching (low selectivity).
     // Used to highlight the costly scan's processed-rows / rows-matching property rows in light red.
     costlyScan?: boolean;
@@ -71,6 +81,18 @@ export interface TreeNode {
     // that also has an index recommendation — so the plan-insights legend counts/drills off these.
     hasIndexRec?: boolean;
     hasIndexUsed?: boolean;
+
+    // Set on a `udtablefunction` node that performs a (hybrid / vector) search, e.g. Data Cloud's
+    // `hybrid_search`. Carries the key metadata surfaced by the Hyper loader so the plan-insights panel
+    // can call out the search node(s) and let the user jump to them. `hybrid` is true when the search
+    // also runs a keyword (lexical) retrieval leg alongside the vector one.
+    vectorSearch?: {
+        function?: string;
+        index?: string;
+        vectorDb?: string;
+        embeddingModel?: string;
+        hybrid?: boolean;
+    };
 
     // Additional CSS classes applied to the incoming link
     edgeClass?: string;
