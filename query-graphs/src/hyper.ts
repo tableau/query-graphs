@@ -407,12 +407,31 @@ function humanizeIuName(name: string | undefined): string | undefined {
 // (`convertOptimizerSteps` converts several plans in sequence), so it is reset in `convertHyperPlan`.
 let iuDisplayNames = new Map<string, string>();
 
+// Plan-scoped map: IU -> its user-facing *alias* when the query renamed the column and that alias differs
+// from the base column name in `iuDisplayNames`. A query may write `SELECT Name__c AS "Account Name"`; the
+// plan records that alias only at the top-level projection's `output-names`, positionally paired with the
+// output IUs. So the base table reads `Name__c` while every operator downstream carrying that same logical
+// column should read `Account Name` — making the plan read like the SQL. Populated by an alias flood-fill
+// (see `collectAliasInfo` and the flood in `convertHyperPlan`); consulted (preferred over the base name)
+// by `stringifyExpression`'s iuref case and `outputColumnName`. Scans keep the base name and annotate it
+// with the alias (`Name__c → Account Name`) instead of replacing it. Reset per plan.
+let iuAliases = new Map<string, string>();
+
 // Plan-scoped set of every IU name that is *referenced* by an operator somewhere in the plan (i.e. read
 // by an `iu-ref` expression). A scan defines columns via its `attributes`; a column is "used" if any
 // downstream operator's expression reads its IU. Consulted when truncating a wide scan's column preview
 // so the columns that actually feed the rest of the plan are the ones shown. Rebuilt per plan alongside
 // `iuDisplayNames`.
 let referencedIus = new Set<string>();
+
+// Plan-scoped memo mapping a raw operator node -> the set of IUs it references in its OWN expressions
+// (join `condition`, `key-expressions`, `map` `values`, sort keys, …) but NOT inside any nested child
+// operator, and NOT inside a passthrough `output`/`mapping` projection. This is "which of my child's
+// columns do *I* actually consume". Used to order a node's `output columns` so the ones its immediate
+// parent reads lead the preview — the reader doesn't have to scroll a wide row to find the join key or
+// grouping column the parent above it uses. Rebuilt per plan; memoized because sibling children all
+// query the same parent. See `collectDirectRefs`.
+let directRefsCache = new WeakMap<object, Set<string>>();
 
 // Plan-scoped memo for `computeOutputIus`, keyed by the raw operator node. The output-column derivation
 // is called once per non-scan operator during the top-down conversion and recursively re-derives the
@@ -512,6 +531,30 @@ function collectIuInfo(
         }
     }
 
+    // A `group-by` emits its grouping keys as fresh `GroupByKeyN` IUs (`key-expressions[i].iu`), each
+    // grouping on an `expression.value` that — for a plain grouping column — is an `iu-ref` to the
+    // source column's IU. That source IU has a real display name (from a scan attribute, or another
+    // group-by's key upstream), but the produced `GroupByKeyN` never would, so it renders as the opaque
+    // `⟨group key #N⟩` everywhere it flows downstream (explicit-scan re-reads, join conditions). Record
+    // the grouping as the same kind of target->source rename link so the fixpoint below carries the real
+    // column name onto `GroupByKeyN`. Only plain column groupings are linked; a computed key expression
+    // has no single column name to carry forward.
+    const keyExprs = node["key-expressions"] ?? node["keyExpressions"];
+    if (Array.isArray(keyExprs)) {
+        for (const k of keyExprs) {
+            const targetIu = iuName(tryGetPropertyPath(k, ["iu"]));
+            // Newer plans wrap the key expression under `expression.value`; legacy plans put it directly
+            // under `value`. Accept both, mirroring the group-by rendering path.
+            const source = tryGetPropertyPath(k, ["expression", "value"]) ?? tryGetPropertyPath(k, ["value"]);
+            if (targetIu === undefined || source === undefined) continue;
+            const sourceKind = tryToString(tryGetPropertyPath(source, ["expression"]))?.replace(/-/g, "");
+            if (sourceKind === "iuref") {
+                const sourceIu = iuName(tryGetPropertyPath(source, ["iu"]));
+                if (sourceIu !== undefined) mappingLinks.push({target: targetIu, source: sourceIu});
+            }
+        }
+    }
+
     // An `iu-ref` (kebab or concatenated) names the IU it reads in `iu` (a bare name or a `[name, type]`
     // pair). Record it as a genuine use unless we are inside a passthrough construct (see above).
     const kind = tryToString(node["expression"])?.replace(/-/g, "");
@@ -526,13 +569,151 @@ function collectIuInfo(
     }
 }
 
-// Order a node's columns "relevant first": columns actually *used* later in the plan (their IU is in
-// `referencedIus`) lead, the rest follow, with original order preserved within each group. Returns the
-// bare display names. This full ordered list is what the UI progressively reveals when the preview is
-// truncated (see COLUMN_PREVIEW_COUNT and QueryNode.tsx).
-function orderColumnsRelevantFirst(cols: {name: string; iu: string | undefined}[]): string[] {
-    const isUsed = (c: {iu: string | undefined}) => c.iu !== undefined && referencedIus.has(c.iu);
-    return [...cols.filter(isUsed), ...cols.filter((c) => !isUsed(c))].map((c) => c.name);
+// Collect the IUs that a single operator reads in its OWN expressions — its direct consumption of its
+// children's output columns. Unlike `collectIuInfo` (which walks the whole plan), this stops at the
+// boundary of any nested child operator (`operator` key): a child's internal `iu-ref`s read the child's
+// *own* inputs, not this operator's, so descending would conflate levels. Passthrough `output`/`mapping`
+// projections are suppressed for the same reason as in `collectIuInfo` — they carry an `iu-ref` for every
+// column flowing through, which would mark every column "used" and defeat the ordering. `isChild` is
+// false only for the operator we start from, so the boundary check never trips on it.
+function collectDirectRefs(node: Json | undefined, refs: Set<string>, underPassthrough: boolean, isChild: boolean): void {
+    if (Array.isArray(node)) {
+        for (const child of node) collectDirectRefs(child, refs, underPassthrough, isChild);
+        return;
+    }
+    if (typeof node !== "object" || node === null) return;
+    // Boundary: a nested operator owns its own reference scope — do not descend into it.
+    if (isChild && node.hasOwnProperty("operator")) return;
+    const kind = tryToString(node["expression"])?.replace(/-/g, "");
+    if (kind === "iuref" && !underPassthrough) {
+        const iu = node["iu"];
+        const raw = Array.isArray(iu) ? iu[0] : iu;
+        if (typeof raw === "string") refs.add(raw);
+    }
+    for (const key of Object.getOwnPropertyNames(node)) {
+        collectDirectRefs(node[key], refs, underPassthrough || key === "output" || key === "mapping", true);
+    }
+}
+
+// Memoized accessor for an operator's direct references (see `directRefsCache`).
+function directRefsOf(node: object): Set<string> {
+    let refs = directRefsCache.get(node);
+    if (refs === undefined) {
+        refs = new Set<string>();
+        collectDirectRefs(node as Json, refs, false, false);
+        directRefsCache.set(node, refs);
+    }
+    return refs;
+}
+
+// Collect the alias flood-fill inputs (see the `iuAliases` block comment): an UNDIRECTED graph of
+// "same logical column" links plus the aliased-output seeds. Only the two link kinds NOT already in
+// `mappingLinks` (scan renames / explicit-scan mappings / group-by keys) are gathered here:
+//   • set-op `values`: output `ius[i]` ↔ each input branch's `values[k][i]` iu-ref;
+//   • `map` `values`: the produced `iu` ↔ the IU(s) it purely passes through (plain iu-ref or coalesce).
+// Seeds pair each projection's `output[i].iu` with its user-facing `output-names[i]`.
+function collectAliasInfo(node: Json | undefined, links: {a: string; b: string}[], seeds: Map<string, string>): void {
+    if (Array.isArray(node)) {
+        for (const child of node) collectAliasInfo(child, links, seeds);
+        return;
+    }
+    if (typeof node !== "object" || node === null) return;
+
+    // Alias seeds: a projection's `output[i].iu` takes the user-facing `output-names[i]`.
+    const output = node["output"];
+    const outputNames = node["output-names"] ?? node["outputNames"];
+    if (Array.isArray(output) && Array.isArray(outputNames)) {
+        for (let i = 0; i < output.length && i < outputNames.length; i++) {
+            const iu = iuName(tryGetPropertyPath(output[i], ["iu"]));
+            const name = outputNames[i];
+            if (iu !== undefined && typeof name === "string" && !seeds.has(iu)) seeds.set(iu, name);
+        }
+    }
+
+    const ius = node["ius"];
+    const values = node["values"];
+    if (Array.isArray(ius) && Array.isArray(values)) {
+        // Set operation: `ius[i]` is output column i; `values[k][i]` is input branch k's iu-ref for it.
+        for (const branch of values) {
+            if (!Array.isArray(branch)) continue;
+            for (let i = 0; i < branch.length && i < ius.length; i++) {
+                const kind = tryToString(tryGetPropertyPath(branch[i], ["expression"]))?.replace(/-/g, "");
+                if (kind !== "iuref") continue;
+                const outIu = iuName(ius[i]);
+                const srcIu = iuName(tryGetPropertyPath(branch[i], ["iu"]));
+                if (outIu !== undefined && srcIu !== undefined) links.push({a: outIu, b: srcIu});
+            }
+        }
+    } else if (Array.isArray(values)) {
+        // A `map` defines each `values[j] = {iu, value}`. Link the produced IU to the column(s) it is a
+        // pure passthrough of; computed values (arithmetic, const, …) mint a new column with no upstream
+        // alias to inherit, so they contribute no link.
+        for (const entry of values) {
+            const targetIu = iuName(tryGetPropertyPath(entry, ["iu"]));
+            if (targetIu === undefined) continue;
+            for (const srcIu of passthroughSourceIus(tryGetPropertyPath(entry, ["value"]))) {
+                links.push({a: targetIu, b: srcIu});
+            }
+        }
+    }
+
+    for (const key of Object.getOwnPropertyNames(node)) collectAliasInfo(node[key], links, seeds);
+}
+
+// The IUs a `map` value purely passes through: a plain `iu-ref` yields its one IU; a `coalesce` yields
+// the IUs of its direct `iu-ref` children (a full-outer-join merge of one column's two sides). Any other
+// expression is a genuine computation whose result is a new column, so it yields none.
+function passthroughSourceIus(value: Json | undefined): string[] {
+    if (value === undefined) return [];
+    const kind = tryToString(tryGetPropertyPath(value, ["expression"]))?.replace(/-/g, "");
+    if (kind === "iuref") {
+        const iu = iuName(tryGetPropertyPath(value, ["iu"]));
+        return iu === undefined ? [] : [iu];
+    }
+    if (kind === "coalesce") {
+        // `coalesce` is a general SQL function, but the plan uses it in one alias-relevant way: merging
+        // the two sides of a full-outer join on the SAME column (take whichever side is non-null). Only
+        // that usage is a same-logical-column passthrough. A `coalesce` over genuinely different columns
+        // (`COALESCE(a, b)`) mints a new value and must NOT fuse `a` and `b` into one alias component — so
+        // link only when every child is an `iu-ref` and they all resolve to the same known base column.
+        // (Operands live under `value` in the plans seen; accept `arguments` defensively. Pick whichever
+        // field actually holds the operand array — a plain `?? ` would wrongly keep a non-array `value`.)
+        const args = [tryGetPropertyPath(value, ["value"]), tryGetPropertyPath(value, ["arguments"])].find(Array.isArray);
+        if (!Array.isArray(args)) return [];
+        const ius: string[] = [];
+        for (const arg of args) {
+            const argKind = tryToString(tryGetPropertyPath(arg, ["expression"]))?.replace(/-/g, "");
+            if (argKind !== "iuref") return []; // a computed operand -> not a plain column merge
+            const iu = iuName(tryGetPropertyPath(arg, ["iu"]));
+            if (iu === undefined) return [];
+            ius.push(iu);
+        }
+        const baseNames = new Set(ius.map((iu) => iuDisplayNames.get(iu)));
+        if (baseNames.size !== 1 || baseNames.has(undefined)) return [];
+        return ius;
+    }
+    return [];
+}
+
+// Order a node's columns "relevant first" in three tiers, original order preserved within each: (1) the
+// columns the immediate parent operator directly reads (`parentRefs`) — so the join key / grouping column
+// the parent above consumes leads the preview and needs no scrolling; (2) columns used *somewhere* else
+// downstream (`referencedIus`); (3) everything else. When `parentRefs` is absent (root, or a passthrough
+// parent that reads nothing) this degrades to the original two-tier used-first ordering. Returns the bare
+// display names — the full ordered list the UI progressively reveals when the preview is truncated (see
+// COLUMN_PREVIEW_COUNT and QueryNode.tsx).
+function orderColumnsRelevantFirst(
+    cols: {name: string; iu: string | undefined}[],
+    parentRefs?: Set<string>,
+): string[] {
+    const usedByParent = (c: {iu: string | undefined}) =>
+        c.iu !== undefined && parentRefs !== undefined && parentRefs.has(c.iu);
+    const usedElsewhere = (c: {iu: string | undefined}) => c.iu !== undefined && referencedIus.has(c.iu);
+    return [
+        ...cols.filter((c) => usedByParent(c)),
+        ...cols.filter((c) => !usedByParent(c) && usedElsewhere(c)),
+        ...cols.filter((c) => !usedByParent(c) && !usedElsewhere(c)),
+    ].map((c) => c.name);
 }
 
 // How many columns a truncated preview shows before eliding into `... [remaining]`. The UI reveals this
@@ -573,7 +754,7 @@ function dedupOutputColumns(cols: OutputColumn[]): OutputColumn[] {
 // name) when we have one, else the raw IU name — which for computed IUs (aggregates, GroupByKey, map
 // results) is the plan's own short label (`avg`, `sum`, `GroupByKey`), still readable.
 function outputColumnName(iu: string): string {
-    return iuDisplayNames.get(iu) ?? iu;
+    return iuAliases.get(iu) ?? iuDisplayNames.get(iu) ?? iu;
 }
 
 // Pull the IU name out of Hyper's `[name, type]` pair (or a bare name).
@@ -623,11 +804,13 @@ function deriveOutputIus(node: JsonObject, depth: number): OutputColumn[] {
                     const iu = iuName(tryGetPropertyPath(a, ["iu"]));
                     const nm = tryGetPropertyPath(a, ["name"]);
                     if (iu === undefined && typeof nm !== "string") return undefined;
-                    // Prefer the recovered display name so a set-operation's propagated result name
-                    // (see `propagateSetOpNames`) shows on a pass-through scan column as it flows into a
-                    // union. `iuDisplayNames` is normally seeded from this very attribute name, so for an
-                    // un-propagated plan this resolves to the same string.
-                    const display = iu !== undefined ? iuDisplayNames.get(iu) : undefined;
+                    // Prefer the column's query alias, then its recovered display name, so a column that
+                    // is aliased (`Name__c → "Account Name"`) or carries a set-operation's propagated
+                    // result name (see `propagateSetOpNames`) reads with that name as it flows up through
+                    // a join / filter / union — matching what the scan below annotates. `iuDisplayNames`
+                    // is normally seeded from this very attribute name, so an un-aliased, un-propagated
+                    // plan resolves to the same string.
+                    const display = iu !== undefined ? (iuAliases.get(iu) ?? iuDisplayNames.get(iu)) : undefined;
                     return {name: display ?? (typeof nm === "string" ? nm : iu!), iu};
                 })
                 .filter((c): c is OutputColumn => c !== undefined),
@@ -747,9 +930,13 @@ function deriveOutputIus(node: JsonObject, depth: number): OutputColumn[] {
 // otherwise fall back to a raw expression string. Push each set-op output name down onto every input's
 // column at the same position, so all inputs read with the same result-column names as the set operation
 // above them — making the columns flowing into the union verifiable at a glance. Walks top-down so a
-// nested set-op inherits the outer names first, then passes them further down. Overrides any existing
-// name: the set-op's result name is the authoritative label for that column as it flows through, even for
-// a pass-through column that also carries a base name deeper in the plan.
+// nested set-op inherits the outer names first, then passes them further down. Only *fills in* IUs that
+// have no recovered name yet — it never overwrites a column's real, recovered name. An IU already resolved
+// to a base column (e.g. a grouping key that traces back to `Name__c`) can be referenced elsewhere as a
+// genuine column identity — most importantly in a join/filter predicate deeper in the branch — where the
+// set-op's positional result alias (`Sum of Amount`) would be flat wrong for it. The set op's own output
+// columns still render with the result aliases via the node-scoped `setOpInputColumns` map, so gating here
+// costs the union display nothing.
 function propagateSetOpNames(node: Json | undefined, depth = 0): void {
     if (depth > 40 || typeof node !== "object" || node === null) return;
     if (Array.isArray(node)) {
@@ -775,18 +962,12 @@ function propagateSetOpNames(node: Json | undefined, depth = 0): void {
             if (typeof input === "object" && input !== null && !setOpInputColumns.has(input)) {
                 setOpInputColumns.set(input, outCols);
             }
-            // Also push each output name down onto the input's positionally-aligned column IU, so a
-            // computed IU that later appears in an expression (or a nested set op's `ius`) resolves to the
-            // result-column name rather than a raw internal label.
-            const inCols = computeOutputIus(input);
-            for (let i = 0; i < inCols.length && i < outIus.length; i++) {
-                const inIu = inCols[i].iu;
-                const outIu = outIus[i];
-                const outName = outIu === undefined ? undefined : iuDisplayNames.get(outIu);
-                if (inIu !== undefined && outName !== undefined) {
-                    iuDisplayNames.set(inIu, outName);
-                }
-            }
+            // NB: we deliberately do NOT push the set op's output names down onto its inputs' columns by
+            // position here. `computeOutputIus` order can misalign against `ius` (a `map` appends computed
+            // columns, a child can be over-derived), which silently mislabeled unnamed computed IUs — e.g.
+            // an aggregate landing opposite the wrong result column got the wrong name. The alias
+            // flood-fill (see `iuAliases`) instead carries result-column names down the RELIABLE per-column
+            // `values` links a set operation carries, so a computed IU resolves via its true lineage.
         }
     }
     for (const key of Object.getOwnPropertyNames(node)) {
@@ -800,45 +981,6 @@ function propagateSetOpNames(node: Json | undefined, depth = 0): void {
 // guards against pathological nesting; past the limit we bail to a placeholder rather than produce an
 // unreadable wall of text. Returns undefined when the shape isn't one we render, so callers can fall
 // back to the subtree.
-// The join side (`"L"` / `"R"`) a comparison operand belongs to, used to normalize operand order in a
-// join condition. Only defined for a bare `iu-ref` operand (the overwhelmingly common case) whose IU
-// the active `iuSideTag` attributes to a single input. Returns undefined otherwise — no active tag, a
-// complex operand (e.g. `lower(a)`), or an IU that can't be attributed — so the caller leaves the
-// operand order as the plan emitted it.
-function operandSide(expr: Json | undefined): "L" | "R" | undefined {
-    if (iuSideTag === undefined || typeof expr !== "object" || expr === null || Array.isArray(expr)) return undefined;
-    if (tryToString(expr["expression"])?.replace(/-/g, "") !== "iuref") return undefined;
-    const iu = expr["iu"];
-    const raw = Array.isArray(iu) ? iu[0] : iu;
-    if (typeof raw !== "string") return undefined;
-    const side = iuSideTag(raw);
-    return side === "" ? undefined : side;
-}
-
-// When swapping a comparison's two operands, return the mode that preserves its meaning: symmetric modes
-// (`=`, `<>`) are unchanged; ordered modes invert (`<`↔`>`, `<=`↔`>=`). An unrecognized mode returns
-// undefined, which tells the caller not to swap — so an operator we don't know how to flip is never
-// silently mis-rendered.
-function flipComparisonMode(mode: string): string | undefined {
-    switch (mode) {
-        case "=":
-        case "==":
-        case "<>":
-        case "!=":
-            return mode;
-        case "<":
-            return ">";
-        case ">":
-            return "<";
-        case "<=":
-            return ">=";
-        case ">=":
-            return "<=";
-        default:
-            return undefined;
-    }
-}
-
 function stringifyExpression(expr: Json | undefined, depth = 0): string | undefined {
     if (depth > 6) return "…";
     // A missing operand (absent key → `undefined`, or an explicit `null`) must return real `undefined`,
@@ -866,9 +1008,11 @@ function stringifyExpression(expr: Json | undefined, depth = 0): string | undefi
             const iu = expr["iu"];
             const raw = Array.isArray(iu) ? iu[0] : iu;
             if (typeof raw !== "string") return undefined;
-            // Prefer the real column name the plan carries elsewhere (scan attributes / output-names,
-            // see `iuDisplayNames`); fall back to prettifying the opaque internal IU name.
-            const name = iuDisplayNames.get(raw) ?? humanizeIuName(raw);
+            // Prefer the query's alias for this column when one exists (so a predicate joining on an
+            // aliased column reads like the SQL — `Account Name`, not `Name__c`), then the real base
+            // column name the plan carries elsewhere (scan attributes / output-names, see
+            // `iuDisplayNames`), and finally prettify the opaque internal IU name.
+            const name = iuAliases.get(raw) ?? iuDisplayNames.get(raw) ?? humanizeIuName(raw);
             // Within a join condition, frame the column by which side of the join it comes from: the
             // left input takes a `⟨L⟩` prefix, the right input a `⟨R⟩` suffix.
             if (iuSideTag === undefined) return name;
@@ -881,30 +1025,14 @@ function stringifyExpression(expr: Json | undefined, depth = 0): string | undefi
             return stringifyConst(expr);
         case "comparison": {
             const mode = tryToString(expr["mode"]) ?? "?";
-            let leftExpr = expr["left"];
-            let rightExpr = expr["right"];
-            let renderMode = mode;
-            // Within a join condition, normalize operand order so the left-input column always prints
-            // first, giving a consistent `⟨L⟩ … = … ⟨R⟩` reading regardless of the order the optimizer
-            // emitted. Flip whenever doing so moves the arrangement toward "L on the left, R on the
-            // right": a left-side operand parked on the right, or a right-side operand parked on the
-            // left. This deliberately triggers even when the *other* operand's side is unknown (its IU
-            // wasn't attributable to a single input) — otherwise a lone `⟨L⟩` could be stranded on the
-            // right next to an untagged operand. When the comparison is ordered (`<`, `>`, …) the mode
-            // is inverted so the meaning is preserved (an unflippable mode leaves the order untouched).
-            const leftSide = operandSide(leftExpr);
-            const rightSide = operandSide(rightExpr);
-            if ((leftSide === "R" && rightSide !== "R") || (rightSide === "L" && leftSide !== "L")) {
-                const flipped = flipComparisonMode(mode);
-                if (flipped !== undefined) {
-                    [leftExpr, rightExpr] = [rightExpr, leftExpr];
-                    renderMode = flipped;
-                }
-            }
-            const left = stringifyExpression(leftExpr, depth + 1);
-            const right = stringifyExpression(rightExpr, depth + 1);
+            // Render operands in the exact order the plan emitted them — do NOT reorder to force an
+            // `⟨L⟩ … ⟨R⟩` reading. The optimizer's operand order is meaningful (e.g. a right-anti /
+            // right-semi join's probe vs build side), so the condition reads the same way the query plan
+            // renders it. The `⟨L⟩`/`⟨R⟩` side tags on each operand still show which input it comes from.
+            const left = stringifyExpression(expr["left"], depth + 1);
+            const right = stringifyExpression(expr["right"], depth + 1);
             if (left === undefined || right === undefined) return undefined;
-            return `${left} ${renderMode} ${right}`;
+            return `${left} ${mode} ${right}`;
         }
         case "between": {
             const args = expr["arguments"];
@@ -1135,8 +1263,14 @@ function reorderProperties(properties: Map<string, string>, order: string[]): vo
     }
 }
 
-// Convert Hyper JSON to a D3 tree
-function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionState): TreeNode | TreeNode[] {
+// Convert Hyper JSON to a D3 tree. `parentOperator` is the nearest enclosing operator node (undefined at
+// the root); a node's `output columns` are ordered so the columns that operator directly reads lead.
+function convertHyperNode(
+    rawNode: Json,
+    parentKey,
+    conversionState: ConversionState,
+    parentOperator?: object,
+): TreeNode | TreeNode[] {
     if (tryToString(rawNode) !== undefined) {
         return {
             name: tryToString(rawNode),
@@ -1146,13 +1280,15 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
         const expandedChildren = [] as TreeNode[];
         const collapsedChildren = [] as TreeNode[];
         const properties = new Map<string, string>();
+        // The IUs the parent operator directly consumes, so this node's output columns can lead with them.
+        const parentRefs = parentOperator !== undefined ? directRefsOf(parentOperator) : undefined;
         // Full relevant-first column name lists for truncated column previews, keyed by property name
         // (`columns`, `outputs`). Carried on the node so the UI can progressively reveal the elided
         // columns when the `... [n]` is clicked; only populated when truncation actually happened.
         const columnLists = new Map<string, string[]>();
         // Set a column-preview property and, when truncated, stash the full ordered list for the UI.
         const setColumnPreview = (key: string, cols: OutputColumn[]) => {
-            const ordered = orderColumnsRelevantFirst(cols);
+            const ordered = orderColumnsRelevantFirst(cols, parentRefs);
             const preview = formatColumnPreview(ordered);
             if (preview === undefined) return;
             properties.set(key, preview);
@@ -1258,9 +1394,12 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
                 continue;
             }
 
-            // Display as part of the tree
+            // Display as part of the tree. Pass this node down as the child's parent operator (so the
+            // child orders its output columns by what we read); when this node is not itself an operator
+            // (a wrapper/expression), forward the nearest enclosing operator unchanged.
             const children = isAlwaysExpanded(rawNode, key) ? expandedChildren : collapsedChildren;
-            const innerNodes = convertHyperNode(rawNode[key], key, conversionState);
+            const childParentOperator = nodeType === "operator" ? rawNode : parentOperator;
+            const innerNodes = convertHyperNode(rawNode[key], key, conversionState, childParentOperator);
             if (fixedChildOrder.indexOf(key) != -1) {
                 if (Array.isArray(innerNodes)) {
                     // Flatten the array, in case it's one of the "fixedChildOrder" keys
@@ -1546,7 +1685,12 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
                         // too, keeping a single consistent name per IU across the tree. Normally seeded
                         // from this attribute name, so an un-propagated plan resolves to the same string.
                         const display = iuKey !== undefined ? iuDisplayNames.get(iuKey) : undefined;
-                        return {name: display ?? name, iu: iuKey};
+                        const base = display ?? name;
+                        // The base table reports the real column name AND its query alias (if any),
+                        // annotated `Name__c → Account Name`, so the reader sees both the physical column
+                        // and the name it goes by downstream. Never replace the base name here.
+                        const alias = iuKey !== undefined ? iuAliases.get(iuKey) : undefined;
+                        return {name: alias !== undefined && alias !== base ? `${base} → ${alias}` : base, iu: iuKey};
                     })
                     .filter((c): c is {name: string; iu: string | undefined} => c !== undefined);
                 setColumnPreview("output columns", cols);
@@ -1918,12 +2062,14 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
                     for (const v of values) {
                         const iu = tryGetPropertyPath(v, ["iu"]);
                         const rawName = Array.isArray(iu) ? iu[0] : iu;
-                        // Prefer the recovered output-column name (e.g. a set-op result name propagated
-                        // onto this computed IU) so the `column N` label matches the node's `output
-                        // columns` row; fall back to the humanized internal IU (`⟨computed⟩`) when the
-                        // column has no recovered name.
+                        // Prefer the user-facing alias (e.g. `Sum of Amount`, `grouping_2__sl`) the flood
+                        // recovered for this computed IU, then its base column name, so the `column N`
+                        // label matches the node's `output columns` row; fall back to the humanized
+                        // internal IU (`⟨computed⟩`) when the column has no recovered name.
                         const name =
-                            typeof rawName === "string" ? (iuDisplayNames.get(rawName) ?? humanizeIuName(rawName)) : undefined;
+                            typeof rawName === "string"
+                                ? (iuAliases.get(rawName) ?? iuDisplayNames.get(rawName) ?? humanizeIuName(rawName))
+                                : undefined;
                         const exprStr = stringifyExpression(tryGetPropertyPath(v, ["value"]));
                         if (name === undefined || exprStr === undefined || exprStr.length === 0) continue;
                         colStrs.push(`${name} = ${exprStr}`);
@@ -2180,7 +2326,13 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
             const setOpCols = setOpInputColumns.get(rawNode);
             if (setOpCols !== undefined && setOpCols.length > 0) {
                 columnLists.delete("output columns");
-                setColumnPreview("output columns", setOpCols);
+                // Re-resolve names from the stored IUs now, not from the names captured when
+                // `propagateSetOpNames` ran: that pass executes before the alias flood-fill populates
+                // `iuAliases`, so a column that only gains an alias during the flood (e.g. a nested set
+                // op aliased by an outer projection) would otherwise show its base name here while the
+                // set op's own output row shows the alias. Resolving at display time keeps both in sync.
+                const resolved = setOpCols.map((c) => (c.iu !== undefined ? {name: outputColumnName(c.iu), iu: c.iu} : c));
+                setColumnPreview("output columns", resolved);
             }
         }
 
@@ -2228,7 +2380,7 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
         for (let index = 0; index < rawNode.length; ++index) {
             const value = rawNode[index];
             const name = `${parentKey}.${index}`;
-            let innerNode = convertHyperNode(value, name, conversionState);
+            let innerNode = convertHyperNode(value, name, conversionState, parentOperator);
             if (Array.isArray(innerNode)) {
                 innerNode = {children: innerNode};
             }
@@ -2322,7 +2474,9 @@ function convertHyperPlan(node: Json): TreeDescription {
     // columns actually used by the rest of the plan). Rebuilt per plan since `convertOptimizerSteps`
     // converts several plans in sequence.
     iuDisplayNames = new Map<string, string>();
+    iuAliases = new Map<string, string>();
     referencedIus = new Set<string>();
+    directRefsCache = new WeakMap<object, Set<string>>();
     outputIuCache = new WeakMap<object, OutputColumn[]>();
     setOpInputColumns = new WeakMap<object, OutputColumn[]>();
     const mappingLinks: {target: string; source: string}[] = [];
@@ -2353,6 +2507,57 @@ function convertHyperPlan(node: Json): TreeDescription {
     // operator's `output columns` using the propagated names.
     propagateSetOpNames(node);
     outputIuCache = new WeakMap<object, OutputColumn[]>();
+    // Alias flood-fill (see the `iuAliases` block comment): build the undirected "same logical column"
+    // graph — the base-name rename links (`mappingLinks`: scan renames, explicit-scan mappings, group-by
+    // keys) reused undirected, plus set-op/map `values` links — then from each aliased output IU walk to
+    // every IU carrying that logical column, recording the alias wherever it differs from the base name.
+    // Runs after `iuDisplayNames` is fully settled so the base-name guard is accurate.
+    const aliasLinks: {a: string; b: string}[] = [];
+    const aliasSeeds = new Map<string, string>();
+    collectAliasInfo(node, aliasLinks, aliasSeeds);
+    const adjacency = new Map<string, string[]>();
+    const addEdge = (a: string, b: string) => {
+        let la = adjacency.get(a);
+        if (la === undefined) adjacency.set(a, (la = []));
+        la.push(b);
+        let lb = adjacency.get(b);
+        if (lb === undefined) adjacency.set(b, (lb = []));
+        lb.push(a);
+    };
+    for (const {target, source} of mappingLinks) addEdge(target, source);
+    for (const {a, b} of aliasLinks) addEdge(a, b);
+    // Walk each connected component once. A component represents a single logical column iff its seeds
+    // agree on one alias; if two distinctly-aliased outputs got fused into it (a shared upstream IU, an
+    // over-linked expression), the component is ambiguous — leave it un-aliased rather than let one seed
+    // arbitrarily win and mislabel the other's column (its base name still reads correctly). Within an
+    // aliased component, skip IUs whose base name already equals the alias (the base already reads right).
+    const visited = new Set<string>();
+    for (const start of adjacency.keys()) {
+        if (visited.has(start)) continue;
+        const component: string[] = [];
+        const stack = [start];
+        visited.add(start);
+        while (stack.length > 0) {
+            const cur = stack.pop() as string;
+            component.push(cur);
+            for (const nb of adjacency.get(cur) ?? []) {
+                if (!visited.has(nb)) {
+                    visited.add(nb);
+                    stack.push(nb);
+                }
+            }
+        }
+        const seededAliases = new Set<string>();
+        for (const iu of component) {
+            const a = aliasSeeds.get(iu);
+            if (a !== undefined) seededAliases.add(a);
+        }
+        if (seededAliases.size !== 1) continue;
+        const alias = seededAliases.values().next().value as string;
+        for (const iu of component) {
+            if (!iuAliases.has(iu) && iuDisplayNames.get(iu) !== alias) iuAliases.set(iu, alias);
+        }
+    }
     // Check if the query failed. The runtime statistics block was renamed from `analyze` to
     // `statistics` in the FORMAT JSON rework (W-22563058); read both for backwards compat.
     const errorMsg =
