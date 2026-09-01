@@ -71,10 +71,6 @@
 .qg-color-bar-below {
     margin-top: 4px;
 }
-.query-graph .react-flow__node-querynode:hover .qg-color-bar-below,
-.qg-graph-node.qg-expanded .qg-color-bar-below {
-    margin-bottom: 0.8em;
-}
 .qg-color-bar-seg {
     flex: 1 1 0;
     border-radius: 2px;
