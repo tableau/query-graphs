@@ -70,8 +70,6 @@
 }
 .qg-color-bar-below {
     margin-top: 4px;
-    /* Keep the bar above the subtree +/- handle at the bottom of the node. */
-    margin-bottom: 1em;
 }
 .qg-color-bar-seg {
     flex: 1 1 0;
