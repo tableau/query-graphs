@@ -1,0 +1,545 @@
+.qg-insights {
+    background: white;
+    border: 1px solid hsl(0, 0%, 90%);
+    border-radius: 10px;
+    box-shadow:
+        0 2px 6px hsl(0, 0%, 0%, 0.08),
+        0 1px 2px hsl(0, 0%, 0%, 0.06);
+    font-size: 12px;
+    line-height: 1.4;
+    color: hsl(0, 0%, 20%);
+}
+
+/* Centered summary pill on the top row. */
+.qg-insights-summary-panel {
+    padding: 9px 18px;
+}
+/* Tools box (legend + offenders + navigation) in the top-right corner. */
+.qg-insights-tools-panel {
+    padding: 10px 12px;
+    max-width: 24em;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+/* When minimized, shrink to the header bar only. */
+.qg-insights-tools-panel.qg-insights-minimized {
+    padding: 6px 8px 6px 12px;
+}
+
+/* Header row carrying the panel title and the minimize/expand toggle. */
+.qg-insights-tools-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+.qg-insights-tools-panel:not(.qg-insights-minimized) .qg-insights-tools-header {
+    margin-bottom: 8px;
+}
+.qg-insights-tools-title {
+    font-weight: 600;
+    color: hsl(0, 0%, 35%);
+}
+.qg-insights-minimize {
+    border: 1px solid hsl(0, 0%, 85%);
+    background: white;
+    border-radius: 5px;
+    width: 20px;
+    height: 20px;
+    line-height: 1;
+    padding: 0;
+    cursor: pointer;
+    color: hsl(0, 0%, 40%);
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+}
+.qg-insights-minimize:hover {
+    background: hsl(0, 0%, 96%);
+    border-color: hsl(0, 0%, 75%);
+}
+
+.qg-insights-summary {
+    font-weight: 600;
+    font-size: 17px;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+}
+.qg-insights-verdict-warn {
+    color: hsl(28, 80%, 45%);
+}
+.qg-insights-verdict-ok {
+    color: hsl(140, 45%, 38%);
+}
+/* A query failure is severe: a red, clickable banner that jumps to the failed operator. It replaces the
+   plain summary span with a <button>, so reset the button chrome and cap the width (error messages can be
+   long) with an ellipsis — the full text lives in the hover title. */
+.qg-insights-verdict-error {
+    color: hsl(0, 72%, 45%);
+    max-width: min(60vw, 720px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font: inherit;
+    font-weight: 600;
+    font-size: 17px;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+}
+.qg-insights-verdict-error:hover {
+    text-decoration: underline;
+}
+.qg-insights-verdict-error:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px hsl(0, 72%, 60%);
+    border-radius: 4px;
+}
+.qg-insights-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    margin-bottom: 8px;
+}
+.qg-insights-legend-item {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    white-space: nowrap;
+    color: hsl(0, 0%, 25%);
+    /* These are real buttons (clickable drill-down); strip the native chrome. */
+    font: inherit;
+    text-align: left;
+    background: none;
+    border: none;
+    outline: none;
+    padding: 5px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.12s ease;
+}
+.qg-insights-legend-item:hover {
+    background: hsl(0, 0%, 95%);
+}
+/* A category with no nodes in this plan: muted, and it won't pan anywhere on click. */
+.qg-insights-legend-empty {
+    color: hsl(0, 0%, 62%);
+    cursor: default;
+}
+.qg-insights-legend-empty .qg-insights-swatch {
+    opacity: 0.45;
+}
+.qg-insights-legend-item:active {
+    background: hsl(0, 0%, 91%);
+}
+.qg-insights-legend-item:focus-visible {
+    box-shadow: 0 0 0 2px hsl(210, 90%, 65%);
+}
+.qg-insights-swatch {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 4px;
+    margin-right: 8px;
+    border: 1px solid;
+    flex: none;
+}
+/* Swatch fills/borders mirror the node highlight colors in QueryNode.css. */
+.qg-swatch-costly-scan {
+    background: hsl(0, 100%, 95%);
+    border-color: hsl(0, 75%, 60%);
+}
+/* High-volume scan: indigo, matching the node fill/border in QueryNode.css (hue 245). */
+.qg-swatch-high-volume-scan {
+    background: hsl(245, 80%, 93%);
+    border-color: hsl(245, 50%, 55%);
+}
+.qg-swatch-index-rec {
+    background: hsl(50, 100%, 92%);
+    border-color: hsl(45, 90%, 50%);
+}
+.qg-swatch-index-used {
+    background: hsl(205, 85%, 93%);
+    border-color: hsl(205, 70%, 50%);
+}
+/* Cardinality misestimate: mirrors the magenta highlighted-edge label color. */
+.qg-swatch-cardinality {
+    background: hsl(309, 84%, 92%);
+    border-color: hsl(309, 84%, 45%);
+}
+/* Runtime hotspot: violet, matching the node tint in highlight-rules.ts (distinct from magenta). */
+.qg-swatch-runtime-hotspot {
+    background: hsl(265, 70%, 88%);
+    border-color: hsl(265, 70%, 50%);
+}
+/* Memory hotspot: orange, matching the node tint in highlight-rules.ts (`memoryHotspotShade`). */
+.qg-swatch-memory-hotspot {
+    background: hsl(28, 90%, 88%);
+    border-color: hsl(28, 85%, 50%);
+}
+/* Duplicate output columns: rose, matching the node's warning border in QueryNode.css (hue 340). */
+.qg-swatch-duplicate-columns {
+    background: hsl(340, 85%, 90%);
+    border-color: hsl(340, 80%, 55%);
+}
+.qg-insights-count {
+    margin-left: auto;
+    padding-left: 12px;
+    color: hsl(0, 0%, 55%);
+    font-variant-numeric: tabular-nums;
+}
+
+/* "…" reveal controls shared by the ranked "Top …" lists: a subtle row holding a "more" and/or "less"
+   button that grow/shrink how many entries the list shows (it starts compact to stay out of the way). */
+.qg-insights-more-row {
+    display: flex;
+    gap: 4px;
+}
+.qg-insights-more {
+    flex: 1;
+    font: inherit;
+    text-align: center;
+    background: none;
+    border: none;
+    outline: none;
+    padding: 3px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    color: hsl(0, 0%, 45%);
+    transition: background 0.12s ease;
+}
+.qg-insights-more:hover {
+    background: hsl(0, 0%, 95%);
+    color: hsl(0, 0%, 25%);
+}
+.qg-insights-more:focus-visible {
+    box-shadow: 0 0 0 2px hsl(210, 90%, 65%);
+}
+
+/* Query error(s): the most severe finding, so it leads the panel body with a red-tinted block. Each row
+   is a clickable button that jumps to the failed operator. */
+.qg-insights-errors {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    margin: 0 0 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid hsl(0, 0%, 92%);
+}
+.qg-insights-errors-title {
+    margin-bottom: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: hsl(0, 72%, 45%);
+}
+.qg-insights-error {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1px;
+    width: 100%;
+    font: inherit;
+    text-align: left;
+    background: hsl(0, 75%, 97%);
+    border: none;
+    border-left: 3px solid hsl(0, 72%, 55%);
+    outline: none;
+    padding: 4px 8px;
+    border-radius: 0 6px 6px 0;
+    cursor: pointer;
+    transition: background 0.12s ease;
+}
+.qg-insights-error:hover {
+    background: hsl(0, 75%, 94%);
+}
+.qg-insights-error:focus-visible {
+    box-shadow: 0 0 0 2px hsl(0, 72%, 60%);
+}
+.qg-insights-error-label {
+    font-weight: 600;
+    color: hsl(0, 72%, 40%);
+    white-space: nowrap;
+}
+.qg-insights-error-message {
+    /* Keep long messages readable but bounded: wrap to at most two lines, then ellipsize. */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    color: hsl(0, 0%, 30%);
+    font-size: 12px;
+}
+/* Shared skeleton for the ranked / breakdown lists (top scans, CPU, memory, scan types, search): a
+ * titled column of clickable rows, each with a rank, a flexible label, and a right-aligned metric. Each
+ * list adds only its own accents (a metric tint, or the teal search hover) on top of this base. */
+.qg-insights-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    margin: 8px 0;
+    padding-top: 8px;
+    border-top: 1px solid hsl(0, 0%, 92%);
+}
+.qg-insights-list-title {
+    margin-bottom: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: hsl(0, 0%, 55%);
+}
+.qg-insights-list-row {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    width: 100%;
+    font: inherit;
+    text-align: left;
+    background: none;
+    border: none;
+    outline: none;
+    padding: 4px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    color: hsl(0, 0%, 25%);
+    transition: background 0.12s ease;
+}
+.qg-insights-list-row:hover {
+    background: hsl(0, 0%, 95%);
+}
+.qg-insights-list-row:focus-visible {
+    box-shadow: 0 0 0 2px hsl(210, 90%, 65%);
+}
+.qg-insights-list-rank {
+    color: hsl(0, 0%, 60%);
+    font-variant-numeric: tabular-nums;
+}
+.qg-insights-list-label {
+    /* Length is capped in JS (trimLabel); don't let the box clip it further. */
+    flex: 1;
+    white-space: nowrap;
+}
+.qg-insights-list-metric {
+    margin-left: auto;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+    color: hsl(0, 0%, 40%);
+}
+/* Metric accents: the "hot" row in each ranked list tints its figure to match the node highlight —
+ * red for a costly scan, violet for a CPU hotspot, orange for a memory hotspot. */
+.qg-insights-metric-costly .qg-insights-list-metric {
+    color: hsl(0, 70%, 45%);
+    font-weight: 600;
+}
+.qg-insights-metric-cpu .qg-insights-list-metric {
+    color: hsl(265, 60%, 48%);
+    font-weight: 600;
+}
+.qg-insights-metric-mem .qg-insights-list-metric {
+    color: hsl(28, 85%, 42%);
+    font-weight: 600;
+}
+
+/* Hybrid / vector search callout: a notable plan characteristic, not an issue, so it uses a distinct
+ * teal accent — a hue used nowhere else in the graph (node highlights are red/amber/blue, the runtime
+ * heatmap is purple ~265, crosslink edges are magenta ~309), so it never collides with them. It reuses
+ * the shared list skeleton, overriding only the title color and the row hover/focus to teal. */
+.qg-insights-search-title {
+    color: hsl(182, 60%, 32%);
+}
+.qg-insights-search-item:hover {
+    background: hsl(182, 55%, 95%);
+}
+.qg-insights-search-item:focus-visible {
+    box-shadow: 0 0 0 2px hsl(182, 65%, 50%);
+}
+.qg-insights-search-badge {
+    flex: none;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 1px 5px;
+    border-radius: 4px;
+    color: hsl(182, 65%, 26%);
+    background: hsl(182, 50%, 88%);
+}
+.qg-insights-search-label {
+    flex: none;
+    white-space: nowrap;
+    font-weight: 500;
+}
+.qg-insights-search-detail {
+    margin-left: auto;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: hsl(0, 0%, 50%);
+    font-size: 11px;
+}
+
+.qg-insights-actions {
+    display: flex;
+    gap: 8px;
+}
+.qg-insights-actions button {
+    flex: 1;
+    font: inherit;
+    white-space: nowrap;
+    padding: 5px 10px;
+    border: 1px solid hsl(0, 0%, 85%);
+    border-radius: 7px;
+    background: hsl(0, 0%, 99%);
+    color: hsl(0, 0%, 25%);
+    outline: none;
+    cursor: pointer;
+    transition:
+        background 0.12s ease,
+        border-color 0.12s ease;
+}
+.qg-insights-actions button:hover {
+    background: hsl(0, 0%, 95%);
+    border-color: hsl(0, 0%, 78%);
+}
+.qg-insights-actions button:focus-visible {
+    box-shadow: 0 0 0 2px hsl(210, 90%, 65%);
+}
+.qg-insights-actions button.qg-active {
+    background: hsl(210, 90%, 95%);
+    border-color: hsl(210, 75%, 65%);
+    color: hsl(210, 70%, 40%);
+}
+
+/* Rules footer: an explanation of each highlight, with editable thresholds for adjustable plans. */
+.qg-insights-rules {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid hsl(0, 0%, 92%);
+}
+.qg-insights-rules-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    font: inherit;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    text-align: left;
+    color: hsl(0, 0%, 45%);
+    background: none;
+    border: none;
+    outline: none;
+    padding: 2px 0;
+    cursor: pointer;
+}
+.qg-insights-rules-toggle:hover {
+    color: hsl(0, 0%, 25%);
+}
+.qg-insights-rules-caret {
+    display: inline-block;
+    transition: transform 0.12s ease;
+}
+.qg-insights-rules-caret.qg-open {
+    transform: rotate(90deg);
+}
+.qg-insights-rules-body {
+    margin-top: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.qg-insights-rule-head {
+    display: flex;
+    align-items: center;
+}
+.qg-insights-rule-label {
+    font-weight: 600;
+    color: hsl(0, 0%, 25%);
+}
+.qg-insights-rule-desc {
+    margin: 2px 0 0 20px;
+    color: hsl(0, 0%, 40%);
+}
+.qg-insights-rule-fields {
+    margin: 5px 0 0 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.qg-insights-rule-field {
+    /* Label and input share one line: the label takes the remaining space (kept short enough not to
+     * wrap), the input sits at the right edge. */
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.qg-insights-rule-field-label {
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    color: hsl(0, 0%, 35%);
+}
+.qg-insights-rule-field-input {
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+    flex: none;
+}
+.qg-insights-rule-field-input input {
+    width: 7em;
+    font: inherit;
+    text-align: right;
+    padding: 2px 5px;
+    border: 1px solid hsl(0, 0%, 82%);
+    border-radius: 5px;
+    background: hsl(0, 0%, 99%);
+    color: hsl(0, 0%, 20%);
+    font-variant-numeric: tabular-nums;
+}
+.qg-insights-rule-field-input input:focus-visible {
+    outline: none;
+    border-color: hsl(210, 75%, 65%);
+    box-shadow: 0 0 0 2px hsl(210, 90%, 90%);
+}
+.qg-insights-rule-field-unit {
+    color: hsl(0, 0%, 45%);
+    width: 1em;
+}
+.qg-insights-rules-reset {
+    align-self: flex-start;
+    font: inherit;
+    padding: 4px 10px;
+    border: 1px solid hsl(0, 0%, 85%);
+    border-radius: 7px;
+    background: hsl(0, 0%, 99%);
+    color: hsl(0, 0%, 30%);
+    outline: none;
+    cursor: pointer;
+    transition:
+        background 0.12s ease,
+        border-color 0.12s ease;
+}
+.qg-insights-rules-reset:hover {
+    background: hsl(0, 0%, 95%);
+    border-color: hsl(0, 0%, 78%);
+}
+
+/* Focus mode: dim the non-flagged nodes so the flagged ones stand out. */
+.qg-node-dimmed {
+    opacity: 0.25;
+    transition: opacity 0.2s;
+}
+
+/* ...and dim the edge leading into a dimmed node, so a highlighted edge never crosses into a
+   greyed-out node. Applies to the whole edge group (path + label). */
+.qg-edge-dimmed {
+    opacity: 0.25;
+    transition: opacity 0.2s;
+}

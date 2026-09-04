@@ -1,0 +1,38 @@
+/* The row-count label for a tree edge, rendered in the edge-label layer (portaled above the nodes so
+ * an expanded node never covers it). Replicates the look of react-flow's default SVG edge label:
+ * a small, semi-transparent white pill with a thin grey outline. `EdgeLabelRenderer` absolutely
+ * positions its children and its container carries the viewport transform, so the font scales with
+ * zoom just as the old SVG text did. */
+.qg-edge-label {
+    position: absolute;
+    /* The edge-label layer is `pointer-events: none`; the label is non-interactive by default and
+     * only opts back in when it carries a hover reason (see below). */
+    pointer-events: none;
+    font-size: 9px;
+    line-height: 1;
+    padding: 1px 3px;
+    border-radius: 2px;
+    white-space: nowrap;
+    color: #222;
+    /* Solid (not semi-transparent) so the pill fully masks whatever it sits over — at a joining layer
+     * the labels can land on a node icon, its color bar, or an adjacent sibling label. A subtle shadow
+     * plus a positive z-index lift each pill clearly above node chrome and above any pill it overlaps,
+     * so the top one always stays legible even when two labels stack. */
+    background: #fff;
+    border: 1px solid #777;
+    box-shadow: 0 1px 2px hsl(0, 0%, 0%, 0.25);
+    z-index: 1;
+}
+
+/* Cardinality-misestimate (or otherwise flagged) label: matches the magenta the SVG label used. */
+.qg-edge-label-highlighted {
+    color: hsl(309, 84%, 36%);
+    border-color: hsl(309, 84%, 36%);
+}
+
+/* Edges carrying a "why highlighted" reason: make the label feel hoverable and let it receive the
+ * pointer so its native `title` tooltip shows. */
+.qg-edge-label-has-reason {
+    cursor: help;
+    pointer-events: all;
+}

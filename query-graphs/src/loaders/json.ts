@@ -49,7 +49,7 @@ function convertChildren(node: Json): TreeNode[] {
 // Load a JSON tree
 export function loadJson(json: Json): TreeDescription {
     const root = {name: "root", children: convertChildren(json)};
-    return {root: root};
+    return {root: root, planSource: "json"};
 }
 
 // Load a JSON tree from text

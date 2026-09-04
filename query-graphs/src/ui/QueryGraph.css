@@ -14,19 +14,9 @@
     cursor: default;
   }
 
-  & .react-flow__edge-textbg {
-    opacity: .7;
-    fill: white;
-    stroke: #777;
-  }
-
-  & .react-flow__edge-text {
-    font-size: .6em;
-  }
-
-  & .react-flow__edge.qg-label-highlighted .react-flow__edge-text {
-    fill: hsl(309, 84%, 36%);
-  }
+  /* NB: the edge row-count label is no longer react-flow's SVG `.react-flow__edge-text(bg)` — QueryEdge
+     renders it as a portaled `.qg-edge-label` div, styled in QueryEdge.css. The old SVG label rules that
+     used to live here have been removed as dead code. */
 
   & .react-flow__edge.qg-crosslink {
     & .react-flow__edge-path {
