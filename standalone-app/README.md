@@ -9,7 +9,7 @@ All plan parsing and rendering is delegated to `@tableau/query-graphs`; the code
 
 The app provides:
 
-* **Loader dispatch** — `loadPlan` (`src/tree-loader.ts`), which tries each format loader from the core library in turn.
+* **Plan loading** — `QueryGraphsApp.tsx` calls the core library's `loadPlanFromText` dispatcher.
 * **The plan in the URL** — `browserUrlHooks.ts`, which stores the open plan and title as URL parameters so history and link-sharing work.
 * **Getting a plan in** — `FileOpener.tsx`, handling paste, drag & drop, and validation.
 * **Persisting and sharing a plan** — `LocalStorageUrl.ts` plus the optional `upload-server` integration.
@@ -17,8 +17,7 @@ The app provides:
 
 ## Loader Dispatch
 
-`loadPlan` (`src/tree-loader.ts`) is the bridge to the core library: it tries the various loaders in order and returns the first `TreeDescription` that parses.
-The order is deliberate; see [Plan Formats and Loaders](../docs/PlanFormatsAndLoaders.md).
+`QueryGraphsApp.tsx` uses the core library's [`loadPlanFromText` dispatcher](../docs/PlanFormatsAndLoaders.md#loader-dispatch).
 The same function doubles as the input validator in `FileOpener`, so the paste box can tell the user immediately whether their text is a recognized plan.
 
 ## The Plan Lives in the URL
@@ -52,7 +51,7 @@ It accepts a plan by:
 * **Drag & drop** of a file anywhere on the page.
 * **Typing/pasting then clicking "Visualize Plan"**, or pressing Ctrl/Cmd-Enter.
 
-It validates input live using `loadPlan` and shows parse errors before the user submits.
+It validates input live using `loadPlanFromText` and shows parse errors before the user submits.
 
 ## Persisting and Sharing a Plan
 

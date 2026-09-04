@@ -24,6 +24,7 @@ import type {TreeNode, TreeDescription, Crosslink, IconName} from "../tree-descr
 import {allChildren} from "../tree-description";
 import type {Json, JsonObject} from "./loader-utils";
 import {forceToString, tryToString, formatMetric, hasOwnProperty, tryGetPropertyPath} from "./loader-utils";
+import {InvalidPlanError, type PlanLoader} from "./types";
 
 // A categorical color palette for execution pipelines (the Tableau 20 colors).
 // The ten saturated base hues come first, then their lighter companions, so
@@ -382,7 +383,7 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
         }
         return listOfObjects;
     }
-    throw new Error("Invalid Hyper query plan");
+    throw new InvalidPlanError("Invalid Hyper query plan");
 }
 
 // Resolve all pending crosslinks
@@ -551,7 +552,7 @@ function convertHyperPlan(node: Json, pipelines?: Json): TreeDescription {
 
     const root = convertHyperNode(node, "result", conversionState);
     if (Array.isArray(root)) {
-        throw new Error("Invalid Hyper query plan");
+        throw new InvalidPlanError("Invalid Hyper query plan");
     }
     colorRelativeExecutionTime(conversionState);
     setEdgeWidths(conversionState);
@@ -583,6 +584,7 @@ function convertOptimizerSteps(node: Json): TreeDescription | undefined {
         const name = step["name"];
         const plan = step["plan"];
         if (typeof name !== "string") return undefined;
+        if (!isHyperPlanRoot(plan)) return undefined;
 
         // Add the child
         const {root: childRoot, crosslinks: newCrosslinks, metadata: newProperties} = convertHyperPlan(plan);
@@ -594,6 +596,22 @@ function convertOptimizerSteps(node: Json): TreeDescription | undefined {
     }
     const root = {name: "optimizersteps", children: children};
     return {root, crosslinks, metadata: properties};
+}
+
+function isOptimizerStepsPlan(node: Json): boolean {
+    if (typeof node !== "object" || Array.isArray(node) || node === null) return false;
+    if (Object.getOwnPropertyNames(node).length !== 1 || !hasOwnProperty(node, "optimizersteps")) return false;
+    const steps = node["optimizersteps"];
+    if (!Array.isArray(steps)) return false;
+    return steps.every(
+        (step) =>
+            typeof step === "object" &&
+            !Array.isArray(step) &&
+            step !== null &&
+            Object.getOwnPropertyNames(step).length === 2 &&
+            typeof step["name"] === "string" &&
+            isHyperPlanRoot(step["plan"]),
+    );
 }
 
 // Detect the `{tree, pipelines}` envelope emitted by `EXPLAIN (..., PIPELINES, ...)`.
@@ -608,30 +626,41 @@ function hasPipelineEnvelope(json: Json): json is JsonObject {
     );
 }
 
-// Loads a Hyper query plan
-export function loadHyperPlan(json: Json): TreeDescription {
+function isHyperPlanRoot(json: Json): json is JsonObject {
+    return (
+        typeof json === "object" &&
+        !Array.isArray(json) &&
+        json !== null &&
+        (typeof json["operator"] === "string" || typeof json["expression"] === "string")
+    );
+}
+
+function isHyperPlan(json: Json): boolean {
     if (hasPipelineEnvelope(json)) {
+        return isHyperPlanRoot(json["tree"]);
+    }
+    return isOptimizerStepsPlan(json) || isHyperPlanRoot(json);
+}
+
+function loadHyperPlan(json: Json): TreeDescription {
+    if (hasPipelineEnvelope(json)) {
+        if (!isHyperPlanRoot(json["tree"])) {
+            throw new InvalidPlanError("Invalid Hyper query plan");
+        }
         return convertHyperPlan(json["tree"], json["pipelines"]);
     }
-    return convertOptimizerSteps(json) ?? convertHyperPlan(json);
-}
-
-function tryStripPrefix(str, pre) {
-    if (str.startsWith(pre)) return str.substring(pre.length);
-    return str;
-}
-
-// Load a JSON tree from text
-export function loadHyperPlanFromText(graphString: string): TreeDescription {
-    // Strip `plan` prefix if it exists. This is written by `sql_hyper` if output is forwarded using `\o`
-    graphString = tryStripPrefix(graphString, "plan\n");
-
-    // Parse the plan as JSON
-    let json: Json;
-    try {
-        json = JSON.parse(graphString);
-    } catch (err) {
-        throw new Error("JSON parse failed with '" + err + "'.", {cause: err});
+    const optimizerSteps = convertOptimizerSteps(json);
+    if (optimizerSteps !== undefined) {
+        return optimizerSteps;
     }
-    return loadHyperPlan(json);
+    if (!isHyperPlanRoot(json)) {
+        throw new InvalidPlanError("Invalid Hyper query plan");
+    }
+    return convertHyperPlan(json);
 }
+
+export const hyperPlanLoader: PlanLoader<Json> = {
+    format: "hyper",
+    matches: isHyperPlan,
+    load: loadHyperPlan,
+};
