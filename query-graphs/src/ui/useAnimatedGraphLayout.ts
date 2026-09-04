@@ -1,8 +1,12 @@
-import {useEffect, useLayoutEffect, useMemo, useRef, useState} from "react";
+import type {Dimensions, NodeChange} from "@xyflow/react";
+import {useReactFlow} from "@xyflow/react";
+import {createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState} from "react";
+import {assertNotNull} from "../assert";
+import type {TreeDescription, TreeNode} from "../tree-description";
 import type {QueryGraphNode} from "./QueryNode";
-import type {layoutTree} from "./tree-layout";
-import type {LayoutAnimation} from "./store";
-import {graphAnimationProgress} from "./animation-timing";
+import {layoutTree} from "./tree-layout";
+import type {GraphNodeDimensions} from "./tree-layout";
+import {animationStartTime, graphAnimationProgress} from "./animation-timing";
 
 type GraphLayout = ReturnType<typeof layoutTree>;
 type GraphEdge = GraphLayout["edges"][number];
@@ -31,10 +35,47 @@ interface AnimatedLayout {
     edges: AnimatedEdge[];
 }
 
+interface LayoutAnimation {
+    kind: "resize" | "subtree";
+    startedAt: number;
+    // Entering and exiting nodes animate from or toward this node's position.
+    anchorNodeId?: string;
+}
+
+export interface NodeResizeAnimation {
+    nodeId: string;
+    targetDimensions: Dimensions;
+    bodyElement: HTMLElement;
+    bodyFrom: Dimensions;
+    bodyTo: Dimensions;
+}
+
+export interface GraphAnimationController {
+    animateNodeResize: (animation: NodeResizeAnimation, updateGraph: () => void) => void;
+    animateSubtreeChange: (anchorNodeId: string, updateGraph: () => void) => void;
+}
+
+export const GraphAnimationContext = createContext<GraphAnimationController | null>(null);
+
+export function useGraphAnimationController(): GraphAnimationController {
+    const controller = useContext(GraphAnimationContext);
+    assertNotNull(controller);
+    return controller;
+}
+
 function staticLayout(layout: GraphLayout): AnimatedLayout {
     return {
         nodes: layout.nodes.map((node) => ({node, position: node.position, opacity: 1, transient: false})),
         edges: layout.edges.map((edge) => ({edge, opacity: 1, transient: false})),
+    };
+}
+
+function refreshLayoutData(layout: AnimatedLayout, latest: GraphLayout): AnimatedLayout {
+    const latestNodes = new Map(latest.nodes.map((node) => [node.id, node]));
+    const latestEdges = new Map(latest.edges.map((edge) => [edge.id, edge]));
+    return {
+        nodes: layout.nodes.map((entry) => ({...entry, node: latestNodes.get(entry.node.id) ?? entry.node})),
+        edges: layout.edges.map((entry) => ({...entry, edge: latestEdges.get(entry.edge.id) ?? entry.edge})),
     };
 }
 
@@ -47,6 +88,15 @@ function sameGeometry(left: GraphLayout, right: GraphLayout): boolean {
     }
     const rightEdgeIds = new Set(right.edges.map((edge) => edge.id));
     return left.edges.every((edge) => rightEdgeIds.has(edge.id));
+}
+
+function matchesTargetGeometry(rendered: AnimatedLayout, target: GraphLayout): boolean {
+    if (rendered.nodes.length !== target.nodes.length) return false;
+    const targetNodes = new Map(target.nodes.map((node) => [node.id, node]));
+    return rendered.nodes.every(({node, position}) => {
+        const targetNode = targetNodes.get(node.id);
+        return targetNode?.position.x === position.x && targetNode.position.y === position.y;
+    });
 }
 
 function anchorPosition(nodes: ReadonlyMap<string, AnimatedNode | QueryGraphNode>, id: string | undefined): Position {
@@ -106,27 +156,164 @@ function interpolateLayout(
     return {nodes, edges};
 }
 
+interface DimensionsState {
+    nodeIds: Map<TreeNode, string>;
+    dimensions: ReadonlyMap<string, GraphNodeDimensions>;
+}
+
+interface BodyAnimation {
+    element: HTMLElement;
+    animationFrame?: number;
+}
+
 export function useAnimatedGraphLayout(
-    target: GraphLayout,
-    animation: LayoutAnimation | undefined,
-    targetMeasured: boolean,
-): GraphLayout {
+    treeDescription: TreeDescription,
+    nodeIds: Map<TreeNode, string>,
+    expandedSubtrees: Record<string, boolean>,
+): GraphLayout & {
+    onNodesChange: (changes: NodeChange<QueryGraphNode>[]) => void;
+    animationController: GraphAnimationController;
+} {
+    const {fitView} = useReactFlow();
+    const activeResizeNodesRef = useRef(new Set<string>());
+    const bodyAnimationsRef = useRef(new Map<string, BodyAnimation>());
+    const pendingAnimationRef = useRef<LayoutAnimation | undefined>(undefined);
+    const [dimensionsState, setDimensionsState] = useState<DimensionsState>(() => ({
+        nodeIds,
+        dimensions: new Map(),
+    }));
+    const nodeDimensions = useMemo(
+        () => (dimensionsState.nodeIds === nodeIds ? dimensionsState.dimensions : new Map<string, GraphNodeDimensions>()),
+        [dimensionsState, nodeIds],
+    );
+    const target = useMemo(
+        () => layoutTree(treeDescription, nodeIds, nodeDimensions, expandedSubtrees),
+        [treeDescription, nodeIds, nodeDimensions, expandedSubtrees],
+    );
+    const targetMeasured = target.nodes.every((node) => nodeDimensions.has(node.id));
+
+    const onNodesChange = useCallback(
+        (changes: NodeChange<QueryGraphNode>[]) => {
+            const updates = changes.flatMap((change) => {
+                if (change.type !== "dimensions" || change.dimensions === undefined) return [];
+                return [[change.id, change.dimensions] as const];
+            });
+            if (updates.length === 0) return;
+            setDimensionsState((current) => {
+                const currentDimensions = current.nodeIds === nodeIds ? current.dimensions : new Map<string, GraphNodeDimensions>();
+                let next: Map<string, GraphNodeDimensions> | undefined;
+                for (const [nodeId, measured] of updates) {
+                    const previous = currentDimensions.get(nodeId);
+                    const targetDimensions = activeResizeNodesRef.current.has(nodeId) ? (previous?.target ?? measured) : measured;
+                    if (
+                        previous?.measured.width === measured.width &&
+                        previous.measured.height === measured.height &&
+                        previous.target.width === targetDimensions.width &&
+                        previous.target.height === targetDimensions.height
+                    )
+                        continue;
+                    next ??= new Map(currentDimensions);
+                    next.set(nodeId, {measured, target: targetDimensions});
+                }
+                if (next === undefined && current.nodeIds === nodeIds) return current;
+                return {nodeIds, dimensions: next ?? currentDimensions};
+            });
+        },
+        [nodeIds],
+    );
+
+    const stopBodyAnimation = useCallback((nodeId: string) => {
+        const animation = bodyAnimationsRef.current.get(nodeId);
+        if (animation === undefined) return;
+        if (animation.animationFrame !== undefined) cancelAnimationFrame(animation.animationFrame);
+        animation.element.style.removeProperty("width");
+        animation.element.style.removeProperty("height");
+        animation.element.style.removeProperty("max-width");
+        animation.element.style.removeProperty("max-height");
+        bodyAnimationsRef.current.delete(nodeId);
+        activeResizeNodesRef.current.delete(nodeId);
+    }, []);
+
+    const animationController = useMemo<GraphAnimationController>(
+        () => ({
+            animateNodeResize: (animation, updateGraph) => {
+                const startedAt = animationStartTime();
+                stopBodyAnimation(animation.nodeId);
+                setDimensionsState((current) => {
+                    const currentDimensions =
+                        current.nodeIds === nodeIds ? current.dimensions : new Map<string, GraphNodeDimensions>();
+                    const previous = currentDimensions.get(animation.nodeId);
+                    const dimensions = new Map(currentDimensions);
+                    dimensions.set(animation.nodeId, {
+                        measured: previous?.measured ?? animation.targetDimensions,
+                        target: animation.targetDimensions,
+                    });
+                    return {nodeIds, dimensions};
+                });
+                if (startedAt === undefined) {
+                    pendingAnimationRef.current = undefined;
+                    updateGraph();
+                    return;
+                }
+
+                activeResizeNodesRef.current.add(animation.nodeId);
+                pendingAnimationRef.current = {kind: "resize", startedAt};
+
+                const bodyAnimation: BodyAnimation = {element: animation.bodyElement};
+                bodyAnimationsRef.current.set(animation.nodeId, bodyAnimation);
+                animation.bodyElement.style.maxWidth = "none";
+                animation.bodyElement.style.maxHeight = "none";
+                const step = (now: number) => {
+                    const progress = graphAnimationProgress(startedAt, now);
+                    const width = animation.bodyFrom.width + (animation.bodyTo.width - animation.bodyFrom.width) * progress;
+                    const height = animation.bodyFrom.height + (animation.bodyTo.height - animation.bodyFrom.height) * progress;
+                    animation.bodyElement.style.width = `${width}px`;
+                    animation.bodyElement.style.height = `${height}px`;
+                    if (progress < 1) {
+                        bodyAnimation.animationFrame = requestAnimationFrame(step);
+                    } else if (bodyAnimationsRef.current.get(animation.nodeId) === bodyAnimation) {
+                        stopBodyAnimation(animation.nodeId);
+                    }
+                };
+                step(startedAt);
+                updateGraph();
+            },
+            animateSubtreeChange: (anchorNodeId, updateGraph) => {
+                const startedAt = animationStartTime();
+                pendingAnimationRef.current = startedAt === undefined ? undefined : {kind: "subtree", startedAt, anchorNodeId};
+                updateGraph();
+            },
+        }),
+        [nodeIds, stopBodyAnimation],
+    );
+
     const targetRef = useRef(target);
     const [rendered, setRendered] = useState(() => staticLayout(target));
     const renderedRef = useRef(rendered);
-    const previousAnimationStartRef = useRef(animation?.startedAt);
-    const pendingAnimationRef = useRef<LayoutAnimation | undefined>(undefined);
+    const nodeIdsRef = useRef(nodeIds);
+    const initialFitDoneRef = useRef(false);
     const animationFrameRef = useRef<number | undefined>(undefined);
 
     useLayoutEffect(() => {
-        const geometryChanged = !sameGeometry(targetRef.current, target);
-        const animationChanged = previousAnimationStartRef.current !== animation?.startedAt;
-        const pendingReady = pendingAnimationRef.current !== undefined && targetMeasured;
+        const graphChanged = nodeIdsRef.current !== nodeIds;
+        const geometryChanged = graphChanged || !sameGeometry(targetRef.current, target);
+        const animation = pendingAnimationRef.current;
+        const pendingReady = animation !== undefined && targetMeasured;
+        nodeIdsRef.current = nodeIds;
         targetRef.current = target;
+        renderedRef.current = refreshLayoutData(renderedRef.current, target);
         if (!geometryChanged && !pendingReady) return;
 
-        if (animationFrameRef.current !== undefined) cancelAnimationFrame(animationFrameRef.current);
-        if (animation === undefined || (!animationChanged && !pendingReady)) {
+        if (animationFrameRef.current !== undefined) {
+            cancelAnimationFrame(animationFrameRef.current);
+            animationFrameRef.current = undefined;
+        }
+        if (graphChanged) {
+            initialFitDoneRef.current = false;
+            for (const nodeId of [...bodyAnimationsRef.current.keys()]) stopBodyAnimation(nodeId);
+        }
+        if (animation === undefined || graphChanged) {
+            pendingAnimationRef.current = undefined;
             const next = staticLayout(target);
             renderedRef.current = next;
             setRendered(next);
@@ -143,13 +330,12 @@ export function useAnimatedGraphLayout(
             return;
         }
 
-        previousAnimationStartRef.current = animation.startedAt;
         pendingAnimationRef.current = undefined;
         const start = renderedRef.current;
         const startTime = animation.kind === "resize" ? animation.startedAt : performance.now();
         const step = (now: number) => {
             const progress = graphAnimationProgress(startTime, now);
-            const next = interpolateLayout(start, target, animation.anchorNodeId, progress);
+            const next = refreshLayoutData(interpolateLayout(start, target, animation.anchorNodeId, progress), targetRef.current);
             renderedRef.current = next;
             setRendered(next);
             if (progress < 1) {
@@ -159,18 +345,28 @@ export function useAnimatedGraphLayout(
             }
         };
         animationFrameRef.current = requestAnimationFrame(step);
-    }, [animation, target, targetMeasured]);
+    }, [nodeIds, stopBodyAnimation, target, targetMeasured]);
+
+    useEffect(() => {
+        if (initialFitDoneRef.current || !targetMeasured || !matchesTargetGeometry(rendered, target)) return;
+        const animationFrame = requestAnimationFrame(() => {
+            initialFitDoneRef.current = true;
+            void fitView();
+        });
+        return () => cancelAnimationFrame(animationFrame);
+    }, [fitView, rendered, target, targetMeasured]);
 
     useEffect(
         () => () => {
             if (animationFrameRef.current !== undefined) cancelAnimationFrame(animationFrameRef.current);
+            for (const nodeId of [...bodyAnimationsRef.current.keys()]) stopBodyAnimation(nodeId);
         },
-        [],
+        [stopBodyAnimation],
     );
 
     const targetNodes = useMemo(() => new Map(target.nodes.map((node) => [node.id, node])), [target.nodes]);
     const targetEdges = useMemo(() => new Map(target.edges.map((edge) => [edge.id, edge])), [target.edges]);
-    return useMemo(
+    const animatedLayout = useMemo(
         () => ({
             nodes: rendered.nodes.map(({node, position, opacity, transient}) => {
                 const latest = targetNodes.get(node.id) ?? node;
@@ -216,5 +412,9 @@ export function useAnimatedGraphLayout(
             }),
         }),
         [rendered, targetEdges, targetNodes],
+    );
+    return useMemo(
+        () => ({...animatedLayout, onNodesChange, animationController}),
+        [animatedLayout, animationController, onNodesChange],
     );
 }
