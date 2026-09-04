@@ -9,12 +9,15 @@ Everything downstream (layout, rendering, interaction) is shared across formats.
 | Format | Loader (`query-graphs/src/loaders`) | Source shape | How it is obtained |
 | --- | --- | --- | --- |
 | Postgres | `postgres.ts` | JSON | `EXPLAIN (FORMAT JSON)`, ideally with `ANALYZE` |
+| Umbra / CedarDB | `umbra.ts` | JSON | `EXPLAIN (FORMAT JSON)`, ideally with `ANALYZE` |
 | Hyper | `hyper.ts` | JSON | Hyper's `EXPLAIN (FORMAT JSON)`, e.g. via HyperAPI |
 | Tableau logical query | `tableau.ts` | XML | Tableau Desktop / Online log files |
 | Generic JSON | `json.ts` | JSON | fallback — renders any JSON as a tree |
 | Generic XML | `xml.ts` | XML | fallback — renders any XML as a tree |
 
-The Postgres and Hyper loaders understand plan semantics: they choose icons, order and collapse children, label edges with cardinalities, and color nodes by runtime.
+The Postgres, Umbra/CedarDB, and Hyper loaders understand plan semantics: they choose icons, order and collapse children, label edges with cardinalities, and visualize execution details.
+Umbra and CedarDB emit the same operator-tree format, so one loader covers both.
+Their loader and Hyper share the adaptive operator/expression converter in `adaptive-plan-tree.ts`.
 The generic JSON and XML loaders map the input structure literally and act as catch-all fallbacks.
 
 ## Loader Dispatch
@@ -23,7 +26,7 @@ The app does not ask the user which format they pasted.
 Instead, `loadPlanFromText` (`query-graphs/src/loaders/plan.ts`) parses JSON once and tries each semantic JSON loader in order:
 
 ```ts
-const jsonPlanLoaders = [loadPostgresPlan, loadHyperPlan];
+const jsonPlanLoaders = [loadPostgresPlan, loadUmbraPlan, loadHyperPlan];
 ```
 
 A loader signals "this is not my format" by throwing.
@@ -42,6 +45,7 @@ To add support for another database's plans:
    Add `query-graphs/src/loaders/<db>.ts` exporting a `load<Db>FromText(text: string): TreeDescription`.
    Parse the text, then recursively convert each source node into a `TreeNode`: set `name`, pick an `icon` from the `IconName` union, put scalar attributes into `properties` (shown in the tooltip), and put real children into `children`/`collapsedChildren`.
    Use `hyper.ts` as the reference implementation and reuse the helpers in `loader-utils.ts`.
+   Formats using `operator`/`expression` tags should reuse `adaptive-plan-tree.ts`; see `umbra.ts`.
    Throw an `Error` when the input is not your format, so dispatch can fall through to the next loader.
 2. **Register it** in `query-graphs/src/loaders/plan.ts`, positioned so a more specific format is tried before a more permissive one.
 3. **Add an example** plan under `standalone-app/examples/<db>/` so it shows up on the `examples.html` page.

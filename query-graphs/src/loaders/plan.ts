@@ -4,9 +4,10 @@ import {loadHyperPlan} from "./hyper";
 import {loadJson} from "./json";
 import {loadPostgresPlan} from "./postgres";
 import {loadTableauPlan} from "./tableau";
+import {loadUmbraPlan} from "./umbra";
 import {loadXml} from "./xml";
 
-export type PlanFormat = "postgres" | "hyper" | "json" | "tableau" | "xml";
+export type PlanFormat = "postgres" | "umbra" | "hyper" | "json" | "tableau" | "xml";
 
 export interface LoadedPlan {
     format: PlanFormat;
@@ -25,6 +26,7 @@ interface TextPlanLoader {
 
 const jsonPlanLoaders: JsonPlanLoader[] = [
     {format: "postgres", load: loadPostgresPlan},
+    {format: "umbra", load: loadUmbraPlan},
     {format: "hyper", load: loadHyperPlan},
 ];
 

@@ -5,6 +5,7 @@ import path from "node:path";
 import {fileURLToPath} from "node:url";
 import test from "node:test";
 import type {TreeDescription, TreeNode} from "../src/tree-description";
+import {allChildren} from "../src/tree-description";
 import {loadPlanFromTextWithFormat} from "../src/loaders/plan";
 
 interface ExampleIndex {
@@ -28,6 +29,10 @@ function fixturePaths(engine: string): string[] {
 
 function loadFixture(relativePath: string) {
     return loadPlanFromTextWithFormat(readFileSync(path.join(examplesRoot, relativePath), "utf8"));
+}
+
+function treeNodes(root: TreeNode): TreeNode[] {
+    return [root, ...allChildren(root).flatMap(treeNodes)];
 }
 
 function treeDigest(tree: TreeDescription): string {
@@ -82,6 +87,45 @@ test("unrecognized JSON uses the generic loader", () => {
 test("dispatch preserves the sql_hyper output prefix", () => {
     const fixture = readFileSync(path.join(examplesRoot, "hyper/tablescan-analyze.plan.json"), "utf8");
     assert.equal(loadPlanFromTextWithFormat(`plan\n${fixture}`).format, "hyper");
+});
+
+test("loads every Umbra and CedarDB example semantically", () => {
+    for (const engine of ["umbra", "cedardb"]) {
+        for (const fixturePath of fixturePaths(engine)) {
+            const loaded = loadFixture(fixturePath);
+            assert.equal(loaded.format, "umbra", fixturePath);
+            assert.notEqual(loaded.tree.root.name, "", fixturePath);
+        }
+    }
+
+    const recursiveCte = loadFixture("umbra/cte-recursive-analyze.plan.json").tree;
+    assert.equal(recursiveCte.crosslinks?.length, 1);
+    assert.ok(treeNodes(recursiveCte.root).some((node) => node.name === "iterationincrementscan"));
+
+    const analyzedScan = loadFixture("umbra/tablescan-analyze.plan.json").tree;
+    assert.notEqual(analyzedScan.root.iconColor, undefined);
+    assert.equal(analyzedScan.root.edgeLabel, "5/5");
+    assert.ok(treeNodes(analyzedScan.root).some((node) => node.name === "analyzePlanPipelines"));
+
+    const markJoin = loadFixture("umbra/markjoin-analyze.plan.json").tree;
+    assert.equal(markJoin.root.name, "leftmark");
+    assert.equal(markJoin.root.icon, undefined);
+
+    const optimizerSteps = loadFixture("cedardb/tpch/tpch-q2-steps.plan.json").tree;
+    assert.equal(optimizerSteps.root.name, "optimizer steps");
+    assert.equal(optimizerSteps.root.children?.length, 10);
+    assert.equal(optimizerSteps.root.children?.[0].children, undefined);
+    assert.equal(optimizerSteps.root.children?.[0].collapsedChildren?.length, 1);
+
+    for (const fixturePath of [...fixturePaths("umbra"), ...fixturePaths("cedardb")]) {
+        for (const crosslink of loadFixture(fixturePath).tree.crosslinks ?? []) {
+            assert.ok(!allChildren(crosslink.source).includes(crosslink.target), fixturePath);
+        }
+    }
+
+    const shadowedMethod = JSON.parse(readFileSync(path.join(examplesRoot, "umbra/tablescan-analyze.plan.json"), "utf8"));
+    shadowedMethod.plan.hasOwnProperty = false;
+    assert.equal(loadPlanFromTextWithFormat(JSON.stringify(shadowedMethod)).format, "umbra");
 });
 
 test("Hyper loader output remains stable", () => {
