@@ -1,5 +1,5 @@
 import type {ReactElement, MouseEvent} from "react";
-import {memo, useCallback, useLayoutEffect, useRef} from "react";
+import {memo, useCallback, useRef} from "react";
 import type {Node, NodeProps} from "@xyflow/react";
 import {Handle, Position} from "@xyflow/react";
 import cc from "classcat";
@@ -7,17 +7,16 @@ import type {TreeNode} from "../tree-description";
 import {NodeIcon} from "./NodeIcon";
 import "./QueryNode.css";
 import {useGraphRenderingStore} from "./store";
-import {animationStartTime, graphAnimationProgress} from "./animation-timing";
+import {useGraphAnimationController} from "./useAnimatedGraphLayout";
 
 export type QueryGraphNode = Node<TreeNode, "querynode">;
 
 function QueryNode({data, id}: NodeProps<QueryGraphNode>) {
     const expanded = useGraphRenderingStore((s) => s.expandedNodes[id]);
     const toggleNode = useGraphRenderingStore((s) => s.toggleExpandedNode);
-    const finishNodeAnimation = useGraphRenderingStore((s) => s.finishNodeAnimation);
-    const sizeAnimation = useGraphRenderingStore((s) => s.nodeSizeAnimations.get(id));
     const subtreeExpanded = useGraphRenderingStore((s) => s.expandedSubtrees[id]);
     const toggleSubtree = useGraphRenderingStore((s) => s.toggleExpandedSubtree);
+    const animationController = useGraphAnimationController();
 
     const hasProperties = data.properties?.size;
     const hasSubtree = data.collapsedChildren && data.collapsedChildren.length > 0;
@@ -52,65 +51,40 @@ function QueryNode({data, id}: NodeProps<QueryGraphNode>) {
         return measurements;
     }, []);
 
-    useLayoutEffect(() => {
-        const element = bodyWrapperRef.current;
-        if (element === null) return;
-        if (sizeAnimation === undefined) {
-            element.style.removeProperty("width");
-            element.style.removeProperty("height");
-            element.style.removeProperty("max-width");
-            element.style.removeProperty("max-height");
-            return;
-        }
-
-        element.style.maxWidth = "none";
-        element.style.maxHeight = "none";
-        let animationFrame: number | undefined;
-        const step = (now: number) => {
-            const progress = graphAnimationProgress(sizeAnimation.startedAt, now);
-            const width = sizeAnimation.from.width + (sizeAnimation.to.width - sizeAnimation.from.width) * progress;
-            const height = sizeAnimation.from.height + (sizeAnimation.to.height - sizeAnimation.from.height) * progress;
-            element.style.width = `${width}px`;
-            element.style.height = `${height}px`;
-            if (progress < 1) animationFrame = requestAnimationFrame(step);
-            else finishNodeAnimation(id);
-        };
-        step(sizeAnimation.startedAt);
-        return () => {
-            if (animationFrame !== undefined) cancelAnimationFrame(animationFrame);
-        };
-    }, [finishNodeAnimation, id, sizeAnimation]);
-
     const onClick = useCallback(
         (e: MouseEvent) => {
             if (e.shiftKey) {
-                if (hasSubtree) toggleSubtree(id, animationStartTime());
+                if (hasSubtree) animationController.animateSubtreeChange(id, () => toggleSubtree(id));
             } else {
                 if (hasProperties) {
                     const target = measureTargetDimensions(!expanded);
                     const bodyWrapper = bodyWrapperRef.current;
-                    const startedAt = animationStartTime();
-                    const sizeAnimation =
-                        startedAt === undefined || bodyWrapper === null
-                            ? undefined
-                            : {
-                                  from: {width: bodyWrapper.offsetWidth, height: bodyWrapper.offsetHeight},
-                                  to: target.body,
-                                  startedAt,
-                              };
-                    toggleNode(id, target.node, sizeAnimation);
+                    if (bodyWrapper === null) {
+                        toggleNode(id);
+                    } else {
+                        animationController.animateNodeResize(
+                            {
+                                nodeId: id,
+                                targetDimensions: target.node,
+                                bodyElement: bodyWrapper,
+                                bodyFrom: {width: bodyWrapper.offsetWidth, height: bodyWrapper.offsetHeight},
+                                bodyTo: target.body,
+                            },
+                            () => toggleNode(id),
+                        );
+                    }
                 }
             }
             e.stopPropagation();
         },
-        [toggleNode, toggleSubtree, hasProperties, hasSubtree, expanded, id, measureTargetDimensions],
+        [animationController, toggleNode, toggleSubtree, hasProperties, hasSubtree, expanded, id, measureTargetDimensions],
     );
     const onSubtreeHandleClick = useCallback(
         (e: MouseEvent) => {
-            if (hasSubtree) toggleSubtree(id, animationStartTime());
+            if (hasSubtree) animationController.animateSubtreeChange(id, () => toggleSubtree(id));
             e.stopPropagation();
         },
-        [toggleSubtree, hasSubtree, id],
+        [animationController, toggleSubtree, hasSubtree, id],
     );
     const children = [] as ReactElement[];
     for (const [key, value] of (data.properties || []).entries()) {
