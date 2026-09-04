@@ -1,5 +1,6 @@
 import type {TreeDescription} from "../tree-description";
 import type {Json} from "./loader-utils";
+import {loadDuckDbPlan} from "./duckdb";
 import {loadHyperPlan} from "./hyper";
 import {loadJson} from "./json";
 import {loadPostgresPlan} from "./postgres";
@@ -7,7 +8,7 @@ import {loadTableauPlan} from "./tableau";
 import {loadUmbraPlan} from "./umbra";
 import {loadXml} from "./xml";
 
-export type PlanFormat = "postgres" | "umbra" | "hyper" | "json" | "tableau" | "xml";
+export type PlanFormat = "postgres" | "umbra" | "duckdb" | "hyper" | "json" | "tableau" | "xml";
 
 export interface LoadedPlan {
     format: PlanFormat;
@@ -27,6 +28,7 @@ interface TextPlanLoader {
 const jsonPlanLoaders: JsonPlanLoader[] = [
     {format: "postgres", load: loadPostgresPlan},
     {format: "umbra", load: loadUmbraPlan},
+    {format: "duckdb", load: loadDuckDbPlan},
     {format: "hyper", load: loadHyperPlan},
 ];
 

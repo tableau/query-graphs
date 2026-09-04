@@ -128,6 +128,46 @@ test("loads every Umbra and CedarDB example semantically", () => {
     assert.equal(loadPlanFromTextWithFormat(JSON.stringify(shadowedMethod)).format, "umbra");
 });
 
+test("loads every DuckDB example semantically", () => {
+    for (const fixturePath of fixturePaths("duckdb")) {
+        const loaded = loadFixture(fixturePath);
+        assert.equal(loaded.format, "duckdb", fixturePath);
+        assert.notEqual(loaded.tree.root.name, "", fixturePath);
+    }
+
+    const analyzedScan = loadFixture("duckdb/tablescan-analyze.plan.json").tree;
+    assert.equal(analyzedScan.root.name, '"temp".main.region (SEQ_SCAN)');
+    assert.equal(analyzedScan.root.edgeLabel, "5/5");
+    assert.notEqual(analyzedScan.root.nodeColor, undefined);
+
+    const cte = loadFixture("duckdb/cte-analyze.plan.json").tree;
+    assert.equal(cte.crosslinks?.length, 2);
+
+    const simplePlan = loadFixture("duckdb/tpch/tpch-q2.plan.json").tree;
+    assert.equal(simplePlan.root.name, "TOP_N");
+    assert.equal(simplePlan.root.icon, "sort-symbol");
+
+    const actualOnly = treeNodes(loadFixture("duckdb/groupby-analyze.plan.json").tree.root).find(
+        (node) => node.name === "PERFECT_HASH_GROUP_BY",
+    );
+    assert.equal(actualOnly?.edgeLabel, "3");
+
+    const optimizerStages = loadFixture("duckdb/tpch/tpch-q2-steps.plan.json").tree;
+    assert.equal(optimizerStages.root.name, "optimizer stages");
+    assert.equal(optimizerStages.root.children?.length, 3);
+    assert.equal(optimizerStages.root.children?.[0].collapsedChildren?.[0].name, "LIMIT");
+
+    const missingChildDetail = JSON.parse(readFileSync(path.join(examplesRoot, "duckdb/tpch/tpch-q2.plan.json"), "utf8"));
+    delete missingChildDetail[0].children[0].extra_info;
+    assert.equal(loadPlanFromTextWithFormat(JSON.stringify(missingChildDetail)).format, "duckdb");
+
+    const malformedAnalyze = JSON.parse(readFileSync(path.join(examplesRoot, "duckdb/tablescan-analyze.plan.json"), "utf8"));
+    malformedAnalyze.children[0].children[0] = 7;
+    const degradedAnalyze = loadPlanFromTextWithFormat(JSON.stringify(malformedAnalyze));
+    assert.equal(degradedAnalyze.format, "duckdb");
+    assert.equal(degradedAnalyze.tree.root.children?.[0].name, "7");
+});
+
 test("Hyper loader output remains stable", () => {
     const digests = Object.fromEntries(
         fixturePaths("hyper").map((fixturePath) => [fixturePath, treeDigest(loadFixture(fixturePath).tree)]),
