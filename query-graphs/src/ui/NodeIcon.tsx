@@ -59,6 +59,25 @@ function SortIcon(p: NodeIconProps) {
     );
 }
 
+function LimitIcon(p: NodeIconProps) {
+    // A bare LIMIT (no ORDER BY) keeps the top N rows and drops the rest. Two solid rows above a dashed
+    // cut line read as "kept"; two faded rows below read as "dropped" — distinct from both the sort arrow
+    // (this does no ordering) and the filter funnel (this truncates by position, not a predicate).
+    return (
+        <svg viewBox="-8 -8 16 16" {...sharedSvgProps(p)}>
+            <rect x={-8} y={-8} width={16} height={16} fill="#fff" stroke="none" />
+            {/* kept rows (top N) */}
+            <rect x={-6} y={-6.5} width={12} height={2.2} fill="currentColor" />
+            <rect x={-6} y={-3.5} width={12} height={2.2} fill="currentColor" />
+            {/* the limit boundary */}
+            <path d="M-7,0 L7,0" stroke="currentColor" strokeWidth={0.9} strokeDasharray="2 1.4" fill="none" />
+            {/* dropped rows (beyond N) */}
+            <rect x={-6} y={1.3} width={12} height={2.2} fill="currentColor" opacity={0.28} />
+            <rect x={-6} y={4.3} width={12} height={2.2} fill="currentColor" opacity={0.28} />
+        </svg>
+    );
+}
+
 function FilterIcon(p: NodeIconProps) {
     return (
         <svg viewBox="-7 -7 14 14" {...sharedSvgProps(p)}>
@@ -169,6 +188,7 @@ export function NodeIcon({icon, ...rest}: NodeIconProps) {
         "filter-symbol": FilterIcon,
         "groupby-symbol": GroupByIcon,
         "sort-symbol": SortIcon,
+        "limit-symbol": LimitIcon,
         "inner-join-symbol": InnerJoinIcon,
         "left-join-symbol": LeftJoinIcon,
         "right-join-symbol": RightJoinIcon,

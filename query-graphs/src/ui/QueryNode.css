@@ -10,12 +10,74 @@
         cursor: default;
     }
 
+    /* Node-level color reflecting the node's content, visible even while collapsed. Each category's
+     * hue matches its corresponding property-row highlight: costly scan (red), index recommendation
+     * (amber), index used (blue — informational, not "all good"). Precedence is decided in the loader;
+     * only one class is applied. */
+    &.qg-node-costly-scan {
+        /* Proportional red set per node via `--qg-costly-scan-color` (darker = read more rows); falls
+         * back to the flat light red when the loader didn't compute a shade. */
+        background: var(--qg-costly-scan-color, hsl(0, 100%, 95%));
+        border-color: hsl(0, 75%, 60%);
+        box-shadow: 0 0 0 1px hsl(0, 75%, 60%);
+    }
+    /* High-volume scan: indigo (hue 245) — a neutral "big, not necessarily wrong" hue distinct from the
+     * costly-scan red, the index-used blue (205), and the runtime-hotspot violet (265). Flat fill (no
+     * proportional shade); precedence sits below costly scan and above the index categories. */
+    &.qg-node-high-volume-scan {
+        background: hsl(245, 80%, 96%);
+        border-color: hsl(245, 50%, 60%);
+        box-shadow: 0 0 0 1px hsl(245, 50%, 60%);
+    }
+    &.qg-node-index-rec {
+        background: hsl(50, 100%, 92%);
+        border-color: hsl(45, 90%, 50%);
+        box-shadow: 0 0 0 1px hsl(45, 90%, 50%);
+    }
+    &.qg-node-index-used {
+        background: hsl(205, 85%, 93%);
+        border-color: hsl(205, 70%, 50%);
+        box-shadow: 0 0 0 1px hsl(205, 70%, 50%);
+    }
+    /* A node whose fill shows another category (e.g. a costly scan) but which also carries an index
+     * recommendation: outline it in the index-rec amber so both signals are visible at once. Listed
+     * after the category rules so it wins the border/box-shadow. */
+    &.qg-node-index-rec-border {
+        border-color: hsl(45, 90%, 50%);
+        box-shadow: 0 0 0 1px hsl(45, 90%, 50%);
+    }
+    /* Hybrid / vector search node: teal border matching the plan-insights legend accent (hsl(182)). It is
+     * a plan characteristic, not an issue, so only the border is tinted — no fill — and it doesn't compete
+     * with the costly-scan / index category colors. */
+    &.qg-node-vector-search {
+        border-color: hsl(182, 60%, 42%);
+        box-shadow: 0 0 0 1px hsl(182, 60%, 42%);
+    }
+    /* A node whose output projects a duplicate column name: rose border (hue 340 — a warning hue used
+     * nowhere else in the palette, so it never reads as costly-scan red or index-rec amber). Only the
+     * border is tinted — no fill — so it can coexist with a category fill (a costly scan can also emit a
+     * duplicate name). Listed after the category rules so it wins the border/box-shadow when both apply. */
+    &.qg-node-duplicate-columns {
+        border-color: hsl(340, 80%, 55%);
+        box-shadow: 0 0 0 1px hsl(340, 80%, 55%);
+    }
+
     &.qg-collapsed:hover,
     &.qg-expanded {
         cursor: pointer;
         background: white;
         border-color: hsl(0,0%, 80%);
         box-shadow: 1px 2px 5px hsl(0,0%,90%);
+    }
+
+    /* A node that raised a runtime error (e.g. an OOM or cancellation the execution-target root records
+     * when the query fails). This is the single most severe node state, so it gets a bold red border that
+     * outranks every category fill/border above — and, unlike those, it is listed after the hover/expand
+     * rule so it persists even while the node is hovered or expanded: a failed query is the first thing
+     * the user must see. */
+    &.qg-node-error {
+        border-color: hsl(0, 72%, 50%);
+        box-shadow: 0 0 0 2px hsl(0, 72%, 50%);
     }
 }
 
@@ -100,7 +162,9 @@
 
     .qg-graph-node.qg-expanded & {
         max-width: 30em;
-        max-height: 20em;
+        /* Show up to ~20 property rows, then scroll. Kept in sync with `.qg-graph-node-body` below:
+         * 20 rows * 1.5em line-height = 30em. */
+        max-height: 30em;
     }
 }
 .qg-graph-node-body {
@@ -108,7 +172,11 @@
     height: max-content;
     overflow: auto;
     max-width: 30em;
-    max-height: 20em;
+    /* Fix the row line-height so the height cap maps to a predictable line count: at 1.5em/row a 30em
+     * cap shows 20 rows before the body starts scrolling (the wrapper carries `.nowheel`, so scrolling
+     * here never pans the canvas). */
+    line-height: 1.5em;
+    max-height: 30em;
 
     .qg-graph-node.qg-expanded & {
         padding-bottom: 0.6em;
@@ -126,4 +194,83 @@
     -webkit-user-select: text;
     -ms-user-select: text;
     user-select: text;
+}
+
+/* An expanded long value (via the `more` toggle) wraps onto multiple lines and breaks long
+ * unbroken tokens, so the full text is readable instead of forcing a wide horizontal scroll. */
+.qg-prop-value-expanded {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+/* The clickable `... [n]` marker on a truncated column list. Reads as an inline link (no button
+ * chrome) so it sits naturally at the end of the column names; clicking reveals more columns. */
+.qg-prop-more {
+    font: inherit;
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    color: hsl(210, 70%, 45%);
+    cursor: pointer;
+    white-space: nowrap;
+}
+.qg-prop-more:hover {
+    text-decoration: underline;
+}
+.qg-prop-more:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px hsl(210, 90%, 80%);
+    border-radius: 3px;
+}
+
+.qg-prop-emphasized {
+    background: hsl(50, 100%, 80%);
+    border-radius: 3px;
+}
+
+/* Informational blue highlight for the `index-used` row when an index was actually used —
+ * a used index is worth noticing, not a guarantee the plan is optimal. */
+.qg-prop-index-used {
+    background: hsl(205, 85%, 82%);
+    border-radius: 3px;
+}
+
+/* Light-red highlight for a costly scan's processed-rows / rows-matching property rows. */
+.qg-prop-costly-scan {
+    background: hsl(0, 100%, 88%);
+    border-radius: 3px;
+}
+
+/* Indigo highlight for a high-volume scan's processed-rows row, matching the node highlight (hsl(245)). */
+.qg-prop-high-volume-scan {
+    background: hsl(245, 75%, 90%);
+    border-radius: 3px;
+}
+
+/* Teal highlight for a hybrid/vector search node's `function` row, matching the plan-insights legend
+ * accent (hsl(182)) and the node's teal border. */
+.qg-prop-vector-search {
+    background: hsl(182, 50%, 85%);
+    border-radius: 3px;
+}
+
+/* Rose highlight for the `duplicate-columns` row, matching the node's rose warning border (hsl(340)). */
+.qg-prop-duplicate-columns {
+    background: hsl(340, 85%, 90%);
+    border-radius: 3px;
+}
+
+/* Grouped property (e.g. `table-metadata`): a header row whose sub-items are rendered as flush
+ * `- label: value` bullet rows below it (the "- " prefix is the only indentation cue; see QueryNode.tsx).
+ * The header carries no value, so its name reads as a section label. */
+.qg-prop-group-header .qg-prop-name {
+    color: hsl(0, 0%, 40%);
+}
+
+/* Green highlight for the "(likely early probe)" annotation on a 0-row processed-rows value:
+ * a 0-row scan pruned by an early probe is benign (work saved), so it reads as good, not a problem. */
+.qg-prop-early-probe {
+    color: hsl(140, 65%, 32%);
 }
