@@ -288,12 +288,22 @@ export function PlanInsights({treeDescription, nodeIdMapping}: PlanInsightsProps
     // These hotspot id sets feed the summary verdict and "Next issue" navigation, and are recomputed
     // here at render time so they track live threshold edits — matching the per-row hotspot flags in
     // the ranked lists below.
-    const cpuHotspotIds =
-        totalCpu > 0 ? cpus.filter((c) => c.cycles / totalCpu >= thresholds.runtimeHotspotPercent / 100).map((c) => c.id) : [];
-    const memoryHotspotIds =
-        totalMemory > 0
-            ? mems.filter((m) => m.bytes / totalMemory >= thresholds.memoryHotspotPercent / 100).map((m) => m.id)
-            : [];
+    // Memoized so each keeps a stable identity across renders (`cpus`/`mems`/`totalCpu`/`totalMemory`
+    // come from the memo above; only a live threshold edit changes the result). This matters because
+    // the `issues` memo below depends on these arrays — recreating them every render would defeat its
+    // memoization and make "Next issue" navigation churn.
+    const cpuHotspotIds = useMemo(
+        () =>
+            totalCpu > 0 ? cpus.filter((c) => c.cycles / totalCpu >= thresholds.runtimeHotspotPercent / 100).map((c) => c.id) : [],
+        [cpus, totalCpu, thresholds.runtimeHotspotPercent],
+    );
+    const memoryHotspotIds = useMemo(
+        () =>
+            totalMemory > 0
+                ? mems.filter((m) => m.bytes / totalMemory >= thresholds.memoryHotspotPercent / 100).map((m) => m.id)
+                : [],
+        [mems, totalMemory, thresholds.memoryHotspotPercent],
+    );
 
     // Center a node in the viewport by react-flow id.
     const centerOnNode = useCallback(
@@ -330,17 +340,16 @@ export function PlanInsights({treeDescription, nodeIdMapping}: PlanInsightsProps
     // legend. A node can fall into several of these at once (e.g. a costly scan that is also a CPU
     // hotspot), so the union is deduplicated to avoid visiting it twice.
     const issues = useMemo(
-        () =>
-            [
-                ...new Set([
-                    ...byCategory["costly-scan"],
-                    ...byCategory["high-volume-scan"],
-                    ...byCategory["index-rec"],
-                    ...byCategory["duplicate-columns"],
-                    ...cpuHotspotIds,
-                    ...memoryHotspotIds,
-                ]),
-            ],
+        () => [
+            ...new Set([
+                ...byCategory["costly-scan"],
+                ...byCategory["high-volume-scan"],
+                ...byCategory["index-rec"],
+                ...byCategory["duplicate-columns"],
+                ...cpuHotspotIds,
+                ...memoryHotspotIds,
+            ]),
+        ],
         [byCategory, cpuHotspotIds, memoryHotspotIds],
     );
     const [cursor, setCursor] = useState(-1);
@@ -501,9 +510,7 @@ export function PlanInsights({treeDescription, nodeIdMapping}: PlanInsightsProps
                     <>
                         {errors.length > 0 ? (
                             <div className="qg-insights-errors">
-                                <div className="qg-insights-errors-title">
-                                    Query error{errors.length > 1 ? "s" : ""}
-                                </div>
+                                <div className="qg-insights-errors-title">Query error{errors.length > 1 ? "s" : ""}</div>
                                 {errors.map((e) => (
                                     <button
                                         key={e.id}

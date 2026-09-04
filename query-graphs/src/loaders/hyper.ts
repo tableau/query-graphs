@@ -2474,7 +2474,8 @@ function convertHyperNode(
                             if (opKind === "cast") {
                                 // Name the target type when Hyper records it, so a `setCast` reads as
                                 // `col (cast as Numeric(18, 2))`; fall back to a bare `(cast)` otherwise.
-                                const castType = valueExpr === undefined ? undefined : formatTypeName(tryGetPropertyPath(valueExpr, ["type"]));
+                                const castType =
+                                    valueExpr === undefined ? undefined : formatTypeName(tryGetPropertyPath(valueExpr, ["type"]));
                                 marker = castType !== undefined ? ` (cast as ${castType})` : " (cast)";
                             } else if (opKind === "coalesce") {
                                 marker = " (coalesce)";
@@ -2569,7 +2570,8 @@ function convertHyperNode(
                             // A window aggregate encodes its aggregates exactly like a `group-by`, but under
                             // the nested `aggregation` object and sharing this info's `OVER (…)` clause.
                             const aggregation = tryGetPropertyPath(info, ["aggregation"]);
-                            const aggregates = aggregation === undefined ? undefined : tryGetPropertyPath(aggregation, ["aggregates"]);
+                            const aggregates =
+                                aggregation === undefined ? undefined : tryGetPropertyPath(aggregation, ["aggregates"]);
                             const aggExprs =
                                 aggregation === undefined
                                     ? undefined
