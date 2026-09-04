@@ -99,14 +99,13 @@ function QueryNode({data, id}: NodeProps<QueryGraphNode>) {
                     <div className="qg-graph-node-label" style={{background: data.nodeColor}}>
                         {data.name}
                     </div>
-                    {expanded ? null : colorBar(data.barsBelow, "below")}
                 </div>
                 <div className="qg-graph-node-body-wrapper nowheel">
                     <div ref={bodyRef} className="qg-graph-node-body">
                         {children}
                     </div>
                 </div>
-                {expanded ? colorBar(data.barsBelow, "below") : null}
+                {colorBar(data.barsBelow, "below")}
             </div>
             <Handle type="source" position={Position.Bottom} className={handleClassName} onClick={onSubtreeHandleClick}>
                 {hasSubtree ? (subtreeExpanded ? "-" : "+") : ""}
