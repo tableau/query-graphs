@@ -11,14 +11,16 @@ Everything downstream (layout, rendering, interaction) is shared across formats.
 | Postgres | `postgres.ts` | JSON | `EXPLAIN (FORMAT JSON)`, ideally with `ANALYZE` |
 | Umbra / CedarDB | `umbra.ts` | JSON | `EXPLAIN (FORMAT JSON)`, ideally with `ANALYZE` |
 | DuckDB | `duckdb.ts` | JSON | `EXPLAIN (FORMAT JSON)`, ideally with `ANALYZE` |
+| MariaDB | `mariadb.ts` | JSON | `ANALYZE FORMAT=JSON` or `EXPLAIN FORMAT=JSON` |
 | Hyper | `hyper.ts` | JSON | Hyper's `EXPLAIN (FORMAT JSON)`, e.g. via HyperAPI |
 | Tableau logical query | `tableau.ts` | XML | Tableau Desktop / Online log files |
 | Generic JSON | `json.ts` | JSON | fallback — renders any JSON as a tree |
 | Generic XML | `xml.ts` | XML | fallback — renders any XML as a tree |
 
-The Postgres, Umbra/CedarDB, DuckDB, and Hyper loaders understand plan semantics: they choose icons, order and collapse children, label edges with cardinalities, and visualize execution details.
+The database-specific loaders understand plan semantics: they choose icons, order and collapse children, label edges with cardinalities, and visualize execution details.
 Umbra and CedarDB emit the same operator-tree format, so one loader covers both.
 Their loader and Hyper share the adaptive operator/expression converter in `adaptive-plan-tree.ts`.
+MariaDB optimizer traces are rendered as decision trees rather than execution plans.
 The generic JSON and XML loaders map the input structure literally and act as catch-all fallbacks.
 
 ## Loader Dispatch
@@ -27,7 +29,7 @@ The app does not ask the user which format they pasted.
 Instead, `loadPlanFromText` (`query-graphs/src/loaders/plan.ts`) parses JSON once and tries each semantic JSON loader in order:
 
 ```ts
-const jsonPlanLoaders = [loadPostgresPlan, loadUmbraPlan, loadDuckDbPlan, loadHyperPlan];
+const jsonPlanLoaders = [loadPostgresPlan, loadUmbraPlan, loadDuckDbPlan, loadMariaDbPlan, loadHyperPlan];
 ```
 
 A loader signals "this is not my format" by throwing.

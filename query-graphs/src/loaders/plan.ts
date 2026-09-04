@@ -3,12 +3,13 @@ import type {Json} from "./loader-utils";
 import {loadDuckDbPlan} from "./duckdb";
 import {loadHyperPlan} from "./hyper";
 import {loadJson} from "./json";
+import {loadMariaDbPlan} from "./mariadb";
 import {loadPostgresPlan} from "./postgres";
 import {loadTableauPlan} from "./tableau";
 import {loadUmbraPlan} from "./umbra";
 import {loadXml} from "./xml";
 
-export type PlanFormat = "postgres" | "umbra" | "duckdb" | "hyper" | "json" | "tableau" | "xml";
+export type PlanFormat = "postgres" | "umbra" | "duckdb" | "mariadb" | "hyper" | "json" | "tableau" | "xml";
 
 export interface LoadedPlan {
     format: PlanFormat;
@@ -29,6 +30,7 @@ const jsonPlanLoaders: JsonPlanLoader[] = [
     {format: "postgres", load: loadPostgresPlan},
     {format: "umbra", load: loadUmbraPlan},
     {format: "duckdb", load: loadDuckDbPlan},
+    {format: "mariadb", load: loadMariaDbPlan},
     {format: "hyper", load: loadHyperPlan},
 ];
 

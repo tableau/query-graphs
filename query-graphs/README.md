@@ -9,7 +9,7 @@ To see changes in a running UI, rebuild the library and use the app's dev server
 The library provides:
 
 * **The tree model** — `TreeDescription` and `TreeNode` (`src/tree-description.ts`), the format-independent contract between loaders and the renderer.
-* **Format loaders** — `hyper.ts`, `umbra.ts`, `duckdb.ts`, `postgres.ts`, `tableau.ts`, and the generic `json.ts`/`xml.ts` fallbacks (`src/loaders/`), each turning plan text into a `TreeDescription`.
+* **Format loaders** — `hyper.ts`, `umbra.ts`, `duckdb.ts`, `mariadb.ts`, `postgres.ts`, `tableau.ts`, and the generic `json.ts`/`xml.ts` fallbacks (`src/loaders/`), each turning plan text into a `TreeDescription`.
   `loaders/plan.ts` provides shared format detection and dispatch for applications using the library.
 * **The renderer** — lays out and draws the tree; in `src/ui/`.
 * **Interaction state** — a Zustand store (`src/ui/store.ts`) tracking the graph state (expanded nodes, the measured node sizes, ...).

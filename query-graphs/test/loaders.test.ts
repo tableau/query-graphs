@@ -168,6 +168,61 @@ test("loads every DuckDB example semantically", () => {
     assert.equal(degradedAnalyze.tree.root.children?.[0].name, "7");
 });
 
+test("loads every MariaDB example semantically", () => {
+    for (const fixturePath of fixturePaths("mariadb")) {
+        const loaded = loadFixture(fixturePath);
+        assert.equal(loaded.format, "mariadb", fixturePath);
+        assert.notEqual(loaded.tree.root.name, "", fixturePath);
+    }
+
+    const analyzedScan = loadFixture("mariadb/tablescan-analyze.plan.json").tree;
+    const regionScan = treeNodes(analyzedScan.root).find((node) => node.name === "region (ALL)");
+    assert.notEqual(regionScan, undefined);
+    assert.equal(regionScan?.edgeLabel, "5/5");
+    assert.notEqual(regionScan?.nodeColor, undefined);
+
+    const filteredScan = treeNodes(loadFixture("mariadb/tpch/tpch-q17-analyze.plan.json").tree.root).find(
+        (node) => node.name === "part (ALL)",
+    );
+    assert.equal(filteredScan?.edgeLabel, "3/103");
+    assert.equal(filteredScan?.edgeClass, "qg-label-highlighted");
+
+    const repeatedScan = treeNodes(loadFixture("mariadb/magicunnesting-analyze.plan.json").tree.root).find(
+        (node) => node.name === "lineitem (ALL)",
+    );
+    assert.equal(repeatedScan?.edgeLabel, "525/572");
+    assert.equal(repeatedScan?.edgeClass, undefined);
+
+    const blockJoin = treeNodes(loadFixture("mariadb/tpch/tpch-q3-analyze.plan.json").tree.root).find(
+        (node) => node.name === "BNL" && node.edgeLabel === "15",
+    );
+    assert.notEqual(blockJoin, undefined);
+
+    const windowPlan = loadFixture("mariadb/window-analyze.plan.json").tree;
+    assert.ok(treeNodes(windowPlan.root).some((node) => node.name === "sorts"));
+
+    const materializedSubquery = loadFixture("mariadb/tpch/tpch-q16-analyze.plan.json").tree;
+    assert.ok(
+        treeNodes(materializedSubquery.root).some((node) => node.name === "materialization" && node.icon === "temp-table-symbol"),
+    );
+
+    const optimizerTrace = loadFixture("mariadb/tpch/tpch-q2-steps.plan.json").tree;
+    assert.equal(optimizerTrace.root.name, "optimizer trace");
+    assert.deepEqual(
+        optimizerTrace.root.children?.map((node) => node.name),
+        ["join_preparation", "join_optimization"],
+    );
+
+    const simplePlan = loadFixture("mariadb/tableconstruction.plan.json").tree;
+    assert.equal(simplePlan.metadata?.has("query optimization time (ms)"), false);
+
+    assert.equal(loadPlanFromTextWithFormat('{"steps":[{"join_execution":{"select_id":1}}]}').format, "mariadb");
+
+    const futureTop = loadPlanFromTextWithFormat('{"query_block":{"select_id":1},"future_top":{"value":42}}');
+    assert.equal(futureTop.format, "mariadb");
+    assert.ok(treeNodes(futureTop.tree.root).some((node) => node.name === "future_top"));
+});
+
 test("Hyper loader output remains stable", () => {
     const digests = Object.fromEntries(
         fixturePaths("hyper").map((fixturePath) => [fixturePath, treeDigest(loadFixture(fixturePath).tree)]),
