@@ -1,69 +1,63 @@
-import {create} from "zustand";
-import {immer} from "zustand/middleware/immer";
+import type {Dimensions} from "@xyflow/react";
+import {createContext, useContext} from "react";
+import {useStore} from "zustand";
 import {devtools} from "zustand/middleware";
+import {createStore} from "zustand/vanilla";
+import type {StoreApi} from "zustand/vanilla";
+import {assertNotNull} from "../assert";
 
-export interface NodeDimensions {
-    headWidth?: number;
-    headHeight?: number;
-    bodyWidth?: number;
-    bodyHeight?: number;
-}
-
-interface GraphRenderingState {
-    init: (expandedSubtrees: Record<string, boolean>) => void;
+export interface GraphRenderingState {
     // `expandedNodes` tracks which nodes show their property detail panel (toggled by a plain click).
     expandedNodes: Record<string, boolean>;
     toggleExpandedNode: (nodeId: string) => void;
     // `expandedSubtrees` tracks which nodes reveal their `collapsedChildren` (toggled by shift-click or the +/- handle).
     expandedSubtrees: Record<string, boolean>;
     toggleExpandedSubtree: (nodeId: string) => void;
-    // Measured on-screen head/body sizes, reported by a ResizeObserver and fed back into layout.
-    nodeDimensions: Record<string, NodeDimensions>;
-    updateNodeDimensions: (entries: ResizeObserverEntry[]) => unknown;
+    nodeDimensions: Map<string, Dimensions>;
+    updateNodeDimensions: (updates: readonly (readonly [string, Dimensions])[]) => void;
 }
 
-export const useGraphRenderingStore = create<GraphRenderingState>()(
-    devtools(
-        immer((set, get) => ({
+export type GraphRenderingStore = StoreApi<GraphRenderingState>;
+
+export function createGraphRenderingStore(expandedSubtrees: Record<string, boolean>): GraphRenderingStore {
+    return createStore<GraphRenderingState>()(
+        devtools((set) => ({
             expandedNodes: {},
-            expandedSubtrees: {},
-            nodeDimensions: {},
-            init: (expandedSubtrees) => {
-                set((state) => {
-                    state.expandedNodes = {};
-                    state.expandedSubtrees = expandedSubtrees;
-                    state.nodeDimensions = {};
-                });
-            },
+            expandedSubtrees,
             toggleExpandedNode: (nodeId) =>
-                set((state) => {
-                    state.expandedNodes[nodeId] = !get().expandedNodes[nodeId];
-                }),
+                set((state) => ({
+                    expandedNodes: {
+                        ...state.expandedNodes,
+                        [nodeId]: !state.expandedNodes[nodeId],
+                    },
+                })),
             toggleExpandedSubtree: (nodeId) =>
+                set((state) => ({
+                    expandedSubtrees: {
+                        ...state.expandedSubtrees,
+                        [nodeId]: !state.expandedSubtrees[nodeId],
+                    },
+                })),
+            nodeDimensions: new Map(),
+            updateNodeDimensions: (updates) =>
                 set((state) => {
-                    state.expandedSubtrees[nodeId] = !get().expandedSubtrees[nodeId];
-                }),
-            updateNodeDimensions: (entries: ResizeObserverEntry[]) =>
-                set((state) => {
-                    for (const e of entries) {
-                        // Figure out which node was changed
-                        const target = e.target as HTMLElement;
-                        const id = target.closest(".react-flow__node")?.getAttribute("data-id");
-                        if (id === null || id === undefined) continue;
-                        // Create an entry for this node, if we don't have it, yet
-                        if (!state.nodeDimensions[id]) {
-                            state.nodeDimensions[id] = {};
-                        }
-                        // Update head/body dimensions
-                        if (target.classList.contains("qg-graph-node-head")) {
-                            state.nodeDimensions[id].headWidth = target.offsetWidth;
-                            state.nodeDimensions[id].headHeight = target.offsetHeight;
-                        } else if (target.classList.contains("qg-graph-node-body")) {
-                            state.nodeDimensions[id].bodyWidth = target.offsetWidth;
-                            state.nodeDimensions[id].bodyHeight = target.offsetHeight;
-                        }
+                    let nodeDimensions: Map<string, Dimensions> | undefined;
+                    for (const [nodeId, dimensions] of updates) {
+                        const previous = state.nodeDimensions.get(nodeId);
+                        if (previous?.width === dimensions.width && previous.height === dimensions.height) continue;
+                        nodeDimensions ??= new Map(state.nodeDimensions);
+                        nodeDimensions.set(nodeId, dimensions);
                     }
+                    return nodeDimensions === undefined ? state : {nodeDimensions};
                 }),
         })),
-    ),
-);
+    );
+}
+
+export const GraphRenderingStoreContext = createContext<GraphRenderingStore | null>(null);
+
+export function useGraphRenderingStore<T>(selector: (state: GraphRenderingState) => T): T {
+    const store = useContext(GraphRenderingStoreContext);
+    assertNotNull(store);
+    return useStore(store, selector);
+}
