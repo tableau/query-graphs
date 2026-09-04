@@ -3,10 +3,9 @@ import * as d3hierarchy from "d3-hierarchy";
 
 import type * as treeDescription from "../tree-description";
 import type {TreeNode, TreeDescription} from "../tree-description";
-import type {Edge} from "@xyflow/react";
+import type {Dimensions, Edge} from "@xyflow/react";
 import type {QueryGraphNode} from "./QueryNode";
 import type {ColoredGraphEdge} from "./ColoredEdge";
-import type {GraphNodeDimensions} from "./store";
 import {assertNotNull} from "../assert";
 import type {CSSProperties} from "react";
 
@@ -16,6 +15,11 @@ type QueryGraphEdge = ColoredGraphEdge | Edge;
 interface TreeLayout {
     nodes: QueryGraphNode[];
     edges: QueryGraphEdge[];
+}
+
+export interface GraphNodeDimensions {
+    measured: Dimensions;
+    target: Dimensions;
 }
 
 //
