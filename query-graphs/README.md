@@ -36,7 +36,9 @@ Each loader converts a source format into a `TreeDescription`; see [Plan Formats
 
 The Hyper and Postgres loaders share an **adaptive conversion heuristic**: a scalar value (string/number/boolean) becomes a tooltip `property`, while a nested object or array becomes a child `TreeNode`.
 This keeps simple attributes compact in the tooltip while still exposing structure as the tree.
-The `hyper.ts` loader is the richest reference:
+`adaptive-plan-tree.ts` implements the operator/expression variant used by Hyper and related formats.
+The format-specific loader supplies node rendering, child ordering, metric extraction, and crosslink configuration.
+`tree-postprocessing.ts` contains shared crosslink resolution, edge-width scaling, runtime coloring, and pipeline coloring.
 
 * It classifies a node as an operator or an expression from its `operator` / `expression` key, then looks up per-type rendering (icon, display name, crosslink source) in `nodeRenderingConfig`.
 * It enforces a meaningful child order (`input`/`left`/`right`/… before alphabetical) so a join's inputs read left-to-right.
