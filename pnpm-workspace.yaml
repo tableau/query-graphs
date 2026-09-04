@@ -2,3 +2,5 @@ packages:
   - "query-graphs"
   - "standalone-app"
   - "upload-server"
+allowBuilds:
+  esbuild: true

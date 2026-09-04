@@ -20,13 +20,15 @@ The generic JSON and XML loaders map the input structure literally and act as ca
 ## Loader Dispatch
 
 The app does not ask the user which format they pasted.
-Instead, `loadPlan` (`standalone-app/src/tree-loader.ts`) tries each loader in order and keeps the first one that does not throw:
+Instead, `loadPlanFromText` (`query-graphs/src/loaders/plan.ts`) parses JSON once and tries each semantic JSON loader in order:
 
 ```ts
-const loaders = [loadPostgresPlanFromText, loadHyperPlanFromText, loadJsonFromText, loadTableauPlan, loadXml];
+const jsonPlanLoaders = [loadPostgresPlan, loadHyperPlan];
 ```
 
-A loader signals "this is not my format" by throwing; `loadPlan` collects the errors and, if every loader fails, reports the de-duplicated messages.
+A loader signals "this is not my format" by throwing.
+Valid JSON that no semantic loader recognizes is passed to the generic JSON loader.
+Non-JSON input is tried as Tableau XML and then generic XML; if every loader fails, `loadPlanFromText` reports the de-duplicated messages.
 
 **Order matters.**
 Postgres and Hyper plans are both JSON, so the Postgres loader — which checks for a distinctive signature (a top-level `Plan` object containing a `Node Type`) — is tried *before* the more permissive Hyper loader.
@@ -41,7 +43,7 @@ To add support for another database's plans:
    Parse the text, then recursively convert each source node into a `TreeNode`: set `name`, pick an `icon` from the `IconName` union, put scalar attributes into `properties` (shown in the tooltip), and put real children into `children`/`collapsedChildren`.
    Use `hyper.ts` as the reference implementation and reuse the helpers in `loader-utils.ts`.
    Throw an `Error` when the input is not your format, so dispatch can fall through to the next loader.
-2. **Register it** in the `loaders` array in `standalone-app/src/tree-loader.ts`, positioned so a more specific format is tried before a more permissive one.
+2. **Register it** in `query-graphs/src/loaders/plan.ts`, positioned so a more specific format is tried before a more permissive one.
 3. **Add an example** plan under `standalone-app/examples/<db>/` so it shows up on the `examples.html` page.
    If the format comes from a database that [`plan-dumper`](../plan-dumper/README.md) can drive, add a query there so the example can be regenerated instead of hand-maintained.
 4. **Verify** by loading the example in the app; see [`plan-dumper`](../plan-dumper/README.md) for the end-to-end workflow.

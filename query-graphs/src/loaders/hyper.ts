@@ -583,6 +583,7 @@ function convertOptimizerSteps(node: Json): TreeDescription | undefined {
         const name = step["name"];
         const plan = step["plan"];
         if (typeof name !== "string") return undefined;
+        if (!isHyperPlanRoot(plan)) return undefined;
 
         // Add the child
         const {root: childRoot, crosslinks: newCrosslinks, metadata: newProperties} = convertHyperPlan(plan);
@@ -608,12 +609,31 @@ function hasPipelineEnvelope(json: Json): json is JsonObject {
     );
 }
 
+function isHyperPlanRoot(json: Json): json is JsonObject {
+    return (
+        typeof json === "object" &&
+        !Array.isArray(json) &&
+        json !== null &&
+        (hasOwnProperty(json, "operator") || hasOwnProperty(json, "expression"))
+    );
+}
+
 // Loads a Hyper query plan
 export function loadHyperPlan(json: Json): TreeDescription {
     if (hasPipelineEnvelope(json)) {
+        if (!isHyperPlanRoot(json["tree"])) {
+            throw new Error("Invalid Hyper query plan");
+        }
         return convertHyperPlan(json["tree"], json["pipelines"]);
     }
-    return convertOptimizerSteps(json) ?? convertHyperPlan(json);
+    const optimizerSteps = convertOptimizerSteps(json);
+    if (optimizerSteps !== undefined) {
+        return optimizerSteps;
+    }
+    if (!isHyperPlanRoot(json)) {
+        throw new Error("Invalid Hyper query plan");
+    }
+    return convertHyperPlan(json);
 }
 
 function tryStripPrefix(str, pre) {

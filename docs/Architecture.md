@@ -27,7 +27,7 @@ The core abstraction connecting the two halves is `TreeDescription`, the format-
 
 ```mermaid
 flowchart TD
-    text["Plan text (JSON / XML)"] --> dispatch["loadPlan()<br/>(standalone-app/tree-loader.ts)"]
+    text["Plan text (JSON / XML)"] --> dispatch["loadPlanFromText()<br/>(query-graphs/src/loaders/plan.ts)"]
     dispatch -->|tries each loader| loaders["Format loaders<br/>hyper · postgres · tableau · json · xml<br/>(query-graphs/src/loaders)"]
     loaders --> td["TreeDescription<br/>(format-independent tree model)"]
     td --> layout["layoutTree()<br/>(d3-flextree layout)"]
@@ -35,7 +35,7 @@ flowchart TD
     render --> ui["Interactive graph"]
 ```
 
-1. The app hands the raw text to `loadPlan` (`standalone-app/src/tree-loader.ts`), which tries each loader in turn and keeps the first that succeeds.
+1. The app hands the raw text to `loadPlanFromText` (`query-graphs/src/loaders/plan.ts`), which tries each loader in turn and keeps the first that succeeds.
 2. The winning loader (e.g. `query-graphs/src/loaders/hyper.ts`) transforms the source structure into a `TreeDescription`.
    This is where format-specific knowledge lives: how to name nodes, which children to show or collapse, which icon to use, how to label edges.
 3. `layoutTree` (`query-graphs/src/ui/tree-layout.ts`) assigns positions using `d3-flextree`, driven by the measured on-screen size of each node.

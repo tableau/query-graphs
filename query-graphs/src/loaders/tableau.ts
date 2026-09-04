@@ -159,6 +159,9 @@ function convertXML(xml: ParsedXML): TreeNode {
 
 export function loadTableauPlan(graphString: string): TreeDescription {
     const xml = typesafeXMLParse(graphString);
+    if (xml.tag !== "logical-query" && xml.tag !== "fed-op") {
+        throw new Error("Invalid Tableau query plan");
+    }
     const root = convertXML(xml);
     return {root: root, crosslinks: undefined};
 }
