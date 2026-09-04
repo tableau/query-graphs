@@ -94,8 +94,6 @@
     max-width: 0;
     max-height: 0;
     overflow: hidden;
-    transition-property: max-width, max-height;
-    transition-duration: .2s;
 
     .qg-graph-node.qg-expanded & {
         max-width: 30em;
