@@ -1,5 +1,5 @@
 import type {Edge, EdgeProps} from "@xyflow/react";
-import {BaseEdge, getBezierPath} from "@xyflow/react";
+import {BezierEdge} from "@xyflow/react";
 
 // Must be a `type` instead of the usual `interface`.
 // xyflow's `Node<NodeData>` requires NodeData to satisfy `Record<string, unknown>` and
@@ -18,9 +18,7 @@ export type ColoredGraphEdge = Edge<ColoredEdgeData, "colored">;
 // stroke is painted with a gradient of contiguous color bands (one per color,
 // running source->target); a single color is drawn as a solid stroke.
 export function ColoredEdge(props: EdgeProps<ColoredGraphEdge>) {
-    const {id, sourceX, sourceY, targetX, targetY, markerEnd, label, labelStyle, style} = props;
-    const [edgePath, labelX, labelY] = getBezierPath(props);
-
+    const {id, sourceX, sourceY, targetX, targetY, style} = props;
     const colors = props.data?.colors ?? [];
     const multi = colors.length > 1;
 
@@ -46,28 +44,10 @@ export function ColoredEdge(props: EdgeProps<ColoredGraphEdge>) {
                         ])}
                     </linearGradient>
                 </defs>
-                <BaseEdge
-                    path={edgePath}
-                    labelX={labelX}
-                    labelY={labelY}
-                    label={label}
-                    labelStyle={labelStyle}
-                    markerEnd={markerEnd}
-                    style={{...style, stroke: `url(#${gradientId})`}}
-                />
+                <BezierEdge {...props} style={{...style, stroke: `url(#${gradientId})`}} />
             </>
         );
     }
 
-    return (
-        <BaseEdge
-            path={edgePath}
-            labelX={labelX}
-            labelY={labelY}
-            label={label}
-            labelStyle={labelStyle}
-            markerEnd={markerEnd}
-            style={{...style, stroke: colors[0] ?? style?.stroke}}
-        />
-    );
+    return <BezierEdge {...props} style={{...style, stroke: colors[0] ?? style?.stroke}} />;
 }
