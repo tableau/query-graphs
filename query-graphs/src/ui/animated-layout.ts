@@ -101,40 +101,56 @@ export function createLayoutInterpolator(
     // elements remain mounted until they reach the anchor and become transparent.
     const fromNodes = new Map(from.nodes.map((entry) => [entry.node.id, entry]));
     const toNodes = new Map(to.nodes.map((node) => [node.id, node]));
-    const nodeIds = new Set([...fromNodes.keys(), ...toNodes.keys()]);
+    const nodeTransitions = [...new Set([...fromNodes.keys(), ...toNodes.keys()])].map((id) => {
+        const start = fromNodes.get(id);
+        const target = toNodes.get(id);
+        const anchor = anchors.get(id);
+        return {
+            node: target ?? start!.node,
+            startPosition: start?.position ?? anchorPosition(fromNodes, anchor) ?? {x: 0, y: 0},
+            targetPosition: target?.position ?? anchorPosition(toNodes, anchor) ?? {x: 0, y: 0},
+            startOpacity: start?.opacity ?? 0,
+            targetOpacity: target === undefined ? 0 : 1,
+            transient: start?.transient === true || start === undefined || target === undefined,
+            exiting: target === undefined,
+        };
+    });
     const fromEdges = new Map(from.edges.map((entry) => [entry.edge.id, entry]));
     const toEdges = new Map(to.edges.map((edge) => [edge.id, edge]));
-    const edgeIds = new Set([...fromEdges.keys(), ...toEdges.keys()]);
+    const edgeTransitions = [...new Set([...fromEdges.keys(), ...toEdges.keys()])].map((id) => {
+        const start = fromEdges.get(id);
+        const target = toEdges.get(id);
+        return {
+            edge: target ?? start!.edge,
+            startOpacity: start?.opacity ?? 0,
+            targetOpacity: target === undefined ? 0 : 1,
+            transient: start?.transient === true || start === undefined || target === undefined,
+            exiting: target === undefined,
+        };
+    });
 
     return (progress) => {
         const nodes: AnimatedNode[] = [];
-        for (const id of nodeIds) {
-            const start = fromNodes.get(id);
-            const target = toNodes.get(id);
-            if (target === undefined && progress === 1) continue;
-            const anchor = anchors.get(id);
-            const fromPosition = start?.position ?? anchorPosition(fromNodes, anchor) ?? {x: 0, y: 0};
-            const toPosition = target?.position ?? anchorPosition(toNodes, anchor) ?? {x: 0, y: 0};
+        for (const transition of nodeTransitions) {
+            if (transition.exiting && progress === 1) continue;
             nodes.push({
-                node: target ?? start!.node,
+                node: transition.node,
                 position: {
-                    x: fromPosition.x + (toPosition.x - fromPosition.x) * progress,
-                    y: fromPosition.y + (toPosition.y - fromPosition.y) * progress,
+                    x: transition.startPosition.x + (transition.targetPosition.x - transition.startPosition.x) * progress,
+                    y: transition.startPosition.y + (transition.targetPosition.y - transition.startPosition.y) * progress,
                 },
-                opacity: (start?.opacity ?? 0) + ((target === undefined ? 0 : 1) - (start?.opacity ?? 0)) * progress,
-                transient: progress < 1 && (start?.transient === true || start === undefined || target === undefined),
+                opacity: transition.startOpacity + (transition.targetOpacity - transition.startOpacity) * progress,
+                transient: progress < 1 && transition.transient,
             });
         }
 
         const edges: AnimatedEdge[] = [];
-        for (const id of edgeIds) {
-            const start = fromEdges.get(id);
-            const target = toEdges.get(id);
-            if (target === undefined && progress === 1) continue;
+        for (const transition of edgeTransitions) {
+            if (transition.exiting && progress === 1) continue;
             edges.push({
-                edge: target ?? start!.edge,
-                opacity: (start?.opacity ?? 0) + ((target === undefined ? 0 : 1) - (start?.opacity ?? 0)) * progress,
-                transient: progress < 1 && (start?.transient === true || start === undefined || target === undefined),
+                edge: transition.edge,
+                opacity: transition.startOpacity + (transition.targetOpacity - transition.startOpacity) * progress,
+                transient: progress < 1 && transition.transient,
             });
         }
         return {nodes, edges};
