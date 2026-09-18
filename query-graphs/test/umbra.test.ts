@@ -136,6 +136,37 @@ test("Umbra applies format-specific names and icons", () => {
     assert.equal(markJoin.root.children?.[0].icon, undefined);
 });
 
+test("Umbra keeps source locations in properties instead of graph subtrees", () => {
+    const tree = umbraPlanLoader.load({
+        plan: {
+            operator: "tablescan",
+            operatorId: 1,
+            sourceLocation: {startLine: 1, startColumn: 2, endLine: 1, endColumn: 7},
+            restriction: {
+                expression: "const",
+                id: 2,
+                sourceLocation: {startLine: 1, startColumn: 8, endLine: 1, endColumn: 9},
+            },
+        },
+        ius: [
+            {
+                iu: "value",
+                type: {type: "integer"},
+                sourceLocation: {startLine: 1, startColumn: 10, endLine: 1, endColumn: 15},
+            },
+        ],
+    });
+    const nodes = treeNodes(tree.root);
+    const operator = nodes.find((node) => node.properties?.get("operatorId") === "1");
+    const expression = nodes.find((node) => node.properties?.get("id") === "2");
+    const iu = nodes.find((node) => node.properties?.get("iu") === "value");
+
+    assert.equal(operator?.properties?.get("sourceLocation"), '{"startLine":1,"startColumn":2,"endLine":1,"endColumn":7}');
+    assert.equal(expression?.properties?.get("sourceLocation"), '{"startLine":1,"startColumn":8,"endLine":1,"endColumn":9}');
+    assert.equal(iu?.properties?.get("sourceLocation"), '{"startLine":1,"startColumn":10,"endLine":1,"endColumn":15}');
+    assert.ok(!treeNodes(tree.root).some((node) => node.name === "sourceLocation"));
+});
+
 test("CedarDB optimizer stages are collapsed independently", () => {
     const tree = loadFixture("cedardb/tpch/tpch-q2-steps.plan.json").tree;
     assert.equal(tree.root.name, "optimizer steps");

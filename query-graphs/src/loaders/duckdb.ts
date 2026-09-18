@@ -112,9 +112,6 @@ const duckDbConfig: DecoratedJsonTreeConfig = {
         return undefined;
     },
     shouldExpandCollapsedChildren: () => false,
-    getNodeColorValue(rawNode) {
-        return tryToNumber(rawNode["operator_timing"]);
-    },
     getEstimatedCardinality(rawNode) {
         return tryToNumber(getExtraInfo(rawNode)?.["Estimated Cardinality"]);
     },
@@ -123,10 +120,25 @@ const duckDbConfig: DecoratedJsonTreeConfig = {
     },
 };
 
+function applyOperatorTimings(root: TreeNode): void {
+    const timings: {node: TreeNode; value: number}[] = [];
+    visitTreeNodes(
+        root,
+        (node) => {
+            const timing = tryToNumber(node.properties?.get("operator_timing"));
+            if (timing !== undefined) {
+                timings.push({node, value: timing});
+            }
+        },
+        allChildren,
+    );
+    colorRelativeNumber(timings);
+}
+
 function convertDuckPlan(rawRoot: Json, metadata?: Map<string, string>): TreeDescription {
     const state = createDecoratedJsonTreeState();
     const root = convertDecoratedJsonNode(rawRoot, "DuckDB plan", state, duckDbConfig);
-    colorRelativeNumber(state.nodeColorValues);
+    applyOperatorTimings(root);
     setRelativeEdgeWidths(state.edgeWidths);
     const crosslinkTargets = new Map<string, TreeNode>();
     for (const [id, node] of buildIdMap(root, "Table Index")) {
