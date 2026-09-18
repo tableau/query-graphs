@@ -46,7 +46,8 @@ test("DuckDB analyzed plans preserve metrics, metadata, and CTE crosslinks", () 
     assert.equal(analyzedScan.root.properties?.get("Table"), '"temp".main.region');
     assert.equal(analyzedScan.root.edgeLabel, "5/5");
     assert.notEqual(analyzedScan.root.nodeColor, undefined);
-    assert.match(analyzedScan.metadata?.get("query_name") ?? "", /SELECT r_name FROM region/);
+    assert.equal(analyzedScan.metadata?.has("query_name"), false);
+    assert.match(analyzedScan.textDocuments?.find(({id}) => id === "query")?.text ?? "", /SELECT r_name FROM region/);
 
     const cte = loadFixture("duckdb/cte-analyze.plan.json").tree;
     assert.deepEqual(
@@ -142,8 +143,9 @@ test("DuckDB scopes delimiter indexes to individual optimizer stages", () => {
 });
 
 test("DuckDB resolves analyzed delimiter targets from operator types", () => {
+    const query = "EXPLAIN (ANALYZE, FORMAT JSON) select 1";
     const tree = duckDbPlanLoader.load({
-        query_name: "select 1",
+        query_name: query,
         children: [
             {
                 operator_name: "LEFT_DELIM_JOIN",
@@ -163,6 +165,7 @@ test("DuckDB resolves analyzed delimiter targets from operator types", () => {
     const source = tree.root.children?.[0];
 
     assert.deepEqual(tree.crosslinks, [{source, target: tree.root}]);
+    assert.deepEqual(tree.textDocuments, [{id: "query", title: "Original SQL Query", text: query, language: "sql"}]);
 });
 
 test("DuckDB lowercases only all-uppercase operator names", () => {

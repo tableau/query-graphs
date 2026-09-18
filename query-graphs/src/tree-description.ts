@@ -61,6 +61,13 @@ export interface Crosslink {
     target: TreeNode;
 }
 
+export interface TextDocument {
+    id: string;
+    title: string;
+    text: string;
+    language?: string;
+}
+
 export interface TreeDescription {
     /// The tree root
     root: TreeNode;
@@ -68,6 +75,8 @@ export interface TreeDescription {
     metadata?: Map<string, string>;
     /// Whether the metadata panel should be visually highlighted
     metadataHighlighted?: boolean;
+    /// Text documents associated with the graph
+    textDocuments?: TextDocument[];
     /// Additional links between indirectly related nodes
     crosslinks?: Crosslink[];
 }

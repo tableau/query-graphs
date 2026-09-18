@@ -1,0 +1,28 @@
+.qg-copy-button {
+    min-width: 6.5em;
+    border: 1px solid hsl(0, 0%, 70%);
+    border-radius: 4px;
+    padding: 0.15em 0.5em;
+    background: white;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+        background: hsl(0, 0%, 95%);
+    }
+
+    &:disabled {
+        cursor: default;
+    }
+}
+
+.qg-visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}

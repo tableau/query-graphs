@@ -1,4 +1,4 @@
-import type {TreeDescription} from "../tree-description";
+import type {TextDocument, TreeDescription} from "../tree-description";
 import {duckDbPlanLoader} from "./duckdb";
 import {hyperPlanLoader} from "./hyper";
 import {jsonPlanLoader} from "./json";
@@ -54,6 +54,17 @@ function stripSurroundingText(text: string): string {
     return planStart >= 0 && planEnd >= planStart ? text.substring(planStart, planEnd + 1) : text;
 }
 
+function addPlanDocument(plan: LoadedPlan, text: string, language: string): LoadedPlan {
+    const planDocument: TextDocument = {id: "plan", title: "Query Plan", text, language};
+    return {
+        ...plan,
+        tree: {
+            ...plan.tree,
+            textDocuments: [...(plan.tree.textDocuments ?? []), planDocument],
+        },
+    };
+}
+
 export function loadPlanFromText(text: string, options: LoadPlanOptions = {}): LoadedPlan {
     const planText = stripSurroundingText(text);
     const format = options.format;
@@ -69,7 +80,7 @@ export function loadPlanFromText(text: string, options: LoadPlanOptions = {}): L
         try {
             const json = JSON.parse(planText) as Json;
             const plan = loadMatchingPlan(json, jsonPlanLoaders, errors, format);
-            if (plan !== undefined) return plan;
+            if (plan !== undefined) return addPlanDocument(plan, text, "json");
         } catch (error) {
             errors.push(error);
         }
@@ -79,7 +90,7 @@ export function loadPlanFromText(text: string, options: LoadPlanOptions = {}): L
         try {
             const xml = parseXml(planText);
             const plan = loadMatchingPlan(xml, xmlPlanLoaders, errors, format);
-            if (plan !== undefined) return plan;
+            if (plan !== undefined) return addPlanDocument(plan, text, "xml");
         } catch (error) {
             errors.push(error);
         }

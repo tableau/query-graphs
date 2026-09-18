@@ -19,7 +19,8 @@ The library provides:
 `TreeDescription` (`src/tree-description.ts`) is the single abstraction that decouples "which database produced this plan" from "how it is drawn".
 Every loader outputs one; the renderer only ever consumes one.
 
-* `TreeDescription` — the whole graph: a `root` `TreeNode`, optional `metadata` (shown in the top-level label), an optional metadata highlight, and optional `crosslinks`.
+* `TreeDescription` — the whole graph: a `root` `TreeNode`, optional `metadata` (shown in the top-level label), an optional metadata highlight, optional text documents, and optional `crosslinks`.
+* `TextDocument` — a named text artifact associated with the graph, identified by a stable `id` and optionally tagged with its language.
 * `TreeNode` — one node. Notable fields:
   * `name`, `icon`, `iconColor`, `nodeColor` — what the node looks like.
   * `properties` — a `Map` of key/value strings shown in the node's tooltip/detail panel.
@@ -63,6 +64,7 @@ Edge thickness is scaled from `edgeWidth`, and `crosslinks` are added as extra e
 `QueryNode` (`src/ui/QueryNode.tsx`) draws a single node.
 `NodeIcon` (`src/ui/NodeIcon.tsx`) maps each `IconName` to a hand-drawn SVG (the join icons, for instance, are two overlapping circles whose fills encode inner/left/right/full).
 `CollapsiblePanel` (`src/ui/CollapsiblePanel.tsx`) is a reusable panel for graph overlays and other secondary content.
+`CopyButton` (`src/ui/CopyButton.tsx`) copies text with temporary success or failure feedback and an accessible status announcement.
 
 ### Making Large Graphs Approachable
 

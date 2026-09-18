@@ -38,11 +38,15 @@ test("dispatcher falls back to the generic JSON loader", () => {
 
 test("dispatcher strips text surrounding copied plans", () => {
     const json = 'Copied from the query analyzer:\n{"unrecognized":true}\nEnd of plan';
-    assert.equal(loadPlanFromText(json).format, "json");
+    const loadedJson = loadPlanFromText(json);
+    assert.equal(loadedJson.format, "json");
+    assert.deepEqual(loadedJson.tree.textDocuments, [{id: "plan", title: "Query Plan", text: json, language: "json"}]);
     assert.equal(loadPlanFromText(json, {format: "json"}).format, "json");
 
     const xml = "Copied from the query analyzer:\n<logical-query />\nEnd of plan";
-    assert.equal(loadPlanFromText(xml).format, "tableau");
+    const loadedXml = loadPlanFromText(xml);
+    assert.equal(loadedXml.format, "tableau");
+    assert.deepEqual(loadedXml.tree.textDocuments, [{id: "plan", title: "Query Plan", text: xml, language: "xml"}]);
     assert.equal(loadPlanFromText(xml, {format: "xml"}).format, "xml");
 });
 

@@ -8,7 +8,7 @@ use `operator_name` and add per-operator metrics plus a profiling envelope.
 
 */
 
-import type {Crosslink, IconName, TreeDescription, TreeNode} from "../tree-description";
+import type {Crosslink, IconName, TextDocument, TreeDescription, TreeNode} from "../tree-description";
 import {allChildren, visitTreeNodes} from "../tree-description";
 import type {DecoratedJsonTreeConfig} from "./decorated-json-tree";
 import {convertDecoratedJsonNode, createDecoratedJsonTreeState} from "./decorated-json-tree";
@@ -135,7 +135,7 @@ function applyOperatorTimings(root: TreeNode): void {
     colorRelativeNumber(timings);
 }
 
-function convertDuckPlan(rawRoot: Json, metadata?: Map<string, string>): TreeDescription {
+function convertDuckPlan(rawRoot: Json, metadata?: Map<string, string>, textDocuments?: TextDocument[]): TreeDescription {
     const state = createDecoratedJsonTreeState();
     const root = convertDecoratedJsonNode(rawRoot, "DuckDB plan", state, duckDbConfig);
     applyOperatorTimings(root);
@@ -159,6 +159,7 @@ function convertDuckPlan(rawRoot: Json, metadata?: Map<string, string>): TreeDes
     return {
         root,
         metadata,
+        textDocuments,
         crosslinks: resolveCrosslinks(state.crosslinks, crosslinkTargets),
     };
 }
@@ -201,7 +202,7 @@ function getPlanStages(json: Json): [string, Json][] | undefined {
 function analyzeMetadata(json: JsonObject): Map<string, string> {
     const metadata = new Map<string, string>();
     for (const key of Object.keys(json)) {
-        if (key === "children") {
+        if (key === "children" || key === "query_name") {
             continue;
         }
         const value = json[key];
@@ -211,6 +212,11 @@ function analyzeMetadata(json: JsonObject): Map<string, string> {
         metadata.set(key, forceToString(value));
     }
     return metadata;
+}
+
+function getQueryDocument(json: JsonObject): TextDocument[] | undefined {
+    const query = tryToNonNullString(json["query_name"]);
+    return query === undefined ? undefined : [{id: "query", title: "Original SQL Query", text: query, language: "sql"}];
 }
 
 function combinePlanStages(stages: [string, Json][]): TreeDescription {
@@ -237,7 +243,7 @@ function loadDuckDbPlan(json: Json): TreeDescription {
         if (isDuckNode(root) && root["operator_type"] === "EXPLAIN_ANALYZE" && isSingletonArray(root["children"])) {
             root = root["children"][0];
         }
-        return convertDuckPlan(root, analyzeMetadata(json));
+        return convertDuckPlan(root, analyzeMetadata(json), getQueryDocument(json));
     }
 
     // Normal plans

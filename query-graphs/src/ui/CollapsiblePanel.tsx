@@ -4,12 +4,13 @@ import "./CollapsiblePanel.css";
 
 export interface CollapsiblePanelProps {
     title: ReactNode;
+    headerActions?: ReactNode;
     children: ReactNode;
     highlighted?: boolean;
     className?: string;
 }
 
-export function CollapsiblePanel({title, children, highlighted, className}: CollapsiblePanelProps) {
+export function CollapsiblePanel({title, headerActions, children, highlighted, className}: CollapsiblePanelProps) {
     const classes = cc(["qg-collapsible-panel", {"qg-highlighted": highlighted}, className]);
 
     return (
@@ -18,10 +19,15 @@ export function CollapsiblePanel({title, children, highlighted, className}: Coll
                 <span className="qg-collapsible-panel-chevron" aria-hidden="true">
                     &#x25B8;
                 </span>
-                <span>{title}</span>
+                <span className="qg-collapsible-panel-title">{title}</span>
                 {highlighted ? (
                     <span className="qg-attention-needed-icon" role="img" aria-label="Needs attention">
                         !
+                    </span>
+                ) : null}
+                {headerActions ? (
+                    <span className="qg-collapsible-panel-actions" onClick={(event) => event.stopPropagation()}>
+                        {headerActions}
                     </span>
                 ) : null}
             </summary>
