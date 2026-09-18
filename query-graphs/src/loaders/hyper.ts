@@ -77,6 +77,7 @@ const nodeRenderingConfig: Record<string, NodeRenderingConfig> = {
     "exp:reference": {displayNameKey: "id"},
 };
 
+// Legacy tags from before the kebab-case transition.
 const legacyNodeTags: Record<string, string> = {
     "op:executiontarget": "op:execution-target",
     "op:select": "op:filter",
@@ -135,9 +136,11 @@ const hyperConfig: DecoratedJsonTreeConfig = {
         return typeof debugName === "string" ? debugName : undefined;
     },
     shouldCollapseChild(rawNode, _key, child) {
+        // Keep operator inputs visible (including arrays of operators), while collapsing auxiliary operator data.
         return !hasOwnProperty(rawNode, "operator") || !containsOperator(child);
     },
     shouldExpandCollapsedChildren(_rawNode, nodeTypeKey) {
+        // Expand expression details by default.
         return nodeTypeKey !== "operator";
     },
     isErrored(rawNode, metadata) {
@@ -196,6 +199,15 @@ function convertHyperPlan(node: Json, pipelines?: Json): TreeDescription {
     return {root, crosslinks, metadata: state.metadata};
 }
 
+function isHyperPlanRoot(json: Json): json is JsonObject {
+    return (
+        typeof json === "object" &&
+        !Array.isArray(json) &&
+        json !== null &&
+        (typeof json["operator"] === "string" || typeof json["expression"] === "string")
+    );
+}
+
 function convertOptimizerSteps(node: Json): TreeDescription | undefined {
     // Check if we have a top-level object with a single key "optimizersteps" containing an array
     if (typeof node !== "object" || Array.isArray(node) || node === null) return undefined;
@@ -229,26 +241,6 @@ function convertOptimizerSteps(node: Json): TreeDescription | undefined {
     return {root: {name: "optimizersteps", children}, crosslinks, metadata: properties};
 }
 
-function hasPipelineEnvelope(json: Json): json is JsonObject {
-    return (
-        typeof json === "object" &&
-        !Array.isArray(json) &&
-        json !== null &&
-        hasOwnProperty(json, "tree") &&
-        hasOwnProperty(json, "pipelines") &&
-        typeof json["tree"] === "object"
-    );
-}
-
-function isHyperPlanRoot(json: Json): json is JsonObject {
-    return (
-        typeof json === "object" &&
-        !Array.isArray(json) &&
-        json !== null &&
-        (typeof json["operator"] === "string" || typeof json["expression"] === "string")
-    );
-}
-
 function isOptimizerStepsPlan(node: Json): boolean {
     if (typeof node !== "object" || Array.isArray(node) || node === null) return false;
     if (Object.getOwnPropertyNames(node).length !== 1 || !hasOwnProperty(node, "optimizersteps")) return false;
@@ -262,6 +254,18 @@ function isOptimizerStepsPlan(node: Json): boolean {
             Object.getOwnPropertyNames(step).length === 2 &&
             typeof step["name"] === "string" &&
             isHyperPlanRoot(step["plan"]),
+    );
+}
+
+// Detect the `{tree, pipelines}` envelope emitted by `EXPLAIN (..., PIPELINES, ...)`.
+function hasPipelineEnvelope(json: Json): json is JsonObject {
+    return (
+        typeof json === "object" &&
+        !Array.isArray(json) &&
+        json !== null &&
+        hasOwnProperty(json, "tree") &&
+        hasOwnProperty(json, "pipelines") &&
+        typeof json["tree"] === "object"
     );
 }
 

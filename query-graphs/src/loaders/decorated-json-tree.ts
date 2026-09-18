@@ -198,6 +198,7 @@ function convertDecoratedJsonValue(
             actualCardinality === undefined
                 ? formatMetric(estimatedCardinality)
                 : `${formatMetric(actualCardinality)}/${formatMetric(estimatedCardinality)}`;
+        // Highlight estimates that differ from the actual cardinality by more than one order of magnitude.
         if (
             actualCardinality !== undefined &&
             (estimatedCardinality > actualCardinality * 10 || actualCardinality > estimatedCardinality * 10)
