@@ -18,7 +18,13 @@ interface LayoutAnimation {
     anchorNodeId?: string;
 }
 
-export interface NodeResizeAnimation {
+interface NodeResizeRequest {
+    nodeId: string;
+    nodeElement: HTMLElement;
+    targetExpanded: boolean;
+}
+
+interface NodeResizeAnimation {
     nodeId: string;
     targetDimensions: Dimensions;
     bodyElement: HTMLElement;
@@ -27,7 +33,7 @@ export interface NodeResizeAnimation {
 }
 
 export interface GraphAnimationController {
-    animateNodeResize: (animation: NodeResizeAnimation, updateGraph: () => void) => void;
+    animateNodeResize: (request: NodeResizeRequest, updateGraph: () => void) => void;
     animateSubtreeChange: (anchorNodeId: string, updateGraph: () => void) => void;
 }
 
@@ -55,6 +61,39 @@ function withAnimationStyle(style: CSSProperties | undefined, opacity: number, t
         ...style,
         ...(opacity === 1 ? {} : {opacity}),
         ...(transient ? {pointerEvents: "none"} : {}),
+    };
+}
+
+function measureNodeResize({nodeId, nodeElement, targetExpanded}: NodeResizeRequest): NodeResizeAnimation | undefined {
+    const flowNode = nodeElement.closest<HTMLElement>(".react-flow__node");
+    const bodyElement = nodeElement.querySelector<HTMLElement>(".qg-graph-node-body-wrapper");
+    if (flowNode === null || flowNode.parentElement === null || bodyElement === null) return undefined;
+    const flowContainer = flowNode.parentElement;
+
+    const clone = flowNode.cloneNode(true) as HTMLElement;
+    const clonedNode = clone.querySelector<HTMLElement>(".qg-graph-node");
+    const clonedBody = clone.querySelector<HTMLElement>(".qg-graph-node-body-wrapper");
+    if (clonedNode === null || clonedBody === null) return undefined;
+    clone.style.position = "fixed";
+    clone.style.transform = "none";
+    clone.style.visibility = "hidden";
+    clone.style.pointerEvents = "none";
+    clonedNode.classList.toggle("qg-expanded", targetExpanded);
+    clonedBody.style.removeProperty("width");
+    clonedBody.style.removeProperty("height");
+    clonedBody.style.removeProperty("max-width");
+    clonedBody.style.removeProperty("max-height");
+    flowContainer.append(clone);
+    const targetDimensions = {width: clone.offsetWidth, height: clone.offsetHeight};
+    const bodyTo = {width: clonedBody.offsetWidth, height: clonedBody.offsetHeight};
+    clone.remove();
+    if (targetDimensions.width === 0 || targetDimensions.height === 0) return undefined;
+    return {
+        nodeId,
+        targetDimensions,
+        bodyElement,
+        bodyFrom: {width: bodyElement.offsetWidth, height: bodyElement.offsetHeight},
+        bodyTo,
     };
 }
 
@@ -128,7 +167,12 @@ export function useAnimatedGraphLayout(
 
     const animationController = useMemo<GraphAnimationController>(
         () => ({
-            animateNodeResize: (animation, updateGraph) => {
+            animateNodeResize: (request, updateGraph) => {
+                const animation = measureNodeResize(request);
+                if (animation === undefined) {
+                    updateGraph();
+                    return;
+                }
                 const startedAt = animationStartTime();
                 stopBodyAnimation(animation.nodeId);
                 setDimensionsState((current) => {
