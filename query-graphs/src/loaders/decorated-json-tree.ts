@@ -1,14 +1,32 @@
+/**
+ * Configurable JSON-to-tree conversion shared by the generic JSON loader and
+ * loaders that understand particular JSON plan formats.
+ *
+ * The baseline conversion is deliberately loss-tolerant: scalar object members
+ * become tooltip properties, while nested objects and arrays remain visible as
+ * tree nodes. Format loaders decorate that baseline through configuration; they
+ * can recognize tagged nodes, choose names and icons, order or flatten children,
+ * collapse auxiliary data, and extract metrics and crosslinks. Unknown fields
+ * continue through the baseline conversion instead of being discarded.
+ *
+ * Conversion only records data needed by later whole-tree passes. Resolving
+ * crosslinks, scaling edges, and coloring runtimes stays outside this module.
+ */
+
 import type {IconName, TreeNode} from "../tree-description";
 import type {Json, JsonObject} from "./loader-utils";
 import {forceToString, formatMetric, hasOwnProperty, tryToString} from "./loader-utils";
 import type {UnresolvedCrosslink} from "./tree-postprocessing";
 
 export interface NodeRenderingConfig {
+    /** Use this converted scalar property as the node's display name. */
     displayNameKey?: string;
+    /** Treat this converted scalar property as the target ID of a crosslink. */
     crosslinkSourceKey?: string;
     icon?: IconName;
 }
 
+/** Accumulators produced during recursion for format-specific post-processing. */
 export interface DecoratedJsonTreeState {
     crosslinks: UnresolvedCrosslink[];
     edgeWidths: {node: TreeNode; width: number}[];
@@ -21,16 +39,27 @@ export function createDecoratedJsonTreeState(): DecoratedJsonTreeState {
 }
 
 export interface DecoratedJsonTreeConfig {
+    /** Choose presentation details for an object recognized by one of `nodeTypeKeys`. */
     getRenderingConfig(nodeTypeKey: string, tag: string, rawNode: JsonObject): NodeRenderingConfig;
+    /** Object keys whose scalar values identify a semantic node type, in precedence order. */
     nodeTypeKeys: readonly string[];
+    /** Keep these values in the tooltip even when they are objects or arrays. */
     alwaysPropertyKeys: readonly string[];
+    /** Show these children first and omit their otherwise redundant key wrapper. */
     fixedChildOrder: readonly string[];
+    /** Override the usual property, tag, or parent-key-derived display name. */
     getDebugName?(rawNode: JsonObject): string | undefined;
+    /** Put a nested value in `collapsedChildren` instead of `children`. */
     shouldCollapseChild?(rawNode: JsonObject, key: string, child: Json): boolean;
+    /** Open a node's `collapsedChildren` initially when it has no ordinary children. */
     shouldExpandCollapsedChildren?(rawNode: JsonObject, nodeTypeKey: string | undefined): boolean;
+    /** Mark a converted node as the failure location. */
     isErrored?(rawNode: JsonObject, metadata: Map<string, string>): boolean;
+    /** Collect the node's runtime for relative coloring after conversion. */
     getExecutionTime?(rawNode: JsonObject): number | undefined;
+    /** Label and size the incoming edge using the estimated cardinality. */
     getEstimatedCardinality?(rawNode: JsonObject): number | undefined;
+    /** Prefer the actual cardinality when available and compare it with the estimate. */
     getActualCardinality?(rawNode: JsonObject): number | undefined;
 }
 
@@ -193,6 +222,8 @@ export function convertDecoratedJsonNode(
     state: DecoratedJsonTreeState,
     config: DecoratedJsonTreeConfig,
 ): TreeNode {
+    // Recursive array conversion naturally produces sibling nodes. At the API
+    // boundary, wrap them so every caller receives exactly one tree root.
     const converted = convertDecoratedJsonValue(rawNode, rootName, state, config);
     return Array.isArray(converted) ? {name: rootName, children: converted} : converted;
 }
