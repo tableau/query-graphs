@@ -162,21 +162,17 @@ const hyperConfig: DecoratedJsonTreeConfig = {
     },
 };
 
-function parseHyperPipelines(pipelinesJson: Json): RawPipeline[] {
+function parsePipelines(pipelinesJson: Json): RawPipeline[] {
     if (!Array.isArray(pipelinesJson)) {
         return [];
     }
     const pipelines: RawPipeline[] = [];
     for (const entry of pipelinesJson) {
-        if (typeof entry !== "object" || Array.isArray(entry) || entry === null) {
-            continue;
-        }
+        if (typeof entry !== "object" || Array.isArray(entry) || entry === null) continue;
         const id = entry["id"];
         const operators = entry["operators"];
-        if (typeof id !== "number" || !Array.isArray(operators)) {
-            continue;
-        }
-        const operatorIds = operators.filter((operatorId): operatorId is number => typeof operatorId === "number");
+        if (typeof id !== "number" || !Array.isArray(operators)) continue;
+        const operatorIds = operators.filter((o): o is number => typeof o === "number");
         pipelines.push({id, operatorIds});
     }
     return pipelines;
@@ -199,7 +195,7 @@ function convertHyperPlan(node: Json, pipelines?: Json): TreeDescription {
     const operatorsById = buildIdMap(root, "operator-id");
     const crosslinks = resolveCrosslinks(state.crosslinks, operatorsById);
     if (pipelines !== undefined) {
-        assignPipelineColors(root, operatorsById, parseHyperPipelines(pipelines), crosslinks);
+        assignPipelineColors(root, operatorsById, parsePipelines(pipelines), crosslinks);
     }
     return {root, crosslinks, metadata: state.metadata};
 }
