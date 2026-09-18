@@ -200,7 +200,7 @@ function parsePipelines(pipelinesJson: Json, operatorsById: Map<string, TreeNode
             .filter((node) => node !== undefined);
         const driverId = operators[operators.length - 1];
         const driver = typeof driverId === "number" ? operatorsById.get(driverId.toString()) : undefined;
-        const statistics = hasOwnProperty(entry, "statistics") ? entry["statistics"] : undefined;
+        const statistics = tryGetPropertyPath(entry, ["statistics"]);
         const running = tryGetPropertyPath(entry, ["statistics", "running"]);
         pipelines.push({
             id,
