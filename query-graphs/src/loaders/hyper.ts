@@ -262,7 +262,7 @@ function convertHyperPlan(node: Json, pipelines?: Json): TreeDescription {
     } else {
         applyLegacyOperatorStatistics(root);
     }
-    return {root, crosslinks, metadata: state.metadata};
+    return {root, crosslinks, metadata: state.metadata, metadataHighlighted: state.metadata.has("Error") || undefined};
 }
 
 function extraProperties(object: JsonObject, excludedKeys: readonly string[]): Map<string, string> | undefined {
@@ -291,6 +291,7 @@ function convertOptimizerSteps(node: Json): TreeDescription | undefined {
     const crosslinks: Crosslink[] = [];
     const children: TreeNode[] = [];
     const metadata = new Map<string, string>();
+    let metadataHighlighted = false;
     for (const step of steps) {
         if (typeof step !== "object" || Array.isArray(step) || step === null) return undefined;
         if (!hasOwnProperty(step, "name")) return undefined;
@@ -299,8 +300,14 @@ function convertOptimizerSteps(node: Json): TreeDescription | undefined {
         const plan = step["plan"];
         if (typeof name !== "string") return undefined;
 
-        const {root: childRoot, crosslinks: newCrosslinks, metadata: newProperties} = convertHyperPlan(plan);
+        const {
+            root: childRoot,
+            crosslinks: newCrosslinks,
+            metadata: newProperties,
+            metadataHighlighted: childMetadataHighlighted,
+        } = convertHyperPlan(plan);
         crosslinks.push(...(newCrosslinks ?? []));
+        metadataHighlighted ||= childMetadataHighlighted ?? false;
         children.push({name, properties: extraProperties(step, ["name", "plan"]), children: [childRoot]});
         for (const property of newProperties ?? new Map<string, string>()) {
             metadata.set(property[0], property[1]);
@@ -310,6 +317,7 @@ function convertOptimizerSteps(node: Json): TreeDescription | undefined {
         root: {name: "optimizersteps", properties: extraProperties(node, ["optimizersteps"]), children},
         crosslinks,
         metadata,
+        metadataHighlighted: metadataHighlighted || undefined,
     };
 }
 

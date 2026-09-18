@@ -1,0 +1,73 @@
+.qg-collapsible-panel {
+    background: white;
+    border: 1px solid hsl(0, 0%, 85%);
+    border-radius: 8px;
+    box-shadow:
+        0 2px 6px hsl(0, 0%, 0%, 0.08),
+        0 1px 2px hsl(0, 0%, 0%, 0.06);
+
+    & > summary {
+        display: flex;
+        align-items: center;
+        gap: 0.4em;
+        padding: 0.5em 0.75em;
+        cursor: pointer;
+        font-weight: 600;
+        list-style: none;
+        user-select: none;
+
+        &::-webkit-details-marker {
+            display: none;
+        }
+
+        & .qg-collapsible-panel-chevron {
+            display: inline-block;
+            font-size: 1.4em;
+            line-height: 1;
+            transition: transform 0.12s ease;
+        }
+
+        &:focus-visible {
+            outline: 2px solid hsl(210, 90%, 65%);
+            outline-offset: 2px;
+            border-radius: 8px;
+        }
+    }
+
+    &[open] > summary .qg-collapsible-panel-chevron {
+        transform: rotate(90deg);
+    }
+
+    &.qg-highlighted {
+        border-color: hsl(0, 72%, 55%);
+        box-shadow:
+            0 2px 6px hsl(0, 72%, 45%, 0.12),
+            0 1px 2px hsl(0, 72%, 45%, 0.1);
+
+        & > summary {
+            color: hsl(0, 72%, 40%);
+            background: hsl(0, 75%, 97%);
+            border-radius: 7px;
+        }
+    }
+}
+
+.qg-attention-needed-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.25em;
+    height: 1.25em;
+    border-radius: 50%;
+    color: white;
+    background: hsl(0, 72%, 45%);
+    font-size: 0.85em;
+    font-weight: bold;
+}
+
+.qg-collapsible-panel-content {
+    max-height: 70vh;
+    overflow: auto;
+    padding: 0.75em;
+    border-top: 1px solid hsl(0, 0%, 90%);
+}

@@ -9,6 +9,12 @@ test("Hyper examples are recognized", () => {
     }
 });
 
+test("Hyper error examples highlight their metadata", () => {
+    const tree = loadFixture("hyper/tpch-q11-error-analyze.plan.json").tree;
+    assert.equal(tree.metadata?.get("Error"), "division by zero");
+    assert.equal(tree.metadataHighlighted, true);
+});
+
 test("Hyper applies rendering, ordering, metrics, and crosslinks", () => {
     const tree = loadPlanFromText(
         JSON.stringify({
@@ -108,6 +114,7 @@ test("Hyper applies pipeline-level runtime statistics to the pipeline driver", (
     const sort = failedPlan.root.children?.[0];
     const scan = sort?.children?.[0];
     assert.equal(failedPlan.metadata?.get("Error"), "query failed");
+    assert.equal(failedPlan.metadataHighlighted, true);
     assert.equal(
         sort?.properties?.get("pipeline-stats"),
         '{"cpu-cycles":100,"query-metrics":{"wall-clock":0.25,"custom":7},"running":true}',

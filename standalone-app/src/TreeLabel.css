@@ -11,8 +11,6 @@
     }
 }
 
-.graph-metadata {
-    background: #fff;
+.graph-metadata-panel {
     max-width: 20em;
-    word-break: break-all;
 }
