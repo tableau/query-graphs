@@ -9,7 +9,8 @@ To see changes in a running UI, rebuild the library and use the app's dev server
 The library provides:
 
 * **The tree model** — `TreeDescription` and `TreeNode` (`src/tree-description.ts`), the format-independent contract between loaders and the renderer.
-* **Format loaders** — `hyper.ts`, `postgres.ts`, `tableau.ts`, and the generic `json.ts`/`xml.ts` fallbacks (`src/loaders/`), each turning plan text into a `TreeDescription`.
+* **Format loaders** — `hyper.ts`, `postgres.ts`, `tableau.ts`, and the generic `json.ts`/`xml.ts` fallbacks (`src/loaders/`), each recognizing and converting parsed input into a `TreeDescription`.
+  `loaders/index.ts` provides shared format detection and dispatch for applications using the library.
 * **The renderer** — lays out and draws the tree; in `src/ui/`.
 * **Interaction state** — a Zustand store (`src/ui/store.ts`) tracking the graph state (expanded nodes, the measured node sizes, ...).
 
@@ -101,13 +102,15 @@ Install `@tableau/query-graphs`, then combine a loader with the `QueryGraph` com
 
 ```tsx
 import {QueryGraph} from "@tableau/query-graphs/lib/ui/QueryGraph";
-import {loadHyperPlanFromText} from "@tableau/query-graphs/lib/loaders/hyper";
+import {loadPlanFromText} from "@tableau/query-graphs/lib/loaders";
 
 function MyPlanViewer({planText}: {planText: string}) {
-    const tree = loadHyperPlanFromText(planText);
+    const {tree} = loadPlanFromText(planText);
     return <QueryGraph treeDescription={tree} />;
 }
 ```
+
+Pass `{format: "hyper"}` (or another registered format) as the second argument to bypass automatic format detection.
 
 The component imports its own CSS (`QueryGraph.css`, `QueryNode.css`, `NodeIcon.css`) and react-flow's base stylesheet; with a bundler that honors the package's `sideEffects`, those styles are included automatically when you import the component.
 If you build a plan programmatically instead of parsing text, construct a `TreeDescription` directly — that is the only contract the renderer depends on.

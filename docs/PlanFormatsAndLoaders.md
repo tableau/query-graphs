@@ -1,7 +1,8 @@
 # Plan Formats and Loaders
 
 Query Graphs supports several query-plan formats and is designed so that new ones are cheap to add.
-A **loader** is a function that takes raw plan text and returns a `TreeDescription` — the format-independent tree model described in the [`query-graphs` README](../query-graphs/README.md).
+A **loader** tranforms a database-specific plan representation into a `TreeDescription`, the format-independent tree model described in the [`query-graphs` README](../query-graphs/README.md).
+The public `loadPlanFromText` façade handles syntax parsing and selects the matching loader.
 Everything downstream (layout, rendering, interaction) is shared across formats.
 
 ## Supported Formats
@@ -20,33 +21,42 @@ The generic JSON and XML loaders map the input structure literally and act as ca
 ## Loader Dispatch
 
 The app does not ask the user which format they pasted.
-Instead, `loadPlan` (`standalone-app/src/tree-loader.ts`) tries each loader in order and keeps the first one that does not throw:
+Instead, `loadPlanFromText` (`query-graphs/src/loaders/index.ts`) parses JSON once and checks each semantic JSON loader in order:
 
 ```ts
-const loaders = [loadPostgresPlanFromText, loadHyperPlanFromText, loadJsonFromText, loadTableauPlan, loadXml];
+const jsonPlanLoaders = [postgresPlanLoader, hyperPlanLoader, jsonPlanLoader];
 ```
 
-A loader signals "this is not my format" by throwing; `loadPlan` collects the errors and, if every loader fails, reports the de-duplicated messages.
+Each loader exposes separate `matches` and `load` operations, so format detection does not depend on converter exceptions.
+If a matching loader cannot convert the plan, dispatch records the failure and continues with later matching loaders.
+If no parser and loader combination succeeds, `InvalidPlanError` contains the collected failures as its cause.
 
-**Order matters.**
-Postgres and Hyper plans are both JSON, so the Postgres loader — which checks for a distinctive signature (a top-level `Plan` object containing a `Node Type`) — is tried *before* the more permissive Hyper loader.
-The generic `json`/`xml` loaders come last so a recognized format always wins over the literal fallback.
+Callers can bypass detection by passing a registered format:
+
+```ts
+loadPlanFromText(text, {format: "hyper"});
+loadPlanFromText(text, {format: "json"}); // Force literal JSON rendering.
+```
+
+Forced dispatch parses only the syntax used by that loader, skips `matches`, and never falls back to another loader.
+An unknown name produces `UnknownPlanFormatError`; invalid input produces `InvalidPlanError` with the requested format.
 
 ## Adding a New Format
 
 To add support for another database's plans:
 
 1. **Write the loader.**
-   Add `query-graphs/src/loaders/<db>.ts` exporting a `load<Db>FromText(text: string): TreeDescription`.
-   Parse the text, then recursively convert each source node into a `TreeNode`: set `name`, pick an `icon` from the `IconName` union, put scalar attributes into `properties` (shown in the tooltip), and put real children into `children`/`collapsedChildren`.
+   Add `query-graphs/src/loaders/<db>.ts` exporting a `PlanLoader`, such as `dbPlanLoader: PlanLoader<Json>` for a JSON format.
+   Its `matches` method should recognize the format from a small, stable signature; its `load` method performs the conversion.
+   Recursively convert each source node into a `TreeNode`: set `name`, pick an `icon` from the `IconName` union, put scalar attributes into `properties` (shown in the tooltip), and put real children into `children`/`collapsedChildren`.
    Use `hyper.ts` as the reference implementation and reuse the helpers in `loader-utils.ts`.
-   Throw an `Error` when the input is not your format, so dispatch can fall through to the next loader.
-2. **Register it** in the `loaders` array in `standalone-app/src/tree-loader.ts`, positioned so a more specific format is tried before a more permissive one.
+2. **Register it** in the matching syntax-specific registry in `query-graphs/src/loaders/index.ts`, positioned so a more specific format is tried before a more permissive one.
 3. **Add an example** plan under `standalone-app/examples/<db>/` so it shows up on the `examples.html` page.
    If the format comes from a database that [`plan-dumper`](../plan-dumper/README.md) can drive, add a query there so the example can be regenerated instead of hand-maintained.
 4. **Verify** by loading the example in the app; see [`plan-dumper`](../plan-dumper/README.md) for the end-to-end workflow.
 
-The same loaders are exported from the published library (`@tableau/query-graphs/lib/loaders/<db>`), so a new format is immediately available to embedders too.
+The descriptors are also exported from the published library (`@tableau/query-graphs/lib/loaders/<db>`) for callers that already have parsed JSON or XML.
+Most embedders should use the `loadPlanFromText` façade instead.
 
 ## Writing a Permissive Loader
 
@@ -55,9 +65,9 @@ Databases ship plan features on their own cadence, and a plan should still rende
 
 A few principles keep a loader permissive:
 
-* **Throw only to reject a format, not to reject a field.**
-  A loader throws during dispatch to signal "this is not my format" (see [Loader Dispatch](#loader-dispatch)).
-  Once it has committed to a format, it should degrade rather than throw — an unexpected field must never blank the whole graph.
+* **Keep recognition narrow and conversion permissive.**
+  `matches` should require only the stable signature needed to distinguish the format.
+  Once it has matched, `load` should degrade rather than throw — an unexpected field must never blank the whole graph.
 * **Never assume a field is present.**
   Read optional data through the nullable helpers in `loader-utils.ts` (`tryGetPropertyPath`, `tryToString`) instead of indexing directly, so a missing key yields "no value" rather than a crash.
 * **Fall back to the adaptive heuristic for anything unknown.**

@@ -10,9 +10,9 @@ already provides us the structure of the rendered tree.
 */
 
 // Require node modules
-import type {IconName, TreeDescription, TreeNode} from "../tree-description";
+import type {IconName, TreeNode} from "../tree-description";
 import type {ParsedXML} from "./xml";
-import {typesafeXMLParse} from "./xml";
+import type {PlanLoader} from "./types";
 
 function normalizeLogicalOperator(tag: string, clazz?: string) {
     // Logical queries
@@ -157,8 +157,11 @@ function convertXML(xml: ParsedXML): TreeNode {
     };
 }
 
-export function loadTableauPlan(graphString: string): TreeDescription {
-    const xml = typesafeXMLParse(graphString);
-    const root = convertXML(xml);
-    return {root: root, crosslinks: undefined};
-}
+export const tableauPlanLoader: PlanLoader<ParsedXML> = {
+    format: "tableau",
+    matches: (xml) => xml.tag === "logical-query" || xml.tag === "fed-op",
+    load(xml) {
+        const root = convertXML(xml);
+        return {root, crosslinks: undefined};
+    },
+};

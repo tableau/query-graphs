@@ -2,9 +2,9 @@ import {useCallback, useEffect, useState} from "react";
 import {useBrowserUrl, useUrlParam} from "./browserUrlHooks";
 import type {FileOpenerData} from "./FileOpener";
 import {FileOpener, useLoadStateController} from "./FileOpener";
+import {loadPlanFromText} from "@tableau/query-graphs/lib/loaders";
 import {QueryGraph} from "@tableau/query-graphs/lib/ui/QueryGraph";
 import type {TreeDescription} from "@tableau/query-graphs/lib/tree-description";
-import {loadPlan} from "./tree-loader";
 import {tryCreateLocalStorageUrl, isLocalStorageURL, loadLocalStorageURL} from "./LocalStorageUrl";
 import {assert} from "./assert";
 import {TreeLabel} from "./TreeLabel";
@@ -105,7 +105,7 @@ export function QueryGraphsApp() {
             }
             // Parse the tree
             setProgress("Parsing plan...");
-            const tree = loadPlan(text);
+            const {tree} = loadPlanFromText(text);
             // Display the freshly loaded tree=
             setTree(tree);
             clearLoadState();
@@ -117,7 +117,7 @@ export function QueryGraphsApp() {
 
     const validate = useCallback((text: string) => {
         try {
-            loadPlan(text);
+            loadPlanFromText(text);
             return undefined;
         } catch (e) {
             if (e instanceof Error) {

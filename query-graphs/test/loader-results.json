@@ -441,7 +441,8 @@
     "tableau/logical-operator-class-fedeval.xml": "03c461d405948d10c1829d6a5e083085ded7edcabb88a49c7aea4e391930873c",
     "tableau/logical-query-joins.xml": "4d35f94879b2add95848db401436838689825e0b3b33f2966e06043d52df8c76",
     "tableau/logical-query-with-references.xml": "e02ca442fccbfe27a1472391dcc8c762d4a3eb9891e24a1d0047866120e6a094",
-    "tableau/logical-query.xml": "db38ad05f7b15a62e3186aecc76b58a90d148f63c1231f9135914b0c91304440"
+    "tableau/logical-query.xml": "db38ad05f7b15a62e3186aecc76b58a90d148f63c1231f9135914b0c91304440",
+    "tests/test-newlines.xml": "8f876a77342d45990ae900640e1ecef91a0ba26d8a4ab1c722b0d430ad630d3f"
   },
   "xml": {
     "tableau/dint1.xml": "94b37f0fb1d229ed9078b7fe59cc7386a8a2b653962718b6125c71c8b4ddfe0e",
@@ -451,6 +452,7 @@
     "tableau/logical-operator-class-fedeval.xml": "9e39e5b543d6efe34781b91aa245ca90f9f1a84053e82a8647591cb52d6cf72e",
     "tableau/logical-query-joins.xml": "c01ce6a2787f695655211a4a172b6e4a1e126aae6e828a779f11d95fc2b604de",
     "tableau/logical-query-with-references.xml": "e3dad59dd49030f946ea688a87ba16a950316f2bcf131f66f9ff11d534df1c91",
-    "tableau/logical-query.xml": "901c5cb82206e397f1ace460534fe13dc80d500b659691a4979814f180bdd572"
+    "tableau/logical-query.xml": "901c5cb82206e397f1ace460534fe13dc80d500b659691a4979814f180bdd572",
+    "tests/test-newlines.xml": "aa52f174c23420701be4abad894ff9b14bdd532ab5d2c12d077007c7577800cc"
   }
 }

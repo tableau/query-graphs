@@ -9,7 +9,8 @@ Map the JSON tree directly to a D3 tree, without any modifications
 
 import type {Json} from "./loader-utils";
 import {tryToString} from "./loader-utils";
-import type {TreeDescription, TreeNode} from "../tree-description";
+import type {TreeNode} from "../tree-description";
+import type {PlanLoader} from "./types";
 
 function convertChildren(node: Json): TreeNode[] {
     const strRep = tryToString(node);
@@ -46,19 +47,11 @@ function convertChildren(node: Json): TreeNode[] {
     return [{name: JSON.stringify(node)}];
 }
 
-// Load a JSON tree
-export function loadJson(json: Json): TreeDescription {
-    const root = {name: "root", children: convertChildren(json)};
-    return {root: root};
-}
-
-// Load a JSON tree from text
-export function loadJsonFromText(graphString: string): TreeDescription {
-    let json: Json;
-    try {
-        json = JSON.parse(graphString);
-    } catch (err) {
-        throw new Error("JSON parse failed with '" + err + "'.", {cause: err});
-    }
-    return loadJson(json);
-}
+export const jsonPlanLoader: PlanLoader<Json> = {
+    format: "json",
+    matches: () => true,
+    load(json) {
+        const root = {name: "root", children: convertChildren(json)};
+        return {root};
+    },
+};

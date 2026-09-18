@@ -11,6 +11,7 @@ import * as treeDescription from "../tree-description";
 import type {TreeNode, TreeDescription, Crosslink, IconName} from "../tree-description";
 import type {Json} from "./loader-utils";
 import {tryToString, formatMetric, hasOwnProperty, hasSubOject} from "./loader-utils";
+import {InvalidPlanError, type PlanLoader} from "./types";
 import {assert} from "../assert";
 
 interface UnresolvedCrosslink {
@@ -222,7 +223,7 @@ function convertPostgresNode(rawNode: Json, parentKey: string, conversionState: 
         }
         return listOfObjects;
     }
-    throw new Error("Invalid Postgres query plan");
+    throw new InvalidPlanError("postgres");
 }
 
 // Color graph per a node's relative execution time
@@ -312,16 +313,23 @@ function setEdgeWidths(state: ConversionState) {
     }
 }
 
-// Loads a Postgres query plan
-export function loadPostgresPlan(json: Json): TreeDescription {
-    // Skip initial array containing a single "Plan"
+function unwrapPostgresPlan(json: Json): Json {
     if (Array.isArray(json) && json.length === 1) {
-        json = json[0];
+        return json[0];
     }
-    // Verify Postgres plan signature
-    if (!hasSubOject(json, "Plan") || !hasOwnProperty(json.Plan, "Node Type")) {
-        throw new Error("Invalid Postgres query plan");
+    return json;
+}
+
+function isPostgresPlan(json: Json): boolean {
+    json = unwrapPostgresPlan(json);
+    return hasSubOject(json, "Plan") && hasOwnProperty(json.Plan, "Node Type");
+}
+
+function loadPostgresPlan(json: Json): TreeDescription {
+    if (!isPostgresPlan(json)) {
+        throw new InvalidPlanError("postgres");
     }
+    json = unwrapPostgresPlan(json);
     // Load the graph
     const conversionState = {
         operatorsById: new Map<string, TreeNode>(),
@@ -331,7 +339,7 @@ export function loadPostgresPlan(json: Json): TreeDescription {
     } as ConversionState;
     const root = convertPostgresNode(json, "result", conversionState);
     if (Array.isArray(root)) {
-        throw new Error("Invalid Postgres query plan");
+        throw new InvalidPlanError("postgres");
     }
     colorRelativeExecutionTime(root);
     setEdgeWidths(conversionState);
@@ -339,14 +347,8 @@ export function loadPostgresPlan(json: Json): TreeDescription {
     return {root: root, crosslinks: crosslinks};
 }
 
-// Load a JSON tree from text
-export function loadPostgresPlanFromText(graphString: string): TreeDescription {
-    // Parse the plan as JSON
-    let json: Json;
-    try {
-        json = JSON.parse(graphString);
-    } catch (err) {
-        throw new Error("JSON parse failed with '" + err + "'.", {cause: err});
-    }
-    return loadPostgresPlan(json);
-}
+export const postgresPlanLoader: PlanLoader<Json> = {
+    format: "postgres",
+    matches: isPostgresPlan,
+    load: loadPostgresPlan,
+};

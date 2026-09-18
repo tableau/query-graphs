@@ -42,7 +42,7 @@ On a technical level:
 
 These conventions apply to all Markdown files and source-code comments in this repository:
 
-* Write in American English, be concise, and prefer precise references (e.g. name the `loadPlan` function rather than "the loader function").
+* Write in American English, be concise, and prefer precise references (e.g. name the `loadPlanFromText` function rather than "the loader function").
 * Use title case in headings, and put each sentence on its own line — this keeps GitHub diffs readable.
 * Embed diagrams directly with Mermaid so they render on GitHub.
 * Document processes and architecture that span modules here in `docs/`; keep module-specific detail in the module `README.md` and cross-reference rather than duplicate.

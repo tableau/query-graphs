@@ -9,7 +9,8 @@ in the tooltips.
 
 */
 
-import type {TreeDescription, TreeNode} from "../tree-description";
+import type {TreeNode} from "../tree-description";
+import type {PlanLoader} from "./types";
 
 export interface ParsedXML {
     tag: string;
@@ -18,7 +19,7 @@ export interface ParsedXML {
     nodes?: ParsedXML[];
 }
 
-export function typesafeXMLParse(str: string): ParsedXML {
+export function parseXml(str: string): ParsedXML {
     const parser = new DOMParser();
     const doc = parser.parseFromString(str, "text/xml");
 
@@ -82,7 +83,10 @@ function convertXML(xml: ParsedXML): TreeNode {
     };
 }
 
-export function loadXml(graphString: string): TreeDescription {
-    const xml = typesafeXMLParse(graphString);
-    return {root: convertXML(xml)};
-}
+export const xmlPlanLoader: PlanLoader<ParsedXML> = {
+    format: "xml",
+    matches: () => true,
+    load(xml) {
+        return {root: convertXML(xml)};
+    },
+};
