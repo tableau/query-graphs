@@ -1,5 +1,5 @@
-import type {Dimensions, NodeChange} from "@xyflow/react";
-import {useReactFlow} from "@xyflow/react";
+import type {Dimensions, InternalNode, NodeChange} from "@xyflow/react";
+import {Position, useReactFlow} from "@xyflow/react";
 import type {CSSProperties} from "react";
 import {createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState} from "react";
 import {assertNotNull} from "../assert";
@@ -8,14 +8,14 @@ import type {QueryGraphNode} from "./QueryNode";
 import {layoutTree} from "./tree-layout";
 import type {GraphNodeDimensions} from "./tree-layout";
 import {animationStartTime, graphAnimationProgress} from "./animation-timing";
-import type {GraphLayout} from "./animated-layout";
+import type {AnimatedLayout, GraphLayout, LayoutAnchor, TransitionAnchors} from "./animated-layout";
 import {interpolateLayout, matchesTargetGeometry, refreshLayoutData, sameGeometry, staticLayout} from "./animated-layout";
 
 interface LayoutAnimation {
     kind: "resize" | "subtree";
     startedAt: number;
-    // Entering and exiting nodes animate from or toward this node's position.
-    anchorNodeId?: string;
+    // Entering and exiting nodes animate from or toward this measured handle.
+    anchor?: LayoutAnchor;
 }
 
 interface NodeResizeRequest {
@@ -37,6 +37,7 @@ export interface GraphAnimationController {
     animateSubtreeChange: (anchorNodeId: string, updateGraph: () => void) => void;
 }
 
+export const subtreeHandleId = "subtree";
 export const GraphAnimationContext = createContext<GraphAnimationController | null>(null);
 
 export function useGraphAnimationController(): GraphAnimationController {
@@ -97,6 +98,32 @@ function measureNodeResize({nodeId, nodeElement, targetExpanded}: NodeResizeRequ
     };
 }
 
+function measuredSourceAnchor(node: InternalNode<QueryGraphNode> | undefined, handleId: string): LayoutAnchor | undefined {
+    const handle = node?.internals.handleBounds?.source?.find((candidate) => candidate.id === handleId);
+    if (node === undefined || handle === undefined) return undefined;
+
+    const horizontal = handle.position === Position.Left || handle.position === Position.Right;
+    const x =
+        node.internals.positionAbsolute.x +
+        handle.x +
+        (horizontal ? (handle.position === Position.Right ? handle.width : 0) : handle.width / 2);
+    const y =
+        node.internals.positionAbsolute.y +
+        handle.y +
+        (horizontal ? handle.height / 2 : handle.position === Position.Bottom ? handle.height : 0);
+    return {nodeId: node.id, offset: {x: x - node.position.x, y: y - node.position.y}};
+}
+
+function transitionAnchors(from: AnimatedLayout, to: GraphLayout, anchor: LayoutAnchor | undefined): TransitionAnchors {
+    const anchors = new Map<string, LayoutAnchor>();
+    if (anchor === undefined) return anchors;
+    const fromNodeIds = new Set(from.nodes.map((entry) => entry.node.id));
+    const toNodeIds = new Set(to.nodes.map((node) => node.id));
+    for (const id of toNodeIds) if (!fromNodeIds.has(id)) anchors.set(id, anchor);
+    for (const id of fromNodeIds) if (!toNodeIds.has(id)) anchors.set(id, anchor);
+    return anchors;
+}
+
 export function useAnimatedGraphLayout(
     treeDescription: TreeDescription,
     nodeIds: Map<TreeNode, string>,
@@ -105,7 +132,7 @@ export function useAnimatedGraphLayout(
     onNodesChange: (changes: NodeChange<QueryGraphNode>[]) => void;
     animationController: GraphAnimationController;
 } {
-    const {fitView} = useReactFlow();
+    const {fitView, getInternalNode} = useReactFlow<QueryGraphNode>();
     const activeResizeNodesRef = useRef(new Set<string>());
     const bodyAnimationsRef = useRef(new Map<string, BodyAnimation>());
     const pendingAnimationRef = useRef<LayoutAnimation | undefined>(undefined);
@@ -215,12 +242,13 @@ export function useAnimatedGraphLayout(
                 updateGraph();
             },
             animateSubtreeChange: (anchorNodeId, updateGraph) => {
-                const startedAt = animationStartTime();
-                pendingAnimationRef.current = startedAt === undefined ? undefined : {kind: "subtree", startedAt, anchorNodeId};
+                const anchor = measuredSourceAnchor(getInternalNode(anchorNodeId), subtreeHandleId);
+                const startedAt = anchor === undefined ? undefined : animationStartTime();
+                pendingAnimationRef.current = startedAt === undefined ? undefined : {kind: "subtree", startedAt, anchor};
                 updateGraph();
             },
         }),
-        [nodeIds, stopBodyAnimation],
+        [getInternalNode, nodeIds, stopBodyAnimation],
     );
 
     const targetRef = useRef(target);
@@ -260,7 +288,12 @@ export function useAnimatedGraphLayout(
         // the anchor so React Flow can measure them before computing the endpoint.
         if (!targetMeasured) {
             pendingAnimationRef.current = animation;
-            const staged = interpolateLayout(renderedRef.current, target, animation.anchorNodeId, 0);
+            const staged = interpolateLayout(
+                renderedRef.current,
+                target,
+                transitionAnchors(renderedRef.current, target, animation.anchor),
+                0,
+            );
             renderedRef.current = staged;
             setRendered(staged);
             return;
@@ -269,9 +302,10 @@ export function useAnimatedGraphLayout(
         pendingAnimationRef.current = undefined;
         const start = renderedRef.current;
         const startTime = animation.kind === "resize" ? animation.startedAt : performance.now();
+        const anchors = transitionAnchors(start, target, animation.anchor);
         const step = (now: number) => {
             const progress = graphAnimationProgress(startTime, now);
-            const next = refreshLayoutData(interpolateLayout(start, target, animation.anchorNodeId, progress), targetRef.current);
+            const next = refreshLayoutData(interpolateLayout(start, target, anchors, progress), targetRef.current);
             renderedRef.current = next;
             setRendered(next);
             if (progress < 1) {

@@ -7,7 +7,7 @@ import type {TreeNode} from "../tree-description";
 import {NodeIcon} from "./NodeIcon";
 import "./QueryNode.css";
 import {useGraphRenderingStore} from "./store";
-import {useGraphAnimationController} from "./useAnimatedGraphLayout";
+import {subtreeHandleId, useGraphAnimationController} from "./useAnimatedGraphLayout";
 
 export type QueryGraphNode = Node<TreeNode, "querynode">;
 
@@ -94,7 +94,13 @@ function QueryNode({data, id}: NodeProps<QueryGraphNode>) {
                 </div>
                 {colorBar(data.barsBelow, "below")}
             </div>
-            <Handle type="source" position={Position.Bottom} className={handleClassName} onClick={onSubtreeHandleClick}>
+            <Handle
+                id={subtreeHandleId}
+                type="source"
+                position={Position.Bottom}
+                className={handleClassName}
+                onClick={onSubtreeHandleClick}
+            >
                 {hasSubtree ? (subtreeExpanded ? "-" : "+") : ""}
             </Handle>
         </>
