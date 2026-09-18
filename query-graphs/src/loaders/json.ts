@@ -13,10 +13,10 @@ import {convertDecoratedJsonNode, createDecoratedJsonTreeState} from "./decorate
 import type {PlanLoader} from "./types";
 
 const jsonTreeConfig: DecoratedJsonTreeConfig = {
-    getRenderingConfig: () => ({}),
     nodeTypeKeys: [],
-    alwaysPropertyKeys: [],
     fixedChildOrder: [],
+    alwaysPropertyKeys: [],
+    getRenderingConfig: () => ({}),
     shouldCollapseChild: () => false,
 };
 

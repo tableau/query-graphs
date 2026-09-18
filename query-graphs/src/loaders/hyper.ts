@@ -118,6 +118,9 @@ function containsOperator(value: Json): boolean {
 }
 
 const hyperConfig: DecoratedJsonTreeConfig = {
+    nodeTypeKeys: ["operator", "expression"],
+    fixedChildOrder: ["inputs", "input", "left", "right", "value", "value-for-comparison"],
+    alwaysPropertyKeys: ["debug-name", "statistics", "sqlpos"],
     getRenderingConfig(nodeType, nodeTag, rawNode) {
         const prefix = nodeType === "operator" ? "op" : "exp";
         const configKey = legacyNodeTags[`${prefix}:${nodeTag}`] ?? `${prefix}:${nodeTag}`;
@@ -128,9 +131,6 @@ const hyperConfig: DecoratedJsonTreeConfig = {
             {}
         );
     },
-    nodeTypeKeys: ["operator", "expression"],
-    alwaysPropertyKeys: ["debug-name", "statistics", "sqlpos"],
-    fixedChildOrder: ["inputs", "input", "left", "right", "value", "value-for-comparison"],
     getDebugName(rawNode) {
         const debugName = tryGetPropertyPath(rawNode, ["debug-name", "value"]);
         return typeof debugName === "string" ? debugName : undefined;
