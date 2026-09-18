@@ -61,10 +61,11 @@ export function refreshLayoutData(layout: AnimatedLayout, latest: GraphLayout): 
 }
 
 /**
- * Tests whether two settled layouts have the same node positions and edge IDs.
- * Node data, edge data, and presentation properties do not affect the result.
+ * Tests whether two layouts describe the same interpolation endpoint. Payload
+ * and presentation changes are ignored because `refreshLayoutData` applies
+ * them without restarting the animation.
  */
-export function sameGeometry(left: GraphLayout, right: GraphLayout): boolean {
+export function sameLayoutTarget(left: GraphLayout, right: GraphLayout): boolean {
     if (left.nodes.length !== right.nodes.length || left.edges.length !== right.edges.length) return false;
     const rightNodes = new Map(right.nodes.map((node) => [node.id, node]));
     for (const node of left.nodes) {
