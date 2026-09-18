@@ -46,36 +46,32 @@ export function loadPlanFromText(text: string, options: LoadPlanOptions = {}): L
         throw new UnknownPlanFormatError(format, availableFormats);
     }
 
-    let json: Json | undefined;
-    let jsonError: unknown;
+    const syntaxErrors: unknown[] = [];
     if (acceptsJson) {
+        let parsed = false;
         try {
-            json = JSON.parse(planText) as Json;
+            const json = JSON.parse(planText) as Json;
+            parsed = true;
+            const plan = loadMatchingPlan(json, jsonPlanLoaders, format);
+            if (plan !== undefined) return plan;
         } catch (error) {
-            jsonError = error;
+            if (parsed) throw error;
+            syntaxErrors.push(error);
         }
     }
-    if (json !== undefined) {
-        const plan = loadMatchingPlan(json, jsonPlanLoaders, format);
-        if (plan !== undefined) return plan;
-    }
 
-    let xml: ParsedXML | undefined;
-    let xmlError: unknown;
     if (acceptsXml) {
+        let parsed = false;
         try {
-            xml = parseXml(planText);
+            const xml = parseXml(planText);
+            parsed = true;
+            const plan = loadMatchingPlan(xml, xmlPlanLoaders, format);
+            if (plan !== undefined) return plan;
         } catch (error) {
-            xmlError = error;
+            if (parsed) throw error;
+            syntaxErrors.push(error);
         }
     }
-    if (xml !== undefined) {
-        const plan = loadMatchingPlan(xml, xmlPlanLoaders, format);
-        if (plan !== undefined) return plan;
-    }
 
-    if (format !== undefined) {
-        throw new PlanSyntaxError(format, [acceptsJson ? jsonError : xmlError]);
-    }
-    throw new PlanSyntaxError(undefined, [jsonError, xmlError]);
+    throw new PlanSyntaxError(format, syntaxErrors);
 }
