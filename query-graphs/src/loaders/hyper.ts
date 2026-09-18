@@ -133,7 +133,8 @@ const hyperConfig: DecoratedJsonTreeConfig = {
     },
     getDisplayName(rawNode) {
         const debugName = tryGetPropertyPath(rawNode, ["debug-name", "value"]);
-        return typeof debugName === "string" ? debugName : undefined;
+        const name = hasOwnProperty(rawNode, "name") ? tryToString(rawNode["name"]) : undefined;
+        return typeof debugName === "string" ? debugName : name;
     },
     shouldCollapseChild(rawNode, _key, child) {
         // Keep operator inputs visible (including arrays of operators), while collapsing auxiliary operator data.

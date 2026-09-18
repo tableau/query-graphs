@@ -182,7 +182,6 @@ function convertDecoratedJsonValue(
     const displayName =
         config.getDisplayName?.(rawNode) ??
         (renderingConfig.displayNameKey === undefined ? undefined : properties.get(renderingConfig.displayNameKey)) ??
-        properties.get("name") ??
         nodeTag ??
         "";
     // Build the converted node before collecting decorations that reference it.
