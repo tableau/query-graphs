@@ -47,7 +47,7 @@ loadPlanFromText(text, {format: "json"}); // Force literal JSON rendering.
 ```
 
 Forced dispatch parses only the syntax used by that loader, skips `matches`, and never falls back to another loader.
-An unknown name produces `UnknownPlanFormatError`; invalid syntax produces `PlanSyntaxError` with the expected syntax and requested format.
+An unknown name produces `UnknownPlanFormatError`; invalid syntax produces `PlanSyntaxError` with the requested format.
 
 ## Adding a New Format
 

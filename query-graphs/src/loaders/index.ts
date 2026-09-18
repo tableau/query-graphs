@@ -4,7 +4,7 @@ import {jsonPlanLoader} from "./json";
 import type {Json} from "./loader-utils";
 import {postgresPlanLoader} from "./postgres";
 import {tableauPlanLoader} from "./tableau";
-import type {PlanLoader} from "./types";
+import {PlanSyntaxError, type PlanLoader, UnknownPlanFormatError} from "./types";
 import {parseXml, type ParsedXML, xmlPlanLoader} from "./xml";
 
 export interface LoadedPlan {
@@ -16,48 +16,7 @@ export interface LoadPlanOptions {
     format?: string;
 }
 
-export {InvalidPlanError, type PlanLoader} from "./types";
-
-export class PlanSyntaxError extends Error {
-    readonly expectedSyntax: "json" | "xml" | "json-or-xml";
-    readonly format: string | undefined;
-    readonly jsonError: unknown | undefined;
-    readonly xmlError: unknown | undefined;
-
-    constructor(
-        expectedSyntax: "json" | "xml" | "json-or-xml",
-        format: string | undefined,
-        jsonError?: unknown,
-        xmlError?: unknown,
-    ) {
-        const context = format === undefined ? "query plan" : `${format} query plan`;
-        const message =
-            expectedSyntax === "json"
-                ? `Cannot load ${context}: input is not valid JSON: ${String(jsonError)}`
-                : expectedSyntax === "xml"
-                  ? `Cannot load ${context}: input is not valid XML: ${String(xmlError)}`
-                  : `Not a valid query plan:\nJSON: ${String(jsonError)}\nXML: ${String(xmlError)}`;
-        const errors = [jsonError, xmlError].filter((error) => error !== undefined);
-        super(message, {cause: new AggregateError(errors)});
-        this.name = "PlanSyntaxError";
-        this.expectedSyntax = expectedSyntax;
-        this.format = format;
-        this.jsonError = jsonError;
-        this.xmlError = xmlError;
-    }
-}
-
-export class UnknownPlanFormatError extends Error {
-    readonly format: string;
-    readonly availableFormats: readonly string[];
-
-    constructor(format: string, availableFormats: readonly string[]) {
-        super(`Unknown query plan format '${format}'. Available formats: ${availableFormats.join(", ")}`);
-        this.name = "UnknownPlanFormatError";
-        this.format = format;
-        this.availableFormats = availableFormats;
-    }
-}
+export {InvalidPlanError, PlanSyntaxError, type PlanLoader, UnknownPlanFormatError} from "./types";
 
 export const jsonPlanLoaders: readonly PlanLoader<Json>[] = [postgresPlanLoader, hyperPlanLoader, jsonPlanLoader];
 export const xmlPlanLoaders: readonly PlanLoader<ParsedXML>[] = [tableauPlanLoader, xmlPlanLoader];
@@ -116,9 +75,7 @@ export function loadPlanFromText(text: string, options: LoadPlanOptions = {}): L
     }
 
     if (format !== undefined) {
-        throw acceptsJson
-            ? new PlanSyntaxError("json", format, jsonError)
-            : new PlanSyntaxError("xml", format, undefined, xmlError);
+        throw new PlanSyntaxError(format, [acceptsJson ? jsonError : xmlError]);
     }
-    throw new PlanSyntaxError("json-or-xml", undefined, jsonError, xmlError);
+    throw new PlanSyntaxError(undefined, [jsonError, xmlError]);
 }
