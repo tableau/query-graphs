@@ -34,7 +34,7 @@ The available modes are:
   * CedarDB: all ten native `EXPLAIN (STEP ..., FORMAT JSON)` phase snapshots.
   * MariaDB: its JSON `optimizer_trace`, which is a decision trace rather than a sequence of complete plans.
   * Postgres and Umbra currently skip this mode.
-* `pipelines` / `analyze-pipelines` → execution pipelines (Hyper only).
+* `analyze-sql` → Hyper's executing internal plan with SQL expressions.
 
 Each requested mode is written to its own `<query>[-<mode>].plan.json` (no suffix for `simple`).
 Modes not supported by a database are skipped.

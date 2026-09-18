@@ -1,7 +1,7 @@
 {
   "engines": {
     "cedardb": {
-      "version": "PostgreSQL 16.3 compatible CedarDB v2026-08-13, compiled on 2026-08-13, x86_64 build",
+      "version": "PostgreSQL 16.3 compatible CedarDB v2026-09-16, compiled on 2026-09-16, x86_64 build",
       "queries": {
         "cte": {
           "analyze": "cedardb/cte-analyze.plan.json"
@@ -215,7 +215,7 @@
       }
     },
     "hyper": {
-      "version": "Hyper 9.1.0 emulation, hyper version __UNVERSIONED_HYPER__.0.0.0.r0dedff7f",
+      "version": "Hyper 9.1.0 emulation, hyper version __UNVERSIONED_HYPER__.0.0.0.r00000000",
       "queries": {
         "cte": {
           "analyze": "hyper/cte-analyze.plan.json"
@@ -224,7 +224,7 @@
           "analyze": "hyper/cte-recursive-analyze.plan.json"
         },
         "forkshare": {
-          "pipelines": "hyper/forkshare-pipelines.plan.json"
+          "analyze-sql": "hyper/forkshare-analyze-sql.plan.json"
         },
         "groupby": {
           "analyze": "hyper/groupby-analyze.plan.json"
@@ -234,14 +234,13 @@
         },
         "magicunnesting": {
           "analyze": "hyper/magicunnesting-analyze.plan.json",
-          "analyze-pipelines": "hyper/magicunnesting-analyze-pipelines.plan.json",
-          "pipelines": "hyper/magicunnesting-pipelines.plan.json"
+          "analyze-sql": "hyper/magicunnesting-analyze-sql.plan.json"
         },
         "markjoin": {
           "analyze": "hyper/markjoin-analyze.plan.json"
         },
         "materialized": {
-          "pipelines": "hyper/materialized-pipelines.plan.json"
+          "analyze-sql": "hyper/materialized-analyze-sql.plan.json"
         },
         "metadata-describe-table": {
           "simple": "hyper/metadata-describe-table.plan.json"
@@ -331,7 +330,7 @@
           "analyze": "hyper/tpch/tpch-q9-analyze.plan.json"
         },
         "unionall": {
-          "pipelines": "hyper/unionall-pipelines.plan.json"
+          "analyze-sql": "hyper/unionall-analyze-sql.plan.json"
         },
         "window": {
           "analyze": "hyper/window-analyze.plan.json"
@@ -547,7 +546,7 @@
       }
     },
     "umbra": {
-      "version": "PostgreSQL 18.1 compatible umbra v0.2-2393-gd56e5538e",
+      "version": "PostgreSQL 18.1 compatible umbra v0.2-2931-gdd2374de2",
       "queries": {
         "cte": {
           "analyze": "umbra/cte-analyze.plan.json"
