@@ -1,5 +1,5 @@
 import type {ReactElement, MouseEvent} from "react";
-import {memo, useCallback, useRef} from "react";
+import {memo, useCallback} from "react";
 import type {Node, NodeProps} from "@xyflow/react";
 import {Handle, Position} from "@xyflow/react";
 import cc from "classcat";
@@ -20,65 +20,22 @@ function QueryNode({data, id}: NodeProps<QueryGraphNode>) {
 
     const hasProperties = data.properties?.size;
     const hasSubtree = data.collapsedChildren && data.collapsedChildren.length > 0;
-    const graphNodeRef = useRef<HTMLDivElement>(null);
-    const bodyWrapperRef = useRef<HTMLDivElement>(null);
-
-    const measureTargetDimensions = useCallback((targetExpanded: boolean) => {
-        const graphNode = graphNodeRef.current;
-        if (graphNode === null) return undefined;
-        const flowNode = graphNode.closest<HTMLElement>(".react-flow__node");
-        if (flowNode === null || flowNode.parentElement === null) return undefined;
-        const flowContainer = flowNode.parentElement;
-
-        const clone = flowNode.cloneNode(true) as HTMLElement;
-        const clonedGraphNode = clone.querySelector<HTMLElement>(".qg-graph-node");
-        const clonedBodyWrapper = clone.querySelector<HTMLElement>(".qg-graph-node-body-wrapper");
-        if (clonedGraphNode === null || clonedBodyWrapper === null) return undefined;
-        clone.style.position = "fixed";
-        clone.style.transform = "none";
-        clone.style.visibility = "hidden";
-        clone.style.pointerEvents = "none";
-        clonedGraphNode.classList.toggle("qg-expanded", targetExpanded);
-        clonedBodyWrapper.style.removeProperty("width");
-        clonedBodyWrapper.style.removeProperty("height");
-        clonedBodyWrapper.style.removeProperty("max-width");
-        clonedBodyWrapper.style.removeProperty("max-height");
-        flowContainer.append(clone);
-        const measurements = {
-            node: {width: clone.offsetWidth, height: clone.offsetHeight},
-            body: {width: clonedBodyWrapper.offsetWidth, height: clonedBodyWrapper.offsetHeight},
-        };
-        clone.remove();
-        return measurements.node.width === 0 || measurements.node.height === 0 ? undefined : measurements;
-    }, []);
 
     const onClick = useCallback(
-        (e: MouseEvent) => {
+        (e: MouseEvent<HTMLDivElement>) => {
             if (e.shiftKey) {
                 if (hasSubtree) animationController.animateSubtreeChange(id, () => toggleSubtree(id));
             } else {
                 if (hasProperties) {
-                    const target = measureTargetDimensions(!expanded);
-                    const bodyWrapper = bodyWrapperRef.current;
-                    if (bodyWrapper === null || target === undefined) {
-                        toggleNode(id);
-                    } else {
-                        animationController.animateNodeResize(
-                            {
-                                nodeId: id,
-                                targetDimensions: target.node,
-                                bodyElement: bodyWrapper,
-                                bodyFrom: {width: bodyWrapper.offsetWidth, height: bodyWrapper.offsetHeight},
-                                bodyTo: target.body,
-                            },
-                            () => toggleNode(id),
-                        );
-                    }
+                    animationController.animateNodeResize(
+                        {nodeId: id, nodeElement: e.currentTarget, targetExpanded: !expanded},
+                        () => toggleNode(id),
+                    );
                 }
             }
             e.stopPropagation();
         },
-        [animationController, toggleNode, toggleSubtree, hasProperties, hasSubtree, expanded, id, measureTargetDimensions],
+        [animationController, toggleNode, toggleSubtree, hasProperties, hasSubtree, expanded, id],
     );
     const onSubtreeHandleClick = useCallback(
         (e: MouseEvent) => {
@@ -124,7 +81,7 @@ function QueryNode({data, id}: NodeProps<QueryGraphNode>) {
     return (
         <>
             <Handle type="target" position={Position.Top} />
-            <div ref={graphNodeRef} className={nodeClassName} onClick={onClick}>
+            <div className={nodeClassName} onClick={onClick}>
                 <div className="qg-graph-node-head">
                     {colorBar(data.barsAbove, "above")}
                     <NodeIcon icon={data.icon} iconColor={data.iconColor} />
@@ -132,7 +89,7 @@ function QueryNode({data, id}: NodeProps<QueryGraphNode>) {
                         {data.name}
                     </div>
                 </div>
-                <div ref={bodyWrapperRef} className="qg-graph-node-body-wrapper nowheel">
+                <div className="qg-graph-node-body-wrapper nowheel">
                     <div className="qg-graph-node-body">{children}</div>
                 </div>
                 {colorBar(data.barsBelow, "below")}
