@@ -12,12 +12,11 @@ import type {TreeNode, TreeDescription, IconName} from "../tree-description";
 import type {Json} from "./loader-utils";
 import {tryToString, formatMetric, hasOwnProperty, hasSubOject} from "./loader-utils";
 import {assert} from "../assert";
-import {resolveCrosslinks, setEdgeWidths, type UnresolvedCrosslink} from "./tree-postprocessing";
+import {buildIdMap, resolveCrosslinks, setEdgeWidths, type UnresolvedCrosslink} from "./tree-postprocessing";
 import {InvalidPlanError, type PlanLoader} from "./types";
 
 // Temporary state which we hold during converting from JSON to internal graph representation
 interface ConversionState {
-    operatorsById: Map<string, TreeNode>;
     crosslinks: UnresolvedCrosslink[];
     edgeWidths: {node: TreeNode; width: number}[];
 }
@@ -185,14 +184,6 @@ function convertPostgresNode(rawNode: Json, parentKey: string, conversionState: 
             }
         }
 
-        // Add to `operatorId` map if applicable
-        if (operatorType) {
-            const operatorId = properties?.get("Subplan Name");
-            if (operatorId !== undefined) {
-                conversionState.operatorsById.set(operatorId, convertedNode);
-            }
-        }
-
         // Add cross links
         if (crosslinkId) {
             conversionState.crosslinks.push({
@@ -305,7 +296,6 @@ function loadPostgresPlan(json: Json): TreeDescription {
     json = unwrapPostgresPlan(json);
     // Load the graph
     const conversionState: ConversionState = {
-        operatorsById: new Map<string, TreeNode>(),
         crosslinks: [],
         edgeWidths: [],
     };
@@ -315,7 +305,8 @@ function loadPostgresPlan(json: Json): TreeDescription {
     }
     colorRelativeExecutionTime(root);
     setEdgeWidths(conversionState.edgeWidths);
-    const crosslinks = resolveCrosslinks(conversionState.crosslinks, conversionState.operatorsById);
+    const operatorsById = buildIdMap(root, "Subplan Name");
+    const crosslinks = resolveCrosslinks(conversionState.crosslinks, operatorsById);
     return {root: root, crosslinks: crosslinks};
 }
 
