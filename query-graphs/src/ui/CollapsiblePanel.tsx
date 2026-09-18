@@ -1,4 +1,5 @@
 import type {ReactNode} from "react";
+import cc from "classcat";
 import "./CollapsiblePanel.css";
 
 export interface CollapsiblePanelProps {
@@ -9,9 +10,7 @@ export interface CollapsiblePanelProps {
 }
 
 export function CollapsiblePanel({title, children, highlighted, className}: CollapsiblePanelProps) {
-    const classes = ["qg-collapsible-panel", highlighted ? "qg-highlighted" : undefined, className]
-        .filter((value) => value !== undefined)
-        .join(" ");
+    const classes = cc(["qg-collapsible-panel", {"qg-highlighted": highlighted}, className]);
 
     return (
         <details className={classes}>
@@ -21,7 +20,7 @@ export function CollapsiblePanel({title, children, highlighted, className}: Coll
                 </span>
                 <span>{title}</span>
                 {highlighted ? (
-                    <span className="qg-collapsible-panel-highlight" role="img" aria-label="Needs attention">
+                    <span className="qg-attention-needed-icon" role="img" aria-label="Needs attention">
                         !
                     </span>
                 ) : null}

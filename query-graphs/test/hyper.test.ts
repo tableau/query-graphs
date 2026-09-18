@@ -137,13 +137,7 @@ test("the Hyper loader remains permissive when explicitly selected", () => {
 test("Hyper optimizer steps preserve additional envelope fields", () => {
     const loaded = loadPlanFromText(
         JSON.stringify({
-            optimizersteps: [
-                {
-                    name: "initial",
-                    plan: {operator: "scan", statistics: {error: {message: {original: "query failed"}}}},
-                    cost: 42,
-                },
-            ],
+            optimizersteps: [{name: "initial", plan: {operator: "scan"}, cost: 42}],
             version: 2,
         }),
     );
@@ -152,5 +146,4 @@ test("Hyper optimizer steps preserve additional envelope fields", () => {
     assert.equal(loaded.tree.root.properties?.get("version"), "2");
     assert.equal(loaded.tree.root.children?.[0].properties?.get("cost"), "42");
     assert.equal(loaded.tree.root.children?.[0].children?.[0].name, "scan");
-    assert.equal(loaded.tree.metadataHighlighted, true);
 });

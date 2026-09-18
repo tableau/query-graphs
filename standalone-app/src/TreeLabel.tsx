@@ -20,7 +20,7 @@ export function TreeLabel({title, setTitle, metadata, metadataHighlighted}: Tree
     }
 
     return (
-        <div className="react-flow__panel graph-label">
+        <div className="react-flow__panel">
             <input
                 type="text"
                 className="graph-title"

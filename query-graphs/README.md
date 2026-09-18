@@ -62,7 +62,7 @@ Edge thickness is scaled from `edgeWidth`, and `crosslinks` are added as extra e
 
 `QueryNode` (`src/ui/QueryNode.tsx`) draws a single node.
 `NodeIcon` (`src/ui/NodeIcon.tsx`) maps each `IconName` to a hand-drawn SVG (the join icons, for instance, are two overlapping circles whose fills encode inner/left/right/full).
-`CollapsiblePanel` (`src/ui/CollapsiblePanel.tsx`) is a reusable disclosure card for graph overlays and other secondary content.
+`CollapsiblePanel` (`src/ui/CollapsiblePanel.tsx`) is a reusable panel for graph overlays and other secondary content.
 
 ### Making Large Graphs Approachable
 
