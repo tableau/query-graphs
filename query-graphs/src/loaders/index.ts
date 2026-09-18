@@ -18,6 +18,7 @@ export interface LoadPlanOptions {
 
 export {InvalidPlanError, type PlanLoader, UnknownPlanFormatError} from "./types";
 
+// Order matters: Postgres must precede the more permissive Hyper loader, and generic fallbacks must stay last.
 export const jsonPlanLoaders: readonly PlanLoader<Json>[] = [postgresPlanLoader, hyperPlanLoader, jsonPlanLoader];
 export const xmlPlanLoaders: readonly PlanLoader<ParsedXML>[] = [tableauPlanLoader, xmlPlanLoader];
 

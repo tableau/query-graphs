@@ -29,12 +29,7 @@ const jsonPlanLoaders = [postgresPlanLoader, hyperPlanLoader, jsonPlanLoader];
 
 Each loader exposes separate `matches` and `load` operations, so format detection does not depend on converter exceptions.
 If a matching loader cannot convert the plan, dispatch records the failure and continues with later matching loaders.
-Non-JSON input is parsed as XML once, then checked against the Tableau and generic XML loaders.
 If no parser and loader combination succeeds, `InvalidPlanError` contains the collected failures as its cause.
-
-**Order matters.**
-Postgres and Hyper plans are both JSON, so the Postgres loader — which checks for the distinctive top-level `Plan` object — is tried *before* the more permissive Hyper loader.
-The generic `json`/`xml` loaders come last so a recognized format always wins over the literal fallback.
 
 Callers can bypass detection by passing a registered format:
 
