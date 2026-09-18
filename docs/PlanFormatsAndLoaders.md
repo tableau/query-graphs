@@ -28,11 +28,11 @@ const jsonPlanLoaders = [postgresPlanLoader, hyperPlanLoader, jsonPlanLoader];
 ```
 
 Each loader exposes separate `matches` and `load` operations, so format detection does not depend on converter exceptions.
-Once a loader matches, conversion failures are reported as `PlanLoadError` instead of silently falling through to another format.
+Once a loader matches, conversion failures are reported as `InvalidPlanError` instead of silently falling through to another format.
 Valid JSON that no semantic loader recognizes is handled by the generic JSON loader.
 Non-JSON input is parsed as XML once, then checked against the Tableau and generic XML loaders.
 Input that is neither JSON nor XML produces a `PlanSyntaxError` containing both syntax failures.
-If a recognized loader rejects malformed content with `InvalidPlanError`, the façade adds the recognized format and exposes it as `PlanLoadError`.
+If a loader must reject malformed content, `InvalidPlanError` identifies the selected format.
 Other converter exceptions are unexpected programming failures and propagate unchanged instead of being disguised as invalid user input.
 
 **Order matters.**

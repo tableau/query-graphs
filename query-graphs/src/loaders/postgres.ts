@@ -223,7 +223,7 @@ function convertPostgresNode(rawNode: Json, parentKey: string, conversionState: 
         }
         return listOfObjects;
     }
-    throw new InvalidPlanError("Invalid Postgres query plan");
+    throw new InvalidPlanError("postgres");
 }
 
 // Color graph per a node's relative execution time
@@ -327,7 +327,7 @@ function isPostgresPlan(json: Json): boolean {
 
 function loadPostgresPlan(json: Json): TreeDescription {
     if (!isPostgresPlan(json)) {
-        throw new InvalidPlanError("Invalid Postgres query plan");
+        throw new InvalidPlanError("postgres");
     }
     json = unwrapPostgresPlan(json);
     // Load the graph
@@ -339,7 +339,7 @@ function loadPostgresPlan(json: Json): TreeDescription {
     } as ConversionState;
     const root = convertPostgresNode(json, "result", conversionState);
     if (Array.isArray(root)) {
-        throw new InvalidPlanError("Invalid Postgres query plan");
+        throw new InvalidPlanError("postgres");
     }
     colorRelativeExecutionTime(root);
     setEdgeWidths(conversionState);

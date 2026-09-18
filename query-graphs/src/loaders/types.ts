@@ -18,8 +18,11 @@ export interface PlanLoader<Input> {
 }
 
 export class InvalidPlanError extends Error {
-    constructor(message: string) {
-        super(message);
+    readonly format: string;
+
+    constructor(format: string) {
+        super(`Invalid ${format} query plan`);
         this.name = "InvalidPlanError";
+        this.format = format;
     }
 }

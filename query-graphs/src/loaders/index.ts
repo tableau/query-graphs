@@ -4,7 +4,7 @@ import {jsonPlanLoader} from "./json";
 import type {Json} from "./loader-utils";
 import {postgresPlanLoader} from "./postgres";
 import {tableauPlanLoader} from "./tableau";
-import {InvalidPlanError, type PlanLoader} from "./types";
+import type {PlanLoader} from "./types";
 import {parseXml, type ParsedXML, xmlPlanLoader} from "./xml";
 
 export interface LoadedPlan {
@@ -59,28 +59,11 @@ export class UnknownPlanFormatError extends Error {
     }
 }
 
-export class PlanLoadError extends Error {
-    readonly format: string;
-
-    constructor(format: string, cause: unknown) {
-        super(`Failed to load ${format} query plan: ${String(cause)}`, {cause});
-        this.name = "PlanLoadError";
-        this.format = format;
-    }
-}
-
 export const jsonPlanLoaders: readonly PlanLoader<Json>[] = [postgresPlanLoader, hyperPlanLoader, jsonPlanLoader];
 export const xmlPlanLoaders: readonly PlanLoader<ParsedXML>[] = [tableauPlanLoader, xmlPlanLoader];
 
 function loadWithPlanLoader<Input>(input: Input, loader: PlanLoader<Input>): LoadedPlan {
-    try {
-        return {format: loader.format, tree: loader.load(input)};
-    } catch (error) {
-        if (error instanceof InvalidPlanError) {
-            throw new PlanLoadError(loader.format, error);
-        }
-        throw error;
-    }
+    return {format: loader.format, tree: loader.load(input)};
 }
 
 function loadMatchingPlan<Input>(input: Input, loaders: readonly PlanLoader<Input>[]): LoadedPlan {

@@ -383,7 +383,7 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
         }
         return listOfObjects;
     }
-    throw new InvalidPlanError("Invalid Hyper query plan");
+    throw new InvalidPlanError("hyper");
 }
 
 // Resolve all pending crosslinks
@@ -552,7 +552,7 @@ function convertHyperPlan(node: Json, pipelines?: Json): TreeDescription {
 
     const root = convertHyperNode(node, "result", conversionState);
     if (Array.isArray(root)) {
-        throw new InvalidPlanError("Invalid Hyper query plan");
+        throw new InvalidPlanError("hyper");
     }
     colorRelativeExecutionTime(conversionState);
     setEdgeWidths(conversionState);

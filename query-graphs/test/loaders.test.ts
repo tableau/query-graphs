@@ -6,9 +6,9 @@ import {fileURLToPath} from "node:url";
 import test from "node:test";
 import {JSDOM} from "jsdom";
 import {
+    InvalidPlanError,
     jsonPlanLoaders,
     loadPlanFromText,
-    PlanLoadError,
     PlanSyntaxError,
     UnknownPlanFormatError,
     xmlPlanLoaders,
@@ -107,8 +107,8 @@ test("dispatcher accepts the sql_hyper output prefix", () => {
 test("dispatcher distinguishes syntax and recognized-format failures", () => {
     assert.throws(() => loadPlanFromText("not JSON or XML"), PlanSyntaxError);
     assert.throws(
-        () => loadPlanFromText('{"Plan":{}}'),
-        (error: unknown) => error instanceof PlanLoadError && error.format === "postgres",
+        () => loadPlanFromText('{"Plan":{}}', {format: "postgres"}),
+        (error: unknown) => error instanceof InvalidPlanError && error.format === "postgres",
     );
 });
 
