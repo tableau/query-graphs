@@ -86,6 +86,16 @@ test("dispatcher accepts the sql_hyper output prefix", () => {
     assert.equal(loadPlanFromText(`plan\n${fixture}`).format, "hyper");
 });
 
+test("dispatcher strips text surrounding copied plans", () => {
+    const json = 'Copied from the query analyzer:\n{"unrecognized":true}\nEnd of plan';
+    assert.equal(loadPlanFromText(json).format, "json");
+    assert.equal(loadPlanFromText(json, {format: "json"}).format, "json");
+
+    const xml = "Copied from the query analyzer:\n<logical-query />\nEnd of plan";
+    assert.equal(loadPlanFromText(xml).format, "tableau");
+    assert.equal(loadPlanFromText(xml, {format: "xml"}).format, "xml");
+});
+
 test("dispatcher distinguishes syntax and recognized-format failures", () => {
     assert.throws(() => loadPlanFromText("not JSON or XML"), PlanSyntaxError);
     assert.throws(

@@ -75,8 +75,13 @@ function loadMatchingPlan<Input>(input: Input, loaders: readonly PlanLoader<Inpu
 }
 
 function parseJson(text: string): Json {
-    const jsonText = text.startsWith("plan\n") ? text.substring("plan\n".length) : text;
-    return JSON.parse(jsonText) as Json;
+    return JSON.parse(text) as Json;
+}
+
+function stripSurroundingText(text: string): string {
+    const planStart = text.search(/[<{[]/);
+    const planEnd = Math.max(text.lastIndexOf("}"), text.lastIndexOf("]"), text.lastIndexOf(">"));
+    return planStart >= 0 && planEnd >= planStart ? text.substring(planStart, planEnd + 1) : text;
 }
 
 function loadPlanFromTextAs(text: string, format: string): LoadedPlan {
@@ -107,14 +112,15 @@ function loadPlanFromTextAs(text: string, format: string): LoadedPlan {
 }
 
 export function loadPlanFromText(text: string, options: LoadPlanOptions = {}): LoadedPlan {
+    const planText = stripSurroundingText(text);
     if (options.format !== undefined) {
-        return loadPlanFromTextAs(text, options.format);
+        return loadPlanFromTextAs(planText, options.format);
     }
 
     let json: Json | undefined;
     let jsonError: unknown;
     try {
-        json = parseJson(text);
+        json = parseJson(planText);
     } catch (error) {
         jsonError = error;
     }
@@ -124,7 +130,7 @@ export function loadPlanFromText(text: string, options: LoadPlanOptions = {}): L
 
     let xml: ParsedXML;
     try {
-        xml = parseXml(text);
+        xml = parseXml(planText);
     } catch (xmlError) {
         throw new PlanSyntaxError("json-or-xml", undefined, jsonError, xmlError);
     }
