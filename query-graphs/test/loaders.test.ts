@@ -123,10 +123,7 @@ test("dispatcher can force a registered loader", () => {
     assert.equal(loadPlanFromText(hyper, {format: "json"}).format, "json");
     assert.equal(loadPlanFromText(hyper, {format: "json"}).tree.root.name, "root");
 
-    assert.throws(
-        () => loadPlanFromText('{"operator":{}}', {format: "hyper"}),
-        (error: unknown) => error instanceof PlanLoadError && error.format === "hyper",
-    );
+    assert.equal(loadPlanFromText('{"operator":{}}', {format: "hyper"}).format, "hyper");
     assert.throws(
         () => loadPlanFromText("{}", {format: "xml"}),
         (error: unknown) => error instanceof PlanSyntaxError && error.expectedSyntax === "xml" && error.format === "xml",

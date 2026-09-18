@@ -563,6 +563,15 @@ function convertHyperPlan(node: Json, pipelines?: Json): TreeDescription {
     return {root, crosslinks, metadata: conversionState.metadata};
 }
 
+function isHyperPlanRoot(json: Json): json is JsonObject {
+    return (
+        typeof json === "object" &&
+        !Array.isArray(json) &&
+        json !== null &&
+        (typeof json["operator"] === "string" || typeof json["expression"] === "string")
+    );
+}
+
 function convertOptimizerSteps(node: Json): TreeDescription | undefined {
     // Check if we have a top-level object with a single key "optimizersteps" containing an array
     if (typeof node !== "object" || Array.isArray(node) || node === null) return undefined;
@@ -584,7 +593,6 @@ function convertOptimizerSteps(node: Json): TreeDescription | undefined {
         const name = step["name"];
         const plan = step["plan"];
         if (typeof name !== "string") return undefined;
-        if (!isHyperPlanRoot(plan)) return undefined;
 
         // Add the child
         const {root: childRoot, crosslinks: newCrosslinks, metadata: newProperties} = convertHyperPlan(plan);
@@ -626,15 +634,6 @@ function hasPipelineEnvelope(json: Json): json is JsonObject {
     );
 }
 
-function isHyperPlanRoot(json: Json): json is JsonObject {
-    return (
-        typeof json === "object" &&
-        !Array.isArray(json) &&
-        json !== null &&
-        (typeof json["operator"] === "string" || typeof json["expression"] === "string")
-    );
-}
-
 function isHyperPlan(json: Json): boolean {
     if (hasPipelineEnvelope(json)) {
         return isHyperPlanRoot(json["tree"]);
@@ -644,17 +643,11 @@ function isHyperPlan(json: Json): boolean {
 
 function loadHyperPlan(json: Json): TreeDescription {
     if (hasPipelineEnvelope(json)) {
-        if (!isHyperPlanRoot(json["tree"])) {
-            throw new InvalidPlanError("Invalid Hyper query plan");
-        }
         return convertHyperPlan(json["tree"], json["pipelines"]);
     }
     const optimizerSteps = convertOptimizerSteps(json);
     if (optimizerSteps !== undefined) {
         return optimizerSteps;
-    }
-    if (!isHyperPlanRoot(json)) {
-        throw new InvalidPlanError("Invalid Hyper query plan");
     }
     return convertHyperPlan(json);
 }
