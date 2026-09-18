@@ -39,8 +39,8 @@ export function createDecoratedJsonTreeState(): DecoratedJsonTreeState {
 export interface DecoratedJsonTreeConfig {
     /** Object keys whose scalar values identify a semantic node type, in precedence order. */
     nodeTypeKeys: readonly string[];
-    /** Show these children first and omit their otherwise redundant key wrapper. */
-    fixedChildOrder: readonly string[];
+    /** Show these structural children in the listed order and omit their redundant key wrapper. */
+    structuralChildKeys: readonly string[];
     /** Keep these values in the tooltip even when they are objects or arrays. */
     alwaysPropertyKeys: readonly string[];
     /** Choose presentation details for an object recognized by one of `nodeTypeKeys`. */
@@ -69,8 +69,8 @@ function orderedKeys(rawNode: JsonObject, nodeTypeKey: string | undefined, confi
     return Object.getOwnPropertyNames(rawNode)
         .filter((key) => key !== nodeTypeKey && !config.alwaysPropertyKeys.includes(key))
         .sort((left, right) => {
-            const leftIndex = config.fixedChildOrder.indexOf(left);
-            const rightIndex = config.fixedChildOrder.indexOf(right);
+            const leftIndex = config.structuralChildKeys.indexOf(left);
+            const rightIndex = config.structuralChildKeys.indexOf(right);
             if (leftIndex !== -1 || rightIndex !== -1) {
                 return (leftIndex === -1 ? Infinity : leftIndex) - (rightIndex === -1 ? Infinity : rightIndex);
             }
@@ -173,7 +173,7 @@ function convertDecoratedJsonValue(
         const collapse = config.shouldCollapseChild?.(rawNode, key, rawNode[key]) ?? false;
         const target = collapse ? collapsedChildren : expandedChildren;
         const converted = convertDecoratedJsonValue(rawNode[key], key, state, config);
-        appendChild(target, converted, key, config.fixedChildOrder.includes(key), collapse);
+        appendChild(target, converted, key, config.structuralChildKeys.includes(key), collapse);
     }
 
     // Determine format-specific rendering and the most meaningful available name.

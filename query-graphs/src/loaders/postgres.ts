@@ -72,7 +72,7 @@ function getOperatorDisplayName(operatorType: string, rawNode: JsonObject): stri
 
 const postgresConfig: DecoratedJsonTreeConfig = {
     nodeTypeKeys: ["Node Type"],
-    fixedChildOrder: ["Plan", "Plans"],
+    structuralChildKeys: ["Plan", "Plans"],
     alwaysPropertyKeys: [],
     getRenderingConfig(_nodeTypeKey, operatorType, rawNode) {
         return {icon: getOperatorIcon(operatorType, rawNode)};

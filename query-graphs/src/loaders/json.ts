@@ -14,7 +14,7 @@ import type {PlanLoader} from "./types";
 
 const jsonTreeConfig: DecoratedJsonTreeConfig = {
     nodeTypeKeys: [],
-    fixedChildOrder: [],
+    structuralChildKeys: [],
     alwaysPropertyKeys: [],
     getRenderingConfig: () => ({}),
     shouldCollapseChild: () => false,

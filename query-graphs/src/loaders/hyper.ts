@@ -119,7 +119,7 @@ function containsOperator(value: Json): boolean {
 
 const hyperConfig: DecoratedJsonTreeConfig = {
     nodeTypeKeys: ["operator", "expression"],
-    fixedChildOrder: ["inputs", "input", "left", "right", "value", "value-for-comparison"],
+    structuralChildKeys: ["inputs", "input", "left", "right", "value", "value-for-comparison"],
     alwaysPropertyKeys: ["debug-name", "statistics", "sqlpos"],
     getRenderingConfig(nodeType, nodeTag, rawNode) {
         const prefix = nodeType === "operator" ? "op" : "exp";
