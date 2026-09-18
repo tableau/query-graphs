@@ -197,40 +197,36 @@ function convertHyperPlan(node: Json, pipelines?: Json): TreeDescription {
 }
 
 function convertOptimizerSteps(node: Json): TreeDescription | undefined {
-    if (
-        typeof node !== "object" ||
-        Array.isArray(node) ||
-        node === null ||
-        Object.getOwnPropertyNames(node).length !== 1 ||
-        !hasOwnProperty(node, "optimizersteps") ||
-        !Array.isArray(node["optimizersteps"])
-    ) {
-        return undefined;
-    }
+    // Check if we have a top-level object with a single key "optimizersteps" containing an array
+    if (typeof node !== "object" || Array.isArray(node) || node === null) return undefined;
+    if (Object.getOwnPropertyNames(node).length !== 1) return undefined;
+    if (!hasOwnProperty(node, "optimizersteps")) return undefined;
+    const steps = node["optimizersteps"];
+    if (!Array.isArray(steps)) return undefined;
 
+    // Transform the optimizer steps
     const crosslinks: Crosslink[] = [];
     const children: TreeNode[] = [];
-    const metadata = new Map<string, string>();
-    for (const step of node["optimizersteps"]) {
-        if (
-            typeof step !== "object" ||
-            Array.isArray(step) ||
-            step === null ||
-            Object.getOwnPropertyNames(step).length !== 2 ||
-            !hasOwnProperty(step, "name") ||
-            !hasOwnProperty(step, "plan") ||
-            typeof step["name"] !== "string"
-        ) {
-            return undefined;
-        }
-        const converted = convertHyperPlan(step["plan"]);
-        crosslinks.push(...(converted.crosslinks ?? []));
-        children.push({name: step["name"], children: [converted.root]});
-        for (const property of converted.metadata ?? []) {
-            metadata.set(property[0], property[1]);
+    const properties = new Map<string, string>();
+    for (const step of steps) {
+        // Check that our step has two subproperties: "name" and "plan"
+        if (typeof step !== "object" || Array.isArray(step) || step === null) return undefined;
+        if (Object.getOwnPropertyNames(step).length !== 2) return undefined;
+        if (!hasOwnProperty(step, "name")) return undefined;
+        if (!hasOwnProperty(step, "plan")) return undefined;
+        const name = step["name"];
+        const plan = step["plan"];
+        if (typeof name !== "string") return undefined;
+
+        // Add the child
+        const {root: childRoot, crosslinks: newCrosslinks, metadata: newProperties} = convertHyperPlan(plan);
+        crosslinks.push(...(newCrosslinks ?? []));
+        children.push({name, children: [childRoot]});
+        for (const property of newProperties ?? new Map<string, string>()) {
+            properties.set(property[0], property[1]);
         }
     }
-    return {root: {name: "optimizersteps", children}, crosslinks, metadata};
+    return {root: {name: "optimizersteps", children}, crosslinks, metadata: properties};
 }
 
 function hasPipelineEnvelope(json: Json): json is JsonObject {
