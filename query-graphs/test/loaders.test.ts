@@ -86,11 +86,11 @@ test("Postgres decorates the shared JSON tree with plan-specific semantics", () 
 
     assert.equal(aggregate?.edgeClass, "qg-label-highlighted");
     assert.equal(workers?.name, "Workers");
+    assert.equal(workers?.children, undefined);
     assert.deepEqual(
-        workers?.children?.map((node) => node.name),
+        workers?.collapsedChildren?.map((node) => node.name),
         ["Workers.0"],
     );
-    assert.equal(workers?.collapsedChildren, undefined);
     assert.deepEqual(tree.crosslinks, [{source: cteScan, target: aggregate}]);
 });
 

@@ -79,7 +79,7 @@ function orderedKeys(rawNode: JsonObject, nodeTypeKey: string | undefined, confi
         });
 }
 
-function appendChild(target: TreeNode[], converted: TreeNode | TreeNode[], key: string, flatten: boolean): void {
+function appendChild(target: TreeNode[], converted: TreeNode | TreeNode[], key: string, flatten: boolean, collapse: boolean): void {
     if (flatten) {
         if (Array.isArray(converted)) {
             target.push(...converted);
@@ -90,7 +90,7 @@ function appendChild(target: TreeNode[], converted: TreeNode | TreeNode[], key: 
             target.push(converted);
         }
     } else if (Array.isArray(converted)) {
-        target.push({name: key, children: converted});
+        target.push(collapse ? {name: key, collapsedChildren: converted} : {name: key, children: converted});
     } else if (!converted.name) {
         converted.name = key;
         target.push(converted);
@@ -161,7 +161,7 @@ function convertDecoratedJsonValue(
         const collapse = config.shouldCollapseChild?.(rawNode, key, rawNode[key]) ?? false;
         const target = collapse ? collapsedChildren : expandedChildren;
         const converted = convertDecoratedJsonValue(rawNode[key], key, state, config);
-        appendChild(target, converted, key, config.fixedChildOrder.includes(key));
+        appendChild(target, converted, key, config.fixedChildOrder.includes(key), collapse);
     }
 
     const renderingConfig =
