@@ -14,7 +14,7 @@ import type {DecoratedJsonTreeConfig, NodeRenderingConfig} from "./decorated-jso
 import {convertDecoratedJsonNode, createDecoratedJsonTreeState} from "./decorated-json-tree";
 import type {Json, JsonObject} from "./loader-utils";
 import {hasOwnProperty, tryToString} from "./loader-utils";
-import type {RawPipeline} from "./pipeline-coloring";
+import type {ExecutionPipeline} from "./pipeline-coloring";
 import {assignPipelineColors} from "./pipeline-coloring";
 import {buildIdMap, resolveCrosslinks, setRelativeEdgeWidths} from "./tree-postprocessing";
 import {InvalidPlanError, type PlanLoader} from "./types";
@@ -115,25 +115,68 @@ function optimizerStages(json: Json, isStage: (value: Json) => value is UmbraSta
     return stages.length > 0 && stages.every(([, value]) => isStage(value)) ? (stages as [string, UmbraStatement][]) : undefined;
 }
 
-function parsePipelines(pipelinesJson: Json): RawPipeline[] {
+function parsePipelines(pipelinesJson: Json, operatorsById: Map<string, TreeNode>): ExecutionPipeline[] {
     if (!Array.isArray(pipelinesJson)) {
         return [];
     }
-    const operatorsByPipeline = new Map<number, Set<number>>();
+    const operatorsByPipeline = new Map<number, Set<TreeNode>>();
     for (const [index, entry] of pipelinesJson.entries()) {
         if (typeof entry !== "object" || Array.isArray(entry) || entry === null || !Array.isArray(entry["operators"])) {
             continue;
         }
         const id = typeof entry["pipelineId"] === "number" ? entry["pipelineId"] : index;
-        const operatorIds = operatorsByPipeline.get(id) ?? new Set<number>();
+        const nodes = operatorsByPipeline.get(id) ?? new Set<TreeNode>();
         for (const operatorId of entry["operators"]) {
             if (typeof operatorId === "number") {
-                operatorIds.add(operatorId);
+                const node = operatorsById.get(operatorId.toString());
+                if (node !== undefined) {
+                    nodes.add(node);
+                }
             }
         }
-        operatorsByPipeline.set(id, operatorIds);
+        operatorsByPipeline.set(id, nodes);
     }
-    return Array.from(operatorsByPipeline, ([id, operatorIds]) => ({id, operatorIds: Array.from(operatorIds)}));
+    return Array.from(operatorsByPipeline, ([id, nodes]) => ({id, nodes: Array.from(nodes)}));
+}
+
+function normalizePipelineMemberships(root: TreeNode, pipelines: ExecutionPipeline[], crosslinks: Crosslink[]): void {
+    const originalMemberships = new Map<TreeNode, ExecutionPipeline[]>();
+    for (const pipeline of pipelines) {
+        for (const node of pipeline.nodes) {
+            const memberships = originalMemberships.get(node) ?? [];
+            memberships.push(pipeline);
+            originalMemberships.set(node, memberships);
+        }
+    }
+
+    const overlapBoundary = (consumer: TreeNode, producer: TreeNode): void => {
+        const consumerPipelineIds = new Set((originalMemberships.get(consumer) ?? []).map(({id}) => id));
+        const producerPipelines = originalMemberships.get(producer) ?? [];
+        if (producerPipelines.some(({id}) => consumerPipelineIds.has(id))) {
+            return;
+        }
+        for (const pipeline of producerPipelines) {
+            if (!pipeline.nodes.includes(consumer)) {
+                pipeline.nodes.push(consumer);
+            }
+        }
+    };
+
+    // Umbra-format plans may assign adjacent operators exclusively to their own
+    // pipelines, whereas the shared colorer expects a pipeline to contain both
+    // endpoints of every edge it crosses. Extend only otherwise-disjoint
+    // boundaries to the consumer. Using the original memberships prevents a
+    // synthetic overlap from propagating a pipeline through multiple edges.
+    const visit = (node: TreeNode): void => {
+        for (const child of allChildren(node)) {
+            overlapBoundary(node, child);
+            visit(child);
+        }
+    };
+    visit(root);
+    for (const {source, target} of crosslinks) {
+        overlapBoundary(source, target);
+    }
 }
 
 function convertUmbraPlan(statement: UmbraStatement): TreeDescription {
@@ -148,7 +191,9 @@ function convertUmbraPlan(statement: UmbraStatement): TreeDescription {
 
     if (statement["analyzePlanPipelines"] !== undefined) {
         const analyzeIds = buildIdMap(root, "analyzePlanId");
-        assignPipelineColors(root, analyzeIds, parsePipelines(statement["analyzePlanPipelines"]), crosslinks);
+        const pipelines = parsePipelines(statement["analyzePlanPipelines"], analyzeIds);
+        normalizePipelineMemberships(root, pipelines, crosslinks);
+        assignPipelineColors(root, pipelines, crosslinks);
     }
     return {root, crosslinks};
 }

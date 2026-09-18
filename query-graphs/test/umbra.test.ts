@@ -78,6 +78,53 @@ test("Umbra combines repeated records for the same pipeline", () => {
     assert.equal(new Set(colors).size, 1);
 });
 
+test("Umbra normalizes exclusive pipeline memberships at operator boundaries", () => {
+    const tree = umbraPlanLoader.load({
+        plan: {
+            operator: "sort",
+            operatorId: 1,
+            analyzePlanId: 0,
+            input: {operator: "tablescan", operatorId: 2, analyzePlanId: 1},
+        },
+        analyzePlanPipelines: [
+            {pipelineId: 6, operators: [0]},
+            {pipelineId: 5, operators: [1]},
+        ],
+    });
+    const sort = tree.root.children?.[0];
+    const scan = sort?.children?.[0];
+    assert.ok(sort);
+    assert.ok(scan);
+
+    assert.deepEqual(tree.root.barsBelow, [sort.iconColor]);
+    assert.deepEqual(sort.barsAbove, [sort.iconColor]);
+    assert.deepEqual(sort.barsBelow, [scan.iconColor]);
+    assert.deepEqual(scan.barsAbove, [scan.iconColor]);
+});
+
+test("Umbra normalizes exclusive pipeline memberships across crosslinks", () => {
+    const tree = umbraPlanLoader.load({
+        plan: {
+            operator: "setoperation",
+            operatorId: 1,
+            analyzePlanId: 0,
+            arguments: [
+                {operator: "temp", operatorId: 2, analyzePlanId: 1},
+                {operator: "pipelinebreakerscan", operatorId: 3, analyzePlanId: 2, scannedOperator: 2},
+            ],
+        },
+        analyzePlanPipelines: [
+            {pipelineId: 0, operators: [0]},
+            {pipelineId: 1, operators: [1]},
+            {pipelineId: 2, operators: [2]},
+        ],
+    });
+    const crosslink = tree.crosslinks?.[0];
+    assert.ok(crosslink);
+
+    assert.deepEqual(crosslink.source.barsBelow, [crosslink.target.iconColor]);
+});
+
 test("Umbra applies format-specific names and icons", () => {
     const tableScan = loadFixture("umbra/tablescan-analyze.plan.json").tree;
     assert.equal(tableScan.root.children?.[0].name, "region");
