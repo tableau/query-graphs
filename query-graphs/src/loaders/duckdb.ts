@@ -132,8 +132,7 @@ function convertDuckPlan(rawRoot: Json, metadata?: Map<string, string>): TreeDes
         (node) => {
             const operatorType = node.properties?.get("operator_type");
             const id = node.properties?.get("Delim Index");
-            const isDelimJoin =
-                operatorType === undefined ? node.name?.endsWith("delim_join") === true : operatorType.endsWith("DELIM_JOIN");
+            const isDelimJoin = operatorType?.endsWith("DELIM_JOIN") ?? node.name?.endsWith("delim_join") ?? false;
             if (isDelimJoin && id !== undefined) {
                 crosslinkTargets.set(crosslinkId("delim", id), node);
             }

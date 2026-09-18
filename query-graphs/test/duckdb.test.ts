@@ -127,6 +127,30 @@ test("DuckDB scopes delimiter indexes to individual optimizer stages", () => {
     assert.deepEqual(tree.crosslinks, expectedCrosslinks);
 });
 
+test("DuckDB resolves analyzed delimiter targets from operator types", () => {
+    const tree = duckDbPlanLoader.load({
+        query_name: "select 1",
+        children: [
+            {
+                operator_name: "LEFT_DELIM_JOIN",
+                operator_type: "LEFT_DELIM_JOIN",
+                extra_info: {"Delim Index": "1"},
+                children: [
+                    {
+                        operator_name: "DELIM_SCAN",
+                        operator_type: "DELIM_SCAN",
+                        extra_info: {"Delim Index": "1"},
+                        children: [],
+                    },
+                ],
+            },
+        ],
+    });
+    const source = tree.root.children?.[0];
+
+    assert.deepEqual(tree.crosslinks, [{source, target: tree.root}]);
+});
+
 test("DuckDB lowercases only all-uppercase operator names", () => {
     const tree = duckDbPlanLoader.load([
         {
