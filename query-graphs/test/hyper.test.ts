@@ -32,6 +32,7 @@ test("Hyper applies rendering, ordering, metrics, and crosslinks", () => {
 
     assert.equal(tree.root.name, "left-outer");
     assert.equal(tree.root.icon, "left-join-symbol");
+    assert.equal(tree.root.nodeColor, "hsl(309, 84%, 72.000%)");
     assert.equal(tree.root.edgeLabel, "100/1");
     assert.equal(tree.root.edgeClass, "qg-label-highlighted");
     assert.deepEqual(
@@ -117,7 +118,8 @@ test("Hyper applies pipeline-level runtime statistics to the pipeline driver", (
     assert.equal(sort?.iconColor, "red");
     assert.notEqual(scan?.iconColor, "red");
     assert.equal(failedPlan.root.nodeColor, undefined);
-    assert.equal(scan?.nodeColor, undefined);
+    assert.equal(sort?.nodeColor, "hsl(309, 84%, 76.600%)");
+    assert.equal(scan?.nodeColor, "hsl(309, 84%, 90.400%)");
 });
 
 test("the Hyper loader remains permissive when explicitly selected", () => {

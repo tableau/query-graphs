@@ -13,6 +13,7 @@ known.
 */
 
 import type {Crosslink, TreeDescription, TreeNode} from "../tree-description";
+import {allChildren, visitTreeNodes} from "../tree-description";
 import type {Json, JsonObject} from "./loader-utils";
 import {forceToString, hasOwnProperty, isJsonObject, tryGetPropertyPath, tryToString} from "./loader-utils";
 import type {DecoratedJsonTreeConfig, NodeRenderingConfig} from "./decorated-json-tree";
@@ -150,11 +151,6 @@ const hyperConfig: DecoratedJsonTreeConfig = {
         // Expand expression details by default.
         return nodeTypeKey !== "operator";
     },
-    getNodeColorValue(rawNode) {
-        // TODO(2026-12-18): Remove operator-level CPU cycles after the pipeline-statistics compatibility window.
-        const executionTime = tryGetPropertyPath(rawNode, ["statistics", "cpu-cycles"]);
-        return typeof executionTime === "number" ? executionTime : undefined;
-    },
     getEstimatedCardinality(rawNode) {
         const internalEstimate = rawNode["estimated-rows"];
         const externalEstimate = tryGetPropertyPath(rawNode, ["statistics", "estimated-rows"]);
@@ -169,6 +165,28 @@ const hyperConfig: DecoratedJsonTreeConfig = {
         return typeof actualCardinality === "number" ? actualCardinality : undefined;
     },
 };
+
+function applyLegacyOperatorStatistics(root: TreeNode): void {
+    // TODO(2026-12-18): Remove operator-level CPU coloring after the pipeline-statistics compatibility window.
+    const cpuCycles: {node: TreeNode; value: number}[] = [];
+    visitTreeNodes(
+        root,
+        (node) => {
+            const statistics = node.properties?.get("statistics");
+            if (statistics === undefined) return;
+            try {
+                const value = tryGetPropertyPath(JSON.parse(statistics) as Json, ["cpu-cycles"]);
+                if (typeof value === "number") {
+                    cpuCycles.push({node, value});
+                }
+            } catch {
+                // The converter produced this JSON, but keep malformed manually constructed trees harmless.
+            }
+        },
+        allChildren,
+    );
+    colorRelativeNumber(cpuCycles);
+}
 
 interface HyperPipeline extends ExecutionPipeline {
     driver?: TreeNode;
@@ -206,11 +224,16 @@ function parsePipelines(pipelinesJson: Json, operatorsById: Map<string, TreeNode
 }
 
 function applyPipelineStatistics(pipelines: HyperPipeline[], metadata: Map<string, string>): void {
+    const cpuCycles: {node: TreeNode; value: number}[] = [];
     for (const pipeline of pipelines) {
         if (pipeline.driver !== undefined && pipeline.statistics !== undefined) {
             const properties = pipeline.driver.properties ?? new Map<string, string>();
             properties.set("pipeline-stats", forceToString(pipeline.statistics));
             pipeline.driver.properties = properties;
+            const value = tryGetPropertyPath(pipeline.statistics, ["cpu-cycles"]);
+            if (typeof value === "number") {
+                cpuCycles.push({node: pipeline.driver, value});
+            }
         }
         for (const node of pipeline.nodes) {
             if (metadata.has("Error") && pipeline.running) {
@@ -218,6 +241,7 @@ function applyPipelineStatistics(pipelines: HyperPipeline[], metadata: Map<strin
             }
         }
     }
+    colorRelativeNumber(cpuCycles);
 }
 
 function convertHyperPlan(node: Json, pipelines?: Json): TreeDescription {
@@ -228,7 +252,6 @@ function convertHyperPlan(node: Json, pipelines?: Json): TreeDescription {
     }
 
     const root = convertDecoratedJsonNode(node, "result", state, hyperConfig);
-    colorRelativeNumber(state.nodeColorValues);
     setRelativeEdgeWidths(state.edgeWidths);
     const operatorsById = buildIdMap(root, "operator-id");
     const crosslinks = resolveCrosslinks(state.crosslinks, operatorsById);
@@ -236,6 +259,8 @@ function convertHyperPlan(node: Json, pipelines?: Json): TreeDescription {
         const parsedPipelines = parsePipelines(pipelines, operatorsById);
         applyPipelineStatistics(parsedPipelines, state.metadata);
         assignPipelineColors(root, parsedPipelines, crosslinks);
+    } else {
+        applyLegacyOperatorStatistics(root);
     }
     return {root, crosslinks, metadata: state.metadata};
 }

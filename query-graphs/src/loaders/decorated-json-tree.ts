@@ -28,12 +28,11 @@ export interface NodeRenderingConfig {
 export interface DecoratedJsonTreeState {
     crosslinks: UnresolvedCrosslink[];
     edgeWidths: {node: TreeNode; width: number}[];
-    nodeColorValues: {node: TreeNode; value: number}[];
     metadata: Map<string, string>;
 }
 
 export function createDecoratedJsonTreeState(): DecoratedJsonTreeState {
-    return {crosslinks: [], edgeWidths: [], nodeColorValues: [], metadata: new Map()};
+    return {crosslinks: [], edgeWidths: [], metadata: new Map()};
 }
 
 export interface DecoratedJsonTreeConfig {
@@ -55,8 +54,6 @@ export interface DecoratedJsonTreeConfig {
     shouldCollapseChild?(rawNode: JsonObject, key: string, child: Json): boolean;
     /** Open a node's `collapsedChildren` initially when it has no ordinary children. */
     shouldExpandCollapsedChildren?(rawNode: JsonObject, nodeTypeKey: string | undefined): boolean;
-    /** Collect a numeric value for relative node coloring after conversion. */
-    getNodeColorValue?(rawNode: JsonObject): number | undefined;
     /** Label and size the incoming edge using the estimated cardinality. */
     getEstimatedCardinality?(rawNode: JsonObject): number | undefined;
     /** Prefer the actual cardinality when available and compare it with the estimate. */
@@ -209,12 +206,6 @@ function convertDecoratedJsonValue(
         collapsedChildren,
         expandedByDefault: expandedChildren.length === 0 && (config.shouldExpandCollapsedChildren?.(rawNode, nodeTypeKey) ?? true),
     };
-
-    // Collect values that require whole-tree normalization after conversion.
-    const nodeColorValue = config.getNodeColorValue?.(rawNode);
-    if (nodeColorValue !== undefined) {
-        state.nodeColorValues.push({node: convertedNode, value: nodeColorValue});
-    }
 
     // Display cardinality on incoming edges and collect it for relative edge sizing.
     const estimatedCardinality = config.getEstimatedCardinality?.(rawNode);
