@@ -64,6 +64,8 @@ export interface DecoratedJsonTreeConfig {
 }
 
 function orderedKeys(rawNode: JsonObject, nodeTypeKey: string | undefined, config: DecoratedJsonTreeConfig): string[] {
+    // Enforce a format-specific order for structural children (for example,
+    // "left" before "right") and display all remaining keys alphabetically.
     return Object.getOwnPropertyNames(rawNode)
         .filter((key) => key !== nodeTypeKey && !config.alwaysPropertyKeys.includes(key))
         .sort((left, right) => {
@@ -81,19 +83,24 @@ function orderedKeys(rawNode: JsonObject, nodeTypeKey: string | undefined, confi
 function appendChild(target: TreeNode[], converted: TreeNode | TreeNode[], key: string, flatten: boolean, collapse: boolean): void {
     if (flatten) {
         if (Array.isArray(converted)) {
+            // Flatten arrays for structural children such as operator inputs.
             target.push(...converted);
         } else {
+            // The key itself is not inserted as a redundant intermediate node.
             if (!converted.name) {
                 converted.name = key;
             }
             target.push(converted);
         }
     } else if (Array.isArray(converted)) {
+        // Collapsed arrays keep their elements collapsed as well: arrays can be large.
         target.push(collapse ? {name: key, collapsedChildren: converted} : {name: key, children: converted});
     } else if (!converted.name) {
+        // Give an unnamed child its object key as a display name.
         converted.name = key;
         target.push(converted);
     } else {
+        // Preserve both names by inserting the key as an intermediate node.
         target.push({name: key, children: [converted]});
     }
 }
@@ -142,14 +149,19 @@ function convertDecoratedJsonValue(
     const expandedChildren: TreeNode[] = [];
     const collapsedChildren: TreeNode[] = [];
     const properties = new Map<string, string>();
+    // Classify semantic nodes before processing their remaining fields so the
+    // identifying key itself does not also appear as a tooltip property.
     const {nodeTypeKey, nodeTag} = classifyNode(rawNode, config);
 
+    // Some complex values are more useful as tooltip properties than subtrees.
     for (const key of config.alwaysPropertyKeys) {
         if (hasOwnProperty(rawNode, key)) {
             properties.set(key, forceToString(rawNode[key]));
         }
     }
 
+    // Display remaining fields adaptively: scalars become tooltip properties,
+    // while objects and arrays remain visible in the tree.
     for (const key of orderedKeys(rawNode, nodeTypeKey, config)) {
         const value = tryToString(rawNode[key]);
         if (value !== undefined) {
@@ -157,12 +169,14 @@ function convertDecoratedJsonValue(
             continue;
         }
 
+        // Format loaders decide which nested structures are initially visible.
         const collapse = config.shouldCollapseChild?.(rawNode, key, rawNode[key]) ?? false;
         const target = collapse ? collapsedChildren : expandedChildren;
         const converted = convertDecoratedJsonValue(rawNode[key], key, state, config);
         appendChild(target, converted, key, config.fixedChildOrder.includes(key), collapse);
     }
 
+    // Determine format-specific rendering and the most meaningful available name.
     const renderingConfig =
         nodeTypeKey !== undefined && nodeTag !== undefined ? config.getRenderingConfig(nodeTypeKey, nodeTag, rawNode) : {};
     const displayName =
@@ -171,6 +185,7 @@ function convertDecoratedJsonValue(
         properties.get("name") ??
         nodeTag ??
         "";
+    // Build the converted node before collecting decorations that reference it.
     const convertedNode: TreeNode = {
         name: displayName,
         icon: renderingConfig.icon,
@@ -181,14 +196,17 @@ function convertDecoratedJsonValue(
     };
 
     if (config.isErrored?.(rawNode, state.metadata)) {
+        // Highlight the node where execution failed.
         convertedNode.iconColor = "red";
     }
 
+    // Collect values that require whole-tree normalization after conversion.
     const nodeColorValue = config.getNodeColorValue?.(rawNode);
     if (nodeColorValue !== undefined) {
         state.nodeColorValues.push({node: convertedNode, value: nodeColorValue});
     }
 
+    // Display cardinality on incoming edges and collect it for relative edge sizing.
     const estimatedCardinality = config.getEstimatedCardinality?.(rawNode);
     if (estimatedCardinality !== undefined) {
         const actualCardinality = config.getActualCardinality?.(rawNode);
@@ -207,6 +225,7 @@ function convertDecoratedJsonValue(
         }
     }
 
+    // Record crosslinks now and resolve their target nodes after the full tree exists.
     const targetId =
         config.getCrosslinkTarget?.(rawNode) ??
         (renderingConfig.crosslinkSourceKey === undefined ? undefined : properties.get(renderingConfig.crosslinkSourceKey));
