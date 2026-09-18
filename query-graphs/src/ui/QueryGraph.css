@@ -5,6 +5,7 @@
 
   & .react-flow__handle {
     background-color: transparent;
+    border: none;
     pointer-events: none;
   }
 
