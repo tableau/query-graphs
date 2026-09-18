@@ -161,12 +161,11 @@ function isDuckNode(value: Json): value is JsonObject {
     );
 }
 
-function isSimpleDuckNode(value: Json): value is JsonObject {
-    return hasSubObject(value, "extra_info") && typeof value["name"] === "string" && Array.isArray(value["children"]);
-}
-
-function isAnalyzedDuckNode(value: Json): value is JsonObject {
-    return isJsonObject(value) && typeof value["operator_type"] === "string" && Array.isArray(value["children"]);
+function isRecognizableDuckNode(value: Json): value is JsonObject {
+    return (
+        isDuckNode(value) &&
+        (typeof value["operator_type"] === "string" || (typeof value["name"] === "string" && hasSubObject(value, "extra_info")))
+    );
 }
 
 // DuckDB's JSON renderer wraps each plan's single root in an array.
@@ -174,20 +173,12 @@ function isSingletonArray(json: Json): json is [Json] {
     return Array.isArray(json) && json.length === 1;
 }
 
-function isSimplePlan(json: Json): json is [Json] {
-    return isSingletonArray(json) && isSimpleDuckNode(json[0]);
-}
-
 function hasAnalyzedEnvelope(json: Json): json is JsonObject & {children: [Json]} {
     return isJsonObject(json) && typeof json["query_name"] === "string" && isSingletonArray(json["children"]);
 }
 
-function isAnalyzedPlan(json: Json): json is JsonObject & {children: [Json]} {
-    return hasAnalyzedEnvelope(json) && isAnalyzedDuckNode(json["children"][0]);
-}
-
 function isExplainAnalyzeNode(value: Json): value is JsonObject & {children: Json[]} {
-    return isAnalyzedDuckNode(value) && value["operator_type"] === "EXPLAIN_ANALYZE";
+    return isDuckNode(value) && value["operator_type"] === "EXPLAIN_ANALYZE";
 }
 
 const stageNames = new Map([
@@ -262,7 +253,11 @@ export const duckDbPlanLoader: PlanLoader<Json> = {
     format: "duckdb",
     matches(json) {
         const stages = getPlanStages(json);
-        return isSimplePlan(json) || isAnalyzedPlan(json) || stages?.every(([, root]) => isSimpleDuckNode(root)) === true;
+        return (
+            (isSingletonArray(json) && isRecognizableDuckNode(json[0])) ||
+            (hasAnalyzedEnvelope(json) && isRecognizableDuckNode(json["children"][0])) ||
+            stages?.every(([, root]) => isRecognizableDuckNode(root)) === true
+        );
     },
     load: loadDuckDbPlan,
 };
