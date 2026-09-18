@@ -58,18 +58,17 @@ test("simultaneous subtree changes use independent anchors", () => {
     assert.deepEqual(halfway.nodes.find((entry) => entry.node.id === "right-child")?.position, {x: 105, y: 65});
 });
 
-test("exiting nodes retain their destination when an animation is interrupted", () => {
+test("exiting nodes follow their anchor when an animation is interrupted", () => {
     const expanded = staticLayout(layout([node("parent", 10, 20, 30), node("child", 80, 120)], [edge("parent", "child")]));
     const firstTarget = layout([node("parent", 20, 40, 30)]);
     const interrupted = interpolateLayout(expanded, firstTarget, parentAnchors, 0.5);
     const interruptedChild = interrupted.nodes.find((entry) => entry.node.id === "child");
-    assert.deepEqual(interruptedChild?.exitPosition, {x: 20, y: 70});
+    assert.deepEqual(interruptedChild?.position, {x: 50, y: 95});
 
     const movedTarget = layout([node("parent", 100, 100, 30)]);
     const resumed = interpolateLayout(interrupted, movedTarget, parentAnchors, 0.5);
     const resumedChild = resumed.nodes.find((entry) => entry.node.id === "child");
-    assert.deepEqual(resumedChild?.exitPosition, {x: 20, y: 70});
-    assert.deepEqual(resumedChild?.position, {x: 35, y: 82.5});
+    assert.deepEqual(resumedChild?.position, {x: 75, y: 112.5});
     assert.equal(resumedChild?.opacity, 0.25);
 
     const finished = interpolateLayout(interrupted, movedTarget, parentAnchors, 1);

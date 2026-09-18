@@ -21,7 +21,6 @@ export interface AnimatedNode {
     position: Position;
     opacity: number;
     transient: boolean;
-    exitPosition?: Position;
 }
 
 interface AnimatedEdge {
@@ -89,9 +88,8 @@ function anchorPosition(
  * Interpolates from the currently rendered state to a settled target layout.
  * Existing elements move between layouts. Each entering or exiting node can
  * have its own anchor, allowing multiple subtrees to change in one transition.
- * Nodes without a supplied anchor use the origin. Exit positions are retained
- * so an interrupted transition does not redirect departing nodes. `progress`
- * is expected to be clamped to the inclusive range from 0 to 1.
+ * Nodes without a supplied anchor use the origin. `progress` is expected to be
+ * clamped to the inclusive range from 0 to 1.
  */
 export function interpolateLayout(
     from: AnimatedLayout,
@@ -111,9 +109,7 @@ export function interpolateLayout(
         if (target === undefined && progress === 1) continue;
         const anchor = anchors.get(id);
         const fromPosition = start?.position ?? anchorPosition(fromNodes, anchor) ?? {x: 0, y: 0};
-        const exitPosition =
-            target === undefined ? (start?.exitPosition ?? anchorPosition(toNodes, anchor) ?? {x: 0, y: 0}) : undefined;
-        const toPosition = target?.position ?? exitPosition!;
+        const toPosition = target?.position ?? anchorPosition(toNodes, anchor) ?? {x: 0, y: 0};
         nodes.push({
             node: target ?? start!.node,
             position: {
@@ -122,7 +118,6 @@ export function interpolateLayout(
             },
             opacity: (start?.opacity ?? 0) + ((target === undefined ? 0 : 1) - (start?.opacity ?? 0)) * progress,
             transient: progress < 1 && (start?.transient === true || start === undefined || target === undefined),
-            exitPosition,
         });
     }
 
