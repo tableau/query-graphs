@@ -21,62 +21,66 @@ function getExtraInfo(rawNode: JsonObject): JsonObject | undefined {
     return hasSubObject(rawNode, "extra_info") ? rawNode["extra_info"] : undefined;
 }
 
-function normalizeOperatorName(name: string): string {
-    // DuckDB's built-in operator names are often emitted in CAPS_LOCK form.
-    // Preserve mixed-case names because extensions may supply their own labels.
-    return name === name.toUpperCase() ? name.toLowerCase() : name;
-}
-
 function crosslinkId(namespace: "cte" | "delim", id: string): string {
     return `${namespace}:${id}`;
 }
 
 function getOperatorType(rawNode: JsonObject): string {
-    return (
-        tryToNonNullString(rawNode["operator_type"]) ??
+    const operatorType =
         tryToNonNullString(rawNode["operator_name"]) ??
         tryToNonNullString(rawNode["name"]) ??
-        "unknown"
-    );
+        tryToNonNullString(rawNode["operator_type"]) ??
+        "unknown";
+    // DuckDB's built-in operator names are often emitted in CAPS_LOCK form.
+    // Preserve mixed-case names because extensions may supply their own labels.
+    return operatorType === operatorType.toUpperCase() ? operatorType.toLowerCase() : operatorType;
 }
 
 function getIcon(rawNode: JsonObject): IconName | undefined {
     const operatorType = getOperatorType(rawNode);
-    if (operatorType.includes("JOIN") || operatorType === "CROSS_PRODUCT") {
+    // DuckDB prefixes members of an operator family with their implementation,
+    // such as HASH_JOIN, PIECEWISE_MERGE_JOIN, and PERFECT_HASH_GROUP_BY.
+    if (operatorType.endsWith("_join") || operatorType === "cross_product") {
         const joinType = tryToNonNullString(getExtraInfo(rawNode)?.["Join Type"]);
-        if (joinType?.includes("LEFT")) return "left-join-symbol";
-        if (joinType?.includes("RIGHT")) return "right-join-symbol";
-        if (joinType?.includes("FULL")) return "full-join-symbol";
+        if (joinType === "LEFT") return "left-join-symbol";
+        if (joinType?.startsWith("RIGHT")) return "right-join-symbol";
+        if (joinType === "FULL" || joinType === "OUTER") return "full-join-symbol";
         return "inner-join-symbol";
     }
-    if (operatorType.includes("GROUP_BY") || operatorType.includes("AGGREGATE")) return "groupby-symbol";
-    if (operatorType.includes("ORDER_BY") || operatorType.includes("SORT") || operatorType === "TOP_N") return "sort-symbol";
-    if (operatorType.includes("FILTER") || operatorType === "LIMIT") return "filter-symbol";
     if (
-        operatorType.includes("CTE") ||
-        operatorType.includes("DELIM_SCAN") ||
-        operatorType === "DELIM_GET" ||
-        operatorType === "COLUMN_DATA_SCAN"
+        operatorType === "group_by" ||
+        operatorType.endsWith("_group_by") ||
+        operatorType === "aggregate" ||
+        operatorType.endsWith("_aggregate")
+    ) {
+        return "groupby-symbol";
+    }
+    if (operatorType === "order_by" || operatorType === "sort" || operatorType.endsWith("_sort") || operatorType === "top_n") {
+        return "sort-symbol";
+    }
+    if (operatorType === "filter" || operatorType === "limit") return "filter-symbol";
+    if (
+        operatorType === "cte" ||
+        operatorType === "rec_cte" ||
+        operatorType.endsWith("cte_scan") ||
+        operatorType === "delim_scan" ||
+        operatorType === "delim_get" ||
+        operatorType === "column_data_scan"
     ) {
         return "temp-table-symbol";
     }
-    if (operatorType === "DUMMY_SCAN" || operatorType === "EXPRESSION_SCAN" || operatorType === "EMPTY_RESULT") {
+    if (operatorType === "dummy_scan" || operatorType === "expression_scan" || operatorType === "empty_result") {
         return "const-table-symbol";
     }
-    if (operatorType.includes("SCAN")) return "table-symbol";
-    if (operatorType === "GENERATE_SERIES") return "const-table-symbol";
-    if (operatorType === "INSERT") return "run-query-symbol";
+    if (operatorType.endsWith("_scan")) return "table-symbol";
+    if (operatorType === "generate_series") return "const-table-symbol";
+    if (operatorType === "insert") return "run-query-symbol";
     return undefined;
 }
 
 function getDisplayName(rawNode: JsonObject): string {
-    const name = normalizeOperatorName(
-        tryToNonNullString(rawNode["operator_name"]) ??
-            tryToNonNullString(rawNode["name"]) ??
-            tryToNonNullString(rawNode["operator_type"]) ??
-            "unknown",
-    );
-    if (getOperatorType(rawNode).includes("SCAN")) {
+    const name = getOperatorType(rawNode);
+    if (name.endsWith("_scan")) {
         const table = tryToNonNullString(getExtraInfo(rawNode)?.["Table"]);
         if (table !== undefined) {
             return `${table} (${name})`;
@@ -96,11 +100,12 @@ const duckDbConfig: DecoratedJsonTreeConfig = {
     getDisplayName,
     getCrosslinkTarget(rawNode) {
         const operatorType = getOperatorType(rawNode);
-        if (operatorType.includes("CTE_SCAN")) {
+        // Recursive scans are emitted as REC_CTE_SCAN, so match the CTE scan family.
+        if (operatorType.endsWith("cte_scan")) {
             const id = tryToNonNullString(getExtraInfo(rawNode)?.["CTE Index"]);
             return id === undefined ? undefined : crosslinkId("cte", id);
         }
-        if (operatorType === "DELIM_SCAN") {
+        if (operatorType === "delim_scan") {
             const id = tryToNonNullString(getExtraInfo(rawNode)?.["Delim Index"]);
             return id === undefined ? undefined : crosslinkId("delim", id);
         }
