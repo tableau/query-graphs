@@ -56,6 +56,17 @@ export function forceToString(d: unknown): string {
     return str;
 }
 
+export function tryToNumber(value: unknown): number | undefined {
+    if (typeof value === "number") {
+        return Number.isFinite(value) ? value : undefined;
+    }
+    if (typeof value === "string" && value.trim() !== "") {
+        const parsed = Number(value);
+        return Number.isFinite(parsed) ? parsed : undefined;
+    }
+    return undefined;
+}
+
 // Format a number using metric suffixes
 export function formatMetric(x: number): string {
     const sizes = ["", "k", "M", "G", "T", "P", "E", "Z", "Y"];

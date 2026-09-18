@@ -13,23 +13,12 @@ import {allChildren, visitTreeNodes} from "../tree-description";
 import type {DecoratedJsonTreeConfig} from "./decorated-json-tree";
 import {convertDecoratedJsonNode, createDecoratedJsonTreeState} from "./decorated-json-tree";
 import type {Json, JsonObject} from "./loader-utils";
-import {forceToString, hasOwnProperty, hasSubObject, isJsonObject, tryToString} from "./loader-utils";
+import {forceToString, hasOwnProperty, hasSubObject, isJsonObject, tryToNumber, tryToString} from "./loader-utils";
 import {buildIdMap, colorRelativeNumber, resolveCrosslinks, setRelativeEdgeWidths} from "./tree-postprocessing";
 import {InvalidPlanError, type PlanLoader} from "./types";
 
 function getExtraInfo(rawNode: JsonObject): JsonObject | undefined {
     return hasSubObject(rawNode, "extra_info") ? rawNode["extra_info"] : undefined;
-}
-
-function parseNumber(value: Json | undefined): number | undefined {
-    if (typeof value === "number") {
-        return Number.isFinite(value) ? value : undefined;
-    }
-    if (typeof value === "string" && value.trim() !== "") {
-        const parsed = Number(value);
-        return Number.isFinite(parsed) ? parsed : undefined;
-    }
-    return undefined;
 }
 
 function optionalString(value: Json | undefined): string | undefined {
@@ -123,13 +112,13 @@ const duckDbConfig: DecoratedJsonTreeConfig = {
     },
     shouldExpandCollapsedChildren: () => false,
     getNodeColorValue(rawNode) {
-        return parseNumber(rawNode["operator_timing"]);
+        return tryToNumber(rawNode["operator_timing"]);
     },
     getEstimatedCardinality(rawNode) {
-        return parseNumber(getExtraInfo(rawNode)?.["Estimated Cardinality"]);
+        return tryToNumber(getExtraInfo(rawNode)?.["Estimated Cardinality"]);
     },
     getActualCardinality(rawNode) {
-        return parseNumber(rawNode["operator_cardinality"]);
+        return tryToNumber(rawNode["operator_cardinality"]);
     },
 };
 
