@@ -193,4 +193,8 @@ test("the Umbra loader remains permissive when explicitly selected", () => {
     assert.equal(umbraPlanLoader.matches(malformed), false);
     assert.equal(umbraPlanLoader.load(malformed).root.name, "result");
     assert.equal(loadPlanFromText(JSON.stringify(malformed)).format, "json");
+
+    const forced = loadPlanFromText("{}", {format: "umbra"});
+    assert.equal(forced.format, "umbra");
+    assert.equal(forced.tree.root.name, "result");
 });

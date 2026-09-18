@@ -13,11 +13,11 @@ import {allChildren} from "../tree-description";
 import type {DecoratedJsonTreeConfig, NodeRenderingConfig} from "./decorated-json-tree";
 import {convertDecoratedJsonNode, createDecoratedJsonTreeState} from "./decorated-json-tree";
 import type {Json, JsonObject} from "./loader-utils";
-import {hasOwnProperty, tryToString} from "./loader-utils";
+import {hasOwnProperty, hasSubObject, isJsonObject, tryToString} from "./loader-utils";
 import type {ExecutionPipeline} from "./pipeline-coloring";
 import {assignPipelineColors} from "./pipeline-coloring";
 import {buildIdMap, resolveCrosslinks, setRelativeEdgeWidths} from "./tree-postprocessing";
-import {InvalidPlanError, type PlanLoader} from "./types";
+import type {PlanLoader} from "./types";
 
 const nodeRenderingConfig: Record<string, NodeRenderingConfig> = {
     "op:select": {icon: "filter-symbol"},
@@ -72,7 +72,7 @@ const umbraConfig: DecoratedJsonTreeConfig = {
         return nodeRenderingConfig[`${prefix}:${tag}`] ?? {};
     },
     getDisplayName(rawNode) {
-        if (!hasPlanObject(rawNode)) {
+        if (!hasSubObject(rawNode, "plan")) {
             return undefined;
         }
         return hasOwnProperty(rawNode, "type") ? tryToString(rawNode["type"]) : "result";
@@ -91,20 +91,8 @@ const umbraConfig: DecoratedJsonTreeConfig = {
     },
 };
 
-function hasPlanObject(json: Json): json is UmbraStatement {
-    return (
-        typeof json === "object" &&
-        !Array.isArray(json) &&
-        json !== null &&
-        hasOwnProperty(json, "plan") &&
-        typeof json["plan"] === "object" &&
-        !Array.isArray(json["plan"]) &&
-        json["plan"] !== null
-    );
-}
-
 function isUmbraStatement(json: Json): json is UmbraStatement {
-    return hasPlanObject(json) && typeof json.plan["operator"] === "string" && typeof json.plan["operatorId"] === "number";
+    return hasSubObject(json, "plan") && typeof json.plan["operator"] === "string" && typeof json.plan["operatorId"] === "number";
 }
 
 function optimizerStages(json: Json, isStage: (value: Json) => value is UmbraStatement): [string, UmbraStatement][] | undefined {
@@ -179,7 +167,7 @@ function normalizePipelineMemberships(root: TreeNode, pipelines: ExecutionPipeli
     }
 }
 
-function convertUmbraPlan(statement: UmbraStatement): TreeDescription {
+function convertUmbraPlan(statement: Json): TreeDescription {
     const state = createDecoratedJsonTreeState();
     const root = convertDecoratedJsonNode(statement, "result", state, umbraConfig);
 
@@ -189,7 +177,7 @@ function convertUmbraPlan(statement: UmbraStatement): TreeDescription {
         ({source, target}) => !allChildren(source).includes(target),
     );
 
-    if (statement["analyzePlanPipelines"] !== undefined) {
+    if (isJsonObject(statement) && statement["analyzePlanPipelines"] !== undefined) {
         const analyzeIds = buildIdMap(root, "analyzePlanId");
         const pipelines = parsePipelines(statement["analyzePlanPipelines"], analyzeIds);
         normalizePipelineMemberships(root, pipelines, crosslinks);
@@ -210,14 +198,11 @@ function combineOptimizerStages(stages: [string, UmbraStatement][]): TreeDescrip
 }
 
 function loadUmbraPlan(json: Json): TreeDescription {
-    if (hasPlanObject(json)) {
-        return convertUmbraPlan(json);
-    }
-    const stages = optimizerStages(json, hasPlanObject);
+    const stages = optimizerStages(json, (value) => hasSubObject(value, "plan"));
     if (stages !== undefined) {
         return combineOptimizerStages(stages);
     }
-    throw new InvalidPlanError("umbra");
+    return convertUmbraPlan(json);
 }
 
 export const umbraPlanLoader: PlanLoader<Json> = {

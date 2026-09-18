@@ -265,6 +265,14 @@ function convertHyperPlan(node: Json, pipelines?: Json): TreeDescription {
     return {root, crosslinks, metadata: state.metadata};
 }
 
+function extraProperties(object: JsonObject, excludedKeys: readonly string[]): Map<string, string> | undefined {
+    const entries = Object.keys(object)
+        .filter((key) => !excludedKeys.includes(key))
+        .sort()
+        .map((key) => [key, forceToString(object[key])] as const);
+    return entries.length === 0 ? undefined : new Map(entries);
+}
+
 function isHyperPlanRoot(json: Json): json is JsonObject {
     return (
         typeof json === "object" &&
@@ -275,41 +283,39 @@ function isHyperPlanRoot(json: Json): json is JsonObject {
 }
 
 function convertOptimizerSteps(node: Json): TreeDescription | undefined {
-    // Check if we have a top-level object with a single key "optimizersteps" containing an array
-    if (typeof node !== "object" || Array.isArray(node) || node === null) return undefined;
-    if (Object.getOwnPropertyNames(node).length !== 1) return undefined;
+    if (!isJsonObject(node)) return undefined;
     if (!hasOwnProperty(node, "optimizersteps")) return undefined;
     const steps = node["optimizersteps"];
     if (!Array.isArray(steps)) return undefined;
 
-    // Transform the optimizer steps
     const crosslinks: Crosslink[] = [];
     const children: TreeNode[] = [];
-    const properties = new Map<string, string>();
+    const metadata = new Map<string, string>();
     for (const step of steps) {
-        // Check that our step has two subproperties: "name" and "plan"
         if (typeof step !== "object" || Array.isArray(step) || step === null) return undefined;
-        if (Object.getOwnPropertyNames(step).length !== 2) return undefined;
         if (!hasOwnProperty(step, "name")) return undefined;
         if (!hasOwnProperty(step, "plan")) return undefined;
         const name = step["name"];
         const plan = step["plan"];
         if (typeof name !== "string") return undefined;
 
-        // Add the child
         const {root: childRoot, crosslinks: newCrosslinks, metadata: newProperties} = convertHyperPlan(plan);
         crosslinks.push(...(newCrosslinks ?? []));
-        children.push({name, children: [childRoot]});
+        children.push({name, properties: extraProperties(step, ["name", "plan"]), children: [childRoot]});
         for (const property of newProperties ?? new Map<string, string>()) {
-            properties.set(property[0], property[1]);
+            metadata.set(property[0], property[1]);
         }
     }
-    return {root: {name: "optimizersteps", children}, crosslinks, metadata: properties};
+    return {
+        root: {name: "optimizersteps", properties: extraProperties(node, ["optimizersteps"]), children},
+        crosslinks,
+        metadata,
+    };
 }
 
 function isOptimizerStepsPlan(node: Json): boolean {
     if (typeof node !== "object" || Array.isArray(node) || node === null) return false;
-    if (Object.getOwnPropertyNames(node).length !== 1 || !hasOwnProperty(node, "optimizersteps")) return false;
+    if (!hasOwnProperty(node, "optimizersteps")) return false;
     const steps = node["optimizersteps"];
     if (!Array.isArray(steps)) return false;
     return steps.every(
@@ -317,7 +323,8 @@ function isOptimizerStepsPlan(node: Json): boolean {
             typeof step === "object" &&
             !Array.isArray(step) &&
             step !== null &&
-            Object.getOwnPropertyNames(step).length === 2 &&
+            hasOwnProperty(step, "name") &&
+            hasOwnProperty(step, "plan") &&
             typeof step["name"] === "string" &&
             isHyperPlanRoot(step["plan"]),
     );

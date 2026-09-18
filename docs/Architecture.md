@@ -28,7 +28,7 @@ The core abstraction connecting the two halves is `TreeDescription`, the format-
 ```mermaid
 flowchart TD
     text["Plan text (JSON / XML)"] --> dispatch["loadPlanFromText()<br/>(query-graphs/src/loaders/index.ts)"]
-    dispatch -->|tries each loader| loaders["Format loaders<br/>hyper · postgres · tableau · json · xml<br/>(query-graphs/src/loaders)"]
+    dispatch -->|tries each loader| loaders["Format loaders<br/>postgres · umbra/cedardb · duckdb · hyper · tableau · json · xml<br/>(query-graphs/src/loaders)"]
     loaders --> td["TreeDescription<br/>(format-independent tree model)"]
     td --> layout["layoutTree()<br/>(d3-flextree layout)"]
     layout --> render["QueryGraph<br/>(react-flow rendering)"]

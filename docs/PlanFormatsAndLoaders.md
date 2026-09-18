@@ -1,7 +1,7 @@
 # Plan Formats and Loaders
 
 Query Graphs supports several query-plan formats and is designed so that new ones are cheap to add.
-A **loader** tranforms a database-specific plan representation into a `TreeDescription`, the format-independent tree model described in the [`query-graphs` README](../query-graphs/README.md).
+A **loader** transforms a database-specific plan representation into a `TreeDescription`, the format-independent tree model described in the [`query-graphs` README](../query-graphs/README.md).
 The public `loadPlanFromText` façade handles syntax parsing and selects the matching loader.
 Everything downstream (layout, rendering, interaction) is shared across formats.
 
@@ -47,8 +47,8 @@ To add support for another database's plans:
 1. **Write the loader.**
    Add `query-graphs/src/loaders/<db>.ts` exporting a `PlanLoader`, such as `dbPlanLoader: PlanLoader<Json>` for a JSON format.
    Its `matches` method should recognize the format from a small, stable signature; its `load` method performs the conversion.
-   Recursively convert each source node into a `TreeNode`: set `name`, pick an `icon` from the `IconName` union, put scalar attributes into `properties` (shown in the tooltip), and put real children into `children`/`collapsedChildren`.
-   Use `hyper.ts` as the reference implementation and reuse the helpers in `loader-utils.ts`.
+   Configure `decorated-json-tree.ts` to map semantic node types, structural children, properties, metrics, and crosslinks while retaining its adaptive fallback for unknown fields.
+   Use the existing format loader closest to the new format as a reference and reuse the helpers in `loader-utils.ts` and `tree-postprocessing.ts`.
 2. **Register it** in the matching syntax-specific registry in `query-graphs/src/loaders/index.ts`, positioned so a more specific format is tried before a more permissive one.
 3. **Add an example** plan under `standalone-app/examples/<db>/` so it shows up on the `examples.html` page.
    If the format comes from a database that [`plan-dumper`](../plan-dumper/README.md) can drive, add a query there so the example can be regenerated instead of hand-maintained.
