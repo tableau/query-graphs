@@ -25,16 +25,10 @@ function QueryNode({data, id}: NodeProps<QueryGraphNode>) {
 
     const measureTargetDimensions = useCallback((targetExpanded: boolean) => {
         const graphNode = graphNodeRef.current;
-        const flowNode = graphNode?.closest<HTMLElement>(".react-flow__node");
-        const flowContainer = flowNode?.parentElement;
-        if (
-            graphNode === null ||
-            flowNode === null ||
-            flowNode === undefined ||
-            flowContainer === null ||
-            flowContainer === undefined
-        )
-            return undefined;
+        if (graphNode === null) return undefined;
+        const flowNode = graphNode.closest<HTMLElement>(".react-flow__node");
+        if (flowNode === null || flowNode.parentElement === null) return undefined;
+        const flowContainer = flowNode.parentElement;
 
         const clone = flowNode.cloneNode(true) as HTMLElement;
         const clonedGraphNode = clone.querySelector<HTMLElement>(".qg-graph-node");

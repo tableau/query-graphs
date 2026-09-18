@@ -1,5 +1,6 @@
 import type {Dimensions, NodeChange} from "@xyflow/react";
 import {useReactFlow} from "@xyflow/react";
+import type {CSSProperties} from "react";
 import {createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState} from "react";
 import {assertNotNull} from "../assert";
 import type {TreeDescription, TreeNode} from "../tree-description";
@@ -46,6 +47,15 @@ interface DimensionsState {
 interface BodyAnimation {
     element: HTMLElement;
     animationFrame?: number;
+}
+
+function withAnimationStyle(style: CSSProperties | undefined, opacity: number, transient: boolean): CSSProperties | undefined {
+    if (opacity === 1 && !transient) return style;
+    return {
+        ...style,
+        ...(opacity === 1 ? {} : {opacity}),
+        ...(transient ? {pointerEvents: "none"} : {}),
+    };
 }
 
 export function useAnimatedGraphLayout(
@@ -248,55 +258,31 @@ export function useAnimatedGraphLayout(
 
     const targetNodes = useMemo(() => new Map(target.nodes.map((node) => [node.id, node])), [target.nodes]);
     const targetEdges = useMemo(() => new Map(target.edges.map((edge) => [edge.id, edge])), [target.edges]);
-    const animatedLayout = useMemo(
+    return useMemo(
         () => ({
             nodes: rendered.nodes.map(({node, position, opacity, transient}) => {
                 const latest = targetNodes.get(node.id) ?? node;
                 return {
                     ...latest,
                     position,
-                    style:
-                        opacity === 1 && !transient
-                            ? latest.style
-                            : {
-                                  ...latest.style,
-                                  ...(opacity === 1 ? {} : {opacity}),
-                                  ...(transient ? {pointerEvents: "none" as const} : {}),
-                              },
+                    style: withAnimationStyle(latest.style, opacity, transient),
                 };
             }),
             edges: rendered.edges.map(({edge, opacity, transient}) => {
                 const latest = targetEdges.get(edge.id) ?? edge;
                 return {
                     ...latest,
-                    style:
-                        opacity === 1 && !transient
-                            ? latest.style
-                            : {
-                                  ...latest.style,
-                                  ...(opacity === 1 ? {} : {opacity}),
-                                  ...(transient ? {pointerEvents: "none" as const} : {}),
-                              },
-                    labelStyle: {
-                        ...latest.labelStyle,
-                        ...(opacity === 1 ? {} : {opacity}),
-                        ...(transient ? {pointerEvents: "none" as const} : {}),
-                    },
-                    labelBgStyle: {
-                        ...latest.labelBgStyle,
-                        ...(opacity === 1 ? {} : {opacity}),
-                        ...(transient ? {pointerEvents: "none" as const} : {}),
-                    },
+                    style: withAnimationStyle(latest.style, opacity, transient),
+                    labelStyle: withAnimationStyle(latest.labelStyle, opacity, transient),
+                    labelBgStyle: withAnimationStyle(latest.labelBgStyle, opacity, transient),
                     interactionWidth: transient ? 0 : latest.interactionWidth,
                     selectable: transient ? false : latest.selectable,
                     focusable: transient ? false : latest.focusable,
                 };
             }),
+            onNodesChange,
+            animationController,
         }),
-        [rendered, targetEdges, targetNodes],
-    );
-    return useMemo(
-        () => ({...animatedLayout, onNodesChange, animationController}),
-        [animatedLayout, animationController, onNodesChange],
+        [animationController, onNodesChange, rendered, targetEdges, targetNodes],
     );
 }
