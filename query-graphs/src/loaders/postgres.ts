@@ -8,15 +8,16 @@ This is pretty much the same algorithm as the algorithm for Hyper plans
 */
 
 import * as treeDescription from "../tree-description";
-import type {TreeNode, TreeDescription, Crosslink, IconName} from "../tree-description";
+import type {TreeNode, TreeDescription, IconName} from "../tree-description";
 import type {Json} from "./loader-utils";
 import {tryToString, formatMetric, hasOwnProperty, hasSubOject} from "./loader-utils";
-import {InvalidPlanError, type PlanLoader} from "./types";
 import {assert} from "../assert";
+import {resolveCrosslinks, setEdgeWidths} from "./tree-postprocessing";
+import {InvalidPlanError, type PlanLoader} from "./types";
 
 interface UnresolvedCrosslink {
     source: TreeNode;
-    targetOpId: string;
+    targetId: string;
 }
 
 // Temporary state which we hold during converting from JSON to internal graph representation
@@ -201,7 +202,7 @@ function convertPostgresNode(rawNode: Json, parentKey: string, conversionState: 
         if (crosslinkId) {
             conversionState.crosslinks.push({
                 source: convertedNode,
-                targetOpId: crosslinkId,
+                targetId: crosslinkId,
             });
         }
 
@@ -223,7 +224,7 @@ function convertPostgresNode(rawNode: Json, parentKey: string, conversionState: 
         }
         return listOfObjects;
     }
-    throw new InvalidPlanError("postgres");
+    throw new Error("Invalid Postgres query plan");
 }
 
 // Color graph per a node's relative execution time
@@ -290,29 +291,6 @@ function colorChildRelativeExecutionRatio(node: TreeNode, executionTime: number,
     }
 }
 
-// Resolve all pending crosslinks
-function resolveCrosslinks(state: ConversionState): Crosslink[] {
-    const crosslinks = [] as Crosslink[];
-    for (const link of state.crosslinks) {
-        const target = state.operatorsById.get(link.targetOpId);
-        if (target !== undefined) {
-            crosslinks.push({source: link.source, target: target});
-        }
-    }
-    return crosslinks;
-}
-
-// Sets the edge widths, relative to the number of output tuples
-function setEdgeWidths(state: ConversionState) {
-    const maxWidth = state.edgeWidths.reduce((p, v) => (p > v.width ? p : v.width), 0);
-    const minWidth = state.edgeWidths.reduce((p, v) => (p < v.width ? p : v.width), Infinity);
-    if (minWidth == maxWidth) return;
-    const factor = Math.max(maxWidth - minWidth, minWidth);
-    for (const edge of state.edgeWidths) {
-        edge.node.edgeWidth = (edge.width - minWidth) / factor;
-    }
-}
-
 function unwrapPostgresPlan(json: Json): Json {
     if (Array.isArray(json) && json.length === 1) {
         return json[0];
@@ -342,8 +320,8 @@ function loadPostgresPlan(json: Json): TreeDescription {
         throw new InvalidPlanError("postgres");
     }
     colorRelativeExecutionTime(root);
-    setEdgeWidths(conversionState);
-    const crosslinks = resolveCrosslinks(conversionState);
+    setEdgeWidths(conversionState.edgeWidths);
+    const crosslinks = resolveCrosslinks(conversionState.crosslinks, conversionState.operatorsById);
     return {root: root, crosslinks: crosslinks};
 }
 
