@@ -1,7 +1,7 @@
 # Plan Formats and Loaders
 
 Query Graphs supports several query-plan formats and is designed so that new ones are cheap to add.
-A **loader** is a descriptor that recognizes and converts one parsed input format into a `TreeDescription` — the format-independent tree model described in the [`query-graphs` README](../query-graphs/README.md).
+A **loader** tranforms a database-specific plan representation into a `TreeDescription`, the format-independent tree model described in the [`query-graphs` README](../query-graphs/README.md).
 The public `loadPlanFromText` façade handles syntax parsing and selects the matching loader.
 Everything downstream (layout, rendering, interaction) is shared across formats.
 
@@ -29,9 +29,8 @@ const jsonPlanLoaders = [postgresPlanLoader, hyperPlanLoader, jsonPlanLoader];
 
 Each loader exposes separate `matches` and `load` operations, so format detection does not depend on converter exceptions.
 If a matching loader cannot convert the plan, dispatch records the failure and continues with later matching loaders.
-Valid JSON that no semantic loader recognizes is handled by the generic JSON loader.
 Non-JSON input is parsed as XML once, then checked against the Tableau and generic XML loaders.
-If no parser and loader combination succeeds, `InvalidPlanError` contains the collected failures as its cause and identifies a forced format when applicable.
+If no parser and loader combination succeeds, `InvalidPlanError` contains the collected failures as its cause.
 
 **Order matters.**
 Postgres and Hyper plans are both JSON, so the Postgres loader — which checks for the distinctive top-level `Plan` object — is tried *before* the more permissive Hyper loader.
