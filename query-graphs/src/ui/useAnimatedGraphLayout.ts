@@ -9,7 +9,7 @@ import {layoutTree} from "./tree-layout";
 import type {GraphNodeDimensions} from "./tree-layout";
 import {animationStartTime, graphAnimationProgress} from "./animation-timing";
 import type {AnimatedLayout, GraphLayout, LayoutAnchor, TransitionAnchors} from "./animated-layout";
-import {interpolateLayout, refreshLayoutData, sameGeometry, staticLayout} from "./animated-layout";
+import {interpolateLayout, refreshLayoutData, sameLayoutTarget, staticLayout} from "./animated-layout";
 
 interface LayoutAnimation {
     kind: "resize" | "subtree";
@@ -135,7 +135,7 @@ export function useAnimatedGraphLayout(
     const {fitView, getInternalNode} = useReactFlow<QueryGraphNode>();
     const activeResizeNodesRef = useRef(new Set<string>());
     const bodyAnimationsRef = useRef(new Map<string, BodyAnimation>());
-    const pendingAnimationRef = useRef<LayoutAnimation | undefined>(undefined);
+    const animationRef = useRef<LayoutAnimation | undefined>(undefined);
     const [dimensionsState, setDimensionsState] = useState<DimensionsState>(() => ({
         nodeIds,
         dimensions: new Map(),
@@ -214,13 +214,13 @@ export function useAnimatedGraphLayout(
                     return {nodeIds, dimensions};
                 });
                 if (startedAt === undefined) {
-                    pendingAnimationRef.current = undefined;
+                    animationRef.current = undefined;
                     updateGraph();
                     return;
                 }
 
                 activeResizeNodesRef.current.add(animation.nodeId);
-                pendingAnimationRef.current = {kind: "resize", startedAt};
+                animationRef.current = {kind: "resize", startedAt};
 
                 const bodyAnimation: BodyAnimation = {element: animation.bodyElement};
                 bodyAnimationsRef.current.set(animation.nodeId, bodyAnimation);
@@ -244,7 +244,7 @@ export function useAnimatedGraphLayout(
             animateSubtreeChange: (anchorNodeId, updateGraph) => {
                 const anchor = measuredSourceAnchor(getInternalNode(anchorNodeId), subtreeHandleId);
                 const startedAt = anchor === undefined ? undefined : animationStartTime();
-                pendingAnimationRef.current = startedAt === undefined ? undefined : {kind: "subtree", startedAt, anchor};
+                animationRef.current = startedAt === undefined ? undefined : {kind: "subtree", startedAt, anchor};
                 updateGraph();
             },
         }),
@@ -260,14 +260,17 @@ export function useAnimatedGraphLayout(
 
     useLayoutEffect(() => {
         const graphChanged = nodeIdsRef.current !== nodeIds;
-        const geometryChanged = graphChanged || !sameGeometry(targetRef.current, target);
-        const animation = pendingAnimationRef.current;
-        const pendingReady = animation !== undefined && targetMeasured;
+        const targetChanged = graphChanged || !sameLayoutTarget(targetRef.current, target);
+        const animation = animationRef.current;
+        const animationReady = animation !== undefined && targetMeasured && animationFrameRef.current === undefined;
         nodeIdsRef.current = nodeIds;
         targetRef.current = target;
         renderedRef.current = refreshLayoutData(renderedRef.current, target);
-        if (!geometryChanged && !pendingReady) return;
+        // Measurements can recompute an equivalent target. Only restart when
+        // its endpoint changes or staged nodes become measurable.
+        if (!targetChanged && !animationReady) return;
 
+        const wasAnimating = animationFrameRef.current !== undefined;
         if (animationFrameRef.current !== undefined) {
             cancelAnimationFrame(animationFrameRef.current);
             animationFrameRef.current = undefined;
@@ -277,7 +280,7 @@ export function useAnimatedGraphLayout(
             for (const nodeId of [...bodyAnimationsRef.current.keys()]) stopBodyAnimation(nodeId);
         }
         if (animation === undefined || graphChanged) {
-            pendingAnimationRef.current = undefined;
+            animationRef.current = undefined;
             const next = staticLayout(target);
             renderedRef.current = next;
             setRendered(next);
@@ -287,7 +290,6 @@ export function useAnimatedGraphLayout(
         // Newly revealed nodes have no dimensions yet. Render them invisibly at
         // the anchor so React Flow can measure them before computing the endpoint.
         if (!targetMeasured) {
-            pendingAnimationRef.current = animation;
             const staged = interpolateLayout(
                 renderedRef.current,
                 target,
@@ -299,9 +301,10 @@ export function useAnimatedGraphLayout(
             return;
         }
 
-        pendingAnimationRef.current = undefined;
         const start = renderedRef.current;
-        const startTime = animation.kind === "resize" ? animation.startedAt : performance.now();
+        // Retarget an active transition from its current frame instead of
+        // snapping or jumping ahead on the original easing curve.
+        const startTime = wasAnimating || animation.kind === "subtree" ? performance.now() : animation.startedAt;
         const anchors = transitionAnchors(start, target, animation.anchor);
         const step = (now: number) => {
             const progress = graphAnimationProgress(startTime, now);
@@ -312,6 +315,7 @@ export function useAnimatedGraphLayout(
                 animationFrameRef.current = requestAnimationFrame(step);
             } else {
                 animationFrameRef.current = undefined;
+                if (animationRef.current === animation) animationRef.current = undefined;
             }
         };
         animationFrameRef.current = requestAnimationFrame(step);
@@ -321,7 +325,7 @@ export function useAnimatedGraphLayout(
         if (
             initialFitDoneRef.current ||
             !targetMeasured ||
-            pendingAnimationRef.current !== undefined ||
+            animationRef.current !== undefined ||
             animationFrameRef.current !== undefined
         )
             return;

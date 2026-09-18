@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import type {Edge} from "@xyflow/react";
-import {interpolateLayout, refreshLayoutData, sameGeometry, staticLayout} from "../src/ui/animated-layout";
+import {interpolateLayout, refreshLayoutData, sameLayoutTarget, staticLayout} from "../src/ui/animated-layout";
 import type {GraphLayout, TransitionAnchors} from "../src/ui/animated-layout";
 import {graphAnimationDuration, graphAnimationProgress} from "../src/ui/animation-timing";
 import type {QueryGraphNode} from "../src/ui/QueryNode";
@@ -86,8 +86,8 @@ test("layout comparisons distinguish geometry while refreshed data preserves ani
     const same = layout([{...originalNode, data: {name: "updated"}}]);
     const moved = layout([node("node", 11, 20)]);
 
-    assert.equal(sameGeometry(original, same), true);
-    assert.equal(sameGeometry(original, moved), false);
+    assert.equal(sameLayoutTarget(original, same), true);
+    assert.equal(sameLayoutTarget(original, moved), false);
 
     const animated = staticLayout(original);
     animated.nodes[0]!.position = {x: 5, y: 6};
