@@ -62,20 +62,9 @@ export class UnknownPlanFormatError extends Error {
 export const jsonPlanLoaders: readonly PlanLoader<Json>[] = [postgresPlanLoader, hyperPlanLoader, jsonPlanLoader];
 export const xmlPlanLoaders: readonly PlanLoader<ParsedXML>[] = [tableauPlanLoader, xmlPlanLoader];
 
-function loadWithPlanLoader<Input>(input: Input, loader: PlanLoader<Input>): LoadedPlan {
-    return {format: loader.format, tree: loader.load(input)};
-}
-
-function loadMatchingPlan<Input>(input: Input, loaders: readonly PlanLoader<Input>[]): LoadedPlan {
-    const loader = loaders.find((candidate) => candidate.matches(input));
-    if (loader === undefined) {
-        throw new Error("No fallback plan loader registered");
-    }
-    return loadWithPlanLoader(input, loader);
-}
-
-function parseJson(text: string): Json {
-    return JSON.parse(text) as Json;
+function loadMatchingPlan<Input>(input: Input, loaders: readonly PlanLoader<Input>[], format?: string): LoadedPlan | undefined {
+    const loader = loaders.find((candidate) => (format === undefined ? candidate.matches(input) : candidate.format === format));
+    return loader === undefined ? undefined : {format: loader.format, tree: loader.load(input)};
 }
 
 function stripSurroundingText(text: string): string {
@@ -84,55 +73,48 @@ function stripSurroundingText(text: string): string {
     return planStart >= 0 && planEnd >= planStart ? text.substring(planStart, planEnd + 1) : text;
 }
 
-function loadPlanFromTextAs(text: string, format: string): LoadedPlan {
-    const jsonLoader = jsonPlanLoaders.find((loader) => loader.format === format);
-    if (jsonLoader !== undefined) {
-        let json: Json;
-        try {
-            json = parseJson(text);
-        } catch (jsonError) {
-            throw new PlanSyntaxError("json", format, jsonError);
-        }
-        return loadWithPlanLoader(json, jsonLoader);
-    }
-
-    const xmlLoader = xmlPlanLoaders.find((loader) => loader.format === format);
-    if (xmlLoader !== undefined) {
-        let xml: ParsedXML;
-        try {
-            xml = parseXml(text);
-        } catch (xmlError) {
-            throw new PlanSyntaxError("xml", format, undefined, xmlError);
-        }
-        return loadWithPlanLoader(xml, xmlLoader);
-    }
-
-    const availableFormats = [...jsonPlanLoaders, ...xmlPlanLoaders].map((loader) => loader.format);
-    throw new UnknownPlanFormatError(format, availableFormats);
-}
-
 export function loadPlanFromText(text: string, options: LoadPlanOptions = {}): LoadedPlan {
     const planText = stripSurroundingText(text);
-    if (options.format !== undefined) {
-        return loadPlanFromTextAs(planText, options.format);
+    const format = options.format;
+    const acceptsJson = format === undefined || jsonPlanLoaders.some((loader) => loader.format === format);
+    const acceptsXml = format === undefined || xmlPlanLoaders.some((loader) => loader.format === format);
+    if (!acceptsJson && !acceptsXml) {
+        const availableFormats = [...jsonPlanLoaders, ...xmlPlanLoaders].map((loader) => loader.format);
+        throw new UnknownPlanFormatError(format, availableFormats);
     }
 
     let json: Json | undefined;
     let jsonError: unknown;
-    try {
-        json = parseJson(planText);
-    } catch (error) {
-        jsonError = error;
+    if (acceptsJson) {
+        try {
+            json = JSON.parse(planText) as Json;
+        } catch (error) {
+            jsonError = error;
+        }
     }
     if (json !== undefined) {
-        return loadMatchingPlan(json, jsonPlanLoaders);
+        const plan = loadMatchingPlan(json, jsonPlanLoaders, format);
+        if (plan !== undefined) return plan;
     }
 
-    let xml: ParsedXML;
-    try {
-        xml = parseXml(planText);
-    } catch (xmlError) {
-        throw new PlanSyntaxError("json-or-xml", undefined, jsonError, xmlError);
+    let xml: ParsedXML | undefined;
+    let xmlError: unknown;
+    if (acceptsXml) {
+        try {
+            xml = parseXml(planText);
+        } catch (error) {
+            xmlError = error;
+        }
     }
-    return loadMatchingPlan(xml, xmlPlanLoaders);
+    if (xml !== undefined) {
+        const plan = loadMatchingPlan(xml, xmlPlanLoaders, format);
+        if (plan !== undefined) return plan;
+    }
+
+    if (format !== undefined) {
+        throw acceptsJson
+            ? new PlanSyntaxError("json", format, jsonError)
+            : new PlanSyntaxError("xml", format, undefined, xmlError);
+    }
+    throw new PlanSyntaxError("json-or-xml", undefined, jsonError, xmlError);
 }
