@@ -225,5 +225,9 @@ export function convertDecoratedJsonNode(
     // Recursive array conversion naturally produces sibling nodes. At the API
     // boundary, wrap them so every caller receives exactly one tree root.
     const converted = convertDecoratedJsonValue(rawNode, rootName, state, config);
-    return Array.isArray(converted) ? {name: rootName, children: converted} : converted;
+    const root = Array.isArray(converted) ? {name: rootName, children: converted} : converted;
+    if (!root.name) {
+        root.name = rootName;
+    }
+    return root;
 }
