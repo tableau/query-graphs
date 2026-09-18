@@ -26,29 +26,36 @@ function QueryNode({data, id}: NodeProps<QueryGraphNode>) {
     const measureTargetDimensions = useCallback((targetExpanded: boolean) => {
         const graphNode = graphNodeRef.current;
         const flowNode = graphNode?.closest<HTMLElement>(".react-flow__node");
-        if (graphNode === null || flowNode === null || flowNode === undefined) {
-            return {node: {width: 50, height: 50}, body: {width: 0, height: 0}};
-        }
+        const flowContainer = flowNode?.parentElement;
+        if (
+            graphNode === null ||
+            flowNode === null ||
+            flowNode === undefined ||
+            flowContainer === null ||
+            flowContainer === undefined
+        )
+            return undefined;
 
         const clone = flowNode.cloneNode(true) as HTMLElement;
         const clonedGraphNode = clone.querySelector<HTMLElement>(".qg-graph-node");
         const clonedBodyWrapper = clone.querySelector<HTMLElement>(".qg-graph-node-body-wrapper");
+        if (clonedGraphNode === null || clonedBodyWrapper === null) return undefined;
         clone.style.position = "fixed";
         clone.style.transform = "none";
         clone.style.visibility = "hidden";
         clone.style.pointerEvents = "none";
-        clonedGraphNode?.classList.toggle("qg-expanded", targetExpanded);
-        clonedBodyWrapper?.style.removeProperty("width");
-        clonedBodyWrapper?.style.removeProperty("height");
-        clonedBodyWrapper?.style.removeProperty("max-width");
-        clonedBodyWrapper?.style.removeProperty("max-height");
-        flowNode.parentElement?.append(clone);
+        clonedGraphNode.classList.toggle("qg-expanded", targetExpanded);
+        clonedBodyWrapper.style.removeProperty("width");
+        clonedBodyWrapper.style.removeProperty("height");
+        clonedBodyWrapper.style.removeProperty("max-width");
+        clonedBodyWrapper.style.removeProperty("max-height");
+        flowContainer.append(clone);
         const measurements = {
             node: {width: clone.offsetWidth, height: clone.offsetHeight},
-            body: {width: clonedBodyWrapper?.offsetWidth ?? 0, height: clonedBodyWrapper?.offsetHeight ?? 0},
+            body: {width: clonedBodyWrapper.offsetWidth, height: clonedBodyWrapper.offsetHeight},
         };
         clone.remove();
-        return measurements;
+        return measurements.node.width === 0 || measurements.node.height === 0 ? undefined : measurements;
     }, []);
 
     const onClick = useCallback(
@@ -59,7 +66,7 @@ function QueryNode({data, id}: NodeProps<QueryGraphNode>) {
                 if (hasProperties) {
                     const target = measureTargetDimensions(!expanded);
                     const bodyWrapper = bodyWrapperRef.current;
-                    if (bodyWrapper === null) {
+                    if (bodyWrapper === null || target === undefined) {
                         toggleNode(id);
                     } else {
                         animationController.animateNodeResize(
