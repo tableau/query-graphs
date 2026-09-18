@@ -78,7 +78,7 @@ function getOperatorRendering(operatorType: string, properties: Map<string, stri
     }
 }
 
-// Convert Postgres JSON to a D3 tree
+// Convert Postgres JSON to a TreeDescription
 function convertPostgresNode(rawNode: Json, parentKey: string, conversionState: ConversionState): TreeNode | TreeNode[] {
     if (tryToString(rawNode) !== undefined) {
         return {
