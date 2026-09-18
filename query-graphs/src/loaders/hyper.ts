@@ -283,7 +283,7 @@ function isHyperPlanRoot(json: Json): json is JsonObject {
 }
 
 function convertOptimizerSteps(node: Json): TreeDescription | undefined {
-    if (typeof node !== "object" || Array.isArray(node) || node === null) return undefined;
+    if (!isJsonObject(node)) return undefined;
     if (!hasOwnProperty(node, "optimizersteps")) return undefined;
     const steps = node["optimizersteps"];
     if (!Array.isArray(steps)) return undefined;
