@@ -1,60 +1,68 @@
 {
-  "operator": "execution-target",
-  "operator-id": 1,
-  "estimated-rows": 4000,
-  "produces-rows": false,
-  "output": [],
-  "output-names": [],
-  "inputs": [{
-    "operator": "insert",
-    "operator-id": 2,
+  "tree": {
+    "operator": "result-sink",
+    "operator-id": 1,
     "estimated-rows": 4000,
-    "volatility": "volatile",
-    "relation-id": 1,
-    "schema": {"type":"sessionschema"},
-    "output": [["cast", ["Integer", "nullable"]], ["cast2", ["Integer", "nullable"]], ["cast3", ["Integer", "nullable"]]],
-    "values": [{"expression": "cast", "value": {"expression": "iu-ref", "iu": ["map", ["Integer"]]}, "type": ["Integer", "nullable"], "error-handling": "trap"}, {"expression": "cast", "value": {"expression": "iu-ref", "iu": ["map2", ["Integer"]]}, "type": ["Integer", "nullable"], "error-handling": "trap"}, {"expression": "cast", "value": {"expression": "iu-ref", "iu": ["map3", ["Integer"]]}, "type": ["Integer", "nullable"], "error-handling": "trap"}],
+    "produces-rows": false,
+    "output": [],
+    "output-names": [],
     "inputs": [{
-      "operator": "map",
-      "operator-id": 3,
-      "sqlpos": [[170, 174]],
+      "operator": "insert",
+      "operator-id": 2,
+      "type": "native",
       "estimated-rows": 4000,
+      "volatility": "volatile",
+      "relation-id": 1,
+      "schema": {"type":"sessionschema"},
+      "output": [["cast", ["Integer", "nullable"]], ["cast2", ["Integer", "nullable"]], ["cast3", ["Integer", "nullable"]]],
+      "values": [{"expression": "cast", "value": {"expression": "iu-ref", "iu": ["map", ["Integer"]]}, "type": ["Integer", "nullable"], "error-handling": "trap"}, {"expression": "cast", "value": {"expression": "iu-ref", "iu": ["map2", ["Integer"]]}, "type": ["Integer", "nullable"], "error-handling": "trap"}, {"expression": "cast", "value": {"expression": "iu-ref", "iu": ["map3", ["Integer"]]}, "type": ["Integer", "nullable"], "error-handling": "trap"}],
       "inputs": [{
-        "operator": "join",
-        "operator-id": 4,
+        "operator": "map",
+        "operator-id": 3,
+        "sqlpos": [[170, 174]],
         "estimated-rows": 4000,
-        "method": "bnl",
         "inputs": [{
-          "operator": "table-construction",
-          "operator-id": 5,
-          "sqlpos": [[197, 206]],
-          "estimated-rows": 2,
-          "output": [["table-construction", ["Integer"]]],
-          "values": [[{"expression": "const", "value": {"type": ["Integer"], "value": 1}}], [{"expression": "const", "value": {"type": ["Integer"], "value": 2}}]],
-          "inputs": []
-        }, {
-          "operator": "table-scan",
-          "operator-id": 6,
-          "sqlpos": [[192, 194]],
-          "estimated-rows": 2000,
-          "volatility": "stable",
-          "relation-id": 0,
-          "schema": {"type":"sessionschema"},
-          "scan-type": "native",
-          "attribute-count": 3,
-          "attributes": [{"col-id": 0, "name": "a1", "type": ["Integer"], "iu": ["scan_a1", ["Integer"]]},{"col-id": 1, "name": "b1", "type": ["Integer"], "iu": ["scan_b1", ["Integer"]]},{"col-id": 2, "name": "c1", "type": ["Integer"], "iu": ["scan_c1", ["Integer"]]}],
-          "debug-name": {"classification": "nonsensitive", "value": "t1"},
-          "selectivity": 1
+          "operator": "join",
+          "operator-id": 4,
+          "type": "inner",
+          "estimated-rows": 4000,
+          "method": "bnl",
+          "inputs": [{
+            "operator": "table-construction",
+            "operator-id": 5,
+            "sqlpos": [[197, 206]],
+            "estimated-rows": 2,
+            "output": [["table-construction", ["Integer"]]],
+            "values": [[{"expression": "const", "value": {"type": ["Integer"], "value": 1}}], [{"expression": "const", "value": {"type": ["Integer"], "value": 2}}]],
+            "inputs": []
+          }, {
+            "operator": "scan",
+            "operator-id": 6,
+            "type": "native",
+            "sqlpos": [[192, 194]],
+            "estimated-rows": 2000,
+            "volatility": "stable",
+            "relation-id": 0,
+            "schema": {"type":"sessionschema"},
+            "attribute-count": 3,
+            "attributes": [{"col-id": 0, "name": "a1", "type": ["Integer"], "iu": ["scan_a1", ["Integer"]]},{"col-id": 1, "name": "b1", "type": ["Integer"], "iu": ["scan_b1", ["Integer"]]},{"col-id": 2, "name": "c1", "type": ["Integer"], "iu": ["scan_c1", ["Integer"]]}],
+            "debug-name": {"classification": "nonsensitive", "value": "t1"},
+            "selectivity": 1
+          }],
+          "condition": {"expression": "const", "value": {"type": ["Bool"], "value": true}},
+          "predicates": [],
+          "residual": {"expression": "const", "value": {"type": ["Bool"], "value": true}}
         }],
-        "condition": {"expression": "const", "value": {"type": ["Bool"], "value": true}},
-        "predicates": [],
-        "residual": {"expression": "const", "value": {"type": ["Bool"], "value": true}}
+        "values": [{"iu": ["map", ["Integer"]], "value": {"expression": "mul", "left": {"expression": "iu-ref", "iu": "scan_a1"}, "right": {"expression": "iu-ref", "iu": "table-construction"}}}, {"iu": ["map2", ["Integer"]], "value": {"expression": "mul", "left": {"expression": "iu-ref", "iu": "scan_b1"}, "right": {"expression": "iu-ref", "iu": "table-construction"}}}, {"iu": ["map3", ["Integer"]], "value": {"expression": "mul", "left": {"expression": "iu-ref", "iu": "scan_c1"}, "right": {"expression": "iu-ref", "iu": "table-construction"}}}]
       }],
-      "values": [{"iu": ["map", ["Integer"]], "value": {"expression": "mul", "left": {"expression": "iu-ref", "iu": "scan_a1"}, "right": {"expression": "iu-ref", "iu": "table-construction"}}}, {"iu": ["map2", ["Integer"]], "value": {"expression": "mul", "left": {"expression": "iu-ref", "iu": "scan_b1"}, "right": {"expression": "iu-ref", "iu": "table-construction"}}}, {"iu": ["map3", ["Integer"]], "value": {"expression": "mul", "left": {"expression": "iu-ref", "iu": "scan_c1"}, "right": {"expression": "iu-ref", "iu": "table-construction"}}}]
-    }],
-    "tid": ["tid", ["Numeric", 18]],
-    "table-oid": ["tableOid", ["RegClass"]],
-    "tuple-flags": ["tupleFlags", ["BigInt"]],
-    "bulk-insert": false
-  }]
+      "tid": ["tid", ["Numeric", 18]],
+      "table-oid": ["tableOid", ["RegClass"]],
+      "tuple-flags": ["tupleFlags", ["BigInt"]],
+      "bulk-insert": false
+    }]
+  },
+  "pipelines": [
+    {"id": 0, "operators": [1, 2, 3, 4, 6], "dependencies": [1]},
+    {"id": 1, "operators": [4, 5], "dependencies": []}
+  ]
 }

@@ -2,22 +2,22 @@
     "total_bytes_written": 0,
     "total_bytes_read": 0,
     "system_peak_temp_dir_size": 0,
-    "system_peak_buffer_memory": 138186752,
+    "system_peak_buffer_memory": 149286368,
     "rows_returned": 0,
     "wal_replay_entry_count": 0,
     "result_set_size": 0,
-    "query_name": "EXPLAIN (ANALYZE, FORMAT JSON) -- This query is derived from TPC-H query 1\n-- THE TPC SOFTWARE IS AVAILABLE WITHOUT CHARGE FROM TPC.\n\nselect\n        l_returnflag,\n        l_linestatus,\n        sum(l_quantity) as sum_qty,\n        sum(l_extendedprice) as sum_base_price,\n        sum(l_extendedprice * (1 - l_discount)) as sum_disc_price,\n        sum(l_extendedprice * (1 - l_discount) * (1 + l_tax)) as sum_charge,\n        avg(l_quantity) as avg_qty,\n        avg(l_extendedprice) as avg_price,\n        avg(l_discount) as avg_disc,\n        count(*) as count_order\nfrom\n        lineitem\nwhere\n        l_shipdate <= date '1998-12-01' - interval '90' day\ngroup by\n        l_returnflag,\n        l_linestatus\norder by\n        l_returnflag,\n        l_linestatus",
+    "query_name": "EXPLAIN (ANALYZE, FORMAT JSON) -- MODES: analyze, external-analyze\n-- This query is derived from TPC-H query 1\n-- THE TPC SOFTWARE IS AVAILABLE WITHOUT CHARGE FROM TPC.\n\nselect\n        l_returnflag,\n        l_linestatus,\n        sum(l_quantity) as sum_qty,\n        sum(l_extendedprice) as sum_base_price,\n        sum(l_extendedprice * (1 - l_discount)) as sum_disc_price,\n        sum(l_extendedprice * (1 - l_discount) * (1 + l_tax)) as sum_charge,\n        avg(l_quantity) as avg_qty,\n        avg(l_extendedprice) as avg_price,\n        avg(l_discount) as avg_disc,\n        count(*) as count_order\nfrom\n        lineitem\nwhere\n        l_shipdate <= date '1998-12-01' - interval '90' day\ngroup by\n        l_returnflag,\n        l_linestatus\norder by\n        l_returnflag,\n        l_linestatus",
     "waiting_to_attach_latency": 0.0,
     "attach_load_storage_latency": 0.0,
     "blocked_thread_time": 0.0,
-    "cpu_time": 0.00017361600000000003,
+    "cpu_time": 0.000294434,
     "extra_info": {},
     "total_memory_allocated": 524288,
     "cumulative_cardinality": 2292,
     "checkpoint_latency": 0.0,
     "cumulative_rows_scanned": 572,
     "write_to_wal_latency": 0.0,
-    "latency": 0.00211002,
+    "latency": 0.003576673,
     "attach_replay_wal_latency": 0.0,
     "commit_local_storage_latency": 0.0,
     "children": [
@@ -25,9 +25,9 @@
             "system_peak_temp_dir_size": 0,
             "system_peak_buffer_memory": 0,
             "result_set_size": 0,
-            "operator_timing": 1.54e-7,
+            "operator_timing": 2.79e-7,
             "operator_type": "EXPLAIN_ANALYZE",
-            "cpu_time": 0.00017361600000000003,
+            "cpu_time": 0.000294434,
             "extra_info": {},
             "cumulative_cardinality": 2292,
             "cumulative_rows_scanned": 572,
@@ -39,9 +39,9 @@
                     "system_peak_temp_dir_size": 0,
                     "system_peak_buffer_memory": 0,
                     "result_set_size": 512,
-                    "operator_timing": 0.000001052,
+                    "operator_timing": 0.000002138,
                     "operator_type": "PROJECTION",
-                    "cpu_time": 0.00017346200000000001,
+                    "cpu_time": 0.000294155,
                     "extra_info": {
                         "Projections": [
                             "__internal_decompress_string(#0)",
@@ -67,9 +67,9 @@
                             "system_peak_temp_dir_size": 0,
                             "system_peak_buffer_memory": 0,
                             "result_set_size": 392,
-                            "operator_timing": 0.00005944,
+                            "operator_timing": 0.00010571,
                             "operator_type": "ORDER_BY",
-                            "cpu_time": 0.00017241,
+                            "cpu_time": 0.000292017,
                             "extra_info": {
                                 "Order By": [
                                     "\"temp\".main.lineitem.l_returnflag ASC",
@@ -86,9 +86,9 @@
                                     "system_peak_temp_dir_size": 0,
                                     "system_peak_buffer_memory": 0,
                                     "result_set_size": 392,
-                                    "operator_timing": 7.93e-7,
+                                    "operator_timing": 0.000001592,
                                     "operator_type": "PROJECTION",
-                                    "cpu_time": 0.00011297,
+                                    "cpu_time": 0.000186307,
                                     "extra_info": {
                                         "Projections": [
                                             "__internal_compress_string_utinyint(#0)",
@@ -114,9 +114,9 @@
                                             "system_peak_temp_dir_size": 0,
                                             "system_peak_buffer_memory": 0,
                                             "result_set_size": 512,
-                                            "operator_timing": 0.000002156,
+                                            "operator_timing": 0.000003461,
                                             "operator_type": "PROJECTION",
-                                            "cpu_time": 0.000112177,
+                                            "cpu_time": 0.000184715,
                                             "extra_info": {
                                                 "Projections": [
                                                     "__internal_decompress_string(#0)",
@@ -142,9 +142,9 @@
                                                     "system_peak_temp_dir_size": 0,
                                                     "system_peak_buffer_memory": 0,
                                                     "result_set_size": 392,
-                                                    "operator_timing": 0.000023076,
+                                                    "operator_timing": 0.000035461,
                                                     "operator_type": "PERFECT_HASH_GROUP_BY",
-                                                    "cpu_time": 0.000110021,
+                                                    "cpu_time": 0.000181254,
                                                     "extra_info": {
                                                         "Groups": [
                                                             "#0",
@@ -171,9 +171,9 @@
                                                             "system_peak_temp_dir_size": 0,
                                                             "system_peak_buffer_memory": 0,
                                                             "result_set_size": 32944,
-                                                            "operator_timing": 0.000008818,
+                                                            "operator_timing": 0.000021096,
                                                             "operator_type": "PROJECTION",
-                                                            "cpu_time": 0.000086945,
+                                                            "cpu_time": 0.000145793,
                                                             "extra_info": {
                                                                 "Projections": [
                                                                     "l_returnflag",
@@ -198,9 +198,9 @@
                                                                     "system_peak_temp_dir_size": 0,
                                                                     "system_peak_buffer_memory": 0,
                                                                     "result_set_size": 23856,
-                                                                    "operator_timing": 0.000003817,
+                                                                    "operator_timing": 0.000006784,
                                                                     "operator_type": "PROJECTION",
-                                                                    "cpu_time": 0.000078127,
+                                                                    "cpu_time": 0.000124697,
                                                                     "extra_info": {
                                                                         "Projections": [
                                                                             "__internal_compress_string_utinyint(#0)",
@@ -223,9 +223,9 @@
                                                                             "system_peak_temp_dir_size": 0,
                                                                             "system_peak_buffer_memory": 0,
                                                                             "result_set_size": 40896,
-                                                                            "operator_timing": 0.000015885,
+                                                                            "operator_timing": 0.000028087,
                                                                             "operator_type": "PROJECTION",
-                                                                            "cpu_time": 0.00007431000000000001,
+                                                                            "cpu_time": 0.00011791300000000001,
                                                                             "extra_info": {
                                                                                 "Projections": [
                                                                                     "l_returnflag",
@@ -248,9 +248,9 @@
                                                                                     "system_peak_temp_dir_size": 0,
                                                                                     "system_peak_buffer_memory": 0,
                                                                                     "result_set_size": 36352,
-                                                                                    "operator_timing": 0.000058425000000000004,
+                                                                                    "operator_timing": 0.000089826,
                                                                                     "operator_type": "TABLE_SCAN",
-                                                                                    "cpu_time": 0.000058425000000000004,
+                                                                                    "cpu_time": 0.000089826,
                                                                                     "extra_info": {
                                                                                         "Table": "\"temp\".main.lineitem",
                                                                                         "Type": "Sequential Scan",

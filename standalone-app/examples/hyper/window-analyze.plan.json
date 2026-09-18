@@ -1,38 +1,45 @@
 {
-  "operator": "execution-target",
-  "operator-id": 1,
-  "estimated-rows": 572,
-  "produces-rows": true,
-  "output": [{"expression": "iu-ref", "iu": ["scan_orderkey", ["Integer"]]}, {"expression": "iu-ref", "iu": ["sum", ["BigNumeric", 38, 2, "nullable"]]}, {"expression": "iu-ref", "iu": ["avg", ["Numeric", 16, 6, "nullable"]]}],
-  "output-names": ["l_orderkey", "sum", "avg"],
-  "inputs": [{
-    "operator": "window",
-    "operator-id": 2,
+  "tree": {
+    "operator": "result-sink",
+    "operator-id": 1,
     "estimated-rows": 572,
+    "produces-rows": true,
+    "output": [{"expression": "iu-ref", "iu": ["scan_orderkey", ["Integer"]]}, {"expression": "iu-ref", "iu": ["sum", ["BigNumeric", 38, 2, "nullable"]]}, {"expression": "iu-ref", "iu": ["avg", ["Numeric", 16, 6, "nullable"]]}],
+    "output-names": ["l_orderkey", "sum", "avg"],
     "inputs": [{
       "operator": "window",
-      "operator-id": 3,
+      "operator-id": 2,
       "estimated-rows": 572,
       "inputs": [{
-        "operator": "table-scan",
-        "operator-id": 4,
-        "sqlpos": [[200, 208]],
+        "operator": "window",
+        "operator-id": 3,
         "estimated-rows": 572,
-        "volatility": "stable",
-        "relation-id": 7,
-        "schema": {"type":"sessionschema"},
-        "scan-type": "native",
-        "attribute-count": 16,
-        "attributes": [{"col-id": 0, "name": "l_orderkey", "type": ["Integer"], "iu": ["scan_orderkey", ["Integer"]]},{"col-id": 4, "name": "l_quantity", "type": ["Numeric", 12, 2], "iu": ["scan_quantity", ["Numeric", 12, 2]]},{"col-id": 5, "name": "l_extendedprice", "type": ["Numeric", 12, 2], "iu": ["scan_extended", ["Numeric", 12, 2]]},{"col-id": 10, "name": "l_shipdate", "type": ["Date"], "iu": ["scan_shipdate", ["Date"]]}],
-        "debug-name": {"classification": "nonsensitive", "value": "lineitem"},
-        "selectivity": 1,
-        "statistics": {"pipeline": 2, "column-count": 4, "cpu-cycles": 33959, "output-rows": 572, "processed-rows": 572, "running": false}
+        "inputs": [{
+          "operator": "scan",
+          "operator-id": 4,
+          "type": "native",
+          "sqlpos": [[200, 208]],
+          "estimated-rows": 572,
+          "volatility": "stable",
+          "relation-id": 7,
+          "schema": {"type":"sessionschema"},
+          "attribute-count": 16,
+          "attributes": [{"col-id": 0, "name": "l_orderkey", "type": ["Integer"], "iu": ["scan_orderkey", ["Integer"]]},{"col-id": 4, "name": "l_quantity", "type": ["Numeric", 12, 2], "iu": ["scan_quantity", ["Numeric", 12, 2]]},{"col-id": 5, "name": "l_extendedprice", "type": ["Numeric", 12, 2], "iu": ["scan_extended", ["Numeric", 12, 2]]},{"col-id": 10, "name": "l_shipdate", "type": ["Date"], "iu": ["scan_shipdate", ["Date"]]}],
+          "debug-name": {"classification": "nonsensitive", "value": "lineitem"},
+          "selectivity": 1,
+          "statistics": {"column-count": 4, "output-rows": 572, "processed-rows": 572}
+        }],
+        "window-infos": [{"operation": "aggregate", "aggregation": {"empty-groups": true, "agg-expressions": [{"value": {"expression": "iu-ref", "iu": "scan_quantity"}}], "aggregates": [{"source": 0, "operation": {"aggregate": "sum"}, "iu": ["sum", ["BigNumeric", 38, 2, "nullable"]]}]}, "partition-by": [], "frame-order-by": [{"value": {"expression": "iu-ref", "iu": "scan_orderkey"}, "descending": false, "null-first": false}], "rowsmode": false, "start-mode": "unbounded", "end-mode": "current_row", "exclude": "no_others"}],
+        "statistics": {"column-count": 4, "memory-bytes": 13816, "output-rows": 572}
       }],
-      "window-infos": [{"operation": "aggregate", "aggregation": {"empty-groups": true, "agg-expressions": [{"value": {"expression": "iu-ref", "iu": "scan_quantity"}}], "aggregates": [{"source": 0, "operation": {"aggregate": "sum"}, "iu": ["sum", ["BigNumeric", 38, 2, "nullable"]]}]}, "partition-by": [], "frame-order-by": [{"value": {"expression": "iu-ref", "iu": "scan_orderkey"}, "descending": false, "null-first": false}], "rowsmode": false, "start-mode": "unbounded", "end-mode": "current_row", "exclude": "no_others"}],
-      "statistics": {"pipeline": 1, "column-count": 4, "cpu-cycles": 449209, "memory-bytes": 13816, "output-rows": 572, "running": false}
+      "window-infos": [{"operation": "aggregate", "aggregation": {"empty-groups": true, "agg-expressions": [{"value": {"expression": "iu-ref", "iu": "scan_extended"}}], "aggregates": [{"source": 0, "operation": {"aggregate": "avg"}, "iu": ["avg", ["Numeric", 16, 6, "nullable"]]}]}, "partition-by": [], "frame-order-by": [{"value": {"expression": "iu-ref", "iu": "scan_shipdate"}, "descending": false, "null-first": false}], "rowsmode": true, "start-mode": "value", "start-exp": {"expression": "const", "value": {"type": ["Integer"], "value": -1}}, "end-mode": "value", "end-exp": {"expression": "const", "value": {"type": ["Integer"], "value": 3}}, "exclude": "no_others"}],
+      "statistics": {"column-count": 3, "memory-bytes": 18936, "output-rows": 572}
     }],
-    "window-infos": [{"operation": "aggregate", "aggregation": {"empty-groups": true, "agg-expressions": [{"value": {"expression": "iu-ref", "iu": "scan_extended"}}], "aggregates": [{"source": 0, "operation": {"aggregate": "avg"}, "iu": ["avg", ["Numeric", 16, 6, "nullable"]]}]}, "partition-by": [], "frame-order-by": [{"value": {"expression": "iu-ref", "iu": "scan_shipdate"}, "descending": false, "null-first": false}], "rowsmode": true, "start-mode": "value", "start-exp": {"expression": "const", "value": {"type": ["Integer"], "value": -1}}, "end-mode": "value", "end-exp": {"expression": "const", "value": {"type": ["Integer"], "value": 3}}, "exclude": "no_others"}],
-    "statistics": {"pipeline": 0, "column-count": 3, "cpu-cycles": 504782, "memory-bytes": 18936, "output-rows": 572, "running": false}
-  }],
-  "statistics": {"error": null, "pipeline": 0, "column-count": 0}
+    "statistics": {"error": null, "column-count": 0}
+  },
+  "pipelines": [
+    {"id": 0, "operators": [1, 2], "dependencies": [1], "statistics": {"cpu-cycles": 964426, "query-metrics": {"wall-clock":0.000328108}, "running": false}},
+    {"id": 1, "operators": [2, 3], "dependencies": [2], "statistics": {"cpu-cycles": 849204, "query-metrics": {"wall-clock":0.000341007}, "running": false}},
+    {"id": 2, "operators": [3, 4], "dependencies": [], "statistics": {"cpu-cycles": 102407, "query-metrics": {"wall-clock":9.0919e-05}, "running": false}}
+  ]
 }

@@ -1,4 +1,4 @@
--- MODES: pipelines
+-- MODES: analyze-sql
 -- UNION ALL: three independent arms feed one union-all target, so that target
 -- belongs to all three arm pipelines (multi-segment bars, and a gradient edge
 -- above it).

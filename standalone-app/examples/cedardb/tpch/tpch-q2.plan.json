@@ -55,7 +55,7 @@
          "cardinality":5,
          "operatorId":9,
          "attributes":[{"name":"p_partkey", "iu":"p_partkey", "column":0}, {"name":"p_name", "iu":"p_name", "column":1}, {"name":"p_mfgr", "iu":"p_mfgr", "column":2}, {"name":"p_brand", "iu":"p_brand", "column":3}, {"name":"p_type", "iu":"p_type", "column":4}, {"name":"p_size", "iu":"p_size", "column":5}, {"name":"p_container", "iu":"p_container", "column":6}, {"name":"p_retailprice", "iu":"p_retailprice", "column":7}, {"name":"p_comment", "iu":"p_comment", "column":8}],
-         "restrictions":[{"attribute":5, "mode":"=", "value":{"expression":"const", "value":{"type":{"type":"int32"}, "value":15}}, "estimatedSelectivity":0, "collate":""}, {"attribute":4, "mode":"expression", "value":{"expression":"like", "input":[{"expression":"cast", "input":{"expression":"iuref", "iu":"p_type"}, "type":{"type":"text"}, "semantic":"implicit"}, {"expression":"const", "value":{"type":{"type":"text"}, "value":"%BRASS"}}], "collate":""}, "estimatedSelectivity":0.1, "collate":""}],
+         "restrictions":[{"attribute":5, "mode":"=", "value":{"expression":"const", "value":{"type":{"type":"int32"}, "value":15}}, "estimatedSelectivity":0, "collate":""}, {"attribute":4, "mode":"expression", "value":{"expression":"like", "input":[{"expression":"cast", "input":{"expression":"iuref", "iu":"p_type"}, "type":{"type":"text"}}, {"expression":"const", "value":{"type":{"type":"text"}, "value":"%BRASS"}}], "collate":""}, "estimatedSelectivity":0.1, "collate":""}],
          "residuals":[],
          "tid":"tid16",
          "tableoid":"tableoid17",
