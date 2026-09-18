@@ -51,9 +51,9 @@ const structuralChildKeys = [
     "input",
     "left",
     "right",
-    "build0",
-    "build1",
-    "probe",
+    "build0", // input of ternary join
+    "build1", // input of ternary join
+    "probe", // input of ternary join
     "magic",
     "pipelineBreaker",
 ];
