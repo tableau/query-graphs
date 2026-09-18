@@ -25,8 +25,7 @@ export const jsonPlanLoader: PlanLoader<Json> = {
     matches: () => true,
     load(json) {
         const state = createDecoratedJsonTreeState();
-        const converted = convertDecoratedJsonNode(json, "root", state, jsonTreeConfig);
-        const root = Array.isArray(converted) ? {name: "root", children: converted} : converted;
+        const root = convertDecoratedJsonNode(json, "root", state, jsonTreeConfig);
         if (!root.name) {
             root.name = "root";
         }

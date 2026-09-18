@@ -83,7 +83,7 @@ function classifyNode(rawNode: JsonObject, config: DecoratedJsonTreeConfig): {no
     return {};
 }
 
-export function convertDecoratedJsonNode(
+function convertDecoratedJsonValue(
     rawNode: Json,
     parentKey: string,
     state: DecoratedJsonTreeState,
@@ -97,7 +97,7 @@ export function convertDecoratedJsonNode(
     if (Array.isArray(rawNode)) {
         return rawNode.map((value, index) => {
             const name = `${parentKey}.${index}`;
-            const converted = convertDecoratedJsonNode(value, name, state, config);
+            const converted = convertDecoratedJsonValue(value, name, state, config);
             const node = Array.isArray(converted) ? {children: converted} : converted;
             if (!node.name) {
                 node.name = name;
@@ -130,7 +130,7 @@ export function convertDecoratedJsonNode(
 
         const collapse = config.shouldCollapseChild?.(rawNode, key, rawNode[key]) ?? false;
         const target = collapse ? collapsedChildren : expandedChildren;
-        const converted = convertDecoratedJsonNode(rawNode[key], key, state, config);
+        const converted = convertDecoratedJsonValue(rawNode[key], key, state, config);
         appendChild(target, converted, key, config.fixedChildOrder.includes(key), collapse);
     }
 
@@ -185,4 +185,14 @@ export function convertDecoratedJsonNode(
     }
 
     return convertedNode;
+}
+
+export function convertDecoratedJsonNode(
+    rawNode: Json,
+    rootName: string,
+    state: DecoratedJsonTreeState,
+    config: DecoratedJsonTreeConfig,
+): TreeNode {
+    const converted = convertDecoratedJsonValue(rawNode, rootName, state, config);
+    return Array.isArray(converted) ? {name: rootName, children: converted} : converted;
 }

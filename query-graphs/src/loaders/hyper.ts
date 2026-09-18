@@ -16,7 +16,7 @@ import {convertDecoratedJsonNode, createDecoratedJsonTreeState} from "./decorate
 import type {RawPipeline} from "./pipeline-coloring";
 import {assignPipelineColors} from "./pipeline-coloring";
 import {buildIdMap, colorRelativeExecutionTime, resolveCrosslinks, setEdgeWidths} from "./tree-postprocessing";
-import {InvalidPlanError, type PlanLoader} from "./types";
+import type {PlanLoader} from "./types";
 
 const nodeRenderingConfig: Record<string, NodeRenderingConfig> = {
     "op:execution-target": {icon: "run-query-symbol"},
@@ -186,10 +186,6 @@ function convertHyperPlan(node: Json, pipelines?: Json): TreeDescription {
     }
 
     const root = convertDecoratedJsonNode(node, "result", state, hyperConfig);
-    if (Array.isArray(root)) {
-        throw new InvalidPlanError("hyper");
-    }
-
     colorRelativeExecutionTime(state.runtimes);
     setEdgeWidths(state.edgeWidths);
     const operatorsById = buildIdMap(root, "operator-id");

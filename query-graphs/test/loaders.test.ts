@@ -107,6 +107,7 @@ test("dispatcher can force a registered loader", () => {
     assert.equal(loadPlanFromText(hyper, {format: "json"}).tree.root.name, "root");
 
     assert.equal(loadPlanFromText('{"operator":{}}', {format: "hyper"}).format, "hyper");
+    assert.equal(loadPlanFromText('[{"operator":"scan"}]', {format: "hyper"}).tree.root.name, "result");
     assert.throws(
         () => loadPlanFromText("{}", {format: "xml"}),
         (error: unknown) => error instanceof InvalidPlanError && error.format === "xml",
