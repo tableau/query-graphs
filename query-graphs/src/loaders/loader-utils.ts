@@ -47,6 +47,10 @@ export function tryToString(d: unknown): string | undefined {
     return undefined;
 }
 
+export function tryToNonNullString(value: unknown): string | undefined {
+    return value === undefined || value === null ? undefined : tryToString(value);
+}
+
 // Convert to string. Returns the JSON serialization if not supported.
 export function forceToString(d: unknown): string {
     let str = tryToString(d);

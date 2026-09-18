@@ -13,16 +13,12 @@ import {allChildren, visitTreeNodes} from "../tree-description";
 import type {DecoratedJsonTreeConfig} from "./decorated-json-tree";
 import {convertDecoratedJsonNode, createDecoratedJsonTreeState} from "./decorated-json-tree";
 import type {Json, JsonObject} from "./loader-utils";
-import {forceToString, hasOwnProperty, hasSubObject, isJsonObject, tryToNumber, tryToString} from "./loader-utils";
+import {forceToString, hasOwnProperty, hasSubObject, isJsonObject, tryToNonNullString, tryToNumber} from "./loader-utils";
 import {buildIdMap, colorRelativeNumber, resolveCrosslinks, setRelativeEdgeWidths} from "./tree-postprocessing";
 import {InvalidPlanError, type PlanLoader} from "./types";
 
 function getExtraInfo(rawNode: JsonObject): JsonObject | undefined {
     return hasSubObject(rawNode, "extra_info") ? rawNode["extra_info"] : undefined;
-}
-
-function optionalString(value: Json | undefined): string | undefined {
-    return value === undefined || value === null ? undefined : tryToString(value);
 }
 
 function normalizeOperatorName(name: string): string {
@@ -37,9 +33,9 @@ function crosslinkId(namespace: "cte" | "delim", id: string): string {
 
 function getOperatorType(rawNode: JsonObject): string {
     return (
-        optionalString(rawNode["operator_type"]) ??
-        optionalString(rawNode["operator_name"]) ??
-        optionalString(rawNode["name"]) ??
+        tryToNonNullString(rawNode["operator_type"]) ??
+        tryToNonNullString(rawNode["operator_name"]) ??
+        tryToNonNullString(rawNode["name"]) ??
         "unknown"
     );
 }
@@ -47,7 +43,7 @@ function getOperatorType(rawNode: JsonObject): string {
 function getIcon(rawNode: JsonObject): IconName | undefined {
     const operatorType = getOperatorType(rawNode).toUpperCase();
     if (operatorType.includes("JOIN") || operatorType === "CROSS_PRODUCT") {
-        const joinType = optionalString(getExtraInfo(rawNode)?.["Join Type"])?.toUpperCase();
+        const joinType = tryToNonNullString(getExtraInfo(rawNode)?.["Join Type"])?.toUpperCase();
         if (joinType?.includes("LEFT")) return "left-join-symbol";
         if (joinType?.includes("RIGHT")) return "right-join-symbol";
         if (joinType?.includes("FULL")) return "full-join-symbol";
@@ -75,13 +71,13 @@ function getIcon(rawNode: JsonObject): IconName | undefined {
 
 function getDisplayName(rawNode: JsonObject): string {
     const name = normalizeOperatorName(
-        optionalString(rawNode["operator_name"]) ??
-            optionalString(rawNode["name"]) ??
-            optionalString(rawNode["operator_type"]) ??
+        tryToNonNullString(rawNode["operator_name"]) ??
+            tryToNonNullString(rawNode["name"]) ??
+            tryToNonNullString(rawNode["operator_type"]) ??
             "unknown",
     );
     if (name.toUpperCase().includes("SCAN")) {
-        const table = optionalString(getExtraInfo(rawNode)?.["Table"]);
+        const table = tryToNonNullString(getExtraInfo(rawNode)?.["Table"]);
         if (table !== undefined) {
             return `${table} (${name})`;
         }
@@ -101,11 +97,11 @@ const duckDbConfig: DecoratedJsonTreeConfig = {
     getCrosslinkTarget(rawNode) {
         const operatorType = getOperatorType(rawNode).toUpperCase();
         if (operatorType.includes("CTE_SCAN")) {
-            const id = optionalString(getExtraInfo(rawNode)?.["CTE Index"]);
+            const id = tryToNonNullString(getExtraInfo(rawNode)?.["CTE Index"]);
             return id === undefined ? undefined : crosslinkId("cte", id);
         }
         if (operatorType === "DELIM_SCAN") {
-            const id = optionalString(getExtraInfo(rawNode)?.["Delim Index"]);
+            const id = tryToNonNullString(getExtraInfo(rawNode)?.["Delim Index"]);
             return id === undefined ? undefined : crosslinkId("delim", id);
         }
         return undefined;
