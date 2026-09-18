@@ -56,7 +56,8 @@ The library intentionally exposes low-level loaders (`json`, `xml`) as generic f
 It assigns a stable id to every node, creates a graph-local rendering store seeded from each node's `expandedByDefault` flag, and retains the node dimensions measured by react-flow.
 
 `tree-layout.ts` positions the tree with [`d3-flextree`](https://github.com/Klortho/d3-flextree) on top of `d3-hierarchy`, then translates the result into react-flow nodes and edges.
-Layout is driven by the **measured** DOM size of each node, so it runs in two passes: react-flow measures new nodes after their first render, then the tree re-lays-out with the correct sizes. Those measurements are retained in the controlled node objects so react-flow does not re-initialize them on every layout.
+Layout is driven by the **measured** DOM size of each node, so it runs in two passes: react-flow measures new nodes after their first render, then the tree re-lays-out with the correct sizes.
+Those measurements are retained in the controlled node objects so react-flow does not re-initialize them on every layout.
 Edge thickness is scaled from `edgeWidth`, and `crosslinks` are added as extra edges.
 
 `QueryNode` (`src/ui/QueryNode.tsx`) draws a single node.

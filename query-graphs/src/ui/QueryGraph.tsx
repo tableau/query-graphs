@@ -38,7 +38,8 @@ const edgeTypes = {
 
 function QueryGraphInternal({treeDescription, children, nodeIdMapping}: QueryGraphInternalProps) {
     // Keep React Flow's measurements in the controlled node objects. Dropping them when
-    // recomputing the layout makes React Flow repeatedly hide and re-initialize the nodes.
+    // recomputing the layout would cause React Flow to re-initialize the nodes, leading to visible
+    // flickering of the edge labels.
     const nodeDimensions = useGraphRenderingStore((s) => s.nodeDimensions);
     const updateNodeDimensions = useGraphRenderingStore((s) => s.updateNodeDimensions);
     const onNodesChange = useCallback(
@@ -52,7 +53,7 @@ function QueryGraphInternal({treeDescription, children, nodeIdMapping}: QueryGra
         [updateNodeDimensions],
     );
 
-    // Layout the tree using the dimensions measured by React Flow itself.
+    // Layout the tree using the dimensions measured by React Flow
     const expandedSubtrees = useGraphRenderingStore((s) => s.expandedSubtrees);
     const layout = useMemo(
         () => layoutTree(treeDescription, nodeIdMapping, nodeDimensions, expandedSubtrees),
