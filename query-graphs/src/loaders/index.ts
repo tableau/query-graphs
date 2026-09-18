@@ -5,6 +5,7 @@ import type {Json} from "./loader-utils";
 import {postgresPlanLoader} from "./postgres";
 import {tableauPlanLoader} from "./tableau";
 import {InvalidPlanError, type PlanLoader, UnknownPlanFormatError} from "./types";
+import {umbraPlanLoader} from "./umbra";
 import {parseXml, type ParsedXML, xmlPlanLoader} from "./xml";
 
 export interface LoadedPlan {
@@ -18,8 +19,8 @@ export interface LoadPlanOptions {
 
 export {InvalidPlanError, type PlanLoader, UnknownPlanFormatError} from "./types";
 
-// Order matters: Postgres must precede the more permissive Hyper loader, and generic fallbacks must stay last.
-export const jsonPlanLoaders: readonly PlanLoader<Json>[] = [postgresPlanLoader, hyperPlanLoader, jsonPlanLoader];
+// Order matters: format-specific loaders must precede the more permissive Hyper loader, and generic fallbacks must stay last.
+export const jsonPlanLoaders: readonly PlanLoader<Json>[] = [postgresPlanLoader, umbraPlanLoader, hyperPlanLoader, jsonPlanLoader];
 export const xmlPlanLoaders: readonly PlanLoader<ParsedXML>[] = [tableauPlanLoader, xmlPlanLoader];
 
 function loadMatchingPlan<Input>(
