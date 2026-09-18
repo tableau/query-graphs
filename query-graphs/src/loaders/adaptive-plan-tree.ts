@@ -1,21 +1,32 @@
-import type {TreeNode} from "../tree-description";
+import type {IconName, TreeNode} from "../tree-description";
 import type {Json, JsonObject} from "./loader-utils";
 import {forceToString, formatMetric, hasOwnProperty, tryToString} from "./loader-utils";
-import type {ConversionState, NodeRenderingConfig} from "./tree-postprocessing";
+import type {UnresolvedCrosslink} from "./tree-postprocessing";
 
 export type PlanNodeType = "operator" | "expression";
 
+export interface NodeRenderingConfig {
+    displayNameKey?: string;
+    crosslinkSourceKey?: string;
+    icon?: IconName;
+}
+
+export interface AdaptiveConversionState {
+    crosslinks: UnresolvedCrosslink[];
+    edgeWidths: {node: TreeNode; width: number}[];
+    runtimes: {node: TreeNode; time: number}[];
+    metadata: Map<string, string>;
+}
+
+export function createAdaptiveConversionState(): AdaptiveConversionState {
+    return {crosslinks: [], edgeWidths: [], runtimes: [], metadata: new Map()};
+}
+
 export interface AdaptiveTreeConfig {
-    getRenderingConfig(
-        nodeType: PlanNodeType,
-        tag: string,
-        rawNode: JsonObject,
-        properties: Map<string, string>,
-    ): NodeRenderingConfig;
+    getRenderingConfig(nodeType: PlanNodeType, tag: string, rawNode: JsonObject): NodeRenderingConfig;
     alwaysPropertyKeys: readonly string[];
     fixedChildOrder: readonly string[];
     getDebugName?(rawNode: JsonObject): string | undefined;
-    shouldExpandChild?(rawNode: JsonObject, key: string): boolean | undefined;
     isErrored?(rawNode: JsonObject, metadata: Map<string, string>): boolean;
     getExecutionTime?(rawNode: JsonObject): number | undefined;
     getEstimatedCardinality?(rawNode: JsonObject): number | undefined;
@@ -33,11 +44,7 @@ function containsOperator(value: Json): boolean {
     return isTaggedObject(value, "operator");
 }
 
-function shouldExpandChild(rawNode: JsonObject, key: string, config: AdaptiveTreeConfig): boolean {
-    const configured = config.shouldExpandChild?.(rawNode, key);
-    if (configured !== undefined) {
-        return configured;
-    }
+function shouldExpandChild(rawNode: JsonObject, key: string): boolean {
     return hasOwnProperty(rawNode, "operator") && containsOperator(rawNode[key]);
 }
 
@@ -93,9 +100,8 @@ function classifyNode(rawNode: JsonObject): {nodeType?: PlanNodeType; nodeTag?: 
 export function convertAdaptiveJsonNode(
     rawNode: Json,
     parentKey: string,
-    state: ConversionState,
+    state: AdaptiveConversionState,
     config: AdaptiveTreeConfig,
-    metadata: Map<string, string>,
 ): TreeNode | TreeNode[] {
     const scalar = tryToString(rawNode);
     if (scalar !== undefined) {
@@ -105,7 +111,7 @@ export function convertAdaptiveJsonNode(
     if (Array.isArray(rawNode)) {
         return rawNode.map((value, index) => {
             const name = `${parentKey}.${index}`;
-            const converted = convertAdaptiveJsonNode(value, name, state, config, metadata);
+            const converted = convertAdaptiveJsonNode(value, name, state, config);
             const node = Array.isArray(converted) ? {children: converted} : converted;
             if (!node.name) {
                 node.name = name;
@@ -136,13 +142,13 @@ export function convertAdaptiveJsonNode(
             continue;
         }
 
-        const target = shouldExpandChild(rawNode, key, config) ? expandedChildren : collapsedChildren;
-        const converted = convertAdaptiveJsonNode(rawNode[key], key, state, config, metadata);
+        const target = shouldExpandChild(rawNode, key) ? expandedChildren : collapsedChildren;
+        const converted = convertAdaptiveJsonNode(rawNode[key], key, state, config);
         appendChild(target, converted, key, config.fixedChildOrder.includes(key));
     }
 
     const renderingConfig =
-        nodeType !== undefined && nodeTag !== undefined ? config.getRenderingConfig(nodeType, nodeTag, rawNode, properties) : {};
+        nodeType !== undefined && nodeTag !== undefined ? config.getRenderingConfig(nodeType, nodeTag, rawNode) : {};
     const displayName =
         config.getDebugName?.(rawNode) ??
         (renderingConfig.displayNameKey === undefined ? undefined : properties.get(renderingConfig.displayNameKey)) ??
@@ -158,7 +164,7 @@ export function convertAdaptiveJsonNode(
         expandedByDefault: nodeType !== "operator" && expandedChildren.length === 0,
     };
 
-    if (config.isErrored?.(rawNode, metadata)) {
+    if (config.isErrored?.(rawNode, state.metadata)) {
         convertedNode.iconColor = "red";
     }
 

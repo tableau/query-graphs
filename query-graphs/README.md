@@ -38,11 +38,13 @@ The Hyper and Postgres loaders share an **adaptive conversion heuristic**: a sca
 This keeps simple attributes compact in the tooltip while still exposing structure as the tree.
 `adaptive-plan-tree.ts` implements Hyper's configurable operator/expression conversion so related formats can reuse it.
 The format-specific loader supplies node rendering, child ordering, metric extraction, and crosslink configuration.
-`tree-postprocessing.ts` contains shared crosslink resolution, edge-width scaling, runtime coloring, and pipeline coloring.
+Its conversion:
 
 * It classifies a node as an operator or an expression from its `operator` / `expression` key, then looks up per-type rendering (icon, display name, crosslink source) in `nodeRenderingConfig`.
 * It enforces a meaningful child order (`input`/`left`/`right`/… before alphabetical) so a join's inputs read left-to-right.
 * It converts in two passes: first build the tree, then post-process to resolve crosslinks, compute edge widths, and color nodes by runtime.
+
+Shared post-processing helpers resolve crosslinks and scale edge widths. Hyper's pipeline visualization lives separately in `pipeline-coloring.ts`.
 
 Shared parsing/formatting helpers live in `loader-utils.ts` (`tryToString`, `forceToString`, `formatMetric`, `tryGetPropertyPath`, the `Json` type).
 

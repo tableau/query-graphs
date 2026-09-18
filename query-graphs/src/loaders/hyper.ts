@@ -11,18 +11,11 @@ Hyper-specific rendering, metrics, crosslinks, and plan envelopes.
 import type {Crosslink, TreeDescription, TreeNode} from "../tree-description";
 import type {Json, JsonObject} from "./loader-utils";
 import {forceToString, hasOwnProperty, tryGetPropertyPath, tryToString} from "./loader-utils";
-import type {AdaptiveTreeConfig} from "./adaptive-plan-tree";
-import {convertAdaptiveJsonNode} from "./adaptive-plan-tree";
-import type {NodeRenderingConfig, RawPipeline} from "./tree-postprocessing";
-import {
-    assignPipelineColors,
-    buildIdMap,
-    colorRelativeExecutionTime,
-    newConversionState,
-    parsePipelines,
-    resolveCrosslinks,
-    setEdgeWidths,
-} from "./tree-postprocessing";
+import type {AdaptiveTreeConfig, NodeRenderingConfig} from "./adaptive-plan-tree";
+import {convertAdaptiveJsonNode, createAdaptiveConversionState} from "./adaptive-plan-tree";
+import type {RawPipeline} from "./pipeline-coloring";
+import {assignPipelineColors} from "./pipeline-coloring";
+import {buildIdMap, colorRelativeExecutionTime, resolveCrosslinks, setEdgeWidths} from "./tree-postprocessing";
 import {InvalidPlanError, type PlanLoader} from "./types";
 
 const nodeRenderingConfig: Record<string, NodeRenderingConfig> = {
@@ -156,37 +149,45 @@ const hyperConfig: AdaptiveTreeConfig = {
 };
 
 function parseHyperPipelines(pipelinesJson: Json): RawPipeline[] {
-    return parsePipelines(pipelinesJson, (entry) => {
+    if (!Array.isArray(pipelinesJson)) {
+        return [];
+    }
+    const pipelines: RawPipeline[] = [];
+    for (const entry of pipelinesJson) {
+        if (typeof entry !== "object" || Array.isArray(entry) || entry === null) {
+            continue;
+        }
         const id = entry["id"];
         const operators = entry["operators"];
         if (typeof id !== "number" || !Array.isArray(operators)) {
-            return undefined;
+            continue;
         }
-        return {id, operatorIds: operators.filter((operatorId): operatorId is number => typeof operatorId === "number")};
-    });
+        const operatorIds = operators.filter((operatorId): operatorId is number => typeof operatorId === "number");
+        pipelines.push({id, operatorIds});
+    }
+    return pipelines;
 }
 
 function convertHyperPlan(node: Json, pipelines?: Json): TreeDescription {
-    const metadata = new Map<string, string>();
+    const state = createAdaptiveConversionState();
     const errorMessage = tryGetPropertyPath(node, ["statistics", "error", "message", "original"]);
     if (errorMessage) {
-        metadata.set("Error", forceToString(errorMessage));
+        state.metadata.set("Error", forceToString(errorMessage));
     }
 
-    const state = newConversionState();
-    const root = convertAdaptiveJsonNode(node, "result", state, hyperConfig, metadata);
+    const root = convertAdaptiveJsonNode(node, "result", state, hyperConfig);
     if (Array.isArray(root)) {
         throw new InvalidPlanError("hyper");
     }
 
     colorRelativeExecutionTime(state.runtimes);
     setEdgeWidths(state.edgeWidths);
-    const operatorsById = buildIdMap(root, ["operator-id"]);
+    const operatorsById = buildIdMap(root, "operator-id");
     const crosslinks = resolveCrosslinks(state.crosslinks, operatorsById);
     if (pipelines !== undefined) {
         assignPipelineColors(root, operatorsById, parseHyperPipelines(pipelines), crosslinks);
     }
-    return {root, crosslinks, metadata};
+    return {root, crosslinks, metadata: state.metadata};
 }
 
 function convertOptimizerSteps(node: Json): TreeDescription | undefined {

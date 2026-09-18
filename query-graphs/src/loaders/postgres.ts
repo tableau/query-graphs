@@ -12,13 +12,8 @@ import type {TreeNode, TreeDescription, IconName} from "../tree-description";
 import type {Json} from "./loader-utils";
 import {tryToString, formatMetric, hasOwnProperty, hasSubOject} from "./loader-utils";
 import {assert} from "../assert";
-import {resolveCrosslinks, setEdgeWidths} from "./tree-postprocessing";
+import {resolveCrosslinks, setEdgeWidths, type UnresolvedCrosslink} from "./tree-postprocessing";
 import {InvalidPlanError, type PlanLoader} from "./types";
-
-interface UnresolvedCrosslink {
-    source: TreeNode;
-    targetId: string;
-}
 
 // Temporary state which we hold during converting from JSON to internal graph representation
 interface ConversionState {
@@ -309,12 +304,11 @@ function loadPostgresPlan(json: Json): TreeDescription {
     }
     json = unwrapPostgresPlan(json);
     // Load the graph
-    const conversionState = {
+    const conversionState: ConversionState = {
         operatorsById: new Map<string, TreeNode>(),
         crosslinks: [],
         edgeWidths: [],
-        runtimes: [],
-    } as ConversionState;
+    };
     const root = convertPostgresNode(json, "result", conversionState);
     if (Array.isArray(root)) {
         throw new InvalidPlanError("postgres");
