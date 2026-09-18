@@ -48,6 +48,28 @@ test("Hyper applies rendering, ordering, metrics, errors, and crosslinks", () =>
     assert.equal(tree.metadata?.get("Error"), "query failed");
 });
 
+test("Hyper leaves edges between disjoint pipeline memberships uncolored", () => {
+    const tree = loadPlanFromText(
+        JSON.stringify({
+            tree: {
+                operator: "explicit-scan",
+                "operator-id": 1,
+                input: {operator: "share", "operator-id": 2},
+            },
+            pipelines: [
+                {id: 1, operators: [1]},
+                {id: 2, operators: [2]},
+            ],
+        }),
+        {format: "hyper"},
+    ).tree;
+    const producer = tree.root.children?.[0];
+
+    assert.equal(tree.root.barsBelow, undefined);
+    assert.equal(producer?.barsAbove, undefined);
+    assert.equal(producer?.edgeColors, undefined);
+});
+
 test("the Hyper loader remains permissive when explicitly selected", () => {
     assert.equal(loadPlanFromText('{"operator":{}}', {format: "hyper"}).format, "hyper");
     assert.equal(loadPlanFromText('[{"operator":"scan"}]', {format: "hyper"}).tree.root.name, "result");

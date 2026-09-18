@@ -10,22 +10,20 @@ Everything downstream (layout, rendering, interaction) is shared across formats.
 | Format | Loader (`query-graphs/src/loaders`) | Source shape | How it is obtained |
 | --- | --- | --- | --- |
 | Postgres | `postgres.ts` | JSON | `EXPLAIN (FORMAT JSON)`, ideally with `ANALYZE` |
+| Umbra / CedarDB | `umbra.ts` | JSON | `EXPLAIN (FORMAT JSON)`, ideally with `ANALYZE` |
 | Hyper | `hyper.ts` | JSON | Hyper's `EXPLAIN (FORMAT JSON)`, e.g. via HyperAPI |
 | Tableau logical query | `tableau.ts` | XML | Tableau Desktop / Online log files |
 | Generic JSON | `json.ts` | JSON | fallback — renders any JSON as a tree |
 | Generic XML | `xml.ts` | XML | fallback — renders any XML as a tree |
 
-The Postgres and Hyper loaders understand plan semantics: they choose icons, order and collapse children, label edges with cardinalities, and color nodes by runtime.
+The Postgres, Umbra/CedarDB, and Hyper loaders understand plan semantics: they choose icons, order and collapse children, label edges with cardinalities, and visualize execution details.
+Umbra and CedarDB emit the same operator-tree format, so one loader covers both.
 The generic JSON and XML loaders map the input structure literally and act as catch-all fallbacks.
 
 ## Loader Dispatch
 
 The app does not ask the user which format they pasted.
-Instead, `loadPlanFromText` (`query-graphs/src/loaders/index.ts`) parses JSON once and checks each semantic JSON loader in order:
-
-```ts
-const jsonPlanLoaders = [postgresPlanLoader, hyperPlanLoader, jsonPlanLoader];
-```
+Instead, `loadPlanFromText` (`query-graphs/src/loaders/index.ts`) parses JSON once and checks each loader.
 
 Each loader exposes separate `matches` and `load` operations, so format detection does not depend on converter exceptions.
 If a matching loader cannot convert the plan, dispatch records the failure and continues with later matching loaders.

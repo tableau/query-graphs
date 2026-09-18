@@ -35,21 +35,13 @@ function pipelineColor(index: number): string {
     return PIPELINE_PALETTE[index % PIPELINE_PALETTE.length];
 }
 
-// A raw pipeline entry, as parsed from the `pipelines` array of the plan.
-export interface RawPipeline {
+export interface ExecutionPipeline {
     id: number;
-    operatorIds: number[];
+    nodes: TreeNode[];
 }
 
 // Color the per-node bars, edges and icons for the merged execution pipelines in one pre-order DFS, coloring each pipeline on first appearance so colors track tree position, not pipeline ids.
-export function assignPipelineColors(
-    root: TreeNode,
-    operatorsById: Map<string, TreeNode>,
-    pipelines: RawPipeline[],
-    crosslinks: Crosslink[],
-): void {
-    // Resolve each pipeline to its tree nodes. `color` is filled lazily the first
-    // time the pipeline is seen during the walk (empty string = not yet seen).
+export function assignPipelineColors(root: TreeNode, pipelines: ExecutionPipeline[], crosslinks: Crosslink[]): void {
     interface ResolvedPipeline {
         id: number;
         nodes: TreeNode[];
@@ -57,10 +49,7 @@ export function assignPipelineColors(
     }
 
     const resolved: ResolvedPipeline[] = pipelines.map((pipeline) => ({
-        id: pipeline.id,
-        nodes: pipeline.operatorIds
-            .map((operatorId) => operatorsById.get(operatorId.toString()))
-            .filter((node) => node !== undefined),
+        ...pipeline,
         color: "",
     }));
 
@@ -122,15 +111,17 @@ export function assignPipelineColors(
                 const parentPipelineIds = new Set((nodePipelines.get(parent) ?? []).map((pipeline) => pipeline.id));
                 outgoing = nodeEntries.filter((pipeline) => parentPipelineIds.has(pipeline.id));
             }
-            node.barsAbove = ordered(outgoing).map((pipeline) => pipeline.color);
             if (outgoing.length > 0) {
+                node.barsAbove = ordered(outgoing).map((pipeline) => pipeline.color);
                 node.edgeColors = node.barsAbove;
             }
 
             // Incoming (below): pipelines shared with an operator child. A leaf has
             // no operator child, so it gets no bar below.
             const incoming = nodeEntries.filter((pipeline) => childOrder.has(pipeline.id));
-            node.barsBelow = ordered(incoming).map((pipeline) => pipeline.color);
+            if (incoming.length > 0) {
+                node.barsBelow = ordered(incoming).map((pipeline) => pipeline.color);
+            }
 
             // Tint the operator icon (and thereby the minimap) with the node's
             // right-most pipeline color, unless already colored (e.g. the red

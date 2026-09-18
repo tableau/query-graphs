@@ -13,7 +13,7 @@ import type {Json, JsonObject} from "./loader-utils";
 import {forceToString, hasOwnProperty, tryGetPropertyPath, tryToString} from "./loader-utils";
 import type {DecoratedJsonTreeConfig, NodeRenderingConfig} from "./decorated-json-tree";
 import {convertDecoratedJsonNode, createDecoratedJsonTreeState} from "./decorated-json-tree";
-import type {RawPipeline} from "./pipeline-coloring";
+import type {ExecutionPipeline} from "./pipeline-coloring";
 import {assignPipelineColors} from "./pipeline-coloring";
 import {buildIdMap, colorRelativeNumber, resolveCrosslinks, setRelativeEdgeWidths} from "./tree-postprocessing";
 import type {PlanLoader} from "./types";
@@ -166,18 +166,21 @@ const hyperConfig: DecoratedJsonTreeConfig = {
     },
 };
 
-function parsePipelines(pipelinesJson: Json): RawPipeline[] {
+function parsePipelines(pipelinesJson: Json, operatorsById: Map<string, TreeNode>): ExecutionPipeline[] {
     if (!Array.isArray(pipelinesJson)) {
         return [];
     }
-    const pipelines: RawPipeline[] = [];
+    const pipelines: ExecutionPipeline[] = [];
     for (const entry of pipelinesJson) {
         if (typeof entry !== "object" || Array.isArray(entry) || entry === null) continue;
         const id = entry["id"];
         const operators = entry["operators"];
         if (typeof id !== "number" || !Array.isArray(operators)) continue;
-        const operatorIds = operators.filter((o): o is number => typeof o === "number");
-        pipelines.push({id, operatorIds});
+        const nodes = operators
+            .filter((operatorId): operatorId is number => typeof operatorId === "number")
+            .map((operatorId) => operatorsById.get(operatorId.toString()))
+            .filter((node) => node !== undefined);
+        pipelines.push({id, nodes});
     }
     return pipelines;
 }
@@ -195,7 +198,7 @@ function convertHyperPlan(node: Json, pipelines?: Json): TreeDescription {
     const operatorsById = buildIdMap(root, "operator-id");
     const crosslinks = resolveCrosslinks(state.crosslinks, operatorsById);
     if (pipelines !== undefined) {
-        assignPipelineColors(root, operatorsById, parsePipelines(pipelines), crosslinks);
+        assignPipelineColors(root, parsePipelines(pipelines, operatorsById), crosslinks);
     }
     return {root, crosslinks, metadata: state.metadata};
 }
