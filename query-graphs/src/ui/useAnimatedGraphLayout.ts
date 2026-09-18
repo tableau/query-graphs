@@ -197,6 +197,8 @@ export function useAnimatedGraphLayout(
             animateNodeResize: (request, updateGraph) => {
                 const animation = measureNodeResize(request);
                 if (animation === undefined) {
+                    stopBodyAnimation(request.nodeId);
+                    animationRef.current = undefined;
                     updateGraph();
                     return;
                 }
@@ -309,7 +311,8 @@ export function useAnimatedGraphLayout(
         const interpolate = createLayoutInterpolator(start, target, anchors);
         const step = (now: number) => {
             const progress = graphAnimationProgress(startTime, now);
-            const next = refreshLayoutData(interpolate(progress), targetRef.current);
+            const interpolated = interpolate(progress);
+            const next = targetRef.current === target ? interpolated : refreshLayoutData(interpolated, targetRef.current);
             renderedRef.current = next;
             setRendered(next);
             if (progress < 1) {
