@@ -122,6 +122,19 @@
     user-select: none;
 }
 
+/* Grouped-property header (e.g. `table-metadata`): carries no value, so its name reads as a section label
+ * above the `- label: value` sub-rows. */
+.qg-prop-group-header .qg-prop-name {
+    color: hsl(0, 0%, 40%);
+}
+
+/* Highlighted property row (e.g. `cpu-cycles` on a hotspot); background is set inline from the node's flag
+ * color, so the tint matches the label. */
+.qg-prop-highlighted {
+    border-radius: .3em;
+    padding: 0 .2em;
+}
+
 .qg-prop-value {
     -webkit-user-select: text;
     -ms-user-select: text;

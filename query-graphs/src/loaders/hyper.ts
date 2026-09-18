@@ -23,7 +23,7 @@ We transform a Hyper JSON tree into a query-graphs tree using the following heur
 import type {TreeNode, TreeDescription, Crosslink, IconName} from "../tree-description";
 import {allChildren} from "../tree-description";
 import type {Json, JsonObject} from "./loader-utils";
-import {forceToString, tryToString, formatMetric, hasOwnProperty, tryGetPropertyPath} from "./loader-utils";
+import {forceToString, tryToString, formatMetric, formatBytes, hasOwnProperty, tryGetPropertyPath} from "./loader-utils";
 
 // A categorical color palette for execution pipelines (the Tableau 20 colors).
 // The ten saturated base hues come first, then their lighter companions, so
@@ -57,6 +57,66 @@ const PIPELINE_PALETTE = [
 
 function pipelineColor(index: number): string {
     return PIPELINE_PALETTE[index % PIPELINE_PALETTE.length];
+}
+
+// Highlight the edge label when estimated vs. actual rows differ by at least this factor.
+const CARDINALITY_MISMATCH_FACTOR = 10;
+
+// Runtime hotspot heatmap: flag a node whose cpu-cycles are >= this share of the plan total, tinting it
+// `hsl(HUE, SAT%, L%)` where L runs from BASE (lightest, at threshold) to PEAK (darkest, dominant node).
+const HOTSPOT_MIN_RATIO = 0.05;
+const HOTSPOT_HUE = 309;
+const HOTSPOT_SATURATION = 84;
+const HOTSPOT_LIGHTNESS_BASE = 95;
+const HOTSPOT_LIGHTNESS_PEAK = 72;
+
+// The FORMAT JSON rework renamed the runtime block `analyze` -> `statistics`; read the new name, then legacy.
+function getStatistic(rawNode: Json, key: string): Json | undefined {
+    return tryGetPropertyPath(rawNode, ["statistics", key]) ?? tryGetPropertyPath(rawNode, ["analyze", key]);
+}
+
+// First candidate that is actually a number. Unlike `??`, this skips a present-but-non-numeric value
+// (e.g. a string placeholder) instead of stopping there and masking a real number further down.
+function firstNumber(...candidates: (Json | undefined)[]): number | undefined {
+    for (const c of candidates) {
+        if (typeof c === "number") return c;
+    }
+    return undefined;
+}
+
+// Estimated cardinality: top-level `estimated-rows` (formerly `cardinality`); external plans carry it inside
+// the runtime block, so fall back via `getStatistic` (`statistics` then legacy `analyze`) before `cardinality`.
+function getEstimatedRows(rawNode: Json): number | undefined {
+    return firstNumber(
+        tryGetPropertyPath(rawNode, ["estimated-rows"]),
+        getStatistic(rawNode, "estimated-rows"),
+        tryGetPropertyPath(rawNode, ["cardinality"]),
+    );
+}
+
+// Measured output rows; old ANALYZE'd plans expose it as `analyze.tuple-count`.
+function getActualRows(rawNode: Json): number | undefined {
+    return firstNumber(getStatistic(rawNode, "output-rows"), tryGetPropertyPath(rawNode, ["analyze", "tuple-count"]));
+}
+
+// Reorder the property map to `front` keys first, then any keys not named in `front`/`tail` (in their existing
+// order), then `tail` keys last (in the given order). Missing keys are skipped.
+function reorderProperties(properties: Map<string, string>, front: string[], tail: string[] = []): void {
+    const reordered = new Map<string, string>();
+    const pinned = new Set([...front, ...tail]);
+    for (const key of front) {
+        const value = properties.get(key);
+        if (value !== undefined) reordered.set(key, value);
+    }
+    for (const [key, value] of properties) {
+        if (!pinned.has(key)) reordered.set(key, value);
+    }
+    for (const key of tail) {
+        const value = properties.get(key);
+        if (value !== undefined) reordered.set(key, value);
+    }
+    properties.clear();
+    for (const [key, value] of reordered) properties.set(key, value);
 }
 
 interface UnresolvedCrosslink {
@@ -232,13 +292,16 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
             }
         }
 
-        // Display these properties always as properties, even if they are more complex.
-        const propertyKeys = ["debug-name", "statistics", "sqlpos"];
-        for (const key of propertyKeys) {
-            if (!rawNode.hasOwnProperty(key)) {
-                continue;
-            }
-            properties.set(key, forceToString(rawNode[key]));
+        // Keys kept out of the generic dump. `debug-name` (a `{classification, value}` wrapper) is surfaced as a
+        // clean `table-or-alias` row; raw `statistics`/`analyze`/`sqlpos` are dropped in favour of the tidy metric
+        // rows below. `cardinality`/`table-metadata` are excluded too, since the curated code re-surfaces them
+        // (formatted `estimated-rows`, grouped `table-metadata`) — keeping them would duplicate the raw data.
+        const propertyKeys = ["debug-name", "statistics", "analyze", "sqlpos", "cardinality", "table-metadata"];
+        const debugNameValue = tryGetPropertyPath(rawNode, ["debug-name", "value"]);
+        if (typeof debugNameValue === "string") {
+            properties.set("table-or-alias", debugNameValue);
+        } else if (rawNode.hasOwnProperty("debug-name")) {
+            properties.set("table-or-alias", forceToString(rawNode["debug-name"]));
         }
 
         // Determine the order in which other keys are displayed.
@@ -300,10 +363,9 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
             }
         }
 
-        // Figure out the display name
+        // Figure out the display name (reusing the `debug-name.value` read above for the `table-or-alias` row).
         const specificDisplayName = renderingConfig.displayNameKey ? properties.get(renderingConfig.displayNameKey) : undefined;
-        const debugNameNode = tryGetPropertyPath(rawNode, ["debug-name", "value"]);
-        const debugName = typeof debugNameNode === "string" ? debugNameNode : undefined;
+        const debugName = typeof debugNameValue === "string" ? debugNameValue : undefined;
         const displayName = debugName ?? specificDisplayName ?? properties?.get("name") ?? nodeTag ?? "";
 
         // Build the converted node
@@ -317,28 +379,33 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
         } as TreeNode;
 
         // Highlight the node which errored out, in case the query failed
-        const errored = conversionState.metadata.has("Error") && tryGetPropertyPath(rawNode, ["statistics", "running"]) === true;
+        const errored = conversionState.metadata.has("Error") && getStatistic(rawNode, "running") === true;
         if (errored) {
             convertedNode.iconColor = "red";
         }
 
-        // Information on the execution time
-        const execTime = tryGetPropertyPath(rawNode, ["statistics", "cpu-cycles"]);
-        if (typeof execTime === "number") {
-            conversionState.runtimes.push({node: convertedNode, time: execTime});
+        // `cpu-cycles` is the operator's execution cost; feed it to the hotspot pass (colors the busiest nodes).
+        // Via `getStatistic` so it matches the `cpu-cycles` row below (both honour legacy `analyze`).
+        const cpuCycles = getStatistic(rawNode, "cpu-cycles");
+        if (typeof cpuCycles === "number") {
+            conversionState.runtimes.push({node: convertedNode, time: cpuCycles});
         }
 
-        // Display the cardinality on the links between the nodes
-        const internalEstimate = rawNode["estimated-rows"];
-        const externalEstimate = tryGetPropertyPath(rawNode, ["statistics", "estimated-rows"]);
-        const estimatedCard = typeof internalEstimate === "number" ? internalEstimate : externalEstimate;
+        // Estimated/actual cardinalities back both the edge label and the tooltip rows below; compute each once.
+        const estimatedCard = getEstimatedRows(rawNode);
+        const actualCard = getActualRows(rawNode);
+
+        // Cardinality on the edge between nodes. Sharing these values keeps the edge label consistent with the
+        // tooltip rows (so a legacy `analyze`/`cardinality` plan isn't blank).
         if (typeof estimatedCard === "number") {
-            const actualCard = tryGetPropertyPath(rawNode, ["statistics", "output-rows"]);
             if (typeof actualCard === "number") {
                 conversionState.edgeWidths.push({node: convertedNode, width: actualCard});
                 convertedNode.edgeLabel = formatMetric(actualCard) + "/" + formatMetric(estimatedCard);
                 // Highlight significant differences between planned and actual rows
-                if (estimatedCard > actualCard * 10 || actualCard > estimatedCard * 10) {
+                if (
+                    estimatedCard > actualCard * CARDINALITY_MISMATCH_FACTOR ||
+                    actualCard > estimatedCard * CARDINALITY_MISMATCH_FACTOR
+                ) {
                     convertedNode.edgeClass = "qg-label-highlighted";
                 }
             } else {
@@ -346,6 +413,84 @@ function convertHyperNode(rawNode: Json, parentKey, conversionState: ConversionS
                 convertedNode.edgeLabel = formatMetric(estimatedCard);
             }
         }
+
+        // Surface cardinalities and key runtime volumes as tidy formatted rows (the raw `statistics` block is hidden).
+        if (typeof estimatedCard === "number") properties.set("estimated-rows", formatMetric(estimatedCard));
+        if (typeof actualCard === "number") properties.set("output-rows", formatMetric(actualCard));
+        const processedRows = getStatistic(rawNode, "processed-rows");
+        if (typeof processedRows === "number") properties.set("processed-rows", formatMetric(processedRows));
+        const rowsMatching = getStatistic(rawNode, "rows-matching-restrictions");
+        if (typeof rowsMatching === "number") properties.set("rows-matching", formatMetric(rowsMatching));
+        const memoryBytes = getStatistic(rawNode, "memory-bytes");
+        if (typeof memoryBytes === "number") properties.set("memory-bytes", formatBytes(memoryBytes));
+        // Reuse `cpuCycles` from the hotspot pass; surface it and `execution-time` as rows.
+        if (typeof cpuCycles === "number") properties.set("cpu-cycles", formatMetric(cpuCycles));
+        const executionTime = getStatistic(rawNode, "execution-time");
+        if (typeof executionTime === "number") properties.set("execution-time", formatMetric(executionTime));
+
+        // Lakehouse scans carry `table-metadata` (identifier cols, partitioning, sort order); pack it into one
+        // grouped `label: value` block the UI renders as a header + sub-items (see `groupedProperties`).
+        const tableMetadata = rawNode["table-metadata"];
+        if (tableMetadata !== null && typeof tableMetadata === "object" && !Array.isArray(tableMetadata)) {
+            // A column transform: `identity` is bare, anything else wraps it (`bucket[16](Id__c)`).
+            const withTransform = (transform: Json | undefined, column: Json | undefined): string | undefined => {
+                if (typeof column !== "string") return undefined;
+                return typeof transform !== "string" || transform === "identity" ? column : `${transform}(${column})`;
+            };
+            const metaLines: string[] = [];
+            const identifierFields = tableMetadata["identifier-fields"];
+            if (Array.isArray(identifierFields) && identifierFields.length > 0) {
+                const cols = identifierFields
+                    .map((f) => tryGetPropertyPath(f, ["column"]))
+                    .filter((c): c is string => typeof c === "string");
+                if (cols.length > 0) metaLines.push(`identifier: ${cols.join(", ")}`);
+            }
+            const partitionTransforms = tableMetadata["partition-transforms"];
+            if (Array.isArray(partitionTransforms) && partitionTransforms.length > 0) {
+                const parts = partitionTransforms
+                    .map((p) => withTransform(tryGetPropertyPath(p, ["transform"]), tryGetPropertyPath(p, ["source", "column"])))
+                    .filter((p): p is string => p !== undefined);
+                if (parts.length > 0) metaLines.push(`partitioned-by: ${parts.join(", ")}`);
+            }
+            const sortKeys = tryGetPropertyPath(tableMetadata, ["sort-order", "sort-keys"]);
+            if (Array.isArray(sortKeys) && sortKeys.length > 0) {
+                const keys = sortKeys
+                    .map((k) => {
+                        const col = withTransform(
+                            tryGetPropertyPath(k, ["transform"]),
+                            tryGetPropertyPath(k, ["source", "column"]),
+                        );
+                        if (col === undefined) return undefined;
+                        const dir = tryGetPropertyPath(k, ["direction"]);
+                        const nulls = tryGetPropertyPath(k, ["null-order"]);
+                        return [col, dir, nulls].filter((x): x is string => typeof x === "string").join(" ");
+                    })
+                    .filter((k): k is string => k !== undefined);
+                if (keys.length > 0) metaLines.push(`sort-order: ${keys.join(", ")}`);
+            }
+            if (metaLines.length > 0) {
+                properties.set("table-metadata", metaLines.join("\n"));
+                (convertedNode.groupedProperties ??= new Set()).add("table-metadata");
+            }
+        }
+
+        // Fixed row order: identity/volume rows first, then metadata, runtime figures, and finally the operator
+        // identifiers. Any keys not named here keep their existing order after this list.
+        reorderProperties(
+            properties,
+            [
+                "table-or-alias",
+                "estimated-rows",
+                "processed-rows",
+                "rows-matching",
+                "output-rows",
+                "memory-bytes",
+                "table-metadata",
+                "execution-time",
+                "cpu-cycles",
+            ],
+            ["type", "operator-id"],
+        );
 
         // Add to `operator-id` map if applicable.
         if (nodeType == "operator") {
@@ -402,8 +547,11 @@ function colorRelativeExecutionTime(state: ConversionState) {
     const totalTime = state.runtimes.reduce((p, v) => p + v.time, 0);
     for (const op of state.runtimes) {
         const relativeExecutionRatio = op.time / totalTime;
-        const l = (95 + (72 - 95) * relativeExecutionRatio).toFixed(3);
-        op.node.nodeColor = relativeExecutionRatio >= 0.05 ? `hsl(309, 84%, ${l}%)` : undefined;
+        const l = (HOTSPOT_LIGHTNESS_BASE + (HOTSPOT_LIGHTNESS_PEAK - HOTSPOT_LIGHTNESS_BASE) * relativeExecutionRatio).toFixed(3);
+        const flagged = relativeExecutionRatio >= HOTSPOT_MIN_RATIO;
+        op.node.nodeColor = flagged ? `hsl(${HOTSPOT_HUE}, ${HOTSPOT_SATURATION}%, ${l}%)` : undefined;
+        // Echo the hotspot flag onto the `cpu-cycles` row so the driving figure stands out, not just the header.
+        if (flagged) (op.node.highlightedProperties ??= new Set()).add("cpu-cycles");
     }
 }
 

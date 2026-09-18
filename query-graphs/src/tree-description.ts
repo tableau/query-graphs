@@ -28,6 +28,11 @@ export type TreeNode = {
     iconColor?: string;
     // Rendered in the tooltip
     properties?: Map<string, string>;
+    // Property keys whose value is newline-separated `label: value` sub-lines (e.g. `table-metadata`); the UI
+    // renders them as a header row plus one sub-item per line.
+    groupedProperties?: Set<string>;
+    // Property keys whose row is highlighted (e.g. `cpu-cycles` on a hotspot), echoing the node-label flag.
+    highlightedProperties?: Set<string>;
 
     // Colors of a bar drawn just above the node
     // (conceptually the "outgoing" side, toward the parent).

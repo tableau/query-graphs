@@ -84,3 +84,16 @@ export function formatMetric(x: number): string {
     }
     return x.toFixed(0) + sizes[idx];
 }
+
+// Format a byte count with binary (1024-based) KiB/MiB/GiB units — clearer for memory figures than the
+// decimal suffixes `formatMetric` uses (e.g. 1,048,576 reads as "1.0 MiB", not "1M").
+export function formatBytes(x: number): string {
+    const units = ["B", "KiB", "MiB", "GiB", "TiB", "PiB"];
+    let idx = 0;
+    while (x >= 1024 && idx < units.length - 1) {
+        x /= 1024;
+        ++idx;
+    }
+    // Whole bytes show no decimal; scaled units keep one digit of precision (e.g. "1.5 MiB").
+    return (idx === 0 ? x.toFixed(0) : x.toFixed(1)) + " " + units[idx];
+}

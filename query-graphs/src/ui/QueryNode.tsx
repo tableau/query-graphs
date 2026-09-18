@@ -56,9 +56,36 @@ function QueryNode({data, id}: NodeProps<QueryGraphNode>) {
     );
 
     const children = [] as ReactElement[];
-    for (const [key, value] of (data.properties || []).entries()) {
+    for (const [key, value] of (data.properties ?? new Map<string, string>()).entries()) {
+        // A grouped property renders as a header row plus one sub-item per newline-separated `label: value`
+        // line (the loader packs the sub-items into the value).
+        if (data.groupedProperties?.has(key)) {
+            children.push(
+                <div key={key} className="qg-prop-group-header">
+                    <span className="qg-prop-name">{key}:</span>
+                </div>,
+            );
+            value.split("\n").forEach((line, i) => {
+                const sep = line.indexOf(": ");
+                const subKey = sep >= 0 ? line.slice(0, sep) : line;
+                const subVal = sep >= 0 ? line.slice(sep + 2) : "";
+                children.push(
+                    <div key={`${key}-${i}`}>
+                        <span className="qg-prop-name">- {subKey}:</span> <span className="qg-prop-value">{subVal}</span>
+                    </div>,
+                );
+            });
+            continue;
+        }
+        // A highlighted row (e.g. `cpu-cycles` on a hotspot) reuses the node-label color, so its tint intensity
+        // matches the label exactly.
+        const highlighted = data.highlightedProperties?.has(key);
         children.push(
-            <div key={key}>
+            <div
+                key={key}
+                className={cc({"qg-prop-highlighted": highlighted})}
+                style={highlighted ? {background: data.nodeColor} : undefined}
+            >
                 <span className="qg-prop-name">{key}:</span> <span className="qg-prop-value">{value}</span>
             </div>,
         );
