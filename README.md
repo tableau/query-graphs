@@ -10,20 +10,23 @@ Helping people see and understand queries - [Visualize your own query!](http://t
 Description
 -----------
 
-"Query graphs" visualizes query plans for PostgresQL, Hyper or Tableau logical queries and can easily be extended for other database systems.
+"Query graphs" visualizes query plans for PostgreSQL, DuckDB, Hyper, Umbra/CedarDB, and Tableau logical queries and can easily be extended for other database systems.
 
 Query graphs is based on the experience of Tableau and the Hyper team with debugging complex OLAP queries.
 In contrast to many competing plan visualizers, query graphs:
 * visualizes large and complex query plans without presenting an overwhelming amount of information,
 * immediately draws your attention to the most critical parts of the query plan through proper color coding,
 * allows you to drill down on the interesting parts of the query-plan, e.g., by expanding more details by clicking on the node of interest,
-* supports multiple different plan types (currently Postgres, Hyper and Tableau logical queries),
+* supports multiple different plan types (currently PostgreSQL, DuckDB, Hyper, Umbra/CedarDB, and Tableau logical queries),
 * can be easily embedded into larger tools,
 * works fully offline and can be installed as a "web app" from your browser.
 
-For a first impression see our [list of example visualizations](https://tableau.github.io/query-graphs/examples.html), a few particularly examples are:
+For a first impression, see our [list of example visualizations](https://tableau.github.io/query-graphs/examples.html). A few examples are:
 * [PostgreSQL TPC-H Query 2](https://tableau.github.io/query-graphs/index.html?file=examples%2Fpostgres%2Ftpch%2Ftpch-q2-analyze.plan.json&title=tpch-q2-analyze.plan.json)
+* [DuckDB TPC-H Query 2](https://tableau.github.io/query-graphs/index.html?file=examples%2Fduckdb%2Ftpch%2Ftpch-q2-analyze.plan.json&title=tpch-q2-analyze.plan.json)
 * [Hyper TPC-H Query 2](https://tableau.github.io/query-graphs/index.html?file=examples%2Fhyper%2Ftpch%2Ftpch-q2-analyze.plan.json&title=tpch-q2-analyze.plan.json)
+* [Umbra TPC-H Query 2](https://tableau.github.io/query-graphs/index.html?file=examples%2Fumbra%2Ftpch%2Ftpch-q2-analyze.plan.json&title=tpch-q2-analyze.plan.json)
+* [CedarDB TPC-H Query 2](https://tableau.github.io/query-graphs/index.html?file=examples%2Fcedardb%2Ftpch%2Ftpch-q2.plan.json&title=tpch-q2.plan.json)
 * [Optimizer steps of Hyper for TPC-H Q2](https://tableau.github.io/query-graphs/index.html?file=examples%2Fhyper%2Ftpch%2Ftpch-q2-steps.plan.json&title=tpch-q2-steps.plan.json)
 
 
@@ -45,8 +48,10 @@ All processing happens directly inside your browser.
 The query plans never leave your machine - we value your privacy ;)
 
 Supported query plan formats:
-* Postgres' JSON format, obtained by `EXPLAIN (FORMAT JSON)`. Particularly interesting if used in combination with `EXPLAIN(ANALYZE, FORMAT JSON)`
+* PostgreSQL's JSON format, obtained by `EXPLAIN (FORMAT JSON)`. It is particularly useful with `EXPLAIN (ANALYZE, FORMAT JSON)`.
+* DuckDB's JSON format, obtained by `EXPLAIN (FORMAT JSON)`, including analyzed profiles and optimizer-stage output.
 * Hyper's query plans. You can run Hyper (the database system powering Tableau) locally through HyperAPI, and send Hyper `EXPLAIN (VERBOSE)` queries to obtain query plans. See [dump-plans.py](plan-dumper/dump-plans.py) for an example.
+* Umbra and CedarDB JSON plans, including analyzed plans and optimizer stages.
 * Tableau logical queries. Can be obtained from the log files of Tableau Desktop or Tableau Online.
 
 Contributing

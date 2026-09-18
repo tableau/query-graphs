@@ -13,11 +13,11 @@ import {allChildren} from "../tree-description";
 import type {DecoratedJsonTreeConfig, NodeRenderingConfig} from "./decorated-json-tree";
 import {convertDecoratedJsonNode, createDecoratedJsonTreeState} from "./decorated-json-tree";
 import type {Json, JsonObject} from "./loader-utils";
-import {hasOwnProperty, tryToString} from "./loader-utils";
+import {hasOwnProperty, isJsonObject, tryToString} from "./loader-utils";
 import type {ExecutionPipeline} from "./pipeline-coloring";
 import {assignPipelineColors} from "./pipeline-coloring";
 import {buildIdMap, resolveCrosslinks, setRelativeEdgeWidths} from "./tree-postprocessing";
-import {InvalidPlanError, type PlanLoader} from "./types";
+import type {PlanLoader} from "./types";
 
 const nodeRenderingConfig: Record<string, NodeRenderingConfig> = {
     "op:select": {icon: "filter-symbol"},
@@ -179,7 +179,7 @@ function normalizePipelineMemberships(root: TreeNode, pipelines: ExecutionPipeli
     }
 }
 
-function convertUmbraPlan(statement: UmbraStatement): TreeDescription {
+function convertUmbraPlan(statement: Json): TreeDescription {
     const state = createDecoratedJsonTreeState();
     const root = convertDecoratedJsonNode(statement, "result", state, umbraConfig);
 
@@ -189,7 +189,7 @@ function convertUmbraPlan(statement: UmbraStatement): TreeDescription {
         ({source, target}) => !allChildren(source).includes(target),
     );
 
-    if (statement["analyzePlanPipelines"] !== undefined) {
+    if (isJsonObject(statement) && statement["analyzePlanPipelines"] !== undefined) {
         const analyzeIds = buildIdMap(root, "analyzePlanId");
         const pipelines = parsePipelines(statement["analyzePlanPipelines"], analyzeIds);
         normalizePipelineMemberships(root, pipelines, crosslinks);
@@ -217,7 +217,7 @@ function loadUmbraPlan(json: Json): TreeDescription {
     if (stages !== undefined) {
         return combineOptimizerStages(stages);
     }
-    throw new InvalidPlanError("umbra");
+    return convertUmbraPlan(json);
 }
 
 export const umbraPlanLoader: PlanLoader<Json> = {

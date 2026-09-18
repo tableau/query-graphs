@@ -48,10 +48,6 @@ test("dispatcher strips text surrounding copied plans", () => {
 
 test("dispatcher reports invalid plans", () => {
     assert.throws(() => loadPlanFromText("not JSON or XML"), InvalidPlanError);
-    assert.throws(
-        () => loadPlanFromText('{"Plan":{}}', {format: "postgres"}),
-        (error: unknown) => error instanceof InvalidPlanError && error.format === "postgres",
-    );
 });
 
 test("dispatcher recognizes Tableau XML and falls back to generic XML", () => {

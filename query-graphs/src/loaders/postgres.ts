@@ -3,19 +3,15 @@
 Postgres JSON Transformations
 -----------------------------
 
-This is pretty much the same algorithm as the algorithm for Hyper plans
-
 */
 
-import * as treeDescription from "../tree-description";
-import type {IconName, TreeNode, TreeDescription} from "../tree-description";
-import type {Json, JsonObject} from "./loader-utils";
-import {tryToNonNullString, hasOwnProperty, hasSubObject} from "./loader-utils";
-import {assert} from "../assert";
+import type {IconName, TreeDescription, TreeNode} from "../tree-description";
 import type {DecoratedJsonTreeConfig} from "./decorated-json-tree";
 import {convertDecoratedJsonNode, createDecoratedJsonTreeState} from "./decorated-json-tree";
+import type {Json, JsonObject} from "./loader-utils";
+import {hasOwnProperty, hasSubObject, tryToNonNullString, tryToNumber} from "./loader-utils";
 import {buildIdMap, resolveCrosslinks, setRelativeEdgeWidths} from "./tree-postprocessing";
-import {InvalidPlanError, type PlanLoader} from "./types";
+import type {PlanLoader} from "./types";
 
 function getStringProperty(rawNode: JsonObject, key: string): string | undefined {
     return tryToNonNullString(rawNode[key]);
@@ -101,66 +97,69 @@ const postgresConfig: DecoratedJsonTreeConfig = {
     },
 };
 
+// Postgres plan operators are expanded children. Collapsed children contain
+// auxiliary data such as triggers and must not participate in timing math.
+function planChildren(node: TreeNode): TreeNode[] {
+    return node.children ?? [];
+}
+
 // Color graph per a node's relative execution time
 // Actual Total Time is cumulative
 // Nodes with Actual Loops > 1 record an average Actual Total Time
 // Parallelized nodes have Actual Loops = Workers Launched + 1 for the leader
 // Not all Postgres plans have a root Execution Time even when children have Actual Total Time
 function colorRelativeExecutionTime(root: TreeNode) {
-    let executionTime = root.properties?.get("Execution Time");
+    let executionTime = tryToNumber(root.properties?.get("Execution Time"));
     if (executionTime === undefined) {
-        for (const child of treeDescription.allChildren(root)) {
-            const actualTotalTime = child.properties?.get("Actual Total Time");
-            if (actualTotalTime) {
-                assert(executionTime === undefined, "Unexpected result child node");
-                executionTime = actualTotalTime;
-            }
-        }
+        const childExecutionTimes = planChildren(root).flatMap((child) => {
+            const actualTotalTime = tryToNumber(child.properties?.get("Actual Total Time"));
+            return actualTotalTime === undefined ? [] : [actualTotalTime];
+        });
+        executionTime = childExecutionTimes.length === 0 ? undefined : Math.max(...childExecutionTimes);
     }
-    if (executionTime) {
-        for (const child of treeDescription.allChildren(root)) {
-            colorChildRelativeExecutionRatio(child, Number(executionTime), 1);
+    if (executionTime !== undefined && executionTime > 0) {
+        for (const child of planChildren(root)) {
+            colorChildRelativeExecutionRatio(child, executionTime, 1);
         }
     }
 }
 function colorChildRelativeExecutionRatio(node: TreeNode, executionTime: number, degreeOfParallelism: number) {
     let childrenTime = 0;
     if (node.name === "Gather" || node.name === "Gather Merge") {
-        const workersLaunched = node.properties?.get("Workers Launched");
-        assert(workersLaunched !== undefined, "Unexpected Workers Launched");
-        degreeOfParallelism = Number(workersLaunched) + 1; /* leader */
+        const workersLaunched = tryToNumber(node.properties?.get("Workers Launched"));
+        if (workersLaunched === undefined || workersLaunched < 0) return;
+        degreeOfParallelism = workersLaunched + 1; /* leader */
     }
-    for (const child of treeDescription.allChildren(node)) {
-        const actualTotalTime = child.properties?.get("Actual Total Time");
-        if (actualTotalTime) {
-            const actualLoops = child.properties?.get("Actual Loops");
-            assert(actualLoops !== undefined, "Unexpected Actual Loops");
-            const childLoops = Number(actualLoops) / degreeOfParallelism;
-            childrenTime += Number(actualTotalTime) * childLoops;
+    let childTimingsComplete = true;
+    for (const child of planChildren(node)) {
+        const actualTotalTime = tryToNumber(child.properties?.get("Actual Total Time"));
+        const actualLoops = tryToNumber(child.properties?.get("Actual Loops"));
+        if (actualTotalTime !== undefined && actualLoops !== undefined) {
+            const childLoops = actualLoops / degreeOfParallelism;
+            childrenTime += actualTotalTime * childLoops;
+        } else {
+            childTimingsComplete = false;
         }
     }
-    const actualTotalTime = node.properties?.get("Actual Total Time");
-    if (actualTotalTime) {
-        const nodeTotalTime = Number(actualTotalTime);
-        const actualLoops = node.properties?.get("Actual Loops");
-        assert(actualLoops !== undefined, "Unexpected Actual Loops");
-        let nodeLoops = Number(actualLoops);
+    const actualTotalTime = tryToNumber(node.properties?.get("Actual Total Time"));
+    const actualLoops = tryToNumber(node.properties?.get("Actual Loops"));
+    if (actualTotalTime !== undefined && actualLoops !== undefined && childTimingsComplete) {
+        let nodeLoops = actualLoops;
         if (node.name !== "Gather" && node.name !== "Gather Merge") {
             nodeLoops /= degreeOfParallelism;
         }
 
-        const relativeTotalTime = nodeTotalTime * nodeLoops - childrenTime;
+        const relativeTotalTime = actualTotalTime * nodeLoops - childrenTime;
         const relativeExecutionRatio = relativeTotalTime / executionTime;
         // TODO: remove Actual Total Time of a CTE from referencing CTE Scan subplans
         // TODO: assert(relativeExecutionRatio >= 0, "Unexpected relative execution ratio");
 
-        assert(node.properties !== undefined);
-        node.properties.set("~Relative Time", relativeTotalTime.toFixed(3));
-        node.properties.set("~Relative Time Ratio", relativeExecutionRatio.toFixed(3));
+        node.properties?.set("~Relative Time", relativeTotalTime.toFixed(3));
+        node.properties?.set("~Relative Time Ratio", relativeExecutionRatio.toFixed(3));
         const l = (95 + (72 - 95) * relativeExecutionRatio).toFixed(3);
         node.nodeColor = relativeExecutionRatio >= 0.05 ? `hsl(309, 84%, ${l}%)` : undefined;
     }
-    for (const child of treeDescription.allChildren(node)) {
+    for (const child of planChildren(node)) {
         colorChildRelativeExecutionRatio(child, executionTime, degreeOfParallelism);
     }
 }
@@ -178,9 +177,6 @@ function isPostgresPlan(json: Json): boolean {
 }
 
 function loadPostgresPlan(json: Json): TreeDescription {
-    if (!isPostgresPlan(json)) {
-        throw new InvalidPlanError("postgres");
-    }
     json = unwrapPostgresPlan(json);
     const state = createDecoratedJsonTreeState();
     const root = convertDecoratedJsonNode(json, "result", state, postgresConfig);

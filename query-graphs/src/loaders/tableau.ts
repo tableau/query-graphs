@@ -1,15 +1,13 @@
 /*
 
-Tableau query plans (e.g., logical queries)
---------------------------
+Tableau XML Transformations
+---------------------------
 
 Tableau's query plans are stored as XML. We first load that XML using DOMParser
-and convert it literally into a query tree using `convertJSON`. The XML
-already provides us the structure of the rendered tree.
+and convert its existing hierarchy into a query tree.
 
 */
 
-// Require node modules
 import type {IconName, TreeNode} from "../tree-description";
 import type {ParsedXML} from "./xml";
 import type {PlanLoader} from "./types";
@@ -20,20 +18,20 @@ function normalizeLogicalOperator(tag: string, clazz?: string) {
     //   <joinOp class='logical-operator' comparison='equal-to' join='inner' join-constraints='pk-fk'>
     // and
     //   <logical-operator class='join' comparison='equal-to' join='left' join-constraints='none'>
-    if (tag == "logical-operator") {
+    if (tag === "logical-operator") {
         return clazz;
     }
     if (tag.endsWith("Op")) {
-        return clazz == "logical-operator" ? tag.substring(0, tag.length - 2) : tag.substring(0, tag.length - 2);
+        return tag.substring(0, tag.length - 2);
     }
     return undefined;
 }
 
 function normalizeLogicalExpression(tag: string, clazz?: string) {
-    if (tag == "logical-expression") {
+    if (tag === "logical-expression") {
         return clazz;
     }
-    if (clazz == "logical-expression" && tag.endsWith("Exp")) {
+    if (clazz === "logical-expression" && tag.endsWith("Exp")) {
         return tag.substring(0, tag.length - 3);
     }
     return undefined;
@@ -42,7 +40,6 @@ function normalizeLogicalExpression(tag: string, clazz?: string) {
 interface NodeRenderingDescription {
     displayName: string;
     icon?: IconName;
-    crosslinkId?: string;
 }
 
 function extractProperty(properties: Map<string, string>, key: string) {
@@ -93,9 +90,9 @@ function getNodeRenderingConfig(tag: string, properties: Map<string, string>): N
         case "funcallExp":
             return {displayName: extractProperty(properties, "function") ?? tag};
         case "literal":
-            return {displayName: properties?.get("datatype") + ":" + properties?.get("value")};
+            return {displayName: properties.get("datatype") + ":" + properties.get("value")};
         case "referenceExp":
-            return {displayName: "ref:" + properties?.get("ref")};
+            return {displayName: "ref:" + properties.get("ref")};
         case "condition":
             return {displayName: extractProperty(properties, "op") ?? tag};
         case "binding":
@@ -109,7 +106,7 @@ function getNodeRenderingConfig(tag: string, properties: Map<string, string>): N
 function isAlwaysExpanded(xml: ParsedXML) {
     const tag = xml.tag;
     const childLogicalOp = normalizeLogicalOperator(xml.tag, xml.attrs?.class) !== undefined;
-    return childLogicalOp || tag == "fed-op" || tag == "logical-query";
+    return childLogicalOp || tag === "fed-op" || tag === "logical-query";
 }
 
 function convertXML(xml: ParsedXML): TreeNode {
@@ -153,7 +150,7 @@ function convertXML(xml: ParsedXML): TreeNode {
         properties: properties,
         children: expandedChildren,
         collapsedChildren,
-        expandedByDefault: !isAlwaysExpanded(xml) && expandedChildren.length == 0,
+        expandedByDefault: !isAlwaysExpanded(xml) && expandedChildren.length === 0,
     };
 }
 

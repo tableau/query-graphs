@@ -78,3 +78,25 @@ test("Postgres computes relative execution time", () => {
     assert.equal(scan?.properties?.get("~Relative Time Ratio"), "0.800");
     assert.notEqual(scan?.nodeColor, undefined);
 });
+
+test("Postgres keeps semantic rendering when execution metrics are incomplete", () => {
+    const missingWorkers = loadPlanFromText('{"Plan":{"Node Type":"Gather","Actual Total Time":1,"Actual Loops":1,"Plans":[]}}');
+    assert.equal(missingWorkers.format, "postgres");
+    assert.equal(missingWorkers.tree.root.children?.[0].properties?.get("~Relative Time"), undefined);
+
+    const missingLoops = loadPlanFromText('{"Plan":{"Node Type":"Result","Actual Total Time":1,"Plans":[]}}');
+    assert.equal(missingLoops.format, "postgres");
+    assert.equal(missingLoops.tree.root.children?.[0].properties?.get("~Relative Time"), undefined);
+
+    const missingChildTime = loadPlanFromText(
+        '{"Plan":{"Node Type":"Nested Loop","Actual Total Time":1,"Actual Loops":1,"Plans":[{"Node Type":"Seq Scan"}]}}',
+    );
+    assert.equal(missingChildTime.format, "postgres");
+    assert.equal(missingChildTime.tree.root.children?.[0].properties?.get("~Relative Time"), undefined);
+});
+
+test("the Postgres loader remains permissive when explicitly selected", () => {
+    const forced = loadPlanFromText('{"Plan":{}}', {format: "postgres"});
+    assert.equal(forced.format, "postgres");
+    assert.equal(forced.tree.root.name, "result");
+});
