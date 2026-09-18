@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import type {Edge} from "@xyflow/react";
-import {interpolateLayout, matchesTargetGeometry, refreshLayoutData, sameGeometry, staticLayout} from "../src/ui/animated-layout";
+import {interpolateLayout, refreshLayoutData, sameGeometry, staticLayout} from "../src/ui/animated-layout";
 import type {GraphLayout, TransitionAnchors} from "../src/ui/animated-layout";
 import {graphAnimationDuration, graphAnimationProgress} from "../src/ui/animation-timing";
 import type {QueryGraphNode} from "../src/ui/QueryNode";
@@ -94,7 +94,6 @@ test("layout comparisons distinguish geometry while refreshed data preserves ani
     const refreshed = refreshLayoutData(animated, same);
     assert.equal(refreshed.nodes[0]?.node.data.name, "updated");
     assert.deepEqual(refreshed.nodes[0]?.position, {x: 5, y: 6});
-    assert.equal(matchesTargetGeometry(refreshed, same), false);
 });
 
 test("animation progress is eased and clamped", () => {

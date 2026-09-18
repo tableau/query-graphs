@@ -9,7 +9,7 @@ import {layoutTree} from "./tree-layout";
 import type {GraphNodeDimensions} from "./tree-layout";
 import {animationStartTime, graphAnimationProgress} from "./animation-timing";
 import type {AnimatedLayout, GraphLayout, LayoutAnchor, TransitionAnchors} from "./animated-layout";
-import {interpolateLayout, matchesTargetGeometry, refreshLayoutData, sameGeometry, staticLayout} from "./animated-layout";
+import {interpolateLayout, refreshLayoutData, sameGeometry, staticLayout} from "./animated-layout";
 
 interface LayoutAnimation {
     kind: "resize" | "subtree";
@@ -318,13 +318,19 @@ export function useAnimatedGraphLayout(
     }, [nodeIds, stopBodyAnimation, target, targetMeasured]);
 
     useEffect(() => {
-        if (initialFitDoneRef.current || !targetMeasured || !matchesTargetGeometry(rendered, target)) return;
+        if (
+            initialFitDoneRef.current ||
+            !targetMeasured ||
+            pendingAnimationRef.current !== undefined ||
+            animationFrameRef.current !== undefined
+        )
+            return;
         const animationFrame = requestAnimationFrame(() => {
             initialFitDoneRef.current = true;
             void fitView();
         });
         return () => cancelAnimationFrame(animationFrame);
-    }, [fitView, rendered, target, targetMeasured]);
+    }, [fitView, rendered, targetMeasured]);
 
     useEffect(
         () => () => {
