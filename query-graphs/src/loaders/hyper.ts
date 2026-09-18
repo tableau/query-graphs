@@ -57,11 +57,6 @@ const nodeRenderingConfig: Record<string, NodeRenderingConfig> = {
     "exp:reference": {displayNameKey: "id"},
 };
 
-// TODO(2026-12-18): Remove the early-probe override together with the legacy tag aliases below.
-const legacyNodeRenderingConfig: Record<string, NodeRenderingConfig> = {
-    "op:early-probe": {icon: "filter-symbol", crosslinkSourceKey: "builder"},
-};
-
 // TODO(2026-12-18): Remove aliases for operator tags replaced on 2026-09-18.
 const legacyNodeTags: Record<string, string> = {
     "op:execution-target": "op:result-sink",
@@ -92,7 +87,6 @@ const legacyNodeTags: Record<string, string> = {
     "op:leftmarkjoin": "op:join:left-mark",
     "op:right-mark-join": "op:join:right-mark",
     "op:rightmarkjoin": "op:join:right-mark",
-    "op:earlyprobe": "op:early-probe",
     // Scans
     "op:table-scan": "op:scan",
     "op:tablescan": "op:scan",
@@ -140,8 +134,6 @@ const hyperConfig: DecoratedJsonTreeConfig = {
         return (
             (subtype === undefined ? undefined : nodeRenderingConfig[`${configKey}:${subtype}`]) ??
             nodeRenderingConfig[configKey] ??
-            (subtype === undefined ? undefined : legacyNodeRenderingConfig[`${configKey}:${subtype}`]) ??
-            legacyNodeRenderingConfig[configKey] ??
             {}
         );
     },
