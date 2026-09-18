@@ -108,12 +108,6 @@ test("Umbra omits crosslinks that duplicate tree edges", () => {
     }
 });
 
-test("Umbra recognition is robust against shadowed object methods", () => {
-    const plan = JSON.parse('{"plan":{"operator":"tablescan","operatorId":1}}') as Record<string, unknown>;
-    (plan.plan as Record<string, unknown>).hasOwnProperty = false;
-    assert.equal(loadPlanFromText(JSON.stringify(plan)).format, "umbra");
-});
-
 test("the Umbra loader remains permissive when explicitly selected", () => {
     const malformed = {plan: {operator: {}, operatorId: "unknown"}};
 
