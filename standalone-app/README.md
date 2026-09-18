@@ -67,7 +67,7 @@ Because plans can contain sensitive SQL, the default local-storage/blob strategi
 
 ## App Chrome, Offline, and Examples
 
-* `TreeLabel.tsx` renders the editable graph title (persisted via the `title` URL param) and any plan `metadata`.
+* `TreeLabel.tsx` renders the editable graph title (persisted via the `title` URL param) and any plan `metadata` in a collapsible panel.
 * `ErrorBoundary.tsx` catches render-time crashes and shows the error text with a link to file a GitHub issue.
 * Production builds register a [Workbox](https://developer.chrome.com/docs/workbox) service worker (configured via `GenerateSW` in `webpack/prod.config.ts`) and ship a web-app manifest (`src/manifest.json`), so the app is installable and works fully offline; the favicons are generated at build time.
   The service-worker cache is a common source of confusion: a locally served production build (`prod-server`) can keep serving a **stale** `bundle.js`/`index.html` even after a rebuild.

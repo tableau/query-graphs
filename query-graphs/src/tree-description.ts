@@ -66,6 +66,8 @@ export interface TreeDescription {
     root: TreeNode;
     /// Metadata about the graph; displayed in the top-level tree label
     metadata?: Map<string, string>;
+    /// Whether the metadata panel should be visually highlighted
+    metadataHighlighted?: boolean;
     /// Additional links between indirectly related nodes
     crosslinks?: Crosslink[];
 }
