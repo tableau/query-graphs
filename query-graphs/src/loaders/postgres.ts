@@ -322,14 +322,14 @@ function unwrapPostgresPlan(json: Json): Json {
 
 function isPostgresPlan(json: Json): boolean {
     json = unwrapPostgresPlan(json);
-    return hasSubOject(json, "Plan");
+    return hasSubOject(json, "Plan") && hasOwnProperty(json.Plan, "Node Type");
 }
 
 function loadPostgresPlan(json: Json): TreeDescription {
-    json = unwrapPostgresPlan(json);
-    if (!hasSubOject(json, "Plan") || !hasOwnProperty(json.Plan, "Node Type")) {
+    if (!isPostgresPlan(json)) {
         throw new InvalidPlanError("Invalid Postgres query plan");
     }
+    json = unwrapPostgresPlan(json);
     // Load the graph
     const conversionState = {
         operatorsById: new Map<string, TreeNode>(),
