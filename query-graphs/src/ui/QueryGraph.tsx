@@ -1,5 +1,5 @@
 import {ReactFlow, MiniMap, Controls, ReactFlowProvider} from "@xyflow/react";
-import "@xyflow/react/dist/base.css";
+import "@xyflow/react/dist/style.css";
 
 import {layoutTree} from "./tree-layout";
 import type {TreeDescription, TreeNode} from "../tree-description";
