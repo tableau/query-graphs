@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import path from "node:path";
 import test from "node:test";
-import {InvalidPlanError, loadPlanFromText} from "../src/loaders";
+import {loadPlanFromText} from "../src/loaders";
 import {duckDbPlanLoader} from "../src/loaders/duckdb";
 import type {TreeNode} from "../src/tree-description";
 import {allChildren, visitTreeNodes} from "../src/tree-description";
@@ -169,17 +169,14 @@ test("DuckDB lowercases only all-uppercase operator names", () => {
     );
 });
 
-test("DuckDB rejects arrays containing multiple independent plans", () => {
+test("DuckDB recognizes only singleton arrays but loads larger arrays permissively when forced", () => {
     const plans = JSON.stringify([
         {name: "SEQ_SCAN", extra_info: {}, children: []},
         {name: "SEQ_SCAN", extra_info: {}, children: []},
     ]);
 
     assert.equal(loadPlanFromText(plans).format, "json");
-    assert.throws(
-        () => loadPlanFromText(plans, {format: "duckdb"}),
-        (error: unknown) => error instanceof InvalidPlanError && error.format === "duckdb",
-    );
+    assert.equal(loadPlanFromText(plans, {format: "duckdb"}).tree.root.name, "seq_scan");
 });
 
 test("the DuckDB loader degrades malformed child details", () => {
@@ -199,6 +196,12 @@ test("the DuckDB loader degrades malformed child details", () => {
 test("the DuckDB loader accepts forced plans and optional profile fields", () => {
     const forced = loadPlanFromText('[{"name":"SEQ_SCAN","children":[]}]', {format: "duckdb"});
     assert.equal(forced.tree.root.name, "seq_scan");
+
+    const malformedExplainAnalyze = duckDbPlanLoader.load({
+        query_name: "select 1",
+        children: [{operator_type: "EXPLAIN_ANALYZE", children: []}],
+    });
+    assert.equal(malformedExplainAnalyze.root.name, "explain_analyze");
 
     const analyzedPath = path.join(examplesRoot, "duckdb/tablescan-analyze.plan.json");
     const malformedAnalyze = JSON.parse(readFileSync(analyzedPath, "utf8"));

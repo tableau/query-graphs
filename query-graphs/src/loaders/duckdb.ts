@@ -15,7 +15,7 @@ import {convertDecoratedJsonNode, createDecoratedJsonTreeState} from "./decorate
 import type {Json, JsonObject} from "./loader-utils";
 import {forceToString, hasOwnProperty, hasSubObject, isJsonObject, tryToNonNullString, tryToNumber} from "./loader-utils";
 import {buildIdMap, colorRelativeNumber, resolveCrosslinks, setRelativeEdgeWidths} from "./tree-postprocessing";
-import {InvalidPlanError, type PlanLoader} from "./types";
+import type {PlanLoader} from "./types";
 
 function getExtraInfo(rawNode: JsonObject): JsonObject | undefined {
     return hasSubObject(rawNode, "extra_info") ? rawNode["extra_info"] : undefined;
@@ -177,10 +177,6 @@ function hasAnalyzedEnvelope(json: Json): json is JsonObject & {children: [Json]
     return isJsonObject(json) && typeof json["query_name"] === "string" && isSingletonArray(json["children"]);
 }
 
-function isExplainAnalyzeNode(value: Json): value is JsonObject & {children: Json[]} {
-    return isDuckNode(value) && value["operator_type"] === "EXPLAIN_ANALYZE";
-}
-
 const stageNames = new Map([
     ["logical_plan", "logical plan"],
     ["logical_opt", "optimized logical plan"],
@@ -229,15 +225,9 @@ function combinePlanStages(stages: [string, Json][]): TreeDescription {
 }
 
 function loadDuckDbPlan(json: Json): TreeDescription {
-    if (isSingletonArray(json) && isDuckNode(json[0])) {
-        return convertDuckPlan(json[0]);
-    }
     if (hasAnalyzedEnvelope(json)) {
         let root = json["children"][0];
-        if (isExplainAnalyzeNode(root)) {
-            if (!isSingletonArray(root["children"])) {
-                throw new InvalidPlanError("duckdb");
-            }
+        if (isDuckNode(root) && root["operator_type"] === "EXPLAIN_ANALYZE" && isSingletonArray(root["children"])) {
             root = root["children"][0];
         }
         return convertDuckPlan(root, analyzeMetadata(json));
@@ -246,7 +236,7 @@ function loadDuckDbPlan(json: Json): TreeDescription {
     if (stages !== undefined) {
         return combinePlanStages(stages);
     }
-    throw new InvalidPlanError("duckdb");
+    return convertDuckPlan(Array.isArray(json) && json.length > 0 ? json[0] : json);
 }
 
 export const duckDbPlanLoader: PlanLoader<Json> = {
