@@ -645,11 +645,7 @@ function loadHyperPlan(json: Json): TreeDescription {
     if (hasPipelineEnvelope(json)) {
         return convertHyperPlan(json["tree"], json["pipelines"]);
     }
-    const optimizerSteps = convertOptimizerSteps(json);
-    if (optimizerSteps !== undefined) {
-        return optimizerSteps;
-    }
-    return convertHyperPlan(json);
+    return convertOptimizerSteps(json) ?? convertHyperPlan(json);
 }
 
 export const hyperPlanLoader: PlanLoader<Json> = {
