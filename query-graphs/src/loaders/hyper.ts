@@ -15,7 +15,7 @@ import type {DecoratedJsonTreeConfig, NodeRenderingConfig} from "./decorated-jso
 import {convertDecoratedJsonNode, createDecoratedJsonTreeState} from "./decorated-json-tree";
 import type {RawPipeline} from "./pipeline-coloring";
 import {assignPipelineColors} from "./pipeline-coloring";
-import {buildIdMap, colorRelativeExecutionTime, resolveCrosslinks, setEdgeWidths} from "./tree-postprocessing";
+import {buildIdMap, colorRelativeNumber, resolveCrosslinks, setEdgeWidths} from "./tree-postprocessing";
 import type {PlanLoader} from "./types";
 
 const nodeRenderingConfig: Record<string, NodeRenderingConfig> = {
@@ -143,7 +143,7 @@ const hyperConfig: DecoratedJsonTreeConfig = {
     isErrored(rawNode, metadata) {
         return metadata.has("Error") && tryGetPropertyPath(rawNode, ["statistics", "running"]) === true;
     },
-    getExecutionTime(rawNode) {
+    getNodeColorValue(rawNode) {
         const executionTime = tryGetPropertyPath(rawNode, ["statistics", "cpu-cycles"]);
         return typeof executionTime === "number" ? executionTime : undefined;
     },
@@ -186,7 +186,7 @@ function convertHyperPlan(node: Json, pipelines?: Json): TreeDescription {
     }
 
     const root = convertDecoratedJsonNode(node, "result", state, hyperConfig);
-    colorRelativeExecutionTime(state.runtimes);
+    colorRelativeNumber(state.nodeColorValues);
     setEdgeWidths(state.edgeWidths);
     const operatorsById = buildIdMap(root, "operator-id");
     const crosslinks = resolveCrosslinks(state.crosslinks, operatorsById);

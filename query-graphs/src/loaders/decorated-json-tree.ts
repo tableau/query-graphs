@@ -10,7 +10,7 @@
  * continue through the baseline conversion instead of being discarded.
  *
  * Conversion only records data needed by later whole-tree passes. Resolving
- * crosslinks, scaling edges, and coloring runtimes stays outside this module.
+ * crosslinks, scaling edges, and coloring relative values stays outside this module.
  */
 
 import type {IconName, TreeNode} from "../tree-description";
@@ -30,12 +30,12 @@ export interface NodeRenderingConfig {
 export interface DecoratedJsonTreeState {
     crosslinks: UnresolvedCrosslink[];
     edgeWidths: {node: TreeNode; width: number}[];
-    runtimes: {node: TreeNode; time: number}[];
+    nodeColorValues: {node: TreeNode; value: number}[];
     metadata: Map<string, string>;
 }
 
 export function createDecoratedJsonTreeState(): DecoratedJsonTreeState {
-    return {crosslinks: [], edgeWidths: [], runtimes: [], metadata: new Map()};
+    return {crosslinks: [], edgeWidths: [], nodeColorValues: [], metadata: new Map()};
 }
 
 export interface DecoratedJsonTreeConfig {
@@ -55,8 +55,8 @@ export interface DecoratedJsonTreeConfig {
     shouldExpandCollapsedChildren?(rawNode: JsonObject, nodeTypeKey: string | undefined): boolean;
     /** Mark a converted node as the failure location. */
     isErrored?(rawNode: JsonObject, metadata: Map<string, string>): boolean;
-    /** Collect the node's runtime for relative coloring after conversion. */
-    getExecutionTime?(rawNode: JsonObject): number | undefined;
+    /** Collect a numeric value for relative node coloring after conversion. */
+    getNodeColorValue?(rawNode: JsonObject): number | undefined;
     /** Label and size the incoming edge using the estimated cardinality. */
     getEstimatedCardinality?(rawNode: JsonObject): number | undefined;
     /** Prefer the actual cardinality when available and compare it with the estimate. */
@@ -184,9 +184,9 @@ function convertDecoratedJsonValue(
         convertedNode.iconColor = "red";
     }
 
-    const executionTime = config.getExecutionTime?.(rawNode);
-    if (executionTime !== undefined) {
-        state.runtimes.push({node: convertedNode, time: executionTime});
+    const nodeColorValue = config.getNodeColorValue?.(rawNode);
+    if (nodeColorValue !== undefined) {
+        state.nodeColorValues.push({node: convertedNode, value: nodeColorValue});
     }
 
     const estimatedCardinality = config.getEstimatedCardinality?.(rawNode);

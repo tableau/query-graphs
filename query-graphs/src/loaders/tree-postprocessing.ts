@@ -32,14 +32,14 @@ export function resolveCrosslinks(crosslinks: UnresolvedCrosslink[], operatorsBy
     return resolved;
 }
 
-export function colorRelativeExecutionTime(
-    runtimes: {node: TreeNode; time: number}[],
-    totalTime = runtimes.reduce((sum, runtime) => sum + runtime.time, 0),
+export function colorRelativeNumber(
+    nodeValues: {node: TreeNode; value: number}[],
+    total = nodeValues.reduce((sum, entry) => sum + entry.value, 0),
 ): void {
-    for (const runtime of runtimes) {
-        const relativeExecutionRatio = runtime.time / totalTime;
-        const lightness = (95 + (72 - 95) * relativeExecutionRatio).toFixed(3);
-        runtime.node.nodeColor = relativeExecutionRatio >= 0.05 ? `hsl(309, 84%, ${lightness}%)` : undefined;
+    for (const entry of nodeValues) {
+        const relativeValue = entry.value / total;
+        const lightness = (95 + (72 - 95) * relativeValue).toFixed(3);
+        entry.node.nodeColor = relativeValue >= 0.05 ? `hsl(309, 84%, ${lightness}%)` : undefined;
     }
 }
 
