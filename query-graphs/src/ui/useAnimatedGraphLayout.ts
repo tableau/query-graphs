@@ -9,7 +9,7 @@ import {layoutTree} from "./tree-layout";
 import type {GraphNodeDimensions} from "./tree-layout";
 import {animationStartTime, graphAnimationProgress} from "./animation-timing";
 import type {AnimatedLayout, GraphLayout, LayoutAnchor, TransitionAnchors} from "./animated-layout";
-import {interpolateLayout, refreshLayoutData, sameLayoutTarget, staticLayout} from "./animated-layout";
+import {createLayoutInterpolator, refreshLayoutData, sameLayoutTarget, staticLayout} from "./animated-layout";
 
 interface LayoutAnimation {
     kind: "resize" | "subtree";
@@ -290,12 +290,12 @@ export function useAnimatedGraphLayout(
         // Newly revealed nodes have no dimensions yet. Render them invisibly at
         // the anchor so React Flow can measure them before computing the endpoint.
         if (!targetMeasured) {
-            const staged = interpolateLayout(
+            const interpolate = createLayoutInterpolator(
                 renderedRef.current,
                 target,
                 transitionAnchors(renderedRef.current, target, animation.anchor),
-                0,
             );
+            const staged = interpolate(0);
             renderedRef.current = staged;
             setRendered(staged);
             return;
@@ -306,9 +306,10 @@ export function useAnimatedGraphLayout(
         // snapping or jumping ahead on the original easing curve.
         const startTime = wasAnimating || animation.kind === "subtree" ? performance.now() : animation.startedAt;
         const anchors = transitionAnchors(start, target, animation.anchor);
+        const interpolate = createLayoutInterpolator(start, target, anchors);
         const step = (now: number) => {
             const progress = graphAnimationProgress(startTime, now);
-            const next = refreshLayoutData(interpolateLayout(start, target, anchors, progress), targetRef.current);
+            const next = refreshLayoutData(interpolate(progress), targetRef.current);
             renderedRef.current = next;
             setRendered(next);
             if (progress < 1) {

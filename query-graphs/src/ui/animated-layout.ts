@@ -85,54 +85,58 @@ function anchorPosition(
 }
 
 /**
- * Interpolates from the currently rendered state to a settled target layout.
+ * Prepares interpolation from the currently rendered state to a settled target
+ * layout. Layout indexes are built once and reused for every animation frame.
  * Existing elements move between layouts. Each entering or exiting node can
  * have its own anchor, allowing multiple subtrees to change in one transition.
  * Nodes without a supplied anchor use the origin. `progress` is expected to be
  * clamped to the inclusive range from 0 to 1.
  */
-export function interpolateLayout(
+export function createLayoutInterpolator(
     from: AnimatedLayout,
     to: GraphLayout,
     anchors: TransitionAnchors,
-    progress: number,
-): AnimatedLayout {
+): (progress: number) => AnimatedLayout {
     // Union both layouts: new elements emerge from the anchor, while removed
     // elements remain mounted until they reach the anchor and become transparent.
     const fromNodes = new Map(from.nodes.map((entry) => [entry.node.id, entry]));
     const toNodes = new Map(to.nodes.map((node) => [node.id, node]));
-    const nodes: AnimatedNode[] = [];
-
-    for (const id of new Set([...fromNodes.keys(), ...toNodes.keys()])) {
-        const start = fromNodes.get(id);
-        const target = toNodes.get(id);
-        if (target === undefined && progress === 1) continue;
-        const anchor = anchors.get(id);
-        const fromPosition = start?.position ?? anchorPosition(fromNodes, anchor) ?? {x: 0, y: 0};
-        const toPosition = target?.position ?? anchorPosition(toNodes, anchor) ?? {x: 0, y: 0};
-        nodes.push({
-            node: target ?? start!.node,
-            position: {
-                x: fromPosition.x + (toPosition.x - fromPosition.x) * progress,
-                y: fromPosition.y + (toPosition.y - fromPosition.y) * progress,
-            },
-            opacity: (start?.opacity ?? 0) + ((target === undefined ? 0 : 1) - (start?.opacity ?? 0)) * progress,
-            transient: progress < 1 && (start?.transient === true || start === undefined || target === undefined),
-        });
-    }
-
+    const nodeIds = new Set([...fromNodes.keys(), ...toNodes.keys()]);
     const fromEdges = new Map(from.edges.map((entry) => [entry.edge.id, entry]));
     const toEdges = new Map(to.edges.map((edge) => [edge.id, edge]));
-    const edges: AnimatedEdge[] = [];
-    for (const id of new Set([...fromEdges.keys(), ...toEdges.keys()])) {
-        const start = fromEdges.get(id);
-        const target = toEdges.get(id);
-        if (target === undefined && progress === 1) continue;
-        edges.push({
-            edge: target ?? start!.edge,
-            opacity: (start?.opacity ?? 0) + ((target === undefined ? 0 : 1) - (start?.opacity ?? 0)) * progress,
-            transient: progress < 1 && (start?.transient === true || start === undefined || target === undefined),
-        });
-    }
-    return {nodes, edges};
+    const edgeIds = new Set([...fromEdges.keys(), ...toEdges.keys()]);
+
+    return (progress) => {
+        const nodes: AnimatedNode[] = [];
+        for (const id of nodeIds) {
+            const start = fromNodes.get(id);
+            const target = toNodes.get(id);
+            if (target === undefined && progress === 1) continue;
+            const anchor = anchors.get(id);
+            const fromPosition = start?.position ?? anchorPosition(fromNodes, anchor) ?? {x: 0, y: 0};
+            const toPosition = target?.position ?? anchorPosition(toNodes, anchor) ?? {x: 0, y: 0};
+            nodes.push({
+                node: target ?? start!.node,
+                position: {
+                    x: fromPosition.x + (toPosition.x - fromPosition.x) * progress,
+                    y: fromPosition.y + (toPosition.y - fromPosition.y) * progress,
+                },
+                opacity: (start?.opacity ?? 0) + ((target === undefined ? 0 : 1) - (start?.opacity ?? 0)) * progress,
+                transient: progress < 1 && (start?.transient === true || start === undefined || target === undefined),
+            });
+        }
+
+        const edges: AnimatedEdge[] = [];
+        for (const id of edgeIds) {
+            const start = fromEdges.get(id);
+            const target = toEdges.get(id);
+            if (target === undefined && progress === 1) continue;
+            edges.push({
+                edge: target ?? start!.edge,
+                opacity: (start?.opacity ?? 0) + ((target === undefined ? 0 : 1) - (start?.opacity ?? 0)) * progress,
+                transient: progress < 1 && (start?.transient === true || start === undefined || target === undefined),
+            });
+        }
+        return {nodes, edges};
+    };
 }
