@@ -14,6 +14,7 @@ import type {IconName, TreeNode} from "../tree-description";
 import type {Json, JsonObject} from "./loader-utils";
 import {forceToString, formatMetric, hasOwnProperty, tryToString} from "./loader-utils";
 import type {UnresolvedCrosslink} from "./tree-postprocessing";
+import {InvalidPlanError} from "./types";
 
 export interface NodeRenderingConfig {
     /** Use this converted scalar property as the node's display name. */
@@ -135,7 +136,7 @@ function convertDecoratedJsonValue(
     }
 
     if (typeof rawNode !== "object" || rawNode === null) {
-        throw new Error("Invalid query plan");
+        throw new InvalidPlanError();
     }
 
     const expandedChildren: TreeNode[] = [];
