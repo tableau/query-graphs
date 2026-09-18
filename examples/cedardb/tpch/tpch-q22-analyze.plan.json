@@ -2,12 +2,12 @@
  "plan":{
   "operator":"sort",
   "physicalOperator":"sort",
-  "cardinality":2,
+  "cardinality":1,
   "operatorId":1,"analyzePlanId":0,"analyzePlanCardinality":1,
   "input":{
    "operator":"groupby",
    "physicalOperator":"groupby",
-   "cardinality":2,
+   "cardinality":1,
    "operatorId":2,"analyzePlanId":1,"analyzePlanCardinality":1,
    "input":{
     "operator":"join",
@@ -17,7 +17,7 @@
     "left":{
      "operator":"join",
      "physicalOperator":"singletonjoin",
-     "cardinality":5,
+     "cardinality":4,
      "operatorId":4,"analyzePlanId":3,"analyzePlanCardinality":20,
      "left":{
       "operator":"groupby",
@@ -30,7 +30,7 @@
        "cardinality":10,
        "operatorId":6,"analyzePlanId":5,"analyzePlanCardinality":37,
        "attributes":[{"name":"c_custkey", "iu":"c_custkey", "column":0}, {"name":"c_name", "iu":"c_name", "column":1}, {"name":"c_address", "iu":"c_address", "column":2}, {"name":"c_nationkey", "iu":"c_nationkey", "column":3}, {"name":"c_phone", "iu":"c_phone", "column":4}, {"name":"c_acctbal", "iu":"c_acctbal", "column":5}, {"name":"c_mktsegment", "iu":"c_mktsegment", "column":6}, {"name":"c_comment", "iu":"c_comment", "column":7}],
-       "restrictions":[{"attribute":5, "mode":">=", "value":{"expression":"const", "value":{"type":{"type":"numeric", "precision":12, "scale":2}, "value":1}}, "estimatedSelectivity":0, "collate":""}, {"attribute":4, "mode":"expression", "value":{"expression":"in", "input":[{"expression":"substring", "input":[{"expression":"cast", "input":{"expression":"iuref", "iu":"c_phone"}, "type":{"type":"text"}, "semantic":"implicit"}, {"expression":"const", "value":{"type":{"type":"int32"}, "value":1}}, {"expression":"const", "value":{"type":{"type":"int32"}, "value":2}}]}], "values":[{"type":{"type":"text"}, "value":"13"}, {"type":{"type":"text"}, "value":"17"}, {"type":{"type":"text"}, "value":"18"}, {"type":{"type":"text"}, "value":"23"}, {"type":{"type":"text"}, "value":"29"}, {"type":{"type":"text"}, "value":"30"}, {"type":{"type":"text"}, "value":"31"}], "collates":[[""]]}, "estimatedSelectivity":0.116889783277838957, "collate":""}, {"attribute":4, "mode":"expression", "value":{"expression":"between", "input":[{"expression":"substring", "input":[{"expression":"cast", "input":{"expression":"iuref", "iu":"c_phone"}, "type":{"type":"text"}, "semantic":"implicit"}, {"expression":"const", "value":{"type":{"type":"int32"}, "value":1}}, {"expression":"const", "value":{"type":{"type":"int32"}, "value":2}}]}, {"expression":"const", "value":{"type":{"type":"text"}, "value":"13"}}, {"expression":"const", "value":{"type":{"type":"text"}, "value":"31"}}], "collate":""}, "estimatedSelectivity":0.3, "collate":""}],
+       "restrictions":[{"attribute":5, "mode":">=", "value":{"expression":"const", "value":{"type":{"type":"numeric", "precision":12, "scale":2}, "value":1}}, "estimatedSelectivity":0, "collate":""}, {"attribute":4, "mode":"expression", "value":{"expression":"in", "input":[{"expression":"substring", "input":[{"expression":"cast", "input":{"expression":"iuref", "iu":"c_phone"}, "type":{"type":"text"}}, {"expression":"const", "value":{"type":{"type":"int32"}, "value":1}}, {"expression":"const", "value":{"type":{"type":"int32"}, "value":2}}]}], "values":[{"type":{"type":"text"}, "value":"13"}, {"type":{"type":"text"}, "value":"17"}, {"type":{"type":"text"}, "value":"18"}, {"type":{"type":"text"}, "value":"23"}, {"type":{"type":"text"}, "value":"29"}, {"type":{"type":"text"}, "value":"30"}, {"type":{"type":"text"}, "value":"31"}], "collates":[[""]]}, "estimatedSelectivity":0.116889783277838957, "collate":""}, {"attribute":4, "mode":"expression", "value":{"expression":"between", "input":[{"expression":"substring", "input":[{"expression":"cast", "input":{"expression":"iuref", "iu":"c_phone"}, "type":{"type":"text"}}, {"expression":"const", "value":{"type":{"type":"int32"}, "value":1}}, {"expression":"const", "value":{"type":{"type":"int32"}, "value":2}}]}, {"expression":"const", "value":{"type":{"type":"text"}, "value":"13"}}, {"expression":"const", "value":{"type":{"type":"text"}, "value":"31"}}], "collate":""}, "estimatedSelectivity":0.3, "collate":""}],
        "residuals":[],
        "tid":"tid",
        "tableoid":"tableoid",
@@ -51,10 +51,10 @@
      "right":{
       "operator":"tablescan",
       "physicalOperator":"tablescan",
-      "cardinality":10,
-      "operatorId":7,"analyzePlanId":6,"analyzePlanCardinality":38,
+      "cardinality":9,
+      "operatorId":7,"analyzePlanId":6,"analyzePlanCardinality":20,
       "attributes":[{"name":"c_custkey", "iu":"c_custkey13", "column":0}, {"name":"c_name", "iu":"c_name14", "column":1}, {"name":"c_address", "iu":"c_address15", "column":2}, {"name":"c_nationkey", "iu":"c_nationkey16", "column":3}, {"name":"c_phone", "iu":"c_phone17", "column":4}, {"name":"c_acctbal", "iu":"c_acctbal18", "column":5}, {"name":"c_mktsegment", "iu":"c_mktsegment19", "column":6}, {"name":"c_comment", "iu":"c_comment20", "column":7}],
-      "restrictions":[{"attribute":4, "mode":"expression", "value":{"expression":"in", "input":[{"expression":"substring", "input":[{"expression":"cast", "input":{"expression":"iuref", "iu":"c_phone17"}, "type":{"type":"text"}, "semantic":"implicit"}, {"expression":"const", "value":{"type":{"type":"int32"}, "value":1}}, {"expression":"const", "value":{"type":{"type":"int32"}, "value":2}}]}], "values":[{"type":{"type":"text"}, "value":"13"}, {"type":{"type":"text"}, "value":"17"}, {"type":{"type":"text"}, "value":"18"}, {"type":{"type":"text"}, "value":"23"}, {"type":{"type":"text"}, "value":"29"}, {"type":{"type":"text"}, "value":"30"}, {"type":{"type":"text"}, "value":"31"}], "collates":[[""]]}, "estimatedSelectivity":0.116889783277838957, "collate":""}, {"attribute":4, "mode":"expression", "value":{"expression":"between", "input":[{"expression":"substring", "input":[{"expression":"cast", "input":{"expression":"iuref", "iu":"c_phone17"}, "type":{"type":"text"}, "semantic":"implicit"}, {"expression":"const", "value":{"type":{"type":"int32"}, "value":1}}, {"expression":"const", "value":{"type":{"type":"int32"}, "value":2}}]}, {"expression":"const", "value":{"type":{"type":"text"}, "value":"13"}}, {"expression":"const", "value":{"type":{"type":"text"}, "value":"31"}}], "collate":""}, "estimatedSelectivity":0.3, "collate":""}],
+      "restrictions":[{"attribute":4, "mode":"expression", "value":{"expression":"in", "input":[{"expression":"substring", "input":[{"expression":"cast", "input":{"expression":"iuref", "iu":"c_phone17"}, "type":{"type":"text"}}, {"expression":"const", "value":{"type":{"type":"int32"}, "value":1}}, {"expression":"const", "value":{"type":{"type":"int32"}, "value":2}}]}], "values":[{"type":{"type":"text"}, "value":"13"}, {"type":{"type":"text"}, "value":"17"}, {"type":{"type":"text"}, "value":"18"}, {"type":{"type":"text"}, "value":"23"}, {"type":{"type":"text"}, "value":"29"}, {"type":{"type":"text"}, "value":"30"}, {"type":{"type":"text"}, "value":"31"}], "collates":[[""]]}, "estimatedSelectivity":0.116889783277838957, "collate":""}, {"attribute":4, "mode":"expression", "value":{"expression":"between", "input":[{"expression":"substring", "input":[{"expression":"cast", "input":{"expression":"iuref", "iu":"c_phone17"}, "type":{"type":"text"}}, {"expression":"const", "value":{"type":{"type":"int32"}, "value":1}}, {"expression":"const", "value":{"type":{"type":"int32"}, "value":2}}]}, {"expression":"const", "value":{"type":{"type":"text"}, "value":"13"}}, {"expression":"const", "value":{"type":{"type":"text"}, "value":"31"}}], "collate":""}, "estimatedSelectivity":0.3, "collate":""}, {"attribute":5, "mode":"joinsingle>", "op":4, "estimatedSelectivity":0.5, "collate":""}],
       "residuals":[],
       "tid":"tid21",
       "tableoid":"tableoid22",
@@ -84,7 +84,7 @@
     "condition":{"expression":"compare", "left":{"expression":"iuref", "iu":"o_custkey"}, "right":{"expression":"iuref", "iu":"c_custkey13"}, "direction":"=", "collate":""},
     "type":"leftanti"
    },
-   "values":[{"expression":"substring", "input":[{"expression":"cast", "input":{"expression":"iuref", "iu":"c_phone17"}, "type":{"type":"text"}, "semantic":"implicit"}, {"expression":"const", "value":{"type":{"type":"int32"}, "value":1}}, {"expression":"const", "value":{"type":{"type":"int32"}, "value":2}}]}, {"expression":"iuref", "iu":"c_acctbal18"}],
+   "values":[{"expression":"substring", "input":[{"expression":"cast", "input":{"expression":"iuref", "iu":"c_phone17"}, "type":{"type":"text"}}, {"expression":"const", "value":{"type":{"type":"int32"}, "value":1}}, {"expression":"const", "value":{"type":{"type":"int32"}, "value":2}}]}, {"expression":"iuref", "iu":"c_acctbal18"}],
    "key":[{"arg":0, "iu":"cntrycode", "collate":""}],
    "groupingmode":"regular",
    "aggregates":[{"op":"countstar", "iu":"count_star(*)"}, {"op":"sum", "arg":1, "collate":"", "iu":"sum(c_acctbal)"}],
@@ -103,5 +103,5 @@
  "query":true,
  "hasParameters":false,
  "permissions":{"planPermissions":[{"object":{"type":"temporarytable", "id":6}, "role":10, "permissions":{"value":2, "grantMask":0}}, {"object":{"type":"temporarytable", "id":5}, "role":10, "permissions":{"value":2, "grantMask":0}}, {"object":{"type":"schema", "id":3}, "role":10, "permissions":{"value":256, "grantMask":0}}], "fileReaders":[], "fileWriters":[], "objectsToLock":[]},
- "analyzePlanPipelines":[{"start":31,"stop":61,"duration":30,"parallelism":"single-threaded","operators":[4,5]},{"start":62,"stop":63,"duration":1,"parallelism":"single-threaded","operators":[3,4]},{"start":64,"stop":113,"duration":49,"parallelism":"multi-threaded","operators":[2,3,6]},{"start":130,"stop":177,"duration":47,"parallelism":"multi-threaded","operators":[1,2,7]},{"start":225,"stop":232,"duration":7,"parallelism":"multi-threaded","operators":[0,1]},{"start":241,"stop":243,"duration":2,"parallelism":"multi-threaded","operators":[0]}]
+ "analyzePlanPipelines":[{"start":13,"stop":22,"duration":9,"parallelism":"single-threaded","operators":[4,5]},{"start":23,"stop":23,"duration":0,"parallelism":"single-threaded","operators":[3,4]},{"start":24,"stop":64,"duration":40,"parallelism":"multi-threaded","operators":[2,3,6]},{"start":91,"stop":152,"duration":61,"parallelism":"multi-threaded","operators":[1,2,7]},{"start":178,"stop":181,"duration":3,"parallelism":"multi-threaded","operators":[0,1]},{"start":185,"stop":185,"duration":0,"parallelism":"multi-threaded","operators":[0]}]
 }
