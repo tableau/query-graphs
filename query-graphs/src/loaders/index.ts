@@ -63,8 +63,12 @@ export const jsonPlanLoaders: readonly PlanLoader<Json>[] = [postgresPlanLoader,
 export const xmlPlanLoaders: readonly PlanLoader<ParsedXML>[] = [tableauPlanLoader, xmlPlanLoader];
 
 function loadMatchingPlan<Input>(input: Input, loaders: readonly PlanLoader<Input>[], format?: string): LoadedPlan | undefined {
-    const loader = loaders.find((candidate) => (format === undefined ? candidate.matches(input) : candidate.format === format));
-    return loader === undefined ? undefined : {format: loader.format, tree: loader.load(input)};
+    for (const loader of loaders) {
+        if (format === undefined ? loader.matches(input) : loader.format === format) {
+            return {format: loader.format, tree: loader.load(input)};
+        }
+    }
+    return undefined;
 }
 
 function stripSurroundingText(text: string): string {
