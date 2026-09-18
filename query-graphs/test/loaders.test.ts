@@ -73,6 +73,7 @@ test("dispatcher falls back to the generic JSON loader", () => {
         assert.equal(loadPlanFromText(json).format, "json", json);
     }
 
+    // Without format-specific decorations, every nested object and array stays visible; no node is collapsed.
     const tree = loadPlanFromText('{"nested":{"value":42},"items":[{"value":1}]}').tree;
     visitTreeNodes(tree.root, (node) => assert.equal(node.collapsedChildren?.length ?? 0, 0), allChildren);
 });
