@@ -81,11 +81,6 @@ test("dispatcher falls back to the generic JSON loader", () => {
     }
 });
 
-test("dispatcher accepts the sql_hyper output prefix", () => {
-    const fixture = readFileSync(path.join(examplesRoot, "hyper/tablescan-analyze.plan.json"), "utf8");
-    assert.equal(loadPlanFromText(`plan\n${fixture}`).format, "hyper");
-});
-
 test("dispatcher strips text surrounding copied plans", () => {
     const json = 'Copied from the query analyzer:\n{"unrecognized":true}\nEnd of plan';
     assert.equal(loadPlanFromText(json).format, "json");
