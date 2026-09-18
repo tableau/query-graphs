@@ -63,7 +63,7 @@ type UmbraStatement = JsonObject & {plan: JsonObject};
 const umbraConfig: DecoratedJsonTreeConfig = {
     nodeTypeKeys: ["operator", "expression"],
     structuralChildKeys,
-    alwaysPropertyKeys: ["analyzePlanCounters"],
+    alwaysPropertyKeys: ["analyzePlanCounters", "sourceLocation"],
     getRenderingConfig(nodeTypeKey, tag, rawNode) {
         if (nodeTypeKey === "operator" && tag === "join") {
             return {displayNameKey: "type", icon: joinIcons[tryToString(rawNode["type"]) ?? ""]};

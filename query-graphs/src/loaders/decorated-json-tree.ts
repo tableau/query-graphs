@@ -55,8 +55,6 @@ export interface DecoratedJsonTreeConfig {
     shouldCollapseChild?(rawNode: JsonObject, key: string, child: Json): boolean;
     /** Open a node's `collapsedChildren` initially when it has no ordinary children. */
     shouldExpandCollapsedChildren?(rawNode: JsonObject, nodeTypeKey: string | undefined): boolean;
-    /** Mark a converted node as the failure location. */
-    isErrored?(rawNode: JsonObject, metadata: Map<string, string>): boolean;
     /** Collect a numeric value for relative node coloring after conversion. */
     getNodeColorValue?(rawNode: JsonObject): number | undefined;
     /** Label and size the incoming edge using the estimated cardinality. */
@@ -211,11 +209,6 @@ function convertDecoratedJsonValue(
         collapsedChildren,
         expandedByDefault: expandedChildren.length === 0 && (config.shouldExpandCollapsedChildren?.(rawNode, nodeTypeKey) ?? true),
     };
-
-    if (config.isErrored?.(rawNode, state.metadata)) {
-        // Highlight the node where execution failed.
-        convertedNode.iconColor = "red";
-    }
 
     // Collect values that require whole-tree normalization after conversion.
     const nodeColorValue = config.getNodeColorValue?.(rawNode);

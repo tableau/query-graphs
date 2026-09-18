@@ -6,6 +6,10 @@ Hyper JSON Transformations
 Hyper plans use the shared adaptive operator/expression tree conversion plus
 Hyper-specific rendering, metrics, crosslinks, and plan envelopes.
 
+Hyper plan-format compatibility is retained for three months after a format
+change. Legacy paths are marked with a dated TODO when their removal window is
+known.
+
 */
 
 import type {Crosslink, TreeDescription, TreeNode} from "../tree-description";
@@ -19,8 +23,7 @@ import {buildIdMap, colorRelativeNumber, resolveCrosslinks, setRelativeEdgeWidth
 import type {PlanLoader} from "./types";
 
 const nodeRenderingConfig: Record<string, NodeRenderingConfig> = {
-    "op:execution-target": {icon: "run-query-symbol"},
-    "op:output": {icon: "run-query-symbol"},
+    "op:result-sink": {icon: "run-query-symbol"},
     "op:filter": {icon: "filter-symbol"},
     "op:sort": {icon: "sort-symbol"},
     "op:group-by": {icon: "groupby-symbol"},
@@ -38,36 +41,13 @@ const nodeRenderingConfig: Record<string, NodeRenderingConfig> = {
     "op:join:right-single": {displayNameKey: "type", crosslinkSourceKey: "magic"},
     "op:join:left-mark": {displayNameKey: "type", crosslinkSourceKey: "magic"},
     "op:join:right-mark": {displayNameKey: "type", crosslinkSourceKey: "magic"},
-    "op:left-outer-join": {icon: "left-join-symbol", crosslinkSourceKey: "magic"},
-    "op:right-outer-join": {icon: "right-join-symbol", crosslinkSourceKey: "magic"},
-    "op:full-outer-join": {icon: "full-join-symbol", crosslinkSourceKey: "magic"},
-    "op:left-anti-join": {crosslinkSourceKey: "magic"},
-    "op:right-anti-join": {crosslinkSourceKey: "magic"},
-    "op:left-semi-join": {crosslinkSourceKey: "magic"},
-    "op:right-semi-join": {crosslinkSourceKey: "magic"},
-    "op:left-single-join": {crosslinkSourceKey: "magic"},
-    "op:right-single-join": {crosslinkSourceKey: "magic"},
-    "op:left-mark-join": {crosslinkSourceKey: "magic"},
-    "op:right-mark-join": {crosslinkSourceKey: "magic"},
-    "op:early-probe": {icon: "filter-symbol", crosslinkSourceKey: "builder"},
     // Various scans
     "op:scan": {displayNameKey: "type", icon: "table-symbol"},
     "op:scan:virtual-table": {displayNameKey: "type", icon: "virtual-table-symbol"},
-    "op:table-scan": {icon: "table-symbol"},
-    "op:arrow-scan": {icon: "table-symbol"},
-    "op:binary-scan": {icon: "table-symbol"},
-    "op:csv-scan": {icon: "table-symbol"},
-    "op:cloud-table-scan": {icon: "table-symbol"},
-    "op:cursor-scan": {icon: "table-symbol"},
-    "op:iceberg-scan": {icon: "table-symbol"},
-    "op:parquet-scan": {icon: "table-symbol"},
-    "op:tde-scan": {icon: "table-symbol"},
     // Other tables
     "op:table-construction": {icon: "const-table-symbol"},
-    "op:virtual-table": {icon: "virtual-table-symbol"},
     // Temp & Explicit scan
     "op:explicit-scan": {icon: "temp-table-symbol", crosslinkSourceKey: "input"},
-    "op:temp": {icon: "temp-table-symbol"},
     "op:iteration-increment": {crosslinkSourceKey: "source"},
     // Inserts
     "op:insert": {displayNameKey: "type"},
@@ -77,36 +57,68 @@ const nodeRenderingConfig: Record<string, NodeRenderingConfig> = {
     "exp:reference": {displayNameKey: "id"},
 };
 
-// Legacy tags from before the kebab-case transition.
+// TODO(2026-12-18): Remove the early-probe override together with the legacy tag aliases below.
+const legacyNodeRenderingConfig: Record<string, NodeRenderingConfig> = {
+    "op:early-probe": {icon: "filter-symbol", crosslinkSourceKey: "builder"},
+};
+
+// TODO(2026-12-18): Remove aliases for operator tags replaced on 2026-09-18.
 const legacyNodeTags: Record<string, string> = {
-    "op:executiontarget": "op:execution-target",
+    "op:execution-target": "op:result-sink",
+    "op:executiontarget": "op:result-sink",
+    "op:output": "op:result-sink",
     "op:select": "op:filter",
     "op:groupby": "op:group-by",
-    "op:leftouterjoin": "op:left-outer-join",
-    "op:rightouterjoin": "op:right-outer-join",
-    "op:fullouterjoin": "op:full-outer-join",
-    "op:leftantijoin": "op:left-anti-join",
-    "op:rightantijoin": "op:right-anti-join",
-    "op:leftsemijoin": "op:left-semi-join",
-    "op:rightsemijoin": "op:right-semi-join",
-    "op:leftsinglejoin": "op:left-single-join",
-    "op:rightsinglejoin": "op:right-single-join",
-    "op:leftmarkjoin": "op:left-mark-join",
-    "op:rightmarkjoin": "op:right-mark-join",
+    // Joins
+    "op:left-outer-join": "op:join:left-outer",
+    "op:leftouterjoin": "op:join:left-outer",
+    "op:right-outer-join": "op:join:right-outer",
+    "op:rightouterjoin": "op:join:right-outer",
+    "op:full-outer-join": "op:join:full-outer",
+    "op:fullouterjoin": "op:join:full-outer",
+    "op:left-anti-join": "op:join:left-anti",
+    "op:leftantijoin": "op:join:left-anti",
+    "op:right-anti-join": "op:join:right-anti",
+    "op:rightantijoin": "op:join:right-anti",
+    "op:left-semi-join": "op:join:left-semi",
+    "op:leftsemijoin": "op:join:left-semi",
+    "op:right-semi-join": "op:join:right-semi",
+    "op:rightsemijoin": "op:join:right-semi",
+    "op:left-single-join": "op:join:left-single",
+    "op:leftsinglejoin": "op:join:left-single",
+    "op:right-single-join": "op:join:right-single",
+    "op:rightsinglejoin": "op:join:right-single",
+    "op:left-mark-join": "op:join:left-mark",
+    "op:leftmarkjoin": "op:join:left-mark",
+    "op:right-mark-join": "op:join:right-mark",
+    "op:rightmarkjoin": "op:join:right-mark",
     "op:earlyprobe": "op:early-probe",
-    "op:tablescan": "op:table-scan",
-    "op:arrowscan": "op:arrow-scan",
-    "op:binaryscan": "op:binary-scan",
-    "op:csvscan": "op:csv-scan",
-    "op:cloudtablescan": "op:cloud-table-scan",
-    "op:cursorscan": "op:cursor-scan",
-    "op:icebergscan": "op:iceberg-scan",
-    "op:parquetscan": "op:parquet-scan",
-    "op:tdescan": "op:tde-scan",
+    // Scans
+    "op:table-scan": "op:scan",
+    "op:tablescan": "op:scan",
+    "op:arrow-scan": "op:scan",
+    "op:arrowscan": "op:scan",
+    "op:binary-scan": "op:scan",
+    "op:binaryscan": "op:scan",
+    "op:csv-scan": "op:scan",
+    "op:csvscan": "op:scan",
+    "op:cloud-table-scan": "op:scan",
+    "op:cloudtablescan": "op:scan",
+    "op:cursor-scan": "op:scan",
+    "op:cursorscan": "op:scan",
+    "op:iceberg-scan": "op:scan",
+    "op:icebergscan": "op:scan",
+    "op:parquet-scan": "op:scan",
+    "op:parquetscan": "op:scan",
+    "op:tde-scan": "op:scan",
+    "op:tdescan": "op:scan",
     "op:tableconstruction": "op:table-construction",
-    "op:virtualtable": "op:virtual-table",
+    "op:virtual-table": "op:scan:virtual-table",
+    "op:virtualtable": "op:scan:virtual-table",
+    "op:temp": "op:explicit-scan",
     "op:explicitscan": "op:explicit-scan",
     "op:iterationincrement": "op:iteration-increment",
+    // Expressions
     "exp:iuref": "exp:iu-ref",
 };
 
@@ -128,6 +140,8 @@ const hyperConfig: DecoratedJsonTreeConfig = {
         return (
             (subtype === undefined ? undefined : nodeRenderingConfig[`${configKey}:${subtype}`]) ??
             nodeRenderingConfig[configKey] ??
+            (subtype === undefined ? undefined : legacyNodeRenderingConfig[`${configKey}:${subtype}`]) ??
+            legacyNodeRenderingConfig[configKey] ??
             {}
         );
     },
@@ -144,10 +158,8 @@ const hyperConfig: DecoratedJsonTreeConfig = {
         // Expand expression details by default.
         return nodeTypeKey !== "operator";
     },
-    isErrored(rawNode, metadata) {
-        return metadata.has("Error") && tryGetPropertyPath(rawNode, ["statistics", "running"]) === true;
-    },
     getNodeColorValue(rawNode) {
+        // TODO(2026-12-18): Remove operator-level CPU cycles after the pipeline-statistics compatibility window.
         const executionTime = tryGetPropertyPath(rawNode, ["statistics", "cpu-cycles"]);
         return typeof executionTime === "number" ? executionTime : undefined;
     },
@@ -166,11 +178,17 @@ const hyperConfig: DecoratedJsonTreeConfig = {
     },
 };
 
-function parsePipelines(pipelinesJson: Json, operatorsById: Map<string, TreeNode>): ExecutionPipeline[] {
+interface HyperPipeline extends ExecutionPipeline {
+    driver?: TreeNode;
+    statistics?: Json;
+    running: boolean;
+}
+
+function parsePipelines(pipelinesJson: Json, operatorsById: Map<string, TreeNode>): HyperPipeline[] {
     if (!Array.isArray(pipelinesJson)) {
         return [];
     }
-    const pipelines: ExecutionPipeline[] = [];
+    const pipelines: HyperPipeline[] = [];
     for (const entry of pipelinesJson) {
         if (typeof entry !== "object" || Array.isArray(entry) || entry === null) continue;
         const id = entry["id"];
@@ -180,9 +198,34 @@ function parsePipelines(pipelinesJson: Json, operatorsById: Map<string, TreeNode
             .filter((operatorId): operatorId is number => typeof operatorId === "number")
             .map((operatorId) => operatorsById.get(operatorId.toString()))
             .filter((node) => node !== undefined);
-        pipelines.push({id, nodes});
+        const driverId = operators[operators.length - 1];
+        const driver = typeof driverId === "number" ? operatorsById.get(driverId.toString()) : undefined;
+        const statistics = hasOwnProperty(entry, "statistics") ? entry["statistics"] : undefined;
+        const running = tryGetPropertyPath(entry, ["statistics", "running"]);
+        pipelines.push({
+            id,
+            nodes,
+            driver,
+            statistics,
+            running: running === true,
+        });
     }
     return pipelines;
+}
+
+function applyPipelineStatistics(pipelines: HyperPipeline[], metadata: Map<string, string>): void {
+    for (const pipeline of pipelines) {
+        if (pipeline.driver !== undefined && pipeline.statistics !== undefined) {
+            const properties = pipeline.driver.properties ?? new Map<string, string>();
+            properties.set("pipeline-stats", forceToString(pipeline.statistics));
+            pipeline.driver.properties = properties;
+        }
+        for (const node of pipeline.nodes) {
+            if (metadata.has("Error") && pipeline.running) {
+                node.iconColor = "red";
+            }
+        }
+    }
 }
 
 function convertHyperPlan(node: Json, pipelines?: Json): TreeDescription {
@@ -198,7 +241,9 @@ function convertHyperPlan(node: Json, pipelines?: Json): TreeDescription {
     const operatorsById = buildIdMap(root, "operator-id");
     const crosslinks = resolveCrosslinks(state.crosslinks, operatorsById);
     if (pipelines !== undefined) {
-        assignPipelineColors(root, parsePipelines(pipelines, operatorsById), crosslinks);
+        const parsedPipelines = parsePipelines(pipelines, operatorsById);
+        applyPipelineStatistics(parsedPipelines, state.metadata);
+        assignPipelineColors(root, parsedPipelines, crosslinks);
     }
     return {root, crosslinks, metadata: state.metadata};
 }
@@ -261,7 +306,7 @@ function isOptimizerStepsPlan(node: Json): boolean {
     );
 }
 
-// Detect the `{tree, pipelines}` envelope emitted by `EXPLAIN (..., PIPELINES, ...)`.
+// Detect the `{tree, pipelines}` envelope emitted for fully optimized JSON-like plans.
 function hasPipelineEnvelope(json: Json): json is JsonObject {
     return (
         typeof json === "object" &&
@@ -277,6 +322,7 @@ function isHyperPlan(json: Json): boolean {
     if (hasPipelineEnvelope(json)) {
         return isHyperPlanRoot(json["tree"]);
     }
+    // TODO(2026-12-18): Require the {tree, pipelines} envelope and stop auto-detecting pre-2026-09-18 direct-root plans.
     return isOptimizerStepsPlan(json) || isHyperPlanRoot(json);
 }
 
@@ -284,6 +330,7 @@ function loadHyperPlan(json: Json): TreeDescription {
     if (hasPipelineEnvelope(json)) {
         return convertHyperPlan(json["tree"], json["pipelines"]);
     }
+    // TODO(2026-12-18): Require the {tree, pipelines} envelope and stop loading pre-2026-09-18 direct-root plans.
     return convertOptimizerSteps(json) ?? convertHyperPlan(json);
 }
 
