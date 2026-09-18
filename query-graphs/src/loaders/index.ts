@@ -1,4 +1,5 @@
 import type {TreeDescription} from "../tree-description";
+import {duckDbPlanLoader} from "./duckdb";
 import {hyperPlanLoader} from "./hyper";
 import {jsonPlanLoader} from "./json";
 import type {Json} from "./loader-utils";
@@ -20,7 +21,13 @@ export interface LoadPlanOptions {
 export {InvalidPlanError, type PlanLoader, UnknownPlanFormatError} from "./types";
 
 // Order matters: format-specific loaders must precede the more permissive Hyper loader, and generic fallbacks must stay last.
-export const jsonPlanLoaders: readonly PlanLoader<Json>[] = [postgresPlanLoader, umbraPlanLoader, hyperPlanLoader, jsonPlanLoader];
+export const jsonPlanLoaders: readonly PlanLoader<Json>[] = [
+    postgresPlanLoader,
+    umbraPlanLoader,
+    duckDbPlanLoader,
+    hyperPlanLoader,
+    jsonPlanLoader,
+];
 export const xmlPlanLoaders: readonly PlanLoader<ParsedXML>[] = [tableauPlanLoader, xmlPlanLoader];
 
 function loadMatchingPlan<Input>(

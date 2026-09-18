@@ -14,17 +14,21 @@ export function hasOwnProperty<X, Y extends PropertyKey>(o: X, key: Y): o is X &
     return Object.prototype.hasOwnProperty.call(o, key);
 }
 
+export function isJsonObject(value: Json | undefined): value is JsonObject {
+    return typeof value === "object" && !Array.isArray(value) && value !== null;
+}
+
 export function tryGetPropertyPath(d: Json, path: string[]): Json | undefined {
     for (const key of path) {
-        if (typeof d !== "object" || d instanceof Array || d === null) return undefined;
+        if (!isJsonObject(d)) return undefined;
         if (!hasOwnProperty(d, key)) return undefined;
         d = d[key];
     }
     return d;
 }
 
-export function hasSubOject<X, Y extends PropertyKey>(o: X, key: Y): o is X & Record<Y, Record<string, unknown>> {
-    return hasOwnProperty(o, key) && typeof o[key] === "object" && o[key] !== null;
+export function hasSubObject<Y extends string>(value: Json, key: Y): value is JsonObject & Record<Y, JsonObject> {
+    return isJsonObject(value) && hasOwnProperty(value, key) && isJsonObject(value[key]);
 }
 
 // Try to convert to string. Return undefined if not succesful.
@@ -43,6 +47,10 @@ export function tryToString(d: unknown): string | undefined {
     return undefined;
 }
 
+export function tryToNonNullString(value: unknown): string | undefined {
+    return value === undefined || value === null ? undefined : tryToString(value);
+}
+
 // Convert to string. Returns the JSON serialization if not supported.
 export function forceToString(d: unknown): string {
     let str = tryToString(d);
@@ -52,26 +60,15 @@ export function forceToString(d: unknown): string {
     return str;
 }
 
-export function jsonToStringMap(json: string): Map<string, string> {
-    let parsedJSON: Json;
-    try {
-        parsedJSON = JSON.parse(json);
-    } catch (err) {
-        throw new Error("JSON parse failed with '" + err + "'.", {cause: err});
+export function tryToNumber(value: unknown): number | undefined {
+    if (typeof value === "number") {
+        return Number.isFinite(value) ? value : undefined;
     }
-    if (typeof parsedJSON !== "object" || Array.isArray(parsedJSON) || parsedJSON === null) {
-        throw new Error("Expected a JSON object");
+    if (typeof value === "string" && value.trim() !== "") {
+        const parsed = Number(value);
+        return Number.isFinite(parsed) ? parsed : undefined;
     }
-    const result = new Map<string, string>();
-    for (const key of Object.keys(parsedJSON)) {
-        const value = parsedJSON[key];
-        const strValue = tryToString(value);
-        if (strValue === undefined) {
-            throw new Error("Expected a string value, got " + typeof value);
-        }
-        result.set(key, strValue);
-    }
-    return result;
+    return undefined;
 }
 
 // Format a number using metric suffixes

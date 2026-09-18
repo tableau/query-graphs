@@ -10,7 +10,7 @@ This is pretty much the same algorithm as the algorithm for Hyper plans
 import * as treeDescription from "../tree-description";
 import type {IconName, TreeNode, TreeDescription} from "../tree-description";
 import type {Json, JsonObject} from "./loader-utils";
-import {tryToString, hasOwnProperty, hasSubOject} from "./loader-utils";
+import {tryToNonNullString, hasOwnProperty, hasSubObject} from "./loader-utils";
 import {assert} from "../assert";
 import type {DecoratedJsonTreeConfig} from "./decorated-json-tree";
 import {convertDecoratedJsonNode, createDecoratedJsonTreeState} from "./decorated-json-tree";
@@ -18,7 +18,7 @@ import {buildIdMap, resolveCrosslinks, setRelativeEdgeWidths} from "./tree-postp
 import {InvalidPlanError, type PlanLoader} from "./types";
 
 function getStringProperty(rawNode: JsonObject, key: string): string | undefined {
-    return hasOwnProperty(rawNode, key) ? tryToString(rawNode[key]) : undefined;
+    return tryToNonNullString(rawNode[key]);
 }
 
 function getOperatorIcon(operatorType: string, rawNode: JsonObject): IconName | undefined {
@@ -174,7 +174,7 @@ function unwrapPostgresPlan(json: Json): Json {
 
 function isPostgresPlan(json: Json): boolean {
     json = unwrapPostgresPlan(json);
-    return hasSubOject(json, "Plan") && hasOwnProperty(json.Plan, "Node Type");
+    return hasSubObject(json, "Plan") && hasOwnProperty(json.Plan, "Node Type");
 }
 
 function loadPostgresPlan(json: Json): TreeDescription {
