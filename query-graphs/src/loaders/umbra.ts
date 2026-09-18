@@ -210,9 +210,6 @@ function combineOptimizerStages(stages: [string, UmbraStatement][]): TreeDescrip
 }
 
 function loadUmbraPlan(json: Json): TreeDescription {
-    if (hasPlanObject(json)) {
-        return convertUmbraPlan(json);
-    }
     const stages = optimizerStages(json, hasPlanObject);
     if (stages !== undefined) {
         return combineOptimizerStages(stages);
