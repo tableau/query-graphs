@@ -16,8 +16,6 @@ import {forceToString, formatMetric, hasOwnProperty, tryToString} from "./loader
 import type {UnresolvedCrosslink} from "./tree-postprocessing";
 
 export interface NodeRenderingConfig {
-    /** Use this display name directly. */
-    displayName?: string;
     /** Use this converted scalar property as the node's display name. */
     displayNameKey?: string;
     /** Treat this converted scalar property as the target ID of a crosslink. */
@@ -168,7 +166,6 @@ function convertDecoratedJsonValue(
         nodeTypeKey !== undefined && nodeTag !== undefined ? config.getRenderingConfig(nodeTypeKey, nodeTag, rawNode) : {};
     const displayName =
         config.getDisplayName?.(rawNode) ??
-        renderingConfig.displayName ??
         (renderingConfig.displayNameKey === undefined ? undefined : properties.get(renderingConfig.displayNameKey)) ??
         properties.get("name") ??
         nodeTag ??

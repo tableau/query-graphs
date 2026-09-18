@@ -8,11 +8,11 @@ This is pretty much the same algorithm as the algorithm for Hyper plans
 */
 
 import * as treeDescription from "../tree-description";
-import type {TreeNode, TreeDescription} from "../tree-description";
+import type {IconName, TreeNode, TreeDescription} from "../tree-description";
 import type {Json, JsonObject} from "./loader-utils";
 import {tryToString, hasOwnProperty, hasSubOject} from "./loader-utils";
 import {assert} from "../assert";
-import type {DecoratedJsonTreeConfig, NodeRenderingConfig} from "./decorated-json-tree";
+import type {DecoratedJsonTreeConfig} from "./decorated-json-tree";
 import {convertDecoratedJsonNode, createDecoratedJsonTreeState} from "./decorated-json-tree";
 import {buildIdMap, resolveCrosslinks, setRelativeEdgeWidths} from "./tree-postprocessing";
 import {InvalidPlanError, type PlanLoader} from "./types";
@@ -21,7 +21,7 @@ function getStringProperty(rawNode: JsonObject, key: string): string | undefined
     return hasOwnProperty(rawNode, key) ? tryToString(rawNode[key]) : undefined;
 }
 
-function getOperatorRendering(operatorType: string, rawNode: JsonObject): NodeRenderingConfig {
+function getOperatorIcon(operatorType: string, rawNode: JsonObject): IconName | undefined {
     switch (operatorType) {
         case "Hash Join":
         case "Nested Loop":
@@ -32,38 +32,41 @@ function getOperatorRendering(operatorType: string, rawNode: JsonObject): NodeRe
                 "Left Outer": "left-join-symbol",
                 "Right Outer": "right-join-symbol",
             };
-            const icon = joinIcons[getStringProperty(rawNode, "Join Type") ?? ""] ?? "temp-table-symbol";
-            return {displayName: operatorType, icon};
+            return joinIcons[getStringProperty(rawNode, "Join Type") ?? ""] ?? "temp-table-symbol";
         }
         case "CTE Scan":
-            return {displayName: operatorType, icon: "temp-table-symbol"};
         case "Materialize":
         case "WorkTable Scan":
-            return {displayName: operatorType, icon: "temp-table-symbol"};
+            return "temp-table-symbol";
         case "Incremental Sort":
         case "Sort":
-            return {displayName: operatorType, icon: "sort-symbol"};
+            return "sort-symbol";
         case "Result":
-            return {displayName: operatorType, icon: "const-table-symbol"};
+            return "const-table-symbol";
         case "Limit":
-            return {displayName: operatorType, icon: "filter-symbol"};
+            return "filter-symbol";
         case "Aggregate":
-            return {displayName: operatorType, icon: "groupby-symbol"};
+            return "groupby-symbol";
         case "Function Scan":
         case "Table Function Scan":
-            return {displayName: operatorType};
+            return undefined;
         default:
-            if (operatorType?.endsWith(" Scan")) {
-                let displayName = getStringProperty(rawNode, "Relation Name") ?? getStringProperty(rawNode, "Index Name");
-                if (displayName) {
-                    displayName = displayName + " (" + operatorType + ")";
-                } else {
-                    displayName = operatorType;
-                }
-                return {displayName, icon: "table-symbol"};
-            } else {
-                return {displayName: operatorType};
-            }
+            return operatorType.endsWith(" Scan") ? "table-symbol" : undefined;
+    }
+}
+
+function getOperatorDisplayName(operatorType: string, rawNode: JsonObject): string {
+    switch (operatorType) {
+        case "CTE Scan":
+        case "WorkTable Scan":
+        case "Function Scan":
+        case "Table Function Scan":
+            return operatorType;
+        default: {
+            if (!operatorType.endsWith(" Scan")) return operatorType;
+            const relation = getStringProperty(rawNode, "Relation Name") ?? getStringProperty(rawNode, "Index Name");
+            return relation === undefined ? operatorType : `${relation} (${operatorType})`;
+        }
     }
 }
 
@@ -72,7 +75,11 @@ const postgresConfig: DecoratedJsonTreeConfig = {
     fixedChildOrder: ["Plan", "Plans"],
     alwaysPropertyKeys: [],
     getRenderingConfig(_nodeTypeKey, operatorType, rawNode) {
-        return getOperatorRendering(operatorType, rawNode);
+        return {icon: getOperatorIcon(operatorType, rawNode)};
+    },
+    getDisplayName(rawNode) {
+        const operatorType = getStringProperty(rawNode, "Node Type");
+        return operatorType === undefined ? undefined : getOperatorDisplayName(operatorType, rawNode);
     },
     getCrosslinkTarget(rawNode) {
         if (rawNode["Node Type"] !== "CTE Scan") return undefined;
