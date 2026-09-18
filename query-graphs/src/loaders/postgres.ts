@@ -12,7 +12,7 @@ import type {TreeNode, TreeDescription, IconName} from "../tree-description";
 import type {Json} from "./loader-utils";
 import {tryToString, formatMetric, hasOwnProperty, hasSubOject} from "./loader-utils";
 import {assert} from "../assert";
-import {buildIdMap, resolveCrosslinks, setEdgeWidths, type UnresolvedCrosslink} from "./tree-postprocessing";
+import {buildIdMap, resolveCrosslinks, setRelativeEdgeWidths, type UnresolvedCrosslink} from "./tree-postprocessing";
 import {InvalidPlanError, type PlanLoader} from "./types";
 
 // Temporary state which we hold during converting from JSON to internal graph representation
@@ -304,7 +304,7 @@ function loadPostgresPlan(json: Json): TreeDescription {
         throw new InvalidPlanError("postgres");
     }
     colorRelativeExecutionTime(root);
-    setEdgeWidths(conversionState.edgeWidths);
+    setRelativeEdgeWidths(conversionState.edgeWidths);
     const operatorsById = buildIdMap(root, "Subplan Name");
     const crosslinks = resolveCrosslinks(conversionState.crosslinks, operatorsById);
     return {root: root, crosslinks: crosslinks};

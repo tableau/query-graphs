@@ -43,7 +43,7 @@ export function colorRelativeNumber(
     }
 }
 
-export function setEdgeWidths(edgeWidths: {node: TreeNode; width: number}[]): void {
+export function setRelativeEdgeWidths(edgeWidths: {node: TreeNode; width: number}[]): void {
     const maxWidth = edgeWidths.reduce((maximum, edge) => Math.max(maximum, edge.width), 0);
     const minWidth = edgeWidths.reduce((minimum, edge) => Math.min(minimum, edge.width), Infinity);
     if (minWidth === maxWidth) {

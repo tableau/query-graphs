@@ -15,7 +15,7 @@ import type {DecoratedJsonTreeConfig, NodeRenderingConfig} from "./decorated-jso
 import {convertDecoratedJsonNode, createDecoratedJsonTreeState} from "./decorated-json-tree";
 import type {RawPipeline} from "./pipeline-coloring";
 import {assignPipelineColors} from "./pipeline-coloring";
-import {buildIdMap, colorRelativeNumber, resolveCrosslinks, setEdgeWidths} from "./tree-postprocessing";
+import {buildIdMap, colorRelativeNumber, resolveCrosslinks, setRelativeEdgeWidths} from "./tree-postprocessing";
 import type {PlanLoader} from "./types";
 
 const nodeRenderingConfig: Record<string, NodeRenderingConfig> = {
@@ -187,7 +187,7 @@ function convertHyperPlan(node: Json, pipelines?: Json): TreeDescription {
 
     const root = convertDecoratedJsonNode(node, "result", state, hyperConfig);
     colorRelativeNumber(state.nodeColorValues);
-    setEdgeWidths(state.edgeWidths);
+    setRelativeEdgeWidths(state.edgeWidths);
     const operatorsById = buildIdMap(root, "operator-id");
     const crosslinks = resolveCrosslinks(state.crosslinks, operatorsById);
     if (pipelines !== undefined) {
