@@ -2,9 +2,11 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import type {Edge} from "@xyflow/react";
 import {interpolateLayout, matchesTargetGeometry, refreshLayoutData, sameGeometry, staticLayout} from "../src/ui/animated-layout";
-import type {GraphLayout} from "../src/ui/animated-layout";
+import type {GraphLayout, TransitionAnchors} from "../src/ui/animated-layout";
 import {graphAnimationDuration, graphAnimationProgress} from "../src/ui/animation-timing";
 import type {QueryGraphNode} from "../src/ui/QueryNode";
+
+const parentAnchors = new Map([["child", {nodeId: "parent", offset: {x: 0, y: 30}}]]);
 
 function node(id: string, x: number, y: number, height = 20): QueryGraphNode {
     return {
@@ -28,7 +30,7 @@ test("entering nodes and edges emerge from their parent", () => {
     const start = staticLayout(layout([node("parent", 10, 20, 30)]));
     const target = layout([node("parent", 20, 40, 30), node("child", 80, 120)], [edge("parent", "child")]);
 
-    const staged = interpolateLayout(start, target, "parent", 0);
+    const staged = interpolateLayout(start, target, parentAnchors, 0);
     const child = staged.nodes.find((entry) => entry.node.id === "child");
     assert.deepEqual(child?.position, {x: 10, y: 50});
     assert.equal(child?.opacity, 0);
@@ -36,28 +38,41 @@ test("entering nodes and edges emerge from their parent", () => {
     assert.equal(staged.edges[0]?.opacity, 0);
     assert.equal(staged.edges[0]?.transient, true);
 
-    const finished = interpolateLayout(start, target, "parent", 1);
+    const finished = interpolateLayout(start, target, parentAnchors, 1);
     const finishedChild = finished.nodes.find((entry) => entry.node.id === "child");
     assert.deepEqual(finishedChild?.position, {x: 80, y: 120});
     assert.equal(finishedChild?.opacity, 1);
     assert.equal(finishedChild?.transient, false);
 });
 
+test("simultaneous subtree changes use independent anchors", () => {
+    const start = staticLayout(layout([node("left-parent", 0, 0), node("left-child", 0, 100), node("right-parent", 100, 0)]));
+    const target = layout([node("left-parent", 10, 0), node("right-parent", 110, 0), node("right-child", 110, 100)]);
+    const anchors: TransitionAnchors = new Map([
+        ["left-child", {nodeId: "left-parent", offset: {x: 0, y: 30}}],
+        ["right-child", {nodeId: "right-parent", offset: {x: 0, y: 30}}],
+    ]);
+
+    const halfway = interpolateLayout(start, target, anchors, 0.5);
+    assert.deepEqual(halfway.nodes.find((entry) => entry.node.id === "left-child")?.position, {x: 5, y: 65});
+    assert.deepEqual(halfway.nodes.find((entry) => entry.node.id === "right-child")?.position, {x: 105, y: 65});
+});
+
 test("exiting nodes retain their destination when an animation is interrupted", () => {
     const expanded = staticLayout(layout([node("parent", 10, 20, 30), node("child", 80, 120)], [edge("parent", "child")]));
     const firstTarget = layout([node("parent", 20, 40, 30)]);
-    const interrupted = interpolateLayout(expanded, firstTarget, "parent", 0.5);
+    const interrupted = interpolateLayout(expanded, firstTarget, parentAnchors, 0.5);
     const interruptedChild = interrupted.nodes.find((entry) => entry.node.id === "child");
     assert.deepEqual(interruptedChild?.exitPosition, {x: 20, y: 70});
 
     const movedTarget = layout([node("parent", 100, 100, 30)]);
-    const resumed = interpolateLayout(interrupted, movedTarget, "parent", 0.5);
+    const resumed = interpolateLayout(interrupted, movedTarget, parentAnchors, 0.5);
     const resumedChild = resumed.nodes.find((entry) => entry.node.id === "child");
     assert.deepEqual(resumedChild?.exitPosition, {x: 20, y: 70});
     assert.deepEqual(resumedChild?.position, {x: 35, y: 82.5});
     assert.equal(resumedChild?.opacity, 0.25);
 
-    const finished = interpolateLayout(interrupted, movedTarget, "parent", 1);
+    const finished = interpolateLayout(interrupted, movedTarget, parentAnchors, 1);
     assert.equal(
         finished.nodes.some((entry) => entry.node.id === "child"),
         false,

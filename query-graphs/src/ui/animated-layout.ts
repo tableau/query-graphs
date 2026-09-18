@@ -9,6 +9,13 @@ export interface Position {
     y: number;
 }
 
+export interface LayoutAnchor {
+    nodeId: string;
+    offset: Position;
+}
+
+export type TransitionAnchors = ReadonlyMap<string, LayoutAnchor>;
+
 export interface AnimatedNode {
     node: QueryGraphNode;
     position: Position;
@@ -81,42 +88,43 @@ export function matchesTargetGeometry(rendered: AnimatedLayout, target: GraphLay
     });
 }
 
-/** Returns the bottom-center position of an anchor node, or the origin if it is unavailable. */
-function anchorPosition(nodes: ReadonlyMap<string, AnimatedNode | QueryGraphNode>, id: string | undefined): Position {
-    const entry = id === undefined ? undefined : nodes.get(id);
-    if (entry === undefined) return {x: 0, y: 0};
-    const node = "node" in entry ? entry.node : entry;
-    const position = entry.position;
-    return {x: position.x, y: position.y + (node.measured?.height ?? 0)};
+function anchorPosition(
+    nodes: ReadonlyMap<string, AnimatedNode | QueryGraphNode>,
+    anchor: LayoutAnchor | undefined,
+): Position | undefined {
+    if (anchor === undefined) return undefined;
+    const position = nodes.get(anchor.nodeId)?.position;
+    return position === undefined ? undefined : {x: position.x + anchor.offset.x, y: position.y + anchor.offset.y};
 }
 
 /**
  * Interpolates from the currently rendered state to a settled target layout.
- * Existing elements move between layouts, entering elements emerge from the
- * anchor, and exiting elements move toward it while fading out. Exit positions
- * are retained so an interrupted transition does not redirect departing nodes.
- * `progress` is expected to be clamped to the inclusive range from 0 to 1.
+ * Existing elements move between layouts. Each entering or exiting node can
+ * have its own anchor, allowing multiple subtrees to change in one transition.
+ * Nodes without a supplied anchor use the origin. Exit positions are retained
+ * so an interrupted transition does not redirect departing nodes. `progress`
+ * is expected to be clamped to the inclusive range from 0 to 1.
  */
 export function interpolateLayout(
     from: AnimatedLayout,
     to: GraphLayout,
-    anchorNodeId: string | undefined,
+    anchors: TransitionAnchors,
     progress: number,
 ): AnimatedLayout {
     // Union both layouts: new elements emerge from the anchor, while removed
     // elements remain mounted until they reach the anchor and become transparent.
     const fromNodes = new Map(from.nodes.map((entry) => [entry.node.id, entry]));
     const toNodes = new Map(to.nodes.map((node) => [node.id, node]));
-    const fromAnchor = anchorPosition(fromNodes, anchorNodeId);
-    const toAnchor = anchorPosition(toNodes, anchorNodeId);
     const nodes: AnimatedNode[] = [];
 
     for (const id of new Set([...fromNodes.keys(), ...toNodes.keys()])) {
         const start = fromNodes.get(id);
         const target = toNodes.get(id);
         if (target === undefined && progress === 1) continue;
-        const fromPosition = start?.position ?? fromAnchor;
-        const exitPosition = target === undefined ? (start?.exitPosition ?? toAnchor) : undefined;
+        const anchor = anchors.get(id);
+        const fromPosition = start?.position ?? anchorPosition(fromNodes, anchor) ?? {x: 0, y: 0};
+        const exitPosition =
+            target === undefined ? (start?.exitPosition ?? anchorPosition(toNodes, anchor) ?? {x: 0, y: 0}) : undefined;
         const toPosition = target?.position ?? exitPosition!;
         nodes.push({
             node: target ?? start!.node,
