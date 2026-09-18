@@ -69,6 +69,7 @@ test("Umbra combines repeated records for the same pipeline", () => {
             ],
         },
         analyzePlanPipelines: [
+            // A set operation can report the same pipeline once for each input fragment.
             {pipelineId: 4, operators: [0, 1]},
             {pipelineId: 4, operators: [0, 2]},
         ],
