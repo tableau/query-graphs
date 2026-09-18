@@ -46,9 +46,6 @@
 }
 
 .qg-graph-node-head {
-    /* We don't want the node to automatically stretch/shrink with its container
-     * because that would trigger the `ResizeObserver` to  often and would cause too
-     * many layout recomputations.*/
     width: max-content;
     margin: auto;
     text-align: center;

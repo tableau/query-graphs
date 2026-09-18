@@ -1,10 +1,9 @@
 import * as d3flextree from "d3-flextree";
 import * as d3hierarchy from "d3-hierarchy";
 
-import type {NodeDimensions} from "./store";
 import type * as treeDescription from "../tree-description";
 import type {TreeNode, TreeDescription} from "../tree-description";
-import type {Edge} from "@xyflow/react";
+import type {Dimensions, Edge} from "@xyflow/react";
 import type {QueryGraphNode} from "./QueryNode";
 import type {ColoredGraphEdge} from "./ColoredEdge";
 import {assertNotNull} from "../assert";
@@ -25,10 +24,8 @@ interface TreeLayout {
 export function layoutTree(
     treeData: TreeDescription,
     nodeIds: Map<TreeNode, string>,
-    nodeDimensions: Record<string, NodeDimensions>,
-    expandedNodes: Record<string, boolean>,
+    nodeDimensions: Map<string, Dimensions>,
     expandedSubtrees: Record<string, boolean>,
-    resizeObserver: ResizeObserver,
 ): TreeLayout {
     const root = d3hierarchy.hierarchy(treeData.root, (d) => {
         if (expandedSubtrees[nodeIds.get(d)!] && d.collapsedChildren) {
@@ -38,28 +35,19 @@ export function layoutTree(
     });
 
     // Layout the tree
-    const heighOffset = 60;
+    const heightOffset = 60;
     const treelayout = d3flextree
         .flextree<treeDescription.TreeNode>()
         .nodeSize((d) => {
             const id = nodeIds.get(d.data);
             assertNotNull(id);
-            const dim = nodeDimensions[id];
-            if (
-                dim == undefined ||
-                dim.headWidth === undefined ||
-                dim.headHeight === undefined ||
-                dim.bodyWidth === undefined ||
-                dim.bodyHeight === undefined
-            ) {
-                // Layout is a two-pass process: node sizes are only known after they are rendered and
-                // measured by the ResizeObserver. On the first pass we lay out with this placeholder size,
-                // then re-render once the measured dimensions arrive in `nodeDimensions`.
+            const dim = nodeDimensions.get(id);
+            if (dim === undefined) {
+                // React Flow measures new nodes after their first render. It keeps them hidden until then,
+                // so this placeholder only determines where that measurement render happens.
                 return [50, 50];
             }
-            if (expandedNodes[id]) {
-                return [Math.max(dim.headWidth, dim.bodyWidth) + 20, dim.headHeight + dim.bodyHeight + heighOffset];
-            } else return [dim.headWidth + 20, dim.headHeight + heighOffset];
+            return [dim.width + 20, dim.height + heightOffset];
         })
         .spacing((a, b) => (a.parent === b.parent ? 10 : 40));
     const layout = treelayout(root);
@@ -74,7 +62,8 @@ export function layoutTree(
             id,
             position: {x: n.x, y: n.y},
             type: "querynode",
-            data: {...n.data, resizeObserver},
+            data: n.data,
+            measured: nodeDimensions.get(id),
         };
     });
     const edges: QueryGraphEdge[] = d3edges.map((e) => {
