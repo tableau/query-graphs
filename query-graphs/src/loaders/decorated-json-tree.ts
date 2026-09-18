@@ -226,12 +226,12 @@ function convertDecoratedJsonValue(
     // Display cardinality on incoming edges and collect it for relative edge sizing.
     const estimatedCardinality = config.getEstimatedCardinality?.(rawNode);
     const actualCardinality = config.getActualCardinality?.(rawNode);
-    const edgeWidth = actualCardinality ?? estimatedCardinality;
-    if (edgeWidth !== undefined) {
-        state.edgeWidths.push({node: convertedNode, width: edgeWidth});
+    const cardinality = actualCardinality ?? estimatedCardinality;
+    if (cardinality !== undefined) {
+        state.edgeWidths.push({node: convertedNode, width: cardinality});
         convertedNode.edgeLabel =
             actualCardinality === undefined
-                ? formatMetric(edgeWidth)
+                ? formatMetric(cardinality)
                 : estimatedCardinality === undefined
                   ? formatMetric(actualCardinality)
                   : `${formatMetric(actualCardinality)}/${formatMetric(estimatedCardinality)}`;
