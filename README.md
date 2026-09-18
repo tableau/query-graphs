@@ -49,7 +49,7 @@ The query plans never leave your machine - we value your privacy ;)
 
 Supported query plan formats:
 * PostgreSQL's JSON format, obtained by `EXPLAIN (FORMAT JSON)`. It is particularly useful with `EXPLAIN (ANALYZE, FORMAT JSON)`.
-* DuckDB's JSON format, obtained by `EXPLAIN (FORMAT JSON)`, including analyzed profiles and optimizer-stage output.
+* DuckDB's JSON format, obtained by `EXPLAIN (FORMAT JSON)` or `EXPLAIN (FORMAT JSON)`, and optimizer-stage output.
 * Hyper's query plans. You can run Hyper (the database system powering Tableau) locally through HyperAPI, and send Hyper `EXPLAIN (VERBOSE)` queries to obtain query plans. See [dump-plans.py](plan-dumper/dump-plans.py) for an example.
 * Umbra and CedarDB JSON plans, including analyzed plans and optimizer stages.
 * Tableau logical queries. Can be obtained from the log files of Tableau Desktop or Tableau Online.
