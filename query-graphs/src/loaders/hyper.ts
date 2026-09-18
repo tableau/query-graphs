@@ -10,7 +10,7 @@ Hyper-specific rendering, metrics, crosslinks, and plan envelopes.
 
 import type {Crosslink, TreeDescription, TreeNode} from "../tree-description";
 import type {Json, JsonObject} from "./loader-utils";
-import {forceToString, hasOwnProperty, tryGetPropertyPath, tryToString} from "./loader-utils";
+import {forceToString, hasOwnProperty, isJsonObject, tryGetPropertyPath, tryToString} from "./loader-utils";
 import type {DecoratedJsonTreeConfig, NodeRenderingConfig} from "./decorated-json-tree";
 import {convertDecoratedJsonNode, createDecoratedJsonTreeState} from "./decorated-json-tree";
 import type {ExecutionPipeline} from "./pipeline-coloring";
@@ -114,7 +114,7 @@ function containsOperator(value: Json): boolean {
     while (Array.isArray(value) && value.length > 0) {
         value = value[0];
     }
-    return typeof value === "object" && !Array.isArray(value) && value !== null && hasOwnProperty(value, "operator");
+    return isJsonObject(value) && hasOwnProperty(value, "operator");
 }
 
 const hyperConfig: DecoratedJsonTreeConfig = {

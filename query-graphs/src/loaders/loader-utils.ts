@@ -14,17 +14,21 @@ export function hasOwnProperty<X, Y extends PropertyKey>(o: X, key: Y): o is X &
     return Object.prototype.hasOwnProperty.call(o, key);
 }
 
+export function isJsonObject(value: Json | undefined): value is JsonObject {
+    return typeof value === "object" && !Array.isArray(value) && value !== null;
+}
+
 export function tryGetPropertyPath(d: Json, path: string[]): Json | undefined {
     for (const key of path) {
-        if (typeof d !== "object" || d instanceof Array || d === null) return undefined;
+        if (!isJsonObject(d)) return undefined;
         if (!hasOwnProperty(d, key)) return undefined;
         d = d[key];
     }
     return d;
 }
 
-export function hasSubOject<X, Y extends PropertyKey>(o: X, key: Y): o is X & Record<Y, Record<string, unknown>> {
-    return hasOwnProperty(o, key) && typeof o[key] === "object" && o[key] !== null;
+export function hasSubObject<Y extends string>(value: Json, key: Y): value is JsonObject & Record<Y, JsonObject> {
+    return isJsonObject(value) && hasOwnProperty(value, key) && isJsonObject(value[key]);
 }
 
 // Try to convert to string. Return undefined if not succesful.
@@ -50,28 +54,6 @@ export function forceToString(d: unknown): string {
         str = JSON.stringify(d);
     }
     return str;
-}
-
-export function jsonToStringMap(json: string): Map<string, string> {
-    let parsedJSON: Json;
-    try {
-        parsedJSON = JSON.parse(json);
-    } catch (err) {
-        throw new Error("JSON parse failed with '" + err + "'.", {cause: err});
-    }
-    if (typeof parsedJSON !== "object" || Array.isArray(parsedJSON) || parsedJSON === null) {
-        throw new Error("Expected a JSON object");
-    }
-    const result = new Map<string, string>();
-    for (const key of Object.keys(parsedJSON)) {
-        const value = parsedJSON[key];
-        const strValue = tryToString(value);
-        if (strValue === undefined) {
-            throw new Error("Expected a string value, got " + typeof value);
-        }
-        result.set(key, strValue);
-    }
-    return result;
 }
 
 // Format a number using metric suffixes

@@ -12,7 +12,7 @@
 
 import type {IconName, TreeNode} from "../tree-description";
 import type {Json, JsonObject} from "./loader-utils";
-import {forceToString, formatMetric, hasOwnProperty, tryToString} from "./loader-utils";
+import {forceToString, formatMetric, hasOwnProperty, isJsonObject, tryToString} from "./loader-utils";
 import type {UnresolvedCrosslink} from "./tree-postprocessing";
 import {InvalidPlanError} from "./types";
 
@@ -43,6 +43,8 @@ export interface DecoratedJsonTreeConfig {
     structuralChildKeys: readonly string[];
     /** Keep these values in the tooltip even when they are objects or arrays. */
     alwaysPropertyKeys: readonly string[];
+    /** Promote members of these nested objects to tooltip properties. */
+    flattenPropertyObjectKeys?: readonly string[];
     /** Choose presentation details for an object recognized by one of `nodeTypeKeys`. */
     getRenderingConfig(nodeTypeKey: string, tag: string, rawNode: JsonObject): NodeRenderingConfig;
     /** Override the usual property, tag, or parent-key-derived display name. */
@@ -67,7 +69,12 @@ function orderedKeys(rawNode: JsonObject, nodeTypeKey: string | undefined, confi
     // Enforce a format-specific order for structural children (for example,
     // "left" before "right") and display all remaining keys alphabetically.
     return Object.getOwnPropertyNames(rawNode)
-        .filter((key) => key !== nodeTypeKey && !config.alwaysPropertyKeys.includes(key))
+        .filter(
+            (key) =>
+                key !== nodeTypeKey &&
+                !config.alwaysPropertyKeys.includes(key) &&
+                !(config.flattenPropertyObjectKeys?.includes(key) && isJsonObject(rawNode[key])),
+        )
         .sort((left, right) => {
             const leftIndex = config.structuralChildKeys.indexOf(left);
             const rightIndex = config.structuralChildKeys.indexOf(right);
@@ -160,6 +167,17 @@ function convertDecoratedJsonValue(
         }
     }
 
+    // Some formats group tooltip fields in a nested property object.
+    for (const key of config.flattenPropertyObjectKeys ?? []) {
+        const propertyObject = rawNode[key];
+        if (!isJsonObject(propertyObject)) {
+            continue;
+        }
+        for (const propertyKey of Object.keys(propertyObject).sort()) {
+            properties.set(propertyKey, forceToString(propertyObject[propertyKey]));
+        }
+    }
+
     // Display remaining fields adaptively: scalars become tooltip properties,
     // while objects and arrays remain visible in the tree.
     for (const key of orderedKeys(rawNode, nodeTypeKey, config)) {
@@ -207,16 +225,19 @@ function convertDecoratedJsonValue(
 
     // Display cardinality on incoming edges and collect it for relative edge sizing.
     const estimatedCardinality = config.getEstimatedCardinality?.(rawNode);
-    if (estimatedCardinality !== undefined) {
-        const actualCardinality = config.getActualCardinality?.(rawNode);
-        const edgeWidth = actualCardinality ?? estimatedCardinality;
+    const actualCardinality = config.getActualCardinality?.(rawNode);
+    const edgeWidth = actualCardinality ?? estimatedCardinality;
+    if (edgeWidth !== undefined) {
         state.edgeWidths.push({node: convertedNode, width: edgeWidth});
         convertedNode.edgeLabel =
             actualCardinality === undefined
-                ? formatMetric(estimatedCardinality)
-                : `${formatMetric(actualCardinality)}/${formatMetric(estimatedCardinality)}`;
+                ? formatMetric(edgeWidth)
+                : estimatedCardinality === undefined
+                  ? formatMetric(actualCardinality)
+                  : `${formatMetric(actualCardinality)}/${formatMetric(estimatedCardinality)}`;
         // Highlight estimates that differ from the actual cardinality by more than one order of magnitude.
         if (
+            estimatedCardinality !== undefined &&
             actualCardinality !== undefined &&
             (estimatedCardinality > actualCardinality * 10 || actualCardinality > estimatedCardinality * 10)
         ) {
