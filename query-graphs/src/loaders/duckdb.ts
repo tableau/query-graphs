@@ -41,9 +41,9 @@ function getOperatorType(rawNode: JsonObject): string {
 }
 
 function getIcon(rawNode: JsonObject): IconName | undefined {
-    const operatorType = getOperatorType(rawNode).toUpperCase();
+    const operatorType = getOperatorType(rawNode);
     if (operatorType.includes("JOIN") || operatorType === "CROSS_PRODUCT") {
-        const joinType = tryToNonNullString(getExtraInfo(rawNode)?.["Join Type"])?.toUpperCase();
+        const joinType = tryToNonNullString(getExtraInfo(rawNode)?.["Join Type"]);
         if (joinType?.includes("LEFT")) return "left-join-symbol";
         if (joinType?.includes("RIGHT")) return "right-join-symbol";
         if (joinType?.includes("FULL")) return "full-join-symbol";
@@ -76,7 +76,7 @@ function getDisplayName(rawNode: JsonObject): string {
             tryToNonNullString(rawNode["operator_type"]) ??
             "unknown",
     );
-    if (name.toUpperCase().includes("SCAN")) {
+    if (getOperatorType(rawNode).includes("SCAN")) {
         const table = tryToNonNullString(getExtraInfo(rawNode)?.["Table"]);
         if (table !== undefined) {
             return `${table} (${name})`;
@@ -95,7 +95,7 @@ const duckDbConfig: DecoratedJsonTreeConfig = {
     },
     getDisplayName,
     getCrosslinkTarget(rawNode) {
-        const operatorType = getOperatorType(rawNode).toUpperCase();
+        const operatorType = getOperatorType(rawNode);
         if (operatorType.includes("CTE_SCAN")) {
             const id = tryToNonNullString(getExtraInfo(rawNode)?.["CTE Index"]);
             return id === undefined ? undefined : crosslinkId("cte", id);
@@ -130,9 +130,11 @@ function convertDuckPlan(rawRoot: Json, metadata?: Map<string, string>): TreeDes
     visitTreeNodes(
         root,
         (node) => {
-            const operatorType = node.properties?.get("operator_type") ?? node.name;
+            const operatorType = node.properties?.get("operator_type");
             const id = node.properties?.get("Delim Index");
-            if (operatorType?.toUpperCase().endsWith("DELIM_JOIN") && id !== undefined) {
+            const isDelimJoin =
+                operatorType === undefined ? node.name?.endsWith("delim_join") === true : operatorType.endsWith("DELIM_JOIN");
+            if (isDelimJoin && id !== undefined) {
                 crosslinkTargets.set(crosslinkId("delim", id), node);
             }
         },
