@@ -16,6 +16,8 @@ import {forceToString, formatMetric, hasOwnProperty, tryToString} from "./loader
 import type {UnresolvedCrosslink} from "./tree-postprocessing";
 
 export interface NodeRenderingConfig {
+    /** Use this display name directly. */
+    displayName?: string;
     /** Use this converted scalar property as the node's display name. */
     displayNameKey?: string;
     /** Treat this converted scalar property as the target ID of a crosslink. */
@@ -45,7 +47,9 @@ export interface DecoratedJsonTreeConfig {
     /** Choose presentation details for an object recognized by one of `nodeTypeKeys`. */
     getRenderingConfig(nodeTypeKey: string, tag: string, rawNode: JsonObject): NodeRenderingConfig;
     /** Override the usual property, tag, or parent-key-derived display name. */
-    getDebugName?(rawNode: JsonObject): string | undefined;
+    getDisplayName?(rawNode: JsonObject): string | undefined;
+    /** Identify the target of a crosslink originating at this object. */
+    getCrosslinkTarget?(rawNode: JsonObject): string | undefined;
     /** Put a nested value in `collapsedChildren` instead of `children`. */
     shouldCollapseChild?(rawNode: JsonObject, key: string, child: Json): boolean;
     /** Open a node's `collapsedChildren` initially when it has no ordinary children. */
@@ -75,7 +79,7 @@ function orderedKeys(rawNode: JsonObject, nodeTypeKey: string | undefined, confi
         });
 }
 
-function appendChild(target: TreeNode[], converted: TreeNode | TreeNode[], key: string, flatten: boolean, collapse: boolean): void {
+function appendChild(target: TreeNode[], converted: TreeNode | TreeNode[], key: string, flatten: boolean): void {
     if (flatten) {
         if (Array.isArray(converted)) {
             target.push(...converted);
@@ -86,7 +90,7 @@ function appendChild(target: TreeNode[], converted: TreeNode | TreeNode[], key: 
             target.push(converted);
         }
     } else if (Array.isArray(converted)) {
-        target.push(collapse ? {name: key, collapsedChildren: converted} : {name: key, children: converted});
+        target.push({name: key, children: converted});
     } else if (!converted.name) {
         converted.name = key;
         target.push(converted);
@@ -157,13 +161,14 @@ function convertDecoratedJsonValue(
         const collapse = config.shouldCollapseChild?.(rawNode, key, rawNode[key]) ?? false;
         const target = collapse ? collapsedChildren : expandedChildren;
         const converted = convertDecoratedJsonValue(rawNode[key], key, state, config);
-        appendChild(target, converted, key, config.fixedChildOrder.includes(key), collapse);
+        appendChild(target, converted, key, config.fixedChildOrder.includes(key));
     }
 
     const renderingConfig =
         nodeTypeKey !== undefined && nodeTag !== undefined ? config.getRenderingConfig(nodeTypeKey, nodeTag, rawNode) : {};
     const displayName =
-        config.getDebugName?.(rawNode) ??
+        config.getDisplayName?.(rawNode) ??
+        renderingConfig.displayName ??
         (renderingConfig.displayNameKey === undefined ? undefined : properties.get(renderingConfig.displayNameKey)) ??
         properties.get("name") ??
         nodeTag ??
@@ -204,11 +209,11 @@ function convertDecoratedJsonValue(
         }
     }
 
-    if (renderingConfig.crosslinkSourceKey !== undefined) {
-        const targetId = properties.get(renderingConfig.crosslinkSourceKey);
-        if (targetId !== undefined) {
-            state.crosslinks.push({source: convertedNode, targetId});
-        }
+    const targetId =
+        config.getCrosslinkTarget?.(rawNode) ??
+        (renderingConfig.crosslinkSourceKey === undefined ? undefined : properties.get(renderingConfig.crosslinkSourceKey));
+    if (targetId !== undefined) {
+        state.crosslinks.push({source: convertedNode, targetId});
     }
 
     return convertedNode;

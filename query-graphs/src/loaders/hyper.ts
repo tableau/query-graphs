@@ -131,7 +131,7 @@ const hyperConfig: DecoratedJsonTreeConfig = {
             {}
         );
     },
-    getDebugName(rawNode) {
+    getDisplayName(rawNode) {
         const debugName = tryGetPropertyPath(rawNode, ["debug-name", "value"]);
         return typeof debugName === "string" ? debugName : undefined;
     },

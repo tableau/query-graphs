@@ -68,6 +68,32 @@ test("dispatcher recognizes the Postgres and Hyper examples", () => {
     }
 });
 
+test("Postgres decorates the shared JSON tree with plan-specific semantics", () => {
+    const text = JSON.stringify({
+        Plan: {
+            "Node Type": "Append",
+            Plans: [
+                {"Node Type": "Aggregate", "Subplan Name": "CTE cte", "Plan Rows": 1, "Actual Rows": 100},
+                {"Node Type": "CTE Scan", "CTE Name": "cte", Workers: [{Number: 0}]},
+            ],
+        },
+    });
+    const tree = loadPlanFromText(text, {format: "postgres"}).tree;
+    const append = tree.root.children?.[0];
+    const aggregate = append?.children?.[0];
+    const cteScan = append?.children?.[1];
+    const workers = cteScan?.collapsedChildren?.[0];
+
+    assert.equal(aggregate?.edgeClass, "qg-label-highlighted");
+    assert.equal(workers?.name, "Workers");
+    assert.deepEqual(
+        workers?.children?.map((node) => node.name),
+        ["Workers.0"],
+    );
+    assert.equal(workers?.collapsedChildren, undefined);
+    assert.deepEqual(tree.crosslinks, [{source: cteScan, target: aggregate}]);
+});
+
 test("dispatcher falls back to the generic JSON loader", () => {
     for (const json of ['{"unrecognized":{"value":42}}', '[{"name":"Alice","children":[]}]', '{"operator":{}}']) {
         assert.equal(loadPlanFromText(json).format, "json", json);
