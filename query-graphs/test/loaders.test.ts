@@ -13,30 +13,12 @@ import {
     UnknownPlanFormatError,
     xmlPlanLoaders,
 } from "../src/loaders";
-import {parseXml} from "../src/loaders/xml";
 import type {TreeDescription, TreeNode} from "../src/tree-description";
 import {allChildren, visitTreeNodes} from "../src/tree-description";
 
 globalThis.DOMParser = new JSDOM().window.DOMParser;
 
-const loaders = [
-    ...jsonPlanLoaders.map((loader) => ({
-        format: loader.format,
-        load(text: string) {
-            const json = JSON.parse(text);
-            if (!loader.matches(json)) throw new Error("Loader did not match");
-            return loader.load(json);
-        },
-    })),
-    ...xmlPlanLoaders.map((loader) => ({
-        format: loader.format,
-        load(text: string) {
-            const xml = parseXml(text);
-            if (!loader.matches(xml)) throw new Error("Loader did not match");
-            return loader.load(xml);
-        },
-    })),
-];
+const loaderFormats = [...jsonPlanLoaders, ...xmlPlanLoaders].map((loader) => loader.format);
 
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const examplesRoot = path.join(repositoryRoot, "standalone-app/examples");
@@ -63,12 +45,12 @@ function treeDigest(tree: TreeDescription): string {
 
 test("loader compatibility and output remain stable for every example plan", (t) => {
     function computeDigests(): Record<string, Record<string, string>> {
-        const results: Record<string, Record<string, string>> = Object.fromEntries(loaders.map((loader) => [loader.format, {}]));
+        const results: Record<string, Record<string, string>> = Object.fromEntries(loaderFormats.map((format) => [format, {}]));
         for (const fixturePath of fixturePaths) {
             const text = readFileSync(path.join(examplesRoot, fixturePath), "utf8");
-            for (const loader of loaders) {
+            for (const format of loaderFormats) {
                 try {
-                    results[loader.format][fixturePath] = treeDigest(loader.load(text));
+                    results[format][fixturePath] = treeDigest(loadPlanFromText(text, {format}).tree);
                 } catch {
                     // This loader rejects the fixture.
                 }
