@@ -44,9 +44,15 @@ Both commands are run from inside `standalone-app`:
 We use ESLint with Prettier.
 Run `pnpm run lint` from the repository root to fix issues automatically, or `pnpm run lint-test` to only report them (this is what CI runs).
 
+## Testing
+
+Run `pnpm test` from the repository root.
+The loader regression suite tries every example plan with every loader and verifies the output of each successful conversion.
+If an intentional loader change affects the expected results, update them with `pnpm test:update` and review the resulting diff.
+
 ## Continuous Integration and Deployment
 
 CI is defined in [`.github/workflows/ci.yaml`](../.github/workflows/ci.yaml) and runs on every push and pull request.
-It installs dependencies, runs `lint-test`, then builds every module with `pnpm -r build` (which builds `query-graphs` before `standalone-app`).
+It installs dependencies, runs `lint-test` and `test`, then builds every module with `pnpm -r build` (which builds `query-graphs` before `standalone-app`).
 
 On pushes to `main`, the same workflow deploys `standalone-app/dist/` to GitHub Pages, which serves [tableau.github.io/query-graphs](https://tableau.github.io/query-graphs/).

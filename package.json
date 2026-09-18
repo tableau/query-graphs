@@ -7,18 +7,23 @@
     },
     "scripts": {
         "lint": "eslint . --fix",
-        "lint-test": "eslint ."
+        "lint-test": "eslint .",
+        "test": "node --import=tsx --test --test-isolation=none query-graphs/test/loaders.test.ts",
+        "test:update": "node --import=tsx --test --test-isolation=none --test-update-snapshots query-graphs/test/loaders.test.ts"
     },
     "devDependencies": {
         "@eslint/compat": "^2.1.0",
         "@eslint/js": "^10.0.1",
+        "@types/jsdom": "^27.0.0",
         "eslint": "^10.9.0",
         "eslint-config-prettier": "^10.1.8",
         "eslint-plugin-prettier": "^5.2.1",
         "eslint-plugin-react": "^7.37.1",
         "eslint-plugin-react-hooks": "^7.1.1",
         "globals": "^17.11.0",
+        "jsdom": "^27.0.0",
         "prettier": "^3.3.3",
+        "tsx": "^4.23.13",
         "typescript": "^6.0.3",
         "typescript-eslint": "^8.10.0"
     }
