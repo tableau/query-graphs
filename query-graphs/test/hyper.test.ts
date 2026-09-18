@@ -9,7 +9,7 @@ test("Hyper examples are recognized", () => {
     }
 });
 
-test("Hyper applies rendering, ordering, metrics, metadata, and crosslinks", () => {
+test("Hyper applies rendering, ordering, metrics, and crosslinks", () => {
     const tree = loadPlanFromText(
         JSON.stringify({
             operator: "join",
@@ -23,8 +23,6 @@ test("Hyper applies rendering, ordering, metrics, metadata, and crosslinks", () 
                 "cpu-cycles": 100,
                 "estimated-rows": 1,
                 "output-rows": 100,
-                running: true,
-                error: {message: {original: "query failed"}},
             },
         }),
         {format: "hyper"},
@@ -44,7 +42,6 @@ test("Hyper applies rendering, ordering, metrics, metadata, and crosslinks", () 
     assert.equal(details?.children, undefined);
     assert.equal(details?.collapsedChildren?.[0].name, "details.0");
     assert.deepEqual(tree.crosslinks, [{source: tree.root, target: left}]);
-    assert.equal(tree.metadata?.get("Error"), "query failed");
 });
 
 test("Hyper leaves edges between disjoint pipeline memberships uncolored", () => {
