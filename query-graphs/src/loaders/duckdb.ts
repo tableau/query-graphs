@@ -213,6 +213,13 @@ function combinePlanStages(stages: [string, Json][]): TreeDescription {
 }
 
 function loadDuckDbPlan(json: Json): TreeDescription {
+    // Plans with multiple stages (`SET explain_output='all'`)
+    const stages = getPlanStages(json);
+    if (stages !== undefined) {
+        return combinePlanStages(stages);
+    }
+
+    // ANALYZEd plans
     if (hasAnalyzedEnvelope(json)) {
         let root = json["children"][0];
         if (isDuckNode(root) && root["operator_type"] === "EXPLAIN_ANALYZE" && isSingletonArray(root["children"])) {
@@ -220,10 +227,8 @@ function loadDuckDbPlan(json: Json): TreeDescription {
         }
         return convertDuckPlan(root, analyzeMetadata(json));
     }
-    const stages = getPlanStages(json);
-    if (stages !== undefined) {
-        return combinePlanStages(stages);
-    }
+
+    // Normal plans
     return convertDuckPlan(Array.isArray(json) && json.length > 0 ? json[0] : json);
 }
 
