@@ -75,19 +75,6 @@ export function sameGeometry(left: GraphLayout, right: GraphLayout): boolean {
     return left.edges.every((edge) => rightEdgeIds.has(edge.id));
 }
 
-/**
- * Tests whether every rendered node has reached its target position and no
- * entering or exiting nodes remain. Edge and presentation data are ignored.
- */
-export function matchesTargetGeometry(rendered: AnimatedLayout, target: GraphLayout): boolean {
-    if (rendered.nodes.length !== target.nodes.length) return false;
-    const targetNodes = new Map(target.nodes.map((node) => [node.id, node]));
-    return rendered.nodes.every(({node, position}) => {
-        const targetNode = targetNodes.get(node.id);
-        return targetNode?.position.x === position.x && targetNode.position.y === position.y;
-    });
-}
-
 function anchorPosition(
     nodes: ReadonlyMap<string, AnimatedNode | QueryGraphNode>,
     anchor: LayoutAnchor | undefined,
