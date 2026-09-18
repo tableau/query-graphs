@@ -17,15 +17,12 @@ export interface PlanLoader<Input> {
     load(input: Input): TreeDescription;
 }
 
-export class PlanSyntaxError extends Error {
+export class InvalidPlanError extends Error {
     readonly format: string | undefined;
 
-    constructor(format: string | undefined, errors: unknown[]) {
-        const context = format === undefined ? "query plan" : `${format} query plan`;
-        super(`Cannot load ${context}: invalid syntax`, {
-            cause: new AggregateError(errors.filter((error) => error !== undefined)),
-        });
-        this.name = "PlanSyntaxError";
+    constructor(format?: string, options?: ErrorOptions) {
+        super(format === undefined ? "Invalid query plan" : `Invalid ${format} query plan`, options);
+        this.name = "InvalidPlanError";
         this.format = format;
     }
 }
@@ -39,15 +36,5 @@ export class UnknownPlanFormatError extends Error {
         this.name = "UnknownPlanFormatError";
         this.format = format;
         this.availableFormats = availableFormats;
-    }
-}
-
-export class InvalidPlanError extends Error {
-    readonly format: string;
-
-    constructor(format: string) {
-        super(`Invalid ${format} query plan`);
-        this.name = "InvalidPlanError";
-        this.format = format;
     }
 }

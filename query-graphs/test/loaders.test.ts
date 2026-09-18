@@ -5,14 +5,7 @@ import path from "node:path";
 import {fileURLToPath} from "node:url";
 import test from "node:test";
 import {JSDOM} from "jsdom";
-import {
-    InvalidPlanError,
-    jsonPlanLoaders,
-    loadPlanFromText,
-    PlanSyntaxError,
-    UnknownPlanFormatError,
-    xmlPlanLoaders,
-} from "../src/loaders";
+import {InvalidPlanError, jsonPlanLoaders, loadPlanFromText, UnknownPlanFormatError, xmlPlanLoaders} from "../src/loaders";
 import type {TreeDescription, TreeNode} from "../src/tree-description";
 import {allChildren, visitTreeNodes} from "../src/tree-description";
 
@@ -91,8 +84,8 @@ test("dispatcher strips text surrounding copied plans", () => {
     assert.equal(loadPlanFromText(xml, {format: "xml"}).format, "xml");
 });
 
-test("dispatcher distinguishes syntax and recognized-format failures", () => {
-    assert.throws(() => loadPlanFromText("not JSON or XML"), PlanSyntaxError);
+test("dispatcher reports invalid plans", () => {
+    assert.throws(() => loadPlanFromText("not JSON or XML"), InvalidPlanError);
     assert.throws(
         () => loadPlanFromText('{"Plan":{}}', {format: "postgres"}),
         (error: unknown) => error instanceof InvalidPlanError && error.format === "postgres",
@@ -113,7 +106,7 @@ test("dispatcher can force a registered loader", () => {
     assert.equal(loadPlanFromText('{"operator":{}}', {format: "hyper"}).format, "hyper");
     assert.throws(
         () => loadPlanFromText("{}", {format: "xml"}),
-        (error: unknown) => error instanceof PlanSyntaxError && error.format === "xml",
+        (error: unknown) => error instanceof InvalidPlanError && error.format === "xml",
     );
     assert.throws(
         () => loadPlanFromText("{}", {format: "unknown"}),

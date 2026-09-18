@@ -28,12 +28,10 @@ const jsonPlanLoaders = [postgresPlanLoader, hyperPlanLoader, jsonPlanLoader];
 ```
 
 Each loader exposes separate `matches` and `load` operations, so format detection does not depend on converter exceptions.
-Once a loader matches, conversion failures are reported as `InvalidPlanError` instead of silently falling through to another format.
+If a matching loader cannot convert the plan, dispatch records the failure and continues with later matching loaders.
 Valid JSON that no semantic loader recognizes is handled by the generic JSON loader.
 Non-JSON input is parsed as XML once, then checked against the Tableau and generic XML loaders.
-Input that is neither JSON nor XML produces a `PlanSyntaxError` containing both syntax failures.
-If a loader must reject malformed content, `InvalidPlanError` identifies the selected format.
-Other converter exceptions are unexpected programming failures and propagate unchanged instead of being disguised as invalid user input.
+If no parser and loader combination succeeds, `InvalidPlanError` contains the collected failures as its cause and identifies a forced format when applicable.
 
 **Order matters.**
 Postgres and Hyper plans are both JSON, so the Postgres loader — which checks for the distinctive top-level `Plan` object — is tried *before* the more permissive Hyper loader.
@@ -47,7 +45,7 @@ loadPlanFromText(text, {format: "json"}); // Force literal JSON rendering.
 ```
 
 Forced dispatch parses only the syntax used by that loader, skips `matches`, and never falls back to another loader.
-An unknown name produces `UnknownPlanFormatError`; invalid syntax produces `PlanSyntaxError` with the requested format.
+An unknown name produces `UnknownPlanFormatError`; invalid input produces `InvalidPlanError` with the requested format.
 
 ## Adding a New Format
 
