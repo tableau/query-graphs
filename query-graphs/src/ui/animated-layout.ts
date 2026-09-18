@@ -28,6 +28,10 @@ export interface AnimatedLayout {
     edges: AnimatedEdge[];
 }
 
+/**
+ * Wraps a settled graph layout in the animation representation. Every element
+ * starts at its final position, fully opaque and non-transient.
+ */
 export function staticLayout(layout: GraphLayout): AnimatedLayout {
     return {
         nodes: layout.nodes.map((node) => ({node, position: node.position, opacity: 1, transient: false})),
@@ -35,6 +39,11 @@ export function staticLayout(layout: GraphLayout): AnimatedLayout {
     };
 }
 
+/**
+ * Replaces node and edge payloads with their latest versions while preserving
+ * animated positions, opacity, and transient state. Elements missing from the
+ * latest layout keep their old payload because they may still be animating out.
+ */
 export function refreshLayoutData(layout: AnimatedLayout, latest: GraphLayout): AnimatedLayout {
     const latestNodes = new Map(latest.nodes.map((node) => [node.id, node]));
     const latestEdges = new Map(latest.edges.map((edge) => [edge.id, edge]));
@@ -44,6 +53,10 @@ export function refreshLayoutData(layout: AnimatedLayout, latest: GraphLayout): 
     };
 }
 
+/**
+ * Tests whether two settled layouts have the same node positions and edge IDs.
+ * Node data, edge data, and presentation properties do not affect the result.
+ */
 export function sameGeometry(left: GraphLayout, right: GraphLayout): boolean {
     if (left.nodes.length !== right.nodes.length || left.edges.length !== right.edges.length) return false;
     const rightNodes = new Map(right.nodes.map((node) => [node.id, node]));
@@ -55,6 +68,10 @@ export function sameGeometry(left: GraphLayout, right: GraphLayout): boolean {
     return left.edges.every((edge) => rightEdgeIds.has(edge.id));
 }
 
+/**
+ * Tests whether every rendered node has reached its target position and no
+ * entering or exiting nodes remain. Edge and presentation data are ignored.
+ */
 export function matchesTargetGeometry(rendered: AnimatedLayout, target: GraphLayout): boolean {
     if (rendered.nodes.length !== target.nodes.length) return false;
     const targetNodes = new Map(target.nodes.map((node) => [node.id, node]));
@@ -64,6 +81,7 @@ export function matchesTargetGeometry(rendered: AnimatedLayout, target: GraphLay
     });
 }
 
+/** Returns the bottom-center position of an anchor node, or the origin if it is unavailable. */
 function anchorPosition(nodes: ReadonlyMap<string, AnimatedNode | QueryGraphNode>, id: string | undefined): Position {
     const entry = id === undefined ? undefined : nodes.get(id);
     if (entry === undefined) return {x: 0, y: 0};
@@ -72,6 +90,13 @@ function anchorPosition(nodes: ReadonlyMap<string, AnimatedNode | QueryGraphNode
     return {x: position.x, y: position.y + (node.measured?.height ?? 0)};
 }
 
+/**
+ * Interpolates from the currently rendered state to a settled target layout.
+ * Existing elements move between layouts, entering elements emerge from the
+ * anchor, and exiting elements move toward it while fading out. Exit positions
+ * are retained so an interrupted transition does not redirect departing nodes.
+ * `progress` is expected to be clamped to the inclusive range from 0 to 1.
+ */
 export function interpolateLayout(
     from: AnimatedLayout,
     to: GraphLayout,
