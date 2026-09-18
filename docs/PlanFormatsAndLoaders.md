@@ -23,11 +23,7 @@ The generic JSON and XML loaders map the input structure literally and act as ca
 ## Loader Dispatch
 
 The app does not ask the user which format they pasted.
-Instead, `loadPlanFromText` (`query-graphs/src/loaders/index.ts`) parses JSON once and checks each semantic JSON loader in order:
-
-```ts
-const jsonPlanLoaders = [postgresPlanLoader, umbraPlanLoader, hyperPlanLoader, jsonPlanLoader];
-```
+Instead, `loadPlanFromText` (`query-graphs/src/loaders/index.ts`) parses JSON once and checks each loader.
 
 Each loader exposes separate `matches` and `load` operations, so format detection does not depend on converter exceptions.
 If a matching loader cannot convert the plan, dispatch records the failure and continues with later matching loaders.
