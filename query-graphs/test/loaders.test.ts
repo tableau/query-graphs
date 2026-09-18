@@ -60,6 +60,13 @@ test("dispatcher recognizes Tableau XML and falls back to generic XML", () => {
 });
 
 test("dispatcher can force a registered loader", () => {
+    const hyper = '{"operator":"scan"}';
+    const postgres = '{"Plan":{"Node Type":"Result"}}';
+
+    assert.equal(loadPlanFromText(hyper, {format: "hyper"}).format, "hyper");
+    assert.equal(loadPlanFromText(postgres, {format: "postgres"}).format, "postgres");
+    assert.equal(loadPlanFromText(hyper, {format: "json"}).format, "json");
+    assert.equal(loadPlanFromText(postgres, {format: "json"}).format, "json");
     assert.equal(loadPlanFromText('{"unrecognized":true}', {format: "json"}).format, "json");
     assert.equal(loadPlanFromText("<unrecognized />", {format: "xml"}).format, "xml");
     assert.throws(
