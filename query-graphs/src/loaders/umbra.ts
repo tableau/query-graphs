@@ -13,7 +13,7 @@ import {allChildren} from "../tree-description";
 import type {DecoratedJsonTreeConfig, NodeRenderingConfig} from "./decorated-json-tree";
 import {convertDecoratedJsonNode, createDecoratedJsonTreeState} from "./decorated-json-tree";
 import type {Json, JsonObject} from "./loader-utils";
-import {hasOwnProperty, isJsonObject, tryToString} from "./loader-utils";
+import {hasOwnProperty, hasSubObject, isJsonObject, tryToString} from "./loader-utils";
 import type {ExecutionPipeline} from "./pipeline-coloring";
 import {assignPipelineColors} from "./pipeline-coloring";
 import {buildIdMap, resolveCrosslinks, setRelativeEdgeWidths} from "./tree-postprocessing";
@@ -72,7 +72,7 @@ const umbraConfig: DecoratedJsonTreeConfig = {
         return nodeRenderingConfig[`${prefix}:${tag}`] ?? {};
     },
     getDisplayName(rawNode) {
-        if (!hasPlanObject(rawNode)) {
+        if (!hasSubObject(rawNode, "plan")) {
             return undefined;
         }
         return hasOwnProperty(rawNode, "type") ? tryToString(rawNode["type"]) : "result";
@@ -91,20 +91,8 @@ const umbraConfig: DecoratedJsonTreeConfig = {
     },
 };
 
-function hasPlanObject(json: Json): json is UmbraStatement {
-    return (
-        typeof json === "object" &&
-        !Array.isArray(json) &&
-        json !== null &&
-        hasOwnProperty(json, "plan") &&
-        typeof json["plan"] === "object" &&
-        !Array.isArray(json["plan"]) &&
-        json["plan"] !== null
-    );
-}
-
 function isUmbraStatement(json: Json): json is UmbraStatement {
-    return hasPlanObject(json) && typeof json.plan["operator"] === "string" && typeof json.plan["operatorId"] === "number";
+    return hasSubObject(json, "plan") && typeof json.plan["operator"] === "string" && typeof json.plan["operatorId"] === "number";
 }
 
 function optimizerStages(json: Json, isStage: (value: Json) => value is UmbraStatement): [string, UmbraStatement][] | undefined {
@@ -210,7 +198,7 @@ function combineOptimizerStages(stages: [string, UmbraStatement][]): TreeDescrip
 }
 
 function loadUmbraPlan(json: Json): TreeDescription {
-    const stages = optimizerStages(json, hasPlanObject);
+    const stages = optimizerStages(json, (value) => hasSubObject(value, "plan"));
     if (stages !== undefined) {
         return combineOptimizerStages(stages);
     }
