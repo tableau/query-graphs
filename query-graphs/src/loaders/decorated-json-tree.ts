@@ -3,54 +3,40 @@ import type {Json, JsonObject} from "./loader-utils";
 import {forceToString, formatMetric, hasOwnProperty, tryToString} from "./loader-utils";
 import type {UnresolvedCrosslink} from "./tree-postprocessing";
 
-export type PlanNodeType = "operator" | "expression";
-
 export interface NodeRenderingConfig {
     displayNameKey?: string;
     crosslinkSourceKey?: string;
     icon?: IconName;
 }
 
-export interface AdaptiveConversionState {
+export interface DecoratedJsonTreeState {
     crosslinks: UnresolvedCrosslink[];
     edgeWidths: {node: TreeNode; width: number}[];
     runtimes: {node: TreeNode; time: number}[];
     metadata: Map<string, string>;
 }
 
-export function createAdaptiveConversionState(): AdaptiveConversionState {
+export function createDecoratedJsonTreeState(): DecoratedJsonTreeState {
     return {crosslinks: [], edgeWidths: [], runtimes: [], metadata: new Map()};
 }
 
-export interface AdaptiveTreeConfig {
-    getRenderingConfig(nodeType: PlanNodeType, tag: string, rawNode: JsonObject): NodeRenderingConfig;
+export interface DecoratedJsonTreeConfig {
+    getRenderingConfig(nodeTypeKey: string, tag: string, rawNode: JsonObject): NodeRenderingConfig;
+    nodeTypeKeys: readonly string[];
     alwaysPropertyKeys: readonly string[];
     fixedChildOrder: readonly string[];
     getDebugName?(rawNode: JsonObject): string | undefined;
+    shouldCollapseChild?(rawNode: JsonObject, key: string, child: Json): boolean;
+    shouldExpandCollapsedChildren?(rawNode: JsonObject, nodeTypeKey: string | undefined): boolean;
     isErrored?(rawNode: JsonObject, metadata: Map<string, string>): boolean;
     getExecutionTime?(rawNode: JsonObject): number | undefined;
     getEstimatedCardinality?(rawNode: JsonObject): number | undefined;
     getActualCardinality?(rawNode: JsonObject): number | undefined;
 }
 
-function isTaggedObject(value: Json, key: PlanNodeType): value is JsonObject {
-    return typeof value === "object" && !Array.isArray(value) && value !== null && hasOwnProperty(value, key);
-}
-
-function containsOperator(value: Json): boolean {
-    while (Array.isArray(value) && value.length > 0) {
-        value = value[0];
-    }
-    return isTaggedObject(value, "operator");
-}
-
-function shouldExpandChild(rawNode: JsonObject, key: string): boolean {
-    return hasOwnProperty(rawNode, "operator") && containsOperator(rawNode[key]);
-}
-
-function orderedKeys(rawNode: JsonObject, nodeType: PlanNodeType | undefined, config: AdaptiveTreeConfig): string[] {
+function orderedKeys(rawNode: JsonObject, nodeTypeKey: string | undefined, config: DecoratedJsonTreeConfig): string[] {
     return Object.getOwnPropertyNames(rawNode)
-        .filter((key) => key !== nodeType && !config.alwaysPropertyKeys.includes(key))
+        .filter((key) => key !== nodeTypeKey && !config.alwaysPropertyKeys.includes(key))
         .sort((left, right) => {
             const leftIndex = config.fixedChildOrder.indexOf(left);
             const rightIndex = config.fixedChildOrder.indexOf(right);
@@ -63,7 +49,7 @@ function orderedKeys(rawNode: JsonObject, nodeType: PlanNodeType | undefined, co
         });
 }
 
-function appendChild(target: TreeNode[], converted: TreeNode | TreeNode[], key: string, flatten: boolean): void {
+function appendChild(target: TreeNode[], converted: TreeNode | TreeNode[], key: string, flatten: boolean, collapse: boolean): void {
     if (flatten) {
         if (Array.isArray(converted)) {
             target.push(...converted);
@@ -74,7 +60,7 @@ function appendChild(target: TreeNode[], converted: TreeNode | TreeNode[], key: 
             target.push(converted);
         }
     } else if (Array.isArray(converted)) {
-        target.push({name: key, collapsedChildren: converted});
+        target.push(collapse ? {name: key, collapsedChildren: converted} : {name: key, children: converted});
     } else if (!converted.name) {
         converted.name = key;
         target.push(converted);
@@ -83,25 +69,25 @@ function appendChild(target: TreeNode[], converted: TreeNode | TreeNode[], key: 
     }
 }
 
-function classifyNode(rawNode: JsonObject): {nodeType?: PlanNodeType; nodeTag?: string} {
-    for (const nodeType of ["operator", "expression"] as const) {
-        if (!hasOwnProperty(rawNode, nodeType)) {
+function classifyNode(rawNode: JsonObject, config: DecoratedJsonTreeConfig): {nodeTypeKey?: string; nodeTag?: string} {
+    for (const nodeTypeKey of config.nodeTypeKeys) {
+        if (!hasOwnProperty(rawNode, nodeTypeKey)) {
             continue;
         }
-        const nodeTag = tryToString(rawNode[nodeType]);
+        const nodeTag = tryToString(rawNode[nodeTypeKey]);
         if (nodeTag !== undefined) {
-            return {nodeType, nodeTag};
+            return {nodeTypeKey, nodeTag};
         }
         break;
     }
     return {};
 }
 
-export function convertAdaptiveJsonNode(
+export function convertDecoratedJsonNode(
     rawNode: Json,
     parentKey: string,
-    state: AdaptiveConversionState,
-    config: AdaptiveTreeConfig,
+    state: DecoratedJsonTreeState,
+    config: DecoratedJsonTreeConfig,
 ): TreeNode | TreeNode[] {
     const scalar = tryToString(rawNode);
     if (scalar !== undefined) {
@@ -111,7 +97,7 @@ export function convertAdaptiveJsonNode(
     if (Array.isArray(rawNode)) {
         return rawNode.map((value, index) => {
             const name = `${parentKey}.${index}`;
-            const converted = convertAdaptiveJsonNode(value, name, state, config);
+            const converted = convertDecoratedJsonNode(value, name, state, config);
             const node = Array.isArray(converted) ? {children: converted} : converted;
             if (!node.name) {
                 node.name = name;
@@ -127,7 +113,7 @@ export function convertAdaptiveJsonNode(
     const expandedChildren: TreeNode[] = [];
     const collapsedChildren: TreeNode[] = [];
     const properties = new Map<string, string>();
-    const {nodeType, nodeTag} = classifyNode(rawNode);
+    const {nodeTypeKey, nodeTag} = classifyNode(rawNode, config);
 
     for (const key of config.alwaysPropertyKeys) {
         if (hasOwnProperty(rawNode, key)) {
@@ -135,20 +121,21 @@ export function convertAdaptiveJsonNode(
         }
     }
 
-    for (const key of orderedKeys(rawNode, nodeType, config)) {
+    for (const key of orderedKeys(rawNode, nodeTypeKey, config)) {
         const value = tryToString(rawNode[key]);
         if (value !== undefined) {
             properties.set(key, value);
             continue;
         }
 
-        const target = shouldExpandChild(rawNode, key) ? expandedChildren : collapsedChildren;
-        const converted = convertAdaptiveJsonNode(rawNode[key], key, state, config);
-        appendChild(target, converted, key, config.fixedChildOrder.includes(key));
+        const collapse = config.shouldCollapseChild?.(rawNode, key, rawNode[key]) ?? false;
+        const target = collapse ? collapsedChildren : expandedChildren;
+        const converted = convertDecoratedJsonNode(rawNode[key], key, state, config);
+        appendChild(target, converted, key, config.fixedChildOrder.includes(key), collapse);
     }
 
     const renderingConfig =
-        nodeType !== undefined && nodeTag !== undefined ? config.getRenderingConfig(nodeType, nodeTag, rawNode) : {};
+        nodeTypeKey !== undefined && nodeTag !== undefined ? config.getRenderingConfig(nodeTypeKey, nodeTag, rawNode) : {};
     const displayName =
         config.getDebugName?.(rawNode) ??
         (renderingConfig.displayNameKey === undefined ? undefined : properties.get(renderingConfig.displayNameKey)) ??
@@ -161,7 +148,7 @@ export function convertAdaptiveJsonNode(
         properties,
         children: expandedChildren,
         collapsedChildren,
-        expandedByDefault: nodeType !== "operator" && expandedChildren.length === 0,
+        expandedByDefault: expandedChildren.length === 0 && (config.shouldExpandCollapsedChildren?.(rawNode, nodeTypeKey) ?? true),
     };
 
     if (config.isErrored?.(rawNode, state.metadata)) {

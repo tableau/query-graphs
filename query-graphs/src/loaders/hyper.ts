@@ -11,8 +11,8 @@ Hyper-specific rendering, metrics, crosslinks, and plan envelopes.
 import type {Crosslink, TreeDescription, TreeNode} from "../tree-description";
 import type {Json, JsonObject} from "./loader-utils";
 import {forceToString, hasOwnProperty, tryGetPropertyPath, tryToString} from "./loader-utils";
-import type {AdaptiveTreeConfig, NodeRenderingConfig} from "./adaptive-plan-tree";
-import {convertAdaptiveJsonNode, createAdaptiveConversionState} from "./adaptive-plan-tree";
+import type {DecoratedJsonTreeConfig, NodeRenderingConfig} from "./decorated-json-tree";
+import {convertDecoratedJsonNode, createDecoratedJsonTreeState} from "./decorated-json-tree";
 import type {RawPipeline} from "./pipeline-coloring";
 import {assignPipelineColors} from "./pipeline-coloring";
 import {buildIdMap, colorRelativeExecutionTime, resolveCrosslinks, setEdgeWidths} from "./tree-postprocessing";
@@ -109,7 +109,14 @@ const legacyNodeTags: Record<string, string> = {
     "exp:iuref": "exp:iu-ref",
 };
 
-const hyperConfig: AdaptiveTreeConfig = {
+function containsOperator(value: Json): boolean {
+    while (Array.isArray(value) && value.length > 0) {
+        value = value[0];
+    }
+    return typeof value === "object" && !Array.isArray(value) && value !== null && hasOwnProperty(value, "operator");
+}
+
+const hyperConfig: DecoratedJsonTreeConfig = {
     getRenderingConfig(nodeType, nodeTag, rawNode) {
         const prefix = nodeType === "operator" ? "op" : "exp";
         const configKey = legacyNodeTags[`${prefix}:${nodeTag}`] ?? `${prefix}:${nodeTag}`;
@@ -120,11 +127,18 @@ const hyperConfig: AdaptiveTreeConfig = {
             {}
         );
     },
+    nodeTypeKeys: ["operator", "expression"],
     alwaysPropertyKeys: ["debug-name", "statistics", "sqlpos"],
     fixedChildOrder: ["inputs", "input", "left", "right", "value", "value-for-comparison"],
     getDebugName(rawNode) {
         const debugName = tryGetPropertyPath(rawNode, ["debug-name", "value"]);
         return typeof debugName === "string" ? debugName : undefined;
+    },
+    shouldCollapseChild(rawNode, _key, child) {
+        return !hasOwnProperty(rawNode, "operator") || !containsOperator(child);
+    },
+    shouldExpandCollapsedChildren(_rawNode, nodeTypeKey) {
+        return nodeTypeKey !== "operator";
     },
     isErrored(rawNode, metadata) {
         return metadata.has("Error") && tryGetPropertyPath(rawNode, ["statistics", "running"]) === true;
@@ -169,13 +183,13 @@ function parseHyperPipelines(pipelinesJson: Json): RawPipeline[] {
 }
 
 function convertHyperPlan(node: Json, pipelines?: Json): TreeDescription {
-    const state = createAdaptiveConversionState();
+    const state = createDecoratedJsonTreeState();
     const errorMessage = tryGetPropertyPath(node, ["statistics", "error", "message", "original"]);
     if (errorMessage) {
         state.metadata.set("Error", forceToString(errorMessage));
     }
 
-    const root = convertAdaptiveJsonNode(node, "result", state, hyperConfig);
+    const root = convertDecoratedJsonNode(node, "result", state, hyperConfig);
     if (Array.isArray(root)) {
         throw new InvalidPlanError("hyper");
     }

@@ -16,7 +16,9 @@ Everything downstream (layout, rendering, interaction) is shared across formats.
 | Generic XML | `xml.ts` | XML | fallback — renders any XML as a tree |
 
 The Postgres and Hyper loaders understand plan semantics: they choose icons, order and collapse children, label edges with cardinalities, and color nodes by runtime.
-The generic JSON and XML loaders map the input structure literally and act as catch-all fallbacks.
+The generic JSON loader renders scalar fields as tooltip properties and nested values as tree nodes, without format-specific decorations or collapsed children.
+The generic XML loader maps the input structure literally.
+Both act as catch-all fallbacks.
 
 ## Loader Dispatch
 
@@ -35,7 +37,7 @@ Callers can bypass detection by passing a registered format:
 
 ```ts
 loadPlanFromText(text, {format: "hyper"});
-loadPlanFromText(text, {format: "json"}); // Force literal JSON rendering.
+loadPlanFromText(text, {format: "json"}); // Force generic JSON-tree rendering.
 ```
 
 Forced dispatch parses only the syntax used by that loader, skips `matches`, and never falls back to another loader.
@@ -79,4 +81,4 @@ A few principles keep a loader permissive:
 * **Contain failures to the smallest subtree.**
   Convert nodes independently so one malformed operator degrades to a generic node instead of aborting its siblings.
 * **Lean on the generic fallbacks.**
-  `json` and `xml` are the ultimate safety net: a plan that no semantic loader recognizes still renders as its literal structure.
+  `json` and `xml` are the ultimate safety net: a plan that no semantic loader recognizes still renders as an inspectable tree.

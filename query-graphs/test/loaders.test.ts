@@ -72,6 +72,9 @@ test("dispatcher falls back to the generic JSON loader", () => {
     for (const json of ['{"unrecognized":{"value":42}}', '[{"name":"Alice","children":[]}]', '{"operator":{}}']) {
         assert.equal(loadPlanFromText(json).format, "json", json);
     }
+
+    const tree = loadPlanFromText('{"nested":{"value":42},"items":[{"value":1}]}').tree;
+    visitTreeNodes(tree.root, (node) => assert.equal(node.collapsedChildren?.length ?? 0, 0), allChildren);
 });
 
 test("dispatcher strips text surrounding copied plans", () => {
