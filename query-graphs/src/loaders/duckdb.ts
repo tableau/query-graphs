@@ -177,25 +177,13 @@ function hasAnalyzedEnvelope(json: Json): json is JsonObject & {children: [Json]
     return isJsonObject(json) && typeof json["query_name"] === "string" && isSingletonArray(json["children"]);
 }
 
-const stageNames = new Map([
-    ["logical_plan", "logical plan"],
-    ["logical_opt", "optimized logical plan"],
-    ["physical_plan", "physical plan"],
-]);
+const knownStageNames = ["logical_plan", "logical_opt", "physical_plan"];
 
 function getPlanStages(json: Json): [string, Json][] | undefined {
-    if (!isJsonObject(json) || !Array.from(stageNames.keys()).every((key) => hasOwnProperty(json, key))) {
+    if (!isJsonObject(json) || !knownStageNames.some((name) => hasOwnProperty(json, name))) {
         return undefined;
     }
-    const stages: [string, Json][] = [];
-    for (const [key, name] of stageNames) {
-        const plan = json[key];
-        if (!isSingletonArray(plan)) {
-            return undefined;
-        }
-        stages.push([name, plan[0]]);
-    }
-    return stages;
+    return Object.entries(json).map(([name, plan]) => [name, isSingletonArray(plan) ? plan[0] : plan]);
 }
 
 function analyzeMetadata(json: JsonObject): Map<string, string> {
@@ -246,7 +234,7 @@ export const duckDbPlanLoader: PlanLoader<Json> = {
         return (
             (isSingletonArray(json) && isRecognizableDuckNode(json[0])) ||
             (hasAnalyzedEnvelope(json) && isRecognizableDuckNode(json["children"][0])) ||
-            stages?.every(([, root]) => isRecognizableDuckNode(root)) === true
+            stages !== undefined
         );
     },
     load: loadDuckDbPlan,

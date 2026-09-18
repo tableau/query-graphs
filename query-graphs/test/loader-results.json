@@ -164,7 +164,7 @@
     "duckdb/tpch/tpch-q18-analyze.plan.json": "506187466fe2e2d6884f9aaf85784532af18d3bc15ac7f43c36eed832f5c13f2",
     "duckdb/tpch/tpch-q19-analyze.plan.json": "d5c1fb192b76a28e6dddec91b8701d477b178b2baf31b8eedf260a5deff4ba9f",
     "duckdb/tpch/tpch-q2-analyze.plan.json": "55387791f6fec86d43cb190d750a2a30a3179c4e606b3156f6bbb7ec3c175e9d",
-    "duckdb/tpch/tpch-q2-steps.plan.json": "c7e0a31f82eefdaa1d8bf1b52e11c164bf421c38dedc469a9a7918010622ec65",
+    "duckdb/tpch/tpch-q2-steps.plan.json": "6ba8fb597332cbdbe01ea19b7a2d1fadea802cf9047d333b07c127e4049300b2",
     "duckdb/tpch/tpch-q2.plan.json": "08f8a7d7f79c3bd0287f5a8cb7330334fab87f25cf549b82099e5354a95fb21c",
     "duckdb/tpch/tpch-q20-analyze.plan.json": "0bada293765280e9e9cb698ac4983725b0e55a08f0040d2345c3575c55ac1616",
     "duckdb/tpch/tpch-q21-analyze.plan.json": "890e08c20822fd450e17b26536dea3732d35df1a92d2f23bbda74d10a026980f",

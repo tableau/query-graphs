@@ -106,7 +106,21 @@ test("DuckDB simple and optimizer-stage plans preserve plan structure", () => {
     const optimizerStages = loadFixture("duckdb/tpch/tpch-q2-steps.plan.json").tree;
     assert.equal(optimizerStages.root.name, "optimizer stages");
     assert.equal(optimizerStages.root.children?.length, 3);
+    assert.equal(optimizerStages.root.children?.[0].name, "logical_plan");
     assert.equal(optimizerStages.root.children?.[0].collapsedChildren?.[0].name, "limit");
+
+    const futureStages = loadPlanFromText(
+        JSON.stringify({
+            logical_plan: [{name: "PROJECTION", children: []}],
+            future_plan: [{name: "FUTURE_OPERATOR", children: []}],
+        }),
+    );
+    assert.equal(futureStages.format, "duckdb");
+    assert.deepEqual(
+        futureStages.tree.root.children?.map(({name}) => name),
+        ["logical_plan", "future_plan"],
+    );
+    assert.equal(futureStages.tree.root.children?.[1].collapsedChildren?.[0].name, "future_operator");
 });
 
 test("DuckDB scopes delimiter indexes to individual optimizer stages", () => {
