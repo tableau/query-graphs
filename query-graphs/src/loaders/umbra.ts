@@ -162,11 +162,11 @@ function normalizePipelineMemberships(root: TreeNode, pipelines: ExecutionPipeli
         }
     };
 
-    // Umbra-format plans may assign adjacent operators exclusively to their own
-    // pipelines, whereas the shared colorer expects a pipeline to contain both
-    // endpoints of every edge it crosses. Extend only otherwise-disjoint
-    // boundaries to the consumer. Using the original memberships prevents a
-    // synthetic overlap from propagating a pipeline through multiple edges.
+    // Umbra-format plans may list operators exclusively for the pipelines into
+    // which they are producing tuples. Pipelines feeding into an operator don't
+    // list that operator as part of the pipeline. We fix this up here, such that the
+    // input edge is still colored, feeding into the operator. Using the original
+    // memberships prevents a synthetic overlap from propagating through multiple edges.
     const visit = (node: TreeNode): void => {
         for (const child of allChildren(node)) {
             overlapBoundary(node, child);
