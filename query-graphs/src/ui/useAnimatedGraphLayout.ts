@@ -40,6 +40,7 @@ export interface GraphAnimationController {
 export const subtreeHandleId = "subtree";
 export const GraphAnimationContext = createContext<GraphAnimationController | null>(null);
 
+/** Returns the animation controller supplied by the surrounding query graph. */
 export function useGraphAnimationController(): GraphAnimationController {
     const controller = useContext(GraphAnimationContext);
     assertNotNull(controller);
@@ -56,6 +57,7 @@ interface BodyAnimation {
     animationFrame?: number;
 }
 
+/** Applies transient animation styles without replacing settled element styles. */
 function withAnimationStyle(style: CSSProperties | undefined, opacity: number, transient: boolean): CSSProperties | undefined {
     if (opacity === 1 && !transient) return style;
     return {
@@ -65,6 +67,11 @@ function withAnimationStyle(style: CSSProperties | undefined, opacity: number, t
     };
 }
 
+/**
+ * Measures a node's expanded or collapsed dimensions without changing the
+ * visible node. An invisible clone is necessary because the target CSS state
+ * does not exist in the rendered graph yet.
+ */
 function measureNodeResize({nodeId, nodeElement, targetExpanded}: NodeResizeRequest): NodeResizeAnimation | undefined {
     const flowNode = nodeElement.closest<HTMLElement>(".react-flow__node");
     const bodyElement = nodeElement.querySelector<HTMLElement>(".qg-graph-node-body-wrapper");
@@ -98,6 +105,11 @@ function measureNodeResize({nodeId, nodeElement, targetExpanded}: NodeResizeRequ
     };
 }
 
+/**
+ * Converts React Flow's measured source-handle bounds into an offset from the
+ * node position. Keeping the offset node-relative lets the anchor follow its
+ * node while the surrounding layout moves.
+ */
 function measuredSourceAnchor(node: InternalNode<QueryGraphNode> | undefined, handleId: string): LayoutAnchor | undefined {
     const handle = node?.internals.handleBounds?.source?.find((candidate) => candidate.id === handleId);
     if (node === undefined || handle === undefined) return undefined;
@@ -114,6 +126,7 @@ function measuredSourceAnchor(node: InternalNode<QueryGraphNode> | undefined, ha
     return {nodeId: node.id, offset: {x: x - node.position.x, y: y - node.position.y}};
 }
 
+/** Assigns the gesture's handle anchor to every node entering or leaving this transition. */
 function transitionAnchors(from: AnimatedLayout, to: GraphLayout, anchor: LayoutAnchor | undefined): TransitionAnchors {
     const anchors = new Map<string, LayoutAnchor>();
     if (anchor === undefined) return anchors;
@@ -124,6 +137,12 @@ function transitionAnchors(from: AnimatedLayout, to: GraphLayout, anchor: Layout
     return anchors;
 }
 
+/**
+ * Computes and animates the measured query-graph layout consumed by React
+ * Flow. Node measurements feed subsequent layouts; resize gestures coordinate
+ * body and graph geometry, while subtree gestures stage unmeasured nodes at
+ * their handle before animating them to the final layout.
+ */
 export function useAnimatedGraphLayout(
     treeDescription: TreeDescription,
     nodeIds: Map<TreeNode, string>,
@@ -150,6 +169,8 @@ export function useAnimatedGraphLayout(
     );
     const targetMeasured = target.nodes.every((node) => nodeDimensions.has(node.id));
 
+    // Record dimensions reported by React Flow. During a body resize, retain
+    // the known final size as the layout target while its measured size moves.
     const onNodesChange = useCallback(
         (changes: NodeChange<QueryGraphNode>[]) => {
             const updates = changes.flatMap((change) => {
@@ -180,6 +201,7 @@ export function useAnimatedGraphLayout(
         [nodeIds],
     );
 
+    // Stop direct DOM animation and restore CSS ownership of the body size.
     const stopBodyAnimation = useCallback((nodeId: string) => {
         const animation = bodyAnimationsRef.current.get(nodeId);
         if (animation === undefined) return;
@@ -192,6 +214,8 @@ export function useAnimatedGraphLayout(
         activeResizeNodesRef.current.delete(nodeId);
     }, []);
 
+    // Gesture entry points measure their destination before changing the graph
+    // so the ensuing render can immediately compute the correct target layout.
     const animationController = useMemo<GraphAnimationController>(
         () => ({
             animateNodeResize: (request, updateGraph) => {
@@ -260,6 +284,9 @@ export function useAnimatedGraphLayout(
     const initialFitDoneRef = useRef(false);
     const animationFrameRef = useRef<number | undefined>(undefined);
 
+    // Reconcile each computed target with the currently rendered frame. New
+    // nodes are first staged invisibly for measurement; ready targets animate
+    // from the current frame so interrupted transitions remain continuous.
     useLayoutEffect(() => {
         const graphChanged = nodeIdsRef.current !== nodeIds;
         const targetChanged = graphChanged || !sameLayoutTarget(targetRef.current, target);
@@ -325,6 +352,8 @@ export function useAnimatedGraphLayout(
         animationFrameRef.current = requestAnimationFrame(step);
     }, [nodeIds, stopBodyAnimation, target, targetMeasured]);
 
+    // Fit only after the initial graph is fully measured and any transition
+    // has settled, ensuring React Flow sees final node bounds.
     useEffect(() => {
         if (
             initialFitDoneRef.current ||
@@ -340,6 +369,8 @@ export function useAnimatedGraphLayout(
         return () => cancelAnimationFrame(animationFrame);
     }, [fitView, rendered, targetMeasured]);
 
+    // Release both React Flow layout frames and direct body animations when
+    // the graph unmounts.
     useEffect(
         () => () => {
             if (animationFrameRef.current !== undefined) cancelAnimationFrame(animationFrameRef.current);
@@ -350,6 +381,8 @@ export function useAnimatedGraphLayout(
 
     const targetNodes = useMemo(() => new Map(target.nodes.map((node) => [node.id, node])), [target.nodes]);
     const targetEdges = useMemo(() => new Map(target.edges.map((edge) => [edge.id, edge])), [target.edges]);
+    // Combine animated geometry with the latest payload and presentation data;
+    // exiting elements fall back to their retained payload until they vanish.
     return useMemo(
         () => ({
             nodes: rendered.nodes.map(({node, position, opacity, transient}) => {
