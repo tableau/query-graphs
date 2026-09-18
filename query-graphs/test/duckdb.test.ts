@@ -66,7 +66,7 @@ test("DuckDB analyzed plans preserve metrics, metadata, and CTE crosslinks", () 
     const actualOnly = treeNodes(loadFixture("duckdb/groupby-analyze.plan.json").tree.root).find(
         (node) => node.name === "perfect_hash_group_by",
     );
-    assert.equal(actualOnly?.edgeLabel, "3");
+    assert.equal(actualOnly?.edgeLabel, "3/?");
 });
 
 test("DuckDB keeps CTE and delimiter crosslink identifiers separate within a plan", () => {
