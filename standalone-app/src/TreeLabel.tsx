@@ -67,7 +67,7 @@ export function TreeLabel({title, setTitle, metadata, metadataHighlighted, textD
     }
 
     return (
-        <div className="react-flow__panel graph-sidebar">
+        <div className="react-flow__panel graph-sidebar nowheel">
             <input
                 type="text"
                 className="graph-title"
@@ -75,14 +75,16 @@ export function TreeLabel({title, setTitle, metadata, metadataHighlighted, textD
                 value={title}
                 onChange={(e) => (setTitle ? setTitle(e.target.value) : undefined)}
             />
-            {metadataChildren.length > 0 ? (
-                <CollapsiblePanel title="Plan Metadata" highlighted={metadataHighlighted}>
-                    <div className="graph-metadata">{metadataChildren}</div>
-                </CollapsiblePanel>
-            ) : null}
-            {textDocuments?.map((document) => (
-                <TextDocumentPanel key={document.id} document={document} />
-            ))}
+            <div className="graph-sidebar-panels">
+                {metadataChildren.length > 0 ? (
+                    <CollapsiblePanel title="Plan Metadata" highlighted={metadataHighlighted}>
+                        <div className="graph-metadata">{metadataChildren}</div>
+                    </CollapsiblePanel>
+                ) : null}
+                {textDocuments?.map((document) => (
+                    <TextDocumentPanel key={document.id} document={document} />
+                ))}
+            </div>
         </div>
     );
 }

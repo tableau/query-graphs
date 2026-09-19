@@ -3,15 +3,29 @@
     flex-direction: column;
     align-items: stretch;
     gap: 0.5em;
-    max-width: min(30em, calc(100vw - 2em));
+    max-width: min(30em, 40vw);
+    max-height: calc(100vh - 2em);
+    max-height: calc(100dvh - 2em);
+    overflow: hidden;
 
-    &:has(> .qg-collapsible-panel[open] .graph-text-document) {
-        width: 30em;
+    &:has(.qg-collapsible-panel[open] .graph-text-document) {
+        width: min(30em, 40vw);
     }
+}
+
+.graph-sidebar-panels {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
 }
 
 .graph-title {
     box-sizing: border-box;
+    flex: none;
     background: #fff;
     font-size: 1.1em;
     font-weight: bold;
@@ -33,7 +47,7 @@
     white-space: pre;
 
     & .cm-editor {
-        height: min(30em, 60vh);
+        height: clamp(12em, 50dvh, 30em);
         border: 1px solid hsl(0, 0%, 85%);
     }
 
@@ -51,7 +65,7 @@
     display: flex;
     flex-direction: column;
     gap: 0.65em;
-    height: min(30em, 60vh);
+    height: clamp(12em, 50dvh, 30em);
     padding: 1em;
     border: 1px solid hsl(0, 0%, 85%);
 
@@ -82,6 +96,10 @@
     }
 }
 
+.graph-sidebar .qg-collapsible-panel-content:has(> .graph-text-document) {
+    overflow: hidden;
+}
+
 @keyframes graph-text-document-loading-flow {
     from {
         background-position: 100% 0;
@@ -96,5 +114,15 @@
     .graph-text-document-loading span {
         animation: none;
         background: hsl(210, 8%, 84%);
+    }
+}
+
+@media (max-width: 45em) {
+    .graph-sidebar {
+        max-width: calc(100vw - 2em);
+
+        &:has(.qg-collapsible-panel[open] .graph-text-document) {
+            width: calc(100vw - 2em);
+        }
     }
 }
