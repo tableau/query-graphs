@@ -1,8 +1,10 @@
-import type {ReactElement} from "react";
+import {lazy, Suspense, useState, type ReactElement} from "react";
 import {CollapsiblePanel} from "@tableau/query-graphs/lib/ui/CollapsiblePanel";
 import {CopyButton} from "@tableau/query-graphs/lib/ui/CopyButton";
 import type {TextDocument} from "@tableau/query-graphs/lib/tree-description";
 import "./TreeLabel.css";
+
+const JsonDocument = lazy(() => import("./JsonDocument").then((module) => ({default: module.JsonDocument})));
 
 export interface TreeLabelProps {
     title: string;
@@ -12,17 +14,42 @@ export interface TreeLabelProps {
     textDocuments?: TextDocument[];
 }
 
-function TextDocumentPanel({document}: {document: TextDocument}) {
+function PlainTextDocument({document}: {document: TextDocument}) {
     return (
-        <CollapsiblePanel title={document.title} headerActions={<CopyButton text={document.text} contentName={document.title} />}>
-            <textarea
-                className="graph-text-document"
-                value={document.text}
-                readOnly
-                spellCheck={false}
-                aria-label={document.title}
-                rows={12}
-            />
+        <textarea
+            className="graph-text-document"
+            value={document.text}
+            readOnly
+            spellCheck={false}
+            aria-label={document.title}
+            rows={12}
+        />
+    );
+}
+
+function TextDocumentPanel({document}: {document: TextDocument}) {
+    const [opened, setOpened] = useState(false);
+    return (
+        <CollapsiblePanel
+            title={document.title}
+            headerActions={<CopyButton text={document.text} contentName={document.title} />}
+            onToggle={(open) => setOpened((wasOpened) => wasOpened || open)}
+        >
+            {opened ? (
+                document.language === "json" ? (
+                    <Suspense
+                        fallback={
+                            <div className="graph-text-document graph-text-document-loading" role="status">
+                                Loading document…
+                            </div>
+                        }
+                    >
+                        <JsonDocument document={document} />
+                    </Suspense>
+                ) : (
+                    <PlainTextDocument document={document} />
+                )
+            ) : null}
         </CollapsiblePanel>
     );
 }

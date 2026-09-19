@@ -31,4 +31,23 @@
     width: 100%;
     font-family: monospace;
     white-space: pre;
+
+    & .cm-editor {
+        height: min(30em, 60vh);
+        border: 1px solid hsl(0, 0%, 85%);
+    }
+
+    & .cm-scroller {
+        font-family: inherit;
+    }
+
+    & .cm-editor.cm-focused {
+        outline: 2px solid hsl(210, 90%, 65%);
+        outline-offset: -1px;
+    }
+}
+
+.graph-text-document-loading {
+    padding: 0.75em;
+    color: hsl(0, 0%, 40%);
 }
