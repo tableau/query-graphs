@@ -1,5 +1,6 @@
 .qg-collapsible-panel {
     box-sizing: border-box;
+    isolation: isolate;
     background: white;
     border: 1px solid hsl(0, 0%, 85%);
     border-radius: 8px;
@@ -8,6 +9,8 @@
         0 1px 2px hsl(0, 0%, 0%, 0.06);
 
     & > summary {
+        position: relative;
+        z-index: 1;
         display: flex;
         align-items: center;
         gap: 0.4em;
@@ -73,6 +76,8 @@
 }
 
 .qg-collapsible-panel-content {
+    position: relative;
+    z-index: 0;
     max-height: 70vh;
     overflow: auto;
     padding: 0.75em;
