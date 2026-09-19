@@ -5,6 +5,7 @@ import {createLayoutInterpolator, refreshLayoutData, sameLayoutTarget, staticLay
 import type {GraphLayout, TransitionAnchors} from "../src/ui/animated-layout";
 import {graphAnimationDuration, graphAnimationProgress} from "../src/ui/animation-timing";
 import type {QueryGraphNode} from "../src/ui/QueryNode";
+import {transitionAnchors} from "../src/ui/useAnimatedGraphLayout";
 
 const parentAnchors = new Map([["child", {nodeId: "parent", offset: {x: 0, y: 30}}]]);
 
@@ -57,6 +58,45 @@ test("simultaneous subtree changes use independent anchors", () => {
     const halfway = createLayoutInterpolator(start, target, anchors)(0.5);
     assert.deepEqual(halfway.nodes.find((entry) => entry.node.id === "left-child")?.position, {x: 5, y: 65});
     assert.deepEqual(halfway.nodes.find((entry) => entry.node.id === "right-child")?.position, {x: 105, y: 65});
+});
+
+test("transition anchors resolve deep changed subtrees in one ancestry pass", () => {
+    const depth = 100;
+    const leftNodes = Array.from({length: depth}, (_, index) => node(`left-${index}`, 0, index));
+    const rightNodes = Array.from({length: depth}, (_, index) => node(`right-${index}`, 100, index));
+    const stableNodes = [node("root", 0, 0), node("left", 0, 10), node("right", 100, 10)];
+
+    class CountingParents extends Map<string, string> {
+        reads = 0;
+
+        override get(id: string): string | undefined {
+            this.reads++;
+            return super.get(id);
+        }
+    }
+
+    const parents = new CountingParents([
+        ["left", "root"],
+        ["right", "root"],
+        ...leftNodes.map((entry, index) => [entry.id, index === 0 ? "left" : leftNodes[index - 1]!.id] as const),
+        ...rightNodes.map((entry, index) => [entry.id, index === 0 ? "right" : rightNodes[index - 1]!.id] as const),
+    ]);
+    const measured: string[] = [];
+    const anchors = transitionAnchors(
+        staticLayout(layout([...stableNodes, ...leftNodes])),
+        layout([...stableNodes, ...rightNodes]),
+        parents,
+        (nodeId) => {
+            measured.push(nodeId);
+            return {nodeId, offset: {x: 0, y: 30}};
+        },
+    );
+
+    assert.equal(anchors?.size, depth * 2);
+    assert.equal(anchors?.get(`left-${depth - 1}`)?.nodeId, "left");
+    assert.equal(anchors?.get(`right-${depth - 1}`)?.nodeId, "right");
+    assert.equal(parents.reads, depth * 2);
+    assert.deepEqual(measured, ["right", "left"]);
 });
 
 test("exiting nodes follow their anchor when an animation is interrupted", () => {

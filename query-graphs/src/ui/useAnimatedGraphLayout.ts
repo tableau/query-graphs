@@ -4,18 +4,14 @@ import type {CSSProperties} from "react";
 import {createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState} from "react";
 import {assertNotNull} from "../assert";
 import type {TreeDescription, TreeNode} from "../tree-description";
+import {allChildren} from "../tree-description";
 import type {QueryGraphNode} from "./QueryNode";
 import {layoutTree} from "./tree-layout";
 import {animationStartTime, graphAnimationProgress} from "./animation-timing";
 import type {AnimatedLayout, GraphLayout, LayoutAnchor, TransitionAnchors} from "./animated-layout";
 import {createLayoutInterpolator, refreshLayoutData, sameLayoutTarget, staticLayout} from "./animated-layout";
 
-interface LayoutAnimation {
-    kind: "resize" | "subtree";
-    startedAt: number;
-    // Entering and exiting nodes animate from or toward this measured handle.
-    anchor?: LayoutAnchor;
-}
+type LayoutAnimation = {kind: "resize"; startedAt: number} | {kind: "subtree"};
 
 interface NodeResizeRequest {
     nodeId: string;
@@ -33,7 +29,6 @@ interface NodeResizeAnimation {
 
 export interface GraphAnimationController {
     animateNodeResize: (request: NodeResizeRequest, updateGraph: () => void) => void;
-    animateSubtreeChange: (anchorNodeId: string, updateGraph: () => void) => void;
 }
 
 export const subtreeHandleId = "subtree";
@@ -131,22 +126,72 @@ function measuredSourceAnchor(node: InternalNode<QueryGraphNode> | undefined, ha
     return {nodeId: node.id, offset: {x: x - node.position.x, y: y - node.position.y}};
 }
 
-/** Assigns the gesture's handle anchor to every node entering or leaving this transition. */
-function transitionAnchors(from: AnimatedLayout, to: GraphLayout, anchor: LayoutAnchor | undefined): TransitionAnchors {
+/** Indexes every node's parent once, including currently collapsed children. */
+function treeParents(tree: TreeDescription, nodeIds: Map<TreeNode, string>): ReadonlyMap<string, string> {
+    const parents = new Map<string, string>();
+    const pending: [TreeNode, string | undefined][] = [[tree.root, undefined]];
+    while (pending.length > 0) {
+        const [node, parentId] = pending.pop()!;
+        const nodeId = nodeIds.get(node);
+        assertNotNull(nodeId);
+        if (parentId !== undefined) parents.set(nodeId, parentId);
+        for (const child of allChildren(node)) pending.push([child, nodeId]);
+    }
+    return parents;
+}
+
+/**
+ * Anchors each entering or exiting node at its nearest ancestor that remains
+ * visible. Returns an empty map when membership is unchanged, or `undefined`
+ * when a required anchor cannot be measured.
+ *
+ * Resolved paths and measured handles are cached, so every ancestry link is
+ * followed at most once even when an entire deep subtree changes.
+ */
+export function transitionAnchors(
+    from: AnimatedLayout,
+    to: GraphLayout,
+    parents: ReadonlyMap<string, string>,
+    measureAnchor: (nodeId: string) => LayoutAnchor | undefined,
+): TransitionAnchors | undefined {
     const anchors = new Map<string, LayoutAnchor>();
-    if (anchor === undefined) return anchors;
     const fromNodeIds = new Set(from.nodes.map((entry) => entry.node.id));
     const toNodeIds = new Set(to.nodes.map((node) => node.id));
-    for (const id of toNodeIds) if (!fromNodeIds.has(id)) anchors.set(id, anchor);
-    for (const id of fromNodeIds) if (!toNodeIds.has(id)) anchors.set(id, anchor);
+    const visibleInBoth = new Set([...fromNodeIds].filter((id) => toNodeIds.has(id)));
+    const resolvedAncestors = new Map<string, string | undefined>();
+    const measuredAnchors = new Map<string, LayoutAnchor | undefined>();
+
+    const addAnchor = (nodeId: string) => {
+        const path: string[] = [];
+        let ancestor: string | undefined = nodeId;
+        while (ancestor !== undefined && !visibleInBoth.has(ancestor)) {
+            if (resolvedAncestors.has(ancestor)) {
+                ancestor = resolvedAncestors.get(ancestor);
+                break;
+            }
+            path.push(ancestor);
+            ancestor = parents.get(ancestor);
+        }
+        for (const traversed of path) resolvedAncestors.set(traversed, ancestor);
+        if (ancestor === undefined) return false;
+
+        if (!measuredAnchors.has(ancestor)) measuredAnchors.set(ancestor, measureAnchor(ancestor));
+        const anchor = measuredAnchors.get(ancestor);
+        if (anchor === undefined) return false;
+        anchors.set(nodeId, anchor);
+        return true;
+    };
+
+    for (const id of toNodeIds) if (!fromNodeIds.has(id) && !addAnchor(id)) return undefined;
+    for (const id of fromNodeIds) if (!toNodeIds.has(id) && !addAnchor(id)) return undefined;
     return anchors;
 }
 
 /**
  * Computes and animates the measured query-graph layout consumed by React
  * Flow. Node measurements feed subsequent layouts; resize gestures coordinate
- * body and graph geometry, while subtree gestures stage unmeasured nodes at
- * their handle before animating them to the final layout.
+ * body and graph geometry, while subtree changes stage unmeasured nodes at
+ * their nearest visible ancestor before animating them to the final layout.
  */
 export function useAnimatedGraphLayout(
     treeDescription: TreeDescription,
@@ -163,6 +208,7 @@ export function useAnimatedGraphLayout(
     const animationRef = useRef<LayoutAnimation | undefined>(undefined);
     const [dimensionsState, setDimensionsState] = useState<DimensionsState>(() => dimensionsForGraph(undefined, nodeIds));
     const dimensions = useMemo<DimensionsState>(() => dimensionsForGraph(dimensionsState, nodeIds), [dimensionsState, nodeIds]);
+    const parentIds = useMemo(() => treeParents(treeDescription, nodeIds), [treeDescription, nodeIds]);
     // Intermediate measurements update the React Flow projection below, while
     // only stable target dimensions invalidate the comparatively costly layout.
     const target = useMemo(
@@ -218,7 +264,7 @@ export function useAnimatedGraphLayout(
         bodyAnimationsRef.current.delete(nodeId);
     }, []);
 
-    // Gesture entry points measure their destination before changing the graph
+    // Node-resize gestures measure their destination before changing the graph
     // so the ensuing render can immediately compute the correct target layout.
     const animationController = useMemo<GraphAnimationController>(
         () => ({
@@ -267,14 +313,8 @@ export function useAnimatedGraphLayout(
                 step(startedAt);
                 updateGraph();
             },
-            animateSubtreeChange: (anchorNodeId, updateGraph) => {
-                const anchor = measuredSourceAnchor(getInternalNode(anchorNodeId), subtreeHandleId);
-                const startedAt = anchor === undefined ? undefined : animationStartTime();
-                animationRef.current = startedAt === undefined ? undefined : {kind: "subtree", startedAt, anchor};
-                updateGraph();
-            },
         }),
-        [getInternalNode, nodeIds, stopBodyAnimation],
+        [nodeIds, stopBodyAnimation],
     );
 
     const targetRef = useRef(target);
@@ -291,7 +331,21 @@ export function useAnimatedGraphLayout(
         const graphChanged = nodeIdsRef.current !== nodeIds;
         const targetDataChanged = targetRef.current !== target;
         const targetChanged = graphChanged || !sameLayoutTarget(targetRef.current, target);
-        const animation = animationRef.current;
+        const transitionAnchorMap = transitionAnchors(renderedRef.current, target, parentIds, (nodeId) =>
+            measuredSourceAnchor(getInternalNode(nodeId), subtreeHandleId),
+        );
+        let animation = animationRef.current;
+        if (!graphChanged && animation === undefined && transitionAnchorMap !== undefined && transitionAnchorMap.size > 0) {
+            animation = animationStartTime() === undefined ? undefined : {kind: "subtree"};
+            animationRef.current = animation;
+        }
+        // Missing handle measurements make origin-based interpolation worse
+        // than snapping, so abandon an inferred subtree animation in that case.
+        if (transitionAnchorMap === undefined) {
+            animation = undefined;
+            animationRef.current = undefined;
+        }
+        const anchors = transitionAnchorMap ?? new Map();
         const animationReady = animation !== undefined && targetMeasured && animationFrameRef.current === undefined;
         nodeIdsRef.current = nodeIds;
         targetRef.current = target;
@@ -324,11 +378,7 @@ export function useAnimatedGraphLayout(
         // Newly revealed nodes have no dimensions yet. Render them invisibly at
         // the anchor so React Flow can measure them before computing the endpoint.
         if (!targetMeasured) {
-            const interpolate = createLayoutInterpolator(
-                renderedRef.current,
-                target,
-                transitionAnchors(renderedRef.current, target, animation.anchor),
-            );
+            const interpolate = createLayoutInterpolator(renderedRef.current, target, anchors);
             const staged = interpolate(0);
             renderedRef.current = staged;
             setRendered(staged);
@@ -339,7 +389,6 @@ export function useAnimatedGraphLayout(
         // Retarget an active transition from its current frame instead of
         // snapping or jumping ahead on the original easing curve.
         const startTime = wasAnimating || animation.kind === "subtree" ? performance.now() : animation.startedAt;
-        const anchors = transitionAnchors(start, target, animation.anchor);
         const interpolate = createLayoutInterpolator(start, target, anchors);
         const step = (now: number) => {
             const progress = graphAnimationProgress(startTime, now);
@@ -355,7 +404,7 @@ export function useAnimatedGraphLayout(
             }
         };
         animationFrameRef.current = requestAnimationFrame(step);
-    }, [nodeIds, stopBodyAnimation, target, targetMeasured]);
+    }, [getInternalNode, nodeIds, parentIds, stopBodyAnimation, target, targetMeasured]);
 
     // Fit only after the initial graph is fully measured and any transition
     // has settled, ensuring React Flow sees final node bounds.
