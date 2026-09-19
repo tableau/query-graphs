@@ -27,15 +27,12 @@ function QueryNode({data, id}: NodeProps<QueryGraphNode>) {
                 if (hasSubtree) toggleSubtree(id);
             } else {
                 if (hasProperties) {
-                    animationController.animateNodeResize(
-                        {nodeId: id, nodeElement: e.currentTarget, targetExpanded: !expanded},
-                        () => toggleNode(id),
-                    );
+                    animationController.animateNodeResize({nodeId: id, nodeElement: e.currentTarget}, () => toggleNode(id));
                 }
             }
             e.stopPropagation();
         },
-        [animationController, toggleNode, toggleSubtree, hasProperties, hasSubtree, expanded, id],
+        [animationController, toggleNode, toggleSubtree, hasProperties, hasSubtree, id],
     );
     const onSubtreeHandleClick = useCallback(
         (e: MouseEvent) => {
