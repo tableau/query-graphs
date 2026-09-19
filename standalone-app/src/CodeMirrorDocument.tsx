@@ -22,6 +22,7 @@ function createFoldMarker(open: boolean): HTMLElement {
 }
 
 const folding = foldGutter({markerDOM: createFoldMarker});
+const noLanguageExtension: Extension = [];
 const foldMarkerTheme = EditorView.baseTheme({
     ".graph-fold-marker": {
         display: "inline-flex",
@@ -65,7 +66,7 @@ export interface CodeMirrorDocumentProps {
     languageExtension?: Extension;
 }
 
-export function CodeMirrorDocument({document, languageExtension = []}: CodeMirrorDocumentProps) {
+export function CodeMirrorDocument({document, languageExtension = noLanguageExtension}: CodeMirrorDocumentProps) {
     const parent = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
