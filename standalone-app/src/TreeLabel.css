@@ -1,11 +1,15 @@
 .graph-sidebar {
+    --graph-sidebar-paint-gutter: 10px;
+    --graph-sidebar-outer-margin: 5px;
+
     display: flex;
     flex-direction: column;
     align-items: stretch;
     gap: 0.5em;
+    margin: var(--graph-sidebar-outer-margin);
     max-width: min(30em, 40vw);
-    max-height: calc(100vh - 2em);
-    max-height: calc(100dvh - 2em);
+    max-height: calc(100vh - var(--graph-sidebar-outer-margin) - var(--graph-sidebar-outer-margin));
+    max-height: calc(100dvh - var(--graph-sidebar-outer-margin) - var(--graph-sidebar-outer-margin));
     overflow: hidden;
 
     &:has(.qg-collapsible-panel[open] .graph-text-document-frame) {
@@ -24,7 +28,7 @@
     display: flex;
     flex-direction: column;
     gap: 0.5em;
-    padding: 10px;
+    padding: var(--graph-sidebar-paint-gutter);
 }
 
 .graph-title {
@@ -35,7 +39,9 @@
     font-weight: bold;
     field-sizing: content;
     min-width: 10em;
-    max-width: 100%;
+    max-width: calc(100% - var(--graph-sidebar-paint-gutter) - var(--graph-sidebar-paint-gutter));
+    margin-block-start: var(--graph-sidebar-paint-gutter);
+    margin-inline: var(--graph-sidebar-paint-gutter);
     border: none;
 
     &:hover {
@@ -124,10 +130,10 @@
 
 @media (max-width: 45em) {
     .graph-sidebar {
-        max-width: calc(100vw - 2em);
+        max-width: calc(100vw - var(--graph-sidebar-outer-margin) - var(--graph-sidebar-outer-margin));
 
         &:has(.qg-collapsible-panel[open] .graph-text-document-frame) {
-            width: calc(100vw - 2em);
+            width: calc(100vw - var(--graph-sidebar-outer-margin) - var(--graph-sidebar-outer-margin));
         }
     }
 }
