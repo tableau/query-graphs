@@ -1,4 +1,4 @@
--- UNSUPPORTED: cedardb
+--- UNSUPPORTED: cedardb
 -- CedarDB v2026-08-13 hits an internal Pipeline::getRawLocalStatePtr assertion
 -- during EXPLAIN ANALYZE; plain EXPLAIN succeeds.
 -- This query is derived from TPC-H query 15

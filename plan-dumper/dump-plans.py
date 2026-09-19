@@ -15,6 +15,7 @@ import psycopg2
 import pymysql
 from psycopg2 import sql as psycopg2_sql
 from tableauhyperapi import Connection, HyperProcess, Telemetry
+from query_formatting import explain_query, parse_config, strip_config_comments
 
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -30,29 +31,18 @@ def read_file(path):
     return path.read_text()
 
 
-# A `-- UNSUPPORTED: duckdb, postgres` comment anywhere in a query file lists the databases
+# A `--- UNSUPPORTED: duckdb, postgres` comment anywhere in a query file lists the databases
 # that can't run it (incompatible syntax, or a semantic difference like division-by-zero
 # handling); those databases skip the file instead of erroring out mid-run.
-unsupported_re = re.compile(
-    r"^--\s*UNSUPPORTED:\s*(.+)$",
-    re.MULTILINE | re.IGNORECASE,
-)
 def parse_unsupported(sql):
-    match = unsupported_re.search(sql)
-    if not match:
-        return set()
-    return {db.strip().lower() for db in match.group(1).split(",")}
+    return set(parse_config(sql, "unsupported"))
 
 
-# A `-- MODES: simple, analyze, external-analyze, analyze-sql` comment anywhere in a query file lists the
+# A `--- MODES: simple, analyze, external-analyze, analyze-sql` comment anywhere in a query file lists the
 # EXPLAIN modes to dump it under (one output file per mode); defaults to `analyze` alone
 # when absent, since that's what most queries want.
-modes_re = re.compile(r"^--\s*MODES:\s*(.+)$", re.MULTILINE | re.IGNORECASE)
 def parse_modes(sql):
-    match = modes_re.search(sql)
-    if not match:
-        return ["analyze"]
-    return [mode.strip().lower() for mode in match.group(1).split(",")]
+    return parse_config(sql, "modes") or ["analyze"]
 
 
 def run_setup(exec_stmt, setup_file, load_table=None):
@@ -86,8 +76,9 @@ def dump_plans(
         staging_dir.mkdir()
 
         for query_path in sorted(QUERIES_DIR.glob("**/*.sql")):
-            sql = read_file(query_path).strip()
-            unsupported = parse_unsupported(sql)
+            query_file = read_file(query_path).strip()
+            unsupported = parse_unsupported(query_file)
+            sql = strip_config_comments(query_file).strip()
             relative_path = query_path.relative_to(QUERIES_DIR)
 
             if name in unsupported:
@@ -95,7 +86,7 @@ def dump_plans(
                 continue
 
             modes = []
-            for mode in parse_modes(sql):
+            for mode in parse_modes(query_file):
                 if f"{name}:{mode}" in unsupported:
                     print(
                         f"{name}: {query_path.relative_to(BASE_DIR)} "
@@ -169,9 +160,9 @@ def dump_postgres_compatible(name, dsn):
 
         def get_plan(sql, mode):
             if mode == "simple":
-                explain = "EXPLAIN (VERBOSE, FORMAT JSON) "
+                explain = "EXPLAIN (VERBOSE, FORMAT JSON)"
             elif mode == "analyze":
-                explain = "EXPLAIN (VERBOSE, ANALYZE, FORMAT JSON) "
+                explain = "EXPLAIN (VERBOSE, ANALYZE, FORMAT JSON)"
             elif mode == "steps" and name == "cedardb":
                 optimizer_steps = (
                     "NoOptimizations",
@@ -189,7 +180,7 @@ def dump_postgres_compatible(name, dsn):
                 with connection.cursor() as cursor:
                     for step in optimizer_steps:
                         cursor.execute(
-                            f"EXPLAIN (VERBOSE, FORMAT JSON, STEP {step}) " + sql
+                            explain_query(sql, f"EXPLAIN (VERBOSE, FORMAT JSON, STEP {step})")
                         )
                         plan = cursor.fetchone()[0]
                         if not isinstance(plan, str):
@@ -203,7 +194,7 @@ def dump_postgres_compatible(name, dsn):
             else:
                 return None
             with connection.cursor() as cursor:
-                cursor.execute(explain + sql)
+                cursor.execute(explain_query(sql, explain))
                 plan = cursor.fetchone()[0]
                 return plan if isinstance(plan, str) else format_json(plan)
 
@@ -254,15 +245,15 @@ def dump_mariadb(url):
 
         def get_plan(sql, mode):
             if mode == "simple":
-                explain = "EXPLAIN FORMAT=JSON "
+                explain = "EXPLAIN FORMAT=JSON"
             elif mode == "analyze":
-                explain = "ANALYZE FORMAT=JSON "
+                explain = "ANALYZE FORMAT=JSON"
             elif mode == "steps":
                 with connection.cursor() as cursor:
                     cursor.execute("SET optimizer_trace='enabled=on'")
                     cursor.execute("SET optimizer_trace_max_mem_size=16777216")
                     try:
-                        cursor.execute("EXPLAIN FORMAT=JSON " + sql)
+                        cursor.execute(explain_query(sql, "EXPLAIN FORMAT=JSON"))
                         cursor.fetchall()
                         cursor.execute(
                             "SELECT TRACE, MISSING_BYTES_BEYOND_MAX_MEM_SIZE, "
@@ -282,7 +273,7 @@ def dump_mariadb(url):
             else:
                 return None
             with connection.cursor() as cursor:
-                cursor.execute(explain + sql)
+                cursor.execute(explain_query(sql, explain))
                 return cursor.fetchone()[0]
 
         run_setup(
@@ -303,16 +294,16 @@ def dump_duckdb():
         def get_plan(sql, mode):
             if mode == "simple":
                 connection.execute("SET explain_output='physical_only'")
-                explain = "EXPLAIN (FORMAT JSON) "
+                explain = "EXPLAIN (FORMAT JSON)"
             elif mode == "analyze":
                 connection.execute("SET explain_output='physical_only'")
-                explain = "EXPLAIN (ANALYZE, FORMAT JSON) "
+                explain = "EXPLAIN (ANALYZE, FORMAT JSON)"
             elif mode == "steps":
                 connection.execute("SET explain_output='all'")
-                explain = "EXPLAIN (FORMAT JSON) "
+                explain = "EXPLAIN (FORMAT JSON)"
             else:
                 return None
-            records = connection.execute(explain + sql).fetchall()
+            records = connection.execute(explain_query(sql, explain)).fetchall()
             if mode == "steps":
                 return json.dumps({stage: json.loads(plan) for stage, plan in records}, indent=2)
             return records[0][1]
@@ -347,7 +338,7 @@ def dump_hyper(hyper_path):
                 if mode not in options:
                     return None
                 result = connection.execute_list_query(
-                    f"EXPLAIN ({options[mode]}) " + sql
+                    explain_query(sql, f"EXPLAIN ({options[mode]})")
                 )
                 return "\n".join(row[0] for row in result)
 

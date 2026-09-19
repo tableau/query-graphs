@@ -6,7 +6,7 @@
     "rows_returned": 0,
     "wal_replay_entry_count": 0,
     "result_set_size": 0,
-    "query_name": "EXPLAIN (ANALYZE, FORMAT JSON) SELECT l_orderkey, l_partkey FROM lineitem\nUNION ALL\nSELECT l_orderkey, l_suppkey FROM lineitem\nUNION ALL\n(\n   SELECT l_suppkey, l_partkey FROM lineitem\n   WHERE l_quantity < 25\n   INTERSECT ALL\n   SELECT l_suppkey, l_partkey FROM lineitem\n   WHERE l_quantity >= 25\n   EXCEPT ALL\n   SELECT l_suppkey, l_partkey FROM lineitem\n   WHERE l_quantity >= 25\n)",
+    "query_name": "EXPLAIN (ANALYZE, FORMAT JSON)\nSELECT l_orderkey, l_partkey FROM lineitem\nUNION ALL\nSELECT l_orderkey, l_suppkey FROM lineitem\nUNION ALL\n(\n   SELECT l_suppkey, l_partkey FROM lineitem\n   WHERE l_quantity < 25\n   INTERSECT ALL\n   SELECT l_suppkey, l_partkey FROM lineitem\n   WHERE l_quantity >= 25\n   EXCEPT ALL\n   SELECT l_suppkey, l_partkey FROM lineitem\n   WHERE l_quantity >= 25\n)",
     "waiting_to_attach_latency": 0.0,
     "attach_load_storage_latency": 0.0,
     "blocked_thread_time": 0.18,

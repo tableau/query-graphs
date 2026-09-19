@@ -1,5 +1,5 @@
--- UNSUPPORTED: postgres, umbra, cedardb, mariadb
--- MODES: analyze
+--- UNSUPPORTED: postgres, umbra, cedardb, mariadb
+--- MODES: analyze
 -- These engines raise a hard division-by-zero error for the `/ 0` below and abort
 -- the dump. DuckDB returns `inf`; Hyper represents the execution error in its plan.
 --
