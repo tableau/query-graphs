@@ -15,19 +15,19 @@
       "inputs": [{
         "operator": "explicit-scan",
         "operator-id": 3,
-        "sqlpos": [[409, 410]],
+        "sqlpos": [[387, 388]],
         "estimated-rows": 1000,
         "mapping": [{"source": {"expression": "iu-ref", "iu": ["scan_a13", ["Integer"]]}, "target": ["scan_a12", ["Integer"]]}],
         "input": {
           "operator": "share",
           "operator-id": 4,
-          "sqlpos": [[348, 349]],
+          "sqlpos": [[326, 327]],
           "estimated-rows": 1000,
           "inputs": [{
             "operator": "scan",
             "operator-id": 5,
             "type": "native",
-            "sqlpos": [[369, 371]],
+            "sqlpos": [[347, 349]],
             "estimated-rows": 1000,
             "volatility": "stable",
             "relation-id": 0,
@@ -46,7 +46,7 @@
       }, {
         "operator": "explicit-scan",
         "operator-id": 6,
-        "sqlpos": [[400, 401]],
+        "sqlpos": [[378, 379]],
         "estimated-rows": 1000,
         "mapping": [{"source": {"expression": "iu-ref", "iu": "scan_a13"}, "target": ["scan_a1", ["Integer"]]}],
         "input": 4,

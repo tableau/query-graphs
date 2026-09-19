@@ -9,7 +9,7 @@
     "inputs": [{
       "operator": "table-function",
       "operator-id": 2,
-      "sqlpos": [[81, 96]],
+      "sqlpos": [[40, 55]],
       "estimated-rows": 10,
       "inputs": [{
         "operator": "table-construction",

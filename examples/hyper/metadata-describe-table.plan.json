@@ -9,7 +9,7 @@
     "inputs": [{
       "operator": "map",
       "operator-id": 2,
-      "sqlpos": [[253, 264]],
+      "sqlpos": [[33, 44]],
       "estimated-rows": 1.36603,
       "inputs": [{
         "operator": "join",
@@ -22,7 +22,7 @@
           "operator": "scan",
           "operator-id": 4,
           "type": "virtual-table",
-          "sqlpos": [[503, 522]],
+          "sqlpos": [[283, 302]],
           "estimated-rows": 1,
           "volatility": "volatile",
           "attribute-count": 27,
@@ -35,7 +35,7 @@
           "operator": "scan",
           "operator-id": 5,
           "type": "virtual-table",
-          "sqlpos": [[535, 554]],
+          "sqlpos": [[315, 334]],
           "estimated-rows": 100,
           "volatility": "volatile",
           "attribute-count": 27,
