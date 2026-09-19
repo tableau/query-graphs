@@ -8,8 +8,8 @@
     "scripts": {
         "lint": "eslint . --fix",
         "lint-test": "eslint .",
-        "test": "node --import=tsx --test --test-isolation=none \"query-graphs/test/*.test.ts\"",
-        "test:update": "node --import=tsx --test --test-isolation=none --test-update-snapshots \"query-graphs/test/*.test.ts\""
+        "test": "node --import=tsx --test --test-isolation=none \"query-graphs/test/*.test.ts\" \"standalone-app/test/*.test.ts\"",
+        "test:update": "node --import=tsx --test --test-isolation=none --test-update-snapshots \"query-graphs/test/*.test.ts\" \"standalone-app/test/*.test.ts\""
     },
     "devDependencies": {
         "@eslint/compat": "^2.1.0",
