@@ -12,6 +12,7 @@
 
 import type {IconName, TreeNode} from "../tree-description";
 import type {Json, JsonObject} from "./loader-utils";
+import type {JsonSourceLocator} from "./json-source";
 import {forceToString, formatMetric, hasOwnProperty, isJsonObject, tryToString} from "./loader-utils";
 import type {UnresolvedCrosslink} from "./tree-postprocessing";
 import {InvalidPlanError} from "./types";
@@ -29,10 +30,11 @@ export interface DecoratedJsonTreeState {
     crosslinks: UnresolvedCrosslink[];
     edgeWidths: {node: TreeNode; width: number}[];
     metadata: Map<string, string>;
+    source?: JsonSourceLocator;
 }
 
-export function createDecoratedJsonTreeState(): DecoratedJsonTreeState {
-    return {crosslinks: [], edgeWidths: [], metadata: new Map()};
+export function createDecoratedJsonTreeState(source?: JsonSourceLocator): DecoratedJsonTreeState {
+    return {crosslinks: [], edgeWidths: [], metadata: new Map(), source};
 }
 
 export interface DecoratedJsonTreeConfig {
@@ -48,6 +50,8 @@ export interface DecoratedJsonTreeConfig {
     getRenderingConfig(nodeTypeKey: string, tag: string, rawNode: JsonObject): NodeRenderingConfig;
     /** Override the usual property, tag, or parent-key-derived display name. */
     getDisplayName?(rawNode: JsonObject): string | undefined;
+    /** Override the property whose value is the source location for the converted node. */
+    getSourcePropertyKey?(rawNode: JsonObject, nodeTypeKey: string | undefined): string | undefined;
     /** Identify the target of a crosslink originating at this object. */
     getCrosslinkTarget?(rawNode: JsonObject): string | undefined;
     /** Put a nested value in `collapsedChildren` instead of `children`. */
@@ -206,6 +210,14 @@ function convertDecoratedJsonValue(
         collapsedChildren,
         expandedByDefault: expandedChildren.length === 0 && (config.shouldExpandCollapsedChildren?.(rawNode, nodeTypeKey) ?? true),
     };
+    const sourcePropertyKey = config.getSourcePropertyKey?.(rawNode, nodeTypeKey) ?? nodeTypeKey;
+    const sourceLocation =
+        sourcePropertyKey === undefined
+            ? state.source?.valueLocation(rawNode)
+            : state.source?.propertyValueLocation(rawNode, sourcePropertyKey);
+    if (sourceLocation !== undefined) {
+        convertedNode.sourceLocations = [sourceLocation];
+    }
 
     // Display cardinality on incoming edges and collect it for relative edge sizing.
     const estimatedCardinality = config.getEstimatedCardinality?.(rawNode);

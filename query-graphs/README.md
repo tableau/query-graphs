@@ -24,6 +24,7 @@ Every loader outputs one; the renderer only ever consumes one.
 * `TreeNode` — one node. Notable fields:
   * `name`, `icon`, `iconColor`, `nodeColor` — what the node looks like.
   * `properties` — a `Map` of key/value strings shown in the node's tooltip/detail panel.
+  * `sourceLocations` — optional half-open UTF-16 character ranges linking the node to associated text documents.
   * `children` vs `collapsedChildren` — see [The Collapse/Expand Model](#the-collapseexpand-model).
   * `edgeLabel`, `edgeWidth`, `edgeClass` — decorate the incoming edge (e.g. cardinality labels).
 * `Crosslink` — an extra `source → target` edge between nodes that are related but not parent/child (e.g. a CTE and its scan).
@@ -50,6 +51,13 @@ Shared post-processing helpers resolve crosslinks and scale edge widths. Hyper's
 Shared parsing/formatting helpers live in `loader-utils.ts` (`tryToString`, `forceToString`, `formatMetric`, `tryGetPropertyPath`, the `Json` type).
 
 The library intentionally exposes low-level loaders (`json`, `xml`) as generic fallbacks so that even an unrecognized plan renders as *something* rather than an error.
+
+JSON loaded through `loadPlanFromText` retains source provenance.
+The dispatcher parses the document into ordinary JSON values plus a temporary position index, and the decorated-tree conversion attaches the identifying value (`operator`, `expression`, `Node Type`, and similar fields) to the resulting `TreeNode`.
+The temporary syntax tree is discarded after loading; only compact UTF-16 character ranges remain in `sourceLocations`.
+JSON plan documents use canonical LF line endings so these offsets also match browser text models such as CodeMirror.
+Calling a low-level loader with an already-parsed value remains supported, but cannot produce source locations unless the caller also supplies a loader context.
+`parsePositionedJson`, `PlanLoadContext`, and the source-locator types are exported from `loaders/index.ts` for callers that need that low-level path.
 
 ## The Renderer
 
