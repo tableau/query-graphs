@@ -5,13 +5,16 @@ import {GenerateSW} from "workbox-webpack-plugin";
 const prodConfig = merge(commonConfig, {
     mode: "production",
     devtool: "source-map",
+    output: {
+        chunkFilename: "chunks/[name].[contenthash].js",
+    },
     plugins: [
         new GenerateSW({
             sourcemap: false,
             skipWaiting: true,
             clientsClaim: true,
             ignoreURLParametersMatching: [/./],
-            include: [/^bundle.js$/, /^index.html$/],
+            include: [/^bundle\.js$/, /^chunks\/.*\.js$/, /^index.html$/],
         }),
     ],
 });

@@ -1,23 +1,34 @@
+/* Sidebar shell */
 .graph-sidebar {
+    /* Keep shadows and focus rings away from the sidebar's clipped viewport edges. */
+    --graph-sidebar-paint-gutter: 15px;
+
     display: flex;
     flex-direction: column;
-    align-items: stretch;
     gap: 0.5em;
-    max-width: min(30em, calc(100vw - 2em));
+    margin: 0;
+    max-width: min(30em, 40vw);
+    max-height: 100vh;
+    max-height: 100dvh;
+    overflow: hidden;
 
-    &:has(> .qg-collapsible-panel[open] .graph-text-document) {
-        width: 30em;
+    /* Reserve a stable editor width only while a document is visible. */
+    &:has(.graph-text-document-panel[open]) {
+        width: min(30em, 40vw);
     }
 }
 
 .graph-title {
     box-sizing: border-box;
+    flex: none;
     background: #fff;
     font-size: 1.1em;
     font-weight: bold;
     field-sizing: content;
     min-width: 10em;
-    max-width: 100%;
+    max-width: calc(100% - var(--graph-sidebar-paint-gutter) - var(--graph-sidebar-paint-gutter));
+    margin-block-start: var(--graph-sidebar-paint-gutter);
+    margin-inline: var(--graph-sidebar-paint-gutter);
     border: none;
 
     &:hover {
@@ -25,10 +36,102 @@
     }
 }
 
-.graph-text-document {
-    display: block;
+.graph-sidebar-panels {
+    /* Allow this flex child to shrink, then scroll the panel list within the viewport. */
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+}
+
+.graph-sidebar-panel-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+    /* Provide paint space for panel shadows and focus outlines inside the scroller. */
+    padding: var(--graph-sidebar-paint-gutter);
+}
+
+/* Document panels */
+.graph-text-document-panel > .qg-collapsible-panel-content {
+    /* The editor supplies the panel body, so it should meet the panel border directly. */
+    padding: 0;
+
+    & .cm-editor {
+        border: 0;
+    }
+
+    /* Draw the focus ring inside the panel so neither the border nor scroller clips it. */
+    & .cm-editor.cm-focused {
+        outline-offset: -2px;
+    }
+}
+
+.graph-text-document-frame {
+    /* Stay useful on short screens without dominating taller ones. */
+    height: clamp(12em, 50dvh, 30em);
+}
+
+/* Loading state */
+.graph-text-document-loading {
     box-sizing: border-box;
-    width: 100%;
-    font-family: monospace;
-    white-space: pre;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65em;
+    padding: 1em;
+
+    & span {
+        width: 100%;
+        height: 0.8em;
+        border-radius: 0.25em;
+        background: linear-gradient(90deg, hsl(210, 8%, 88%) 25%, hsl(210, 12%, 72%) 50%, hsl(210, 8%, 88%) 75%);
+        /* The oversized gradient lets the contrasting band travel across each line. */
+        background-size: 400% 100%;
+        animation: graph-text-document-loading-flow 1.4s ease-in-out infinite;
+    }
+
+    & span:nth-child(2) {
+        width: 88%;
+    }
+
+    & span:nth-child(3) {
+        width: 94%;
+    }
+
+    & span:nth-child(4) {
+        width: 76%;
+    }
+
+    & span:nth-child(5) {
+        width: 84%;
+    }
+}
+
+@keyframes graph-text-document-loading-flow {
+    from {
+        background-position: 100% 0;
+    }
+
+    to {
+        background-position: 0 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .graph-text-document-loading span {
+        animation: none;
+        background: hsl(210, 8%, 84%);
+    }
+}
+
+/* Responsive layout */
+@media (max-width: 45em) {
+    .graph-sidebar {
+        max-width: 100vw;
+
+        &:has(.graph-text-document-panel[open]) {
+            width: 100vw;
+        }
+    }
 }

@@ -1,5 +1,13 @@
 .qg-collapsible-panel {
     box-sizing: border-box;
+    /*
+     * Together with the summary/content z-index rules below, keep body widgets in a
+     * panel-local stacking order. In particular, CodeMirror's z-index: 200 gutter
+     * remains inside the body's z-index: 0 context, allowing the summary's z-index: 1
+     * focus outline to paint above it.
+     */
+    isolation: isolate;
+    /* Match the card treatment used by hovered and expanded graph nodes. */
     background: white;
     border: 1px solid hsl(0, 0%, 85%);
     border-radius: 8px;
@@ -8,15 +16,27 @@
         0 1px 2px hsl(0, 0%, 0%, 0.06);
 
     & > summary {
+        /* Paint the interactive header above any high-z-index body widgets. */
+        position: relative;
+        z-index: 1;
+
+        /* Lay out the header contents in a row. */
         display: flex;
         align-items: center;
         gap: 0.4em;
         padding: 0.5em;
-        cursor: pointer;
         font-weight: 600;
         list-style: none;
         user-select: none;
+        cursor: pointer;
 
+        &:focus-visible {
+            outline: 2px solid hsl(210, 90%, 65%);
+            outline-offset: 2px;
+            border-radius: 8px;
+        }
+
+        /* Replace the browser marker with the consistently styled chevron below. */
         &::-webkit-details-marker {
             display: none;
         }
@@ -27,18 +47,13 @@
             line-height: 1;
             transition: transform 0.12s ease;
         }
-
-        &:focus-visible {
-            outline: 2px solid hsl(210, 90%, 65%);
-            outline-offset: 2px;
-            border-radius: 8px;
-        }
     }
 
     &[open] > summary .qg-collapsible-panel-chevron {
         transform: rotate(90deg);
     }
 
+    /* Use red to distinguish panels that need attention. */
     &.qg-highlighted {
         border-color: hsl(0, 72%, 55%);
         box-shadow:
@@ -48,15 +63,10 @@
         & > summary {
             color: hsl(0, 72%, 40%);
             background: hsl(0, 75%, 97%);
+            /* Follow the inside edge of the root's 8px radius and 1px border. */
             border-radius: 7px;
         }
     }
-}
-
-.qg-collapsible-panel-actions {
-    display: flex;
-    gap: 0.4em;
-    margin-left: auto;
 }
 
 .qg-attention-needed-icon {
@@ -72,7 +82,17 @@
     font-weight: bold;
 }
 
+.qg-collapsible-panel-actions {
+    display: flex;
+    gap: 0.4em;
+    margin-left: auto;
+}
+
 .qg-collapsible-panel-content {
+    /* Establish the lower half of the panel-local stacking order described above. */
+    position: relative;
+    z-index: 0;
+    /* Constrain the body and separate it visually from the header. */
     max-height: 70vh;
     overflow: auto;
     padding: 0.75em;
