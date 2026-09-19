@@ -1,34 +1,9 @@
-import {useEffect, useRef} from "react";
-import {defaultKeymap} from "@codemirror/commands";
 import {json} from "@codemirror/lang-json";
-import {defaultHighlightStyle, foldGutter, foldKeymap, syntaxHighlighting} from "@codemirror/language";
-import {EditorState} from "@codemirror/state";
-import {EditorView, highlightSpecialChars, keymap, lineNumbers} from "@codemirror/view";
 import type {TextDocument} from "@tableau/query-graphs/lib/tree-description";
+import {CodeDocument} from "./CodeDocument";
+
+const jsonLanguage = json();
 
 export function JsonDocument({document}: {document: TextDocument}) {
-    const parent = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        if (parent.current === null) return;
-        const view = new EditorView({
-            parent: parent.current,
-            state: EditorState.create({
-                doc: document.text,
-                extensions: [
-                    json(),
-                    syntaxHighlighting(defaultHighlightStyle, {fallback: true}),
-                    lineNumbers(),
-                    highlightSpecialChars(),
-                    foldGutter(),
-                    keymap.of([...defaultKeymap, ...foldKeymap]),
-                    EditorState.readOnly.of(true),
-                    EditorView.contentAttributes.of({"aria-label": document.title}),
-                ],
-            }),
-        });
-        return () => view.destroy();
-    }, [document]);
-
-    return <div ref={parent} className="graph-text-document nowheel nodrag nopan" />;
+    return <CodeDocument document={document} languageExtension={jsonLanguage} />;
 }

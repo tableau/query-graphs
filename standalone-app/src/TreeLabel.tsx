@@ -5,6 +5,8 @@ import type {TextDocument} from "@tableau/query-graphs/lib/tree-description";
 import "./TreeLabel.css";
 
 const JsonDocument = lazy(() => import("./JsonDocument").then((module) => ({default: module.JsonDocument})));
+const SqlDocument = lazy(() => import("./SqlDocument").then((module) => ({default: module.SqlDocument})));
+const CodeDocument = lazy(() => import("./CodeDocument").then((module) => ({default: module.CodeDocument})));
 
 export interface TreeLabelProps {
     title: string;
@@ -14,17 +16,27 @@ export interface TreeLabelProps {
     textDocuments?: TextDocument[];
 }
 
-function PlainTextDocument({document}: {document: TextDocument}) {
+function LoadingDocument({title}: {title: string}) {
     return (
-        <textarea
-            className="graph-text-document"
-            value={document.text}
-            readOnly
-            spellCheck={false}
-            aria-label={document.title}
-            rows={12}
-        />
+        <div className="graph-text-document graph-text-document-loading" role="status" aria-label={`Loading ${title}`}>
+            <span />
+            <span />
+            <span />
+            <span />
+            <span />
+        </div>
     );
+}
+
+function DocumentEditor({document}: {document: TextDocument}) {
+    switch (document.language?.toLowerCase()) {
+        case "json":
+            return <JsonDocument document={document} />;
+        case "sql":
+            return <SqlDocument document={document} />;
+        default:
+            return <CodeDocument document={document} />;
+    }
 }
 
 function TextDocumentPanel({document}: {document: TextDocument}) {
@@ -36,19 +48,9 @@ function TextDocumentPanel({document}: {document: TextDocument}) {
             onToggle={(open) => setOpened((wasOpened) => wasOpened || open)}
         >
             {opened ? (
-                document.language === "json" ? (
-                    <Suspense
-                        fallback={
-                            <div className="graph-text-document graph-text-document-loading" role="status">
-                                Loading document…
-                            </div>
-                        }
-                    >
-                        <JsonDocument document={document} />
-                    </Suspense>
-                ) : (
-                    <PlainTextDocument document={document} />
-                )
+                <Suspense fallback={<LoadingDocument title={document.title} />}>
+                    <DocumentEditor document={document} />
+                </Suspense>
             ) : null}
         </CollapsiblePanel>
     );
