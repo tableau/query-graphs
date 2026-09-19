@@ -1,15 +1,14 @@
 .graph-sidebar {
-    --graph-sidebar-paint-gutter: 10px;
-    --graph-sidebar-outer-margin: 5px;
+    --graph-sidebar-paint-gutter: 15px;
 
     display: flex;
     flex-direction: column;
     align-items: stretch;
     gap: 0.5em;
-    margin: var(--graph-sidebar-outer-margin);
+    margin: 0;
     max-width: min(30em, 40vw);
-    max-height: calc(100vh - var(--graph-sidebar-outer-margin) - var(--graph-sidebar-outer-margin));
-    max-height: calc(100dvh - var(--graph-sidebar-outer-margin) - var(--graph-sidebar-outer-margin));
+    max-height: 100vh;
+    max-height: 100dvh;
     overflow: hidden;
 
     &:has(.qg-collapsible-panel[open] .graph-text-document-frame) {
@@ -130,10 +129,10 @@
 
 @media (max-width: 45em) {
     .graph-sidebar {
-        max-width: calc(100vw - var(--graph-sidebar-outer-margin) - var(--graph-sidebar-outer-margin));
+        max-width: 100vw;
 
         &:has(.qg-collapsible-panel[open] .graph-text-document-frame) {
-            width: calc(100vw - var(--graph-sidebar-outer-margin) - var(--graph-sidebar-outer-margin));
+            width: 100vw;
         }
     }
 }
