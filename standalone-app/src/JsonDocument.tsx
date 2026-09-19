@@ -1,4 +1,5 @@
 import {useEffect, useRef} from "react";
+import {defaultKeymap} from "@codemirror/commands";
 import {json} from "@codemirror/lang-json";
 import {defaultHighlightStyle, foldGutter, foldKeymap, syntaxHighlighting} from "@codemirror/language";
 import {EditorState} from "@codemirror/state";
@@ -20,10 +21,9 @@ export function JsonDocument({document}: {document: TextDocument}) {
                     lineNumbers(),
                     highlightSpecialChars(),
                     foldGutter(),
-                    keymap.of(foldKeymap),
+                    keymap.of([...defaultKeymap, ...foldKeymap]),
                     EditorState.readOnly.of(true),
-                    EditorView.editable.of(false),
-                    EditorView.contentAttributes.of({"aria-label": document.title, tabindex: "0"}),
+                    EditorView.contentAttributes.of({"aria-label": document.title}),
                 ],
             }),
         });
