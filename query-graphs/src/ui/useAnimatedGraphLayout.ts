@@ -14,18 +14,10 @@ import {createLayoutInterpolator, refreshLayoutData, sameLayoutTarget, staticLay
 interface NodeResizeRequest {
     nodeId: string;
     nodeElement: HTMLElement;
-    targetExpanded: boolean;
-}
-
-interface NodeResizeAnimation {
-    nodeId: string;
-    targetDimensions: Dimensions;
-    bodyElement: HTMLElement;
-    bodyFrom: Dimensions;
-    bodyTo: Dimensions;
 }
 
 export interface GraphAnimationController {
+    /** Captures current geometry, then measures the synchronously scheduled update after rendering. */
     animateNodeResize: (request: NodeResizeRequest, updateGraph: () => void) => void;
 }
 
@@ -51,13 +43,46 @@ function dimensionsForGraph(state: DimensionsState | undefined, nodeIds: Map<Tre
 }
 
 interface BodyResize {
-    element: HTMLElement;
-    target: Dimensions;
+    nodeElement: HTMLElement;
+    bodyElement: HTMLElement;
+    bodyStart: Dimensions;
+    bodyTarget?: Dimensions;
 }
 
 /** Restores CSS control of dimensions after measuring or animating a body. */
 function clearBodySize(element: HTMLElement): void {
     for (const property of ["width", "height", "max-width", "max-height"]) element.style.removeProperty(property);
+}
+
+/**
+ * Measures every post-render target before freezing any body at its captured
+ * size. Returns `undefined` when no resize is awaiting measurement.
+ */
+export function measurePendingBodyResizes(resizes: Map<string, BodyResize>): Map<string, Dimensions> | undefined {
+    const pending = [...resizes].filter(([, resize]) => resize.bodyTarget === undefined);
+    if (pending.length === 0) return undefined;
+
+    const measurements = pending.map(([nodeId, resize]) => ({
+        nodeId,
+        resize,
+        nodeTarget: {width: resize.nodeElement.offsetWidth, height: resize.nodeElement.offsetHeight},
+        bodyTarget: {width: resize.bodyElement.offsetWidth, height: resize.bodyElement.offsetHeight},
+    }));
+    const targets = new Map<string, Dimensions>();
+    for (const {nodeId, resize, nodeTarget, bodyTarget} of measurements) {
+        if (nodeTarget.width === 0 || nodeTarget.height === 0) {
+            clearBodySize(resize.bodyElement);
+            resizes.delete(nodeId);
+            continue;
+        }
+        targets.set(nodeId, nodeTarget);
+        resize.bodyTarget = bodyTarget;
+        resize.bodyElement.style.maxWidth = "none";
+        resize.bodyElement.style.maxHeight = "none";
+        resize.bodyElement.style.width = `${resize.bodyStart.width}px`;
+        resize.bodyElement.style.height = `${resize.bodyStart.height}px`;
+    }
+    return targets;
 }
 
 /** Tests dimensions by value so unchanged measurements retain their map identity. */
@@ -75,39 +100,16 @@ function withAnimationStyle(style: CSSProperties | undefined, opacity: number, t
     };
 }
 
-/**
- * Measures a node's expanded or collapsed dimensions without changing the
- * visible node. An invisible clone is necessary because the target CSS state
- * does not exist in the rendered graph yet.
- */
-function measureNodeResize({nodeId, nodeElement, targetExpanded}: NodeResizeRequest): NodeResizeAnimation | undefined {
+/** Captures the current geometry before applying a node-local state change. */
+function captureBodyResize({nodeElement}: NodeResizeRequest): BodyResize | undefined {
     const flowNode = nodeElement.closest<HTMLElement>(".react-flow__node");
-    const bodyElement = nodeElement.querySelector<HTMLElement>(".qg-graph-node-body-wrapper");
-    if (flowNode === null || flowNode.parentElement === null || bodyElement === null) return undefined;
-    const flowContainer = flowNode.parentElement;
-    const bodyFrom = {width: bodyElement.offsetWidth, height: bodyElement.offsetHeight};
-
-    const clone = flowNode.cloneNode(true) as HTMLElement;
-    const clonedNode = clone.querySelector<HTMLElement>(".qg-graph-node");
-    const clonedBody = clone.querySelector<HTMLElement>(".qg-graph-node-body-wrapper");
-    if (clonedNode === null || clonedBody === null) return undefined;
-    clone.style.position = "fixed";
-    clone.style.transform = "none";
-    clone.style.visibility = "hidden";
-    clone.style.pointerEvents = "none";
-    clonedNode.classList.toggle("qg-expanded", targetExpanded);
-    clearBodySize(clonedBody);
-    flowContainer.append(clone);
-    const targetDimensions = {width: clone.offsetWidth, height: clone.offsetHeight};
-    const bodyTo = {width: clonedBody.offsetWidth, height: clonedBody.offsetHeight};
-    clone.remove();
-    if (targetDimensions.width === 0 || targetDimensions.height === 0) return undefined;
+    if (flowNode === null) return undefined;
+    const bodyElement = flowNode.querySelector<HTMLElement>(".qg-graph-node-body-wrapper");
+    if (bodyElement === null) return undefined;
     return {
-        nodeId,
-        targetDimensions,
+        nodeElement: flowNode,
         bodyElement,
-        bodyFrom,
-        bodyTo,
+        bodyStart: {width: bodyElement.offsetWidth, height: bodyElement.offsetHeight},
     };
 }
 
@@ -206,6 +208,7 @@ export function useAnimatedGraphLayout(
     const bodyResizesRef = useRef(new Map<string, BodyResize>());
     const animationRequestedRef = useRef(false);
     const animationFrameRef = useRef<number | undefined>(undefined);
+    const [nodeChangeRevision, setNodeChangeRevision] = useState(0);
     const [dimensionsState, setDimensionsState] = useState<DimensionsState>(() => dimensionsForGraph(undefined, nodeIds));
     const dimensions = useMemo<DimensionsState>(() => dimensionsForGraph(dimensionsState, nodeIds), [dimensionsState, nodeIds]);
     const parentIds = useMemo(() => treeParents(treeDescription, nodeIds), [treeDescription, nodeIds]);
@@ -259,7 +262,7 @@ export function useAnimatedGraphLayout(
     const finishBodyResize = useCallback((nodeId: string) => {
         const resize = bodyResizesRef.current.get(nodeId);
         if (resize === undefined) return;
-        clearBodySize(resize.element);
+        clearBodySize(resize.bodyElement);
         bodyResizesRef.current.delete(nodeId);
     }, []);
 
@@ -269,41 +272,27 @@ export function useAnimatedGraphLayout(
         animationFrameRef.current = undefined;
     }, []);
 
-    // Node-resize gestures measure their destination before changing the graph
-    // so the ensuing render can immediately compute the correct target layout.
+    // Capture the current body before applying arbitrary node-local state. The
+    // resulting DOM is measured in the layout effect below, before it is painted.
     const animationController = useMemo<GraphAnimationController>(
         () => ({
             animateNodeResize: (request, updateGraph) => {
-                const animation = measureNodeResize(request);
-                if (animation === undefined) {
+                const resize = captureBodyResize(request);
+                if (resize === undefined) {
                     finishBodyResize(request.nodeId);
                     animationRequestedRef.current = false;
                     updateGraph();
                     return;
                 }
-                finishBodyResize(animation.nodeId);
-                setDimensionsState((current) => {
-                    const currentDimensions = dimensionsForGraph(current, nodeIds);
-                    const measured = currentDimensions.measured.has(animation.nodeId)
-                        ? currentDimensions.measured
-                        : new Map(currentDimensions.measured).set(animation.nodeId, animation.targetDimensions);
-                    const targets = new Map(currentDimensions.targets).set(animation.nodeId, animation.targetDimensions);
-                    return {nodeIds, measured, targets};
-                });
+                finishBodyResize(request.nodeId);
                 cancelLayoutFrame();
                 animationRequestedRef.current = true;
-                bodyResizesRef.current.set(animation.nodeId, {
-                    element: animation.bodyElement,
-                    target: animation.bodyTo,
-                });
-                animation.bodyElement.style.maxWidth = "none";
-                animation.bodyElement.style.maxHeight = "none";
-                animation.bodyElement.style.width = `${animation.bodyFrom.width}px`;
-                animation.bodyElement.style.height = `${animation.bodyFrom.height}px`;
+                bodyResizesRef.current.set(request.nodeId, resize);
                 updateGraph();
+                setNodeChangeRevision((revision) => revision + 1);
             },
         }),
-        [cancelLayoutFrame, finishBodyResize, nodeIds],
+        [cancelLayoutFrame, finishBodyResize],
     );
 
     const targetRef = useRef(target);
@@ -316,6 +305,20 @@ export function useAnimatedGraphLayout(
     // nodes are first staged invisibly for measurement; ready targets animate
     // from the current frame so interrupted transitions remain continuous.
     useLayoutEffect(() => {
+        const resizeTargets = measurePendingBodyResizes(bodyResizesRef.current);
+        if (resizeTargets !== undefined) {
+            if (resizeTargets.size > 0) {
+                setDimensionsState((current) => {
+                    const currentDimensions = dimensionsForGraph(current, nodeIds);
+                    const targets = new Map(currentDimensions.targets);
+                    for (const [nodeId, nodeTarget] of resizeTargets) targets.set(nodeId, nodeTarget);
+                    return {...currentDimensions, nodeIds, targets};
+                });
+                return;
+            }
+            animationRequestedRef.current = bodyResizesRef.current.size > 0;
+        }
+
         const graphChanged = nodeIdsRef.current !== nodeIds;
         const targetDataChanged = targetRef.current !== target;
         const targetChanged = graphChanged || !sameLayoutTarget(targetRef.current, target);
@@ -377,16 +380,20 @@ export function useAnimatedGraphLayout(
         const start = renderedRef.current;
         // Retarget graph and body transitions from their current visual state.
         const interpolate = createLayoutInterpolator(start, target, anchors);
-        const bodyTransitions = [...bodyResizesRef.current].map(([nodeId, body]) => ({
-            nodeId,
-            body,
-            start: {width: body.element.offsetWidth, height: body.element.offsetHeight},
-        }));
+        const bodyTransitions = [...bodyResizesRef.current].map(([nodeId, body]) => {
+            assertNotNull(body.bodyTarget);
+            return {
+                nodeId,
+                element: body.bodyElement,
+                target: body.bodyTarget,
+                start: {width: body.bodyElement.offsetWidth, height: body.bodyElement.offsetHeight},
+            };
+        });
         const step = (now: number) => {
             const progress = graphAnimationProgress(startTime, now);
-            for (const {body, start: bodyStart} of bodyTransitions) {
-                body.element.style.width = `${bodyStart.width + (body.target.width - bodyStart.width) * progress}px`;
-                body.element.style.height = `${bodyStart.height + (body.target.height - bodyStart.height) * progress}px`;
+            for (const {element, target: bodyTarget, start: bodyStart} of bodyTransitions) {
+                element.style.width = `${bodyStart.width + (bodyTarget.width - bodyStart.width) * progress}px`;
+                element.style.height = `${bodyStart.height + (bodyTarget.height - bodyStart.height) * progress}px`;
             }
             const interpolated = interpolate(progress);
             const next = targetRef.current === target ? interpolated : refreshLayoutData(interpolated, targetRef.current);
@@ -401,7 +408,7 @@ export function useAnimatedGraphLayout(
             }
         };
         animationFrameRef.current = requestAnimationFrame(step);
-    }, [cancelLayoutFrame, finishBodyResize, getInternalNode, nodeIds, parentIds, target, targetMeasured]);
+    }, [cancelLayoutFrame, finishBodyResize, getInternalNode, nodeChangeRevision, nodeIds, parentIds, target, targetMeasured]);
 
     // Fit only after the initial graph is fully measured and any transition
     // has settled, ensuring React Flow sees final node bounds.

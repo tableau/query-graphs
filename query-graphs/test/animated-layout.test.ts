@@ -5,7 +5,7 @@ import {createLayoutInterpolator, refreshLayoutData, sameLayoutTarget, staticLay
 import type {GraphLayout, TransitionAnchors} from "../src/ui/animated-layout";
 import {graphAnimationDuration, graphAnimationProgress} from "../src/ui/animation-timing";
 import type {QueryGraphNode} from "../src/ui/QueryNode";
-import {transitionAnchors} from "../src/ui/useAnimatedGraphLayout";
+import {measurePendingBodyResizes, transitionAnchors} from "../src/ui/useAnimatedGraphLayout";
 
 const parentAnchors = new Map([["child", {nodeId: "parent", offset: {x: 0, y: 30}}]]);
 
@@ -97,6 +97,61 @@ test("transition anchors resolve deep changed subtrees in one ancestry pass", ()
     assert.equal(anchors?.get(`right-${depth - 1}`)?.nodeId, "right");
     assert.equal(parents.reads, depth * 2);
     assert.deepEqual(measured, ["right", "left"]);
+});
+
+test("pending body resizes measure every target before freezing their bodies", () => {
+    const events: string[] = [];
+    const element = (name: string, width: number, height: number) => {
+        const style = {removeProperty: (property: string) => events.push(`remove ${name}.${property}`)};
+        for (const property of ["width", "height", "maxWidth", "maxHeight"])
+            Object.defineProperty(style, property, {set: (value) => events.push(`write ${name}.${property}=${value}`)});
+        return Object.defineProperties(
+            {style},
+            {
+                offsetWidth: {get: () => (events.push(`read ${name}.width`), width)},
+                offsetHeight: {get: () => (events.push(`read ${name}.height`), height)},
+            },
+        ) as unknown as HTMLElement;
+    };
+    const firstBody = element("first body", 80, 60);
+    const secondBody = element("second body", 100, 70);
+    const active = {
+        nodeElement: element("active node", 40, 40),
+        bodyElement: element("active body", 30, 30),
+        bodyStart: {width: 10, height: 10},
+        bodyTarget: {width: 30, height: 30},
+    };
+    const resizes = new Map([
+        ["first", {nodeElement: element("first node", 120, 90), bodyElement: firstBody, bodyStart: {width: 40, height: 20}}],
+        ["second", {nodeElement: element("second node", 140, 100), bodyElement: secondBody, bodyStart: {width: 50, height: 30}}],
+        ["active", active],
+        [
+            "missing",
+            {
+                nodeElement: element("missing node", 0, 0),
+                bodyElement: element("missing body", 0, 0),
+                bodyStart: {width: 10, height: 10},
+            },
+        ],
+    ]);
+
+    const targets = measurePendingBodyResizes(resizes);
+
+    assert.deepEqual(
+        targets,
+        new Map([
+            ["first", {width: 120, height: 90}],
+            ["second", {width: 140, height: 100}],
+        ]),
+    );
+    assert.equal(
+        events.findIndex((event) => event.startsWith("write")),
+        12,
+    );
+    assert.ok(events.includes("write first body.width=40px"));
+    assert.equal(resizes.get("first")?.bodyTarget?.width, 80);
+    assert.equal(resizes.get("active"), active);
+    assert.equal(resizes.has("missing"), false);
 });
 
 test("exiting nodes follow their anchor when an animation is interrupted", () => {
