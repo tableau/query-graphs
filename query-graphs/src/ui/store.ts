@@ -1,4 +1,3 @@
-import type {Dimensions} from "@xyflow/react";
 import {createContext, useContext} from "react";
 import {useStore} from "zustand";
 import {devtools} from "zustand/middleware";
@@ -13,8 +12,6 @@ export interface GraphRenderingState {
     // `expandedSubtrees` tracks which nodes reveal their `collapsedChildren` (toggled by shift-click or the +/- handle).
     expandedSubtrees: Record<string, boolean>;
     toggleExpandedSubtree: (nodeId: string) => void;
-    nodeDimensions: Map<string, Dimensions>;
-    updateNodeDimensions: (updates: readonly (readonly [string, Dimensions])[]) => void;
 }
 
 export type GraphRenderingStore = StoreApi<GraphRenderingState>;
@@ -38,18 +35,6 @@ export function createGraphRenderingStore(expandedSubtrees: Record<string, boole
                         [nodeId]: !state.expandedSubtrees[nodeId],
                     },
                 })),
-            nodeDimensions: new Map(),
-            updateNodeDimensions: (updates) =>
-                set((state) => {
-                    let nodeDimensions: Map<string, Dimensions> | undefined;
-                    for (const [nodeId, dimensions] of updates) {
-                        const previous = state.nodeDimensions.get(nodeId);
-                        if (previous?.width === dimensions.width && previous.height === dimensions.height) continue;
-                        nodeDimensions ??= new Map(state.nodeDimensions);
-                        nodeDimensions.set(nodeId, dimensions);
-                    }
-                    return nodeDimensions === undefined ? state : {nodeDimensions};
-                }),
         })),
     );
 }

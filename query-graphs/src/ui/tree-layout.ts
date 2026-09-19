@@ -24,7 +24,7 @@ interface TreeLayout {
 export function layoutTree(
     treeData: TreeDescription,
     nodeIds: Map<TreeNode, string>,
-    nodeDimensions: Map<string, Dimensions>,
+    targetDimensions: ReadonlyMap<string, Dimensions>,
     expandedSubtrees: Record<string, boolean>,
 ): TreeLayout {
     const root = d3hierarchy.hierarchy(treeData.root, (d) => {
@@ -41,7 +41,7 @@ export function layoutTree(
         .nodeSize((d) => {
             const id = nodeIds.get(d.data);
             assertNotNull(id);
-            const dim = nodeDimensions.get(id);
+            const dim = targetDimensions.get(id);
             if (dim === undefined) {
                 // React Flow measures new nodes after their first render. It keeps them hidden until then,
                 // so this placeholder only determines where that measurement render happens.
@@ -63,7 +63,6 @@ export function layoutTree(
             position: {x: n.x, y: n.y},
             type: "querynode",
             data: n.data,
-            measured: nodeDimensions.get(id),
         };
     });
     const edges: QueryGraphEdge[] = d3edges.map((e) => {

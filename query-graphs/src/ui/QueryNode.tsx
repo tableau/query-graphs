@@ -7,6 +7,7 @@ import type {TreeNode} from "../tree-description";
 import {NodeIcon} from "./NodeIcon";
 import "./QueryNode.css";
 import {useGraphRenderingStore} from "./store";
+import {subtreeHandleId, useAnimateGraphChange} from "./useAnimatedGraphLayout";
 
 export type QueryGraphNode = Node<TreeNode, "querynode">;
 
@@ -15,27 +16,30 @@ function QueryNode({data, id}: NodeProps<QueryGraphNode>) {
     const toggleNode = useGraphRenderingStore((s) => s.toggleExpandedNode);
     const subtreeExpanded = useGraphRenderingStore((s) => s.expandedSubtrees[id]);
     const toggleSubtree = useGraphRenderingStore((s) => s.toggleExpandedSubtree);
+    const animateGraphChange = useAnimateGraphChange();
 
     const hasProperties = data.properties?.size;
     const hasSubtree = data.collapsedChildren && data.collapsedChildren.length > 0;
 
     const onClick = useCallback(
-        (e: MouseEvent) => {
+        (e: MouseEvent<HTMLDivElement>) => {
             if (e.shiftKey) {
-                if (hasSubtree) toggleSubtree(id);
+                if (hasSubtree) animateGraphChange(() => toggleSubtree(id));
             } else {
-                if (hasProperties) toggleNode(id);
+                if (hasProperties) {
+                    animateGraphChange(() => toggleNode(id), [{nodeId: id, nodeElement: e.currentTarget}]);
+                }
             }
             e.stopPropagation();
         },
-        [toggleNode, toggleSubtree, hasProperties, hasSubtree, id],
+        [animateGraphChange, toggleNode, toggleSubtree, hasProperties, hasSubtree, id],
     );
     const onSubtreeHandleClick = useCallback(
         (e: MouseEvent) => {
-            if (hasSubtree) toggleSubtree(id);
+            if (hasSubtree) animateGraphChange(() => toggleSubtree(id));
             e.stopPropagation();
         },
-        [toggleSubtree, hasSubtree, id],
+        [animateGraphChange, toggleSubtree, hasSubtree, id],
     );
 
     const children = [] as ReactElement[];
@@ -88,7 +92,13 @@ function QueryNode({data, id}: NodeProps<QueryGraphNode>) {
                 </div>
                 {colorBar(data.barsBelow, "below")}
             </div>
-            <Handle type="source" position={Position.Bottom} className={handleClassName} onClick={onSubtreeHandleClick}>
+            <Handle
+                id={subtreeHandleId}
+                type="source"
+                position={Position.Bottom}
+                className={handleClassName}
+                onClick={onSubtreeHandleClick}
+            >
                 {hasSubtree ? (subtreeExpanded ? "-" : "+") : ""}
             </Handle>
         </>
