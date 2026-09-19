@@ -18,6 +18,16 @@ interface CopyFeedback {
 
 const statusDuration = 2000;
 
+function announce(message: string): void {
+    try {
+        if ("ariaNotify" in document && typeof document.ariaNotify === "function") {
+            document.ariaNotify(message);
+        }
+    } catch {
+        // Accessibility notifications must not change the outcome of the copy operation.
+    }
+}
+
 export function CopyButton({text, contentName, className}: CopyButtonProps) {
     const [feedback, setFeedback] = useState<CopyFeedback>();
     const copyAttempt = useRef(0);
@@ -35,9 +45,15 @@ export function CopyButton({text, contentName, className}: CopyButtonProps) {
         setFeedback({status: "copying", text, contentName});
         try {
             await navigator.clipboard.writeText(text);
-            if (copyAttempt.current === attempt) setFeedback({status: "copied", text, contentName});
+            if (copyAttempt.current === attempt) {
+                setFeedback({status: "copied", text, contentName});
+                announce(`${contentName} copied`);
+            }
         } catch {
-            if (copyAttempt.current === attempt) setFeedback({status: "failed", text, contentName});
+            if (copyAttempt.current === attempt) {
+                setFeedback({status: "failed", text, contentName});
+                announce(`Could not copy ${contentName}`);
+            }
         }
     };
 
@@ -45,23 +61,17 @@ export function CopyButton({text, contentName, className}: CopyButtonProps) {
         feedback !== undefined && feedback.text === text && feedback.contentName === contentName ? feedback.status : "idle";
     const label =
         status === "copying" ? "Copying…" : status === "copied" ? "✓ Copied" : status === "failed" ? "Copy failed" : "Copy";
-    const announcement = status === "copied" ? `${contentName} copied` : status === "failed" ? `Could not copy ${contentName}` : "";
 
     return (
-        <>
-            <button
-                type="button"
-                className={cc(["qg-copy-button", className])}
-                aria-label={`Copy ${contentName}`}
-                aria-busy={status === "copying"}
-                disabled={status === "copying"}
-                onClick={() => void copy()}
-            >
-                {label}
-            </button>
-            <span className="qg-visually-hidden" role="status" aria-live="polite">
-                {announcement}
-            </span>
-        </>
+        <button
+            type="button"
+            className={cc(["qg-copy-button", className])}
+            aria-label={`Copy ${contentName}`}
+            aria-busy={status === "copying"}
+            disabled={status === "copying"}
+            onClick={() => void copy()}
+        >
+            {label}
+        </button>
     );
 }
