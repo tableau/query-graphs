@@ -1,12 +1,18 @@
-import {lazy, Suspense, useState, type ReactElement} from "react";
+import {lazy, Suspense, type ReactElement} from "react";
 import {CollapsiblePanel} from "@tableau/query-graphs/lib/ui/CollapsiblePanel";
 import {CopyButton} from "@tableau/query-graphs/lib/ui/CopyButton";
 import type {TextDocument} from "@tableau/query-graphs/lib/tree-description";
 import "./TreeLabel.css";
 
-const JsonDocument = lazy(() => import("./JsonDocument").then((module) => ({default: module.JsonDocument})));
-const SqlDocument = lazy(() => import("./SqlDocument").then((module) => ({default: module.SqlDocument})));
-const CodeDocument = lazy(() => import("./CodeDocument").then((module) => ({default: module.CodeDocument})));
+const JsonDocument = lazy(() =>
+    import(/* webpackChunkName: "editor-json" */ "./JsonDocument").then((module) => ({default: module.JsonDocument})),
+);
+const SqlDocument = lazy(() =>
+    import(/* webpackChunkName: "editor-sql" */ "./SqlDocument").then((module) => ({default: module.SqlDocument})),
+);
+const CodeDocument = lazy(() =>
+    import(/* webpackChunkName: "editor-plain" */ "./CodeDocument").then((module) => ({default: module.CodeDocument})),
+);
 
 export interface TreeLabelProps {
     title: string;
@@ -40,18 +46,15 @@ function DocumentEditor({document}: {document: TextDocument}) {
 }
 
 function TextDocumentPanel({document}: {document: TextDocument}) {
-    const [opened, setOpened] = useState(false);
     return (
         <CollapsiblePanel
             title={document.title}
             headerActions={<CopyButton text={document.text} contentName={document.title} />}
-            onToggle={(open) => setOpened((wasOpened) => wasOpened || open)}
+            mountContentOnFirstOpen
         >
-            {opened ? (
-                <Suspense fallback={<LoadingDocument title={document.title} />}>
-                    <DocumentEditor document={document} />
-                </Suspense>
-            ) : null}
+            <Suspense fallback={<LoadingDocument title={document.title} />}>
+                <DocumentEditor document={document} />
+            </Suspense>
         </CollapsiblePanel>
     );
 }

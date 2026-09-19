@@ -1,4 +1,4 @@
-import {sql, StandardSQL} from "@codemirror/lang-sql";
+import {StandardSQL} from "@codemirror/lang-sql";
 import {foldNodeProp, foldService} from "@codemirror/language";
 import type {EditorState} from "@codemirror/state";
 import type {TextDocument} from "@tableau/query-graphs/lib/tree-description";
@@ -79,7 +79,7 @@ function getParenthesisFolds(state: EditorState): ReadonlyMap<number, FoldRange>
 // The SQL parser otherwise advertises whole statements and block comments as foldable ranges.
 const noSyntaxFolding = foldNodeProp.add(() => () => null);
 const sqlDialect = StandardSQL.configureLanguage({props: [noSyntaxFolding]});
-const sqlLanguage = sql({dialect: sqlDialect});
+const sqlLanguage = sqlDialect.language.extension;
 const sqlParenthesisFolding = foldService.of((state, lineStart) => getParenthesisFolds(state).get(lineStart) ?? null);
 const sqlExtensions = [sqlLanguage, sqlParenthesisFolding];
 
