@@ -4,14 +4,8 @@ import {CopyButton} from "@tableau/query-graphs/lib/ui/CopyButton";
 import type {TextDocument} from "@tableau/query-graphs/lib/tree-description";
 import "./TreeLabel.css";
 
-const JsonDocument = lazy(() =>
-    import(/* webpackChunkName: "editor-json" */ "./JsonDocument").then((module) => ({default: module.JsonDocument})),
-);
-const SqlDocument = lazy(() =>
-    import(/* webpackChunkName: "editor-sql" */ "./SqlDocument").then((module) => ({default: module.SqlDocument})),
-);
-const CodeDocument = lazy(() =>
-    import(/* webpackChunkName: "editor-plain" */ "./CodeDocument").then((module) => ({default: module.CodeDocument})),
+const DocumentEditor = lazy(() =>
+    import(/* webpackChunkName: "editor" */ "./DocumentEditor").then((module) => ({default: module.DocumentEditor})),
 );
 
 export interface TreeLabelProps {
@@ -32,17 +26,6 @@ function LoadingDocument({title}: {title: string}) {
             <span />
         </div>
     );
-}
-
-function DocumentEditor({document}: {document: TextDocument}) {
-    switch (document.language?.toLowerCase()) {
-        case "json":
-            return <JsonDocument document={document} />;
-        case "sql":
-            return <SqlDocument document={document} />;
-        default:
-            return <CodeDocument document={document} />;
-    }
 }
 
 function TextDocumentPanel({document}: {document: TextDocument}) {
