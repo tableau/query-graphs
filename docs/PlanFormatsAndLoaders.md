@@ -24,7 +24,7 @@ The generic JSON and XML loaders map the input structure literally and act as ca
 ## Loader Dispatch
 
 The app does not ask the user which format they pasted.
-Instead, `loadPlanFromText` (`query-graphs/src/loaders/index.ts`) parses JSON once and checks each loader.
+Instead, `loadPlanFromText` (`query-graphs/src/loaders/index.ts`) parses JSON once, retaining source offsets, and checks each loader.
 
 Each loader exposes separate `matches` and `load` operations, so format detection does not depend on converter exceptions.
 If a matching loader cannot convert the plan, dispatch records the failure and continues with later matching loaders.
@@ -56,6 +56,7 @@ To add support for another database's plans:
 
 The descriptors are also exported from the published library (`@tableau/query-graphs/lib/loaders/<db>`) for callers that already have parsed JSON or XML.
 Most embedders should use the `loadPlanFromText` façade instead.
+Low-level loaders invoked with parsed JSON still work without a source-location context, but their output does not contain source locations.
 
 ## Writing a Permissive Loader
 
