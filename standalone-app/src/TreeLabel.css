@@ -13,7 +13,7 @@
     overflow: hidden;
 
     /* Reserve a stable editor width only while a document is visible. */
-    &:has(.qg-collapsible-panel[open] .graph-text-document-frame) {
+    &:has(.graph-text-document-panel[open]) {
         width: min(30em, 40vw);
     }
 }
@@ -130,7 +130,7 @@
     .graph-sidebar {
         max-width: 100vw;
 
-        &:has(.qg-collapsible-panel[open] .graph-text-document-frame) {
+        &:has(.graph-text-document-panel[open]) {
             width: 100vw;
         }
     }
