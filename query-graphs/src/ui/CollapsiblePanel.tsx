@@ -1,4 +1,4 @@
-import {useRef, useState, type ReactNode} from "react";
+import {useState, type ReactNode} from "react";
 import cc from "classcat";
 import "./CollapsiblePanel.css";
 
@@ -14,15 +14,10 @@ export interface CollapsiblePanelProps {
     /** Additional class name applied to the root details element. */
     className?: string;
     /**
-     * Delays mounting the panel body until it is opened for the first time.
+     * Delays mounting the panel body until hover, keyboard focus, or opening indicates that it will be needed.
      * Once mounted, the body remains mounted across subsequent close/open cycles.
      */
-    mountContentOnFirstOpen?: boolean;
-    /**
-     * Called once when hover, keyboard focus, or opening indicates that the user is likely to need the content.
-     * This can be used to preload deferred content without mounting it while the panel is closed.
-     */
-    onContentIntent?: () => void;
+    mountContentOnFirstIntent?: boolean;
 }
 
 export function CollapsiblePanel({
@@ -31,17 +26,13 @@ export function CollapsiblePanel({
     children,
     highlighted,
     className,
-    mountContentOnFirstOpen,
-    onContentIntent,
+    mountContentOnFirstIntent,
 }: CollapsiblePanelProps) {
     const classes = cc(["qg-collapsible-panel", {"qg-highlighted": highlighted}, className]);
-    const [wasOpened, setWasOpened] = useState(false);
-    const contentIntentSignaled = useRef(false);
+    const [contentMounted, setContentMounted] = useState(false);
 
-    const signalContentIntent = () => {
-        if (contentIntentSignaled.current || onContentIntent === undefined) return;
-        contentIntentSignaled.current = true;
-        onContentIntent();
+    const mountContent = () => {
+        if (mountContentOnFirstIntent) setContentMounted(true);
     };
 
     return (
@@ -49,11 +40,10 @@ export function CollapsiblePanel({
             className={classes}
             onToggle={(event) => {
                 if (!event.currentTarget.open) return;
-                signalContentIntent();
-                if (mountContentOnFirstOpen) setWasOpened(true);
+                mountContent();
             }}
         >
-            <summary onPointerEnter={signalContentIntent} onFocus={signalContentIntent}>
+            <summary onPointerEnter={mountContent} onFocus={mountContent}>
                 <span className="qg-collapsible-panel-chevron" aria-hidden="true">
                     &#x25B8;
                 </span>
@@ -69,7 +59,7 @@ export function CollapsiblePanel({
                     </span>
                 ) : null}
             </summary>
-            {!mountContentOnFirstOpen || wasOpened ? <div className="qg-collapsible-panel-content">{children}</div> : null}
+            {!mountContentOnFirstIntent || contentMounted ? <div className="qg-collapsible-panel-content">{children}</div> : null}
         </details>
     );
 }

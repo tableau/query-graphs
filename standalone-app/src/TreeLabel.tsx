@@ -7,7 +7,6 @@ import "./TreeLabel.css";
 const loadDocumentPane = () =>
     import(/* webpackChunkName: "editor" */ "./DocumentPane").then((module) => ({default: module.DocumentPane}));
 const DocumentPane = lazy(loadDocumentPane);
-const preloadDocumentPane = () => void loadDocumentPane().catch(() => undefined);
 
 export interface TreeLabelProps {
     title: string;
@@ -35,8 +34,7 @@ function TextDocumentPanel({document}: {document: TextDocument}) {
             title={document.title}
             className="graph-text-document-panel"
             headerActions={<CopyButton text={document.text} contentName={document.title} />}
-            mountContentOnFirstOpen
-            onContentIntent={preloadDocumentPane}
+            mountContentOnFirstIntent
         >
             <div className="graph-text-document-frame">
                 <Suspense fallback={<LoadingDocument title={document.title} />}>
@@ -67,14 +65,16 @@ export function TreeLabel({title, setTitle, metadata, metadataHighlighted, textD
                 onChange={(e) => (setTitle ? setTitle(e.target.value) : undefined)}
             />
             <div className="graph-sidebar-panels">
-                {metadataChildren.length > 0 ? (
-                    <CollapsiblePanel title="Plan Metadata" highlighted={metadataHighlighted}>
-                        <div className="graph-metadata">{metadataChildren}</div>
-                    </CollapsiblePanel>
-                ) : null}
-                {textDocuments?.map((document) => (
-                    <TextDocumentPanel key={document.id} document={document} />
-                ))}
+                <div className="graph-sidebar-panel-stack">
+                    {metadataChildren.length > 0 ? (
+                        <CollapsiblePanel title="Plan Metadata" highlighted={metadataHighlighted}>
+                            <div className="graph-metadata">{metadataChildren}</div>
+                        </CollapsiblePanel>
+                    ) : null}
+                    {textDocuments?.map((document) => (
+                        <TextDocumentPanel key={document.id} document={document} />
+                    ))}
+                </div>
             </div>
         </div>
     );

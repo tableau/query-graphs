@@ -14,13 +14,17 @@
 }
 
 .graph-sidebar-panels {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5em;
     min-height: 0;
     overflow-y: auto;
     overscroll-behavior: contain;
     scrollbar-gutter: stable;
+}
+
+.graph-sidebar-panel-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+    padding: 10px;
 }
 
 .graph-title {
