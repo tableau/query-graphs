@@ -62,12 +62,6 @@
     }
 }
 
-.qg-collapsible-panel-actions {
-    display: flex;
-    gap: 0.4em;
-    margin-left: auto;
-}
-
 .qg-attention-needed-icon {
     display: inline-flex;
     align-items: center;
@@ -79,6 +73,12 @@
     background: hsl(0, 72%, 45%);
     font-size: 0.85em;
     font-weight: bold;
+}
+
+.qg-collapsible-panel-actions {
+    display: flex;
+    gap: 0.4em;
+    margin-left: auto;
 }
 
 .qg-collapsible-panel-content {

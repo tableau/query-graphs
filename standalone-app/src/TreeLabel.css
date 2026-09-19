@@ -1,3 +1,4 @@
+/* Sidebar shell */
 .graph-sidebar {
     --graph-sidebar-paint-gutter: 15px;
 
@@ -14,20 +15,6 @@
     &:has(.qg-collapsible-panel[open] .graph-text-document-frame) {
         width: min(30em, 40vw);
     }
-}
-
-.graph-sidebar-panels {
-    min-height: 0;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    scrollbar-gutter: stable;
-}
-
-.graph-sidebar-panel-stack {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5em;
-    padding: var(--graph-sidebar-paint-gutter);
 }
 
 .graph-title {
@@ -48,14 +35,21 @@
     }
 }
 
-.graph-text-document-frame {
-    box-sizing: border-box;
-    width: 100%;
-    height: clamp(12em, 50dvh, 30em);
-    min-width: 0;
+.graph-sidebar-panels {
     min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
 }
 
+.graph-sidebar-panel-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+    padding: var(--graph-sidebar-paint-gutter);
+}
+
+/* Document panels */
 .graph-text-document-panel {
     & > .qg-collapsible-panel-content {
         padding: 0;
@@ -71,6 +65,15 @@
     }
 }
 
+.graph-text-document-frame {
+    box-sizing: border-box;
+    width: 100%;
+    height: clamp(12em, 50dvh, 30em);
+    min-width: 0;
+    min-height: 0;
+}
+
+/* Loading state */
 .graph-text-document-loading {
     box-sizing: border-box;
     width: 100%;
@@ -127,6 +130,7 @@
     }
 }
 
+/* Responsive layout */
 @media (max-width: 45em) {
     .graph-sidebar {
         max-width: 100vw;
