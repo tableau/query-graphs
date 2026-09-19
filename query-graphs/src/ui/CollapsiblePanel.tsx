@@ -3,9 +3,9 @@ import cc from "classcat";
 import "./CollapsiblePanel.css";
 
 export interface CollapsiblePanelProps {
-    /** Content displayed in the panel summary. */
+    /** Content displayed in the header. */
     title: ReactNode;
-    /** Controls displayed at the end of the summary without toggling the panel. */
+    /** Controls displayed at the end of the header line; available also without toggling the panel. */
     headerActions?: ReactNode;
     /** Content displayed in the panel body. */
     children: ReactNode;

@@ -22,7 +22,6 @@ function createFoldMarker(open: boolean): HTMLElement {
 }
 
 const folding = foldGutter({markerDOM: createFoldMarker});
-const noLanguageExtension: Extension = [];
 const foldMarkerTheme = EditorView.baseTheme({
     ".graph-fold-marker": {
         display: "inline-flex",
@@ -45,6 +44,8 @@ const foldMarkerTheme = EditorView.baseTheme({
         transform: "rotate(90deg)",
     },
 });
+// CodeMirror injects scoped base styles at runtime. A theme extension gives these
+// overrides predictable precedence without specificity hacks or `!important`.
 const documentTheme = EditorView.theme({
     "&": {
         width: "100%",
@@ -60,6 +61,7 @@ const documentTheme = EditorView.theme({
         fontFamily: "monospace",
     },
 });
+const noLanguageExtension: Extension = [];
 
 export interface CodeMirrorDocumentProps {
     document: TextDocument;
@@ -94,5 +96,5 @@ export function CodeMirrorDocument({document, languageExtension = noLanguageExte
         return () => view.destroy();
     }, [document, languageExtension]);
 
-    return <div ref={parent} className="graph-text-document nowheel nodrag nopan" />;
+    return <div ref={parent} className="graph-text-document" />;
 }

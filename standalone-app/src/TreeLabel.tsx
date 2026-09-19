@@ -55,8 +55,11 @@ export function TreeLabel({title, setTitle, metadata, metadataHighlighted, textD
         );
     }
 
+    // React Flow recognizes these interaction guards on ancestors: `nowheel` lets
+    // documents scroll without zooming the canvas, and `nopan` lets users select
+    // text or operate controls without dragging the canvas.
     return (
-        <div className="react-flow__panel graph-sidebar nowheel">
+        <div className="react-flow__panel graph-sidebar nowheel nopan">
             <input
                 type="text"
                 className="graph-title"
