@@ -28,6 +28,13 @@
     "last 2 Edge versions"
   ],
   "devDependencies": {
+    "@codemirror/commands": "^6.11.1",
+    "@codemirror/lang-json": "^6.0.2",
+    "@codemirror/lang-sql": "^6.10.0",
+    "@codemirror/language": "^6.12.4",
+    "@codemirror/lint": "^6.9.7",
+    "@codemirror/state": "^6.7.5",
+    "@codemirror/view": "^6.43.12",
     "@tableau/query-graphs": "workspace:^",
     "@types/node": "^24.13.3",
     "@types/react": "^19.2.18",

@@ -1,8 +1,13 @@
-import type {ReactElement} from "react";
+import {lazy, Suspense, type ReactElement} from "react";
 import {CollapsiblePanel} from "@tableau/query-graphs/lib/ui/CollapsiblePanel";
 import {CopyButton} from "@tableau/query-graphs/lib/ui/CopyButton";
 import type {TextDocument} from "@tableau/query-graphs/lib/tree-description";
 import "./TreeLabel.css";
+
+const loadDocumentPane = () =>
+    import(/* webpackChunkName: "editor" */ "./DocumentPane").then((module) => ({default: module.DocumentPane}));
+const DocumentPane = lazy(loadDocumentPane);
+const preloadDocumentPane = () => void loadDocumentPane().catch(() => undefined);
 
 export interface TreeLabelProps {
     title: string;
@@ -12,17 +17,31 @@ export interface TreeLabelProps {
     textDocuments?: TextDocument[];
 }
 
+function LoadingDocument({title}: {title: string}) {
+    return (
+        <div className="graph-text-document-loading" role="status" aria-label={`Loading ${title}`}>
+            <span />
+            <span />
+            <span />
+            <span />
+            <span />
+        </div>
+    );
+}
+
 function TextDocumentPanel({document}: {document: TextDocument}) {
     return (
-        <CollapsiblePanel title={document.title} headerActions={<CopyButton text={document.text} contentName={document.title} />}>
-            <textarea
-                className="graph-text-document"
-                value={document.text}
-                readOnly
-                spellCheck={false}
-                aria-label={document.title}
-                rows={12}
-            />
+        <CollapsiblePanel
+            title={document.title}
+            headerActions={<CopyButton text={document.text} contentName={document.title} />}
+            mountContentOnFirstOpen
+            onContentIntent={preloadDocumentPane}
+        >
+            <div className="graph-text-document-frame">
+                <Suspense fallback={<LoadingDocument title={document.title} />}>
+                    <DocumentPane document={document} />
+                </Suspense>
+            </div>
         </CollapsiblePanel>
     );
 }
@@ -38,7 +57,7 @@ export function TreeLabel({title, setTitle, metadata, metadataHighlighted, textD
     }
 
     return (
-        <div className="react-flow__panel graph-sidebar">
+        <div className="react-flow__panel graph-sidebar nowheel">
             <input
                 type="text"
                 className="graph-title"
@@ -46,14 +65,16 @@ export function TreeLabel({title, setTitle, metadata, metadataHighlighted, textD
                 value={title}
                 onChange={(e) => (setTitle ? setTitle(e.target.value) : undefined)}
             />
-            {metadataChildren.length > 0 ? (
-                <CollapsiblePanel title="Plan Metadata" highlighted={metadataHighlighted}>
-                    <div className="graph-metadata">{metadataChildren}</div>
-                </CollapsiblePanel>
-            ) : null}
-            {textDocuments?.map((document) => (
-                <TextDocumentPanel key={document.id} document={document} />
-            ))}
+            <div className="graph-sidebar-panels">
+                {metadataChildren.length > 0 ? (
+                    <CollapsiblePanel title="Plan Metadata" highlighted={metadataHighlighted}>
+                        <div className="graph-metadata">{metadataChildren}</div>
+                    </CollapsiblePanel>
+                ) : null}
+                {textDocuments?.map((document) => (
+                    <TextDocumentPanel key={document.id} document={document} />
+                ))}
+            </div>
         </div>
     );
 }
