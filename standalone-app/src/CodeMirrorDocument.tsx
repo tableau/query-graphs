@@ -48,7 +48,6 @@ const foldMarkerTheme = EditorView.baseTheme({
 // overrides predictable precedence without specificity hacks or `!important`.
 const documentTheme = EditorView.theme({
     "&": {
-        width: "100%",
         height: "100%",
         border: "1px solid hsl(0, 0%, 85%)",
     },
@@ -58,7 +57,6 @@ const documentTheme = EditorView.theme({
     },
     ".cm-scroller": {
         overflow: "auto",
-        fontFamily: "monospace",
     },
 });
 const noLanguageExtension: Extension = [];

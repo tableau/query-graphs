@@ -5,7 +5,6 @@
 
     display: flex;
     flex-direction: column;
-    align-items: stretch;
     gap: 0.5em;
     margin: 0;
     max-width: min(30em, 40vw);
@@ -54,47 +53,35 @@
 }
 
 /* Document panels */
-.graph-text-document-panel {
+.graph-text-document-panel > .qg-collapsible-panel-content {
     /* The editor supplies the panel body, so it should meet the panel border directly. */
-    & > .qg-collapsible-panel-content {
-        padding: 0;
-    }
+    padding: 0;
 
-    & > .qg-collapsible-panel-content .cm-editor,
-    & > .qg-collapsible-panel-content .graph-text-document-loading {
+    & .cm-editor {
         border: 0;
     }
 
     /* Draw the focus ring inside the panel so neither the border nor scroller clips it. */
-    & > .qg-collapsible-panel-content .cm-editor.cm-focused {
+    & .cm-editor.cm-focused {
         outline-offset: -2px;
     }
 }
 
 .graph-text-document-frame {
-    box-sizing: border-box;
-    width: 100%;
     /* Stay useful on short screens without dominating taller ones. */
     height: clamp(12em, 50dvh, 30em);
-    min-width: 0;
-    min-height: 0;
 }
 
 /* Loading state */
 .graph-text-document-loading {
     box-sizing: border-box;
-    width: 100%;
     height: 100%;
-    min-width: 0;
-    min-height: 0;
     display: flex;
     flex-direction: column;
     gap: 0.65em;
     padding: 1em;
-    border: 1px solid hsl(0, 0%, 85%);
 
     & span {
-        display: block;
         width: 100%;
         height: 0.8em;
         border-radius: 0.25em;
