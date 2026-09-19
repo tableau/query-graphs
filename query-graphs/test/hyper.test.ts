@@ -149,11 +149,11 @@ test("Hyper optimizer steps preserve additional envelope fields", () => {
 });
 
 // Hyper positions are UTF-8 byte offsets, so preceding multibyte characters must not shift the UTF-16 editor ranges.
-test("Hyper links nodes to every valid SQL byte range", () => {
+test("Hyper nodes retain both SQL and JSON source ranges", () => {
     const sql = "EXPLAIN SELECT 'é😀', value FROM table";
     const valueStart = Buffer.byteLength("EXPLAIN SELECT 'é😀', ");
     const tableStart = Buffer.byteLength("EXPLAIN SELECT 'é😀', value FROM ");
-    const tree = loadPlanFromText(
+    const loaded = loadPlanFromText(
         JSON.stringify({
             operator: "scan",
             sqlpos: [
@@ -163,16 +163,24 @@ test("Hyper links nodes to every valid SQL byte range", () => {
             ],
         }),
         {format: "hyper", sql},
-    ).tree;
+    );
+    const planText = loaded.tree.textDocuments?.find(({id}) => id === "plan")?.text ?? "";
+    const keyFrom = planText.indexOf('"operator"');
+    const valueFrom = planText.indexOf('"scan"');
 
-    assert.deepEqual(tree.root.sourceLocations, [
+    assert.deepEqual(loaded.tree.root.sourceLocations, [
         {documentId: "query", from: 22, to: 27},
         {documentId: "query", from: 33, to: 38},
+        {documentId: "plan", from: keyFrom, to: keyFrom + '"operator"'.length},
+        {documentId: "plan", from: valueFrom, to: valueFrom + '"scan"'.length},
     ]);
 });
 
 // A plan can be opened without its original query; raw offsets must not create links into a nonexistent document.
 test("Hyper ignores SQL positions without matching SQL", () => {
     const tree = loadPlanFromText('{"operator":"scan","sqlpos":[[0,6]]}', {format: "hyper"}).tree;
-    assert.equal(tree.root.sourceLocations, undefined);
+    assert.deepEqual(
+        tree.root.sourceLocations?.filter(({documentId}) => documentId === "query"),
+        [],
+    );
 });

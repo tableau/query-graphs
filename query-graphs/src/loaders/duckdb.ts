@@ -15,7 +15,7 @@ import {convertDecoratedJsonNode, createDecoratedJsonTreeState} from "./decorate
 import type {Json, JsonObject} from "./loader-utils";
 import {forceToString, hasOwnProperty, hasSubObject, isJsonObject, tryToNonNullString, tryToNumber} from "./loader-utils";
 import {buildIdMap, colorRelativeNumber, resolveCrosslinks, setRelativeEdgeWidths} from "./tree-postprocessing";
-import type {PlanLoadContext, PlanLoader} from "./types";
+import type {JsonPlanLoader, PlanLoadContext} from "./types";
 
 function getExtraInfo(rawNode: JsonObject): JsonObject | undefined {
     return hasSubObject(rawNode, "extra_info") ? rawNode["extra_info"] : undefined;
@@ -25,12 +25,15 @@ function crosslinkId(namespace: "cte" | "delim", id: string): string {
     return `${namespace}:${id}`;
 }
 
+const operatorTypeKeys = ["operator_name", "name", "operator_type"] as const;
+
+function getOperatorTypeKey(rawNode: JsonObject): (typeof operatorTypeKeys)[number] | undefined {
+    return operatorTypeKeys.find((key) => tryToNonNullString(rawNode[key]) !== undefined);
+}
+
 function getOperatorType(rawNode: JsonObject): string {
-    const operatorType =
-        tryToNonNullString(rawNode["operator_name"]) ??
-        tryToNonNullString(rawNode["name"]) ??
-        tryToNonNullString(rawNode["operator_type"]) ??
-        "unknown";
+    const operatorTypeKey = getOperatorTypeKey(rawNode);
+    const operatorType = operatorTypeKey === undefined ? "unknown" : (tryToNonNullString(rawNode[operatorTypeKey]) ?? "unknown");
     // DuckDB's built-in operator names are often emitted in CAPS_LOCK form.
     // Preserve mixed-case names because extensions may supply their own labels.
     return operatorType === operatorType.toUpperCase() ? operatorType.toLowerCase() : operatorType;
@@ -90,7 +93,7 @@ function getDisplayName(rawNode: JsonObject): string {
 }
 
 const duckDbConfig: DecoratedJsonTreeConfig = {
-    nodeTypeKeys: ["operator_name", "name", "operator_type"],
+    nodeTypeKeys: operatorTypeKeys,
     structuralChildKeys: ["children"],
     alwaysPropertyKeys: [],
     flattenPropertyObjectKeys: ["extra_info"],
@@ -98,6 +101,7 @@ const duckDbConfig: DecoratedJsonTreeConfig = {
         return {icon: getIcon(rawNode)};
     },
     getDisplayName,
+    getSourcePropertyKey: getOperatorTypeKey,
     getCrosslinkTarget(rawNode) {
         const operatorType = getOperatorType(rawNode);
         // Recursive scans are emitted as REC_CTE_SCAN, so match the CTE scan family.
@@ -255,8 +259,9 @@ function loadDuckDbPlan(json: Json, context: PlanLoadContext): TreeDescription {
     return convertDuckPlan(Array.isArray(json) && json.length > 0 ? json[0] : json, context);
 }
 
-export const duckDbPlanLoader: PlanLoader<Json> = {
+export const duckDbPlanLoader: JsonPlanLoader = {
     format: "duckdb",
+    sourcePropertyKeys: new Set(operatorTypeKeys),
     matches(json) {
         const stages = getPlanStages(json);
         return (

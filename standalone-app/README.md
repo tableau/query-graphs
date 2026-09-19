@@ -20,6 +20,13 @@ The app provides:
 `QueryGraphsApp.tsx` uses the core library's [`loadPlanFromText` dispatcher](../docs/PlanFormatsAndLoaders.md#loader-dispatch).
 The same function doubles as the input validator in `FileOpener`, so the paste box can tell the user immediately whether their text is a recognized plan.
 
+## Source Highlighting
+
+Plan nodes with source locations are linked bidirectionally to their text document.
+Hovering a graph node marks its identifier in CodeMirror; hovering its underlined JSON key or scalar value marks the corresponding graph node.
+While CodeMirror is focused, moving the cursor or selection head across a linked token provides the same graph highlight for keyboard navigation.
+The graph's per-instance store owns semantic highlighted-node IDs and resolves source ranges through the shared bidirectional source-link index, while CodeMirror's reusable `rangeLinking` extension handles pointer and keyboard interaction.
+
 ## The Plan Lives in the URL
 
 The currently open plan is not React state that vanishes on reload — it is a URL parameter.

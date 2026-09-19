@@ -11,7 +11,7 @@ import {convertDecoratedJsonNode, createDecoratedJsonTreeState} from "./decorate
 import type {Json, JsonObject} from "./loader-utils";
 import {hasOwnProperty, hasSubObject, tryToNonNullString, tryToNumber} from "./loader-utils";
 import {buildIdMap, resolveCrosslinks, setRelativeEdgeWidths} from "./tree-postprocessing";
-import type {PlanLoadContext, PlanLoader} from "./types";
+import type {JsonPlanLoader, PlanLoadContext} from "./types";
 
 function getStringProperty(rawNode: JsonObject, key: string): string | undefined {
     return tryToNonNullString(rawNode[key]);
@@ -187,8 +187,9 @@ function loadPostgresPlan(json: Json, context: PlanLoadContext): TreeDescription
     return {root, crosslinks};
 }
 
-export const postgresPlanLoader: PlanLoader<Json> = {
+export const postgresPlanLoader: JsonPlanLoader = {
     format: "postgres",
+    sourcePropertyKeys: new Set(postgresConfig.nodeTypeKeys),
     matches: isPostgresPlan,
     load: loadPostgresPlan,
 };

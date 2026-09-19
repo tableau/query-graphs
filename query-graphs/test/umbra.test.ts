@@ -187,7 +187,10 @@ test("Umbra links nodes using the one-based UTF-8 columns observed in a Unicode 
     ).tree;
 
     const operator = treeNodes(tree.root).find((node) => node.properties?.get("operatorId") === "1");
-    assert.deepEqual(operator?.sourceLocations, [{documentId: "query", from: 46, to: 56}]);
+    assert.deepEqual(
+        operator?.sourceLocations?.filter(({documentId}) => documentId === "query"),
+        [{documentId: "query", from: 46, to: 56}],
+    );
     assert.equal(sql.slice(46, 56), `"é😀s" + 2`);
 });
 
@@ -200,8 +203,16 @@ test("Umbra ignores malformed source locations and locations without SQL", () =>
             sourceLocation: {startLine: 1, startColumn: 0, endLine: 1, endColumn: 4},
         },
     });
-    assert.equal(loadPlanFromText(plan, {format: "umbra", sql: "abc"}).tree.root.sourceLocations, undefined);
-    assert.equal(loadPlanFromText(plan, {format: "umbra"}).tree.root.sourceLocations, undefined);
+    assert.deepEqual(
+        loadPlanFromText(plan, {format: "umbra", sql: "abc"}).tree.root.sourceLocations?.filter(
+            ({documentId}) => documentId === "query",
+        ) ?? [],
+        [],
+    );
+    assert.deepEqual(
+        loadPlanFromText(plan, {format: "umbra"}).tree.root.sourceLocations?.filter(({documentId}) => documentId === "query") ?? [],
+        [],
+    );
 });
 
 test("CedarDB optimizer stages are collapsed independently", () => {

@@ -50,6 +50,8 @@ export interface DecoratedJsonTreeConfig {
     getDisplayName?(rawNode: JsonObject): string | undefined;
     /** Link the converted node to ranges in an associated text document. */
     getSourceLocations?(rawNode: JsonObject, context: PlanLoadContext): SourceLocation[] | undefined;
+    /** Choose the identifier property whose key and scalar-value tokens link to the converted node. */
+    getSourcePropertyKey?(rawNode: JsonObject, nodeTypeKey: string | undefined): string | undefined;
     /** Identify the target of a crosslink originating at this object. */
     getCrosslinkTarget?(rawNode: JsonObject): string | undefined;
     /** Put a nested value in `collapsedChildren` instead of `children`. */
@@ -208,8 +210,18 @@ function convertDecoratedJsonValue(
         children: expandedChildren,
         collapsedChildren,
         expandedByDefault: expandedChildren.length === 0 && (config.shouldExpandCollapsedChildren?.(rawNode, nodeTypeKey) ?? true),
-        sourceLocations: config.getSourceLocations?.(rawNode, context),
     };
+    const sourceLocations = [...(config.getSourceLocations?.(rawNode, context) ?? [])];
+    const sourcePropertyKey = config.getSourcePropertyKey?.(rawNode, nodeTypeKey) ?? nodeTypeKey;
+    // Link only scalar identifiers. Falling back to a container's full
+    // range makes wrapper nodes highlight most or all of a large plan.
+    if (sourcePropertyKey !== undefined && tryToString(rawNode[sourcePropertyKey]) !== undefined) {
+        const keyLocation = context.jsonSource?.propertyKeyLocation(rawNode, sourcePropertyKey);
+        const valueLocation = context.jsonSource?.propertyValueLocation(rawNode, sourcePropertyKey);
+        if (keyLocation !== undefined) sourceLocations.push(keyLocation);
+        if (valueLocation !== undefined) sourceLocations.push(valueLocation);
+    }
+    if (sourceLocations.length > 0) convertedNode.sourceLocations = sourceLocations;
 
     // Display cardinality on incoming edges and collect it for relative edge sizing.
     const estimatedCardinality = config.getEstimatedCardinality?.(rawNode);

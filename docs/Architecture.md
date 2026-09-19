@@ -36,6 +36,7 @@ flowchart TD
 ```
 
 1. The app hands the raw text to `loadPlanFromText` (`query-graphs/src/loaders/index.ts`), which parses it once and selects the first loader whose `matches` method accepts it.
+   JSON parsing also records source offsets so loaders can link semantic tree nodes back to their identifying values in the plan document.
 2. The winning loader (e.g. `query-graphs/src/loaders/hyper.ts`) transforms the source structure into a `TreeDescription`.
    This is where format-specific knowledge lives: how to name nodes, which children to show or collapse, which icon to use, how to label edges.
 3. `layoutTree` (`query-graphs/src/ui/tree-layout.ts`) assigns positions using `d3-flextree`, driven by the measured on-screen size of each node.
