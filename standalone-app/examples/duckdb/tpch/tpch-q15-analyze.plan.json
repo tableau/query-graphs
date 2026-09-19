@@ -6,7 +6,7 @@
     "rows_returned": 0,
     "wal_replay_entry_count": 0,
     "result_set_size": 0,
-    "query_name": "-- CedarDB v2026-08-13 hits an internal Pipeline::getRawLocalStatePtr assertion\n-- during EXPLAIN ANALYZE; plain EXPLAIN succeeds.\n-- This query is derived from TPC-H query 15\n-- THE TPC SOFTWARE IS AVAILABLE WITHOUT CHARGE FROM TPC.\n\nEXPLAIN (ANALYZE, FORMAT JSON)\nwith revenue as (\n\tselect\n\t\tl_suppkey as supplier_no,\n\t\tsum(l_extendedprice * (1 - l_discount)) as total_revenue\n\tfrom\n\t\tlineitem\n\twhere\n\t\tl_shipdate >= date '1996-01-01'\n\t\tand l_shipdate < date '1996-04-01'\n\tgroup by\n\t\tl_suppkey)\nselect\n\ts_suppkey,\n\ts_name,\n\ts_address,\n\ts_phone,\n\ttotal_revenue\nfrom\n\tsupplier,\n\trevenue\nwhere\n\ts_suppkey = supplier_no\n\tand total_revenue = (\n\t\tselect\n\t\t\tmax(total_revenue)\n\t\tfrom\n\t\t\trevenue\n\t)\norder by\n\ts_suppkey",
+    "query_name": "-- This query is derived from TPC-H query 15\n-- THE TPC SOFTWARE IS AVAILABLE WITHOUT CHARGE FROM TPC.\n\nEXPLAIN (ANALYZE, FORMAT JSON)\nwith revenue as (\n\tselect\n\t\tl_suppkey as supplier_no,\n\t\tsum(l_extendedprice * (1 - l_discount)) as total_revenue\n\tfrom\n\t\tlineitem\n\twhere\n\t\tl_shipdate >= date '1996-01-01'\n\t\tand l_shipdate < date '1996-04-01'\n\tgroup by\n\t\tl_suppkey)\nselect\n\ts_suppkey,\n\ts_name,\n\ts_address,\n\ts_phone,\n\ttotal_revenue\nfrom\n\tsupplier,\n\trevenue\nwhere\n\ts_suppkey = supplier_no\n\tand total_revenue = (\n\t\tselect\n\t\t\tmax(total_revenue)\n\t\tfrom\n\t\t\trevenue\n\t)\norder by\n\ts_suppkey",
     "waiting_to_attach_latency": 0.0,
     "attach_load_storage_latency": 0.0,
     "blocked_thread_time": 0.0,

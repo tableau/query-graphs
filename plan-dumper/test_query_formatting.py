@@ -10,7 +10,13 @@ class QueryFormattingTest(unittest.TestCase):
         self.assertEqual(parse_config(sql, "modes"), ["simple", "analyze"])
 
     def test_strips_config_comments(self):
-        sql = "--- MODES: analyze\n-- Keep this comment.\n--- UNSUPPORTED: duckdb\nSELECT 1"
+        sql = (
+            "--- MODES: analyze\n"
+            "--- DuckDB does not support this query.\n"
+            "-- Keep this comment.\n"
+            "--- UNSUPPORTED: duckdb\n"
+            "SELECT 1"
+        )
 
         self.assertEqual(strip_config_comments(sql), "-- Keep this comment.\nSELECT 1")
 
