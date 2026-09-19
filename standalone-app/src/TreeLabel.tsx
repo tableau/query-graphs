@@ -33,6 +33,7 @@ function TextDocumentPanel({document}: {document: TextDocument}) {
     return (
         <CollapsiblePanel
             title={document.title}
+            className="graph-text-document-panel"
             headerActions={<CopyButton text={document.text} contentName={document.title} />}
             mountContentOnFirstOpen
             onContentIntent={preloadDocumentPane}

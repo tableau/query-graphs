@@ -47,6 +47,21 @@
     min-height: 0;
 }
 
+.graph-text-document-panel {
+    & > .qg-collapsible-panel-content {
+        padding: 0;
+    }
+
+    & > .qg-collapsible-panel-content .cm-editor,
+    & > .qg-collapsible-panel-content .graph-text-document-loading {
+        border: 0;
+    }
+
+    & > .qg-collapsible-panel-content .cm-editor.cm-focused {
+        outline-offset: -2px;
+    }
+}
+
 .graph-text-document-loading {
     box-sizing: border-box;
     width: 100%;
