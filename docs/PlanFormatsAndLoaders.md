@@ -24,7 +24,7 @@ The generic JSON and XML loaders map the input structure literally and act as ca
 ## Loader Dispatch
 
 The app does not ask the user which format they pasted.
-Instead, `loadPlanFromText` (`query-graphs/src/loaders/index.ts`) parses JSON once and checks each loader.
+Instead, `loadPlanFromText` (`query-graphs/src/loaders/index.ts`) parses JSON once, retaining source offsets, and checks each loader.
 
 Each loader exposes separate `matches` and `load` operations, so format detection does not depend on converter exceptions.
 If a matching loader cannot convert the plan, dispatch records the failure and continues with later matching loaders.
@@ -52,6 +52,7 @@ To add support for another database's plans:
    Its `matches` method should recognize the format from a small, stable signature; its `load` method performs the conversion.
    Configure `decorated-json-tree.ts` to map semantic node types, structural children, properties, metrics, and crosslinks while retaining its adaptive fallback for unknown fields.
    Use the existing format loader closest to the new format as a reference and reuse the helpers in `loader-utils.ts` and `tree-postprocessing.ts`.
+   JSON loaders implement `JsonPlanLoader` and list every property they may use for JSON source links in `sourcePropertyKeys`; parsing retains positions only for the union of these sets.
 2. **Register it** in the matching syntax-specific registry in `query-graphs/src/loaders/index.ts`, positioned so a more specific format is tried before a more permissive one.
 3. **Add an example** plan under `standalone-app/examples/<db>/` so it shows up on the `examples.html` page.
    If the format comes from a database that [`plan-dumper`](../plan-dumper/README.md) can drive, add a query there so the example can be regenerated instead of hand-maintained.
@@ -59,6 +60,7 @@ To add support for another database's plans:
 
 The descriptors are also exported from the published library (`@tableau/query-graphs/lib/loaders/<db>`) for callers that already have parsed JSON or XML.
 Most embedders should use the `loadPlanFromText` façade instead.
+Low-level loaders invoked with parsed JSON and an empty context still work, but their output does not contain source locations.
 
 ## Writing a Permissive Loader
 
