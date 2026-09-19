@@ -1,5 +1,7 @@
 import type {ReactElement} from "react";
 import {CollapsiblePanel} from "@tableau/query-graphs/lib/ui/CollapsiblePanel";
+import {CopyButton} from "@tableau/query-graphs/lib/ui/CopyButton";
+import type {TextDocument} from "@tableau/query-graphs/lib/tree-description";
 import "./TreeLabel.css";
 
 export interface TreeLabelProps {
@@ -7,9 +9,25 @@ export interface TreeLabelProps {
     setTitle?: (v: string) => void;
     metadata?: Map<string, string>;
     metadataHighlighted?: boolean;
+    textDocuments?: TextDocument[];
 }
 
-export function TreeLabel({title, setTitle, metadata, metadataHighlighted}: TreeLabelProps) {
+function TextDocumentPanel({document}: {document: TextDocument}) {
+    return (
+        <CollapsiblePanel title={document.title} headerActions={<CopyButton text={document.text} contentName={document.title} />}>
+            <textarea
+                className="graph-text-document"
+                value={document.text}
+                readOnly
+                spellCheck={false}
+                aria-label={document.title}
+                rows={12}
+            />
+        </CollapsiblePanel>
+    );
+}
+
+export function TreeLabel({title, setTitle, metadata, metadataHighlighted, textDocuments}: TreeLabelProps) {
     const metadataChildren = [] as ReactElement[];
     for (const [key, value] of (metadata || []).entries()) {
         metadataChildren.push(
@@ -20,7 +38,7 @@ export function TreeLabel({title, setTitle, metadata, metadataHighlighted}: Tree
     }
 
     return (
-        <div className="react-flow__panel">
+        <div className="react-flow__panel graph-sidebar">
             <input
                 type="text"
                 className="graph-title"
@@ -29,10 +47,13 @@ export function TreeLabel({title, setTitle, metadata, metadataHighlighted}: Tree
                 onChange={(e) => (setTitle ? setTitle(e.target.value) : undefined)}
             />
             {metadataChildren.length > 0 ? (
-                <CollapsiblePanel title="Plan Metadata" highlighted={metadataHighlighted} className="graph-metadata-panel">
+                <CollapsiblePanel title="Plan Metadata" highlighted={metadataHighlighted}>
                     <div className="graph-metadata">{metadataChildren}</div>
                 </CollapsiblePanel>
             ) : null}
+            {textDocuments?.map((document) => (
+                <TextDocumentPanel key={document.id} document={document} />
+            ))}
         </div>
     );
 }

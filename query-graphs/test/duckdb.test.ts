@@ -46,7 +46,8 @@ test("DuckDB analyzed plans preserve metrics, metadata, and CTE crosslinks", () 
     assert.equal(analyzedScan.root.properties?.get("Table"), '"temp".main.region');
     assert.equal(analyzedScan.root.edgeLabel, "5/5");
     assert.notEqual(analyzedScan.root.nodeColor, undefined);
-    assert.match(analyzedScan.metadata?.get("query_name") ?? "", /SELECT r_name FROM region/);
+    assert.equal(analyzedScan.metadata?.has("query_name"), false);
+    assert.match(analyzedScan.textDocuments?.find(({id}) => id === "query")?.text ?? "", /SELECT r_name FROM region/);
 
     const cte = loadFixture("duckdb/cte-analyze.plan.json").tree;
     assert.deepEqual(

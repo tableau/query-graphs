@@ -1,9 +1,23 @@
+.graph-sidebar {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5em;
+    max-width: min(30em, calc(100vw - 2em));
+
+    &:has(> .qg-collapsible-panel[open] .graph-text-document) {
+        width: 30em;
+    }
+}
+
 .graph-title {
+    box-sizing: border-box;
     background: #fff;
     font-size: 1.1em;
     font-weight: bold;
     field-sizing: content;
     min-width: 10em;
+    max-width: 100%;
     border: none;
 
     &:hover {
@@ -11,6 +25,10 @@
     }
 }
 
-.graph-metadata-panel {
-    max-width: 20em;
+.graph-text-document {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    font-family: monospace;
+    white-space: pre;
 }

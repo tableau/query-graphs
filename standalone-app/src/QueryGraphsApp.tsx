@@ -138,6 +138,7 @@ export function QueryGraphsApp() {
                     setTitle={setTreeTitle}
                     metadata={tree.metadata}
                     metadataHighlighted={tree.metadataHighlighted}
+                    textDocuments={tree.textDocuments}
                 />
             </QueryGraph>
         );

@@ -1,4 +1,5 @@
 .qg-collapsible-panel {
+    box-sizing: border-box;
     background: white;
     border: 1px solid hsl(0, 0%, 85%);
     border-radius: 8px;
@@ -10,7 +11,7 @@
         display: flex;
         align-items: center;
         gap: 0.4em;
-        padding: 0.5em 0.75em;
+        padding: 0.5em;
         cursor: pointer;
         font-weight: 600;
         list-style: none;
@@ -50,6 +51,12 @@
             border-radius: 7px;
         }
     }
+}
+
+.qg-collapsible-panel-actions {
+    display: flex;
+    gap: 0.4em;
+    margin-left: auto;
 }
 
 .qg-attention-needed-icon {

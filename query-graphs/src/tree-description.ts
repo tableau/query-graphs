@@ -61,6 +61,13 @@ export interface Crosslink {
     target: TreeNode;
 }
 
+export interface TextDocument {
+    id: string;
+    title: string;
+    text: string;
+    language?: string;
+}
+
 export interface TreeDescription {
     /// The tree root
     root: TreeNode;
@@ -70,6 +77,8 @@ export interface TreeDescription {
     metadataHighlighted?: boolean;
     /// Additional links between indirectly related nodes
     crosslinks?: Crosslink[];
+    /// Text documents associated with the graph
+    textDocuments?: TextDocument[];
 }
 
 // A recursive helper function for walking through all nodes
