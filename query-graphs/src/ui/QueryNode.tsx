@@ -7,7 +7,7 @@ import type {TreeNode} from "../tree-description";
 import {NodeIcon} from "./NodeIcon";
 import "./QueryNode.css";
 import {useGraphRenderingStore} from "./store";
-import {subtreeHandleId, useGraphAnimationController} from "./useAnimatedGraphLayout";
+import {subtreeHandleId, useAnimateGraphChange} from "./useAnimatedGraphLayout";
 
 export type QueryGraphNode = Node<TreeNode, "querynode">;
 
@@ -16,7 +16,7 @@ function QueryNode({data, id}: NodeProps<QueryGraphNode>) {
     const toggleNode = useGraphRenderingStore((s) => s.toggleExpandedNode);
     const subtreeExpanded = useGraphRenderingStore((s) => s.expandedSubtrees[id]);
     const toggleSubtree = useGraphRenderingStore((s) => s.toggleExpandedSubtree);
-    const animationController = useGraphAnimationController();
+    const animateGraphChange = useAnimateGraphChange();
 
     const hasProperties = data.properties?.size;
     const hasSubtree = data.collapsedChildren && data.collapsedChildren.length > 0;
@@ -24,23 +24,24 @@ function QueryNode({data, id}: NodeProps<QueryGraphNode>) {
     const onClick = useCallback(
         (e: MouseEvent<HTMLDivElement>) => {
             if (e.shiftKey) {
-                if (hasSubtree) animationController.animateGraphChange(() => toggleSubtree(id));
+                if (hasSubtree) animateGraphChange(() => toggleSubtree(id));
             } else {
                 if (hasProperties) {
-                    animationController.animateGraphChange(() => toggleNode(id), [{nodeId: id, nodeElement: e.currentTarget}]);
+                    animateGraphChange(() => toggleNode(id), [{nodeId: id, nodeElement: e.currentTarget}]);
                 }
             }
             e.stopPropagation();
         },
-        [animationController, toggleNode, toggleSubtree, hasProperties, hasSubtree, id],
+        [animateGraphChange, toggleNode, toggleSubtree, hasProperties, hasSubtree, id],
     );
     const onSubtreeHandleClick = useCallback(
         (e: MouseEvent) => {
-            if (hasSubtree) animationController.animateGraphChange(() => toggleSubtree(id));
+            if (hasSubtree) animateGraphChange(() => toggleSubtree(id));
             e.stopPropagation();
         },
-        [animationController, toggleSubtree, hasSubtree, id],
+        [animateGraphChange, toggleSubtree, hasSubtree, id],
     );
+
     const children = [] as ReactElement[];
     for (const [key, value] of (data.properties || []).entries()) {
         children.push(

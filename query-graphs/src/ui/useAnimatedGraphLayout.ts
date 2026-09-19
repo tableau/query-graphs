@@ -16,22 +16,20 @@ interface NodeResizeRequest {
     nodeElement: HTMLElement;
 }
 
-export interface GraphAnimationController {
-    /**
-     * Animates a synchronously applied change. List persistent nodes whose
-     * bodies may resize; entering and exiting nodes are inferred afterwards.
-     */
-    animateGraphChange: (applyChange: () => void, resizingNodes?: readonly NodeResizeRequest[]) => void;
-}
+/**
+ * Animates a synchronously applied change. List persistent nodes whose bodies
+ * may resize; entering and exiting nodes are inferred afterwards.
+ */
+export type AnimateGraphChange = (applyChange: () => void, resizingNodes?: readonly NodeResizeRequest[]) => void;
 
 export const subtreeHandleId = "subtree";
-export const GraphAnimationContext = createContext<GraphAnimationController | null>(null);
+export const AnimateGraphChangeContext = createContext<AnimateGraphChange | null>(null);
 
-/** Returns the animation controller supplied by the surrounding query graph. */
-export function useGraphAnimationController(): GraphAnimationController {
-    const controller = useContext(GraphAnimationContext);
-    assertNotNull(controller);
-    return controller;
+/** Returns the graph-change animator supplied by the surrounding query graph. */
+export function useAnimateGraphChange(): AnimateGraphChange {
+    const animateGraphChange = useContext(AnimateGraphChangeContext);
+    assertNotNull(animateGraphChange);
+    return animateGraphChange;
 }
 
 interface DimensionsState {
@@ -203,7 +201,7 @@ export function useAnimatedGraphLayout(
     expandedSubtrees: Record<string, boolean>,
 ): GraphLayout & {
     onNodesChange: (changes: NodeChange<QueryGraphNode>[]) => void;
-    animationController: GraphAnimationController;
+    animateGraphChange: AnimateGraphChange;
 } {
     const {fitView, getInternalNode} = useReactFlow<QueryGraphNode>();
     // Active entries own their target geometry and mark dimensions whose
@@ -277,31 +275,29 @@ export function useAnimatedGraphLayout(
 
     // Capture resizing bodies before applying arbitrary graph state. Entering
     // and exiting nodes are inferred from the resulting layout below.
-    const animationController = useMemo<GraphAnimationController>(
-        () => ({
-            animateGraphChange: (applyChange, resizingNodes = []) => {
-                const animationRequested = animationStartTime() !== undefined;
-                // Read every starting size before clearing interrupted styles.
-                const resizes = new Map<string, BodyResize>(
-                    animationRequested
-                        ? resizingNodes.flatMap((request) => {
-                              const resize = captureBodyResize(request);
-                              return resize === undefined ? [] : [[request.nodeId, resize] as const];
-                          })
-                        : [],
-                );
-                cancelLayoutFrame();
-                if (animationRequested) {
-                    for (const {nodeId} of resizingNodes) finishBodyResize(nodeId);
-                    for (const [nodeId, resize] of resizes) bodyResizesRef.current.set(nodeId, resize);
-                } else {
-                    for (const nodeId of bodyResizesRef.current.keys()) finishBodyResize(nodeId);
-                }
-                animationRequestedRef.current = animationRequested;
-                applyChange();
-                setNodeChangeRevision((revision) => revision + 1);
-            },
-        }),
+    const animateGraphChange = useCallback<AnimateGraphChange>(
+        (applyChange, resizingNodes = []) => {
+            const animationRequested = animationStartTime() !== undefined;
+            // Read every starting size before clearing interrupted styles.
+            const resizes = new Map<string, BodyResize>(
+                animationRequested
+                    ? resizingNodes.flatMap((request) => {
+                          const resize = captureBodyResize(request);
+                          return resize === undefined ? [] : [[request.nodeId, resize] as const];
+                      })
+                    : [],
+            );
+            cancelLayoutFrame();
+            if (animationRequested) {
+                for (const {nodeId} of resizingNodes) finishBodyResize(nodeId);
+                for (const [nodeId, resize] of resizes) bodyResizesRef.current.set(nodeId, resize);
+            } else {
+                for (const nodeId of bodyResizesRef.current.keys()) finishBodyResize(nodeId);
+            }
+            animationRequestedRef.current = animationRequested;
+            applyChange();
+            setNodeChangeRevision((revision) => revision + 1);
+        },
         [cancelLayoutFrame, finishBodyResize],
     );
 
@@ -461,8 +457,8 @@ export function useAnimatedGraphLayout(
                 focusable: transient ? false : edge.focusable,
             })),
             onNodesChange,
-            animationController,
+            animateGraphChange,
         }),
-        [animationController, dimensions.measured, onNodesChange, rendered],
+        [animateGraphChange, dimensions.measured, onNodesChange, rendered],
     );
 }

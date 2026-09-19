@@ -9,7 +9,7 @@ import {QueryNode} from "./QueryNode";
 import type {QueryGraphNode} from "./QueryNode";
 import {ColoredEdge} from "./ColoredEdge";
 import {createGraphRenderingStore, GraphRenderingStoreContext, useGraphRenderingStore} from "./store";
-import {GraphAnimationContext, useAnimatedGraphLayout} from "./useAnimatedGraphLayout";
+import {AnimateGraphChangeContext, useAnimatedGraphLayout} from "./useAnimatedGraphLayout";
 import "./QueryGraph.css";
 
 interface QueryGraphProps {
@@ -40,7 +40,7 @@ function QueryGraphInternal({treeDescription, children, nodeIdMapping}: QueryGra
     const animatedLayout = useAnimatedGraphLayout(treeDescription, nodeIdMapping, expandedSubtrees);
 
     return (
-        <GraphAnimationContext.Provider value={animatedLayout.animationController}>
+        <AnimateGraphChangeContext.Provider value={animatedLayout.animateGraphChange}>
             <ReactFlow
                 nodes={animatedLayout.nodes}
                 edges={animatedLayout.edges}
@@ -60,7 +60,7 @@ function QueryGraphInternal({treeDescription, children, nodeIdMapping}: QueryGra
                 <MiniMap zoomable={true} pannable={true} nodeColor={minimapNodeColor} />
                 <Controls showInteractive={false} />
             </ReactFlow>
-        </GraphAnimationContext.Provider>
+        </AnimateGraphChangeContext.Provider>
     );
 }
 
