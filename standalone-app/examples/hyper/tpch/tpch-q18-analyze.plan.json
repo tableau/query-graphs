@@ -147,12 +147,12 @@
     "statistics": {"error": null, "column-count": 0}
   },
   "pipelines": [
-    {"id": 0, "operators": [1, 2], "dependencies": [1], "statistics": {"cpu-cycles": 7149, "query-metrics": {"wall-clock":4.266e-06}, "running": false}},
-    {"id": 1, "operators": [2, 3], "dependencies": [2], "statistics": {"cpu-cycles": 21514, "query-metrics": {"wall-clock":9.854e-06}, "running": false}},
-    {"id": 2, "operators": [3, 4, 12], "dependencies": [3], "statistics": {"cpu-cycles": 23246, "query-metrics": {"wall-clock":1.1235e-05}, "running": false}},
-    {"id": 3, "operators": [4, 5, 11], "dependencies": [4], "statistics": {"cpu-cycles": 8542, "query-metrics": {"wall-clock":5.143e-06}, "running": false}},
-    {"id": 4, "operators": [5, 6, 10], "dependencies": [5], "statistics": {"cpu-cycles": 23746, "query-metrics": {"wall-clock":1.0371e-05}, "running": false}},
-    {"id": 5, "operators": [6, 7, 8], "dependencies": [6], "statistics": {"cpu-cycles": 14357, "query-metrics": {"wall-clock":1.0062e-05}, "running": false}},
-    {"id": 6, "operators": [8, 9], "dependencies": [], "statistics": {"cpu-cycles": 52579, "query-metrics": {"wall-clock":2.2241e-05}, "running": false}}
+    {"id": 0, "operators": [1, 2], "dependencies": [1], "statistics": {"cpu-cycles": 5226, "query-metrics": {"wall-clock":3.43e-06}, "running": false}},
+    {"id": 1, "operators": [2, 3], "dependencies": [2], "statistics": {"cpu-cycles": 19323, "query-metrics": {"wall-clock":1.0833e-05}, "running": false}},
+    {"id": 2, "operators": [3, 4, 12], "dependencies": [3], "statistics": {"cpu-cycles": 22504, "query-metrics": {"wall-clock":9.477e-06}, "running": false}},
+    {"id": 3, "operators": [4, 5, 11], "dependencies": [4], "statistics": {"cpu-cycles": 9867, "query-metrics": {"wall-clock":5.416e-06}, "running": false}},
+    {"id": 4, "operators": [5, 6, 10], "dependencies": [5], "statistics": {"cpu-cycles": 26915, "query-metrics": {"wall-clock":1.2669e-05}, "running": false}},
+    {"id": 5, "operators": [6, 7, 8], "dependencies": [6], "statistics": {"cpu-cycles": 10660, "query-metrics": {"wall-clock":8.768e-06}, "running": false}},
+    {"id": 6, "operators": [8, 9], "dependencies": [], "statistics": {"cpu-cycles": 45996, "query-metrics": {"wall-clock":2.0812e-05}, "running": false}}
   ]
 }

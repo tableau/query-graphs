@@ -208,7 +208,7 @@
                 "statistics": {"column-count": 3, "output-rows": 537, "processed-rows": 537}
               }],
               "early-probed-by": [18],
-              "condition": {"expression": "and", "arguments": [{"expression": "comparison", "mode": "=", "left": {"expression": "iu-ref", "iu": "scan_supplyco2"}, "right": {"expression": "iu-ref", "iu": "min"}}, {"expression": "comparison", "mode": "=", "left": {"expression": "iu-ref", "iu": "GroupByKey"}, "right": {"expression": "iu-ref", "iu": "scan_partkey3"}}, {"expression": "comparison", "mode": "=", "left": {"expression": "iu-ref", "iu": "scan_partkey"}, "right": {"expression": "iu-ref", "iu": "scan_partkey3"}}]},
+              "condition": {"expression": "and", "arguments": [{"expression": "comparison", "mode": "=", "left": {"expression": "iu-ref", "iu": "scan_supplyco2"}, "right": {"expression": "iu-ref", "iu": "min"}}, {"expression": "comparison", "mode": "=", "left": {"expression": "iu-ref", "iu": "scan_partkey3"}, "right": {"expression": "iu-ref", "iu": "GroupByKey"}}, {"expression": "comparison", "mode": "=", "left": {"expression": "iu-ref", "iu": "scan_partkey"}, "right": {"expression": "iu-ref", "iu": "scan_partkey3"}}]},
               "predicates": [{"left": {"expression": "iu-ref", "iu": "min"}, "right": {"expression": "iu-ref", "iu": "scan_supplyco2"}, "comparison": "="}, {"left": {"expression": "iu-ref", "iu": "GroupByKey"}, "right": {"expression": "iu-ref", "iu": "scan_partkey3"}, "comparison": "="}, {"left": {"expression": "iu-ref", "iu": "scan_partkey"}, "right": {"expression": "iu-ref", "iu": "scan_partkey3"}, "comparison": "="}],
               "statistics": {"column-count": 3, "memory-bytes": 18552, "output-rows": 2}
             }, {
@@ -262,16 +262,16 @@
     "statistics": {"error": null, "column-count": 0}
   },
   "pipelines": [
-    {"id": 0, "operators": [1, 2], "dependencies": [1], "statistics": {"cpu-cycles": 6688, "query-metrics": {"wall-clock":3.872e-06}, "running": false}},
-    {"id": 1, "operators": [2, 3, 5, 20], "dependencies": [2, 3], "statistics": {"cpu-cycles": 23974, "query-metrics": {"wall-clock":1.1219e-05}, "running": false}},
-    {"id": 2, "operators": [3, 4], "dependencies": [], "statistics": {"cpu-cycles": 16004, "query-metrics": {"wall-clock":1.0538e-05}, "running": false}},
-    {"id": 3, "operators": [5, 6, 19], "dependencies": [4], "statistics": {"cpu-cycles": 49399, "query-metrics": {"wall-clock":1.8486e-05}, "running": false}},
-    {"id": 4, "operators": [6, 7, 18], "dependencies": [5], "statistics": {"cpu-cycles": 29190, "query-metrics": {"wall-clock":1.1803e-05}, "running": false}},
-    {"id": 5, "operators": [7, 8, 10], "dependencies": [6, 7], "statistics": {"cpu-cycles": 5496, "query-metrics": {"wall-clock":3.829e-06}, "running": false}},
-    {"id": 6, "operators": [8, 9], "dependencies": [], "statistics": {"cpu-cycles": 21663, "query-metrics": {"wall-clock":9.508e-06}, "running": false}},
-    {"id": 7, "operators": [10, 11, 17], "dependencies": [6, 8], "statistics": {"cpu-cycles": 29762, "query-metrics": {"wall-clock":1.1805e-05}, "running": false}},
-    {"id": 8, "operators": [11, 12, 16], "dependencies": [9], "statistics": {"cpu-cycles": 21625, "query-metrics": {"wall-clock":9.798e-06}, "running": false}},
-    {"id": 9, "operators": [12, 13, 15], "dependencies": [10], "statistics": {"cpu-cycles": 16401, "query-metrics": {"wall-clock":8.61e-06}, "running": false}},
-    {"id": 10, "operators": [13, 14], "dependencies": [], "statistics": {"cpu-cycles": 3405, "query-metrics": {"wall-clock":5.334e-06}, "running": false}}
+    {"id": 0, "operators": [1, 2], "dependencies": [1], "statistics": {"cpu-cycles": 6052, "query-metrics": {"wall-clock":3.631e-06}, "running": false}},
+    {"id": 1, "operators": [2, 3, 5, 20], "dependencies": [2, 3], "statistics": {"cpu-cycles": 23302, "query-metrics": {"wall-clock":1.0971e-05}, "running": false}},
+    {"id": 2, "operators": [3, 4], "dependencies": [], "statistics": {"cpu-cycles": 14970, "query-metrics": {"wall-clock":1.1302e-05}, "running": false}},
+    {"id": 3, "operators": [5, 6, 19], "dependencies": [4], "statistics": {"cpu-cycles": 55457, "query-metrics": {"wall-clock":2.0412e-05}, "running": false}},
+    {"id": 4, "operators": [6, 7, 18], "dependencies": [5], "statistics": {"cpu-cycles": 14464, "query-metrics": {"wall-clock":6.804e-06}, "running": false}},
+    {"id": 5, "operators": [7, 8, 10], "dependencies": [6, 7], "statistics": {"cpu-cycles": 4802, "query-metrics": {"wall-clock":3.603e-06}, "running": false}},
+    {"id": 6, "operators": [8, 9], "dependencies": [], "statistics": {"cpu-cycles": 17510, "query-metrics": {"wall-clock":8.027e-06}, "running": false}},
+    {"id": 7, "operators": [10, 11, 17], "dependencies": [6, 8], "statistics": {"cpu-cycles": 18625, "query-metrics": {"wall-clock":8.16e-06}, "running": false}},
+    {"id": 8, "operators": [11, 12, 16], "dependencies": [9], "statistics": {"cpu-cycles": 20994, "query-metrics": {"wall-clock":9.481e-06}, "running": false}},
+    {"id": 9, "operators": [12, 13, 15], "dependencies": [10], "statistics": {"cpu-cycles": 13333, "query-metrics": {"wall-clock":7.653e-06}, "running": false}},
+    {"id": 10, "operators": [13, 14], "dependencies": [], "statistics": {"cpu-cycles": 6115, "query-metrics": {"wall-clock":5.297e-06}, "running": false}}
   ]
 }

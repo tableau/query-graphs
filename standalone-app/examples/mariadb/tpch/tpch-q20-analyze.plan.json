@@ -153,7 +153,7 @@
                       "r_table_time_ms": 91.75734709,
                       "r_other_time_ms": 17.16394205,
                       "r_engine_stats": {
-                        "pages_accessed": 3222
+                        "pages_accessed": 3578
                       },
                       "filtered": 27.34375,
                       "r_filtered": 0.048833848,

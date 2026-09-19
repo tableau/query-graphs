@@ -25,7 +25,7 @@
       "cardinality":115,
       "operatorId":5,"analyzePlanId":4,"analyzePlanCardinality":128,
       "attributes":[{"name":"o_orderkey", "iu":"o_orderkey", "column":0}, {"name":"o_custkey", "iu":"o_custkey", "column":1}, {"name":"o_orderstatus", "iu":"o_orderstatus", "column":2}, {"name":"o_totalprice", "iu":"o_totalprice", "column":3}, {"name":"o_orderdate", "iu":"o_orderdate", "column":4}, {"name":"o_orderpriority", "iu":"o_orderpriority", "column":5}, {"name":"o_clerk", "iu":"o_clerk", "column":6}, {"name":"o_shippriority", "iu":"o_shippriority", "column":7}, {"name":"o_comment", "iu":"o_comment", "column":8}],
-      "restrictions":[{"attribute":8, "mode":"expression", "value":{"expression":"not", "input":{"expression":"like", "input":[{"expression":"cast", "input":{"expression":"iuref", "iu":"o_comment"}, "type":{"type":"text"}, "semantic":"implicit"}, {"expression":"const", "value":{"type":{"type":"text"}, "value":"%special%requests%"}}], "collate":""}}, "estimatedSelectivity":0.9, "collate":""}],
+      "restrictions":[{"attribute":8, "mode":"expression", "value":{"expression":"not", "input":{"expression":"like", "input":[{"expression":"cast", "input":{"expression":"iuref", "iu":"o_comment"}, "type":{"type":"text"}}, {"expression":"const", "value":{"type":{"type":"text"}, "value":"%special%requests%"}}], "collate":""}}, "estimatedSelectivity":0.9, "collate":""}],
       "residuals":[],
       "tid":"tid",
       "tableoid":"tableoid",

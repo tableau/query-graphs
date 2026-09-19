@@ -198,14 +198,14 @@
     "statistics": {"error": null, "column-count": 0}
   },
   "pipelines": [
-    {"id": 0, "operators": [1, 2], "dependencies": [1], "statistics": {"cpu-cycles": 6522, "query-metrics": {"wall-clock":3.665e-06}, "running": false}},
-    {"id": 1, "operators": [2, 3, 11], "dependencies": [2, 6], "statistics": {"cpu-cycles": 8545, "query-metrics": {"wall-clock":5.804e-06}, "running": false}},
-    {"id": 2, "operators": [3, 4, 5], "dependencies": [3], "statistics": {"cpu-cycles": 916, "query-metrics": {"wall-clock":2.026e-06}, "running": false}},
-    {"id": 3, "operators": [5, 6, 10], "dependencies": [4], "statistics": {"cpu-cycles": 19230, "query-metrics": {"wall-clock":7.835e-06}, "running": false}},
-    {"id": 4, "operators": [6, 7, 9], "dependencies": [5], "statistics": {"cpu-cycles": 10888, "query-metrics": {"wall-clock":5.873e-06}, "running": false}},
-    {"id": 5, "operators": [7, 8], "dependencies": [], "statistics": {"cpu-cycles": 15532, "query-metrics": {"wall-clock":1.014e-05}, "running": false}},
-    {"id": 6, "operators": [11, 12, 16], "dependencies": [7], "statistics": {"cpu-cycles": 14383, "query-metrics": {"wall-clock":6.799e-06}, "running": false}},
-    {"id": 7, "operators": [12, 13, 15], "dependencies": [8], "statistics": {"cpu-cycles": 5589, "query-metrics": {"wall-clock":3.976e-06}, "running": false}},
-    {"id": 8, "operators": [13, 14], "dependencies": [], "statistics": {"cpu-cycles": 2793, "query-metrics": {"wall-clock":2.75e-06}, "running": false}}
+    {"id": 0, "operators": [1, 2], "dependencies": [1], "statistics": {"cpu-cycles": 8931, "query-metrics": {"wall-clock":5.271e-06}, "running": false}},
+    {"id": 1, "operators": [2, 3, 11], "dependencies": [2, 6], "statistics": {"cpu-cycles": 14141, "query-metrics": {"wall-clock":9.283e-06}, "running": false}},
+    {"id": 2, "operators": [3, 4, 5], "dependencies": [3], "statistics": {"cpu-cycles": 1534, "query-metrics": {"wall-clock":3.535e-06}, "running": false}},
+    {"id": 3, "operators": [5, 6, 10], "dependencies": [4], "statistics": {"cpu-cycles": 26536, "query-metrics": {"wall-clock":1.0898e-05}, "running": false}},
+    {"id": 4, "operators": [6, 7, 9], "dependencies": [5], "statistics": {"cpu-cycles": 17992, "query-metrics": {"wall-clock":9.621e-06}, "running": false}},
+    {"id": 5, "operators": [7, 8], "dependencies": [], "statistics": {"cpu-cycles": 19024, "query-metrics": {"wall-clock":1.4409e-05}, "running": false}},
+    {"id": 6, "operators": [11, 12, 16], "dependencies": [7], "statistics": {"cpu-cycles": 20672, "query-metrics": {"wall-clock":9.668e-06}, "running": false}},
+    {"id": 7, "operators": [12, 13, 15], "dependencies": [8], "statistics": {"cpu-cycles": 8437, "query-metrics": {"wall-clock":5.873e-06}, "running": false}},
+    {"id": 8, "operators": [13, 14], "dependencies": [], "statistics": {"cpu-cycles": 4552, "query-metrics": {"wall-clock":4.388e-06}, "running": false}}
   ]
 }

@@ -54,8 +54,8 @@
     "statistics": {"error": null, "column-count": 0}
   },
   "pipelines": [
-    {"id": 0, "operators": [1, 2], "dependencies": [2], "statistics": {"cpu-cycles": 41278885, "query-metrics": {"wall-clock":0.0137654}, "running": false}},
-    {"id": 1, "operators": [2, 3], "dependencies": [], "statistics": {"cpu-cycles": 18093, "query-metrics": {"wall-clock":3.3198e-05}, "running": false}},
-    {"id": 2, "operators": [2, 4, 5, 6], "dependencies": [1], "statistics": {"cpu-cycles": 58652659, "query-metrics": {"wall-clock":0.0195807}, "running": false}}
+    {"id": 0, "operators": [1, 2], "dependencies": [2], "statistics": {"cpu-cycles": 25712335, "query-metrics": {"wall-clock":0.00857386}, "running": false}},
+    {"id": 1, "operators": [2, 3], "dependencies": [], "statistics": {"cpu-cycles": 15417, "query-metrics": {"wall-clock":1.8086e-05}, "running": false}},
+    {"id": 2, "operators": [2, 4, 5, 6], "dependencies": [1], "statistics": {"cpu-cycles": 43825491, "query-metrics": {"wall-clock":0.0146212}, "running": false}}
   ]
 }

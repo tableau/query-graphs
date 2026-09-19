@@ -36,7 +36,7 @@
     "statistics": {"error": null, "column-count": 0}
   },
   "pipelines": [
-    {"id": 0, "operators": [1, 2], "dependencies": [1], "statistics": {"cpu-cycles": 10522, "query-metrics": {"wall-clock":5.121e-06}, "running": false}},
-    {"id": 1, "operators": [2, 3], "dependencies": [], "statistics": {"cpu-cycles": 37240, "query-metrics": {"wall-clock":1.5479e-05}, "running": false}}
+    {"id": 0, "operators": [1, 2], "dependencies": [1], "statistics": {"cpu-cycles": 14795, "query-metrics": {"wall-clock":6.408e-06}, "running": false}},
+    {"id": 1, "operators": [2, 3], "dependencies": [], "statistics": {"cpu-cycles": 60300, "query-metrics": {"wall-clock":2.4656e-05}, "running": false}}
   ]
 }
