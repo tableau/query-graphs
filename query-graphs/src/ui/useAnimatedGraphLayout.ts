@@ -87,6 +87,7 @@ function measureNodeResize({nodeId, nodeElement, targetExpanded}: NodeResizeRequ
     const bodyElement = nodeElement.querySelector<HTMLElement>(".qg-graph-node-body-wrapper");
     if (flowNode === null || flowNode.parentElement === null || bodyElement === null) return undefined;
     const flowContainer = flowNode.parentElement;
+    const bodyFrom = {width: bodyElement.offsetWidth, height: bodyElement.offsetHeight};
 
     const clone = flowNode.cloneNode(true) as HTMLElement;
     const clonedNode = clone.querySelector<HTMLElement>(".qg-graph-node");
@@ -107,7 +108,7 @@ function measureNodeResize({nodeId, nodeElement, targetExpanded}: NodeResizeRequ
         nodeId,
         targetDimensions,
         bodyElement,
-        bodyFrom: {width: bodyElement.offsetWidth, height: bodyElement.offsetHeight},
+        bodyFrom,
         bodyTo,
     };
 }
