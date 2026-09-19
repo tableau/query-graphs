@@ -19,7 +19,7 @@
       "inputs": [{
         "operator": "map",
         "operator-id": 3,
-        "sqlpos": [[170, 174]],
+        "sqlpos": [[48, 52]],
         "estimated-rows": 4000,
         "inputs": [{
           "operator": "join",
@@ -30,7 +30,7 @@
           "inputs": [{
             "operator": "table-construction",
             "operator-id": 5,
-            "sqlpos": [[197, 206]],
+            "sqlpos": [[75, 84]],
             "estimated-rows": 2,
             "output": [["table-construction", ["Integer"]]],
             "values": [[{"expression": "const", "value": {"type": ["Integer"], "value": 1}}], [{"expression": "const", "value": {"type": ["Integer"], "value": 2}}]],
@@ -39,7 +39,7 @@
             "operator": "scan",
             "operator-id": 6,
             "type": "native",
-            "sqlpos": [[192, 194]],
+            "sqlpos": [[70, 72]],
             "estimated-rows": 2000,
             "volatility": "stable",
             "relation-id": 0,

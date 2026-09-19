@@ -60,8 +60,8 @@
     "statistics": {"error": null, "column-count": 0}
   },
   "pipelines": [
-    {"id": 1, "operators": [1, 2, 3], "dependencies": [3], "statistics": {"cpu-cycles": 59433, "query-metrics": {"wall-clock":2.2203e-05}, "running": false}},
-    {"id": 3, "operators": [4, 5], "dependencies": [], "statistics": {"cpu-cycles": 69506, "query-metrics": {"wall-clock":2.7811e-05}, "running": false}},
-    {"id": 4, "operators": [1, 2, 6], "dependencies": [3], "statistics": {"cpu-cycles": 45486, "query-metrics": {"wall-clock":1.658e-05}, "running": false}}
+    {"id": 1, "operators": [1, 2, 3], "dependencies": [3], "statistics": {"cpu-cycles": 64203, "query-metrics": {"wall-clock":2.5148e-05}, "running": false}},
+    {"id": 3, "operators": [4, 5], "dependencies": [], "statistics": {"cpu-cycles": 80877, "query-metrics": {"wall-clock":3.3118e-05}, "running": false}},
+    {"id": 4, "operators": [1, 2, 6], "dependencies": [3], "statistics": {"cpu-cycles": 53327, "query-metrics": {"wall-clock":1.949e-05}, "running": false}}
   ]
 }

@@ -89,7 +89,7 @@
      "scannedOperator":5,
      "output":[{"originalIU":"ps_availqty", "iu":"ps_availqty26"}, {"originalIU":"ps_supplycost", "iu":"ps_supplycost27"}]
     },
-    "values":[{"expression":"mul", "left":{"expression":"iuref", "iu":"ps_supplycost27"}, "right":{"expression":"cast", "input":{"expression":"iuref", "iu":"ps_availqty26"}, "type":{"type":"numeric", "precision":10}}}],
+    "values":[{"expression":"mul", "left":{"expression":"iuref", "iu":"ps_supplycost27"}, "right":{"expression":"cast", "input":{"expression":"iuref", "iu":"ps_availqty26"}, "type":{"type":"numeric", "precision":10}, "semantic":"implicit"}}],
     "key":[],
     "groupingmode":"regular",
     "aggregates":[{"op":"sum", "arg":0, "collate":"", "iu":"sum()"}],
@@ -111,7 +111,7 @@
      "scannedOperator":5,
      "output":[{"originalIU":"ps_partkey", "iu":"ps_partkey29"}, {"originalIU":"ps_availqty", "iu":"ps_availqty30"}, {"originalIU":"ps_supplycost", "iu":"ps_supplycost31"}]
     },
-    "values":[{"expression":"iuref", "iu":"ps_partkey29"}, {"expression":"mul", "left":{"expression":"iuref", "iu":"ps_supplycost31"}, "right":{"expression":"cast", "input":{"expression":"iuref", "iu":"ps_availqty30"}, "type":{"type":"numeric", "precision":10}}}],
+    "values":[{"expression":"iuref", "iu":"ps_partkey29"}, {"expression":"mul", "left":{"expression":"iuref", "iu":"ps_supplycost31"}, "right":{"expression":"cast", "input":{"expression":"iuref", "iu":"ps_availqty30"}, "type":{"type":"numeric", "precision":10}, "semantic":"implicit"}}],
     "key":[{"arg":0, "iu":"ps_partkey32", "collate":""}],
     "groupingmode":"regular",
     "aggregates":[{"op":"sum", "arg":1, "collate":"", "iu":"sum()33"}],

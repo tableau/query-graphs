@@ -24,6 +24,6 @@
     "statistics": {"error": null, "column-count": 0}
   },
   "pipelines": [
-    {"id": 0, "operators": [1, 2], "dependencies": [], "statistics": {"cpu-cycles": 20312, "query-metrics": {"wall-clock":1.1823e-05}, "running": false}}
+    {"id": 0, "operators": [1, 2], "dependencies": [], "statistics": {"cpu-cycles": 19055, "query-metrics": {"wall-clock":1.0037e-05}, "running": false}}
   ]
 }

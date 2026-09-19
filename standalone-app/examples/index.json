@@ -1,7 +1,7 @@
 {
   "engines": {
     "cedardb": {
-      "version": "PostgreSQL 16.3 compatible CedarDB v2026-09-16, compiled on 2026-09-16, x86_64 build",
+      "version": "PostgreSQL 16.3 compatible CedarDB v2026-08-13, compiled on 2026-08-13, x86_64 build",
       "queries": {
         "cte": {
           "analyze": "cedardb/cte-analyze.plan.json"
@@ -438,7 +438,7 @@
       }
     },
     "postgres": {
-      "version": "PostgreSQL 17.10 (Ubuntu 17.10-1.pgdg22.04+1) on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0, 64-bit",
+      "version": "PostgreSQL 17.11 (Ubuntu 17.11-1.pgdg22.04+2) on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0, 64-bit",
       "queries": {
         "cte": {
           "analyze": "postgres/cte-analyze.plan.json"

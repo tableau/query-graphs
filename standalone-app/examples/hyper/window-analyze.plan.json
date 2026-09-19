@@ -38,8 +38,8 @@
     "statistics": {"error": null, "column-count": 0}
   },
   "pipelines": [
-    {"id": 0, "operators": [1, 2], "dependencies": [1], "statistics": {"cpu-cycles": 964426, "query-metrics": {"wall-clock":0.000328108}, "running": false}},
-    {"id": 1, "operators": [2, 3], "dependencies": [2], "statistics": {"cpu-cycles": 849204, "query-metrics": {"wall-clock":0.000341007}, "running": false}},
-    {"id": 2, "operators": [3, 4], "dependencies": [], "statistics": {"cpu-cycles": 102407, "query-metrics": {"wall-clock":9.0919e-05}, "running": false}}
+    {"id": 0, "operators": [1, 2], "dependencies": [1], "statistics": {"cpu-cycles": 491732, "query-metrics": {"wall-clock":0.000167192}, "running": false}},
+    {"id": 1, "operators": [2, 3], "dependencies": [2], "statistics": {"cpu-cycles": 687690, "query-metrics": {"wall-clock":0.000258587}, "running": false}},
+    {"id": 2, "operators": [3, 4], "dependencies": [], "statistics": {"cpu-cycles": 61287, "query-metrics": {"wall-clock":5.0811e-05}, "running": false}}
   ]
 }

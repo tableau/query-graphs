@@ -2,12 +2,12 @@
  "plan":{
   "operator":"sort",
   "physicalOperator":"sort",
-  "cardinality":1,
+  "cardinality":2,
   "operatorId":1,"analyzePlanId":0,"analyzePlanCardinality":1,
   "input":{
    "operator":"groupby",
    "physicalOperator":"groupby",
-   "cardinality":1,
+   "cardinality":2,
    "operatorId":2,"analyzePlanId":1,"analyzePlanCardinality":1,
    "input":{
     "operator":"join",
@@ -17,7 +17,7 @@
     "left":{
      "operator":"join",
      "physicalOperator":"singletonjoin",
-     "cardinality":4,
+     "cardinality":5,
      "operatorId":4,"analyzePlanId":3,"analyzePlanCardinality":20,
      "left":{
       "operator":"groupby",
@@ -30,7 +30,7 @@
        "cardinality":10,
        "operatorId":6,"analyzePlanId":5,"analyzePlanCardinality":37,
        "attributes":[{"name":"c_custkey", "iu":"c_custkey", "column":0}, {"name":"c_name", "iu":"c_name", "column":1}, {"name":"c_address", "iu":"c_address", "column":2}, {"name":"c_nationkey", "iu":"c_nationkey", "column":3}, {"name":"c_phone", "iu":"c_phone", "column":4}, {"name":"c_acctbal", "iu":"c_acctbal", "column":5}, {"name":"c_mktsegment", "iu":"c_mktsegment", "column":6}, {"name":"c_comment", "iu":"c_comment", "column":7}],
-       "restrictions":[{"attribute":5, "mode":">=", "value":{"expression":"const", "value":{"type":{"type":"numeric", "precision":12, "scale":2}, "value":1}}, "estimatedSelectivity":0, "collate":""}, {"attribute":4, "mode":"expression", "value":{"expression":"in", "input":[{"expression":"substring", "input":[{"expression":"cast", "input":{"expression":"iuref", "iu":"c_phone"}, "type":{"type":"text"}}, {"expression":"const", "value":{"type":{"type":"int32"}, "value":1}}, {"expression":"const", "value":{"type":{"type":"int32"}, "value":2}}]}], "values":[{"type":{"type":"text"}, "value":"13"}, {"type":{"type":"text"}, "value":"17"}, {"type":{"type":"text"}, "value":"18"}, {"type":{"type":"text"}, "value":"23"}, {"type":{"type":"text"}, "value":"29"}, {"type":{"type":"text"}, "value":"30"}, {"type":{"type":"text"}, "value":"31"}], "collates":[[""]]}, "estimatedSelectivity":0.116889783277838957, "collate":""}, {"attribute":4, "mode":"expression", "value":{"expression":"between", "input":[{"expression":"substring", "input":[{"expression":"cast", "input":{"expression":"iuref", "iu":"c_phone"}, "type":{"type":"text"}}, {"expression":"const", "value":{"type":{"type":"int32"}, "value":1}}, {"expression":"const", "value":{"type":{"type":"int32"}, "value":2}}]}, {"expression":"const", "value":{"type":{"type":"text"}, "value":"13"}}, {"expression":"const", "value":{"type":{"type":"text"}, "value":"31"}}], "collate":""}, "estimatedSelectivity":0.3, "collate":""}],
+       "restrictions":[{"attribute":5, "mode":">=", "value":{"expression":"const", "value":{"type":{"type":"numeric", "precision":12, "scale":2}, "value":1}}, "estimatedSelectivity":0, "collate":""}, {"attribute":4, "mode":"expression", "value":{"expression":"in", "input":[{"expression":"substring", "input":[{"expression":"cast", "input":{"expression":"iuref", "iu":"c_phone"}, "type":{"type":"text"}, "semantic":"implicit"}, {"expression":"const", "value":{"type":{"type":"int32"}, "value":1}}, {"expression":"const", "value":{"type":{"type":"int32"}, "value":2}}]}], "values":[{"type":{"type":"text"}, "value":"13"}, {"type":{"type":"text"}, "value":"17"}, {"type":{"type":"text"}, "value":"18"}, {"type":{"type":"text"}, "value":"23"}, {"type":{"type":"text"}, "value":"29"}, {"type":{"type":"text"}, "value":"30"}, {"type":{"type":"text"}, "value":"31"}], "collates":[[""]]}, "estimatedSelectivity":0.116889783277838957, "collate":""}, {"attribute":4, "mode":"expression", "value":{"expression":"between", "input":[{"expression":"substring", "input":[{"expression":"cast", "input":{"expression":"iuref", "iu":"c_phone"}, "type":{"type":"text"}, "semantic":"implicit"}, {"expression":"const", "value":{"type":{"type":"int32"}, "value":1}}, {"expression":"const", "value":{"type":{"type":"int32"}, "value":2}}]}, {"expression":"const", "value":{"type":{"type":"text"}, "value":"13"}}, {"expression":"const", "value":{"type":{"type":"text"}, "value":"31"}}], "collate":""}, "estimatedSelectivity":0.3, "collate":""}],
        "residuals":[],
        "tid":"tid",
        "tableoid":"tableoid",
@@ -51,10 +51,10 @@
      "right":{
       "operator":"tablescan",
       "physicalOperator":"tablescan",
-      "cardinality":9,
-      "operatorId":7,"analyzePlanId":6,"analyzePlanCardinality":20,
+      "cardinality":10,
+      "operatorId":7,"analyzePlanId":6,"analyzePlanCardinality":38,
       "attributes":[{"name":"c_custkey", "iu":"c_custkey13", "column":0}, {"name":"c_name", "iu":"c_name14", "column":1}, {"name":"c_address", "iu":"c_address15", "column":2}, {"name":"c_nationkey", "iu":"c_nationkey16", "column":3}, {"name":"c_phone", "iu":"c_phone17", "column":4}, {"name":"c_acctbal", "iu":"c_acctbal18", "column":5}, {"name":"c_mktsegment", "iu":"c_mktsegment19", "column":6}, {"name":"c_comment", "iu":"c_comment20", "column":7}],
-      "restrictions":[{"attribute":4, "mode":"expression", "value":{"expression":"in", "input":[{"expression":"substring", "input":[{"expression":"cast", "input":{"expression":"iuref", "iu":"c_phone17"}, "type":{"type":"text"}}, {"expression":"const", "value":{"type":{"type":"int32"}, "value":1}}, {"expression":"const", "value":{"type":{"type":"int32"}, "value":2}}]}], "values":[{"type":{"type":"text"}, "value":"13"}, {"type":{"type":"text"}, "value":"17"}, {"type":{"type":"text"}, "value":"18"}, {"type":{"type":"text"}, "value":"23"}, {"type":{"type":"text"}, "value":"29"}, {"type":{"type":"text"}, "value":"30"}, {"type":{"type":"text"}, "value":"31"}], "collates":[[""]]}, "estimatedSelectivity":0.116889783277838957, "collate":""}, {"attribute":4, "mode":"expression", "value":{"expression":"between", "input":[{"expression":"substring", "input":[{"expression":"cast", "input":{"expression":"iuref", "iu":"c_phone17"}, "type":{"type":"text"}}, {"expression":"const", "value":{"type":{"type":"int32"}, "value":1}}, {"expression":"const", "value":{"type":{"type":"int32"}, "value":2}}]}, {"expression":"const", "value":{"type":{"type":"text"}, "value":"13"}}, {"expression":"const", "value":{"type":{"type":"text"}, "value":"31"}}], "collate":""}, "estimatedSelectivity":0.3, "collate":""}, {"attribute":5, "mode":"joinsingle>", "op":4, "estimatedSelectivity":0.5, "collate":""}],
+      "restrictions":[{"attribute":4, "mode":"expression", "value":{"expression":"in", "input":[{"expression":"substring", "input":[{"expression":"cast", "input":{"expression":"iuref", "iu":"c_phone17"}, "type":{"type":"text"}, "semantic":"implicit"}, {"expression":"const", "value":{"type":{"type":"int32"}, "value":1}}, {"expression":"const", "value":{"type":{"type":"int32"}, "value":2}}]}], "values":[{"type":{"type":"text"}, "value":"13"}, {"type":{"type":"text"}, "value":"17"}, {"type":{"type":"text"}, "value":"18"}, {"type":{"type":"text"}, "value":"23"}, {"type":{"type":"text"}, "value":"29"}, {"type":{"type":"text"}, "value":"30"}, {"type":{"type":"text"}, "value":"31"}], "collates":[[""]]}, "estimatedSelectivity":0.116889783277838957, "collate":""}, {"attribute":4, "mode":"expression", "value":{"expression":"between", "input":[{"expression":"substring", "input":[{"expression":"cast", "input":{"expression":"iuref", "iu":"c_phone17"}, "type":{"type":"text"}, "semantic":"implicit"}, {"expression":"const", "value":{"type":{"type":"int32"}, "value":1}}, {"expression":"const", "value":{"type":{"type":"int32"}, "value":2}}]}, {"expression":"const", "value":{"type":{"type":"text"}, "value":"13"}}, {"expression":"const", "value":{"type":{"type":"text"}, "value":"31"}}], "collate":""}, "estimatedSelectivity":0.3, "collate":""}],
       "residuals":[],
       "tid":"tid21",
       "tableoid":"tableoid22",
@@ -84,7 +84,7 @@
     "condition":{"expression":"compare", "left":{"expression":"iuref", "iu":"o_custkey"}, "right":{"expression":"iuref", "iu":"c_custkey13"}, "direction":"=", "collate":""},
     "type":"leftanti"
    },
-   "values":[{"expression":"substring", "input":[{"expression":"cast", "input":{"expression":"iuref", "iu":"c_phone17"}, "type":{"type":"text"}}, {"expression":"const", "value":{"type":{"type":"int32"}, "value":1}}, {"expression":"const", "value":{"type":{"type":"int32"}, "value":2}}]}, {"expression":"iuref", "iu":"c_acctbal18"}],
+   "values":[{"expression":"substring", "input":[{"expression":"cast", "input":{"expression":"iuref", "iu":"c_phone17"}, "type":{"type":"text"}, "semantic":"implicit"}, {"expression":"const", "value":{"type":{"type":"int32"}, "value":1}}, {"expression":"const", "value":{"type":{"type":"int32"}, "value":2}}]}, {"expression":"iuref", "iu":"c_acctbal18"}],
    "key":[{"arg":0, "iu":"cntrycode", "collate":""}],
    "groupingmode":"regular",
    "aggregates":[{"op":"countstar", "iu":"count_star(*)"}, {"op":"sum", "arg":1, "collate":"", "iu":"sum(c_acctbal)"}],

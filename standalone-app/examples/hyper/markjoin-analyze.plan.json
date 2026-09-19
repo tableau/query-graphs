@@ -52,7 +52,7 @@
     "statistics": {"error": null, "column-count": 0}
   },
   "pipelines": [
-    {"id": 0, "operators": [1, 2, 4], "dependencies": [1], "statistics": {"cpu-cycles": 132952, "query-metrics": {"wall-clock":0.000132748}, "running": false}},
-    {"id": 1, "operators": [2, 3], "dependencies": [], "statistics": {"cpu-cycles": 136585, "query-metrics": {"wall-clock":6.9604e-05}, "running": false}}
+    {"id": 0, "operators": [1, 2, 4], "dependencies": [1], "statistics": {"cpu-cycles": 94412, "query-metrics": {"wall-clock":0.000127892}, "running": false}},
+    {"id": 1, "operators": [2, 3], "dependencies": [], "statistics": {"cpu-cycles": 130655, "query-metrics": {"wall-clock":6.9019e-05}, "running": false}}
   ]
 }

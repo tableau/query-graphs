@@ -21,20 +21,20 @@
    "physicalOperator":"select",
    "cardinality":10,
    "operatorId":3,"analyzePlanId":2,"analyzePlanCardinality":9,"analyzePlanCounters":{},
-   "sourceLocation":{"startLine":4, "startColumn":31, "endLine":4, "endColumn":37},
+   "sourceLocation":{"startLine":5, "startColumn":31, "endLine":5, "endColumn":37},
    "input":{
     "operator":"iterationincrementscan",
     "physicalOperator":"iterationincrementscan",
     "cardinality":10,
     "operatorId":4,"analyzePlanId":3,"analyzePlanCardinality":10,"analyzePlanCounters":{},
-    "sourceLocation":{"startLine":4, "startColumn":23, "endLine":4, "endColumn":24},
+    "sourceLocation":{"startLine":5, "startColumn":23, "endLine":5, "endColumn":24},
     "iteration":1,
     "output":[{"iu":"i"}]
    },
-   "condition":{"expression":"compare", "id":9, "sourceLocation":{"startLine":4, "startColumn":31, "endLine":4, "endColumn":37}, "left":{"expression":"iuref", "id":7, "sourceLocation":{"startLine":4, "startColumn":31, "endLine":4, "endColumn":32}, "iu":"i"}, "right":{"expression":"const", "id":8, "sourceLocation":{"startLine":4, "startColumn":35, "endLine":4, "endColumn":37}, "value":{"type":{"type":"integer"}, "value":9}}, "direction":"<=", "collate":""}
+   "condition":{"expression":"compare", "id":9, "sourceLocation":{"startLine":5, "startColumn":31, "endLine":5, "endColumn":37}, "left":{"expression":"iuref", "id":7, "sourceLocation":{"startLine":5, "startColumn":31, "endLine":5, "endColumn":32}, "iu":"i"}, "right":{"expression":"const", "id":8, "sourceLocation":{"startLine":5, "startColumn":35, "endLine":5, "endColumn":37}, "value":{"type":{"type":"integer"}, "value":9}}, "direction":"<=", "collate":""}
   },
   "leftColumns":[{"expression":"const", "id":19, "value":{"type":{"type":"integer"}, "value":1}}],
-  "rightColumns":[{"expression":"add", "id":12, "sourceLocation":{"startLine":4, "startColumn":12, "endLine":4, "endColumn":17}, "left":{"expression":"iuref", "id":10, "sourceLocation":{"startLine":4, "startColumn":12, "endLine":4, "endColumn":13}, "iu":"i"}, "right":{"expression":"const", "id":11, "sourceLocation":{"startLine":4, "startColumn":16, "endLine":4, "endColumn":17}, "value":{"type":{"type":"integer"}, "value":1}}}],
+  "rightColumns":[{"expression":"add", "id":12, "sourceLocation":{"startLine":5, "startColumn":12, "endLine":5, "endColumn":17}, "left":{"expression":"iuref", "id":10, "sourceLocation":{"startLine":5, "startColumn":12, "endLine":5, "endColumn":13}, "iu":"i"}, "right":{"expression":"const", "id":11, "sourceLocation":{"startLine":5, "startColumn":16, "endLine":5, "endColumn":17}, "value":{"type":{"type":"integer"}, "value":1}}}],
   "key":[],
   "unionAll":true
  },

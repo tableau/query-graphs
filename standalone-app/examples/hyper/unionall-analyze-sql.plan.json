@@ -9,13 +9,13 @@
     "inputs": [{
       "operator": "union-all",
       "operator-id": 2,
-      "sqlpos": [[292, 301], [264, 273]],
+      "sqlpos": [[270, 279], [242, 251]],
       "estimated-rows": 6000,
       "inputs": [{
         "operator": "scan",
         "operator-id": 3,
         "type": "native",
-        "sqlpos": [[261, 263]],
+        "sqlpos": [[239, 241]],
         "estimated-rows": 2000,
         "volatility": "stable",
         "relation-id": 0,
@@ -29,7 +29,7 @@
         "operator": "scan",
         "operator-id": 4,
         "type": "native",
-        "sqlpos": [[289, 291]],
+        "sqlpos": [[267, 269]],
         "estimated-rows": 2000,
         "volatility": "stable",
         "relation-id": 1,
@@ -43,7 +43,7 @@
         "operator": "scan",
         "operator-id": 5,
         "type": "native",
-        "sqlpos": [[317, 319]],
+        "sqlpos": [[295, 297]],
         "estimated-rows": 2000,
         "volatility": "stable",
         "relation-id": 0,
@@ -62,8 +62,8 @@
     "statistics": {"error": null, "column-count": 0}
   },
   "pipelines": [
-    {"id": 1, "operators": [1, 2, 3], "dependencies": [], "statistics": {"cpu-cycles": 970, "query-metrics": {"wall-clock":3.216e-06}, "running": false}},
-    {"id": 2, "operators": [1, 2, 4], "dependencies": [], "statistics": {"cpu-cycles": 466, "query-metrics": {"wall-clock":1.485e-06}, "running": false}},
-    {"id": 3, "operators": [1, 2, 5], "dependencies": [], "statistics": {"cpu-cycles": 97, "query-metrics": {"wall-clock":1.531e-06}, "running": false}}
+    {"id": 1, "operators": [1, 2, 3], "dependencies": [], "statistics": {"cpu-cycles": 1040, "query-metrics": {"wall-clock":3.228e-06}, "running": false}},
+    {"id": 2, "operators": [1, 2, 4], "dependencies": [], "statistics": {"cpu-cycles": 978, "query-metrics": {"wall-clock":1.762e-06}, "running": false}},
+    {"id": 3, "operators": [1, 2, 5], "dependencies": [], "statistics": {"cpu-cycles": 181, "query-metrics": {"wall-clock":1.998e-06}, "running": false}}
   ]
 }

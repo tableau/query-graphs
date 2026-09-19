@@ -15,19 +15,19 @@
       "inputs": [{
         "operator": "explicit-scan",
         "operator-id": 3,
-        "sqlpos": [[409, 410]],
+        "sqlpos": [[387, 388]],
         "estimated-rows": 1000,
         "mapping": [{"source": {"expression": "iu-ref", "iu": ["scan_a13", ["Integer"]]}, "target": ["scan_a12", ["Integer"]]}],
         "input": {
           "operator": "share",
           "operator-id": 4,
-          "sqlpos": [[348, 349]],
+          "sqlpos": [[326, 327]],
           "estimated-rows": 1000,
           "inputs": [{
             "operator": "scan",
             "operator-id": 5,
             "type": "native",
-            "sqlpos": [[369, 371]],
+            "sqlpos": [[347, 349]],
             "estimated-rows": 1000,
             "volatility": "stable",
             "relation-id": 0,
@@ -46,7 +46,7 @@
       }, {
         "operator": "explicit-scan",
         "operator-id": 6,
-        "sqlpos": [[400, 401]],
+        "sqlpos": [[378, 379]],
         "estimated-rows": 1000,
         "mapping": [{"source": {"expression": "iu-ref", "iu": "scan_a13"}, "target": ["scan_a1", ["Integer"]]}],
         "input": 4,
@@ -59,8 +59,8 @@
     "statistics": {"error": null, "column-count": 0}
   },
   "pipelines": [
-    {"id": 0, "operators": [1, 2, 6], "dependencies": [1, 3], "statistics": {"cpu-cycles": 1177, "query-metrics": {"wall-clock":1.638e-06}, "running": false}},
-    {"id": 1, "operators": [2, 3], "dependencies": [3], "statistics": {"cpu-cycles": 2946, "query-metrics": {"wall-clock":5.911e-06}, "running": false}},
-    {"id": 3, "operators": [4, 5], "dependencies": [], "statistics": {"cpu-cycles": 1133, "query-metrics": {"wall-clock":2.934e-06}, "running": false}}
+    {"id": 0, "operators": [1, 2, 6], "dependencies": [1, 3], "statistics": {"cpu-cycles": 1641, "query-metrics": {"wall-clock":2.023e-06}, "running": false}},
+    {"id": 1, "operators": [2, 3], "dependencies": [3], "statistics": {"cpu-cycles": 3337, "query-metrics": {"wall-clock":5.243e-06}, "running": false}},
+    {"id": 3, "operators": [4, 5], "dependencies": [], "statistics": {"cpu-cycles": 1241, "query-metrics": {"wall-clock":3.165e-06}, "running": false}}
   ]
 }
