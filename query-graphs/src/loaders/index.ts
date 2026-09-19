@@ -6,8 +6,10 @@ import type {Json} from "./loader-utils";
 import {postgresPlanLoader} from "./postgres";
 import {tableauPlanLoader} from "./tableau";
 import {InvalidPlanError, type PlanLoader, UnknownPlanFormatError} from "./types";
+import type {PlanLoadContext} from "./types";
 import {umbraPlanLoader} from "./umbra";
 import {parseXml, type ParsedXML, xmlPlanLoader} from "./xml";
+import {parsePositionedJson} from "./json-source";
 
 export interface LoadedPlan {
     format: string;
@@ -18,7 +20,8 @@ export interface LoadPlanOptions {
     format?: string;
 }
 
-export {InvalidPlanError, type PlanLoader, UnknownPlanFormatError} from "./types";
+export {parsePositionedJson, type JsonSourceLocator, type PositionedJson} from "./json-source";
+export {InvalidPlanError, type PlanLoadContext, type PlanLoader, UnknownPlanFormatError} from "./types";
 
 // Order matters: format-specific loaders must precede the more permissive Hyper loader, and generic fallbacks must stay last.
 export const jsonPlanLoaders: readonly PlanLoader<Json>[] = [
@@ -29,17 +32,19 @@ export const jsonPlanLoaders: readonly PlanLoader<Json>[] = [
     jsonPlanLoader,
 ];
 export const xmlPlanLoaders: readonly PlanLoader<ParsedXML>[] = [tableauPlanLoader, xmlPlanLoader];
+const planDocumentId = "plan";
 
 function loadMatchingPlan<Input>(
     input: Input,
     loaders: readonly PlanLoader<Input>[],
     errors: unknown[],
     format?: string,
+    context?: PlanLoadContext,
 ): LoadedPlan | undefined {
     for (const loader of loaders) {
         if (format === undefined ? loader.matches(input) : loader.format === format) {
             try {
-                return {format: loader.format, tree: loader.load(input)};
+                return {format: loader.format, tree: loader.load(input, context)};
             } catch (error) {
                 errors.push(error);
             }
@@ -55,7 +60,7 @@ function stripSurroundingText(text: string): string {
 }
 
 function addPlanDocument(plan: LoadedPlan, text: string, language: string): LoadedPlan {
-    const planDocument: TextDocument = {id: "plan", title: "Query Plan", text, language};
+    const planDocument: TextDocument = {id: planDocumentId, title: "Query Plan", text, language};
     plan.tree.textDocuments ??= [];
     plan.tree.textDocuments.push(planDocument);
     return plan;
@@ -74,9 +79,12 @@ export function loadPlanFromText(text: string, options: LoadPlanOptions = {}): L
     const errors: unknown[] = [];
     if (acceptsJson) {
         try {
-            const json = JSON.parse(planText) as Json;
-            const plan = loadMatchingPlan(json, jsonPlanLoaders, errors, format);
-            if (plan !== undefined) return addPlanDocument(plan, planText, "json");
+            // CodeMirror and other browser text models use LF internally, so keep the
+            // displayed document and its source offsets in that canonical form.
+            const jsonText = planText.replace(/\r\n?/g, "\n");
+            const json = parsePositionedJson(jsonText, planDocumentId);
+            const plan = loadMatchingPlan(json.value, jsonPlanLoaders, errors, format, {jsonSource: json.source});
+            if (plan !== undefined) return addPlanDocument(plan, jsonText, "json");
         } catch (error) {
             errors.push(error);
         }

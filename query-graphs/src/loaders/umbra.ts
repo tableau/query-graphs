@@ -17,7 +17,7 @@ import {hasOwnProperty, hasSubObject, isJsonObject, tryToString} from "./loader-
 import type {ExecutionPipeline} from "./pipeline-coloring";
 import {assignPipelineColors} from "./pipeline-coloring";
 import {buildIdMap, resolveCrosslinks, setRelativeEdgeWidths} from "./tree-postprocessing";
-import type {PlanLoader} from "./types";
+import type {PlanLoadContext, PlanLoader} from "./types";
 
 const nodeRenderingConfig: Record<string, NodeRenderingConfig> = {
     "op:select": {icon: "filter-symbol"},
@@ -167,8 +167,8 @@ function normalizePipelineMemberships(root: TreeNode, pipelines: ExecutionPipeli
     }
 }
 
-function convertUmbraPlan(statement: Json): TreeDescription {
-    const state = createDecoratedJsonTreeState();
+function convertUmbraPlan(statement: Json, context?: PlanLoadContext): TreeDescription {
+    const state = createDecoratedJsonTreeState(context?.jsonSource);
     const root = convertDecoratedJsonNode(statement, "result", state, umbraConfig);
 
     setRelativeEdgeWidths(state.edgeWidths);
@@ -186,23 +186,23 @@ function convertUmbraPlan(statement: Json): TreeDescription {
     return {root, crosslinks};
 }
 
-function combineOptimizerStages(stages: [string, UmbraStatement][]): TreeDescription {
+function combineOptimizerStages(stages: [string, UmbraStatement][], context?: PlanLoadContext): TreeDescription {
     const children: TreeNode[] = [];
     const crosslinks: Crosslink[] = [];
     for (const [name, stage] of stages) {
-        const converted = convertUmbraPlan(stage);
+        const converted = convertUmbraPlan(stage, context);
         children.push({name, collapsedChildren: [converted.root]});
         crosslinks.push(...(converted.crosslinks ?? []));
     }
     return {root: {name: "optimizer steps", children}, crosslinks};
 }
 
-function loadUmbraPlan(json: Json): TreeDescription {
+function loadUmbraPlan(json: Json, context?: PlanLoadContext): TreeDescription {
     const stages = optimizerStages(json, (value) => hasSubObject(value, "plan"));
     if (stages !== undefined) {
-        return combineOptimizerStages(stages);
+        return combineOptimizerStages(stages, context);
     }
-    return convertUmbraPlan(json);
+    return convertUmbraPlan(json, context);
 }
 
 export const umbraPlanLoader: PlanLoader<Json> = {
