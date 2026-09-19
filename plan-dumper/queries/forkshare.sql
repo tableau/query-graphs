@@ -1,4 +1,4 @@
--- MODES: analyze-sql
+--- MODES: analyze-sql
 -- Forked share: the selective filter keeps the scan from being inlined, so it
 -- becomes a shared scan. Its two consumers (the MIN and MAX pipelines) are
 -- independent, so the share is forked and its scan recurs across both pipelines.

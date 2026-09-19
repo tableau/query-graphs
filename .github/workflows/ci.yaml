@@ -22,7 +22,9 @@ jobs:
         run: pnpm run lint-test
 
       - name: Test
-        run: pnpm test
+        run: |
+          pnpm test
+          python3 -m unittest discover -s plan-dumper -p 'test_*.py'
 
       - name: Build
         run: pnpm -r build

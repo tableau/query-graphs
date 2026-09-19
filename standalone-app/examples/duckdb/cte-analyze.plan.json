@@ -6,7 +6,7 @@
     "rows_returned": 0,
     "wal_replay_entry_count": 0,
     "result_set_size": 0,
-    "query_name": "EXPLAIN (ANALYZE, FORMAT JSON) WITH cte AS (SELECT l_orderkey, SUM(l_quantity), AVG(l_extendedprice)\n   FROM lineitem\n   GROUP BY l_orderkey\n)\nSELECT * FROM cte UNION ALL SELECT * FROM cte",
+    "query_name": "EXPLAIN (ANALYZE, FORMAT JSON)\nWITH cte AS (SELECT l_orderkey, SUM(l_quantity), AVG(l_extendedprice)\n   FROM lineitem\n   GROUP BY l_orderkey\n)\nSELECT * FROM cte UNION ALL SELECT * FROM cte",
     "waiting_to_attach_latency": 0.0,
     "attach_load_storage_latency": 0.0,
     "blocked_thread_time": 0.0,

@@ -9,7 +9,7 @@
     "inputs": [{
       "operator": "sort",
       "operator-id": 2,
-      "sqlpos": [[731, 740]],
+      "sqlpos": [[576, 585]],
       "estimated-rows": 1,
       "criterion": [{"value": {"expression": "iu-ref", "iu": "scan_suppkey"}, "descending": false, "null-first": false}],
       "inputs": [{
@@ -29,7 +29,7 @@
           "inputs": [{
             "operator": "group-by",
             "operator-id": 5,
-            "sqlpos": [[681, 699]],
+            "sqlpos": [[526, 544]],
             "estimated-rows": 1,
             "inputs": [{
               "operator": "explicit-scan",
@@ -39,13 +39,13 @@
               "input": {
                 "operator": "group-by",
                 "operator-id": 7,
-                "sqlpos": [[503, 523], [350, 389]],
+                "sqlpos": [[348, 368], [195, 234]],
                 "estimated-rows": 50,
                 "inputs": [{
                   "operator": "scan",
                   "operator-id": 8,
                   "type": "native",
-                  "sqlpos": [[415, 423]],
+                  "sqlpos": [[260, 268]],
                   "estimated-rows": 50,
                   "volatility": "stable",
                   "relation-id": 7,
@@ -86,7 +86,7 @@
           "operator": "scan",
           "operator-id": 10,
           "type": "native",
-          "sqlpos": [[596, 604]],
+          "sqlpos": [[441, 449]],
           "estimated-rows": 518,
           "volatility": "stable",
           "relation-id": 3,

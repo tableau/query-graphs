@@ -6,7 +6,7 @@
     "rows_returned": 0,
     "wal_replay_entry_count": 0,
     "result_set_size": 0,
-    "query_name": "EXPLAIN (ANALYZE, FORMAT JSON) SELECT *, EXISTS (SELECT * FROM partsupp WHERE ps_suppkey = s_suppkey AND s_acctbal < ps_supplycost) FROM supplier",
+    "query_name": "EXPLAIN (ANALYZE, FORMAT JSON)\nSELECT *, EXISTS (SELECT * FROM partsupp WHERE ps_suppkey = s_suppkey AND s_acctbal < ps_supplycost) FROM supplier",
     "waiting_to_attach_latency": 0.0,
     "attach_load_storage_latency": 0.0,
     "blocked_thread_time": 0.0,

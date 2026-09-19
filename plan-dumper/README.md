@@ -20,7 +20,8 @@ Refresh these examples from time to time when new versions are published, so the
 
 ### EXPLAIN Modes
 
-A `-- MODES: <mode>[, <mode>...]` comment in a query file lists the `EXPLAIN` modes to dump it under.
+A `--- MODES: <mode>[, <mode>...]` config comment in a query file lists the `EXPLAIN` modes to dump it under.
+Config comments start with `---` and are removed before the query is sent to a database; ordinary `--` comments remain part of the explained SQL.
 Defaults to `analyze` when the comment is absent.
 The available modes are:
 
@@ -39,7 +40,7 @@ The available modes are:
 Each requested mode is written to its own `<query>[-<mode>].plan.json` (no suffix for `simple`).
 Modes not supported by a database are skipped.
 
-If a database can't run a query at all, mark it with a `-- UNSUPPORTED: <db>[, <db>...]` comment.
+If a database can't run a query at all, mark it with a `--- UNSUPPORTED: <db>[, <db>...]` config comment.
 Use `<db>:<mode>` when a normally supported mode fails for one query.
 Any unannotated query failure makes the run fail and leaves that database's previous output directory untouched.
 

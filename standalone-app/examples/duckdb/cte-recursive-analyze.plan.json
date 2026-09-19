@@ -6,7 +6,7 @@
     "rows_returned": 0,
     "wal_replay_entry_count": 0,
     "result_set_size": 0,
-    "query_name": "EXPLAIN (ANALYZE, FORMAT JSON) WITH RECURSIVE x(i) AS (\n    SELECT 1\n    UNION ALL\n    SELECT i + 1 FROM x WHERE i < 10\n)\nSELECT * FROM x;",
+    "query_name": "EXPLAIN (ANALYZE, FORMAT JSON)\nWITH RECURSIVE x(i) AS (\n    SELECT 1\n    UNION ALL\n    SELECT i + 1 FROM x WHERE i < 10\n)\nSELECT * FROM x;",
     "waiting_to_attach_latency": 0.0,
     "attach_load_storage_latency": 0.0,
     "blocked_thread_time": 0.0,

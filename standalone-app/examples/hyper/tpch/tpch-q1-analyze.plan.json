@@ -9,19 +9,19 @@
     "inputs": [{
       "operator": "sort",
       "operator-id": 2,
-      "sqlpos": [[758, 770]],
+      "sqlpos": [[722, 734]],
       "estimated-rows": 4,
       "criterion": [{"value": {"expression": "iu-ref", "iu": "GroupByKey"}, "descending": false, "null-first": false}, {"value": {"expression": "iu-ref", "iu": "GroupByKey2"}, "descending": false, "null-first": false}],
       "inputs": [{
         "operator": "group-by",
         "operator-id": 3,
-        "sqlpos": [[689, 740], [233, 248], [269, 289], [317, 356], [384, 437], [461, 476], [497, 517], [540, 555], [577, 585]],
+        "sqlpos": [[653, 704], [197, 212], [233, 253], [281, 320], [348, 401], [425, 440], [461, 481], [504, 519], [541, 549]],
         "estimated-rows": 4,
         "inputs": [{
           "operator": "scan",
           "operator-id": 4,
           "type": "native",
-          "sqlpos": [[614, 622]],
+          "sqlpos": [[578, 586]],
           "estimated-rows": 568,
           "volatility": "stable",
           "relation-id": 7,

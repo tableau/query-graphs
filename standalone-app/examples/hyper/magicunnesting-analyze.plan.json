@@ -16,7 +16,7 @@
         "operator": "scan",
         "operator-id": 3,
         "type": "native",
-        "sqlpos": [[329, 335]],
+        "sqlpos": [[264, 270]],
         "estimated-rows": 128,
         "volatility": "stable",
         "relation-id": 6,
@@ -29,7 +29,7 @@
       }, {
         "operator": "group-by",
         "operator-id": 4,
-        "sqlpos": [[256, 271]],
+        "sqlpos": [[191, 206]],
         "estimated-rows": 128,
         "inputs": [{
           "operator": "join",
@@ -58,7 +58,7 @@
             "operator": "scan",
             "operator-id": 8,
             "type": "native",
-            "sqlpos": [[277, 285]],
+            "sqlpos": [[212, 220]],
             "estimated-rows": 572,
             "volatility": "stable",
             "relation-id": 7,
