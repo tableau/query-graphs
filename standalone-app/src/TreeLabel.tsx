@@ -4,9 +4,9 @@ import {CopyButton} from "@tableau/query-graphs/lib/ui/CopyButton";
 import type {TextDocument} from "@tableau/query-graphs/lib/tree-description";
 import "./TreeLabel.css";
 
-const loadDocumentPane = () =>
-    import(/* webpackChunkName: "editor" */ "./DocumentPane").then((module) => ({default: module.DocumentPane}));
-const DocumentPane = lazy(loadDocumentPane);
+const DocumentPane = lazy(() =>
+    import(/* webpackChunkName: "editor" */ "./DocumentPane").then((module) => ({default: module.DocumentPane})),
+);
 
 export interface TreeLabelProps {
     title: string;

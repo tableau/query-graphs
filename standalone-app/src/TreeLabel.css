@@ -1,5 +1,6 @@
 /* Sidebar shell */
 .graph-sidebar {
+    /* Keep shadows and focus rings away from the sidebar's clipped viewport edges. */
     --graph-sidebar-paint-gutter: 15px;
 
     display: flex;
@@ -12,6 +13,7 @@
     max-height: 100dvh;
     overflow: hidden;
 
+    /* Reserve a stable editor width only while a document is visible. */
     &:has(.qg-collapsible-panel[open] .graph-text-document-frame) {
         width: min(30em, 40vw);
     }
@@ -36,6 +38,7 @@
 }
 
 .graph-sidebar-panels {
+    /* Allow this flex child to shrink, then scroll the panel list within the viewport. */
     min-height: 0;
     overflow-y: auto;
     overscroll-behavior: contain;
@@ -46,11 +49,13 @@
     display: flex;
     flex-direction: column;
     gap: 0.5em;
+    /* Provide paint space for panel shadows and focus outlines inside the scroller. */
     padding: var(--graph-sidebar-paint-gutter);
 }
 
 /* Document panels */
 .graph-text-document-panel {
+    /* The editor supplies the panel body, so it should meet the panel border directly. */
     & > .qg-collapsible-panel-content {
         padding: 0;
     }
@@ -60,6 +65,7 @@
         border: 0;
     }
 
+    /* Draw the focus ring inside the panel so neither the border nor scroller clips it. */
     & > .qg-collapsible-panel-content .cm-editor.cm-focused {
         outline-offset: -2px;
     }
@@ -68,6 +74,7 @@
 .graph-text-document-frame {
     box-sizing: border-box;
     width: 100%;
+    /* Stay useful on short screens without dominating taller ones. */
     height: clamp(12em, 50dvh, 30em);
     min-width: 0;
     min-height: 0;
@@ -92,6 +99,7 @@
         height: 0.8em;
         border-radius: 0.25em;
         background: linear-gradient(90deg, hsl(210, 8%, 88%) 25%, hsl(210, 12%, 72%) 50%, hsl(210, 8%, 88%) 75%);
+        /* The oversized gradient lets the contrasting band travel across each line. */
         background-size: 400% 100%;
         animation: graph-text-document-loading-flow 1.4s ease-in-out infinite;
     }

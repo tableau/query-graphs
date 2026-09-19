@@ -1,4 +1,5 @@
 .graph-text-document {
+    /* Fill the host layout while still allowing flex and grid parents to shrink it. */
     display: block;
     box-sizing: border-box;
     width: 100%;
