@@ -24,10 +24,10 @@ function QueryNode({data, id}: NodeProps<QueryGraphNode>) {
     const onClick = useCallback(
         (e: MouseEvent<HTMLDivElement>) => {
             if (e.shiftKey) {
-                if (hasSubtree) toggleSubtree(id);
+                if (hasSubtree) animationController.animateGraphChange(() => toggleSubtree(id));
             } else {
                 if (hasProperties) {
-                    animationController.animateNodeResize({nodeId: id, nodeElement: e.currentTarget}, () => toggleNode(id));
+                    animationController.animateGraphChange(() => toggleNode(id), [{nodeId: id, nodeElement: e.currentTarget}]);
                 }
             }
             e.stopPropagation();
@@ -36,10 +36,10 @@ function QueryNode({data, id}: NodeProps<QueryGraphNode>) {
     );
     const onSubtreeHandleClick = useCallback(
         (e: MouseEvent) => {
-            if (hasSubtree) toggleSubtree(id);
+            if (hasSubtree) animationController.animateGraphChange(() => toggleSubtree(id));
             e.stopPropagation();
         },
-        [toggleSubtree, hasSubtree, id],
+        [animationController, toggleSubtree, hasSubtree, id],
     );
     const children = [] as ReactElement[];
     for (const [key, value] of (data.properties || []).entries()) {
