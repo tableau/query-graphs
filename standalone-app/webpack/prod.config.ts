@@ -8,10 +8,6 @@ const prodConfig = merge(commonConfig, {
     output: {
         chunkFilename: "chunks/[name].[contenthash].js",
     },
-    optimization: {
-        // The editor is one lazy capability: its first load prepares every supported language.
-        splitChunks: false,
-    },
     plugins: [
         new GenerateSW({
             sourcemap: false,

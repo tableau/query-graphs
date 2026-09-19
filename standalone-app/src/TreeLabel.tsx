@@ -4,9 +4,10 @@ import {CopyButton} from "@tableau/query-graphs/lib/ui/CopyButton";
 import type {TextDocument} from "@tableau/query-graphs/lib/tree-description";
 import "./TreeLabel.css";
 
-const DocumentEditor = lazy(() =>
-    import(/* webpackChunkName: "editor" */ "./DocumentEditor").then((module) => ({default: module.DocumentEditor})),
-);
+const loadDocumentPane = () =>
+    import(/* webpackChunkName: "editor" */ "./DocumentPane").then((module) => ({default: module.DocumentPane}));
+const DocumentPane = lazy(loadDocumentPane);
+const preloadDocumentPane = () => void loadDocumentPane().catch(() => undefined);
 
 export interface TreeLabelProps {
     title: string;
@@ -18,7 +19,7 @@ export interface TreeLabelProps {
 
 function LoadingDocument({title}: {title: string}) {
     return (
-        <div className="graph-text-document graph-text-document-loading" role="status" aria-label={`Loading ${title}`}>
+        <div className="graph-text-document-loading" role="status" aria-label={`Loading ${title}`}>
             <span />
             <span />
             <span />
@@ -34,10 +35,13 @@ function TextDocumentPanel({document}: {document: TextDocument}) {
             title={document.title}
             headerActions={<CopyButton text={document.text} contentName={document.title} />}
             mountContentOnFirstOpen
+            onContentIntent={preloadDocumentPane}
         >
-            <Suspense fallback={<LoadingDocument title={document.title} />}>
-                <DocumentEditor document={document} />
-            </Suspense>
+            <div className="graph-text-document-frame">
+                <Suspense fallback={<LoadingDocument title={document.title} />}>
+                    <DocumentPane document={document} />
+                </Suspense>
+            </div>
         </CollapsiblePanel>
     );
 }
