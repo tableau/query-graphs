@@ -1,5 +1,5 @@
 import type {Dimensions, InternalNode, NodeChange} from "@xyflow/react";
-import {Position, useReactFlow} from "@xyflow/react";
+import {useReactFlow} from "@xyflow/react";
 import type {CSSProperties} from "react";
 import {createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState} from "react";
 import {assertNotNull} from "../assert";
@@ -118,23 +118,16 @@ function measureNodeResize({nodeId, nodeElement, targetExpanded}: NodeResizeRequ
 }
 
 /**
- * Converts React Flow's measured source-handle bounds into an offset from the
- * node position. Keeping the offset node-relative lets the anchor follow its
- * node while the surrounding layout moves.
+ * Converts the center of React Flow's measured source-handle bounds into an
+ * offset from the node position. Keeping the offset node-relative lets the
+ * anchor follow its node while the surrounding layout moves.
  */
 function measuredSourceAnchor(node: InternalNode<QueryGraphNode> | undefined, handleId: string): LayoutAnchor | undefined {
     const handle = node?.internals.handleBounds?.source?.find((candidate) => candidate.id === handleId);
     if (node === undefined || handle === undefined) return undefined;
 
-    const horizontal = handle.position === Position.Left || handle.position === Position.Right;
-    const x =
-        node.internals.positionAbsolute.x +
-        handle.x +
-        (horizontal ? (handle.position === Position.Right ? handle.width : 0) : handle.width / 2);
-    const y =
-        node.internals.positionAbsolute.y +
-        handle.y +
-        (horizontal ? handle.height / 2 : handle.position === Position.Bottom ? handle.height : 0);
+    const x = node.internals.positionAbsolute.x + handle.x + handle.width / 2;
+    const y = node.internals.positionAbsolute.y + handle.y + handle.height / 2;
     return {nodeId: node.id, offset: {x: x - node.position.x, y: y - node.position.y}};
 }
 
