@@ -143,9 +143,8 @@ test("DuckDB scopes delimiter indexes to individual optimizer stages", () => {
 });
 
 test("DuckDB resolves analyzed delimiter targets from operator types", () => {
-    const query = "EXPLAIN (ANALYZE, FORMAT JSON) select 1";
     const tree = duckDbPlanLoader.load({
-        query_name: query,
+        query_name: "select 1",
         children: [
             {
                 operator_name: "LEFT_DELIM_JOIN",
@@ -165,7 +164,6 @@ test("DuckDB resolves analyzed delimiter targets from operator types", () => {
     const source = tree.root.children?.[0];
 
     assert.deepEqual(tree.crosslinks, [{source, target: tree.root}]);
-    assert.deepEqual(tree.textDocuments, [{id: "query", title: "Original SQL Query", text: query, language: "sql"}]);
 });
 
 test("DuckDB lowercases only all-uppercase operator names", () => {

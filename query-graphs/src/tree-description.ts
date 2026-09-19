@@ -75,10 +75,10 @@ export interface TreeDescription {
     metadata?: Map<string, string>;
     /// Whether the metadata panel should be visually highlighted
     metadataHighlighted?: boolean;
-    /// Text documents associated with the graph
-    textDocuments?: TextDocument[];
     /// Additional links between indirectly related nodes
     crosslinks?: Crosslink[];
+    /// Text documents associated with the graph
+    textDocuments?: TextDocument[];
 }
 
 // A recursive helper function for walking through all nodes

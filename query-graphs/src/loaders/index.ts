@@ -56,13 +56,9 @@ function stripSurroundingText(text: string): string {
 
 function addPlanDocument(plan: LoadedPlan, text: string, language: string): LoadedPlan {
     const planDocument: TextDocument = {id: "plan", title: "Query Plan", text, language};
-    return {
-        ...plan,
-        tree: {
-            ...plan.tree,
-            textDocuments: [...(plan.tree.textDocuments ?? []), planDocument],
-        },
-    };
+    plan.tree.textDocuments ??= [];
+    plan.tree.textDocuments.push(planDocument);
+    return plan;
 }
 
 export function loadPlanFromText(text: string, options: LoadPlanOptions = {}): LoadedPlan {
@@ -80,7 +76,7 @@ export function loadPlanFromText(text: string, options: LoadPlanOptions = {}): L
         try {
             const json = JSON.parse(planText) as Json;
             const plan = loadMatchingPlan(json, jsonPlanLoaders, errors, format);
-            if (plan !== undefined) return addPlanDocument(plan, text, "json");
+            if (plan !== undefined) return addPlanDocument(plan, planText, "json");
         } catch (error) {
             errors.push(error);
         }
@@ -90,7 +86,7 @@ export function loadPlanFromText(text: string, options: LoadPlanOptions = {}): L
         try {
             const xml = parseXml(planText);
             const plan = loadMatchingPlan(xml, xmlPlanLoaders, errors, format);
-            if (plan !== undefined) return addPlanDocument(plan, text, "xml");
+            if (plan !== undefined) return addPlanDocument(plan, planText, "xml");
         } catch (error) {
             errors.push(error);
         }

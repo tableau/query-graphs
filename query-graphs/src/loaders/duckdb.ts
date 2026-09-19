@@ -159,8 +159,8 @@ function convertDuckPlan(rawRoot: Json, metadata?: Map<string, string>, textDocu
     return {
         root,
         metadata,
-        textDocuments,
         crosslinks: resolveCrosslinks(state.crosslinks, crosslinkTargets),
+        textDocuments,
     };
 }
 
