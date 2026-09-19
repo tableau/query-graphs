@@ -57,6 +57,11 @@ interface BodyAnimation {
     animationFrame?: number;
 }
 
+/** Restores CSS control of dimensions after measuring or animating a body. */
+function clearBodySize(element: HTMLElement): void {
+    for (const property of ["width", "height", "max-width", "max-height"]) element.style.removeProperty(property);
+}
+
 /** Applies transient animation styles without replacing settled element styles. */
 function withAnimationStyle(style: CSSProperties | undefined, opacity: number, transient: boolean): CSSProperties | undefined {
     if (opacity === 1 && !transient) return style;
@@ -87,10 +92,7 @@ function measureNodeResize({nodeId, nodeElement, targetExpanded}: NodeResizeRequ
     clone.style.visibility = "hidden";
     clone.style.pointerEvents = "none";
     clonedNode.classList.toggle("qg-expanded", targetExpanded);
-    clonedBody.style.removeProperty("width");
-    clonedBody.style.removeProperty("height");
-    clonedBody.style.removeProperty("max-width");
-    clonedBody.style.removeProperty("max-height");
+    clearBodySize(clonedBody);
     flowContainer.append(clone);
     const targetDimensions = {width: clone.offsetWidth, height: clone.offsetHeight};
     const bodyTo = {width: clonedBody.offsetWidth, height: clonedBody.offsetHeight};
@@ -152,7 +154,8 @@ export function useAnimatedGraphLayout(
     animationController: GraphAnimationController;
 } {
     const {fitView, getInternalNode} = useReactFlow<QueryGraphNode>();
-    const activeResizeNodesRef = useRef(new Set<string>());
+    // Active entries both own their cleanup handles and mark dimensions whose
+    // final target must be preserved while React Flow reports intermediate sizes.
     const bodyAnimationsRef = useRef(new Map<string, BodyAnimation>());
     const animationRef = useRef<LayoutAnimation | undefined>(undefined);
     const [dimensionsState, setDimensionsState] = useState<DimensionsState>(() => ({
@@ -183,7 +186,7 @@ export function useAnimatedGraphLayout(
                 let next: Map<string, GraphNodeDimensions> | undefined;
                 for (const [nodeId, measured] of updates) {
                     const previous = currentDimensions.get(nodeId);
-                    const targetDimensions = activeResizeNodesRef.current.has(nodeId) ? (previous?.target ?? measured) : measured;
+                    const targetDimensions = bodyAnimationsRef.current.has(nodeId) ? (previous?.target ?? measured) : measured;
                     if (
                         previous?.measured.width === measured.width &&
                         previous.measured.height === measured.height &&
@@ -206,12 +209,8 @@ export function useAnimatedGraphLayout(
         const animation = bodyAnimationsRef.current.get(nodeId);
         if (animation === undefined) return;
         if (animation.animationFrame !== undefined) cancelAnimationFrame(animation.animationFrame);
-        animation.element.style.removeProperty("width");
-        animation.element.style.removeProperty("height");
-        animation.element.style.removeProperty("max-width");
-        animation.element.style.removeProperty("max-height");
+        clearBodySize(animation.element);
         bodyAnimationsRef.current.delete(nodeId);
-        activeResizeNodesRef.current.delete(nodeId);
     }, []);
 
     // Gesture entry points measure their destination before changing the graph
@@ -245,7 +244,6 @@ export function useAnimatedGraphLayout(
                     return;
                 }
 
-                activeResizeNodesRef.current.add(animation.nodeId);
                 animationRef.current = {kind: "resize", startedAt};
 
                 const bodyAnimation: BodyAnimation = {element: animation.bodyElement};
@@ -289,6 +287,7 @@ export function useAnimatedGraphLayout(
     // from the current frame so interrupted transitions remain continuous.
     useLayoutEffect(() => {
         const graphChanged = nodeIdsRef.current !== nodeIds;
+        const targetDataChanged = targetRef.current !== target;
         const targetChanged = graphChanged || !sameLayoutTarget(targetRef.current, target);
         const animation = animationRef.current;
         const animationReady = animation !== undefined && targetMeasured && animationFrameRef.current === undefined;
@@ -296,8 +295,12 @@ export function useAnimatedGraphLayout(
         targetRef.current = target;
         renderedRef.current = refreshLayoutData(renderedRef.current, target);
         // Measurements can recompute an equivalent target. Only restart when
-        // its endpoint changes or staged nodes become measurable.
-        if (!targetChanged && !animationReady) return;
+        // its endpoint changes or staged nodes become measurable, but still
+        // publish refreshed payload data from an equivalent target.
+        if (!targetChanged && !animationReady) {
+            if (targetDataChanged) setRendered(renderedRef.current);
+            return;
+        }
 
         const wasAnimating = animationFrameRef.current !== undefined;
         if (animationFrameRef.current !== undefined) {
@@ -306,7 +309,7 @@ export function useAnimatedGraphLayout(
         }
         if (graphChanged) {
             initialFitDoneRef.current = false;
-            for (const nodeId of [...bodyAnimationsRef.current.keys()]) stopBodyAnimation(nodeId);
+            for (const nodeId of bodyAnimationsRef.current.keys()) stopBodyAnimation(nodeId);
         }
         if (animation === undefined || graphChanged) {
             animationRef.current = undefined;
@@ -374,40 +377,32 @@ export function useAnimatedGraphLayout(
     useEffect(
         () => () => {
             if (animationFrameRef.current !== undefined) cancelAnimationFrame(animationFrameRef.current);
-            for (const nodeId of [...bodyAnimationsRef.current.keys()]) stopBodyAnimation(nodeId);
+            for (const nodeId of bodyAnimationsRef.current.keys()) stopBodyAnimation(nodeId);
         },
         [stopBodyAnimation],
     );
 
-    const targetNodes = useMemo(() => new Map(target.nodes.map((node) => [node.id, node])), [target.nodes]);
-    const targetEdges = useMemo(() => new Map(target.edges.map((edge) => [edge.id, edge])), [target.edges]);
-    // Combine animated geometry with the latest payload and presentation data;
-    // exiting elements fall back to their retained payload until they vanish.
+    // Payloads are refreshed when the target changes; rendering only overlays
+    // animation styles on that data, including retained exiting elements.
     return useMemo(
         () => ({
-            nodes: rendered.nodes.map(({node, position, opacity, transient}) => {
-                const latest = targetNodes.get(node.id) ?? node;
-                return {
-                    ...latest,
-                    position,
-                    style: withAnimationStyle(latest.style, opacity, transient),
-                };
-            }),
-            edges: rendered.edges.map(({edge, opacity, transient}) => {
-                const latest = targetEdges.get(edge.id) ?? edge;
-                return {
-                    ...latest,
-                    style: withAnimationStyle(latest.style, opacity, transient),
-                    labelStyle: withAnimationStyle(latest.labelStyle, opacity, transient),
-                    labelBgStyle: withAnimationStyle(latest.labelBgStyle, opacity, transient),
-                    interactionWidth: transient ? 0 : latest.interactionWidth,
-                    selectable: transient ? false : latest.selectable,
-                    focusable: transient ? false : latest.focusable,
-                };
-            }),
+            nodes: rendered.nodes.map(({node, position, opacity, transient}) => ({
+                ...node,
+                position,
+                style: withAnimationStyle(node.style, opacity, transient),
+            })),
+            edges: rendered.edges.map(({edge, opacity, transient}) => ({
+                ...edge,
+                style: withAnimationStyle(edge.style, opacity, transient),
+                labelStyle: withAnimationStyle(edge.labelStyle, opacity, transient),
+                labelBgStyle: withAnimationStyle(edge.labelBgStyle, opacity, transient),
+                interactionWidth: transient ? 0 : edge.interactionWidth,
+                selectable: transient ? false : edge.selectable,
+                focusable: transient ? false : edge.focusable,
+            })),
             onNodesChange,
             animationController,
         }),
-        [animationController, onNodesChange, rendered, targetEdges, targetNodes],
+        [animationController, onNodesChange, rendered],
     );
 }
