@@ -17,8 +17,11 @@ interface NodeResizeRequest {
 }
 
 export interface GraphAnimationController {
-    /** Captures current geometry, then measures the synchronously scheduled update after rendering. */
-    animateNodeResize: (request: NodeResizeRequest, updateGraph: () => void) => void;
+    /**
+     * Animates a synchronously applied change. List persistent nodes whose
+     * bodies may resize; entering and exiting nodes are inferred afterwards.
+     */
+    animateGraphChange: (applyChange: () => void, resizingNodes?: readonly NodeResizeRequest[]) => void;
 }
 
 export const subtreeHandleId = "subtree";
@@ -272,23 +275,30 @@ export function useAnimatedGraphLayout(
         animationFrameRef.current = undefined;
     }, []);
 
-    // Capture the current body before applying arbitrary node-local state. The
-    // resulting DOM is measured in the layout effect below, before it is painted.
+    // Capture resizing bodies before applying arbitrary graph state. Entering
+    // and exiting nodes are inferred from the resulting layout below.
     const animationController = useMemo<GraphAnimationController>(
         () => ({
-            animateNodeResize: (request, updateGraph) => {
-                const resize = captureBodyResize(request);
-                if (resize === undefined) {
-                    finishBodyResize(request.nodeId);
-                    animationRequestedRef.current = false;
-                    updateGraph();
-                    return;
-                }
-                finishBodyResize(request.nodeId);
+            animateGraphChange: (applyChange, resizingNodes = []) => {
+                const animationRequested = animationStartTime() !== undefined;
+                // Read every starting size before clearing interrupted styles.
+                const resizes = new Map<string, BodyResize>(
+                    animationRequested
+                        ? resizingNodes.flatMap((request) => {
+                              const resize = captureBodyResize(request);
+                              return resize === undefined ? [] : [[request.nodeId, resize] as const];
+                          })
+                        : [],
+                );
                 cancelLayoutFrame();
-                animationRequestedRef.current = true;
-                bodyResizesRef.current.set(request.nodeId, resize);
-                updateGraph();
+                if (animationRequested) {
+                    for (const {nodeId} of resizingNodes) finishBodyResize(nodeId);
+                    for (const [nodeId, resize] of resizes) bodyResizesRef.current.set(nodeId, resize);
+                } else {
+                    for (const nodeId of bodyResizesRef.current.keys()) finishBodyResize(nodeId);
+                }
+                animationRequestedRef.current = animationRequested;
+                applyChange();
                 setNodeChangeRevision((revision) => revision + 1);
             },
         }),
@@ -306,17 +316,14 @@ export function useAnimatedGraphLayout(
     // from the current frame so interrupted transitions remain continuous.
     useLayoutEffect(() => {
         const resizeTargets = measurePendingBodyResizes(bodyResizesRef.current);
-        if (resizeTargets !== undefined) {
-            if (resizeTargets.size > 0) {
-                setDimensionsState((current) => {
-                    const currentDimensions = dimensionsForGraph(current, nodeIds);
-                    const targets = new Map(currentDimensions.targets);
-                    for (const [nodeId, nodeTarget] of resizeTargets) targets.set(nodeId, nodeTarget);
-                    return {...currentDimensions, nodeIds, targets};
-                });
-                return;
-            }
-            animationRequestedRef.current = bodyResizesRef.current.size > 0;
+        if (resizeTargets !== undefined && resizeTargets.size > 0) {
+            setDimensionsState((current) => {
+                const currentDimensions = dimensionsForGraph(current, nodeIds);
+                const targets = new Map(currentDimensions.targets);
+                for (const [nodeId, nodeTarget] of resizeTargets) targets.set(nodeId, nodeTarget);
+                return {...currentDimensions, nodeIds, targets};
+            });
+            return;
         }
 
         const graphChanged = nodeIdsRef.current !== nodeIds;
@@ -326,11 +333,9 @@ export function useAnimatedGraphLayout(
             measuredSourceAnchor(getInternalNode(nodeId), subtreeHandleId),
         );
         // Missing handles make origin-based interpolation worse than snapping.
-        // Check reduced motion before staging new nodes invisibly for measurement.
-        const subtreeChanged = !graphChanged && transitionAnchorMap !== undefined && transitionAnchorMap.size > 0;
-        const animationRequested =
-            transitionAnchorMap !== undefined &&
-            (animationRequestedRef.current || (subtreeChanged && animationStartTime() !== undefined));
+        // The controller checks reduced motion before staging new nodes;
+        // layout changes outside an explicit transaction settle immediately.
+        const animationRequested = transitionAnchorMap !== undefined && animationRequestedRef.current;
         animationRequestedRef.current = animationRequested;
         const anchors = transitionAnchorMap ?? new Map();
         const canStartAnimation = animationRequested && targetMeasured && animationFrameRef.current === undefined;
