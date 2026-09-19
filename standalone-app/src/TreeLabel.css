@@ -96,10 +96,6 @@
     }
 }
 
-.graph-sidebar .qg-collapsible-panel-content:has(> .graph-text-document) {
-    overflow: hidden;
-}
-
 @keyframes graph-text-document-loading-flow {
     from {
         background-position: 100% 0;
