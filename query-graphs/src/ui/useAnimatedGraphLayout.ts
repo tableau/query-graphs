@@ -226,27 +226,21 @@ export function useAnimatedGraphLayout(
         (applyChange, resizingNodes = []) => {
             const motionEnabled = graphAnimationsEnabled();
             // Read every starting size before clearing interrupted styles.
-            const resizes = new Map<string, NodeResize>(
-                motionEnabled
-                    ? resizingNodes.flatMap((request) => {
-                          const flowElement = request.nodeElement.closest<HTMLElement>(".react-flow__node");
-                          const sizingElement = request.nodeElement.closest<HTMLElement>(".qg-graph-node");
-                          if (flowElement === null || sizingElement === null) return [];
-                          // Animate our complete visual shell so React Flow's
-                          // observed wrapper can remain intrinsically sized.
-                          return [
-                              [
-                                  request.nodeId,
-                                  {
-                                      flowElement,
-                                      sizingElement,
-                                      start: {width: sizingElement.offsetWidth, height: sizingElement.offsetHeight},
-                                  },
-                              ] as const,
-                          ];
-                      })
-                    : [],
-            );
+            const resizes = new Map<string, NodeResize>();
+            if (motionEnabled) {
+                for (const {nodeId, nodeElement} of resizingNodes) {
+                    const flowElement = nodeElement.closest<HTMLElement>(".react-flow__node");
+                    const sizingElement = nodeElement.closest<HTMLElement>(".qg-graph-node");
+                    if (flowElement === null || sizingElement === null) continue;
+                    // Animate our complete visual shell so React Flow's
+                    // observed wrapper can remain intrinsically sized.
+                    resizes.set(nodeId, {
+                        flowElement,
+                        sizingElement,
+                        start: {width: sizingElement.offsetWidth, height: sizingElement.offsetHeight},
+                    });
+                }
+            }
             cancelLayoutFrame();
             if (motionEnabled) {
                 for (const {nodeId} of resizingNodes) finishNodeResize(nodeResizesRef.current, nodeId);
