@@ -17,12 +17,16 @@ interface NodeResizeRequest {
 }
 
 /**
- * Animates a synchronously applied change. List persistent nodes whose bodies
- * may resize; entering and exiting nodes are inferred afterwards.
+ * Animates a graph change applied synchronously by `applyChange`. List
+ * persistent nodes whose bodies may resize; entering and exiting nodes are
+ * inferred from the resulting layout.
  */
 export type AnimateGraphChange = (applyChange: () => void, resizingNodes?: readonly NodeResizeRequest[]) => void;
 
+/** Identifies the source handle from which changed subtrees emerge or recede. */
 export const subtreeHandleId = "subtree";
+
+/** Makes the surrounding query graph's animation callback available to nodes. */
 export const AnimateGraphChangeContext = createContext<AnimateGraphChange | null>(null);
 
 /** Returns the graph-change animator supplied by the surrounding query graph. */
@@ -48,7 +52,12 @@ function sameDimensions(left: Dimensions | undefined, right: Dimensions): boolea
     return left?.width === right.width && left.height === right.height;
 }
 
-/** Updates measured dimensions while preserving active resize targets. */
+/**
+ * Reconciles dimensions reported by React Flow. Measured dimensions describe
+ * the current rendered frame; target dimensions drive the stable tree layout.
+ * Active body resizes therefore retain their target until the new final size
+ * is measured. Unchanged inputs preserve their map and state identities.
+ */
 export function reconcileDimensions(
     current: DimensionsState,
     nodeIds: Map<TreeNode, string>,
@@ -86,14 +95,28 @@ interface BodyResize {
     bodyTarget?: Dimensions;
 }
 
-/** Restores CSS control of dimensions after measuring or animating a body. */
-function clearBodySize(element: HTMLElement): void {
-    for (const property of ["width", "height", "max-width", "max-height"]) element.style.removeProperty(property);
+/**
+ * Captures a body's current size before a graph change. `nodeElement` is a
+ * descendant of the containing React Flow node, whose body supplies the
+ * independently animated dimensions.
+ */
+function captureBodyResize({nodeElement}: NodeResizeRequest): BodyResize | undefined {
+    const flowNode = nodeElement.closest<HTMLElement>(".react-flow__node");
+    if (flowNode === null) return undefined;
+    const bodyElement = flowNode.querySelector<HTMLElement>(".qg-graph-node-body-wrapper");
+    if (bodyElement === null) return undefined;
+    return {
+        nodeElement: flowNode,
+        bodyElement,
+        bodyStart: {width: bodyElement.offsetWidth, height: bodyElement.offsetHeight},
+    };
 }
 
 /**
  * Measures every post-render target before freezing any body at its captured
- * size. Returns `undefined` when no resize is awaiting measurement.
+ * size, keeping DOM reads ahead of writes to avoid repeated layout. Mutates
+ * both the resize registry and body styles. Returns `undefined` when no resize
+ * is awaiting measurement.
  */
 export function measurePendingBodyResizes(resizes: Map<string, BodyResize>): Map<string, Dimensions> | undefined {
     const pending = [...resizes].filter(([, resize]) => resize.bodyTarget === undefined);
@@ -122,27 +145,9 @@ export function measurePendingBodyResizes(resizes: Map<string, BodyResize>): Map
     return targets;
 }
 
-/** Applies transient animation styles without replacing settled element styles. */
-function withAnimationStyle(style: CSSProperties | undefined, opacity: number, transient: boolean): CSSProperties | undefined {
-    if (opacity === 1 && !transient) return style;
-    return {
-        ...style,
-        ...(opacity === 1 ? {} : {opacity}),
-        ...(transient ? {pointerEvents: "none"} : {}),
-    };
-}
-
-/** Captures the current geometry before applying a node-local state change. */
-function captureBodyResize({nodeElement}: NodeResizeRequest): BodyResize | undefined {
-    const flowNode = nodeElement.closest<HTMLElement>(".react-flow__node");
-    if (flowNode === null) return undefined;
-    const bodyElement = flowNode.querySelector<HTMLElement>(".qg-graph-node-body-wrapper");
-    if (bodyElement === null) return undefined;
-    return {
-        nodeElement: flowNode,
-        bodyElement,
-        bodyStart: {width: bodyElement.offsetWidth, height: bodyElement.offsetHeight},
-    };
+/** Restores CSS control of dimensions after measuring or animating a body. */
+function clearBodySize(element: HTMLElement): void {
+    for (const property of ["width", "height", "max-width", "max-height"]) element.style.removeProperty(property);
 }
 
 /**
@@ -173,6 +178,16 @@ function treeParents(tree: TreeDescription, nodeIds: Map<TreeNode, string>): Rea
     return parents;
 }
 
+/** Applies transient animation styles without replacing settled element styles. */
+function withAnimationStyle(style: CSSProperties | undefined, opacity: number, transient: boolean): CSSProperties | undefined {
+    if (opacity === 1 && !transient) return style;
+    return {
+        ...style,
+        ...(opacity === 1 ? {} : {opacity}),
+        ...(transient ? {pointerEvents: "none"} : {}),
+    };
+}
+
 /**
  * Computes and animates the measured query-graph layout consumed by React
  * Flow. Node measurements feed subsequent layouts; resize gestures coordinate
@@ -187,8 +202,10 @@ export function useAnimatedGraphLayout(
     onNodesChange: (changes: NodeChange<QueryGraphNode>[]) => void;
     animateGraphChange: AnimateGraphChange;
 } {
+    // React Flow services used to resolve handles and fit the initial graph.
     const {fitView, getInternalNode} = useReactFlow<QueryGraphNode>();
 
+    // Current measurements and the stable layout endpoint derived from them.
     const [dimensionsState, setDimensionsState] = useState<DimensionsState>(() => dimensionsForGraph(undefined, nodeIds));
     const dimensions = useMemo<DimensionsState>(() => dimensionsForGraph(dimensionsState, nodeIds), [dimensionsState, nodeIds]);
     const parentIds = useMemo(() => treeParents(treeDescription, nodeIds), [treeDescription, nodeIds]);
@@ -200,12 +217,13 @@ export function useAnimatedGraphLayout(
     );
     const targetLayoutMeasured = targetLayout.nodes.every((node) => dimensions.measured.has(node.id));
 
-    // Active body resizes own their target dimensions while React Flow reports
-    // intermediate measurements for the rendered animation frames.
+    // Pending body resizes and scheduling state for the shared animation clock.
     const bodyResizesRef = useRef(new Map<string, BodyResize>());
     const animationRequestedRef = useRef(false);
     const animationFrameRef = useRef<number | undefined>(undefined);
     const [graphChangeRevision, setGraphChangeRevision] = useState(0);
+
+    // Last reconciled identities and layouts used across interrupted renders.
     const targetLayoutRef = useRef(targetLayout);
     const [renderedLayout, setRenderedLayout] = useState(() => staticLayout(targetLayout));
     const renderedLayoutRef = useRef(renderedLayout);
@@ -244,10 +262,10 @@ export function useAnimatedGraphLayout(
     // and exiting nodes are inferred from the resulting layout below.
     const animateGraphChange = useCallback<AnimateGraphChange>(
         (applyChange, resizingNodes = []) => {
-            const animationRequested = animationStartTime() !== undefined;
+            const motionEnabled = animationStartTime() !== undefined;
             // Read every starting size before clearing interrupted styles.
             const resizes = new Map<string, BodyResize>(
-                animationRequested
+                motionEnabled
                     ? resizingNodes.flatMap((request) => {
                           const resize = captureBodyResize(request);
                           return resize === undefined ? [] : [[request.nodeId, resize] as const];
@@ -255,13 +273,13 @@ export function useAnimatedGraphLayout(
                     : [],
             );
             cancelLayoutFrame();
-            if (animationRequested) {
+            if (motionEnabled) {
                 for (const {nodeId} of resizingNodes) finishBodyResize(nodeId);
                 for (const [nodeId, resize] of resizes) bodyResizesRef.current.set(nodeId, resize);
             } else {
                 for (const nodeId of bodyResizesRef.current.keys()) finishBodyResize(nodeId);
             }
-            animationRequestedRef.current = animationRequested;
+            animationRequestedRef.current = motionEnabled;
             applyChange();
             setGraphChangeRevision((revision) => revision + 1);
         },
@@ -272,6 +290,7 @@ export function useAnimatedGraphLayout(
     // nodes are first staged invisibly for measurement; ready targets animate
     // from the current frame so interrupted transitions remain continuous.
     useLayoutEffect(() => {
+        // Finish pending body measurement before reconciling the layout endpoint.
         const resizeTargets = measurePendingBodyResizes(bodyResizesRef.current);
         if (resizeTargets !== undefined && resizeTargets.size > 0) {
             setDimensionsState((current) => {
@@ -283,6 +302,7 @@ export function useAnimatedGraphLayout(
             return;
         }
 
+        // Classify the endpoint and resolve independent subtree transition origins.
         const graphChanged = nodeIdsRef.current !== nodeIds;
         const targetLayoutDataChanged = targetLayoutRef.current !== targetLayout;
         const targetLayoutChanged = graphChanged || !sameLayoutTarget(targetLayoutRef.current, targetLayout);
@@ -299,14 +319,14 @@ export function useAnimatedGraphLayout(
         nodeIdsRef.current = nodeIds;
         targetLayoutRef.current = targetLayout;
         renderedLayoutRef.current = refreshLayoutData(renderedLayoutRef.current, targetLayout);
-        // Measurements can recompute an equivalent target. Only restart when
-        // its endpoint changes or staged nodes become measurable, but still
-        // publish refreshed payload data from an equivalent target.
+        // Publish payload-only updates without restarting equivalent geometry.
+        // Staged nodes becoming measurable still need to start their animation.
         if (!targetLayoutChanged && !canStartAnimation) {
             if (targetLayoutDataChanged) setRenderedLayout(renderedLayoutRef.current);
             return;
         }
 
+        // Choose between settling immediately, staging nodes, and animating.
         cancelLayoutFrame();
         if (graphChanged) {
             initialFitDoneRef.current = false;
