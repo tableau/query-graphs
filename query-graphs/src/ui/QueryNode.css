@@ -107,9 +107,8 @@
 .qg-color-bar {
     display: flex;
     gap: 1px;
+    width: 2.4em;
     height: 4px;
-    width: 70%;
-    min-width: 1.2em;
     margin-left: auto;
     margin-right: auto;
 }
