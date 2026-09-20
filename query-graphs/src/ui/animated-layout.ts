@@ -1,3 +1,6 @@
+import {assertNotNull} from "../assert";
+import type {TreeDescription, TreeNode} from "../tree-description";
+import {allChildren} from "../tree-description";
 import type {layoutTree} from "./tree-layout";
 import type {QueryGraphNode} from "./QueryNode";
 
@@ -73,6 +76,20 @@ export function sameLayoutTarget(left: GraphLayout, right: GraphLayout): boolean
     }
     const rightEdgeIds = new Set(right.edges.map((edge) => edge.id));
     return left.edges.every((edge) => rightEdgeIds.has(edge.id));
+}
+
+/** Indexes every node's parent once, including currently collapsed children. */
+export function treeParents(tree: TreeDescription, nodeIds: Map<TreeNode, string>): ReadonlyMap<string, string> {
+    const parents = new Map<string, string>();
+    const pending: [TreeNode, string | undefined][] = [[tree.root, undefined]];
+    while (pending.length > 0) {
+        const [node, parentId] = pending.pop()!;
+        const nodeId = nodeIds.get(node);
+        assertNotNull(nodeId);
+        if (parentId !== undefined) parents.set(nodeId, parentId);
+        for (const child of allChildren(node)) pending.push([child, nodeId]);
+    }
+    return parents;
 }
 
 /**

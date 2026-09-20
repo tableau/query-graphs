@@ -1,15 +1,31 @@
+/**
+ * Coordinates animated query-graph changes with React Flow. `QueryGraph` passes
+ * the returned nodes, edges, and `onNodesChange` callback to React Flow and
+ * exposes `animateGraphChange` to nodes. Callers wrap synchronous graph updates
+ * in that callback and identify persistent nodes whose bodies may resize.
+ *
+ * Pure layout transitions live in `animated-layout.ts`; this module coordinates
+ * React state, React Flow measurements, DOM body measurements, and animation
+ * frames.
+ */
 import type {Dimensions, InternalNode, NodeChange} from "@xyflow/react";
 import {useReactFlow} from "@xyflow/react";
 import type {CSSProperties} from "react";
 import {createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState} from "react";
 import {assertNotNull} from "../assert";
 import type {TreeDescription, TreeNode} from "../tree-description";
-import {allChildren} from "../tree-description";
 import type {QueryGraphNode} from "./QueryNode";
 import {layoutTree} from "./tree-layout";
 import {animationStartTime, graphAnimationProgress} from "./animation-timing";
 import type {GraphLayout, LayoutAnchor} from "./animated-layout";
-import {createLayoutInterpolator, refreshLayoutData, sameLayoutTarget, staticLayout, transitionAnchors} from "./animated-layout";
+import {
+    createLayoutInterpolator,
+    refreshLayoutData,
+    sameLayoutTarget,
+    staticLayout,
+    transitionAnchors,
+    treeParents,
+} from "./animated-layout";
 
 interface NodeResizeRequest {
     nodeId: string;
@@ -23,9 +39,6 @@ interface NodeResizeRequest {
  */
 export type AnimateGraphChange = (applyChange: () => void, resizingNodes?: readonly NodeResizeRequest[]) => void;
 
-/** Identifies the source handle from which changed subtrees emerge or recede. */
-export const subtreeHandleId = "subtree";
-
 /** Makes the surrounding query graph's animation callback available to nodes. */
 export const AnimateGraphChangeContext = createContext<AnimateGraphChange | null>(null);
 
@@ -35,6 +48,9 @@ export function useAnimateGraphChange(): AnimateGraphChange {
     assertNotNull(animateGraphChange);
     return animateGraphChange;
 }
+
+/** Identifies the source handle from which changed subtrees emerge or recede. */
+export const subtreeHandleId = "subtree";
 
 interface DimensionsState {
     nodeIds: Map<TreeNode, string>;
@@ -56,7 +72,8 @@ function sameDimensions(left: Dimensions | undefined, right: Dimensions): boolea
  * Reconciles dimensions reported by React Flow. Measured dimensions describe
  * the current rendered frame; target dimensions drive the stable tree layout.
  * Active body resizes therefore retain their target until the new final size
- * is measured. Unchanged inputs preserve their map and state identities.
+ * is measured. When nothing changes, this returns `current`; when only one set
+ * of dimensions changes, the other map is reused.
  */
 export function reconcileDimensions(
     current: DimensionsState,
@@ -162,20 +179,6 @@ function measuredSourceAnchor(node: InternalNode<QueryGraphNode> | undefined, ha
     const x = node.internals.positionAbsolute.x + handle.x + handle.width / 2;
     const y = node.internals.positionAbsolute.y + handle.y + handle.height / 2;
     return {nodeId: node.id, offset: {x: x - node.position.x, y: y - node.position.y}};
-}
-
-/** Indexes every node's parent once, including currently collapsed children. */
-function treeParents(tree: TreeDescription, nodeIds: Map<TreeNode, string>): ReadonlyMap<string, string> {
-    const parents = new Map<string, string>();
-    const pending: [TreeNode, string | undefined][] = [[tree.root, undefined]];
-    while (pending.length > 0) {
-        const [node, parentId] = pending.pop()!;
-        const nodeId = nodeIds.get(node);
-        assertNotNull(nodeId);
-        if (parentId !== undefined) parents.set(nodeId, parentId);
-        for (const child of allChildren(node)) pending.push([child, nodeId]);
-    }
-    return parents;
 }
 
 /** Applies transient animation styles without replacing settled element styles. */
