@@ -267,7 +267,7 @@ export function FileOpener({setData, validate, loadStateController}: FileOpenerP
                             Open-sourced on <a href="https://github.com/tableau/query-graphs">Github</a>
                         </div>
                         <div className="build-info">
-                            Build {BUILD_COMMIT_HASH.substring(0, 12)} · {BUILD_TIMESTAMP}
+                            Commit {BUILD_COMMIT_HASH.substring(0, 12)} · {BUILD_TIMESTAMP}
                         </div>
                     </div>
                 </div>
