@@ -1,8 +1,7 @@
-import {assertNotNull} from "../assert";
-import type {TreeDescription, TreeNode} from "../tree-description";
-import {allChildren} from "../tree-description";
 import type {layoutTree} from "./tree-layout";
 import type {QueryGraphNode} from "./QueryNode";
+import {findClosestVisibleAncestors} from "./tree-index";
+import type {TreeParents} from "./tree-index";
 
 export type GraphLayout = ReturnType<typeof layoutTree>;
 type GraphEdge = GraphLayout["edges"][number];
@@ -78,20 +77,6 @@ export function sameLayoutTarget(left: GraphLayout, right: GraphLayout): boolean
     return left.edges.every((edge) => rightEdgeIds.has(edge.id));
 }
 
-/** Indexes every node's parent once, including currently collapsed children. */
-export function indexTreeParents(tree: TreeDescription, nodeIds: Map<TreeNode, string>): ReadonlyMap<string, string> {
-    const parents = new Map<string, string>();
-    const pending: [TreeNode, string | undefined][] = [[tree.root, undefined]];
-    while (pending.length > 0) {
-        const [node, parentId] = pending.pop()!;
-        const nodeId = nodeIds.get(node);
-        assertNotNull(nodeId);
-        if (parentId !== undefined) parents.set(nodeId, parentId);
-        for (const child of allChildren(node)) pending.push([child, nodeId]);
-    }
-    return parents;
-}
-
 /**
  * Anchors each entering or exiting node at its nearest ancestor that remains
  * visible. Returns an empty map when membership is unchanged, or `undefined`
@@ -103,28 +88,20 @@ export function indexTreeParents(tree: TreeDescription, nodeIds: Map<TreeNode, s
 export function resolveTransitionAnchors(
     from: AnimatedLayout,
     to: GraphLayout,
-    parents: ReadonlyMap<string, string>,
+    parents: TreeParents,
     measureAnchor: (nodeId: string) => LayoutAnchor | undefined,
 ): TransitionAnchors | undefined {
     const anchors = new Map<string, LayoutAnchor>();
     const fromNodeIds = new Set(from.nodes.map((entry) => entry.node.id));
     const toNodeIds = new Set(to.nodes.map((node) => node.id));
     const visibleInBoth = new Set([...fromNodeIds].filter((id) => toNodeIds.has(id)));
-    const resolvedAncestors = new Map<string, string | undefined>();
+    const changedNodeIds = [...toNodeIds].filter((id) => !fromNodeIds.has(id));
+    changedNodeIds.push(...[...fromNodeIds].filter((id) => !toNodeIds.has(id)));
+    const visibleAncestors = findClosestVisibleAncestors(changedNodeIds, parents, visibleInBoth);
     const measuredAnchors = new Map<string, LayoutAnchor | undefined>();
 
     const addAnchor = (nodeId: string) => {
-        const path: string[] = [];
-        let ancestor: string | undefined = nodeId;
-        while (ancestor !== undefined && !visibleInBoth.has(ancestor)) {
-            if (resolvedAncestors.has(ancestor)) {
-                ancestor = resolvedAncestors.get(ancestor);
-                break;
-            }
-            path.push(ancestor);
-            ancestor = parents.get(ancestor);
-        }
-        for (const traversed of path) resolvedAncestors.set(traversed, ancestor);
+        const ancestor = visibleAncestors.get(nodeId);
         if (ancestor === undefined) return false;
 
         if (!measuredAnchors.has(ancestor)) measuredAnchors.set(ancestor, measureAnchor(ancestor));
@@ -134,8 +111,7 @@ export function resolveTransitionAnchors(
         return true;
     };
 
-    for (const id of toNodeIds) if (!fromNodeIds.has(id) && !addAnchor(id)) return undefined;
-    for (const id of fromNodeIds) if (!toNodeIds.has(id) && !addAnchor(id)) return undefined;
+    for (const id of changedNodeIds) if (!addAnchor(id)) return undefined;
     return anchors;
 }
 

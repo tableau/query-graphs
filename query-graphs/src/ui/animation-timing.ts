@@ -1,7 +1,7 @@
 export const graphAnimationDuration = 200;
 
-export function animationStartTime(): number | undefined {
-    return window.matchMedia("(prefers-reduced-motion: reduce)").matches ? undefined : performance.now();
+export function graphAnimationsEnabled(): boolean {
+    return !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
 export function graphAnimationProgress(startTime: number, now: number): number {

@@ -16,16 +16,16 @@ import {assertNotNull} from "../assert";
 import type {TreeDescription, TreeNode} from "../tree-description";
 import type {QueryGraphNode} from "./QueryNode";
 import {layoutTree} from "./tree-layout";
-import {animationStartTime, graphAnimationProgress} from "./animation-timing";
+import {graphAnimationsEnabled, graphAnimationProgress} from "./animation-timing";
 import type {GraphLayout} from "./animated-layout";
 import {
     createLayoutInterpolator,
-    indexTreeParents,
     refreshLayoutPayloads,
     resolveTransitionAnchors,
     sameLayoutTarget,
     staticLayout,
 } from "./animated-layout";
+import type {TreeParents} from "./tree-index";
 
 interface NodeResizeRequest {
     nodeId: string;
@@ -172,6 +172,7 @@ function withAnimationStyle(style: CSSProperties | undefined, opacity: number, t
 export function useAnimatedGraphLayout(
     treeDescription: TreeDescription,
     nodeIds: Map<TreeNode, string>,
+    treeParents: TreeParents,
     expandedSubtrees: Record<string, boolean>,
 ): GraphLayout & {
     onNodesChange: (changes: NodeChange<QueryGraphNode>[]) => void;
@@ -181,7 +182,6 @@ export function useAnimatedGraphLayout(
     const {fitView, getInternalNode} = useReactFlow<QueryGraphNode>();
 
     const [dimensions, setDimensions] = useState<DimensionsState>(() => ({measured: new Map(), targets: new Map()}));
-    const parentIds = useMemo(() => indexTreeParents(treeDescription, nodeIds), [treeDescription, nodeIds]);
     // Intermediate measurements update the React Flow projection below, while
     // only stable target dimensions invalidate the comparatively costly layout.
     const targetLayout = useMemo(
@@ -224,7 +224,7 @@ export function useAnimatedGraphLayout(
     // and exiting nodes are inferred from the resulting layout below.
     const animateGraphChange = useCallback<AnimateGraphChange>(
         (applyChange, resizingNodes = []) => {
-            const motionEnabled = animationStartTime() !== undefined;
+            const motionEnabled = graphAnimationsEnabled();
             // Read every starting size before clearing interrupted styles.
             const resizes = new Map<string, NodeResize>(
                 motionEnabled
@@ -279,7 +279,7 @@ export function useAnimatedGraphLayout(
         // Classify the endpoint and resolve subtree transition origins.
         const targetLayoutDataChanged = targetLayoutRef.current !== targetLayout;
         const targetLayoutChanged = !sameLayoutTarget(targetLayoutRef.current, targetLayout);
-        const transitionAnchorMap = resolveTransitionAnchors(renderedLayoutRef.current, targetLayout, parentIds, (nodeId) => {
+        const transitionAnchorMap = resolveTransitionAnchors(renderedLayoutRef.current, targetLayout, treeParents, (nodeId) => {
             const node = getInternalNode(nodeId);
             const handle = node?.internals.handleBounds?.source?.find((candidate) => candidate.id === subtreeHandleId);
             if (node === undefined || handle === undefined) return undefined;
@@ -330,11 +330,7 @@ export function useAnimatedGraphLayout(
             return;
         }
 
-        const startTime = animationStartTime();
-        if (startTime === undefined) {
-            settleLayout();
-            return;
-        }
+        const startTime = performance.now();
 
         // Retarget graph and node-size transitions from their current visual state.
         const interpolate = createLayoutInterpolator(renderedLayoutRef.current, targetLayout, anchors);
@@ -369,7 +365,7 @@ export function useAnimatedGraphLayout(
             }
         };
         animationFrameRef.current = requestAnimationFrame(step);
-    }, [cancelLayoutFrame, getInternalNode, graphChangeRevision, parentIds, targetLayout, targetLayoutMeasured]);
+    }, [cancelLayoutFrame, getInternalNode, graphChangeRevision, targetLayout, targetLayoutMeasured, treeParents]);
 
     // Fit only after the initial graph is fully measured and any transition
     // has settled, ensuring React Flow sees final node bounds.

@@ -10,6 +10,8 @@ import type {QueryGraphNode} from "./QueryNode";
 import {ColoredEdge} from "./ColoredEdge";
 import {createGraphRenderingStore, GraphRenderingStoreContext, useGraphRenderingStore} from "./store";
 import {AnimateGraphChangeContext, useAnimatedGraphLayout} from "./useAnimatedGraphLayout";
+import {indexTreeParents} from "./tree-index";
+import type {TreeParents} from "./tree-index";
 import "./QueryGraph.css";
 
 interface QueryGraphProps {
@@ -19,6 +21,7 @@ interface QueryGraphProps {
 
 interface QueryGraphInternalProps extends QueryGraphProps {
     nodeIdMapping: Map<TreeNode, string>;
+    treeParents: TreeParents;
 }
 
 function minimapNodeColor(n: QueryGraphNode): string {
@@ -35,9 +38,9 @@ const edgeTypes = {
     colored: ColoredEdge,
 };
 
-function QueryGraphInternal({treeDescription, children, nodeIdMapping}: QueryGraphInternalProps) {
+function QueryGraphInternal({treeDescription, children, nodeIdMapping, treeParents}: QueryGraphInternalProps) {
     const expandedSubtrees = useGraphRenderingStore((s) => s.expandedSubtrees);
-    const animatedLayout = useAnimatedGraphLayout(treeDescription, nodeIdMapping, expandedSubtrees);
+    const animatedLayout = useAnimatedGraphLayout(treeDescription, nodeIdMapping, treeParents, expandedSubtrees);
 
     return (
         <AnimateGraphChangeContext.Provider value={animatedLayout.animateGraphChange}>
@@ -82,19 +85,23 @@ function createGraphState(treeDescription: TreeDescription) {
     return {
         instanceId: nextGraphInstanceId++,
         nodeIdMapping,
+        treeParents: indexTreeParents(treeDescription, nodeIdMapping),
         graphStore: createGraphRenderingStore(expandedSubtrees),
     };
 }
 
 export function QueryGraph(props: QueryGraphProps) {
-    const {instanceId, nodeIdMapping, graphStore} = useMemo(() => createGraphState(props.treeDescription), [props.treeDescription]);
+    const {instanceId, nodeIdMapping, treeParents, graphStore} = useMemo(
+        () => createGraphState(props.treeDescription),
+        [props.treeDescription],
+    );
 
     // This artificial key remounts React Flow when the tree changes, keeping
     // its viewport, measurements, and animation state scoped to one graph.
     return (
         <ReactFlowProvider key={instanceId}>
             <GraphRenderingStoreContext.Provider value={graphStore}>
-                <QueryGraphInternal {...props} nodeIdMapping={nodeIdMapping} />
+                <QueryGraphInternal {...props} nodeIdMapping={nodeIdMapping} treeParents={treeParents} />
             </GraphRenderingStoreContext.Provider>
         </ReactFlowProvider>
     );

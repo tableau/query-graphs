@@ -11,6 +11,7 @@ import {
 import type {GraphLayout, TransitionAnchors} from "../src/ui/animated-layout";
 import {graphAnimationDuration, graphAnimationProgress} from "../src/ui/animation-timing";
 import type {QueryGraphNode} from "../src/ui/QueryNode";
+import {findClosestVisibleAncestors} from "../src/ui/tree-index";
 
 const parentAnchors = new Map([["child", {nodeId: "parent", offset: {x: 0, y: 30}}]]);
 
@@ -72,6 +73,23 @@ test("transition anchors fail when a required handle cannot be measured", () => 
     assert.equal(
         resolveTransitionAnchors(start, target, new Map([["child", "parent"]]), () => undefined),
         undefined,
+    );
+});
+
+test("hidden nodes map to their closest visible ancestors", () => {
+    const parents = new Map([
+        ["branch", "root"],
+        ["parent", "branch"],
+        ["first", "parent"],
+        ["second", "parent"],
+    ]);
+
+    assert.deepEqual(
+        findClosestVisibleAncestors(["first", "second"], parents, new Set(["root", "branch"])),
+        new Map([
+            ["first", "branch"],
+            ["second", "branch"],
+        ]),
     );
 });
 
