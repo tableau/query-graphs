@@ -18,6 +18,11 @@ const config: Configuration = {
         new FaviconsWebpackPlugin({
             logo: "../media/query-graphs-logo.svg",
             manifest: "./src/manifest.json",
+            favicons: {
+                icons: {
+                    appleStartup: false,
+                },
+            },
         }),
         new CopyPlugin({patterns: ["../media/query-graphs-logo.svg", "examples/**"]}),
         new CreateExamplesListPlugin(),
