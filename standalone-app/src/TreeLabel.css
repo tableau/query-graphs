@@ -60,11 +60,6 @@
     & .cm-editor {
         border: 0;
     }
-
-    /* Draw the focus ring inside the panel so neither the border nor scroller clips it. */
-    & .cm-editor.cm-focused {
-        outline-offset: -2px;
-    }
 }
 
 .graph-text-document-frame {
