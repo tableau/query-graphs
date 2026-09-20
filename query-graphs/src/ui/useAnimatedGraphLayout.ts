@@ -105,8 +105,8 @@ interface NodeResize {
 
 /**
  * Measures every pending post-render target before freezing any sizing shell,
- * keeping all DOM reads ahead of writes. Returns the outer dimensions that
- * drive the stable graph layout.
+ * keeping all DOM reads ahead of writes. Returns the final outer dimensions
+ * used to compute the target graph layout.
  */
 export function preparePendingNodeResizes(resizes: Map<string, NodeResize>): Map<string, Dimensions> {
     const measurements = [...resizes]
@@ -191,7 +191,7 @@ export function useAnimatedGraphLayout(
     const targetLayoutMeasured = targetLayout.nodes.every((node) => dimensions.measured.has(node.id));
 
     // Size our inner shells imperatively: putting animated dimensions on React
-    // Flow's observed wrappers creates a ResizeObserver feedback loop.
+    // Flow's observed wrappers would create a ResizeObserver feedback loop.
     const nodeResizesRef = useRef(new Map<string, NodeResize>());
     const animationRequestedRef = useRef(false);
     const animationFrameRef = useRef<number | undefined>(undefined);
