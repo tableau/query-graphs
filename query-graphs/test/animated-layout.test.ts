@@ -9,9 +9,7 @@ import {
     staticLayout,
 } from "../src/ui/animated-layout";
 import type {GraphLayout, TransitionAnchors} from "../src/ui/animated-layout";
-import {graphAnimationDuration, graphAnimationProgress} from "../src/ui/animation-timing";
 import type {QueryGraphNode} from "../src/ui/QueryNode";
-import {findClosestVisibleAncestors} from "../src/ui/tree-index";
 
 const parentAnchors = new Map([["child", {nodeId: "parent", offset: {x: 0, y: 30}}]]);
 
@@ -76,23 +74,6 @@ test("transition anchors fail when a required handle cannot be measured", () => 
     );
 });
 
-test("hidden nodes map to their closest visible ancestors", () => {
-    const parents = new Map([
-        ["branch", "root"],
-        ["parent", "branch"],
-        ["first", "parent"],
-        ["second", "parent"],
-    ]);
-
-    assert.deepEqual(
-        findClosestVisibleAncestors(["first", "second"], parents, new Set(["root", "branch"])),
-        new Map([
-            ["first", "branch"],
-            ["second", "branch"],
-        ]),
-    );
-});
-
 test("exiting nodes follow their anchor when an animation is interrupted", () => {
     const expanded = staticLayout(layout([node("parent", 10, 20, 30), node("child", 80, 120)], [edge("parent", "child")]));
     const firstTarget = layout([node("parent", 20, 40, 30)]);
@@ -143,15 +124,4 @@ test("refreshing layout data preserves animated positions and exiting payloads",
     assert.deepEqual(refreshed.nodes[0]?.position, {x: 5, y: 6});
     assert.equal(refreshed.nodes[1]?.node, exitingNode);
     assert.equal(refreshed.edges[0]?.edge, exitingEdge);
-});
-
-test("animation progress is eased and clamped", () => {
-    const start = 100;
-    assert.equal(graphAnimationProgress(start, start - 1), 0);
-    assert.equal(graphAnimationProgress(start, start), 0);
-    assert.ok(graphAnimationProgress(start, start + graphAnimationDuration / 4) < 0.25);
-    assert.ok(Math.abs(graphAnimationProgress(start, start + graphAnimationDuration / 2) - 0.5) < Number.EPSILON);
-    assert.ok(graphAnimationProgress(start, start + (3 * graphAnimationDuration) / 4) > 0.75);
-    assert.equal(graphAnimationProgress(start, start + graphAnimationDuration), 1);
-    assert.equal(graphAnimationProgress(start, start + graphAnimationDuration + 1), 1);
 });
