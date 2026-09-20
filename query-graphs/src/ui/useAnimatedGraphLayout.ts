@@ -177,6 +177,7 @@ export function useAnimatedGraphLayout(
 ): GraphLayout & {
     onNodesChange: (changes: NodeChange<QueryGraphNode>[]) => void;
     animateGraphChange: AnimateGraphChange;
+    initialViewportReady: boolean;
 } {
     // React Flow services used to resolve handles and fit the initial graph.
     const {fitView, getInternalNode} = useReactFlow<QueryGraphNode>();
@@ -201,7 +202,7 @@ export function useAnimatedGraphLayout(
     const targetLayoutRef = useRef(targetLayout);
     const [renderedLayout, setRenderedLayout] = useState(() => staticLayout(targetLayout));
     const renderedLayoutRef = useRef(renderedLayout);
-    const initialFitDoneRef = useRef(false);
+    const [initialViewportReady, setInitialViewportReady] = useState(false);
 
     // Record dimensions reported by React Flow. During a node resize, retain
     // the known final size as the layout target while its measured size moves.
@@ -361,18 +362,34 @@ export function useAnimatedGraphLayout(
     // has settled, ensuring React Flow sees final node bounds.
     useEffect(() => {
         if (
-            initialFitDoneRef.current ||
+            initialViewportReady ||
             !targetLayoutMeasured ||
             animationRequestedRef.current ||
             animationFrameRef.current !== undefined
         )
             return;
+        let cancelled = false;
+        let revealFrame: number | undefined;
         const animationFrame = requestAnimationFrame(() => {
-            initialFitDoneRef.current = true;
-            void fitView();
+            void fitView().then(() => {
+                if (cancelled) return;
+                // The fitted transform is in the DOM now, but Chrome may not
+                // composite it until the next paint. Keep the root hidden for
+                // that paint and reveal it in the following frame.
+                revealFrame = requestAnimationFrame(() => {
+                    revealFrame = requestAnimationFrame(() => {
+                        if (cancelled) return;
+                        setInitialViewportReady(true);
+                    });
+                });
+            });
         });
-        return () => cancelAnimationFrame(animationFrame);
-    }, [fitView, renderedLayout, targetLayoutMeasured]);
+        return () => {
+            cancelled = true;
+            cancelAnimationFrame(animationFrame);
+            if (revealFrame !== undefined) cancelAnimationFrame(revealFrame);
+        };
+    }, [fitView, initialViewportReady, renderedLayout, targetLayoutMeasured]);
 
     // Cancel the shared animation frame on unmount.
     useEffect(
@@ -404,7 +421,8 @@ export function useAnimatedGraphLayout(
             })),
             onNodesChange,
             animateGraphChange,
+            initialViewportReady,
         }),
-        [animateGraphChange, dimensions.measured, onNodesChange, renderedLayout],
+        [animateGraphChange, dimensions.measured, initialViewportReady, onNodesChange, renderedLayout],
     );
 }
