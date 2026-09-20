@@ -1,7 +1,6 @@
 import type {Dimensions} from "@xyflow/react";
 import {createContext, useContext} from "react";
 import {useStore} from "zustand";
-import {devtools} from "zustand/middleware";
 import {createStore} from "zustand/vanilla";
 import type {StoreApi} from "zustand/vanilla";
 import {assertNotNull} from "../assert";
@@ -20,38 +19,36 @@ export interface GraphRenderingState {
 export type GraphRenderingStore = StoreApi<GraphRenderingState>;
 
 export function createGraphRenderingStore(expandedSubtrees: Record<string, boolean>): GraphRenderingStore {
-    return createStore<GraphRenderingState>()(
-        devtools((set) => ({
-            expandedNodes: {},
-            expandedSubtrees,
-            toggleExpandedNode: (nodeId) =>
-                set((state) => ({
-                    expandedNodes: {
-                        ...state.expandedNodes,
-                        [nodeId]: !state.expandedNodes[nodeId],
-                    },
-                })),
-            toggleExpandedSubtree: (nodeId) =>
-                set((state) => ({
-                    expandedSubtrees: {
-                        ...state.expandedSubtrees,
-                        [nodeId]: !state.expandedSubtrees[nodeId],
-                    },
-                })),
-            nodeDimensions: new Map(),
-            updateNodeDimensions: (updates) =>
-                set((state) => {
-                    let nodeDimensions: Map<string, Dimensions> | undefined;
-                    for (const [nodeId, dimensions] of updates) {
-                        const previous = state.nodeDimensions.get(nodeId);
-                        if (previous?.width === dimensions.width && previous.height === dimensions.height) continue;
-                        nodeDimensions ??= new Map(state.nodeDimensions);
-                        nodeDimensions.set(nodeId, dimensions);
-                    }
-                    return nodeDimensions === undefined ? state : {nodeDimensions};
-                }),
-        })),
-    );
+    return createStore<GraphRenderingState>()((set) => ({
+        expandedNodes: {},
+        expandedSubtrees,
+        toggleExpandedNode: (nodeId) =>
+            set((state) => ({
+                expandedNodes: {
+                    ...state.expandedNodes,
+                    [nodeId]: !state.expandedNodes[nodeId],
+                },
+            })),
+        toggleExpandedSubtree: (nodeId) =>
+            set((state) => ({
+                expandedSubtrees: {
+                    ...state.expandedSubtrees,
+                    [nodeId]: !state.expandedSubtrees[nodeId],
+                },
+            })),
+        nodeDimensions: new Map(),
+        updateNodeDimensions: (updates) =>
+            set((state) => {
+                let nodeDimensions: Map<string, Dimensions> | undefined;
+                for (const [nodeId, dimensions] of updates) {
+                    const previous = state.nodeDimensions.get(nodeId);
+                    if (previous?.width === dimensions.width && previous.height === dimensions.height) continue;
+                    nodeDimensions ??= new Map(state.nodeDimensions);
+                    nodeDimensions.set(nodeId, dimensions);
+                }
+                return nodeDimensions === undefined ? state : {nodeDimensions};
+            }),
+    }));
 }
 
 export const GraphRenderingStoreContext = createContext<GraphRenderingStore | null>(null);
