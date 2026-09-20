@@ -23,10 +23,35 @@ function getBuildCommitHash(): string {
 }
 
 const buildCommitHash = getBuildCommitHash();
-const buildTimestamp = new Date()
-    .toISOString()
-    .replace("T", " ")
-    .replace(/\.\d{3}Z$/, " UTC");
+
+function getBuildCommitTimestamp(): string {
+    const environmentTimestamp = process.env.BUILD_COMMIT_TIMESTAMP;
+    if (environmentTimestamp !== undefined) {
+        return environmentTimestamp.trim();
+    }
+
+    try {
+        return execFileSync("git", ["show", "-s", "--format=%cI", buildCommitHash], {
+            cwd: repositoryRoot,
+            encoding: "utf8",
+        }).trim();
+    } catch {
+        return "unknown";
+    }
+}
+
+function formatTimestamp(timestamp: string): string {
+    const date = new Date(timestamp);
+    if (Number.isNaN(date.getTime())) {
+        return timestamp;
+    }
+    return date
+        .toISOString()
+        .replace("T", " ")
+        .replace(/\.\d{3}Z$/, " UTC");
+}
+
+const buildTimestamp = formatTimestamp(getBuildCommitTimestamp());
 
 const config: Configuration = {
     entry: {
