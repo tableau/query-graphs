@@ -97,50 +97,75 @@ export function applyMeasuredDimensions(
 }
 
 interface NodeResize {
-    nodeElement: HTMLElement;
-    current: Dimensions;
+    flowElement: HTMLElement;
+    sizingElement: HTMLElement;
+    start: Dimensions;
     target?: Dimensions;
 }
 
 /**
- * Captures a React Flow node's current size before a graph change.
- * `nodeElement` may be any descendant of that node.
+ * Captures the current size of the query node's visual shell before a graph
+ * change. React Flow's wrapper remains intrinsic and follows this shell.
  */
 function captureNodeResize({nodeElement}: NodeResizeRequest): NodeResize | undefined {
     const flowNode = nodeElement.closest<HTMLElement>(".react-flow__node");
-    if (flowNode === null) return undefined;
+    const sizingElement = nodeElement.closest<HTMLElement>(".qg-graph-node");
+    if (flowNode === null || sizingElement === null) return undefined;
     return {
-        nodeElement: flowNode,
-        current: {width: flowNode.offsetWidth, height: flowNode.offsetHeight},
+        flowElement: flowNode,
+        sizingElement,
+        start: {width: sizingElement.offsetWidth, height: sizingElement.offsetHeight},
     };
 }
 
 /**
- * Measures every pending post-render node target and records it in the resize
- * registry. Already prepared resizes are left unchanged.
+ * Measures every pending post-render target before freezing any sizing shell,
+ * keeping all DOM reads ahead of writes. Returns the outer dimensions that
+ * drive the stable graph layout.
  */
 export function preparePendingNodeResizes(resizes: Map<string, NodeResize>): Map<string, Dimensions> {
+    const measurements = [...resizes]
+        .filter(([, resize]) => resize.target === undefined)
+        .map(([nodeId, resize]) => ({
+            nodeId,
+            resize,
+            nodeTarget: {width: resize.flowElement.offsetWidth, height: resize.flowElement.offsetHeight},
+            sizingTarget: {width: resize.sizingElement.offsetWidth, height: resize.sizingElement.offsetHeight},
+        }));
     const targets = new Map<string, Dimensions>();
-    for (const [nodeId, resize] of resizes) {
-        if (resize.target !== undefined) continue;
-        const target = {width: resize.nodeElement.offsetWidth, height: resize.nodeElement.offsetHeight};
-        if (target.width === 0 || target.height === 0) {
+    for (const {nodeId, resize, nodeTarget, sizingTarget} of measurements) {
+        if (nodeTarget.width === 0 || nodeTarget.height === 0) {
             resizes.delete(nodeId);
             continue;
         }
-        targets.set(nodeId, target);
-        resize.target = target;
+        targets.set(nodeId, nodeTarget);
+        resize.target = sizingTarget;
+        resize.sizingElement.classList.add("qg-resizing");
+        resize.sizingElement.style.width = `${resize.start.width}px`;
+        resize.sizingElement.style.height = `${resize.start.height}px`;
     }
     return targets;
 }
 
-/** Returns the current rendered size of every prepared node resize. */
-function renderedResizeDimensions(resizes: ReadonlyMap<string, NodeResize>): ReadonlyMap<string, Dimensions> {
-    const dimensions = new Map<string, Dimensions>();
-    for (const [nodeId, resize] of resizes) {
-        if (resize.target !== undefined) dimensions.set(nodeId, resize.current);
-    }
-    return dimensions;
+/** Restores intrinsic sizing after measuring or animating a query-node shell. */
+function clearNodeSize(element: HTMLElement): void {
+    element.classList.remove("qg-resizing");
+    element.style.removeProperty("width");
+    element.style.removeProperty("height");
+}
+
+/** Finishes one registered resize and restores intrinsic shell sizing. */
+function finishNodeResize(resizes: Map<string, NodeResize>, nodeId: string): void {
+    const resize = resizes.get(nodeId);
+    if (resize === undefined) return;
+    clearNodeSize(resize.sizingElement);
+    resizes.delete(nodeId);
+}
+
+/** Finishes every registered resize. */
+function finishNodeResizes(resizes: Map<string, NodeResize>): void {
+    for (const resize of resizes.values()) clearNodeSize(resize.sizingElement);
+    resizes.clear();
 }
 
 /**
@@ -158,18 +183,12 @@ function measuredSourceAnchor(node: InternalNode<QueryGraphNode> | undefined, ha
 }
 
 /** Applies animation styles without replacing settled element styles. */
-function withAnimationStyle(
-    style: CSSProperties | undefined,
-    opacity: number,
-    transient: boolean,
-    dimensions?: Dimensions,
-): CSSProperties | undefined {
-    if (opacity === 1 && !transient && dimensions === undefined) return style;
+function withAnimationStyle(style: CSSProperties | undefined, opacity: number, transient: boolean): CSSProperties | undefined {
+    if (opacity === 1 && !transient) return style;
     return {
         ...style,
         ...(opacity === 1 ? {} : {opacity}),
         ...(transient ? {pointerEvents: "none"} : {}),
-        ...(dimensions === undefined ? {} : dimensions),
     };
 }
 
@@ -202,9 +221,9 @@ export function useAnimatedGraphLayout(
     );
     const targetLayoutMeasured = targetLayout.nodes.every((node) => dimensions.measured.has(node.id));
 
-    // Pending node resizes and scheduling state for the shared animation clock.
+    // Size our inner shells imperatively: putting animated dimensions on React
+    // Flow's observed wrappers creates a ResizeObserver feedback loop.
     const nodeResizesRef = useRef(new Map<string, NodeResize>());
-    const [animatedNodeDimensions, setAnimatedNodeDimensions] = useState<ReadonlyMap<string, Dimensions>>(() => new Map());
     const animationRequestedRef = useRef(false);
     const animationFrameRef = useRef<number | undefined>(undefined);
     const [graphChangeRevision, setGraphChangeRevision] = useState(0);
@@ -248,14 +267,11 @@ export function useAnimatedGraphLayout(
             );
             cancelLayoutFrame();
             if (motionEnabled) {
-                for (const {nodeId} of resizingNodes) nodeResizesRef.current.delete(nodeId);
+                for (const {nodeId} of resizingNodes) finishNodeResize(nodeResizesRef.current, nodeId);
                 for (const [nodeId, resize] of resizes) nodeResizesRef.current.set(nodeId, resize);
             } else {
-                nodeResizesRef.current.clear();
+                finishNodeResizes(nodeResizesRef.current);
             }
-            // Pending resizes remain unconstrained for one render so their new
-            // intrinsic target sizes can be measured.
-            setAnimatedNodeDimensions(renderedResizeDimensions(nodeResizesRef.current));
             animationRequestedRef.current = motionEnabled;
             applyChange();
             setGraphChangeRevision((revision) => revision + 1);
@@ -270,7 +286,6 @@ export function useAnimatedGraphLayout(
         // Finish pending node measurement before updating the layout endpoint.
         const resizeTargets = preparePendingNodeResizes(nodeResizesRef.current);
         if (resizeTargets.size > 0) {
-            setAnimatedNodeDimensions(renderedResizeDimensions(nodeResizesRef.current));
             setDimensions((current) => {
                 const targets = new Map(current.targets);
                 for (const [nodeId, nodeTarget] of resizeTargets) targets.set(nodeId, nodeTarget);
@@ -305,8 +320,7 @@ export function useAnimatedGraphLayout(
         cancelLayoutFrame();
         const settleLayout = () => {
             animationRequestedRef.current = false;
-            nodeResizesRef.current.clear();
-            setAnimatedNodeDimensions(new Map());
+            finishNodeResizes(nodeResizesRef.current);
             const next = staticLayout(targetLayout);
             renderedLayoutRef.current = next;
             setRenderedLayout(next);
@@ -339,20 +353,17 @@ export function useAnimatedGraphLayout(
             assertNotNull(resize.target);
             return {
                 nodeId,
-                resize,
+                element: resize.sizingElement,
                 target: resize.target,
-                start: resize.current,
+                start: {width: resize.sizingElement.offsetWidth, height: resize.sizingElement.offsetHeight},
             };
         });
         const step = (now: number) => {
             const progress = graphAnimationProgress(startTime, now);
-            for (const {resize, target, start} of nodeResizeTransitions) {
-                resize.current = {
-                    width: start.width + (target.width - start.width) * progress,
-                    height: start.height + (target.height - start.height) * progress,
-                };
+            for (const {element, target, start} of nodeResizeTransitions) {
+                element.style.width = `${start.width + (target.width - start.width) * progress}px`;
+                element.style.height = `${start.height + (target.height - start.height) * progress}px`;
             }
-            setAnimatedNodeDimensions(renderedResizeDimensions(nodeResizesRef.current));
             const interpolated = interpolate(progress);
             const next =
                 targetLayoutRef.current === targetLayout
@@ -364,8 +375,7 @@ export function useAnimatedGraphLayout(
                 animationFrameRef.current = requestAnimationFrame(step);
             } else {
                 animationFrameRef.current = undefined;
-                for (const {nodeId} of nodeResizeTransitions) nodeResizesRef.current.delete(nodeId);
-                setAnimatedNodeDimensions(renderedResizeDimensions(nodeResizesRef.current));
+                for (const {nodeId} of nodeResizeTransitions) finishNodeResize(nodeResizesRef.current, nodeId);
                 animationRequestedRef.current = false;
             }
         };
@@ -393,7 +403,7 @@ export function useAnimatedGraphLayout(
     useEffect(
         () => () => {
             cancelLayoutFrame();
-            nodeResizesRef.current.clear();
+            finishNodeResizes(nodeResizesRef.current);
         },
         [cancelLayoutFrame],
     );
@@ -402,17 +412,12 @@ export function useAnimatedGraphLayout(
     // animation styles on that data, including retained exiting elements.
     return useMemo(
         () => ({
-            nodes: renderedLayout.nodes.map(({node, position, opacity, transient}) => {
-                const animatedDimensions = animatedNodeDimensions.get(node.id);
-                const resizing = animatedDimensions !== undefined;
-                return {
-                    ...node,
-                    className: resizing ? [node.className, "qg-resizing"].filter(Boolean).join(" ") : node.className,
-                    measured: dimensions.measured.get(node.id),
-                    position,
-                    style: withAnimationStyle(node.style, opacity, transient, animatedDimensions),
-                };
-            }),
+            nodes: renderedLayout.nodes.map(({node, position, opacity, transient}) => ({
+                ...node,
+                measured: dimensions.measured.get(node.id),
+                position,
+                style: withAnimationStyle(node.style, opacity, transient),
+            })),
             edges: renderedLayout.edges.map(({edge, opacity, transient}) => ({
                 ...edge,
                 style: withAnimationStyle(edge.style, opacity, transient),
@@ -425,6 +430,6 @@ export function useAnimatedGraphLayout(
             onNodesChange,
             animateGraphChange,
         }),
-        [animateGraphChange, animatedNodeDimensions, dimensions.measured, onNodesChange, renderedLayout],
+        [animateGraphChange, dimensions.measured, onNodesChange, renderedLayout],
     );
 }
