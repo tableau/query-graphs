@@ -9,16 +9,20 @@ All plan parsing and rendering is delegated to `@tableau/query-graphs`; the code
 
 The app provides:
 
-* **Plan loading** — `QueryGraphsApp.tsx` calls the core library's `loadPlanFromText` dispatcher.
-* **The plan in the URL** — `browserUrlHooks.ts`, which stores the open plan and title as URL parameters so history and link-sharing work.
-* **Getting a plan in** — `FileOpener.tsx`, handling paste, drag & drop, and validation.
-* **Persisting and sharing a plan** — `LocalStorageUrl.ts` plus the optional `upload-server` integration.
-* **App chrome** — `TreeLabel` (editable title + metadata), `ErrorBoundary`, and the PWA/offline setup.
+- **Plan loading** — `QueryGraphsApp.tsx` runs the core library's `loadPlanFromText` dispatcher in a web worker.
+- **The plan in the URL** — `browserUrlHooks.ts`, which stores the open plan and title as URL parameters so history and link-sharing work.
+- **Getting a plan in** — `FileOpener.tsx`, handling paste, drag & drop, and validation.
+- **Persisting and sharing a plan** — `LocalStorageUrl.ts` plus the optional `upload-server` integration.
+- **App chrome** — `TreeLabel` (editable title + metadata), `ErrorBoundary`, and the PWA/offline setup.
 
 ## Loader Dispatch
 
-`QueryGraphsApp.tsx` uses the core library's [`loadPlanFromText` dispatcher](../docs/PlanFormatsAndLoaders.md#loader-dispatch).
-The same function doubles as the input validator in `FileOpener`, so the paste box can tell the user immediately whether their text is a recognized plan.
+`QueryGraphsApp.tsx` uses the core library's [`loadPlanFromText` dispatcher](../docs/PlanFormatsAndLoaders.md#loader-dispatch) through `PlanWorkerClient.ts`.
+Each JSON load gets a dedicated, abortable web worker, keeping the loading indicator and the rest of the page responsive even for multi-megabyte plans.
+XML retains an asynchronous main-thread fallback because dedicated workers do not provide `DOMParser`.
+
+The same worker also validates input in `FileOpener` after a short debounce.
+Changing the input terminates stale validation work instead of letting an obsolete large parse finish in the background.
 
 ## The Plan Lives in the URL
 
@@ -34,9 +38,9 @@ You can construct deeplinks — for example with a `data:` URL — to open a spe
 
 This design buys three things for free:
 
-* **Browser history** — opening a plan pushes a history entry, so Back returns to the previous plan; editing the title uses `replaceState` so it does not spam history.
-* **Shareable links** — a URL fully describes what is on screen.
-* **The examples page** — each entry on `examples.html` is just a `file=` link into the app.
+- **Browser history** — opening a plan pushes a history entry, so Back returns to the previous plan; editing the title uses `replaceState` so it does not spam history.
+- **Shareable links** — a URL fully describes what is on screen.
+- **The examples page** — each entry on `examples.html` is just a `file=` link into the app.
 
 Parameters are kept in the URL **hash**, not the query string.
 We don't want to leak any (potentially confidential) query plans to the server.
@@ -47,11 +51,11 @@ Browsers never send the hash portion of a URL to the server, so `useUrlParam` ke
 `FileOpener.tsx` is the landing screen.
 It accepts a plan by:
 
-* **Pasting** into the textarea — pasting into an empty box auto-submits, and pasted files are read as text.
-* **Drag & drop** of a file anywhere on the page.
-* **Typing/pasting then clicking "Visualize Plan"**, or pressing Ctrl/Cmd-Enter.
+- **Pasting** into the textarea — pasting into an empty box auto-submits, and pasted files are read as text.
+- **Drag & drop** of a file anywhere on the page.
+- **Typing/pasting then clicking "Visualize Plan"**, or pressing Ctrl/Cmd-Enter.
 
-It validates input live using `loadPlanFromText` and shows parse errors before the user submits.
+It validates input asynchronously and shows parse errors before the user submits.
 
 ## Persisting and Sharing a Plan
 
@@ -67,9 +71,10 @@ Because plans can contain sensitive SQL, the default local-storage/blob strategi
 
 ## App Chrome, Offline, and Examples
 
-* `TreeLabel.tsx` renders the editable graph title (persisted via the `title` URL param) and any plan `metadata` in a collapsible panel.
-* `ErrorBoundary.tsx` catches render-time crashes and shows the error text with a link to file a GitHub issue.
-* Production builds register a [Workbox](https://developer.chrome.com/docs/workbox) service worker (configured via `GenerateSW` in `webpack/prod.config.ts`) and ship a web-app manifest (`src/manifest.json`), so the app is installable and works fully offline; the favicons are generated at build time.
+- `TreeLabel.tsx` renders the editable graph title (persisted via the `title` URL param) and any plan `metadata` in a collapsible panel.
+- `ErrorBoundary.tsx` catches render-time crashes and shows the error text with a link to file a GitHub issue.
+- Production builds register a [Workbox](https://developer.chrome.com/docs/workbox) service worker (configured via `GenerateSW` in `webpack/prod.config.ts`) and ship a web-app manifest (`src/manifest.json`), so the app is installable and works fully offline; the favicons are generated at build time.
   The service-worker cache is a common source of confusion: a locally served production build (`prod-server`) can keep serving a **stale** `bundle.js`/`index.html` even after a rebuild.
   If a change is not showing up, clear the site's service worker and cache in your browser's dev tools, or use the `dev-server`, which does not register a service worker.
-* `examples.html` is generated at build time by `webpack/webpack-create-examples-list.ts`, which walks `examples/` and emits a linked index. The example plans themselves are regenerated by [`plan-dumper`](../plan-dumper/README.md).
+- `examples.html` is generated at build time by `webpack/webpack-create-examples-list.ts`, which walks `examples/` and emits a linked index. The example plans themselves are regenerated by [`plan-dumper`](../plan-dumper/README.md).
+- `pnpm generate-large-example` creates a 10 MiB synthetic Hyper plan in the ignored `.generated-examples/` directory for interactive loading tests without adding it to production deployments. `pnpm dev-server` regenerates it and serves it at `/generated-examples/synthetic-10mb-hyper.plan.json` automatically.

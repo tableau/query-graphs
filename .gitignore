@@ -19,6 +19,7 @@ jupyterlab-extension/lib
 query-graphs/lib
 standalone-app/dist
 standalone-app/ts-build
+standalone-app/.generated-examples
 standalone-server/webroot/*.min.js
 standalone-server/webroot/*.min.js.map
 

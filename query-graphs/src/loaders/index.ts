@@ -59,6 +59,11 @@ function stripSurroundingText(text: string): string {
     return planStart >= 0 && planEnd >= planStart ? text.substring(planStart, planEnd + 1) : text;
 }
 
+function canonicalPlanText(text: string, language?: string): string {
+    const planText = stripSurroundingText(text);
+    return language === "json" ? formatJsonDocument(planText).replace(/\r\n?/g, "\n") : planText;
+}
+
 function addPlanDocument(plan: LoadedPlan, text: string, language: string): LoadedPlan {
     const planDocument: TextDocument = {id: planDocumentId, title: "Query Plan", text, language};
     plan.tree.textDocuments ??= [];
@@ -139,7 +144,7 @@ export function loadPlanFromText(text: string, options: LoadPlanOptions = {}): L
         try {
             // CodeMirror and other browser text models use LF internally, so keep the
             // displayed document and its source offsets in that canonical form.
-            const jsonText = formatJsonDocument(planText).replace(/\r\n?/g, "\n");
+            const jsonText = canonicalPlanText(planText, "json");
             const json = parsePositionedJson(jsonText, planDocumentId);
             const plan = loadMatchingPlan(json.value, jsonPlanLoaders, errors, format, {jsonSource: json.source});
             if (plan !== undefined) return addPlanDocument(plan, jsonText, "json");

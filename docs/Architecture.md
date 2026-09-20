@@ -7,13 +7,13 @@ This document gives the high-level picture; each module's `README.md` covers its
 
 The repository contains four modules.
 
-* [`query-graphs`](../query-graphs/README.md) — the core library.
+- [`query-graphs`](../query-graphs/README.md) — the core library.
   It parses the various plan formats into one internal tree model and renders that model with React and react-flow.
   It is published to npm as `@tableau/query-graphs` and can be embedded into other tools.
-* [`standalone-app`](../standalone-app/README.md) — the web app deployed at [tableau.github.io/query-graphs](https://tableau.github.io/query-graphs/).
+- [`standalone-app`](../standalone-app/README.md) — the web app deployed at [tableau.github.io/query-graphs](https://tableau.github.io/query-graphs/).
   It wraps the core library with everything the library itself does not provide: opening files, pasting, drag & drop, link sharing, and the offline/PWA behavior.
-* [`upload-server`](../upload-server/README.md) — an optional Node server that accepts an uploaded plan and hands back a shareable URL.
-* [`plan-dumper`](../plan-dumper/README.md) — Python scripts that regenerate the committed example plans by running `EXPLAIN` against Hyper, Postgres and DuckDB.
+- [`upload-server`](../upload-server/README.md) — an optional Node server that accepts an uploaded plan and hands back a shareable URL.
+- [`plan-dumper`](../plan-dumper/README.md) — Python scripts that regenerate the committed example plans by running `EXPLAIN` against Hyper, Postgres and DuckDB.
 
 `query-graphs` and `standalone-app` hold the core functionality.
 `upload-server` and `plan-dumper` are supporting tools.
@@ -35,8 +35,9 @@ flowchart TD
     render --> ui["Interactive graph"]
 ```
 
-1. The app hands the raw text to `loadPlanFromText` (`query-graphs/src/loaders/index.ts`), which parses it once and selects the first loader whose `matches` method accepts it.
+1. The standalone app hands JSON text to an abortable web worker, which calls `loadPlanFromText` (`query-graphs/src/loaders/index.ts`), parses it once, and selects the first loader whose `matches` method accepts it.
    JSON parsing also records source offsets so loaders can link semantic tree nodes back to their identifying values in the plan document.
+   Library consumers can still call the synchronous API directly; XML uses that path in the standalone app because dedicated workers do not provide `DOMParser`.
 2. The winning loader (e.g. `query-graphs/src/loaders/hyper.ts`) transforms the source structure into a `TreeDescription`.
    This is where format-specific knowledge lives: how to name nodes, which children to show or collapse, which icon to use, how to label edges.
 3. `layoutTree` (`query-graphs/src/ui/tree-layout.ts`) assigns positions using `d3-flextree`, driven by the measured on-screen size of each node.

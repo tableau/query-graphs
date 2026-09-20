@@ -2,12 +2,12 @@ import {useCallback, useEffect, useState} from "react";
 import {useBrowserUrl, useUrlParam} from "./browserUrlHooks";
 import type {FileOpenerData} from "./FileOpener";
 import {FileOpener, useLoadStateController} from "./FileOpener";
-import {loadPlanFromText} from "@tableau/query-graphs/lib/loaders";
 import {QueryGraph} from "@tableau/query-graphs/lib/ui/QueryGraph";
 import type {TreeDescription} from "@tableau/query-graphs/lib/tree-description";
 import {tryCreateLocalStorageUrl, isLocalStorageURL, loadLocalStorageURL} from "./LocalStorageUrl";
 import {assert} from "./assert";
 import {TreeLabel} from "./TreeLabel";
+import {loadPlanDocument, validatePlanDocument} from "./PlanWorkerClient";
 
 export function QueryGraphsApp() {
     const loadStateController = useLoadStateController();
@@ -76,57 +76,49 @@ export function QueryGraphsApp() {
         const abortController = new AbortController();
         const signal = abortController.signal;
         tryAndDisplayErrors(async () => {
-            // Interpret relative URLs. This is important such that
-            // the "examples.html" page works correctly.
-            const url = new URL(treeUrl, window.location.href);
-            const urlString = url.toString();
-            // Reset the tree. In case we fail due to an exception, we don't want
-            // an outdated tree to stay around.
-            setTree(undefined);
-            // Load the URL
-            let text;
-            if (isLocalStorageURL(url)) {
-                text = loadLocalStorageURL(url);
-            } else {
-                setProgress(`Fetching "${urlString}"...`);
-                let response;
-                try {
-                    response = await fetch(urlString, {signal});
-                } catch (e) {
-                    if (url.protocol == "blob:") {
-                        throw new Error("Local content no longer accessible", {cause: e});
+            try {
+                // Interpret relative URLs. This is important such that
+                // the "examples.html" page works correctly.
+                const url = new URL(treeUrl, window.location.href);
+                const urlString = url.toString();
+                // Reset the tree. In case we fail due to an exception, we don't want
+                // an outdated tree to stay around.
+                setTree(undefined);
+                // Load the URL
+                let text;
+                if (isLocalStorageURL(url)) {
+                    text = loadLocalStorageURL(url);
+                } else {
+                    setProgress(`Fetching "${urlString}"...`);
+                    let response;
+                    try {
+                        response = await fetch(urlString, {signal});
+                    } catch (e) {
+                        if (url.protocol == "blob:") {
+                            throw new Error("Local content no longer accessible", {cause: e});
+                        }
+                        throw e;
                     }
-                    throw e;
+                    if (!response.ok) {
+                        throw new Error(`Failed to load ${urlString}: HTTP ${response.status}`);
+                    }
+                    text = await response.text();
                 }
-                if (!response.ok) {
-                    throw new Error(`Failed to load ${urlString}: HTTP ${response.status}`);
-                }
-                text = await response.text();
+                setProgress("Parsing plan...");
+                const {tree} = await loadPlanDocument(text, signal);
+                if (signal.aborted) return;
+                setTree(tree);
+                clearLoadState();
+            } catch (error) {
+                if (!signal.aborted) throw error;
             }
-            // Parse the tree
-            setProgress("Parsing plan...");
-            const {tree} = loadPlanFromText(text);
-            // Display the freshly loaded tree=
-            setTree(tree);
-            clearLoadState();
         });
         return () => {
             abortController.abort();
         };
     }, [treeUrl, clearLoadState, setProgress, tryAndDisplayErrors]);
 
-    const validate = useCallback((text: string) => {
-        try {
-            loadPlanFromText(text);
-            return undefined;
-        } catch (e) {
-            if (e instanceof Error) {
-                return e.message;
-            } else {
-                return "Unknown error";
-            }
-        }
-    }, []);
+    const validate = useCallback((text: string, signal: AbortSignal) => validatePlanDocument(text, signal), []);
 
     if (!tree) {
         return <FileOpener setData={openPickedData} loadStateController={loadStateController} validate={validate} />;

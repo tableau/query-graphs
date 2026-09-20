@@ -10,7 +10,9 @@
   },
   "scripts": {
     "build": "webpack --config=webpack/prod.config.ts",
+    "predev-server": "pnpm generate-large-example",
     "dev-server": "webpack serve --config=webpack/dev.config.ts",
+    "generate-large-example": "node scripts/generate-large-example.mjs",
     "prod-server": "http-server -p 8080 dist"
   },
   "author": {
