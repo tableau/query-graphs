@@ -44,9 +44,9 @@ export function CollapsiblePanel({
             }}
         >
             <summary onPointerEnter={mountContent} onFocus={mountContent}>
-                <span className="qg-collapsible-panel-chevron" aria-hidden="true">
-                    &#x25B8;
-                </span>
+                <svg className="qg-collapsible-panel-chevron" viewBox="0 0 16 16" aria-hidden="true">
+                    <path d="M5.5 3.5 10.5 8l-5 4.5" />
+                </svg>
                 <span className="qg-collapsible-panel-title">{title}</span>
                 {highlighted ? (
                     <span className="qg-attention-needed-icon" role="img" aria-label="Needs attention">
