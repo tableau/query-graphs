@@ -302,15 +302,12 @@ export function useAnimatedGraphLayout(
 
         // Choose between settling immediately, staging nodes, and animating.
         cancelLayoutFrame();
-        const settleLayout = () => {
+        if (!animationRequested) {
             animationRequestedRef.current = false;
             finishNodeResizes(nodeResizesRef.current);
             const next = staticLayout(targetLayout);
             renderedLayoutRef.current = next;
             setRenderedLayout(next);
-        };
-        if (!animationRequested) {
-            settleLayout();
             return;
         }
 
