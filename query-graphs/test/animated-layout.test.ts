@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import type {Edge} from "@xyflow/react";
 import {
+    closestAnimationAnchor,
     createLayoutInterpolator,
     refreshLayoutPayloads,
     resolveTransitionAnchors,
@@ -13,13 +14,12 @@ import type {QueryGraphNode} from "../src/ui/QueryNode";
 
 const parentAnchors = new Map([["child", {nodeId: "parent", offset: {x: 0, y: 30}}]]);
 
-function node(id: string, x: number, y: number, height = 20): QueryGraphNode {
+function node(id: string, x: number, y: number): QueryGraphNode {
     return {
         id,
         type: "querynode",
         data: {name: id},
         position: {x, y},
-        measured: {width: 40, height},
     };
 }
 
@@ -31,9 +31,61 @@ function layout(nodes: QueryGraphNode[], edges: Edge[] = []): GraphLayout {
     return {nodes, edges};
 }
 
+function dimensions(nodeIds: readonly string[]): Map<string, {width: number; height: number}> {
+    return new Map(nodeIds.map((nodeId) => [nodeId, {width: 40, height: 20}]));
+}
+
+test("the viewport anchor falls back to the persistent node nearest the center", () => {
+    const start = staticLayout(layout([node("left", 10, 40), node("stationary", 50, 40), node("right", 80, 40)]));
+    const target = layout([node("left", 20, 40), node("stationary", 50, 40), node("right", 90, 40)]);
+
+    const measured = dimensions(["left", "stationary", "right"]);
+    assert.equal(closestAnimationAnchor(start, target, new Set(), measured, {x: 0, y: 0, width: 100, height: 100}), "stationary");
+    assert.equal(closestAnimationAnchor(start, target, new Set(), measured, {x: -200, y: 0, width: 100, height: 100}), "left");
+});
+
+test("the fallback uses the nearest node even when it is just offscreen", () => {
+    const start = staticLayout(layout([node("visible", 100, 80), node("offscreen", 50, -21)]));
+    const target = layout([node("visible", 110, 80), node("offscreen", 60, -21)]);
+
+    assert.equal(
+        closestAnimationAnchor(start, target, new Set(), dimensions(["visible", "offscreen"]), {
+            x: 0,
+            y: 0,
+            width: 100,
+            height: 100,
+        }),
+        "offscreen",
+    );
+});
+
+test("visible explicit anchors take precedence but invisible anchors do not", () => {
+    const start = staticLayout(layout([node("moving", 50, 40), node("anchor", 10, 40)]));
+    const target = layout([node("moving", 60, 40), node("anchor", 10, 40)]);
+
+    assert.equal(
+        closestAnimationAnchor(start, target, new Set(["anchor"]), dimensions(["moving", "anchor"]), {
+            x: 0,
+            y: 0,
+            width: 100,
+            height: 100,
+        }),
+        "anchor",
+    );
+    assert.equal(
+        closestAnimationAnchor(start, target, new Set(["anchor"]), dimensions(["moving", "anchor"]), {
+            x: 100,
+            y: 0,
+            width: 100,
+            height: 100,
+        }),
+        "moving",
+    );
+});
+
 test("entering nodes and edges emerge from their parent", () => {
-    const start = staticLayout(layout([node("parent", 10, 20, 30)]));
-    const target = layout([node("parent", 20, 40, 30), node("child", 80, 120)], [edge("parent", "child")]);
+    const start = staticLayout(layout([node("parent", 10, 20)]));
+    const target = layout([node("parent", 20, 40), node("child", 80, 120)], [edge("parent", "child")]);
 
     const interpolate = createLayoutInterpolator(start, target, parentAnchors);
     const staged = interpolate(0);
@@ -49,6 +101,19 @@ test("entering nodes and edges emerge from their parent", () => {
     assert.deepEqual(finishedChild?.position, {x: 80, y: 120});
     assert.equal(finishedChild?.opacity, 1);
     assert.equal(finishedChild?.transient, false);
+});
+
+test("staged entering nodes continue to resolve their transition anchors", () => {
+    const start = staticLayout(layout([node("parent", 10, 20)]));
+    const target = layout([node("parent", 20, 40), node("child", 80, 120)]);
+    const staged = createLayoutInterpolator(start, target, parentAnchors)(0);
+
+    assert.deepEqual(
+        resolveTransitionAnchors(staged, target, new Map([["child", "parent"]]), (nodeId) =>
+            nodeId === "parent" ? parentAnchors.get("child") : undefined,
+        ),
+        parentAnchors,
+    );
 });
 
 test("simultaneous entering and exiting subtrees use independent anchors", () => {
@@ -75,13 +140,13 @@ test("transition anchors fail when a required handle cannot be measured", () => 
 });
 
 test("exiting nodes follow their anchor when an animation is interrupted", () => {
-    const expanded = staticLayout(layout([node("parent", 10, 20, 30), node("child", 80, 120)], [edge("parent", "child")]));
-    const firstTarget = layout([node("parent", 20, 40, 30)]);
+    const expanded = staticLayout(layout([node("parent", 10, 20), node("child", 80, 120)], [edge("parent", "child")]));
+    const firstTarget = layout([node("parent", 20, 40)]);
     const interrupted = createLayoutInterpolator(expanded, firstTarget, parentAnchors)(0.5);
     const interruptedChild = interrupted.nodes.find((entry) => entry.node.id === "child");
     assert.deepEqual(interruptedChild?.position, {x: 50, y: 95});
 
-    const movedTarget = layout([node("parent", 100, 100, 30)]);
+    const movedTarget = layout([node("parent", 100, 100)]);
     const resumed = createLayoutInterpolator(interrupted, movedTarget, parentAnchors)(0.5);
     const resumedChild = resumed.nodes.find((entry) => entry.node.id === "child");
     assert.deepEqual(resumedChild?.position, {x: 75, y: 112.5});

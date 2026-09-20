@@ -2,6 +2,7 @@ import type {layoutTree} from "./tree-layout";
 import type {QueryGraphNode} from "./QueryNode";
 import {findClosestVisibleAncestors} from "./tree-topology";
 import type {TreeParents} from "./tree-topology";
+import type {Dimensions} from "@xyflow/react";
 
 export type GraphLayout = ReturnType<typeof layoutTree>;
 type GraphEdge = GraphLayout["edges"][number];
@@ -34,6 +35,46 @@ interface AnimatedEdge {
 export interface AnimatedLayout {
     nodes: AnimatedNode[];
     edges: AnimatedEdge[];
+}
+
+export interface ViewportBounds extends Position {
+    width: number;
+    height: number;
+}
+
+/** Returns the nearest visible explicit anchor, falling back to the nearest persistent node. */
+export function closestAnimationAnchor(
+    from: AnimatedLayout,
+    to: GraphLayout,
+    anchorNodeIds: ReadonlySet<string>,
+    dimensions: ReadonlyMap<string, Dimensions>,
+    viewport: ViewportBounds,
+): string | undefined {
+    const center = {x: viewport.x + viewport.width / 2, y: viewport.y + viewport.height / 2};
+    let closest: {nodeId: string; visibleAnchor: boolean; distance: number} | undefined;
+    const targetNodeIds = new Set(to.nodes.map((node) => node.id));
+    for (const {node, position, transient} of from.nodes) {
+        if (transient || !targetNodeIds.has(node.id)) continue;
+        const {width = 0, height = 0} = dimensions.get(node.id) ?? {};
+        // QueryGraph places nodes at their top-center (`nodeOrigin={[0.5, 0]}`).
+        const left = position.x - width / 2;
+        const visible =
+            left + width >= viewport.x &&
+            left <= viewport.x + viewport.width &&
+            position.y + height >= viewport.y &&
+            position.y <= viewport.y + viewport.height;
+        const x = position.x - center.x;
+        const y = position.y + height / 2 - center.y;
+        const distance = x * x + y * y;
+        const visibleAnchor = visible && anchorNodeIds.has(node.id);
+        if (
+            closest === undefined ||
+            (visibleAnchor && !closest.visibleAnchor) ||
+            (visibleAnchor === closest.visibleAnchor && distance < closest.distance)
+        )
+            closest = {nodeId: node.id, visibleAnchor, distance};
+    }
+    return closest?.nodeId;
 }
 
 /**
@@ -78,9 +119,9 @@ export function sameLayoutTarget(left: GraphLayout, right: GraphLayout): boolean
 }
 
 /**
- * Anchors each entering or exiting node at its nearest ancestor that remains
- * visible. Returns an empty map when membership is unchanged, or `undefined`
- * when a required anchor cannot be measured.
+ * Anchors each entering, exiting, or still-transient node at its nearest
+ * ancestor that remains visible. Returns an empty map when no transitions
+ * remain, or `undefined` when a required anchor cannot be measured.
  *
  * Resolved paths and measured handles are cached, so every ancestry link is
  * followed at most once even when an entire deep subtree changes.
@@ -92,11 +133,11 @@ export function resolveTransitionAnchors(
     measureAnchor: (nodeId: string) => LayoutAnchor | undefined,
 ): TransitionAnchors | undefined {
     const anchors = new Map<string, LayoutAnchor>();
-    const fromNodeIds = new Set(from.nodes.map((entry) => entry.node.id));
+    const fromNodeIds = new Set(from.nodes.filter((entry) => !entry.transient).map((entry) => entry.node.id));
     const toNodeIds = new Set(to.nodes.map((node) => node.id));
     const visibleInBoth = new Set([...fromNodeIds].filter((id) => toNodeIds.has(id)));
     const changedNodeIds = [...toNodeIds].filter((id) => !fromNodeIds.has(id));
-    changedNodeIds.push(...[...fromNodeIds].filter((id) => !toNodeIds.has(id)));
+    changedNodeIds.push(...from.nodes.map((entry) => entry.node.id).filter((id) => !toNodeIds.has(id)));
     const visibleAncestors = findClosestVisibleAncestors(changedNodeIds, parents, visibleInBoth);
     const measuredAnchors = new Map<string, LayoutAnchor | undefined>();
 

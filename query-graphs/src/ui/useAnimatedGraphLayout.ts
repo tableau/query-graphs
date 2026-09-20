@@ -9,7 +9,7 @@
  * frames.
  */
 import type {Dimensions, NodeChange} from "@xyflow/react";
-import {useReactFlow} from "@xyflow/react";
+import {useReactFlow, useStoreApi} from "@xyflow/react";
 import type {CSSProperties} from "react";
 import {createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState} from "react";
 import {assertNotNull} from "../assert";
@@ -19,6 +19,7 @@ import {layoutTree} from "./tree-layout";
 import {graphAnimationsEnabled, graphAnimationProgress} from "./animation-timing";
 import type {GraphLayout} from "./animated-layout";
 import {
+    closestAnimationAnchor,
     createLayoutInterpolator,
     refreshLayoutPayloads,
     resolveTransitionAnchors,
@@ -179,10 +180,18 @@ export function useAnimatedGraphLayout(
     animateGraphChange: AnimateGraphChange;
     initialViewportReady: boolean;
 } {
-    // React Flow services used to resolve handles and fit the initial graph.
-    const {fitView, getInternalNode} = useReactFlow<QueryGraphNode>();
+    // React Flow services used to resolve handles, update the viewport, and fit
+    // the initial graph.
+    const {fitView, getInternalNode, setViewport} = useReactFlow<QueryGraphNode>();
+    const flowStore = useStoreApi();
 
     const [dimensions, setDimensions] = useState<DimensionsState>(() => ({measured: new Map(), targets: new Map()}));
+    // Make current bounds available to anchor selection without letting
+    // measurement-only frames restart the layout effect.
+    const measuredDimensionsRef = useRef(dimensions.measured);
+    useLayoutEffect(() => {
+        measuredDimensionsRef.current = dimensions.measured;
+    }, [dimensions.measured]);
     // Intermediate measurements update the React Flow projection below, while
     // only final target dimensions invalidate the comparatively costly layout.
     const targetLayout = useMemo(
@@ -228,27 +237,21 @@ export function useAnimatedGraphLayout(
             const motionEnabled = graphAnimationsEnabled();
             // Read every starting size before clearing interrupted styles.
             const resizes = new Map<string, NodeResize>();
-            if (motionEnabled) {
-                for (const {nodeId, nodeElement} of resizingNodes) {
-                    const flowElement = nodeElement.closest<HTMLElement>(".react-flow__node");
-                    const sizingElement = nodeElement.closest<HTMLElement>(".qg-graph-node");
-                    if (flowElement === null || sizingElement === null) continue;
-                    // Animate our complete visual shell so React Flow's
-                    // observed wrapper can remain intrinsically sized.
-                    resizes.set(nodeId, {
-                        flowElement,
-                        sizingElement,
-                        start: {width: sizingElement.offsetWidth, height: sizingElement.offsetHeight},
-                    });
-                }
+            for (const {nodeId, nodeElement} of resizingNodes) {
+                const flowElement = nodeElement.closest<HTMLElement>(".react-flow__node");
+                const sizingElement = nodeElement.closest<HTMLElement>(".qg-graph-node");
+                if (flowElement === null || sizingElement === null) continue;
+                // Measure and, when enabled, animate our complete visual shell
+                // so React Flow's observed wrapper remains intrinsically sized.
+                resizes.set(nodeId, {
+                    flowElement,
+                    sizingElement,
+                    start: {width: sizingElement.offsetWidth, height: sizingElement.offsetHeight},
+                });
             }
             cancelLayoutFrame();
-            if (motionEnabled) {
-                for (const {nodeId} of resizingNodes) finishNodeResize(nodeResizesRef.current, nodeId);
-                for (const [nodeId, resize] of resizes) nodeResizesRef.current.set(nodeId, resize);
-            } else {
-                finishNodeResizes(nodeResizesRef.current);
-            }
+            for (const {nodeId} of resizingNodes) finishNodeResize(nodeResizesRef.current, nodeId);
+            for (const [nodeId, resize] of resizes) nodeResizesRef.current.set(nodeId, resize);
             animationRequestedRef.current = motionEnabled;
             applyChange();
             setGraphChangeRevision((revision) => revision + 1);
@@ -291,6 +294,42 @@ export function useAnimatedGraphLayout(
         const animationRequested = transitionAnchorMap !== undefined && animationRequestedRef.current;
         animationRequestedRef.current = animationRequested;
         const anchors = transitionAnchorMap ?? new Map();
+        const animationAnchorNodeIds = new Set(nodeResizesRef.current.keys());
+        for (const {nodeId} of anchors.values()) animationAnchorNodeIds.add(nodeId);
+        const {width: viewportWidth, height: viewportHeight, transform} = flowStore.getState();
+        const [viewportX, viewportY, viewportZoom] = transform;
+        // Preserve one moving, persistent node rather than the potentially
+        // empty centroid of several transitions. Prefer a visible node near
+        // the user's focus.
+        const viewportAnchorNodeId = closestAnimationAnchor(
+            renderedLayoutRef.current,
+            targetLayout,
+            animationAnchorNodeIds,
+            measuredDimensionsRef.current,
+            {
+                x: -viewportX / viewportZoom,
+                y: -viewportY / viewportZoom,
+                width: viewportWidth / viewportZoom,
+                height: viewportHeight / viewportZoom,
+            },
+        );
+        const anchorStart = renderedLayoutRef.current.nodes.find(({node}) => node.id === viewportAnchorNodeId)?.position;
+        const anchorTarget = targetLayout.nodes.find((node) => node.id === viewportAnchorNodeId)?.position;
+        const anchorMovement =
+            anchorStart === undefined || anchorTarget === undefined
+                ? undefined
+                : {x: anchorTarget.x - anchorStart.x, y: anchorTarget.y - anchorStart.y};
+        // Apply the precomputed movement incrementally so concurrent viewport
+        // input is retained instead of being replaced with a fixed transform.
+        const preserveViewportAnchorPosition = (progress: number) => {
+            if (anchorMovement === undefined || (anchorMovement.x === 0 && anchorMovement.y === 0)) return;
+            const [x, y, zoom] = flowStore.getState().transform;
+            void setViewport({
+                x: x - anchorMovement.x * progress * zoom,
+                y: y - anchorMovement.y * progress * zoom,
+                zoom,
+            });
+        };
         const canStartAnimation = animationRequested && targetLayoutMeasured && animationFrameRef.current === undefined;
         targetLayoutRef.current = targetLayout;
         renderedLayoutRef.current = refreshLayoutPayloads(renderedLayoutRef.current, targetLayout);
@@ -298,6 +337,7 @@ export function useAnimatedGraphLayout(
         // Staged nodes becoming measurable still need to start their animation.
         if (!targetLayoutChanged && !canStartAnimation) {
             if (targetLayoutDataChanged) setRenderedLayout(renderedLayoutRef.current);
+            if (targetLayoutMeasured && !animationRequested) finishNodeResizes(nodeResizesRef.current);
             return;
         }
 
@@ -306,6 +346,7 @@ export function useAnimatedGraphLayout(
         if (!animationRequested) {
             finishNodeResizes(nodeResizesRef.current);
             const next = staticLayout(targetLayout);
+            preserveViewportAnchorPosition(1);
             renderedLayoutRef.current = next;
             setRenderedLayout(next);
             return;
@@ -334,6 +375,7 @@ export function useAnimatedGraphLayout(
                 start: {width: resize.sizingElement.offsetWidth, height: resize.sizingElement.offsetHeight},
             };
         });
+        let previousProgress = 0;
         const step = (now: number) => {
             const progress = graphAnimationProgress(startTime, now);
             for (const {element, target, start} of nodeResizeTransitions) {
@@ -345,6 +387,10 @@ export function useAnimatedGraphLayout(
                 targetLayoutRef.current === targetLayout
                     ? interpolated
                     : refreshLayoutPayloads(interpolated, targetLayoutRef.current);
+            // Counteract layout movement so the selected anchor remains at the
+            // same screen position.
+            preserveViewportAnchorPosition(progress - previousProgress);
+            previousProgress = progress;
             renderedLayoutRef.current = next;
             setRenderedLayout(next);
             if (progress < 1) {
@@ -356,7 +402,16 @@ export function useAnimatedGraphLayout(
             }
         };
         animationFrameRef.current = requestAnimationFrame(step);
-    }, [cancelLayoutFrame, getInternalNode, graphChangeRevision, targetLayout, targetLayoutMeasured, treeParents]);
+    }, [
+        cancelLayoutFrame,
+        flowStore,
+        getInternalNode,
+        graphChangeRevision,
+        setViewport,
+        targetLayout,
+        targetLayoutMeasured,
+        treeParents,
+    ]);
 
     // Fit only after the initial graph is fully measured and any transition
     // has settled, ensuring React Flow sees final node bounds.
