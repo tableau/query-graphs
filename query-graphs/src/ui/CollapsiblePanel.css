@@ -42,9 +42,15 @@
         }
 
         & .qg-collapsible-panel-chevron {
-            display: inline-block;
-            font-size: 1.4em;
-            line-height: 1;
+            width: 1em;
+            height: 1em;
+            flex: 0 0 auto;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 1.75;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            transform-origin: center;
             transition: transform 0.12s ease;
         }
     }

@@ -89,7 +89,13 @@ function QueryNode({data, id}: NodeProps<QueryGraphNode>) {
                 {colorBar(data.barsBelow, "below")}
             </div>
             <Handle type="source" position={Position.Bottom} className={handleClassName} onClick={onSubtreeHandleClick}>
-                {hasSubtree ? (subtreeExpanded ? "-" : "+") : ""}
+                {hasSubtree ? (
+                    <svg className="qg-subtree-handle-icon" viewBox="0 0 16 16" aria-hidden="true">
+                        <circle className="qg-subtree-handle-background" cx="8" cy="8" r="7.25" />
+                        <path d="M4.5 8h7" />
+                        <path className="qg-subtree-handle-vertical" d="M8 4.5v7" />
+                    </svg>
+                ) : null}
             </Handle>
         </>
     );
