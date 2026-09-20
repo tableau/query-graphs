@@ -61,6 +61,58 @@ function addPlanDocument(plan: LoadedPlan, text: string, language: string): Load
     return plan;
 }
 
+function formatJsonDocument(text: string): string {
+    if (/[\r\n]/.test(text)) return text;
+
+    let formatted = "";
+    let indent = 0;
+    let inString = false;
+    let escaped = false;
+    const whitespace = new Set([" ", "\t", "\r", "\n"]);
+    const indentation = () => " ".repeat(indent * 3);
+
+    for (let index = 0; index < text.length; index++) {
+        const character = text[index];
+        if (inString) {
+            formatted += character;
+            if (escaped) {
+                escaped = false;
+            } else if (character === "\\") {
+                escaped = true;
+            } else if (character === '"') {
+                inString = false;
+            }
+            continue;
+        }
+
+        if (character === '"') {
+            inString = true;
+            formatted += character;
+        } else if (character === "{" || character === "[") {
+            formatted += character;
+            indent++;
+            const closingCharacter = character === "{" ? "}" : "]";
+            let nextIndex = index + 1;
+            while (whitespace.has(text[nextIndex])) nextIndex++;
+            if (text[nextIndex] !== closingCharacter) formatted += `\n${indentation()}`;
+        } else if (character === "}" || character === "]") {
+            indent--;
+            let previousIndex = index - 1;
+            while (whitespace.has(text[previousIndex])) previousIndex--;
+            if (text[previousIndex] !== "{" && text[previousIndex] !== "[") formatted += `\n${indentation()}`;
+            formatted += character;
+        } else if (character === ",") {
+            formatted += `,\n${indentation()}`;
+        } else if (character === ":") {
+            formatted += ": ";
+        } else if (!whitespace.has(character)) {
+            formatted += character;
+        }
+    }
+
+    return formatted;
+}
+
 export function loadPlanFromText(text: string, options: LoadPlanOptions = {}): LoadedPlan {
     const planText = stripSurroundingText(text);
     const format = options.format;
@@ -76,7 +128,7 @@ export function loadPlanFromText(text: string, options: LoadPlanOptions = {}): L
         try {
             const json = JSON.parse(planText) as Json;
             const plan = loadMatchingPlan(json, jsonPlanLoaders, errors, format);
-            if (plan !== undefined) return addPlanDocument(plan, planText, "json");
+            if (plan !== undefined) return addPlanDocument(plan, formatJsonDocument(planText), "json");
         } catch (error) {
             errors.push(error);
         }

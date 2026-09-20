@@ -41,7 +41,7 @@ test("dispatcher strips text surrounding copied plans", () => {
     const loadedJson = loadPlanFromText(json);
     assert.equal(loadedJson.format, "json");
     assert.deepEqual(loadedJson.tree.textDocuments, [
-        {id: "plan", title: "Query Plan", text: '{"unrecognized":true}', language: "json"},
+        {id: "plan", title: "Query Plan", text: '{\n   "unrecognized": true\n}', language: "json"},
     ]);
     assert.equal(loadPlanFromText(json, {format: "json"}).format, "json");
 
@@ -50,6 +50,28 @@ test("dispatcher strips text surrounding copied plans", () => {
     assert.equal(loadedXml.format, "tableau");
     assert.deepEqual(loadedXml.tree.textDocuments, [{id: "plan", title: "Query Plan", text: "<logical-query />", language: "xml"}]);
     assert.equal(loadPlanFromText(xml, {format: "xml"}).format, "xml");
+});
+
+test("dispatcher pretty-prints single-line JSON documents with three-space indentation", () => {
+    const json = '{"nested":{"value":42},"items":[1,2]}';
+    const document = loadPlanFromText(json).tree.textDocuments?.find(({id}) => id === "plan");
+    assert.equal(document?.text, '{\n   "nested": {\n      "value": 42\n   },\n   "items": [\n      1,\n      2\n   ]\n}');
+});
+
+test("dispatcher pretty-prints JSON without changing its tokens", () => {
+    const json = '{"2":"first","value":9007199254740993,"value":1e400,"1":"last","text":"{},:[ before \\"quote\\" after"}';
+    const document = loadPlanFromText(json).tree.textDocuments?.find(({id}) => id === "plan");
+    assert.equal(
+        document?.text,
+        '{\n   "2": "first",\n   "value": 9007199254740993,\n   "value": 1e400,\n   "1": "last",\n   "text": "{},:[ before \\"quote\\" after"\n}',
+    );
+});
+
+test("dispatcher preserves already multi-line JSON documents", () => {
+    for (const json of ['{\n "unrecognized": true\n}', '{\r\n\t"unrecognized": true\r\n}', '{\r "unrecognized": true\r}']) {
+        const document = loadPlanFromText(json).tree.textDocuments?.find(({id}) => id === "plan");
+        assert.equal(document?.text, json);
+    }
 });
 
 test("dispatcher reports invalid plans", () => {
