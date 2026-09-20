@@ -370,7 +370,7 @@ export function useAnimatedGraphLayout(
             return;
         let cancelled = false;
         let revealFrame: number | undefined;
-        const animationFrame = requestAnimationFrame(() => {
+        const fitFrame = requestAnimationFrame(() => {
             void fitView().then(() => {
                 if (cancelled) return;
                 // The fitted transform is in the DOM now, but Chrome may not
@@ -386,7 +386,7 @@ export function useAnimatedGraphLayout(
         });
         return () => {
             cancelled = true;
-            cancelAnimationFrame(animationFrame);
+            cancelAnimationFrame(fitFrame);
             if (revealFrame !== undefined) cancelAnimationFrame(revealFrame);
         };
     }, [fitView, initialViewportReady, renderedLayout, targetLayoutMeasured]);

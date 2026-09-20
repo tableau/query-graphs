@@ -45,8 +45,9 @@ function preventNodeDoubleClickZoom(event: MouseEvent): void {
 function QueryGraphInternal({treeDescription, children, nodeIdMapping, treeParents}: QueryGraphInternalProps) {
     const expandedSubtrees = useGraphRenderingStore((s) => s.expandedSubtrees);
     const animatedLayout = useAnimatedGraphLayout(treeDescription, nodeIdMapping, treeParents, expandedSubtrees);
-    // Opacity gates the complete subtree; React Flow overrides inherited
-    // visibility on each node after measuring it.
+    // Hide the full tree initially to avoid flickering. We use `opacity` instead
+    // of `visibility: hidden` because React Flow overrides inherited
+    // visibility on nodes after measuring them.
     const initialViewportStyle = {opacity: animatedLayout.initialViewportReady ? 1 : 0};
 
     return (
