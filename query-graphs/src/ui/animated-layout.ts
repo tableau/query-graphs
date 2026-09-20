@@ -53,7 +53,7 @@ export function staticLayout(layout: GraphLayout): AnimatedLayout {
  * animated positions, opacity, and transient state. Elements missing from the
  * latest layout keep their old payload because they may still be animating out.
  */
-export function refreshLayoutData(layout: AnimatedLayout, latest: GraphLayout): AnimatedLayout {
+export function refreshLayoutPayloads(layout: AnimatedLayout, latest: GraphLayout): AnimatedLayout {
     const latestNodes = new Map(latest.nodes.map((node) => [node.id, node]));
     const latestEdges = new Map(latest.edges.map((edge) => [edge.id, edge]));
     return {
@@ -64,7 +64,7 @@ export function refreshLayoutData(layout: AnimatedLayout, latest: GraphLayout): 
 
 /**
  * Tests whether two layouts describe the same interpolation endpoint. Payload
- * and presentation changes are ignored because `refreshLayoutData` applies
+ * and presentation changes are ignored because `refreshLayoutPayloads` applies
  * them without restarting the animation.
  */
 export function sameLayoutTarget(left: GraphLayout, right: GraphLayout): boolean {
@@ -79,7 +79,7 @@ export function sameLayoutTarget(left: GraphLayout, right: GraphLayout): boolean
 }
 
 /** Indexes every node's parent once, including currently collapsed children. */
-export function treeParents(tree: TreeDescription, nodeIds: Map<TreeNode, string>): ReadonlyMap<string, string> {
+export function indexTreeParents(tree: TreeDescription, nodeIds: Map<TreeNode, string>): ReadonlyMap<string, string> {
     const parents = new Map<string, string>();
     const pending: [TreeNode, string | undefined][] = [[tree.root, undefined]];
     while (pending.length > 0) {
@@ -100,7 +100,7 @@ export function treeParents(tree: TreeDescription, nodeIds: Map<TreeNode, string
  * Resolved paths and measured handles are cached, so every ancestry link is
  * followed at most once even when an entire deep subtree changes.
  */
-export function transitionAnchors(
+export function resolveTransitionAnchors(
     from: AnimatedLayout,
     to: GraphLayout,
     parents: ReadonlyMap<string, string>,

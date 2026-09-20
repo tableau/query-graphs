@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import {applyMeasuredDimensions, measurePendingBodyResizes} from "../src/ui/useAnimatedGraphLayout";
+import {applyMeasuredDimensions, preparePendingBodyResizes} from "../src/ui/useAnimatedGraphLayout";
 
 function measuredElement(events: string[], name: string, width: number, height: number): HTMLElement {
     const style = {removeProperty: (property: string) => events.push(`remove ${name}.${property}`)};
@@ -38,7 +38,7 @@ test("pending body resizes read every target before freezing any body", () => {
         ],
     ]);
 
-    const targets = measurePendingBodyResizes(resizes);
+    const targets = preparePendingBodyResizes(resizes);
 
     assert.deepEqual(
         targets,
@@ -76,7 +76,7 @@ test("pending body resizes preserve active entries and discard unmeasurable entr
         ],
     ]);
 
-    assert.deepEqual(measurePendingBodyResizes(resizes), new Map());
+    assert.deepEqual(preparePendingBodyResizes(resizes), new Map());
     assert.equal(resizes.get("active"), active);
     assert.equal(resizes.has("missing"), false);
     assert.ok(events.includes("remove missing body.width"));

@@ -20,11 +20,11 @@ import {animationStartTime, graphAnimationProgress} from "./animation-timing";
 import type {GraphLayout, LayoutAnchor} from "./animated-layout";
 import {
     createLayoutInterpolator,
-    refreshLayoutData,
+    indexTreeParents,
+    refreshLayoutPayloads,
+    resolveTransitionAnchors,
     sameLayoutTarget,
     staticLayout,
-    transitionAnchors,
-    treeParents,
 } from "./animated-layout";
 
 interface NodeResizeRequest {
@@ -126,7 +126,7 @@ function captureBodyResize({nodeElement}: NodeResizeRequest): BodyResize | undef
  * both the resize registry and body styles. Returns `undefined` when no resize
  * is awaiting measurement.
  */
-export function measurePendingBodyResizes(resizes: Map<string, BodyResize>): Map<string, Dimensions> | undefined {
+export function preparePendingBodyResizes(resizes: Map<string, BodyResize>): Map<string, Dimensions> | undefined {
     const pending = [...resizes].filter(([, resize]) => resize.bodyTarget === undefined);
     if (pending.length === 0) return undefined;
 
@@ -202,7 +202,7 @@ export function useAnimatedGraphLayout(
     // QueryGraph remounts this hook for each tree, so measurements belong only
     // to the graph instance that collected them.
     const [dimensions, setDimensions] = useState<DimensionsState>(() => ({measured: new Map(), targets: new Map()}));
-    const parentIds = useMemo(() => treeParents(treeDescription, nodeIds), [treeDescription, nodeIds]);
+    const parentIds = useMemo(() => indexTreeParents(treeDescription, nodeIds), [treeDescription, nodeIds]);
     // Intermediate measurements update the React Flow projection below, while
     // only stable target dimensions invalidate the comparatively costly layout.
     const targetLayout = useMemo(
@@ -281,7 +281,7 @@ export function useAnimatedGraphLayout(
     // from the current frame so interrupted transitions remain continuous.
     useLayoutEffect(() => {
         // Finish pending body measurement before reconciling the layout endpoint.
-        const resizeTargets = measurePendingBodyResizes(bodyResizesRef.current);
+        const resizeTargets = preparePendingBodyResizes(bodyResizesRef.current);
         if (resizeTargets !== undefined && resizeTargets.size > 0) {
             setDimensions((current) => {
                 const targets = new Map(current.targets);
@@ -294,7 +294,7 @@ export function useAnimatedGraphLayout(
         // Classify the endpoint and resolve independent subtree transition origins.
         const targetLayoutDataChanged = targetLayoutRef.current !== targetLayout;
         const targetLayoutChanged = !sameLayoutTarget(targetLayoutRef.current, targetLayout);
-        const transitionAnchorMap = transitionAnchors(renderedLayoutRef.current, targetLayout, parentIds, (nodeId) =>
+        const transitionAnchorMap = resolveTransitionAnchors(renderedLayoutRef.current, targetLayout, parentIds, (nodeId) =>
             measuredSourceAnchor(getInternalNode(nodeId), subtreeHandleId),
         );
         // Missing handles make origin-based interpolation worse than snapping.
@@ -305,7 +305,7 @@ export function useAnimatedGraphLayout(
         const anchors = transitionAnchorMap ?? new Map();
         const canStartAnimation = animationRequested && targetLayoutMeasured && animationFrameRef.current === undefined;
         targetLayoutRef.current = targetLayout;
-        renderedLayoutRef.current = refreshLayoutData(renderedLayoutRef.current, targetLayout);
+        renderedLayoutRef.current = refreshLayoutPayloads(renderedLayoutRef.current, targetLayout);
         // Publish payload-only updates without restarting equivalent geometry.
         // Staged nodes becoming measurable still need to start their animation.
         if (!targetLayoutChanged && !canStartAnimation) {
@@ -363,7 +363,9 @@ export function useAnimatedGraphLayout(
             }
             const interpolated = interpolate(progress);
             const next =
-                targetLayoutRef.current === targetLayout ? interpolated : refreshLayoutData(interpolated, targetLayoutRef.current);
+                targetLayoutRef.current === targetLayout
+                    ? interpolated
+                    : refreshLayoutPayloads(interpolated, targetLayoutRef.current);
             renderedLayoutRef.current = next;
             setRenderedLayout(next);
             if (progress < 1) {

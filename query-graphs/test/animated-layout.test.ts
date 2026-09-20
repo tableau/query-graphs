@@ -3,10 +3,10 @@ import test from "node:test";
 import type {Edge} from "@xyflow/react";
 import {
     createLayoutInterpolator,
-    refreshLayoutData,
+    refreshLayoutPayloads,
+    resolveTransitionAnchors,
     sameLayoutTarget,
     staticLayout,
-    transitionAnchors,
 } from "../src/ui/animated-layout";
 import type {GraphLayout, TransitionAnchors} from "../src/ui/animated-layout";
 import {graphAnimationDuration, graphAnimationProgress} from "../src/ui/animation-timing";
@@ -70,7 +70,7 @@ test("transition anchors fail when a required handle cannot be measured", () => 
     const target = layout([node("parent", 0, 0), node("child", 0, 100)]);
 
     assert.equal(
-        transitionAnchors(start, target, new Map([["child", "parent"]]), () => undefined),
+        resolveTransitionAnchors(start, target, new Map([["child", "parent"]]), () => undefined),
         undefined,
     );
 });
@@ -120,7 +120,7 @@ test("refreshing layout data preserves animated positions and exiting payloads",
     const animated = staticLayout(layout([originalNode, exitingNode], [exitingEdge]));
     animated.nodes[0]!.position = {x: 5, y: 6};
 
-    const refreshed = refreshLayoutData(animated, layout([{...originalNode, data: {name: "updated"}}]));
+    const refreshed = refreshLayoutPayloads(animated, layout([{...originalNode, data: {name: "updated"}}]));
     assert.equal(refreshed.nodes[0]?.node.data.name, "updated");
     assert.deepEqual(refreshed.nodes[0]?.position, {x: 5, y: 6});
     assert.equal(refreshed.nodes[1]?.node, exitingNode);
