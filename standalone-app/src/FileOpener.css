@@ -46,6 +46,12 @@
     }
 }
 
+.build-info {
+    margin-top: 0.4em;
+    font-size: 0.85em;
+    color: #666;
+}
+
 /* Hinted text area */
 
 .hinted-textarea {

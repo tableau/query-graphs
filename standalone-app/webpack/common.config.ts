@@ -1,15 +1,42 @@
 import type {Configuration} from "webpack";
+import {DefinePlugin} from "webpack";
+import {execFileSync} from "node:child_process";
 import path from "path";
 import CopyPlugin from "copy-webpack-plugin";
 import {CreateExamplesListPlugin} from "./webpack-create-examples-list";
 import FaviconsWebpackPlugin from "favicons-webpack-plugin";
 import HtmlWebpackPlugin from "html-webpack-plugin";
 
+const repositoryRoot = path.resolve(__dirname, "../..");
+
+function getBuildCommitHash(): string {
+    const environmentCommitHash = process.env.BUILD_COMMIT_HASH ?? process.env.GITHUB_SHA;
+    if (environmentCommitHash !== undefined) {
+        return environmentCommitHash.trim();
+    }
+
+    try {
+        return execFileSync("git", ["rev-parse", "HEAD"], {cwd: repositoryRoot, encoding: "utf8"}).trim();
+    } catch {
+        return "unknown";
+    }
+}
+
+const buildCommitHash = getBuildCommitHash();
+const buildTimestamp = new Date()
+    .toISOString()
+    .replace("T", " ")
+    .replace(/\.\d{3}Z$/, " UTC");
+
 const config: Configuration = {
     entry: {
         bundle: "./src/index.tsx",
     },
     plugins: [
+        new DefinePlugin({
+            BUILD_COMMIT_HASH: JSON.stringify(buildCommitHash),
+            BUILD_TIMESTAMP: JSON.stringify(buildTimestamp),
+        }),
         new HtmlWebpackPlugin({
             title: "Query Graphs",
             filename: "index.html",

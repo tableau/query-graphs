@@ -5,6 +5,9 @@ import "./FileOpener.css";
 import {assert} from "./assert";
 import classcat from "classcat";
 
+declare const BUILD_COMMIT_HASH: string;
+declare const BUILD_TIMESTAMP: string;
+
 export interface FileOpenerData {
     content: string;
     fileName?: string;
@@ -260,7 +263,12 @@ export function FileOpener({setData, validate, loadStateController}: FileOpenerP
                     </button>
                     {renderedError}
                     <div className="github-link">
-                        Open-sourced on <a href="https://github.com/tableau/query-graphs">Github</a>
+                        <div>
+                            Open-sourced on <a href="https://github.com/tableau/query-graphs">Github</a>
+                        </div>
+                        <div className="build-info">
+                            Build {BUILD_COMMIT_HASH.substring(0, 12)} · {BUILD_TIMESTAMP}
+                        </div>
                     </div>
                 </div>
                 {dragOverlay}
