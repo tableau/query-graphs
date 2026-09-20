@@ -27,6 +27,19 @@ function layout(nodes: QueryGraphNode[], edges: Edge[] = []): GraphLayout {
     return {nodes, edges};
 }
 
+function measuredElement(events: string[], name: string, width: number, height: number): HTMLElement {
+    const style = {removeProperty: (property: string) => events.push(`remove ${name}.${property}`)};
+    for (const property of ["width", "height", "maxWidth", "maxHeight"])
+        Object.defineProperty(style, property, {set: (value) => events.push(`write ${name}.${property}=${value}`)});
+    return Object.defineProperties(
+        {style},
+        {
+            offsetWidth: {get: () => (events.push(`read ${name}.width`), width)},
+            offsetHeight: {get: () => (events.push(`read ${name}.height`), height)},
+        },
+    ) as unknown as HTMLElement;
+}
+
 test("entering nodes and edges emerge from their parent", () => {
     const start = staticLayout(layout([node("parent", 10, 20, 30)]));
     const target = layout([node("parent", 20, 40, 30), node("child", 80, 120)], [edge("parent", "child")]);
@@ -47,7 +60,7 @@ test("entering nodes and edges emerge from their parent", () => {
     assert.equal(finishedChild?.transient, false);
 });
 
-test("simultaneous subtree changes use independent anchors", () => {
+test("simultaneous entering and exiting subtrees use independent anchors", () => {
     const start = staticLayout(layout([node("left-parent", 0, 0), node("left-child", 0, 100), node("right-parent", 100, 0)]));
     const target = layout([node("left-parent", 10, 0), node("right-parent", 110, 0), node("right-child", 110, 100)]);
     const anchors: TransitionAnchors = new Map([
@@ -96,41 +109,39 @@ test("transition anchors resolve deep changed subtrees in one ancestry pass", ()
     assert.equal(anchors?.get(`left-${depth - 1}`)?.nodeId, "left");
     assert.equal(anchors?.get(`right-${depth - 1}`)?.nodeId, "right");
     assert.equal(parents.reads, depth * 2);
-    assert.deepEqual(measured, ["right", "left"]);
+    assert.equal(measured.length, 2);
+    assert.deepEqual(new Set(measured), new Set(["left", "right"]));
 });
 
-test("pending body resizes measure every target before freezing their bodies", () => {
+test("transition anchors fail when a required handle cannot be measured", () => {
+    const start = staticLayout(layout([node("parent", 0, 0)]));
+    const target = layout([node("parent", 0, 0), node("child", 0, 100)]);
+
+    assert.equal(
+        transitionAnchors(start, target, new Map([["child", "parent"]]), () => undefined),
+        undefined,
+    );
+});
+
+test("pending body resizes read every target before freezing any body", () => {
     const events: string[] = [];
-    const element = (name: string, width: number, height: number) => {
-        const style = {removeProperty: (property: string) => events.push(`remove ${name}.${property}`)};
-        for (const property of ["width", "height", "maxWidth", "maxHeight"])
-            Object.defineProperty(style, property, {set: (value) => events.push(`write ${name}.${property}=${value}`)});
-        return Object.defineProperties(
-            {style},
-            {
-                offsetWidth: {get: () => (events.push(`read ${name}.width`), width)},
-                offsetHeight: {get: () => (events.push(`read ${name}.height`), height)},
-            },
-        ) as unknown as HTMLElement;
-    };
-    const firstBody = element("first body", 80, 60);
-    const secondBody = element("second body", 100, 70);
-    const active = {
-        nodeElement: element("active node", 40, 40),
-        bodyElement: element("active body", 30, 30),
-        bodyStart: {width: 10, height: 10},
-        bodyTarget: {width: 30, height: 30},
-    };
+    const firstBody = measuredElement(events, "first body", 80, 60);
+    const secondBody = measuredElement(events, "second body", 100, 70);
     const resizes = new Map([
-        ["first", {nodeElement: element("first node", 120, 90), bodyElement: firstBody, bodyStart: {width: 40, height: 20}}],
-        ["second", {nodeElement: element("second node", 140, 100), bodyElement: secondBody, bodyStart: {width: 50, height: 30}}],
-        ["active", active],
         [
-            "missing",
+            "first",
             {
-                nodeElement: element("missing node", 0, 0),
-                bodyElement: element("missing body", 0, 0),
-                bodyStart: {width: 10, height: 10},
+                nodeElement: measuredElement(events, "first node", 120, 90),
+                bodyElement: firstBody,
+                bodyStart: {width: 40, height: 20},
+            },
+        ],
+        [
+            "second",
+            {
+                nodeElement: measuredElement(events, "second node", 140, 100),
+                bodyElement: secondBody,
+                bodyStart: {width: 50, height: 30},
             },
         ],
     ]);
@@ -144,14 +155,39 @@ test("pending body resizes measure every target before freezing their bodies", (
             ["second", {width: 140, height: 100}],
         ]),
     );
-    assert.equal(
-        events.findIndex((event) => event.startsWith("write")),
-        12,
-    );
+    const firstWrite = events.findIndex((event) => event.startsWith("write"));
+    const lastRead = events.reduce((last, event, index) => (event.startsWith("read") ? index : last), -1);
+    assert.ok(lastRead >= 0 && firstWrite > lastRead);
     assert.ok(events.includes("write first body.width=40px"));
-    assert.equal(resizes.get("first")?.bodyTarget?.width, 80);
+    assert.ok(events.includes("write second body.width=50px"));
+    assert.deepEqual(resizes.get("first")?.bodyTarget, {width: 80, height: 60});
+    assert.deepEqual(resizes.get("second")?.bodyTarget, {width: 100, height: 70});
+});
+
+test("pending body resizes preserve active entries and discard unmeasurable entries", () => {
+    const events: string[] = [];
+    const active = {
+        nodeElement: measuredElement(events, "active node", 40, 40),
+        bodyElement: measuredElement(events, "active body", 30, 30),
+        bodyStart: {width: 10, height: 10},
+        bodyTarget: {width: 30, height: 30},
+    };
+    const resizes = new Map([
+        ["active", active],
+        [
+            "missing",
+            {
+                nodeElement: measuredElement(events, "missing node", 0, 0),
+                bodyElement: measuredElement(events, "missing body", 0, 0),
+                bodyStart: {width: 10, height: 10},
+            },
+        ],
+    ]);
+
+    assert.deepEqual(measurePendingBodyResizes(resizes), new Map());
     assert.equal(resizes.get("active"), active);
     assert.equal(resizes.has("missing"), false);
+    assert.ok(events.includes("remove missing body.width"));
 });
 
 test("exiting nodes follow their anchor when an animation is interrupted", () => {
@@ -175,7 +211,7 @@ test("exiting nodes follow their anchor when an animation is interrupted", () =>
     assert.equal(finished.edges.length, 0);
 });
 
-test("layout comparisons distinguish geometry while refreshed data preserves animated positions", () => {
+test("layout target comparison ignores payload changes but detects geometry and membership changes", () => {
     const originalNode = node("node", 10, 20);
     const original = layout([originalNode]);
     const same = layout([{...originalNode, data: {name: "updated"}}]);
@@ -183,19 +219,36 @@ test("layout comparisons distinguish geometry while refreshed data preserves ani
 
     assert.equal(sameLayoutTarget(original, same), true);
     assert.equal(sameLayoutTarget(original, moved), false);
+    assert.equal(sameLayoutTarget(original, layout([node("replacement", 10, 20)])), false);
 
-    const animated = staticLayout(original);
+    const originalEdge = edge("node", "node");
+    assert.equal(
+        sameLayoutTarget(layout([originalNode], [originalEdge]), layout([originalNode], [{...originalEdge, id: "replacement"}])),
+        false,
+    );
+});
+
+test("refreshing layout data preserves animated positions and exiting payloads", () => {
+    const originalNode = node("node", 10, 20);
+    const exitingNode = node("exiting", 30, 40);
+    const exitingEdge = edge("node", "exiting");
+    const animated = staticLayout(layout([originalNode, exitingNode], [exitingEdge]));
     animated.nodes[0]!.position = {x: 5, y: 6};
-    const refreshed = refreshLayoutData(animated, same);
+
+    const refreshed = refreshLayoutData(animated, layout([{...originalNode, data: {name: "updated"}}]));
     assert.equal(refreshed.nodes[0]?.node.data.name, "updated");
     assert.deepEqual(refreshed.nodes[0]?.position, {x: 5, y: 6});
+    assert.equal(refreshed.nodes[1]?.node, exitingNode);
+    assert.equal(refreshed.edges[0]?.edge, exitingEdge);
 });
 
 test("animation progress is eased and clamped", () => {
     const start = 100;
     assert.equal(graphAnimationProgress(start, start - 1), 0);
     assert.equal(graphAnimationProgress(start, start), 0);
+    assert.ok(graphAnimationProgress(start, start + graphAnimationDuration / 4) < 0.25);
     assert.ok(Math.abs(graphAnimationProgress(start, start + graphAnimationDuration / 2) - 0.5) < Number.EPSILON);
+    assert.ok(graphAnimationProgress(start, start + (3 * graphAnimationDuration) / 4) > 0.75);
     assert.equal(graphAnimationProgress(start, start + graphAnimationDuration), 1);
     assert.equal(graphAnimationProgress(start, start + graphAnimationDuration + 1), 1);
 });
