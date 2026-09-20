@@ -45,6 +45,10 @@ function preventNodeDoubleClickZoom(event: MouseEvent): void {
 function QueryGraphInternal({treeDescription, children, nodeIdMapping, treeParents}: QueryGraphInternalProps) {
     const expandedSubtrees = useGraphRenderingStore((s) => s.expandedSubtrees);
     const animatedLayout = useAnimatedGraphLayout(treeDescription, nodeIdMapping, treeParents, expandedSubtrees);
+    // Hide the full tree initially to avoid flickering. We use `opacity` instead
+    // of `visibility: hidden` because React Flow overrides inherited
+    // visibility on nodes after measuring them.
+    const initialViewportStyle = {opacity: animatedLayout.initialViewportReady ? 1 : 0};
 
     return (
         <AnimateGraphChangeContext.Provider value={animatedLayout.animateGraphChange}>
@@ -63,6 +67,8 @@ function QueryGraphInternal({treeDescription, children, nodeIdMapping, treeParen
                 nodesConnectable={false}
                 nodesFocusable={false}
                 className={"query-graph"}
+                style={initialViewportStyle}
+                inert={!animatedLayout.initialViewportReady}
             >
                 {...Array.isArray(children) ? children : [children]}
                 <MiniMap zoomable={true} pannable={true} nodeColor={minimapNodeColor} />
