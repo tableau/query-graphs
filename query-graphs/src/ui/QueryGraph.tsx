@@ -3,7 +3,7 @@ import "@xyflow/react/dist/style.css";
 
 import type {TreeDescription, TreeNode} from "../tree-description";
 import {allChildren, visitTreeNodes} from "../tree-description";
-import type {ReactNode} from "react";
+import type {MouseEvent, ReactNode} from "react";
 import {useMemo} from "react";
 import {QueryNode} from "./QueryNode";
 import type {QueryGraphNode} from "./QueryNode";
@@ -38,6 +38,10 @@ const edgeTypes = {
     colored: ColoredEdge,
 };
 
+function preventNodeDoubleClickZoom(event: MouseEvent): void {
+    if (event.target instanceof Element && event.target.closest(".react-flow__node") !== null) event.stopPropagation();
+}
+
 function QueryGraphInternal({treeDescription, children, nodeIdMapping, treeParents}: QueryGraphInternalProps) {
     const expandedSubtrees = useGraphRenderingStore((s) => s.expandedSubtrees);
     const animatedLayout = useAnimatedGraphLayout(treeDescription, nodeIdMapping, treeParents, expandedSubtrees);
@@ -51,6 +55,7 @@ function QueryGraphInternal({treeDescription, children, nodeIdMapping, treeParen
                 nodeTypes={nodeTypes}
                 edgeTypes={edgeTypes}
                 onNodesChange={animatedLayout.onNodesChange}
+                onDoubleClickCapture={preventNodeDoubleClickZoom}
                 minZoom={0.2}
                 maxZoom={1.5}
                 elementsSelectable={true}
