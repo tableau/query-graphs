@@ -83,19 +83,17 @@ test("pending body resizes preserve active entries and discard unmeasurable entr
 });
 
 test("dimension reconciliation preserves active resize targets until they settle", () => {
-    const nodeIds = new Map();
     const initial = {
-        nodeIds,
         measured: new Map([["node", {width: 40, height: 20}]]),
         targets: new Map([["node", {width: 40, height: 20}]]),
     };
     const measured = {width: 80, height: 60};
 
-    const resizing = reconcileDimensions(initial, nodeIds, [["node", measured]], new Set(["node"]));
+    const resizing = reconcileDimensions(initial, [["node", measured]], new Set(["node"]));
     assert.equal(resizing.measured.get("node"), measured);
     assert.deepEqual(resizing.targets.get("node"), {width: 40, height: 20});
 
-    const settled = reconcileDimensions(resizing, nodeIds, [["node", measured]], new Set());
+    const settled = reconcileDimensions(resizing, [["node", measured]], new Set());
     assert.equal(settled.targets.get("node"), measured);
-    assert.equal(reconcileDimensions(settled, nodeIds, [["node", measured]], new Set()), settled);
+    assert.equal(reconcileDimensions(settled, [["node", measured]], new Set()), settled);
 });

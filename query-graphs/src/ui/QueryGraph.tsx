@@ -64,6 +64,8 @@ function QueryGraphInternal({treeDescription, children, nodeIdMapping}: QueryGra
     );
 }
 
+let nextGraphInstanceId = 0;
+
 function createGraphState(treeDescription: TreeDescription) {
     let nextId = 0;
     const nodeIdMapping = new Map<TreeNode, string>();
@@ -78,16 +80,19 @@ function createGraphState(treeDescription: TreeDescription) {
         allChildren,
     );
     return {
+        instanceId: nextGraphInstanceId++,
         nodeIdMapping,
         graphStore: createGraphRenderingStore(expandedSubtrees),
     };
 }
 
 export function QueryGraph(props: QueryGraphProps) {
-    const {nodeIdMapping, graphStore} = useMemo(() => createGraphState(props.treeDescription), [props.treeDescription]);
+    const {instanceId, nodeIdMapping, graphStore} = useMemo(() => createGraphState(props.treeDescription), [props.treeDescription]);
 
+    // This artificial key remounts React Flow when the tree changes, keeping
+    // its viewport, measurements, and animation state scoped to one graph.
     return (
-        <ReactFlowProvider>
+        <ReactFlowProvider key={instanceId}>
             <GraphRenderingStoreContext.Provider value={graphStore}>
                 <QueryGraphInternal {...props} nodeIdMapping={nodeIdMapping} />
             </GraphRenderingStoreContext.Provider>

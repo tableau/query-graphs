@@ -1,8 +1,8 @@
 /**
- * Coordinates animated query-graph changes with React Flow. `QueryGraph` passes
- * the returned nodes, edges, and `onNodesChange` callback to React Flow and
- * exposes `animateGraphChange` to nodes. Callers wrap synchronous graph updates
- * in that callback and identify persistent nodes whose bodies may resize.
+ * Coordinates animated query-graph changes with React Flow.
+ * Pass the returned nodes, edges, and `onNodesChange` callback to React Flow and
+ * set up an `AnimateGraphChangeContext.Provider`. Via `useAnimateGraphChange`,
+ * you can then request animations.
  *
  * Pure layout transitions live in `animated-layout.ts`; this module coordinates
  * React state, React Flow measurements, DOM body measurements, and animation
@@ -53,14 +53,8 @@ export function useAnimateGraphChange(): AnimateGraphChange {
 export const subtreeHandleId = "subtree";
 
 interface DimensionsState {
-    nodeIds: Map<TreeNode, string>;
     measured: ReadonlyMap<string, Dimensions>;
     targets: ReadonlyMap<string, Dimensions>;
-}
-
-/** Discards dimensions when a new graph reuses the same string node IDs. */
-function dimensionsForGraph(state: DimensionsState | undefined, nodeIds: Map<TreeNode, string>): DimensionsState {
-    return state?.nodeIds === nodeIds ? state : {nodeIds, measured: new Map(), targets: new Map()};
 }
 
 /** Tests dimensions by value so unchanged measurements retain their map identity. */
@@ -77,31 +71,28 @@ function sameDimensions(left: Dimensions | undefined, right: Dimensions): boolea
  */
 export function reconcileDimensions(
     current: DimensionsState,
-    nodeIds: Map<TreeNode, string>,
     updates: readonly (readonly [string, Dimensions])[],
     resizingNodeIds: Pick<ReadonlySet<string>, "has">,
 ): DimensionsState {
-    const dimensions = dimensionsForGraph(current, nodeIds);
     let measuredDimensions: Map<string, Dimensions> | undefined;
     let targetDimensions: Map<string, Dimensions> | undefined;
     for (const [nodeId, measured] of updates) {
-        if (!sameDimensions(measuredDimensions?.get(nodeId) ?? dimensions.measured.get(nodeId), measured)) {
-            measuredDimensions ??= new Map(dimensions.measured);
+        if (!sameDimensions(measuredDimensions?.get(nodeId) ?? current.measured.get(nodeId), measured)) {
+            measuredDimensions ??= new Map(current.measured);
             measuredDimensions.set(nodeId, measured);
         }
         const target = resizingNodeIds.has(nodeId)
-            ? (targetDimensions?.get(nodeId) ?? dimensions.targets.get(nodeId) ?? measured)
+            ? (targetDimensions?.get(nodeId) ?? current.targets.get(nodeId) ?? measured)
             : measured;
-        if (!sameDimensions(targetDimensions?.get(nodeId) ?? dimensions.targets.get(nodeId), target)) {
-            targetDimensions ??= new Map(dimensions.targets);
+        if (!sameDimensions(targetDimensions?.get(nodeId) ?? current.targets.get(nodeId), target)) {
+            targetDimensions ??= new Map(current.targets);
             targetDimensions.set(nodeId, target);
         }
     }
-    if (measuredDimensions === undefined && targetDimensions === undefined && current.nodeIds === nodeIds) return current;
+    if (measuredDimensions === undefined && targetDimensions === undefined) return current;
     return {
-        nodeIds,
-        measured: measuredDimensions ?? dimensions.measured,
-        targets: targetDimensions ?? dimensions.targets,
+        measured: measuredDimensions ?? current.measured,
+        targets: targetDimensions ?? current.targets,
     };
 }
 
@@ -208,9 +199,9 @@ export function useAnimatedGraphLayout(
     // React Flow services used to resolve handles and fit the initial graph.
     const {fitView, getInternalNode} = useReactFlow<QueryGraphNode>();
 
-    // Current measurements and the stable layout endpoint derived from them.
-    const [dimensionsState, setDimensionsState] = useState<DimensionsState>(() => dimensionsForGraph(undefined, nodeIds));
-    const dimensions = useMemo<DimensionsState>(() => dimensionsForGraph(dimensionsState, nodeIds), [dimensionsState, nodeIds]);
+    // QueryGraph remounts this hook for each tree, so measurements belong only
+    // to the graph instance that collected them.
+    const [dimensions, setDimensions] = useState<DimensionsState>(() => ({measured: new Map(), targets: new Map()}));
     const parentIds = useMemo(() => treeParents(treeDescription, nodeIds), [treeDescription, nodeIds]);
     // Intermediate measurements update the React Flow projection below, while
     // only stable target dimensions invalidate the comparatively costly layout.
@@ -226,26 +217,22 @@ export function useAnimatedGraphLayout(
     const animationFrameRef = useRef<number | undefined>(undefined);
     const [graphChangeRevision, setGraphChangeRevision] = useState(0);
 
-    // Last reconciled identities and layouts used across interrupted renders.
+    // Last reconciled layouts used across interrupted renders.
     const targetLayoutRef = useRef(targetLayout);
     const [renderedLayout, setRenderedLayout] = useState(() => staticLayout(targetLayout));
     const renderedLayoutRef = useRef(renderedLayout);
-    const nodeIdsRef = useRef(nodeIds);
     const initialFitDoneRef = useRef(false);
 
     // Record dimensions reported by React Flow. During a body resize, retain
     // the known final size as the layout target while its measured size moves.
-    const onNodesChange = useCallback(
-        (changes: NodeChange<QueryGraphNode>[]) => {
-            const updates = changes.flatMap((change) => {
-                if (change.type !== "dimensions" || change.dimensions === undefined) return [];
-                return [[change.id, change.dimensions] as const];
-            });
-            if (updates.length === 0) return;
-            setDimensionsState((current) => reconcileDimensions(current, nodeIds, updates, bodyResizesRef.current));
-        },
-        [nodeIds],
-    );
+    const onNodesChange = useCallback((changes: NodeChange<QueryGraphNode>[]) => {
+        const updates = changes.flatMap((change) => {
+            if (change.type !== "dimensions" || change.dimensions === undefined) return [];
+            return [[change.id, change.dimensions] as const];
+        });
+        if (updates.length === 0) return;
+        setDimensions((current) => reconcileDimensions(current, updates, bodyResizesRef.current));
+    }, []);
 
     // Finish a resize by restoring CSS ownership of the body size.
     const finishBodyResize = useCallback((nodeId: string) => {
@@ -296,19 +283,17 @@ export function useAnimatedGraphLayout(
         // Finish pending body measurement before reconciling the layout endpoint.
         const resizeTargets = measurePendingBodyResizes(bodyResizesRef.current);
         if (resizeTargets !== undefined && resizeTargets.size > 0) {
-            setDimensionsState((current) => {
-                const currentDimensions = dimensionsForGraph(current, nodeIds);
-                const targets = new Map(currentDimensions.targets);
+            setDimensions((current) => {
+                const targets = new Map(current.targets);
                 for (const [nodeId, nodeTarget] of resizeTargets) targets.set(nodeId, nodeTarget);
-                return {...currentDimensions, nodeIds, targets};
+                return {...current, targets};
             });
             return;
         }
 
         // Classify the endpoint and resolve independent subtree transition origins.
-        const graphChanged = nodeIdsRef.current !== nodeIds;
         const targetLayoutDataChanged = targetLayoutRef.current !== targetLayout;
-        const targetLayoutChanged = graphChanged || !sameLayoutTarget(targetLayoutRef.current, targetLayout);
+        const targetLayoutChanged = !sameLayoutTarget(targetLayoutRef.current, targetLayout);
         const transitionAnchorMap = transitionAnchors(renderedLayoutRef.current, targetLayout, parentIds, (nodeId) =>
             measuredSourceAnchor(getInternalNode(nodeId), subtreeHandleId),
         );
@@ -319,7 +304,6 @@ export function useAnimatedGraphLayout(
         animationRequestedRef.current = animationRequested;
         const anchors = transitionAnchorMap ?? new Map();
         const canStartAnimation = animationRequested && targetLayoutMeasured && animationFrameRef.current === undefined;
-        nodeIdsRef.current = nodeIds;
         targetLayoutRef.current = targetLayout;
         renderedLayoutRef.current = refreshLayoutData(renderedLayoutRef.current, targetLayout);
         // Publish payload-only updates without restarting equivalent geometry.
@@ -331,9 +315,6 @@ export function useAnimatedGraphLayout(
 
         // Choose between settling immediately, staging nodes, and animating.
         cancelLayoutFrame();
-        if (graphChanged) {
-            initialFitDoneRef.current = false;
-        }
         const settleLayout = () => {
             animationRequestedRef.current = false;
             for (const nodeId of bodyResizesRef.current.keys()) finishBodyResize(nodeId);
@@ -341,7 +322,7 @@ export function useAnimatedGraphLayout(
             renderedLayoutRef.current = next;
             setRenderedLayout(next);
         };
-        if (!animationRequested || graphChanged) {
+        if (!animationRequested) {
             settleLayout();
             return;
         }
@@ -394,16 +375,7 @@ export function useAnimatedGraphLayout(
             }
         };
         animationFrameRef.current = requestAnimationFrame(step);
-    }, [
-        cancelLayoutFrame,
-        finishBodyResize,
-        getInternalNode,
-        graphChangeRevision,
-        nodeIds,
-        parentIds,
-        targetLayout,
-        targetLayoutMeasured,
-    ]);
+    }, [cancelLayoutFrame, finishBodyResize, getInternalNode, graphChangeRevision, parentIds, targetLayout, targetLayoutMeasured]);
 
     // Fit only after the initial graph is fully measured and any transition
     // has settled, ensuring React Flow sees final node bounds.
