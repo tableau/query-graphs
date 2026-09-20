@@ -22,7 +22,8 @@
     }
 
     &.qg-collapsed:hover,
-    &.qg-expanded {
+    &.qg-expanded,
+    &.qg-resizing {
         cursor: pointer;
         background: white;
         border-color: hsl(0,0%, 80%);
