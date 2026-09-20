@@ -183,7 +183,7 @@ export function useAnimatedGraphLayout(
 
     const [dimensions, setDimensions] = useState<DimensionsState>(() => ({measured: new Map(), targets: new Map()}));
     // Intermediate measurements update the React Flow projection below, while
-    // only stable target dimensions invalidate the comparatively costly layout.
+    // only final target dimensions invalidate the comparatively costly layout.
     const targetLayout = useMemo(
         () => layoutTree(treeDescription, nodeIds, dimensions.targets, expandedSubtrees),
         [treeDescription, nodeIds, dimensions.targets, expandedSubtrees],
@@ -303,7 +303,6 @@ export function useAnimatedGraphLayout(
         // Choose between settling immediately, staging nodes, and animating.
         cancelLayoutFrame();
         if (!animationRequested) {
-            animationRequestedRef.current = false;
             finishNodeResizes(nodeResizesRef.current);
             const next = staticLayout(targetLayout);
             renderedLayoutRef.current = next;
