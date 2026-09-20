@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import type {Edge} from "@xyflow/react";
 import {
+    averageNodeMovement,
     createLayoutInterpolator,
     refreshLayoutPayloads,
     resolveTransitionAnchors,
@@ -30,6 +31,15 @@ function edge(source: string, target: string): Edge {
 function layout(nodes: QueryGraphNode[], edges: Edge[] = []): GraphLayout {
     return {nodes, edges};
 }
+
+test("node movement averages the persistent viewport anchors", () => {
+    const start = staticLayout(layout([node("left", 10, 20), node("right", 100, 40), node("ignored", 0, 0)]));
+    const target = staticLayout(layout([node("left", 30, 10), node("right", 110, 70), node("ignored", 500, 500)]));
+
+    assert.deepEqual(averageNodeMovement(start, target, new Set(["left"])), {x: 20, y: -10});
+    assert.deepEqual(averageNodeMovement(start, target, new Set(["left", "right"])), {x: 15, y: 10});
+    assert.equal(averageNodeMovement(start, target, new Set(["missing"])), undefined);
+});
 
 test("entering nodes and edges emerge from their parent", () => {
     const start = staticLayout(layout([node("parent", 10, 20, 30)]));
@@ -64,14 +74,13 @@ test("simultaneous entering and exiting subtrees use independent anchors", () =>
     assert.deepEqual(halfway.nodes.find((entry) => entry.node.id === "right-child")?.position, {x: 105, y: 65});
 });
 
-test("transition anchors fail when a required handle cannot be measured", () => {
+test("transition ancestor IDs remain available when a required handle cannot be measured", () => {
     const start = staticLayout(layout([node("parent", 0, 0)]));
     const target = layout([node("parent", 0, 0), node("child", 0, 100)]);
 
-    assert.equal(
-        resolveTransitionAnchors(start, target, new Map([["child", "parent"]]), () => undefined),
-        undefined,
-    );
+    const resolution = resolveTransitionAnchors(start, target, new Map([["child", "parent"]]), () => undefined);
+    assert.deepEqual(resolution.anchorNodeIds, new Set(["parent"]));
+    assert.equal(resolution.anchors, undefined);
 });
 
 test("exiting nodes follow their anchor when an animation is interrupted", () => {

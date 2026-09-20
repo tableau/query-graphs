@@ -18,6 +18,11 @@ export interface LayoutAnchor {
 
 export type TransitionAnchors = ReadonlyMap<string, LayoutAnchor>;
 
+export interface TransitionAnchorResolution {
+    anchorNodeIds: ReadonlySet<string>;
+    anchors: TransitionAnchors | undefined;
+}
+
 export interface AnimatedNode {
     node: QueryGraphNode;
     position: Position;
@@ -34,6 +39,26 @@ interface AnimatedEdge {
 export interface AnimatedLayout {
     nodes: AnimatedNode[];
     edges: AnimatedEdge[];
+}
+
+/**
+ * Returns the average movement of the listed persistent nodes. Missing nodes
+ * are ignored so an interrupted transition can safely reuse its anchor set.
+ */
+export function averageNodeMovement(from: AnimatedLayout, to: AnimatedLayout, nodeIds: ReadonlySet<string>): Position | undefined {
+    const fromPositions = new Map(from.nodes.map(({node, position}) => [node.id, position]));
+    let x = 0;
+    let y = 0;
+    let count = 0;
+    for (const {node, position} of to.nodes) {
+        if (!nodeIds.has(node.id)) continue;
+        const start = fromPositions.get(node.id);
+        if (start === undefined) continue;
+        x += position.x - start.x;
+        y += position.y - start.y;
+        count++;
+    }
+    return count === 0 ? undefined : {x: x / count, y: y / count};
 }
 
 /**
@@ -78,9 +103,9 @@ export function sameLayoutTarget(left: GraphLayout, right: GraphLayout): boolean
 }
 
 /**
- * Anchors each entering or exiting node at its nearest ancestor that remains
- * visible. Returns an empty map when membership is unchanged, or `undefined`
- * when a required anchor cannot be measured.
+ * Finds the nearest persistent ancestor of each entering or exiting node and
+ * measures its transition handle. Persistent node IDs remain available for
+ * viewport stabilization when a required handle cannot yet be measured.
  *
  * Resolved paths and measured handles are cached, so every ancestry link is
  * followed at most once even when an entire deep subtree changes.
@@ -90,7 +115,7 @@ export function resolveTransitionAnchors(
     to: GraphLayout,
     parents: TreeParents,
     measureAnchor: (nodeId: string) => LayoutAnchor | undefined,
-): TransitionAnchors | undefined {
+): TransitionAnchorResolution {
     const anchors = new Map<string, LayoutAnchor>();
     const fromNodeIds = new Set(from.nodes.map((entry) => entry.node.id));
     const toNodeIds = new Set(to.nodes.map((node) => node.id));
@@ -98,21 +123,21 @@ export function resolveTransitionAnchors(
     const changedNodeIds = [...toNodeIds].filter((id) => !fromNodeIds.has(id));
     changedNodeIds.push(...[...fromNodeIds].filter((id) => !toNodeIds.has(id)));
     const visibleAncestors = findClosestVisibleAncestors(changedNodeIds, parents, visibleInBoth);
-    const measuredAnchors = new Map<string, LayoutAnchor | undefined>();
-
-    const addAnchor = (nodeId: string) => {
+    const anchorNodeIds = new Set([...visibleAncestors.values()].filter((nodeId) => nodeId !== undefined));
+    const measuredAnchors = new Map<string, LayoutAnchor>();
+    for (const nodeId of anchorNodeIds) {
+        const anchor = measureAnchor(nodeId);
+        if (anchor === undefined) return {anchorNodeIds, anchors: undefined};
+        measuredAnchors.set(nodeId, anchor);
+    }
+    for (const nodeId of changedNodeIds) {
         const ancestor = visibleAncestors.get(nodeId);
-        if (ancestor === undefined) return false;
-
-        if (!measuredAnchors.has(ancestor)) measuredAnchors.set(ancestor, measureAnchor(ancestor));
+        if (ancestor === undefined) return {anchorNodeIds, anchors: undefined};
         const anchor = measuredAnchors.get(ancestor);
-        if (anchor === undefined) return false;
+        if (anchor === undefined) return {anchorNodeIds, anchors: undefined};
         anchors.set(nodeId, anchor);
-        return true;
-    };
-
-    for (const id of changedNodeIds) if (!addAnchor(id)) return undefined;
-    return anchors;
+    }
+    return {anchorNodeIds, anchors};
 }
 
 function anchorPosition(

@@ -17,8 +17,9 @@ import type {TreeDescription, TreeNode} from "../tree-description";
 import type {QueryGraphNode} from "./QueryNode";
 import {layoutTree} from "./tree-layout";
 import {graphAnimationsEnabled, graphAnimationProgress} from "./animation-timing";
-import type {GraphLayout} from "./animated-layout";
+import type {AnimatedLayout, GraphLayout} from "./animated-layout";
 import {
+    averageNodeMovement,
     createLayoutInterpolator,
     refreshLayoutPayloads,
     resolveTransitionAnchors,
@@ -179,7 +180,7 @@ export function useAnimatedGraphLayout(
     animateGraphChange: AnimateGraphChange;
 } {
     // React Flow services used to resolve handles and fit the initial graph.
-    const {fitView, getInternalNode} = useReactFlow<QueryGraphNode>();
+    const {fitView, getInternalNode, getViewport, setViewport} = useReactFlow<QueryGraphNode>();
 
     const [dimensions, setDimensions] = useState<DimensionsState>(() => ({measured: new Map(), targets: new Map()}));
     // Intermediate measurements update the React Flow projection below, while
@@ -195,13 +196,16 @@ export function useAnimatedGraphLayout(
     const nodeResizesRef = useRef(new Map<string, NodeResize>());
     const animationRequestedRef = useRef(false);
     const animationFrameRef = useRef<number | undefined>(undefined);
+    // Preserve transition origins while entering nodes render once for
+    // measurement and no longer appear new on the following layout pass.
+    const viewportAnchorNodeIdsRef = useRef(new Set<string>());
     const [graphChangeRevision, setGraphChangeRevision] = useState(0);
 
     // Last target and rendered layouts used across interrupted renders.
     const targetLayoutRef = useRef(targetLayout);
     const [renderedLayout, setRenderedLayout] = useState(() => staticLayout(targetLayout));
     const renderedLayoutRef = useRef(renderedLayout);
-    const initialFitDoneRef = useRef(false);
+    const initialFitHandledRef = useRef(false);
 
     // Record dimensions reported by React Flow. During a node resize, retain
     // the known final size as the layout target while its measured size moves.
@@ -225,6 +229,9 @@ export function useAnimatedGraphLayout(
     const animateGraphChange = useCallback<AnimateGraphChange>(
         (applyChange, resizingNodes = []) => {
             const motionEnabled = graphAnimationsEnabled();
+            // Once the user interacts, do not let a delayed initial fit
+            // replace the viewport that keeps their point of reference fixed.
+            initialFitHandledRef.current = true;
             // Read every starting size before clearing interrupted styles.
             const resizes = new Map<string, NodeResize>();
             if (motionEnabled) {
@@ -248,6 +255,7 @@ export function useAnimatedGraphLayout(
             } else {
                 finishNodeResizes(nodeResizesRef.current);
             }
+            viewportAnchorNodeIdsRef.current = new Set(resizingNodes.map(({nodeId}) => nodeId));
             animationRequestedRef.current = motionEnabled;
             applyChange();
             setGraphChangeRevision((revision) => revision + 1);
@@ -273,23 +281,39 @@ export function useAnimatedGraphLayout(
         // Classify the endpoint and resolve subtree transition origins.
         const targetLayoutDataChanged = targetLayoutRef.current !== targetLayout;
         const targetLayoutChanged = !sameLayoutTarget(targetLayoutRef.current, targetLayout);
-        const transitionAnchorMap = resolveTransitionAnchors(renderedLayoutRef.current, targetLayout, treeParents, (nodeId) => {
-            const node = getInternalNode(nodeId);
-            const handle = node?.internals.handleBounds?.source?.find((candidate) => candidate.id === subtreeHandleId);
-            if (node === undefined || handle === undefined) return undefined;
+        const transitionAnchorResolution = resolveTransitionAnchors(
+            renderedLayoutRef.current,
+            targetLayout,
+            treeParents,
+            (nodeId) => {
+                const node = getInternalNode(nodeId);
+                const handle = node?.internals.handleBounds?.source?.find((candidate) => candidate.id === subtreeHandleId);
+                if (node === undefined || handle === undefined) return undefined;
 
-            // Convert the measured handle center to a node-relative offset so
-            // the transition anchor follows its node as the layout moves.
-            const x = node.internals.positionAbsolute.x + handle.x + handle.width / 2;
-            const y = node.internals.positionAbsolute.y + handle.y + handle.height / 2;
-            return {nodeId: node.id, offset: {x: x - node.position.x, y: y - node.position.y}};
-        });
+                // Convert the measured handle center to a node-relative offset so
+                // the transition anchor follows its node as the layout moves.
+                const x = node.internals.positionAbsolute.x + handle.x + handle.width / 2;
+                const y = node.internals.positionAbsolute.y + handle.y + handle.height / 2;
+                return {nodeId: node.id, offset: {x: x - node.position.x, y: y - node.position.y}};
+            },
+        );
         // Missing handles make origin-based interpolation worse than snapping.
         // The graph-change callback checks reduced motion before staging new nodes;
         // layout changes outside an explicit transaction settle immediately.
-        const animationRequested = transitionAnchorMap !== undefined && animationRequestedRef.current;
+        const animationRequested = transitionAnchorResolution.anchors !== undefined && animationRequestedRef.current;
         animationRequestedRef.current = animationRequested;
-        const anchors = transitionAnchorMap ?? new Map();
+        const anchors = transitionAnchorResolution.anchors ?? new Map();
+        for (const nodeId of transitionAnchorResolution.anchorNodeIds) viewportAnchorNodeIdsRef.current.add(nodeId);
+        const preserveViewportAnchorPositions = (from: AnimatedLayout, to: AnimatedLayout) => {
+            const anchorMovement = averageNodeMovement(from, to, viewportAnchorNodeIdsRef.current);
+            if (anchorMovement === undefined || (anchorMovement.x === 0 && anchorMovement.y === 0)) return;
+            const viewport = getViewport();
+            void setViewport({
+                x: viewport.x - anchorMovement.x * viewport.zoom,
+                y: viewport.y - anchorMovement.y * viewport.zoom,
+                zoom: viewport.zoom,
+            });
+        };
         const canStartAnimation = animationRequested && targetLayoutMeasured && animationFrameRef.current === undefined;
         targetLayoutRef.current = targetLayout;
         renderedLayoutRef.current = refreshLayoutPayloads(renderedLayoutRef.current, targetLayout);
@@ -297,6 +321,7 @@ export function useAnimatedGraphLayout(
         // Staged nodes becoming measurable still need to start their animation.
         if (!targetLayoutChanged && !canStartAnimation) {
             if (targetLayoutDataChanged) setRenderedLayout(renderedLayoutRef.current);
+            if (targetLayoutMeasured && !animationRequested) viewportAnchorNodeIdsRef.current.clear();
             return;
         }
 
@@ -305,8 +330,10 @@ export function useAnimatedGraphLayout(
         if (!animationRequested) {
             finishNodeResizes(nodeResizesRef.current);
             const next = staticLayout(targetLayout);
+            preserveViewportAnchorPositions(renderedLayoutRef.current, next);
             renderedLayoutRef.current = next;
             setRenderedLayout(next);
+            if (targetLayoutMeasured) viewportAnchorNodeIdsRef.current.clear();
             return;
         }
 
@@ -344,6 +371,10 @@ export function useAnimatedGraphLayout(
                 targetLayoutRef.current === targetLayout
                     ? interpolated
                     : refreshLayoutPayloads(interpolated, targetLayoutRef.current);
+            // Counteract layout movement so the nodes that initiated this
+            // transition remain at the same screen position. With multiple
+            // changed subtrees, preserve their centroid.
+            preserveViewportAnchorPositions(renderedLayoutRef.current, next);
             renderedLayoutRef.current = next;
             setRenderedLayout(next);
             if (progress < 1) {
@@ -352,23 +383,34 @@ export function useAnimatedGraphLayout(
                 animationFrameRef.current = undefined;
                 for (const {nodeId} of nodeResizeTransitions) finishNodeResize(nodeResizesRef.current, nodeId);
                 animationRequestedRef.current = false;
+                viewportAnchorNodeIdsRef.current.clear();
             }
         };
         animationFrameRef.current = requestAnimationFrame(step);
-    }, [cancelLayoutFrame, getInternalNode, graphChangeRevision, targetLayout, targetLayoutMeasured, treeParents]);
+    }, [
+        cancelLayoutFrame,
+        getInternalNode,
+        getViewport,
+        graphChangeRevision,
+        setViewport,
+        targetLayout,
+        targetLayoutMeasured,
+        treeParents,
+    ]);
 
     // Fit only after the initial graph is fully measured and any transition
     // has settled, ensuring React Flow sees final node bounds.
     useEffect(() => {
         if (
-            initialFitDoneRef.current ||
+            initialFitHandledRef.current ||
             !targetLayoutMeasured ||
             animationRequestedRef.current ||
             animationFrameRef.current !== undefined
         )
             return;
         const animationFrame = requestAnimationFrame(() => {
-            initialFitDoneRef.current = true;
+            if (initialFitHandledRef.current) return;
+            initialFitHandledRef.current = true;
             void fitView();
         });
         return () => cancelAnimationFrame(animationFrame);
