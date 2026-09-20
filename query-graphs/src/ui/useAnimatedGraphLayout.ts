@@ -63,13 +63,13 @@ function sameDimensions(left: Dimensions | undefined, right: Dimensions): boolea
 }
 
 /**
- * Reconciles dimensions reported by React Flow. Measured dimensions describe
- * the current rendered frame; target dimensions drive the stable tree layout.
- * Active body resizes therefore retain their target until the new final size
- * is measured. When nothing changes, this returns `current`; when only one set
- * of dimensions changes, the other map is reused.
+ * Applies dimensions reported by React Flow. Every measurement describes the
+ * current rendered frame. Settled nodes also adopt it as their layout target,
+ * while actively resizing nodes retain their existing target until their final
+ * size is measured. Returns `current` when no values change and reuses whichever
+ * map is unaffected.
  */
-export function reconcileDimensions(
+export function applyMeasuredDimensions(
     current: DimensionsState,
     updates: readonly (readonly [string, Dimensions])[],
     resizingNodeIds: Pick<ReadonlySet<string>, "has">,
@@ -231,7 +231,7 @@ export function useAnimatedGraphLayout(
             return [[change.id, change.dimensions] as const];
         });
         if (updates.length === 0) return;
-        setDimensions((current) => reconcileDimensions(current, updates, bodyResizesRef.current));
+        setDimensions((current) => applyMeasuredDimensions(current, updates, bodyResizesRef.current));
     }, []);
 
     // Finish a resize by restoring CSS ownership of the body size.

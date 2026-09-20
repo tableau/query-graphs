@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import {measurePendingBodyResizes, reconcileDimensions} from "../src/ui/useAnimatedGraphLayout";
+import {applyMeasuredDimensions, measurePendingBodyResizes} from "../src/ui/useAnimatedGraphLayout";
 
 function measuredElement(events: string[], name: string, width: number, height: number): HTMLElement {
     const style = {removeProperty: (property: string) => events.push(`remove ${name}.${property}`)};
@@ -82,18 +82,18 @@ test("pending body resizes preserve active entries and discard unmeasurable entr
     assert.ok(events.includes("remove missing body.width"));
 });
 
-test("dimension reconciliation preserves active resize targets until they settle", () => {
+test("applying measured dimensions preserves active resize targets until they settle", () => {
     const initial = {
         measured: new Map([["node", {width: 40, height: 20}]]),
         targets: new Map([["node", {width: 40, height: 20}]]),
     };
     const measured = {width: 80, height: 60};
 
-    const resizing = reconcileDimensions(initial, [["node", measured]], new Set(["node"]));
+    const resizing = applyMeasuredDimensions(initial, [["node", measured]], new Set(["node"]));
     assert.equal(resizing.measured.get("node"), measured);
     assert.deepEqual(resizing.targets.get("node"), {width: 40, height: 20});
 
-    const settled = reconcileDimensions(resizing, [["node", measured]], new Set());
+    const settled = applyMeasuredDimensions(resizing, [["node", measured]], new Set());
     assert.equal(settled.targets.get("node"), measured);
-    assert.equal(reconcileDimensions(settled, [["node", measured]], new Set()), settled);
+    assert.equal(applyMeasuredDimensions(settled, [["node", measured]], new Set()), settled);
 });
