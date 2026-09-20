@@ -34,7 +34,7 @@ function QueryNode({data, id}: NodeProps<QueryGraphNode>) {
         },
         [animateGraphChange, toggleNode, toggleSubtree, hasProperties, hasSubtree, id],
     );
-    const onSubtreeHandleClick = useCallback(
+    const onSubtreeToggleClick = useCallback(
         (e: MouseEvent) => {
             if (hasSubtree) animateGraphChange(() => toggleSubtree(id));
             e.stopPropagation();
@@ -70,11 +70,14 @@ function QueryNode({data, id}: NodeProps<QueryGraphNode>) {
             </div>
         ) : null;
 
-    const handleClassName = cc({
-        "qg-subtree-handle": hasSubtree,
-        "qg-expanded": hasSubtree && subtreeExpanded,
-        "qg-collapsed": hasSubtree && !subtreeExpanded,
-    });
+    const subtreeToggleClassName = cc([
+        "qg-subtree-toggle",
+        {
+            "qg-expanded": subtreeExpanded,
+            "qg-collapsed": !subtreeExpanded,
+        },
+    ]);
+    const subtreeToggleLabel = `${subtreeExpanded ? "Collapse" : "Expand"} subtree${data.name ? ` for ${data.name}` : ""}`;
 
     return (
         <>
@@ -92,21 +95,22 @@ function QueryNode({data, id}: NodeProps<QueryGraphNode>) {
                 </div>
                 {colorBar(data.barsBelow, "below")}
             </div>
-            <Handle
-                id={subtreeHandleId}
-                type="source"
-                position={Position.Bottom}
-                className={handleClassName}
-                onClick={onSubtreeHandleClick}
-            >
-                {hasSubtree ? (
+            <Handle id={subtreeHandleId} type="source" position={Position.Bottom} />
+            {hasSubtree ? (
+                <button
+                    type="button"
+                    className={subtreeToggleClassName}
+                    onClick={onSubtreeToggleClick}
+                    aria-label={subtreeToggleLabel}
+                    aria-expanded={!!subtreeExpanded}
+                >
                     <svg className="qg-subtree-handle-icon" viewBox="0 0 16 16" aria-hidden="true">
                         <circle className="qg-subtree-handle-background" cx="8" cy="8" r="7.25" />
                         <path d="M4.5 8h7" />
                         <path className="qg-subtree-handle-vertical" d="M8 4.5v7" />
                     </svg>
-                ) : null}
-            </Handle>
+                </button>
+            ) : null}
         </>
     );
 }

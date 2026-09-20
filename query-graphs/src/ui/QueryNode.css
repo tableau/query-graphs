@@ -36,17 +36,26 @@
     overflow: hidden;
 }
 
-.query-graph .react-flow__handle.qg-subtree-handle {
+.query-graph .qg-subtree-toggle {
+    position: absolute;
+    left: 50%;
     width: .7em;
     height: .7em;
-    bottom: -.3em;
+    bottom: 0;
+    padding: 0;
+    transform: translate(-50%, 50%);
     border: 0;
     background: none;
+    color: inherit;
+    font: inherit;
     cursor: pointer;
-    pointer-events: all;
 
     &.qg-collapsed {
         opacity: 0;
+    }
+
+    &:focus-visible {
+        opacity: 1;
     }
 
     &:hover .qg-subtree-handle-background {
@@ -77,13 +86,13 @@
     & .qg-subtree-handle-vertical {
         transition: opacity 0.12s ease;
 
-        .qg-subtree-handle.qg-expanded & {
+        .qg-subtree-toggle.qg-expanded & {
             opacity: 0;
         }
     }
 }
 
-.query-graph .react-flow__node-querynode:hover .react-flow__handle.qg-subtree-handle {
+.query-graph .react-flow__node-querynode:hover .qg-subtree-toggle {
     opacity: 1;
 }
 
