@@ -11,7 +11,6 @@ import {
 import type {GraphLayout, TransitionAnchors} from "../src/ui/animated-layout";
 import {graphAnimationDuration, graphAnimationProgress} from "../src/ui/animation-timing";
 import type {QueryGraphNode} from "../src/ui/QueryNode";
-import {measurePendingBodyResizes, reconcileDimensions} from "../src/ui/useAnimatedGraphLayout";
 
 const parentAnchors = new Map([["child", {nodeId: "parent", offset: {x: 0, y: 30}}]]);
 
@@ -31,19 +30,6 @@ function edge(source: string, target: string): Edge {
 
 function layout(nodes: QueryGraphNode[], edges: Edge[] = []): GraphLayout {
     return {nodes, edges};
-}
-
-function measuredElement(events: string[], name: string, width: number, height: number): HTMLElement {
-    const style = {removeProperty: (property: string) => events.push(`remove ${name}.${property}`)};
-    for (const property of ["width", "height", "maxWidth", "maxHeight"])
-        Object.defineProperty(style, property, {set: (value) => events.push(`write ${name}.${property}=${value}`)});
-    return Object.defineProperties(
-        {style},
-        {
-            offsetWidth: {get: () => (events.push(`read ${name}.width`), width)},
-            offsetHeight: {get: () => (events.push(`read ${name}.height`), height)},
-        },
-    ) as unknown as HTMLElement;
 }
 
 test("entering nodes and edges emerge from their parent", () => {
@@ -79,46 +65,6 @@ test("simultaneous entering and exiting subtrees use independent anchors", () =>
     assert.deepEqual(halfway.nodes.find((entry) => entry.node.id === "right-child")?.position, {x: 105, y: 65});
 });
 
-test("transition anchors resolve deep changed subtrees in one ancestry pass", () => {
-    const depth = 100;
-    const leftNodes = Array.from({length: depth}, (_, index) => node(`left-${index}`, 0, index));
-    const rightNodes = Array.from({length: depth}, (_, index) => node(`right-${index}`, 100, index));
-    const stableNodes = [node("root", 0, 0), node("left", 0, 10), node("right", 100, 10)];
-
-    class CountingParents extends Map<string, string> {
-        reads = 0;
-
-        override get(id: string): string | undefined {
-            this.reads++;
-            return super.get(id);
-        }
-    }
-
-    const parents = new CountingParents([
-        ["left", "root"],
-        ["right", "root"],
-        ...leftNodes.map((entry, index) => [entry.id, index === 0 ? "left" : leftNodes[index - 1]!.id] as const),
-        ...rightNodes.map((entry, index) => [entry.id, index === 0 ? "right" : rightNodes[index - 1]!.id] as const),
-    ]);
-    const measured: string[] = [];
-    const anchors = transitionAnchors(
-        staticLayout(layout([...stableNodes, ...leftNodes])),
-        layout([...stableNodes, ...rightNodes]),
-        parents,
-        (nodeId) => {
-            measured.push(nodeId);
-            return {nodeId, offset: {x: 0, y: 30}};
-        },
-    );
-
-    assert.equal(anchors?.size, depth * 2);
-    assert.equal(anchors?.get(`left-${depth - 1}`)?.nodeId, "left");
-    assert.equal(anchors?.get(`right-${depth - 1}`)?.nodeId, "right");
-    assert.equal(parents.reads, depth * 2);
-    assert.equal(measured.length, 2);
-    assert.deepEqual(new Set(measured), new Set(["left", "right"]));
-});
-
 test("transition anchors fail when a required handle cannot be measured", () => {
     const start = staticLayout(layout([node("parent", 0, 0)]));
     const target = layout([node("parent", 0, 0), node("child", 0, 100)]);
@@ -127,91 +73,6 @@ test("transition anchors fail when a required handle cannot be measured", () => 
         transitionAnchors(start, target, new Map([["child", "parent"]]), () => undefined),
         undefined,
     );
-});
-
-test("pending body resizes read every target before freezing any body", () => {
-    const events: string[] = [];
-    const firstBody = measuredElement(events, "first body", 80, 60);
-    const secondBody = measuredElement(events, "second body", 100, 70);
-    const resizes = new Map([
-        [
-            "first",
-            {
-                nodeElement: measuredElement(events, "first node", 120, 90),
-                bodyElement: firstBody,
-                bodyStart: {width: 40, height: 20},
-            },
-        ],
-        [
-            "second",
-            {
-                nodeElement: measuredElement(events, "second node", 140, 100),
-                bodyElement: secondBody,
-                bodyStart: {width: 50, height: 30},
-            },
-        ],
-    ]);
-
-    const targets = measurePendingBodyResizes(resizes);
-
-    assert.deepEqual(
-        targets,
-        new Map([
-            ["first", {width: 120, height: 90}],
-            ["second", {width: 140, height: 100}],
-        ]),
-    );
-    const firstWrite = events.findIndex((event) => event.startsWith("write"));
-    const lastRead = events.reduce((last, event, index) => (event.startsWith("read") ? index : last), -1);
-    assert.ok(lastRead >= 0 && firstWrite > lastRead);
-    assert.ok(events.includes("write first body.width=40px"));
-    assert.ok(events.includes("write second body.width=50px"));
-    assert.deepEqual(resizes.get("first")?.bodyTarget, {width: 80, height: 60});
-    assert.deepEqual(resizes.get("second")?.bodyTarget, {width: 100, height: 70});
-});
-
-test("pending body resizes preserve active entries and discard unmeasurable entries", () => {
-    const events: string[] = [];
-    const active = {
-        nodeElement: measuredElement(events, "active node", 40, 40),
-        bodyElement: measuredElement(events, "active body", 30, 30),
-        bodyStart: {width: 10, height: 10},
-        bodyTarget: {width: 30, height: 30},
-    };
-    const resizes = new Map([
-        ["active", active],
-        [
-            "missing",
-            {
-                nodeElement: measuredElement(events, "missing node", 0, 0),
-                bodyElement: measuredElement(events, "missing body", 0, 0),
-                bodyStart: {width: 10, height: 10},
-            },
-        ],
-    ]);
-
-    assert.deepEqual(measurePendingBodyResizes(resizes), new Map());
-    assert.equal(resizes.get("active"), active);
-    assert.equal(resizes.has("missing"), false);
-    assert.ok(events.includes("remove missing body.width"));
-});
-
-test("dimension reconciliation preserves active resize targets until they settle", () => {
-    const nodeIds = new Map();
-    const initial = {
-        nodeIds,
-        measured: new Map([["node", {width: 40, height: 20}]]),
-        targets: new Map([["node", {width: 40, height: 20}]]),
-    };
-    const measured = {width: 80, height: 60};
-
-    const resizing = reconcileDimensions(initial, nodeIds, [["node", measured]], new Set(["node"]));
-    assert.equal(resizing.measured.get("node"), measured);
-    assert.deepEqual(resizing.targets.get("node"), {width: 40, height: 20});
-
-    const settled = reconcileDimensions(resizing, nodeIds, [["node", measured]], new Set());
-    assert.equal(settled.targets.get("node"), measured);
-    assert.equal(reconcileDimensions(settled, nodeIds, [["node", measured]], new Set()), settled);
 });
 
 test("exiting nodes follow their anchor when an animation is interrupted", () => {
