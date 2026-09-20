@@ -61,6 +61,12 @@ function addPlanDocument(plan: LoadedPlan, text: string, language: string): Load
     return plan;
 }
 
+/**
+ * Pretty-prints the original token stream after `JSON.parse` has validated it.
+ * Re-serializing the parsed value with `JSON.stringify` would round large numbers,
+ * discard duplicate keys, and potentially reorder keys, making the displayed plan
+ * differ from the source supplied by the user.
+ */
 function formatJsonDocument(text: string): string {
     if (/[\r\n]/.test(text)) return text;
 
