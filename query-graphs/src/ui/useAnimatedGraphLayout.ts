@@ -8,7 +8,7 @@
  * React state, React Flow measurements, DOM node measurements, and animation
  * frames.
  */
-import type {Dimensions, InternalNode, NodeChange} from "@xyflow/react";
+import type {Dimensions, NodeChange} from "@xyflow/react";
 import {useReactFlow} from "@xyflow/react";
 import type {CSSProperties} from "react";
 import {createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState} from "react";
@@ -17,7 +17,7 @@ import type {TreeDescription, TreeNode} from "../tree-description";
 import type {QueryGraphNode} from "./QueryNode";
 import {layoutTree} from "./tree-layout";
 import {animationStartTime, graphAnimationProgress} from "./animation-timing";
-import type {GraphLayout, LayoutAnchor} from "./animated-layout";
+import type {GraphLayout} from "./animated-layout";
 import {
     createLayoutInterpolator,
     indexTreeParents,
@@ -104,21 +104,6 @@ interface NodeResize {
 }
 
 /**
- * Captures the current size of the query node's visual shell before a graph
- * change. React Flow's wrapper remains intrinsic and follows this shell.
- */
-function captureNodeResize({nodeElement}: NodeResizeRequest): NodeResize | undefined {
-    const flowNode = nodeElement.closest<HTMLElement>(".react-flow__node");
-    const sizingElement = nodeElement.closest<HTMLElement>(".qg-graph-node");
-    if (flowNode === null || sizingElement === null) return undefined;
-    return {
-        flowElement: flowNode,
-        sizingElement,
-        start: {width: sizingElement.offsetWidth, height: sizingElement.offsetHeight},
-    };
-}
-
-/**
  * Measures every pending post-render target before freezing any sizing shell,
  * keeping all DOM reads ahead of writes. Returns the outer dimensions that
  * drive the stable graph layout.
@@ -168,20 +153,6 @@ function finishNodeResizes(resizes: Map<string, NodeResize>): void {
     resizes.clear();
 }
 
-/**
- * Converts the center of React Flow's measured source-handle bounds into an
- * offset from the node position. Keeping the offset node-relative lets the
- * anchor follow its node while the surrounding layout moves.
- */
-function measuredSourceAnchor(node: InternalNode<QueryGraphNode> | undefined, handleId: string): LayoutAnchor | undefined {
-    const handle = node?.internals.handleBounds?.source?.find((candidate) => candidate.id === handleId);
-    if (node === undefined || handle === undefined) return undefined;
-
-    const x = node.internals.positionAbsolute.x + handle.x + handle.width / 2;
-    const y = node.internals.positionAbsolute.y + handle.y + handle.height / 2;
-    return {nodeId: node.id, offset: {x: x - node.position.x, y: y - node.position.y}};
-}
-
 /** Applies animation styles without replacing settled element styles. */
 function withAnimationStyle(style: CSSProperties | undefined, opacity: number, transient: boolean): CSSProperties | undefined {
     if (opacity === 1 && !transient) return style;
@@ -209,8 +180,6 @@ export function useAnimatedGraphLayout(
     // React Flow services used to resolve handles and fit the initial graph.
     const {fitView, getInternalNode} = useReactFlow<QueryGraphNode>();
 
-    // QueryGraph remounts this hook for each tree, so measurements belong only
-    // to the graph instance that collected them.
     const [dimensions, setDimensions] = useState<DimensionsState>(() => ({measured: new Map(), targets: new Map()}));
     const parentIds = useMemo(() => indexTreeParents(treeDescription, nodeIds), [treeDescription, nodeIds]);
     // Intermediate measurements update the React Flow projection below, while
@@ -260,8 +229,21 @@ export function useAnimatedGraphLayout(
             const resizes = new Map<string, NodeResize>(
                 motionEnabled
                     ? resizingNodes.flatMap((request) => {
-                          const resize = captureNodeResize(request);
-                          return resize === undefined ? [] : [[request.nodeId, resize] as const];
+                          const flowElement = request.nodeElement.closest<HTMLElement>(".react-flow__node");
+                          const sizingElement = request.nodeElement.closest<HTMLElement>(".qg-graph-node");
+                          if (flowElement === null || sizingElement === null) return [];
+                          // Animate our complete visual shell so React Flow's
+                          // observed wrapper can remain intrinsically sized.
+                          return [
+                              [
+                                  request.nodeId,
+                                  {
+                                      flowElement,
+                                      sizingElement,
+                                      start: {width: sizingElement.offsetWidth, height: sizingElement.offsetHeight},
+                                  },
+                              ] as const,
+                          ];
                       })
                     : [],
             );
@@ -294,12 +276,20 @@ export function useAnimatedGraphLayout(
             return;
         }
 
-        // Classify the endpoint and resolve independent subtree transition origins.
+        // Classify the endpoint and resolve subtree transition origins.
         const targetLayoutDataChanged = targetLayoutRef.current !== targetLayout;
         const targetLayoutChanged = !sameLayoutTarget(targetLayoutRef.current, targetLayout);
-        const transitionAnchorMap = resolveTransitionAnchors(renderedLayoutRef.current, targetLayout, parentIds, (nodeId) =>
-            measuredSourceAnchor(getInternalNode(nodeId), subtreeHandleId),
-        );
+        const transitionAnchorMap = resolveTransitionAnchors(renderedLayoutRef.current, targetLayout, parentIds, (nodeId) => {
+            const node = getInternalNode(nodeId);
+            const handle = node?.internals.handleBounds?.source?.find((candidate) => candidate.id === subtreeHandleId);
+            if (node === undefined || handle === undefined) return undefined;
+
+            // Convert the measured handle center to a node-relative offset so
+            // the transition anchor follows its node as the layout moves.
+            const x = node.internals.positionAbsolute.x + handle.x + handle.width / 2;
+            const y = node.internals.positionAbsolute.y + handle.y + handle.height / 2;
+            return {nodeId: node.id, offset: {x: x - node.position.x, y: y - node.position.y}};
+        });
         // Missing handles make origin-based interpolation worse than snapping.
         // The graph-change callback checks reduced motion before staging new nodes;
         // layout changes outside an explicit transaction settle immediately.
@@ -346,9 +336,8 @@ export function useAnimatedGraphLayout(
             return;
         }
 
-        const start = renderedLayoutRef.current;
         // Retarget graph and node-size transitions from their current visual state.
-        const interpolate = createLayoutInterpolator(start, targetLayout, anchors);
+        const interpolate = createLayoutInterpolator(renderedLayoutRef.current, targetLayout, anchors);
         const nodeResizeTransitions = [...nodeResizesRef.current].map(([nodeId, resize]) => {
             assertNotNull(resize.target);
             return {
