@@ -52,8 +52,10 @@ const documentTheme = EditorView.theme({
         border: "1px solid hsl(0, 0%, 85%)",
     },
     "&.cm-focused": {
-        outline: "2px solid hsl(210, 90%, 65%)",
-        outlineOffset: "-1px",
+        outline: "none",
+    },
+    ".cm-gutters": {
+        userSelect: "none",
     },
     ".cm-scroller": {
         overflow: "auto",
