@@ -1,16 +1,17 @@
-import type {NodeChange} from "@xyflow/react";
 import {ReactFlow, MiniMap, Controls, ReactFlowProvider} from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 
-import {layoutTree} from "./tree-layout";
 import type {TreeDescription, TreeNode} from "../tree-description";
 import {allChildren, visitTreeNodes} from "../tree-description";
 import type {ReactNode} from "react";
-import {useCallback, useMemo} from "react";
+import {useMemo} from "react";
 import {QueryNode} from "./QueryNode";
 import type {QueryGraphNode} from "./QueryNode";
 import {ColoredEdge} from "./ColoredEdge";
 import {createGraphRenderingStore, GraphRenderingStoreContext, useGraphRenderingStore} from "./store";
+import {AnimateGraphChangeContext, useAnimatedGraphLayout} from "./useAnimatedGraphLayout";
+import {indexTreeParents} from "./tree-index";
+import type {TreeParents} from "./tree-index";
 import "./QueryGraph.css";
 
 interface QueryGraphProps {
@@ -20,6 +21,7 @@ interface QueryGraphProps {
 
 interface QueryGraphInternalProps extends QueryGraphProps {
     nodeIdMapping: Map<TreeNode, string>;
+    treeParents: TreeParents;
 }
 
 function minimapNodeColor(n: QueryGraphNode): string {
@@ -36,53 +38,36 @@ const edgeTypes = {
     colored: ColoredEdge,
 };
 
-function QueryGraphInternal({treeDescription, children, nodeIdMapping}: QueryGraphInternalProps) {
-    // Keep React Flow's measurements in the controlled node objects. Dropping them when
-    // recomputing the layout would cause React Flow to re-initialize the nodes, leading to visible
-    // flickering of the edge labels.
-    const nodeDimensions = useGraphRenderingStore((s) => s.nodeDimensions);
-    const updateNodeDimensions = useGraphRenderingStore((s) => s.updateNodeDimensions);
-    const onNodesChange = useCallback(
-        (changes: NodeChange<QueryGraphNode>[]) => {
-            const updates = changes.flatMap((change) => {
-                if (change.type !== "dimensions" || change.dimensions === undefined) return [];
-                return [[change.id, change.dimensions] as const];
-            });
-            updateNodeDimensions(updates);
-        },
-        [updateNodeDimensions],
-    );
-
-    // Layout the tree using the dimensions measured by React Flow
+function QueryGraphInternal({treeDescription, children, nodeIdMapping, treeParents}: QueryGraphInternalProps) {
     const expandedSubtrees = useGraphRenderingStore((s) => s.expandedSubtrees);
-    const layout = useMemo(
-        () => layoutTree(treeDescription, nodeIdMapping, nodeDimensions, expandedSubtrees),
-        [treeDescription, nodeIdMapping, nodeDimensions, expandedSubtrees],
-    );
+    const animatedLayout = useAnimatedGraphLayout(treeDescription, nodeIdMapping, treeParents, expandedSubtrees);
 
     return (
-        <ReactFlow
-            nodes={layout.nodes}
-            edges={layout.edges}
-            nodeOrigin={[0.5, 0]}
-            nodeTypes={nodeTypes}
-            edgeTypes={edgeTypes}
-            onNodesChange={onNodesChange}
-            fitView
-            minZoom={0.2}
-            maxZoom={1.5}
-            elementsSelectable={true}
-            nodesDraggable={false}
-            nodesConnectable={false}
-            nodesFocusable={false}
-            className={"query-graph"}
-        >
-            {...Array.isArray(children) ? children : [children]}
-            <MiniMap zoomable={true} pannable={true} nodeColor={minimapNodeColor} />
-            <Controls showInteractive={false} />
-        </ReactFlow>
+        <AnimateGraphChangeContext.Provider value={animatedLayout.animateGraphChange}>
+            <ReactFlow
+                nodes={animatedLayout.nodes}
+                edges={animatedLayout.edges}
+                nodeOrigin={[0.5, 0]}
+                nodeTypes={nodeTypes}
+                edgeTypes={edgeTypes}
+                onNodesChange={animatedLayout.onNodesChange}
+                minZoom={0.2}
+                maxZoom={1.5}
+                elementsSelectable={true}
+                nodesDraggable={false}
+                nodesConnectable={false}
+                nodesFocusable={false}
+                className={"query-graph"}
+            >
+                {...Array.isArray(children) ? children : [children]}
+                <MiniMap zoomable={true} pannable={true} nodeColor={minimapNodeColor} />
+                <Controls showInteractive={false} />
+            </ReactFlow>
+        </AnimateGraphChangeContext.Provider>
     );
 }
+
+let nextGraphInstanceId = 0;
 
 function createGraphState(treeDescription: TreeDescription) {
     let nextId = 0;
@@ -98,18 +83,25 @@ function createGraphState(treeDescription: TreeDescription) {
         allChildren,
     );
     return {
+        instanceId: nextGraphInstanceId++,
         nodeIdMapping,
+        treeParents: indexTreeParents(treeDescription, nodeIdMapping),
         graphStore: createGraphRenderingStore(expandedSubtrees),
     };
 }
 
 export function QueryGraph(props: QueryGraphProps) {
-    const {nodeIdMapping, graphStore} = useMemo(() => createGraphState(props.treeDescription), [props.treeDescription]);
+    const {instanceId, nodeIdMapping, treeParents, graphStore} = useMemo(
+        () => createGraphState(props.treeDescription),
+        [props.treeDescription],
+    );
 
+    // This artificial key remounts React Flow when the tree changes, keeping
+    // its viewport, measurements, and animation state scoped to one graph.
     return (
-        <ReactFlowProvider>
+        <ReactFlowProvider key={instanceId}>
             <GraphRenderingStoreContext.Provider value={graphStore}>
-                <QueryGraphInternal {...props} nodeIdMapping={nodeIdMapping} />
+                <QueryGraphInternal {...props} nodeIdMapping={nodeIdMapping} treeParents={treeParents} />
             </GraphRenderingStoreContext.Provider>
         </ReactFlowProvider>
     );
