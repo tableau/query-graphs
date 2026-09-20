@@ -33,14 +33,16 @@
     row-gap: 1em;
 }
 
-.github-link {
+.landing-footer {
     border-top: 1px solid #ccc;
     margin-top: 3em;
     padding-top: 0.8em;
     font-size: 0.9em;
     text-align: center;
     color: gray;
+}
 
+.github-link {
     & a {
         color: gray;
     }
@@ -49,7 +51,7 @@
 .build-info {
     margin-top: 0.4em;
     font-size: 0.85em;
-    color: #666;
+    color: #999;
 }
 
 /* Hinted text area */

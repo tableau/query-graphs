@@ -262,8 +262,8 @@ export function FileOpener({setData, validate, loadStateController}: FileOpenerP
                         Visualize Plan
                     </button>
                     {renderedError}
-                    <div className="github-link">
-                        <div>
+                    <div className="landing-footer">
+                        <div className="github-link">
                             Open-sourced on <a href="https://github.com/tableau/query-graphs">Github</a>
                         </div>
                         <div className="build-info">
