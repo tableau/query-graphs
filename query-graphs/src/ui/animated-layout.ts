@@ -75,6 +75,53 @@ export function sameLayoutTarget(left: GraphLayout, right: GraphLayout): boolean
     return left.edges.every((edge) => rightEdgeIds.has(edge.id));
 }
 
+/**
+ * Anchors each entering or exiting node at its nearest ancestor that remains
+ * visible. Returns an empty map when membership is unchanged, or `undefined`
+ * when a required anchor cannot be measured.
+ *
+ * Resolved paths and measured handles are cached, so every ancestry link is
+ * followed at most once even when an entire deep subtree changes.
+ */
+export function transitionAnchors(
+    from: AnimatedLayout,
+    to: GraphLayout,
+    parents: ReadonlyMap<string, string>,
+    measureAnchor: (nodeId: string) => LayoutAnchor | undefined,
+): TransitionAnchors | undefined {
+    const anchors = new Map<string, LayoutAnchor>();
+    const fromNodeIds = new Set(from.nodes.map((entry) => entry.node.id));
+    const toNodeIds = new Set(to.nodes.map((node) => node.id));
+    const visibleInBoth = new Set([...fromNodeIds].filter((id) => toNodeIds.has(id)));
+    const resolvedAncestors = new Map<string, string | undefined>();
+    const measuredAnchors = new Map<string, LayoutAnchor | undefined>();
+
+    const addAnchor = (nodeId: string) => {
+        const path: string[] = [];
+        let ancestor: string | undefined = nodeId;
+        while (ancestor !== undefined && !visibleInBoth.has(ancestor)) {
+            if (resolvedAncestors.has(ancestor)) {
+                ancestor = resolvedAncestors.get(ancestor);
+                break;
+            }
+            path.push(ancestor);
+            ancestor = parents.get(ancestor);
+        }
+        for (const traversed of path) resolvedAncestors.set(traversed, ancestor);
+        if (ancestor === undefined) return false;
+
+        if (!measuredAnchors.has(ancestor)) measuredAnchors.set(ancestor, measureAnchor(ancestor));
+        const anchor = measuredAnchors.get(ancestor);
+        if (anchor === undefined) return false;
+        anchors.set(nodeId, anchor);
+        return true;
+    };
+
+    for (const id of toNodeIds) if (!fromNodeIds.has(id) && !addAnchor(id)) return undefined;
+    for (const id of fromNodeIds) if (!toNodeIds.has(id) && !addAnchor(id)) return undefined;
+    return anchors;
+}
+
 function anchorPosition(
     nodes: ReadonlyMap<string, AnimatedNode | QueryGraphNode>,
     anchor: LayoutAnchor | undefined,

@@ -1,11 +1,17 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import type {Edge} from "@xyflow/react";
-import {createLayoutInterpolator, refreshLayoutData, sameLayoutTarget, staticLayout} from "../src/ui/animated-layout";
+import {
+    createLayoutInterpolator,
+    refreshLayoutData,
+    sameLayoutTarget,
+    staticLayout,
+    transitionAnchors,
+} from "../src/ui/animated-layout";
 import type {GraphLayout, TransitionAnchors} from "../src/ui/animated-layout";
 import {graphAnimationDuration, graphAnimationProgress} from "../src/ui/animation-timing";
 import type {QueryGraphNode} from "../src/ui/QueryNode";
-import {measurePendingBodyResizes, transitionAnchors} from "../src/ui/useAnimatedGraphLayout";
+import {measurePendingBodyResizes, reconcileDimensions} from "../src/ui/useAnimatedGraphLayout";
 
 const parentAnchors = new Map([["child", {nodeId: "parent", offset: {x: 0, y: 30}}]]);
 
@@ -188,6 +194,24 @@ test("pending body resizes preserve active entries and discard unmeasurable entr
     assert.equal(resizes.get("active"), active);
     assert.equal(resizes.has("missing"), false);
     assert.ok(events.includes("remove missing body.width"));
+});
+
+test("dimension reconciliation preserves active resize targets until they settle", () => {
+    const nodeIds = new Map();
+    const initial = {
+        nodeIds,
+        measured: new Map([["node", {width: 40, height: 20}]]),
+        targets: new Map([["node", {width: 40, height: 20}]]),
+    };
+    const measured = {width: 80, height: 60};
+
+    const resizing = reconcileDimensions(initial, nodeIds, [["node", measured]], new Set(["node"]));
+    assert.equal(resizing.measured.get("node"), measured);
+    assert.deepEqual(resizing.targets.get("node"), {width: 40, height: 20});
+
+    const settled = reconcileDimensions(resizing, nodeIds, [["node", measured]], new Set());
+    assert.equal(settled.targets.get("node"), measured);
+    assert.equal(reconcileDimensions(settled, nodeIds, [["node", measured]], new Set()), settled);
 });
 
 test("exiting nodes follow their anchor when an animation is interrupted", () => {
