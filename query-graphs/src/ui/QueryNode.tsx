@@ -83,7 +83,7 @@ function QueryNode({data, id}: NodeProps<QueryGraphNode>) {
         <>
             <Handle type="target" position={Position.Top} />
             <div className={nodeClassName} onClick={onClick}>
-               {colorBar(data.barsAbove, "above")}
+                {colorBar(data.barsAbove, "above")}
                 <div className="qg-graph-node-head">
                     <NodeIcon icon={data.icon} iconColor={data.iconColor} />
                     <div className="qg-graph-node-label" style={{background: data.nodeColor}}>
