@@ -8,26 +8,27 @@ To see changes in a running UI, rebuild the library and use the app's dev server
 
 The library provides:
 
-* **The tree model** — `TreeDescription` and `TreeNode` (`src/tree-description.ts`), the format-independent contract between loaders and the renderer.
-* **Format loaders** — `duckdb.ts`, `hyper.ts`, `umbra.ts`, `postgres.ts`, `tableau.ts`, and the generic `json.ts`/`xml.ts` fallbacks (`src/loaders/`), each recognizing and converting parsed input into a `TreeDescription`.
+- **The tree model** — `TreeDescription` and `TreeNode` (`src/tree-description.ts`), the format-independent contract between loaders and the renderer.
+- **Format loaders** — `duckdb.ts`, `hyper.ts`, `umbra.ts`, `postgres.ts`, `tableau.ts`, and the generic `json.ts`/`xml.ts` fallbacks (`src/loaders/`), each recognizing and converting parsed input into a `TreeDescription`.
   `loaders/index.ts` provides shared format detection and dispatch for applications using the library.
-* **The renderer** — lays out and draws the tree; in `src/ui/`.
-* **Interaction state** — a Zustand store (`src/ui/store.ts`) tracking the graph state (expanded nodes, the measured node sizes, ...).
+- **The renderer** — lays out and draws the tree; in `src/ui/`.
+- **Interaction state** — a Zustand store (`src/ui/store.ts`) tracking the graph state (expanded nodes, the measured node sizes, ...).
 
 ## The Tree Model
 
 `TreeDescription` (`src/tree-description.ts`) is the single abstraction that decouples "which database produced this plan" from "how it is drawn".
 Every loader outputs one; the renderer only ever consumes one.
 
-* `TreeDescription` — the whole graph: a `root` `TreeNode`, optional `metadata` (shown in the top-level label), an optional metadata highlight, optional text documents, and optional `crosslinks`.
-* `TextDocument` — a named text artifact associated with the graph, identified by a stable `id` and optionally tagged with its language.
-* `TreeNode` — one node. Notable fields:
-  * `name`, `icon`, `iconColor`, `nodeColor` — what the node looks like.
-  * `properties` — a `Map` of key/value strings shown in the node's tooltip/detail panel.
-  * `children` vs `collapsedChildren` — see [The Collapse/Expand Model](#the-collapseexpand-model).
-  * `edgeLabel`, `edgeWidth`, `edgeClass` — decorate the incoming edge (e.g. cardinality labels).
-* `Crosslink` — an extra `source → target` edge between nodes that are related but not parent/child (e.g. a CTE and its scan).
-* `IconName` — the set of icons the renderer knows how to draw (joins, scans, sort, group-by, …), realized as SVG in `NodeIcon`.
+- `TreeDescription` — the whole graph: a `root` `TreeNode`, optional `metadata` (shown in the top-level label), an optional metadata highlight, optional text documents, and optional `crosslinks`.
+- `TextDocument` — a named text artifact associated with the graph, identified by a stable `id` and optionally tagged with its language.
+- `TreeNode` — one node. Notable fields:
+    - `name`, `icon`, `iconColor`, `nodeColor` — what the node looks like.
+    - `properties` — a `Map` of key/value strings shown in the node's tooltip/detail panel.
+    - `sourceLocations` — optional half-open UTF-16 character ranges linking the node to associated text documents.
+    - `children` vs `collapsedChildren` — see [The Collapse/Expand Model](#the-collapseexpand-model).
+    - `edgeLabel`, `edgeWidth`, `edgeClass` — decorate the incoming edge (e.g. cardinality labels).
+- `Crosslink` — an extra `source → target` edge between nodes that are related but not parent/child (e.g. a CTE and its scan).
+- `IconName` — the set of icons the renderer knows how to draw (joins, scans, sort, group-by, …), realized as SVG in `NodeIcon`.
 
 Two helpers walk the tree: `visitTreeNodes` (recursive traversal) and `allChildren` (children plus collapsed children).
 
@@ -41,15 +42,22 @@ This keeps simple attributes compact in the tooltip while still exposing structu
 The generic JSON loader uses it without semantic node types or collapsed children.
 Hyper additionally configures operator/expression classification, node rendering, child ordering, collapsing, metric extraction, and crosslinks:
 
-* It classifies a node as an operator or an expression from its `operator` / `expression` key, then looks up per-type rendering (icon, display name, crosslink source) in `nodeRenderingConfig`.
-* It enforces a meaningful child order (`input`/`left`/`right`/… before alphabetical) so a join's inputs read left-to-right.
-* It converts in two passes: first build the tree, then post-process to resolve crosslinks, compute edge widths, and color nodes by runtime.
+- It classifies a node as an operator or an expression from its `operator` / `expression` key, then looks up per-type rendering (icon, display name, crosslink source) in `nodeRenderingConfig`.
+- It enforces a meaningful child order (`input`/`left`/`right`/… before alphabetical) so a join's inputs read left-to-right.
+- It converts in two passes: first build the tree, then post-process to resolve crosslinks, compute edge widths, and color nodes by runtime.
 
 Shared post-processing helpers resolve crosslinks and scale edge widths. Hyper's pipeline visualization lives separately in `pipeline-coloring.ts`.
 
 Shared parsing/formatting helpers live in `loader-utils.ts` (`tryToString`, `forceToString`, `formatMetric`, `tryGetPropertyPath`, the `Json` type).
 
-The library intentionally exposes low-level loaders (`json`, `xml`) as generic fallbacks so that even an unrecognized plan renders as *something* rather than an error.
+The library intentionally exposes low-level loaders (`json`, `xml`) as generic fallbacks so that even an unrecognized plan renders as _something_ rather than an error.
+
+JSON loaded through `loadPlanFromText` retains source provenance.
+The dispatcher visits the document once, building ordinary JSON values and a compact temporary position index without retaining a separate syntax tree.
+The decorated-tree conversion attaches the identifying value (`operator`, `expression`, `Node Type`, and similar fields) to the resulting `TreeNode`; only those UTF-16 character ranges remain after loading.
+JSON plan documents use canonical LF line endings so these offsets also match browser text models such as CodeMirror.
+Calling a low-level loader with an already-parsed value remains supported, but cannot produce source locations unless the caller also supplies a loader context.
+`parsePositionedJson`, `PlanLoadContext`, and the source-locator types are exported from `loaders/index.ts` for callers that need that low-level path.
 
 ## The Renderer
 
@@ -75,9 +83,9 @@ This also keeps large plans fast: collapsed subtrees are not laid out or rendere
 Most nodes are collapsed by default.
 The initial state is expressed entirely through `TreeDescription`:
 
-* A node's `children` are always laid out; its `collapsedChildren` are hidden until the subtree is expanded.
-* `expandedByDefault` seeds the initial state — loaders set it so that, for example, operator sub-trees start collapsed while expression sub-trees start open.
-* `properties` are hidden in the tooltip/detail panel and only shown when the node itself is expanded.
+- A node's `children` are always laid out; its `collapsedChildren` are hidden until the subtree is expanded.
+- `expandedByDefault` seeds the initial state — loaders set it so that, for example, operator sub-trees start collapsed while expression sub-trees start open.
+- `properties` are hidden in the tooltip/detail panel and only shown when the node itself is expanded.
 
 The loaders decide what goes where; the renderer and store just react to those decisions.
 
@@ -85,24 +93,24 @@ The loaders decide what goes where; the renderer and store just react to those d
 
 These are the touches that make a plan readable at a glance:
 
-* **Crosslinks** connect related-but-distant nodes — a magic join to its builder, a CTE scan to the CTE, a temp-table scan to the temp table. Loaders record them by an operator id and they are resolved into `Crosslink`s after the tree is built.
-* **Cardinality edge labels** show `actual/estimated` row counts, and the edge is highlighted (`qg-label-highlighted`) when the estimate is off by more than 10×, which is exactly what you look for when debugging a bad plan.
-* **Edge width** is scaled to the number of tuples flowing along an edge, so hot data paths are visually thick.
-* **Node color** is a pink shade proportional to a node's share of total runtime, drawing the eye to the expensive operators.
+- **Crosslinks** connect related-but-distant nodes — a magic join to its builder, a CTE scan to the CTE, a temp-table scan to the temp table. Loaders record them by an operator id and they are resolved into `Crosslink`s after the tree is built.
+- **Cardinality edge labels** show `actual/estimated` row counts, and the edge is highlighted (`qg-label-highlighted`) when the estimate is off by more than 10×, which is exactly what you look for when debugging a bad plan.
+- **Edge width** is scaled to the number of tuples flowing along an edge, so hot data paths are visually thick.
+- **Node color** is a pink shade proportional to a node's share of total runtime, drawing the eye to the expensive operators.
 
 ### Interaction State
 
 Each `QueryGraph` owns a [Zustand](https://github.com/pmndrs/zustand) store holding its mutable rendering state, so multiple graphs do not interfere with one another.
 It tracks three things, and the distinction between the first two is the key subtlety:
 
-* `expandedNodes` — which nodes have their **property detail panel** open.
-* `expandedSubtrees` — which nodes reveal their **`collapsedChildren`** in the graph.
-* `nodeDimensions` — react-flow's measurements, retained across controlled-node layout updates.
+- `expandedNodes` — which nodes have their **property detail panel** open.
+- `expandedSubtrees` — which nodes reveal their **`collapsedChildren`** in the graph.
+- `nodeDimensions` — react-flow's measurements, retained across controlled-node layout updates.
 
 ## Tech Debt
 
-* `tsconfig.json` disables `strict` (and several related checks) with `TODO`s to tighten them; new code should still be written to satisfy strict mode where practical.
-* The `package.json` `style` field points at `style/query-graphs.css`, which does not exist — component styles are instead imported by the components themselves and preserved via `sideEffects`. See [Embedding the Library](#embedding-the-library).
+- `tsconfig.json` disables `strict` (and several related checks) with `TODO`s to tighten them; new code should still be written to satisfy strict mode where practical.
+- The `package.json` `style` field points at `style/query-graphs.css`, which does not exist — component styles are instead imported by the components themselves and preserved via `sideEffects`. See [Embedding the Library](#embedding-the-library).
 
 ## Embedding the Library
 

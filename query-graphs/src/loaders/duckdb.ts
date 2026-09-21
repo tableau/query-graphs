@@ -15,7 +15,7 @@ import {convertDecoratedJsonNode, createDecoratedJsonTreeState} from "./decorate
 import type {Json, JsonObject} from "./loader-utils";
 import {forceToString, hasOwnProperty, hasSubObject, isJsonObject, tryToNonNullString, tryToNumber} from "./loader-utils";
 import {buildIdMap, colorRelativeNumber, resolveCrosslinks, setRelativeEdgeWidths} from "./tree-postprocessing";
-import type {PlanLoader} from "./types";
+import type {PlanLoadContext, PlanLoader} from "./types";
 
 function getExtraInfo(rawNode: JsonObject): JsonObject | undefined {
     return hasSubObject(rawNode, "extra_info") ? rawNode["extra_info"] : undefined;
@@ -25,12 +25,15 @@ function crosslinkId(namespace: "cte" | "delim", id: string): string {
     return `${namespace}:${id}`;
 }
 
+const operatorTypeKeys = ["operator_name", "name", "operator_type"] as const;
+
+function getOperatorTypeKey(rawNode: JsonObject): (typeof operatorTypeKeys)[number] | undefined {
+    return operatorTypeKeys.find((key) => tryToNonNullString(rawNode[key]) !== undefined);
+}
+
 function getOperatorType(rawNode: JsonObject): string {
-    const operatorType =
-        tryToNonNullString(rawNode["operator_name"]) ??
-        tryToNonNullString(rawNode["name"]) ??
-        tryToNonNullString(rawNode["operator_type"]) ??
-        "unknown";
+    const operatorTypeKey = getOperatorTypeKey(rawNode);
+    const operatorType = operatorTypeKey === undefined ? "unknown" : (tryToNonNullString(rawNode[operatorTypeKey]) ?? "unknown");
     // DuckDB's built-in operator names are often emitted in CAPS_LOCK form.
     // Preserve mixed-case names because extensions may supply their own labels.
     return operatorType === operatorType.toUpperCase() ? operatorType.toLowerCase() : operatorType;
@@ -90,7 +93,7 @@ function getDisplayName(rawNode: JsonObject): string {
 }
 
 const duckDbConfig: DecoratedJsonTreeConfig = {
-    nodeTypeKeys: ["operator_name", "name", "operator_type"],
+    nodeTypeKeys: operatorTypeKeys,
     structuralChildKeys: ["children"],
     alwaysPropertyKeys: [],
     flattenPropertyObjectKeys: ["extra_info"],
@@ -98,6 +101,7 @@ const duckDbConfig: DecoratedJsonTreeConfig = {
         return {icon: getIcon(rawNode)};
     },
     getDisplayName,
+    getSourcePropertyKey: getOperatorTypeKey,
     getCrosslinkTarget(rawNode) {
         const operatorType = getOperatorType(rawNode);
         // Recursive scans are emitted as REC_CTE_SCAN, so match the CTE scan family.
@@ -135,8 +139,13 @@ function applyOperatorTimings(root: TreeNode): void {
     colorRelativeNumber(timings);
 }
 
-function convertDuckPlan(rawRoot: Json, metadata?: Map<string, string>, textDocuments?: TextDocument[]): TreeDescription {
-    const state = createDecoratedJsonTreeState();
+function convertDuckPlan(
+    rawRoot: Json,
+    context?: PlanLoadContext,
+    metadata?: Map<string, string>,
+    textDocuments?: TextDocument[],
+): TreeDescription {
+    const state = createDecoratedJsonTreeState(context?.jsonSource);
     const root = convertDecoratedJsonNode(rawRoot, "DuckDB plan", state, duckDbConfig);
     applyOperatorTimings(root);
     setRelativeEdgeWidths(state.edgeWidths);
@@ -219,22 +228,22 @@ function getQueryDocument(json: JsonObject): TextDocument[] | undefined {
     return query === undefined ? undefined : [{id: "query", title: "Original SQL Query", text: query, language: "sql"}];
 }
 
-function combinePlanStages(stages: [string, Json][]): TreeDescription {
+function combinePlanStages(stages: [string, Json][], context?: PlanLoadContext): TreeDescription {
     const children: TreeNode[] = [];
     const crosslinks: Crosslink[] = [];
     for (const [name, root] of stages) {
-        const converted = convertDuckPlan(root);
+        const converted = convertDuckPlan(root, context);
         children.push({name, collapsedChildren: [converted.root]});
         crosslinks.push(...(converted.crosslinks ?? []));
     }
     return {root: {name: "optimizer stages", children}, crosslinks};
 }
 
-function loadDuckDbPlan(json: Json): TreeDescription {
+function loadDuckDbPlan(json: Json, context?: PlanLoadContext): TreeDescription {
     // Plans with multiple stages (`SET explain_output='all'`)
     const stages = getPlanStages(json);
     if (stages !== undefined) {
-        return combinePlanStages(stages);
+        return combinePlanStages(stages, context);
     }
 
     // ANALYZEd plans
@@ -243,11 +252,11 @@ function loadDuckDbPlan(json: Json): TreeDescription {
         if (isDuckNode(root) && root["operator_type"] === "EXPLAIN_ANALYZE" && isSingletonArray(root["children"])) {
             root = root["children"][0];
         }
-        return convertDuckPlan(root, analyzeMetadata(json), getQueryDocument(json));
+        return convertDuckPlan(root, context, analyzeMetadata(json), getQueryDocument(json));
     }
 
     // Normal plans
-    return convertDuckPlan(Array.isArray(json) && json.length > 0 ? json[0] : json);
+    return convertDuckPlan(Array.isArray(json) && json.length > 0 ? json[0] : json, context);
 }
 
 export const duckDbPlanLoader: PlanLoader<Json> = {

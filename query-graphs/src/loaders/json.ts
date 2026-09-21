@@ -21,14 +21,17 @@ const jsonTreeConfig: DecoratedJsonTreeConfig = {
     getDisplayName(rawNode) {
         return hasOwnProperty(rawNode, "name") ? tryToString(rawNode["name"]) : undefined;
     },
+    getSourcePropertyKey(rawNode) {
+        return hasOwnProperty(rawNode, "name") && tryToString(rawNode["name"]) !== undefined ? "name" : undefined;
+    },
     shouldCollapseChild: () => false,
 };
 
 export const jsonPlanLoader: PlanLoader<Json> = {
     format: "json",
     matches: () => true,
-    load(json) {
-        const state = createDecoratedJsonTreeState();
+    load(json, context) {
+        const state = createDecoratedJsonTreeState(context?.jsonSource);
         const root = convertDecoratedJsonNode(json, "root", state, jsonTreeConfig);
         return {root};
     },

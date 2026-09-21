@@ -28,6 +28,8 @@ export type TreeNode = {
     iconColor?: string;
     // Rendered in the tooltip
     properties?: Map<string, string>;
+    // Locations in associated text documents from which this node was derived
+    sourceLocations?: SourceLocation[];
 
     // Colors of a bar drawn just above the node
     // (conceptually the "outgoing" side, toward the parent).
@@ -66,6 +68,15 @@ export interface TextDocument {
     title: string;
     text: string;
     language?: string;
+}
+
+export interface SourceLocation {
+    // The id of the associated TextDocument
+    documentId: string;
+    // Inclusive UTF-16 offset in TextDocument.text
+    from: number;
+    // Exclusive UTF-16 offset in TextDocument.text
+    to: number;
 }
 
 export interface TreeDescription {

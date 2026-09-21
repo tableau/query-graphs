@@ -1,5 +1,5 @@
 import type React from "react";
-import {useCallback, useEffect, useMemo, useState} from "react";
+import {useCallback, useEffect, useMemo, useRef, useState} from "react";
 
 import "./FileOpener.css";
 import {assert} from "./assert";
@@ -131,8 +131,8 @@ interface FileOpenerProps {
     /// Callback called with the selected data.
     /// Might throw an `Exception` if it can't open the received file.
     setData: (data: FileOpenerData) => Promise<void>;
-    /// A validation function; returns an error string or "undefined" if the value is acceptable
-    validate: (content: string) => string | undefined;
+    /// Asynchronously validates the content and supports canceling stale validation work.
+    validate: (content: string, signal: AbortSignal) => Promise<string | undefined>;
     /// Controller for displaying progress/completion
     loadStateController: LoadStateController;
 }
@@ -141,50 +141,92 @@ export function FileOpener({setData, validate, loadStateController}: FileOpenerP
     const {loadState, clearLoadState, tryAndDisplayErrors, setError} = loadStateController;
     const {dragging, onDragOver, onDragLeave} = useFileDrop();
     const [planString, setPlanString] = useState<string>("");
+    const [validationPending, setValidationPending] = useState(false);
+    const submittedWithoutValidation = useRef<string | undefined>(undefined);
+    const activeValidation = useRef<AbortController | undefined>(undefined);
 
-    // Re-validate the current string whenever it's updated
+    const abortValidation = useCallback(() => {
+        activeValidation.current?.abort();
+        activeValidation.current = undefined;
+    }, []);
+
+    // Wait until typing pauses, then validate in an abortable worker. Terminating
+    // stale workers matters for large plans because their parser is synchronous.
     useEffect(() => {
         if (planString === "") {
             clearLoadState();
-        } else {
-            const error = validate(planString);
-            console.log(error);
-            if (error) {
-                setError(error);
-            } else {
-                clearLoadState();
-            }
+            return;
         }
+        if (submittedWithoutValidation.current === planString) {
+            submittedWithoutValidation.current = undefined;
+            return;
+        }
+        submittedWithoutValidation.current = undefined;
+
+        const abortController = new AbortController();
+        activeValidation.current = abortController;
+        const timeout = window.setTimeout(() => {
+            void validate(planString, abortController.signal)
+                .then((error) => {
+                    if (abortController.signal.aborted) return;
+                    activeValidation.current = undefined;
+                    setValidationPending(false);
+                    if (error === undefined) clearLoadState();
+                    else setError(error);
+                })
+                .catch((error: unknown) => {
+                    if (abortController.signal.aborted) return;
+                    activeValidation.current = undefined;
+                    setValidationPending(false);
+                    setError(error instanceof Error ? error.message : "Unknown error");
+                });
+        }, 300);
+        return () => {
+            window.clearTimeout(timeout);
+            abortController.abort();
+            if (activeValidation.current === abortController) activeValidation.current = undefined;
+        };
     }, [planString, validate, clearLoadState, setError]);
 
-    const submitDisabled = planString.trim() === "" || loadState.state != "pristine";
+    const submitDisabled = planString.trim() === "" || validationPending || loadState.state != "pristine";
 
     const onChange = useCallback(
         (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-            setPlanString(e.target.value);
+            const text = e.target.value;
+            setPlanString(text);
+            setValidationPending(text !== "");
+            clearLoadState();
         },
-        [setPlanString],
+        [clearLoadState],
     );
 
     const submit = useCallback(async () => {
-        if (planString.trim() === "") return;
+        if (planString.trim() === "" || validationPending || loadState.state !== "pristine") return;
         await tryAndDisplayErrors(async () => {
             await setData({content: planString});
             clearLoadState();
         });
-    }, [planString, setData, tryAndDisplayErrors, clearLoadState]);
+    }, [planString, validationPending, loadState.state, setData, tryAndDisplayErrors, clearLoadState]);
 
     // If pasting into an empty input area, try to auto-submit on paste events
     const onPaste = useCallback(
         async (e: React.ClipboardEvent) => {
             if (planString === "") {
+                // Submit directly while preserving the input for a possible load error.
+                // The ref suppresses the redundant validation worker this state change would start.
+                e.preventDefault();
                 await tryAndDisplayErrors(async () => {
-                    await setData(await getTextFromPasteEvent(e));
+                    const data = await getTextFromPasteEvent(e);
+                    abortValidation();
+                    submittedWithoutValidation.current = data.content;
+                    setPlanString(data.content);
+                    setValidationPending(false);
+                    await setData(data);
                     clearLoadState();
                 });
             }
         },
-        [planString, setData, clearLoadState, tryAndDisplayErrors],
+        [planString, setData, clearLoadState, tryAndDisplayErrors, abortValidation],
     );
 
     // Auto-submit on Ctrl/Cmd-Enter
@@ -214,12 +256,15 @@ export function FileOpener({setData, validate, loadStateController}: FileOpenerP
 
             await tryAndDisplayErrors(async () => {
                 const content = await readTextFromFile(file);
+                abortValidation();
+                submittedWithoutValidation.current = content;
                 setPlanString(content);
+                setValidationPending(false);
                 await setData({content, fileName: file.name});
                 clearLoadState();
             });
         },
-        [clearLoadState, onDragLeave, setData, tryAndDisplayErrors],
+        [clearLoadState, onDragLeave, setData, tryAndDisplayErrors, abortValidation],
     );
 
     if (loadState.state == "loading") {
