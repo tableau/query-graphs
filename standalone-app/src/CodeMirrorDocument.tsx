@@ -1,9 +1,11 @@
 import {useEffect, useRef} from "react";
 import {defaultKeymap} from "@codemirror/commands";
 import {bracketMatching, defaultHighlightStyle, foldGutter, foldKeymap, syntaxHighlighting} from "@codemirror/language";
+import {searchKeymap} from "@codemirror/search";
 import {EditorState, type Extension} from "@codemirror/state";
 import {EditorView, highlightSpecialChars, keymap, lineNumbers, scrollPastEnd} from "@codemirror/view";
 import type {TextDocument} from "@tableau/query-graphs/lib/tree-description";
+import {compactSearch} from "./CodeMirrorSearch";
 import "./CodeMirrorDocument.css";
 
 function createFoldMarker(open: boolean): HTMLElement {
@@ -84,10 +86,11 @@ export function CodeMirrorDocument({document, languageExtension = noLanguageExte
                     highlightSpecialChars(),
                     scrollPastEnd(),
                     bracketMatching(),
+                    compactSearch,
                     folding,
                     foldMarkerTheme,
                     documentTheme,
-                    keymap.of([...defaultKeymap, ...foldKeymap]),
+                    keymap.of([...defaultKeymap, ...searchKeymap, ...foldKeymap]),
                     EditorState.readOnly.of(true),
                     EditorView.contentAttributes.of({"aria-label": document.title}),
                 ],
