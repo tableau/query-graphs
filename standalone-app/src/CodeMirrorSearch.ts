@@ -55,8 +55,8 @@ class CompactSearchPanel implements Panel {
     #query: SearchQuery;
 
     constructor(readonly view: EditorView) {
-        // The search extension owns the canonical query in EditorState. Keep a
-        // local copy only to render the controls and detect external updates.
+        // The current search query is maintained in EditorState. Keep a
+        // local copy to render the controls and detect external updates.
         this.#query = getSearchQuery(view.state);
         this.#searchField = document.createElement("input");
         this.#searchField.className = "cm-textfield";
@@ -64,7 +64,7 @@ class CompactSearchPanel implements Panel {
         this.#searchField.placeholder = "Find";
         this.#searchField.setAttribute("aria-label", "Find");
         // CodeMirror locates this field when openSearchPanel is invoked for an
-        // already-open panel and when search commands restore its selection.
+        // already-open panel.
         this.#searchField.setAttribute("main-field", "true");
         this.#searchField.addEventListener("input", () => this.commit());
         this.#invalidStatus = document.createElement("span");
