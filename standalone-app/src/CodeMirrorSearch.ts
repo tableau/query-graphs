@@ -186,7 +186,10 @@ const compactSearchTheme = EditorView.theme({
     },
     ".cm-panel.cm-search .cm-textfield[name=search][aria-invalid=true]": {
         borderColor: "hsl(0, 70%, 50%)",
-        boxShadow: "0 0 0 1px hsl(0, 70%, 50%)",
+    },
+    ".cm-panel.cm-search .cm-textfield[name=search][aria-invalid=true]:focus": {
+        outline: "2px solid hsl(0, 70%, 50%)",
+        outlineOffset: "-1px",
     },
     ".cm-panel.cm-search button": {
         display: "inline-flex",
