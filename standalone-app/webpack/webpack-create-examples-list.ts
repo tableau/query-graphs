@@ -9,24 +9,6 @@ interface ExamplesIndex {
     engines: Record<string, {queries: Record<string, Record<string, {plan: string; sql: string}>>}>;
 }
 
-function mapPlansToSqlFiles(index: ExamplesIndex): Map<string, string> {
-    const sqlFiles = new Map<string, string>();
-    for (const engine of Object.values(index.engines)) {
-        for (const modes of Object.values(engine.queries)) {
-            for (const files of Object.values(modes)) {
-                sqlFiles.set(files.plan, `examples/${files.sql}`);
-            }
-        }
-    }
-    return sqlFiles;
-}
-
-function createExampleLink(planFile: string, title: string, sqlFile?: string): string {
-    const params = new URLSearchParams({file: planFile, title});
-    if (sqlFile !== undefined) params.set("sql-file", sqlFile);
-    return `index.html?${params.toString()}`;
-}
-
 function escapeHtml(unsafe: string) {
     return unsafe
         .replace(/&/g, "&amp;")
@@ -80,7 +62,9 @@ export class CreateExamplesListPlugin {
                     const {RawSource} = compiler.webpack.sources;
                     const examplesPath = path.join(compiler.context, examplesDirectory);
                     const index = JSON.parse(await fs.readFile(path.join(examplesPath, "index.json"), "utf8")) as ExamplesIndex;
-                    const sqlFiles = mapPlansToSqlFiles(index);
+                    const indexedExamples = Object.values(index.engines).flatMap((engine) =>
+                        Object.values(engine.queries).flatMap((modes) => Object.values(modes)),
+                    );
                     const planDumperPath = path.join(compiler.context, "../plan-dumper/dump-plans.py");
                     const queryFormattingPath = path.join(compiler.context, "../plan-dumper/query_formatting.py");
                     const queriesPath = path.join(compiler.context, "../plan-dumper/queries");
@@ -94,7 +78,7 @@ export class CreateExamplesListPlugin {
                             maxBuffer: 10 * 1024 * 1024,
                         }),
                     ) as Record<string, string>;
-                    const indexedSqlFiles = new Set(sqlFiles.values());
+                    const indexedSqlFiles = new Set(indexedExamples.map((files) => `examples/${files.sql}`));
                     for (const [sqlPath, sql] of Object.entries(generatedSql)) {
                         const sqlFile = `examples/${sqlPath}`;
                         if (!indexedSqlFiles.has(sqlFile)) {
@@ -111,7 +95,10 @@ export class CreateExamplesListPlugin {
                         const relPath = path.relative(compiler.context, absPath).split(path.sep).join("/");
                         const planPath = path.relative(examplesPath, absPath).split(path.sep).join("/");
                         const title = path.parse(absPath).base;
-                        return createExampleLink(relPath, title, sqlFiles.get(planPath));
+                        const params = new URLSearchParams({file: relPath, title});
+                        const sqlPath = indexedExamples.find((files) => files.plan === planPath)?.sql;
+                        if (sqlPath !== undefined) params.set("sql-file", `examples/${sqlPath}`);
+                        return `index.html?${params.toString()}`;
                     }
                     const code = await generateExamplesList(examplesPath, createLink);
                     compilation.emitAsset("examples.html", new RawSource(code));
