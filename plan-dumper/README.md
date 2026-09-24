@@ -134,5 +134,4 @@ Run it without `--revert` to preview the filtered diff instead of touching the w
 After regenerating, build and start the app (see [Build and Deployment](../docs/BuildAndDeployment.md)), then open [localhost:8080/examples.html](http://localhost:8080/examples.html).
 That page lists every example plan and associates generated plans with the exact SQL submitted by the dumper; click through the ones you touched to confirm they render correctly.
 The standalone-app build invokes `dump-plans.py --print-example-sql` to generate those SQL assets without checking them into the repository.
-CedarDB optimizer-step SQL contains all ten submitted `EXPLAIN ... STEP` statements in execution order, separated by blank lines.
 The `examples.html` index is generated at build time by the `standalone-app` — see its [README](../standalone-app/README.md).

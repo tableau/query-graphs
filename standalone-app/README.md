@@ -23,7 +23,7 @@ The same function doubles as the input validator in `FileOpener`, so the paste b
 ## The Plan Lives in the URL
 
 The currently open plan is not React state that vanishes on reload — it is a URL parameter.
-`QueryGraphsApp.tsx` reads a `file` parameter (the plan's URL), an optional `sql-file` parameter (the query's URL), and a `title` parameter via the hooks in `browserUrlHooks.ts`, and renders either the `FileOpener` (no plan) or the `QueryGraph` (plan loaded).
+`QueryGraphsApp.tsx` reads a `file` parameter (the plan's URL), an optional `sql-file` parameter (the URL of the SQL query), and a `title` parameter via the hooks in `browserUrlHooks.ts`, and renders either the `FileOpener` (no plan) or the `QueryGraph` (plan loaded).
 When `sql-file` is present, its contents are displayed as the original SQL query and override SQL embedded in the plan.
 
 Note that the `file` parameter can point to arbitrary valid URLs.
@@ -37,7 +37,7 @@ This design buys three things for free:
 
 * **Browser history** — opening a plan pushes a history entry, so Back returns to the previous plan; editing the title uses `replaceState` so it does not spam history.
 * **Shareable links** — a URL fully describes what is on screen.
-* **The examples page** — each generated-plan entry on `examples.html` links both its `file` and its corresponding `sql-file` into the app.
+* **The examples page** — each entry on `examples.html` links the plan via `file` and its corresponding `sql-file`.
 
 Parameters are kept in the URL **hash**, not the query string.
 We don't want to leak any (potentially confidential) query plans to the server.
