@@ -16,6 +16,7 @@ export interface LoadedPlan {
 
 export interface LoadPlanOptions {
     format?: string;
+    sql?: string;
 }
 
 export {InvalidPlanError, type PlanLoader, UnknownPlanFormatError} from "./types";
@@ -58,6 +59,20 @@ function addPlanDocument(plan: LoadedPlan, text: string, language: string): Load
     const planDocument: TextDocument = {id: "plan", title: "Query Plan", text, language};
     plan.tree.textDocuments ??= [];
     plan.tree.textDocuments.push(planDocument);
+    return plan;
+}
+
+function addSqlDocument(plan: LoadedPlan, sql: string | undefined): LoadedPlan {
+    if (sql === undefined) return plan;
+
+    const queryDocument: TextDocument = {id: "query", title: "Original SQL Query", text: sql, language: "sql"};
+    plan.tree.textDocuments ??= [];
+    const existingQuery = plan.tree.textDocuments.findIndex(({id}) => id === queryDocument.id);
+    if (existingQuery === -1) {
+        plan.tree.textDocuments.push(queryDocument);
+    } else {
+        plan.tree.textDocuments[existingQuery] = queryDocument;
+    }
     return plan;
 }
 
@@ -134,7 +149,7 @@ export function loadPlanFromText(text: string, options: LoadPlanOptions = {}): L
         try {
             const json = JSON.parse(planText) as Json;
             const plan = loadMatchingPlan(json, jsonPlanLoaders, errors, format);
-            if (plan !== undefined) return addPlanDocument(plan, formatJsonDocument(planText), "json");
+            if (plan !== undefined) return addPlanDocument(addSqlDocument(plan, options.sql), formatJsonDocument(planText), "json");
         } catch (error) {
             errors.push(error);
         }
@@ -144,7 +159,7 @@ export function loadPlanFromText(text: string, options: LoadPlanOptions = {}): L
         try {
             const xml = parseXml(planText);
             const plan = loadMatchingPlan(xml, xmlPlanLoaders, errors, format);
-            if (plan !== undefined) return addPlanDocument(plan, planText, "xml");
+            if (plan !== undefined) return addPlanDocument(addSqlDocument(plan, options.sql), planText, "xml");
         } catch (error) {
             errors.push(error);
         }

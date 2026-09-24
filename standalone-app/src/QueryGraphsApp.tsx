@@ -17,6 +17,7 @@ export function QueryGraphsApp() {
     // We store the currently opened tree in a URL parameter.
     // Thereby, we automatically integrate with the browser's history.
     const [treeUrl, setTreeUrl] = useUrlParam(browserUrl, "file");
+    const [sqlFileUrl, setSqlFileUrl] = useUrlParam(browserUrl, "sql-file");
     const [treeTitle, setTreeTitle] = useUrlParam(browserUrl, "title", true);
     const [uploadServer] = useUrlParam(browserUrl, "uploadServer");
     // Keep the browser tab's title in sync
@@ -60,6 +61,7 @@ export function QueryGraphsApp() {
         }
         // Update the tree URL such that link sharing works.
         setTreeTitle(title);
+        setSqlFileUrl(undefined);
         setTreeUrl(url.toString());
     };
     // We keep the displayed tree in sync with the URL parameter
@@ -71,41 +73,50 @@ export function QueryGraphsApp() {
             // keep `tree` as the single source of truth for what's displayed.
             // eslint-disable-next-line react-hooks/set-state-in-effect
             setTree(undefined);
+            clearLoadState();
             return;
         }
         const abortController = new AbortController();
         const signal = abortController.signal;
         tryAndDisplayErrors(async () => {
+            // Reset the tree before parsing or loading either URL. In case we fail,
+            // we don't want an outdated tree to stay around.
+            setTree(undefined);
             // Interpret relative URLs. This is important such that
             // the "examples.html" page works correctly.
             const url = new URL(treeUrl, window.location.href);
             const urlString = url.toString();
-            // Reset the tree. In case we fail due to an exception, we don't want
-            // an outdated tree to stay around.
-            setTree(undefined);
-            // Load the URL
-            let text;
-            if (isLocalStorageURL(url)) {
-                text = loadLocalStorageURL(url);
-            } else {
-                setProgress(`Fetching "${urlString}"...`);
+            const sqlUrl = sqlFileUrl === undefined ? undefined : new URL(sqlFileUrl, window.location.href);
+            // Load the plan and optional SQL in parallel.
+            setProgress(sqlUrl === undefined ? `Fetching "${urlString}"...` : "Fetching query plan and SQL...");
+            const loadText = async (fileUrl: URL) => {
+                if (isLocalStorageURL(fileUrl)) return loadLocalStorageURL(fileUrl);
+
                 let response;
                 try {
-                    response = await fetch(urlString, {signal});
+                    response = await fetch(fileUrl, {signal});
                 } catch (e) {
-                    if (url.protocol == "blob:") {
+                    if (fileUrl.protocol == "blob:") {
                         throw new Error("Local content no longer accessible", {cause: e});
                     }
                     throw e;
                 }
                 if (!response.ok) {
-                    throw new Error(`Failed to load ${urlString}: HTTP ${response.status}`);
+                    throw new Error(`Failed to load ${fileUrl}: HTTP ${response.status}`);
                 }
-                text = await response.text();
-            }
+                return response.text();
+            };
+            const loadedFiles = await Promise.all([loadText(url), sqlUrl === undefined ? undefined : loadText(sqlUrl)]).catch(
+                (error: unknown) => {
+                    if (signal.aborted) return undefined;
+                    throw error;
+                },
+            );
+            if (loadedFiles === undefined || signal.aborted) return;
+            const [text, sql] = loadedFiles;
             // Parse the tree
             setProgress("Parsing plan...");
-            const {tree} = loadPlanFromText(text);
+            const {tree} = loadPlanFromText(text, {sql});
             // Display the freshly loaded tree=
             setTree(tree);
             clearLoadState();
@@ -113,7 +124,7 @@ export function QueryGraphsApp() {
         return () => {
             abortController.abort();
         };
-    }, [treeUrl, clearLoadState, setProgress, tryAndDisplayErrors]);
+    }, [treeUrl, sqlFileUrl, clearLoadState, setProgress, tryAndDisplayErrors]);
 
     const validate = useCallback((text: string) => {
         try {

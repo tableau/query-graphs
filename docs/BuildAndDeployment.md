@@ -6,6 +6,8 @@ This document covers building the monorepo locally, running the webserver during
 
 Use [pnpm](https://pnpm.io/), not npm.
 The repository is a pnpm workspace monorepo; the workspace members are listed in `pnpm-workspace.yaml`.
+Python 3 is also required because the standalone-app build asks `plan-dumper` to generate the exact SQL for each example plan.
+Set the `PYTHON` environment variable if the interpreter is not available as `python3`.
 
 ## First Build
 
