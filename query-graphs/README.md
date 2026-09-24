@@ -26,6 +26,7 @@ Every loader outputs one; the renderer only ever consumes one.
   * `properties` — a `Map` of key/value strings shown in the node's tooltip/detail panel.
   * `children` vs `collapsedChildren` — see [The Collapse/Expand Model](#the-collapseexpand-model).
   * `edgeLabel`, `edgeWidth`, `edgeClass` — decorate the incoming edge (e.g. cardinality labels).
+  * `sourceLocations` — half-open UTF-16 ranges linking the node to associated text documents.
 * `Crosslink` — an extra `source → target` edge between nodes that are related but not parent/child (e.g. a CTE and its scan).
 * `IconName` — the set of icons the renderer knows how to draw (joins, scans, sort, group-by, …), realized as SVG in `NodeIcon`.
 
@@ -98,6 +99,9 @@ It tracks three things, and the distinction between the first two is the key sub
 * `expandedNodes` — which nodes have their **property detail panel** open.
 * `expandedSubtrees` — which nodes reveal their **`collapsedChildren`** in the graph.
 * `nodeDimensions` — react-flow's measurements, retained across controlled-node layout updates.
+
+When loaders provide SQL source locations, hovering a graph node highlights its SQL ranges and hovering or moving the cursor through SQL highlights the narrowest matching graph nodes.
+Locations on collapsed nodes resolve to their closest visible ancestors.
 
 ## Tech Debt
 

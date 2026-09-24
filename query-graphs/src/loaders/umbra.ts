@@ -17,7 +17,7 @@ import {hasOwnProperty, hasSubObject, isJsonObject, tryToString} from "./loader-
 import type {ExecutionPipeline} from "./pipeline-coloring";
 import {assignPipelineColors} from "./pipeline-coloring";
 import {buildIdMap, resolveCrosslinks, setRelativeEdgeWidths} from "./tree-postprocessing";
-import type {PlanLoader} from "./types";
+import type {PlanLoadContext, PlanLoader} from "./types";
 
 const nodeRenderingConfig: Record<string, NodeRenderingConfig> = {
     "op:select": {icon: "filter-symbol"},
@@ -76,6 +76,20 @@ const umbraConfig: DecoratedJsonTreeConfig = {
             return undefined;
         }
         return hasOwnProperty(rawNode, "type") ? tryToString(rawNode["type"]) : "result";
+    },
+    getSourceLocations(rawNode, context) {
+        const source = rawNode["sourceLocation"];
+        if (!isJsonObject(source) || context?.sqlSource === undefined) return undefined;
+        const {startLine, startColumn, endLine, endColumn} = source;
+        if (
+            typeof startLine !== "number" ||
+            typeof startColumn !== "number" ||
+            typeof endLine !== "number" ||
+            typeof endColumn !== "number"
+        )
+            return undefined;
+        const location = context.sqlSource.fromUtf8LineColumns(startLine, startColumn, endLine, endColumn);
+        return location === undefined ? undefined : [location];
     },
     shouldCollapseChild(_rawNode, key) {
         return !structuralChildKeys.includes(key);
@@ -167,9 +181,9 @@ function normalizePipelineMemberships(root: TreeNode, pipelines: ExecutionPipeli
     }
 }
 
-function convertUmbraPlan(statement: Json): TreeDescription {
+function convertUmbraPlan(statement: Json, context?: PlanLoadContext): TreeDescription {
     const state = createDecoratedJsonTreeState();
-    const root = convertDecoratedJsonNode(statement, "result", state, umbraConfig);
+    const root = convertDecoratedJsonNode(statement, "result", state, umbraConfig, context);
 
     setRelativeEdgeWidths(state.edgeWidths);
     const operatorIds = buildIdMap(root, "operatorId");
@@ -186,23 +200,23 @@ function convertUmbraPlan(statement: Json): TreeDescription {
     return {root, crosslinks};
 }
 
-function combineOptimizerStages(stages: [string, UmbraStatement][]): TreeDescription {
+function combineOptimizerStages(stages: [string, UmbraStatement][], context?: PlanLoadContext): TreeDescription {
     const children: TreeNode[] = [];
     const crosslinks: Crosslink[] = [];
     for (const [name, stage] of stages) {
-        const converted = convertUmbraPlan(stage);
+        const converted = convertUmbraPlan(stage, context);
         children.push({name, collapsedChildren: [converted.root]});
         crosslinks.push(...(converted.crosslinks ?? []));
     }
     return {root: {name: "optimizer steps", children}, crosslinks};
 }
 
-function loadUmbraPlan(json: Json): TreeDescription {
+function loadUmbraPlan(json: Json, context?: PlanLoadContext): TreeDescription {
     const stages = optimizerStages(json, (value) => hasSubObject(value, "plan"));
     if (stages !== undefined) {
-        return combineOptimizerStages(stages);
+        return combineOptimizerStages(stages, context);
     }
-    return convertUmbraPlan(json);
+    return convertUmbraPlan(json, context);
 }
 
 export const umbraPlanLoader: PlanLoader<Json> = {

@@ -147,3 +147,30 @@ test("Hyper optimizer steps preserve additional envelope fields", () => {
     assert.equal(loaded.tree.root.children?.[0].properties?.get("cost"), "42");
     assert.equal(loaded.tree.root.children?.[0].children?.[0].name, "scan");
 });
+
+test("Hyper links nodes to every valid SQL byte range", () => {
+    const sql = "EXPLAIN SELECT 'é😀', value FROM table";
+    const valueStart = Buffer.byteLength("EXPLAIN SELECT 'é😀', ");
+    const tableStart = Buffer.byteLength("EXPLAIN SELECT 'é😀', value FROM ");
+    const tree = loadPlanFromText(
+        JSON.stringify({
+            operator: "scan",
+            sqlpos: [
+                [valueStart, valueStart + Buffer.byteLength("value")],
+                [tableStart, tableStart + Buffer.byteLength("table")],
+                [valueStart + 1, valueStart + 0.5],
+            ],
+        }),
+        {format: "hyper", sql},
+    ).tree;
+
+    assert.deepEqual(tree.root.sourceLocations, [
+        {documentId: "query", from: 22, to: 27},
+        {documentId: "query", from: 33, to: 38},
+    ]);
+});
+
+test("Hyper ignores SQL positions without matching SQL", () => {
+    const tree = loadPlanFromText('{"operator":"scan","sqlpos":[[0,6]]}', {format: "hyper"}).tree;
+    assert.equal(tree.root.sourceLocations, undefined);
+});

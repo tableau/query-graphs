@@ -4,7 +4,7 @@
     border: 1px solid transparent;
     border-radius: .8em;
     padding: .3em .5em;
-    transition-property: border-color, background-color;
+    transition-property: border-color, background-color, box-shadow;
     transition-duration: 0.2s;
 
     & > .qg-graph-node-head,
@@ -28,6 +28,17 @@
         background: white;
         border-color: hsl(0,0%, 80%);
         box-shadow: 1px 2px 5px hsl(0,0%,90%);
+    }
+
+    &.qg-source-highlighted {
+        border-color: hsl(210, 80%, 55%);
+        box-shadow: 0 0 0 2px hsl(210, 80%, 55%);
+    }
+}
+
+@media (forced-colors: active) {
+    .qg-graph-node.qg-source-highlighted {
+        outline: 2px solid Highlight;
     }
 }
 
@@ -54,12 +65,52 @@
         opacity: 0;
     }
 
+    &.qg-source-descendant-highlighted {
+        opacity: 1;
+
+        & .qg-subtree-handle-background {
+            animation: qg-source-descendant-pulse 0.8s ease-in-out infinite alternate;
+        }
+    }
+
     &:focus-visible {
         opacity: 1;
     }
 
     &:hover .qg-subtree-handle-background {
         fill: hsl(0,0%,70%);
+    }
+}
+
+@keyframes qg-source-descendant-pulse {
+    from {
+        fill: hsl(210, 100%, 90%);
+        stroke: hsl(210, 80%, 55%);
+        stroke-width: 1.5;
+    }
+
+    to {
+        fill: hsl(210, 100%, 70%);
+        stroke: hsl(210, 90%, 40%);
+        stroke-width: 3;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .query-graph .qg-subtree-toggle.qg-source-descendant-highlighted .qg-subtree-handle-background {
+        animation: none;
+        fill: hsl(210, 100%, 80%);
+        stroke: hsl(210, 80%, 45%);
+        stroke-width: 2.5;
+    }
+}
+
+@media (forced-colors: active) {
+    .query-graph .qg-subtree-toggle.qg-source-descendant-highlighted .qg-subtree-handle-background {
+        animation: none;
+        fill: Canvas;
+        stroke: Highlight;
+        stroke-width: 3;
     }
 }
 

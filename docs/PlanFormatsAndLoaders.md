@@ -40,6 +40,8 @@ loadPlanFromText(text, {format: "json"}); // Force literal JSON rendering.
 Forced dispatch parses only the syntax used by that loader, skips `matches`, and never falls back to another loader.
 An unknown name produces `UnknownPlanFormatError`; invalid input produces `InvalidPlanError` with the requested format.
 Pass `{sql: queryText}` to add an original-SQL document or override one embedded by the plan loader.
+Hyper and Umbra loaders use this exact text to resolve plan-provided SQL positions into source links on tree nodes.
+Both formats report UTF-8 byte positions; Hyper uses absolute offsets, while Umbra uses one-based line and column coordinates.
 
 ## Adding a New Format
 

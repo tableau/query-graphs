@@ -16,10 +16,14 @@ function QueryNode({data, id}: NodeProps<QueryGraphNode>) {
     const toggleNode = useGraphRenderingStore((s) => s.toggleExpandedNode);
     const subtreeExpanded = useGraphRenderingStore((s) => s.expandedSubtrees[id]);
     const toggleSubtree = useGraphRenderingStore((s) => s.toggleExpandedSubtree);
+    const sourceHighlighted = useGraphRenderingStore((s) => s.highlightedNodes.has(data));
+    const collapsedSubtreeHighlighted = useGraphRenderingStore((s) => s.highlightedCollapsedSubtreeRoots.has(data));
+    const setHighlightedNode = useGraphRenderingStore((s) => s.setHighlightedNode);
     const animateGraphChange = useAnimateGraphChange();
 
     const hasProperties = data.properties?.size;
     const hasSubtree = data.collapsedChildren && data.collapsedChildren.length > 0;
+    const hasSourceLocations = (data.sourceLocations?.length ?? 0) > 0;
 
     const onClick = useCallback(
         (e: MouseEvent<HTMLDivElement>) => {
@@ -57,6 +61,7 @@ function QueryNode({data, id}: NodeProps<QueryGraphNode>) {
             "qg-expanded": expanded,
             "qg-collapsed": hasProperties && !expanded,
             "qg-no-props": !hasProperties,
+            "qg-source-highlighted": sourceHighlighted,
         },
     ]);
 
@@ -75,6 +80,7 @@ function QueryNode({data, id}: NodeProps<QueryGraphNode>) {
         {
             "qg-expanded": subtreeExpanded,
             "qg-collapsed": !subtreeExpanded,
+            "qg-source-descendant-highlighted": collapsedSubtreeHighlighted && !subtreeExpanded,
         },
     ]);
     const subtreeToggleLabel = `${subtreeExpanded ? "Collapse" : "Expand"} subtree${data.name ? ` for ${data.name}` : ""}`;
@@ -82,7 +88,12 @@ function QueryNode({data, id}: NodeProps<QueryGraphNode>) {
     return (
         <>
             <Handle type="target" position={Position.Top} />
-            <div className={nodeClassName} onClick={onClick}>
+            <div
+                className={nodeClassName}
+                onClick={onClick}
+                onMouseEnter={() => setHighlightedNode(hasSourceLocations ? data : undefined)}
+                onMouseLeave={() => setHighlightedNode(undefined)}
+            >
                 {colorBar(data.barsAbove, "above")}
                 <div className="qg-graph-node-head">
                     <NodeIcon icon={data.icon} iconColor={data.iconColor} />

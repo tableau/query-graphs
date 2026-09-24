@@ -21,7 +21,7 @@ import {convertDecoratedJsonNode, createDecoratedJsonTreeState} from "./decorate
 import type {ExecutionPipeline} from "./pipeline-coloring";
 import {assignPipelineColors} from "./pipeline-coloring";
 import {buildIdMap, colorRelativeNumber, resolveCrosslinks, setRelativeEdgeWidths} from "./tree-postprocessing";
-import type {PlanLoader} from "./types";
+import type {PlanLoadContext, PlanLoader} from "./types";
 
 const nodeRenderingConfig: Record<string, NodeRenderingConfig> = {
     "op:result-sink": {icon: "run-query-symbol"},
@@ -143,6 +143,19 @@ const hyperConfig: DecoratedJsonTreeConfig = {
         const name = hasOwnProperty(rawNode, "name") ? tryToString(rawNode["name"]) : undefined;
         return typeof debugName === "string" ? debugName : name;
     },
+    getSourceLocations(rawNode, context) {
+        const sqlPositions = rawNode["sqlpos"];
+        const sqlSource = context?.sqlSource;
+        if (!Array.isArray(sqlPositions) || sqlSource === undefined) return undefined;
+        const locations = sqlPositions.flatMap((range) => {
+            if (!Array.isArray(range) || range.length !== 2) return [];
+            const [from, to] = range;
+            if (typeof from !== "number" || typeof to !== "number") return [];
+            const location = sqlSource.fromUtf8Bytes(from, to);
+            return location === undefined ? [] : [location];
+        });
+        return locations.length === 0 ? undefined : locations;
+    },
     shouldCollapseChild(rawNode, _key, child) {
         // Keep operator inputs visible (including arrays of operators), while collapsing auxiliary operator data.
         return !hasOwnProperty(rawNode, "operator") || !containsOperator(child);
@@ -244,14 +257,14 @@ function applyPipelineStatistics(pipelines: HyperPipeline[], metadata: Map<strin
     colorRelativeNumber(cpuCycles);
 }
 
-function convertHyperPlan(node: Json, pipelines?: Json): TreeDescription {
+function convertHyperPlan(node: Json, context?: PlanLoadContext, pipelines?: Json): TreeDescription {
     const state = createDecoratedJsonTreeState();
     const errorMessage = tryGetPropertyPath(node, ["statistics", "error", "message", "original"]);
     if (errorMessage) {
         state.metadata.set("Error", forceToString(errorMessage));
     }
 
-    const root = convertDecoratedJsonNode(node, "result", state, hyperConfig);
+    const root = convertDecoratedJsonNode(node, "result", state, hyperConfig, context);
     setRelativeEdgeWidths(state.edgeWidths);
     const operatorsById = buildIdMap(root, "operator-id");
     const crosslinks = resolveCrosslinks(state.crosslinks, operatorsById);
@@ -282,7 +295,7 @@ function isHyperPlanRoot(json: Json): json is JsonObject {
     );
 }
 
-function convertOptimizerSteps(node: Json): TreeDescription | undefined {
+function convertOptimizerSteps(node: Json, context?: PlanLoadContext): TreeDescription | undefined {
     if (!isJsonObject(node)) return undefined;
     if (!hasOwnProperty(node, "optimizersteps")) return undefined;
     const steps = node["optimizersteps"];
@@ -305,7 +318,7 @@ function convertOptimizerSteps(node: Json): TreeDescription | undefined {
             crosslinks: newCrosslinks,
             metadata: newProperties,
             metadataHighlighted: childMetadataHighlighted,
-        } = convertHyperPlan(plan);
+        } = convertHyperPlan(plan, context);
         crosslinks.push(...(newCrosslinks ?? []));
         metadataHighlighted ||= childMetadataHighlighted ?? false;
         children.push({name, properties: extraProperties(step, ["name", "plan"]), children: [childRoot]});
@@ -358,12 +371,12 @@ function isHyperPlan(json: Json): boolean {
     return isOptimizerStepsPlan(json) || isHyperPlanRoot(json);
 }
 
-function loadHyperPlan(json: Json): TreeDescription {
+function loadHyperPlan(json: Json, context?: PlanLoadContext): TreeDescription {
     if (hasPipelineEnvelope(json)) {
-        return convertHyperPlan(json["tree"], json["pipelines"]);
+        return convertHyperPlan(json["tree"], context, json["pipelines"]);
     }
     // TODO(2026-12-18): Require the {tree, pipelines} envelope and stop loading pre-2026-09-18 direct-root plans.
-    return convertOptimizerSteps(json) ?? convertHyperPlan(json);
+    return convertOptimizerSteps(json, context) ?? convertHyperPlan(json, context);
 }
 
 export const hyperPlanLoader: PlanLoader<Json> = {

@@ -1,6 +1,7 @@
-import {lazy, Suspense, type ReactElement} from "react";
+import {lazy, Suspense, type ReactElement, useCallback, useMemo} from "react";
 import {CollapsiblePanel} from "@tableau/query-graphs/lib/ui/CollapsiblePanel";
 import {CopyButton} from "@tableau/query-graphs/lib/ui/CopyButton";
+import {useGraphRenderingStore} from "@tableau/query-graphs/lib/ui/store";
 import type {TextDocument} from "@tableau/query-graphs/lib/tree-description";
 import "./TreeLabel.css";
 
@@ -29,6 +30,18 @@ function LoadingDocument({title}: {title: string}) {
 }
 
 function TextDocumentPanel({document}: {document: TextDocument}) {
+    const linkedRanges = useGraphRenderingStore((state) => state.getLinkedSourceRanges(document.id));
+    const highlightedSourceLocations = useGraphRenderingStore((state) => state.highlightedSourceLocations);
+    const highlightedRanges = useMemo(
+        () => highlightedSourceLocations.filter(({documentId}) => documentId === document.id),
+        [document.id, highlightedSourceLocations],
+    );
+    const highlightNodesAtSourceRangeOffset = useGraphRenderingStore((state) => state.highlightNodesAtSourceRangeOffset);
+    const onActiveRangeOffsetChange = useCallback(
+        (activeRangeOffset?: number) => highlightNodesAtSourceRangeOffset(document.id, activeRangeOffset),
+        [document.id, highlightNodesAtSourceRangeOffset],
+    );
+
     return (
         <CollapsiblePanel
             title={document.title}
@@ -38,7 +51,12 @@ function TextDocumentPanel({document}: {document: TextDocument}) {
         >
             <div className="graph-text-document-frame">
                 <Suspense fallback={<LoadingDocument title={document.title} />}>
-                    <DocumentPane document={document} />
+                    <DocumentPane
+                        document={document}
+                        linkedRanges={linkedRanges}
+                        highlightedRanges={highlightedRanges}
+                        onActiveRangeOffsetChange={onActiveRangeOffsetChange}
+                    />
                 </Suspense>
             </div>
         </CollapsiblePanel>

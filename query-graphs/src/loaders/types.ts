@@ -1,4 +1,9 @@
 import type {TreeDescription} from "../tree-description";
+import type {SqlSourceLocator} from "./sql-source";
+
+export interface PlanLoadContext {
+    sqlSource?: SqlSourceLocator;
+}
 
 /** A format-specific renderer for input that has already been parsed as JSON or XML. */
 export interface PlanLoader<Input> {
@@ -14,7 +19,7 @@ export interface PlanLoader<Input> {
      * Renders the input as permissively as possible, including input for which `matches` returns false.
      * Throw `InvalidPlanError` only when producing a useful tree is impossible.
      */
-    load(input: Input): TreeDescription;
+    load(input: Input, context?: PlanLoadContext): TreeDescription;
 }
 
 export class InvalidPlanError extends Error {

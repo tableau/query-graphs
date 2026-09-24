@@ -4,8 +4,9 @@ import {hyperPlanLoader} from "./hyper";
 import {jsonPlanLoader} from "./json";
 import type {Json} from "./loader-utils";
 import {postgresPlanLoader} from "./postgres";
+import {createSqlSourceLocator} from "./sql-source";
 import {tableauPlanLoader} from "./tableau";
-import {InvalidPlanError, type PlanLoader, UnknownPlanFormatError} from "./types";
+import {InvalidPlanError, type PlanLoadContext, type PlanLoader, UnknownPlanFormatError} from "./types";
 import {umbraPlanLoader} from "./umbra";
 import {parseXml, type ParsedXML, xmlPlanLoader} from "./xml";
 
@@ -19,7 +20,8 @@ export interface LoadPlanOptions {
     sql?: string;
 }
 
-export {InvalidPlanError, type PlanLoader, UnknownPlanFormatError} from "./types";
+export {createSqlSourceLocator, type SqlSourceLocator} from "./sql-source";
+export {InvalidPlanError, type PlanLoadContext, type PlanLoader, UnknownPlanFormatError} from "./types";
 
 // Order matters: format-specific loaders must precede the more permissive Hyper loader, and generic fallbacks must stay last.
 export const jsonPlanLoaders: readonly PlanLoader<Json>[] = [
@@ -36,11 +38,12 @@ function loadMatchingPlan<Input>(
     loaders: readonly PlanLoader<Input>[],
     errors: unknown[],
     format?: string,
+    context?: PlanLoadContext,
 ): LoadedPlan | undefined {
     for (const loader of loaders) {
         if (format === undefined ? loader.matches(input) : loader.format === format) {
             try {
-                return {format: loader.format, tree: loader.load(input)};
+                return {format: loader.format, tree: loader.load(input, context)};
             } catch (error) {
                 errors.push(error);
             }
@@ -62,10 +65,8 @@ function addPlanDocument(plan: LoadedPlan, text: string, language: string): Load
     return plan;
 }
 
-function addSqlDocument(plan: LoadedPlan, sql: string | undefined): LoadedPlan {
-    if (sql === undefined) return plan;
-
-    const queryDocument: TextDocument = {id: "query", title: "Original SQL Query", text: sql, language: "sql"};
+function addSqlDocument(plan: LoadedPlan, queryDocument: TextDocument | undefined): LoadedPlan {
+    if (queryDocument === undefined) return plan;
     plan.tree.textDocuments ??= [];
     const existingQuery = plan.tree.textDocuments.findIndex(({id}) => id === queryDocument.id);
     if (existingQuery === -1) {
@@ -145,11 +146,14 @@ export function loadPlanFromText(text: string, options: LoadPlanOptions = {}): L
     }
 
     const errors: unknown[] = [];
+    const sqlSource = options.sql === undefined ? undefined : createSqlSourceLocator(options.sql);
+    const context: PlanLoadContext = {sqlSource};
     if (acceptsJson) {
         try {
             const json = JSON.parse(planText) as Json;
-            const plan = loadMatchingPlan(json, jsonPlanLoaders, errors, format);
-            if (plan !== undefined) return addPlanDocument(addSqlDocument(plan, options.sql), formatJsonDocument(planText), "json");
+            const plan = loadMatchingPlan(json, jsonPlanLoaders, errors, format, context);
+            if (plan !== undefined)
+                return addPlanDocument(addSqlDocument(plan, sqlSource?.document), formatJsonDocument(planText), "json");
         } catch (error) {
             errors.push(error);
         }
@@ -158,8 +162,8 @@ export function loadPlanFromText(text: string, options: LoadPlanOptions = {}): L
     if (acceptsXml) {
         try {
             const xml = parseXml(planText);
-            const plan = loadMatchingPlan(xml, xmlPlanLoaders, errors, format);
-            if (plan !== undefined) return addPlanDocument(addSqlDocument(plan, options.sql), planText, "xml");
+            const plan = loadMatchingPlan(xml, xmlPlanLoaders, errors, format, context);
+            if (plan !== undefined) return addPlanDocument(addSqlDocument(plan, sqlSource?.document), planText, "xml");
         } catch (error) {
             errors.push(error);
         }

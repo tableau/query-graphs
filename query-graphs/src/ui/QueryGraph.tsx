@@ -1,10 +1,12 @@
-import {ReactFlow, MiniMap, Controls, ReactFlowProvider} from "@xyflow/react";
+import {ReactFlow, MiniMap, MiniMapNode, Controls, ReactFlowProvider, useNodesData} from "@xyflow/react";
+import type {MiniMapNodeProps} from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 
 import type {TreeDescription, TreeNode} from "../tree-description";
 import {allChildren, visitTreeNodes} from "../tree-description";
 import type {MouseEvent, ReactNode} from "react";
-import {useMemo} from "react";
+import {useEffect, useMemo} from "react";
+import cc from "classcat";
 import {QueryNode} from "./QueryNode";
 import type {QueryGraphNode} from "./QueryNode";
 import {ColoredEdge} from "./ColoredEdge";
@@ -30,6 +32,12 @@ function minimapNodeColor(n: QueryGraphNode): string {
     return "hsl(0, 0%, 72%)";
 }
 
+function QueryGraphMiniMapNode(props: MiniMapNodeProps) {
+    const node = useNodesData<QueryGraphNode>(props.id);
+    const sourceHighlighted = useGraphRenderingStore((state) => node !== null && state.highlightedNodes.has(node.data));
+    return <MiniMapNode {...props} className={cc([props.className, {"qg-source-highlighted": sourceHighlighted}])} />;
+}
+
 const nodeTypes = {
     querynode: QueryNode,
 };
@@ -49,6 +57,9 @@ function QueryGraphInternal({treeDescription, children, nodeIdMapping, treeParen
     // of `visibility: hidden` because React Flow overrides inherited
     // visibility on nodes after measuring them.
     const initialViewportStyle = {opacity: animatedLayout.initialViewportReady ? 1 : 0};
+    const setVisibleNodeIds = useGraphRenderingStore((state) => state.setVisibleNodeIds);
+    const visibleNodeIds = useMemo(() => new Set(animatedLayout.nodes.map(({id}) => id)), [animatedLayout.nodes]);
+    useEffect(() => setVisibleNodeIds(visibleNodeIds), [setVisibleNodeIds, visibleNodeIds]);
 
     return (
         <AnimateGraphChangeContext.Provider value={animatedLayout.animateGraphChange}>
@@ -71,7 +82,7 @@ function QueryGraphInternal({treeDescription, children, nodeIdMapping, treeParen
                 inert={!animatedLayout.initialViewportReady}
             >
                 {...Array.isArray(children) ? children : [children]}
-                <MiniMap zoomable={true} pannable={true} nodeColor={minimapNodeColor} />
+                <MiniMap zoomable={true} pannable={true} nodeColor={minimapNodeColor} nodeComponent={QueryGraphMiniMapNode} />
                 <Controls showInteractive={false} />
             </ReactFlow>
         </AnimateGraphChangeContext.Provider>
@@ -93,11 +104,12 @@ function createGraphState(treeDescription: TreeDescription) {
         },
         allChildren,
     );
+    const treeParents = indexTreeParents(treeDescription, nodeIdMapping);
     return {
         instanceId: nextGraphInstanceId++,
         nodeIdMapping,
-        treeParents: indexTreeParents(treeDescription, nodeIdMapping),
-        graphStore: createGraphRenderingStore(expandedSubtrees),
+        treeParents,
+        graphStore: createGraphRenderingStore(expandedSubtrees, nodeIdMapping, treeParents),
     };
 }
 

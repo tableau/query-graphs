@@ -44,4 +44,20 @@
       stroke-dasharray: 6 2;
     }
   }
+
+  & .react-flow__minimap-node {
+    transition: stroke .2s;
+    vector-effect: non-scaling-stroke;
+
+    &.qg-source-highlighted {
+      stroke: hsl(210, 80%, 55%);
+      stroke-width: 3px;
+    }
+  }
+}
+
+@media (forced-colors: active) {
+  .query-graph .react-flow__minimap-node.qg-source-highlighted {
+    stroke: Highlight;
+  }
 }

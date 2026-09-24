@@ -167,6 +167,36 @@ test("Umbra keeps source locations in properties instead of graph subtrees", () 
     assert.ok(!treeNodes(tree.root).some((node) => node.name === "sourceLocation"));
 });
 
+test("Umbra links nodes using the one-based UTF-8 columns observed in a Unicode probe", () => {
+    const sql = `EXPLAIN (FORMAT JSON) SELECT 'é😀' AS prefix, "é😀s" + 2 AS target FROM generate_series(1, 2) AS t("é😀s");`;
+    const tree = loadPlanFromText(
+        JSON.stringify({
+            plan: {
+                operator: "tablescan",
+                operatorId: 1,
+                sourceLocation: {startLine: 1, startColumn: 50, endLine: 1, endColumn: 63},
+            },
+        }),
+        {format: "umbra", sql},
+    ).tree;
+
+    const operator = treeNodes(tree.root).find((node) => node.properties?.get("operatorId") === "1");
+    assert.deepEqual(operator?.sourceLocations, [{documentId: "query", from: 46, to: 56}]);
+    assert.equal(sql.slice(46, 56), `"é😀s" + 2`);
+});
+
+test("Umbra ignores malformed source locations and locations without SQL", () => {
+    const plan = JSON.stringify({
+        plan: {
+            operator: "tablescan",
+            operatorId: 1,
+            sourceLocation: {startLine: 1, startColumn: 0, endLine: 1, endColumn: 4},
+        },
+    });
+    assert.equal(loadPlanFromText(plan, {format: "umbra", sql: "abc"}).tree.root.sourceLocations, undefined);
+    assert.equal(loadPlanFromText(plan, {format: "umbra"}).tree.root.sourceLocations, undefined);
+});
+
 test("CedarDB optimizer stages are collapsed independently", () => {
     const tree = loadFixture("cedardb/tpch/tpch-q2-steps.plan.json").tree;
     assert.equal(tree.root.name, "optimizer steps");

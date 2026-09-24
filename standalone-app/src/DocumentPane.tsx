@@ -1,15 +1,16 @@
-import type {TextDocument} from "@tableau/query-graphs/lib/tree-description";
 import {CodeMirrorDocument} from "./CodeMirrorDocument";
+import type {DocumentViewerProps} from "./CodeMirrorDocument";
 import {JsonDocument} from "./JsonDocument";
 import {SqlDocument} from "./SqlDocument";
 
-export function DocumentPane({document}: {document: TextDocument}) {
+export function DocumentPane(props: DocumentViewerProps) {
+    const {document} = props;
     switch (document.language?.toLowerCase()) {
         case "json":
-            return <JsonDocument document={document} />;
+            return <JsonDocument {...props} />;
         case "sql":
-            return <SqlDocument document={document} />;
+            return <SqlDocument {...props} />;
         default:
-            return <CodeMirrorDocument document={document} />;
+            return <CodeMirrorDocument {...props} />;
     }
 }
