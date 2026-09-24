@@ -70,6 +70,13 @@ test("DuckDB analyzed plans preserve metrics, metadata, and CTE crosslinks", () 
     assert.equal(actualOnly?.edgeLabel, "3/?");
 });
 
+test("supplied SQL overrides DuckDB's embedded query", () => {
+    const fixturePath = path.join(examplesRoot, "duckdb/tablescan-analyze.plan.json");
+    const text = readFileSync(fixturePath, "utf8");
+    const queryDocuments = loadPlanFromText(text, {sql: "SELECT 1"}).tree.textDocuments?.filter(({id}) => id === "query");
+    assert.deepEqual(queryDocuments, [{id: "query", title: "Original SQL Query", text: "SELECT 1", language: "sql"}]);
+});
+
 test("DuckDB keeps CTE and delimiter crosslink identifiers separate within a plan", () => {
     const cte = {
         name: "CTE",

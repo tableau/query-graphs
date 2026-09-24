@@ -7,7 +7,7 @@ Refresh these examples from time to time when new versions are published, so the
 
 ## What Is Here
 
-* `dump-plans.py` — runs each query against every configured database, writes the `EXPLAIN` output as JSON into `standalone-app/examples/<db>/`, and updates `standalone-app/examples/index.json` with the database versions and generated plan paths.
+* `dump-plans.py` — runs each query against every configured database, writes the `EXPLAIN` output into `standalone-app/examples/<db>/`, and updates `standalone-app/examples/index.json` with the database versions and the plan and build-generated SQL paths.
 * `filter-timing-diff.py` — strips volatile runtime measurements out of a `git diff`, so regenerating the plans doesn't drown real changes in noise.
   See [Cleaning Up Runtime Noise](#cleaning-up-runtime-noise).
 * `queries/` — the SQL queries to explain, including a `tpch/` subfolder of TPC-H queries.
@@ -132,5 +132,6 @@ Run it without `--revert` to preview the filtered diff instead of touching the w
 ## Verifying the Result
 
 After regenerating, build and start the app (see [Build and Deployment](../docs/BuildAndDeployment.md)), then open [localhost:8080/examples.html](http://localhost:8080/examples.html).
-That page lists every example plan; click through the ones you touched to confirm they render correctly.
+That page lists every example plan and associates generated plans with the exact SQL submitted by the dumper; click through the ones you touched to confirm they render correctly.
+The standalone-app build invokes `dump-plans.py --print-example-sql` to generate those SQL assets without checking them into the repository.
 The `examples.html` index is generated at build time by the `standalone-app` — see its [README](../standalone-app/README.md).

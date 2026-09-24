@@ -10,12 +10,13 @@ from contextlib import closing
 from pathlib import Path
 from urllib.parse import parse_qs, unquote, urlparse
 
-import duckdb
-import psycopg2
-import pymysql
-from psycopg2 import sql as psycopg2_sql
-from tableauhyperapi import Connection, HyperProcess, Telemetry
-from query_formatting import explain_query, parse_config, strip_config_comments
+from query_formatting import (
+    CEDARDB_OPTIMIZER_STEPS,
+    explain_queries,
+    generate_example_sql,
+    parse_config,
+    strip_config_comments,
+)
 
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -96,13 +97,14 @@ def dump_plans(
                 if mode not in modes:
                     modes.append(mode)
             for mode in modes:
-                plan = get_plan(sql, mode)
-                if plan is None:
+                queries_to_explain = explain_queries(name, mode, sql)
+                if queries_to_explain is None:
                     print(
                         f"{name}: {query_path.relative_to(BASE_DIR)} "
                         f"({mode}; skipped, unsupported mode)"
                     )
                     continue
+                plan = get_plan(queries_to_explain, mode)
 
                 print(f"{name}: {query_path.relative_to(BASE_DIR)} ({mode})")
                 suffix = "" if mode == "simple" else f"-{mode}"
@@ -112,8 +114,12 @@ def dump_plans(
                 destination_path.parent.mkdir(parents=True, exist_ok=True)
                 destination_path.write_text(plan)
                 query = relative_path.with_suffix("").as_posix()
-                url = destination_path.relative_to(staging_dir.parent).as_posix()
-                queries.setdefault(query, {})[mode] = url
+                plan_url = destination_path.relative_to(staging_dir.parent).as_posix()
+                sql_url = plan_url.removesuffix(".plan.json") + ".sql"
+                queries.setdefault(query, {})[mode] = {
+                    "plan": plan_url,
+                    "sql": sql_url,
+                }
 
         if destination.exists():
             shutil.rmtree(destination)
@@ -138,6 +144,9 @@ def dump_postgres_compatible(name, dsn):
         print(f"Skipping {name}: no DSN configured")
         return
 
+    import psycopg2
+    from psycopg2 import sql as psycopg2_sql
+
     def indent_following_lines(value, prefix):
         return value.replace("\n", "\n" + prefix)
 
@@ -158,30 +167,12 @@ def dump_postgres_compatible(name, dsn):
                 with path.open() as input_file:
                     cursor.copy_expert(copy_sql.as_string(cursor), input_file)
 
-        def get_plan(sql, mode):
-            if mode == "simple":
-                explain = "EXPLAIN (VERBOSE, FORMAT JSON)"
-            elif mode == "analyze":
-                explain = "EXPLAIN (VERBOSE, ANALYZE, FORMAT JSON)"
-            elif mode == "steps" and name == "cedardb":
-                optimizer_steps = (
-                    "NoOptimizations",
-                    "ExpressionSimplification",
-                    "Unnesting",
-                    "PredicatePushdown",
-                    "InitialJoinTree",
-                    "SidewayInformationPassing",
-                    "OperatorReordering",
-                    "EarlyProbing",
-                    "CommonSubtreeElimination",
-                    "PhysicalOperatorMapping",
-                )
+        def get_plan(queries, mode):
+            if mode == "steps":
                 plans = []
                 with connection.cursor() as cursor:
-                    for step in optimizer_steps:
-                        cursor.execute(
-                            explain_query(sql, f"EXPLAIN (VERBOSE, FORMAT JSON, STEP {step})")
-                        )
+                    for step, query in zip(CEDARDB_OPTIMIZER_STEPS, queries, strict=True):
+                        cursor.execute(query)
                         plan = cursor.fetchone()[0]
                         if not isinstance(plan, str):
                             raise TypeError("CedarDB returned a non-text JSON plan")
@@ -191,10 +182,8 @@ def dump_postgres_compatible(name, dsn):
                             + indent_following_lines(plan, " ")
                         )
                 return "{\n" + ",\n".join(plans) + "\n}"
-            else:
-                return None
             with connection.cursor() as cursor:
-                cursor.execute(explain_query(sql, explain))
+                cursor.execute(queries[0])
                 plan = cursor.fetchone()[0]
                 return plan if isinstance(plan, str) else format_json(plan)
 
@@ -214,6 +203,8 @@ def dump_mariadb(url):
     if not url:
         print("Skipping mariadb: --mariadb-url is not configured")
         return
+
+    import pymysql
 
     def parse_url():
         parsed = urlparse(url)
@@ -243,17 +234,13 @@ def dump_mariadb(url):
                 if cursor.description:
                     cursor.fetchall()
 
-        def get_plan(sql, mode):
-            if mode == "simple":
-                explain = "EXPLAIN FORMAT=JSON"
-            elif mode == "analyze":
-                explain = "ANALYZE FORMAT=JSON"
-            elif mode == "steps":
+        def get_plan(queries, mode):
+            if mode == "steps":
                 with connection.cursor() as cursor:
                     cursor.execute("SET optimizer_trace='enabled=on'")
                     cursor.execute("SET optimizer_trace_max_mem_size=16777216")
                     try:
-                        cursor.execute(explain_query(sql, "EXPLAIN FORMAT=JSON"))
+                        cursor.execute(queries[0])
                         cursor.fetchall()
                         cursor.execute(
                             "SELECT TRACE, MISSING_BYTES_BEYOND_MAX_MEM_SIZE, "
@@ -270,10 +257,8 @@ def dump_mariadb(url):
                         f"MariaDB optimizer trace is missing {missing_bytes} bytes"
                     )
                 return trace
-            else:
-                return None
             with connection.cursor() as cursor:
-                cursor.execute(explain_query(sql, explain))
+                cursor.execute(queries[0])
                 return cursor.fetchone()[0]
 
         run_setup(
@@ -287,23 +272,20 @@ def dump_mariadb(url):
 
 
 def dump_duckdb():
+    import duckdb
+
     with duckdb.connect() as connection:
         def exec_stmt(sql):
             connection.execute(sql)
 
-        def get_plan(sql, mode):
+        def get_plan(queries, mode):
             if mode == "simple":
                 connection.execute("SET explain_output='physical_only'")
-                explain = "EXPLAIN (FORMAT JSON)"
             elif mode == "analyze":
                 connection.execute("SET explain_output='physical_only'")
-                explain = "EXPLAIN (ANALYZE, FORMAT JSON)"
             elif mode == "steps":
                 connection.execute("SET explain_output='all'")
-                explain = "EXPLAIN (FORMAT JSON)"
-            else:
-                return None
-            records = connection.execute(explain_query(sql, explain)).fetchall()
+            records = connection.execute(queries[0]).fetchall()
             if mode == "steps":
                 return json.dumps({stage: json.loads(plan) for stage, plan in records}, indent=2)
             return records[0][1]
@@ -317,6 +299,8 @@ def dump_duckdb():
 
 
 def dump_hyper(hyper_path):
+    from tableauhyperapi import Connection, HyperProcess, Telemetry
+
     parameters = {"log_config": ""}
     with HyperProcess(
         telemetry=Telemetry.SEND_USAGE_DATA_TO_TABLEAU,
@@ -327,19 +311,8 @@ def dump_hyper(hyper_path):
             def exec_stmt(sql):
                 connection.execute_command(sql)
 
-            def get_plan(sql, mode):
-                options = {
-                    "simple": "FORMAT INTERNAL",
-                    "steps": "FORMAT INTERNAL, OPTIMIZE STEPS",
-                    "analyze": "FORMAT INTERNAL, ANALYZE",
-                    "external-analyze": "FORMAT JSON, ANALYZE, EXPAND_VIEWS true",
-                    "analyze-sql": "FORMAT INTERNAL, ANALYZE, EXPRESSIONS SQL",
-                }
-                if mode not in options:
-                    return None
-                result = connection.execute_list_query(
-                    explain_query(sql, f"EXPLAIN ({options[mode]})")
-                )
+            def get_plan(queries, _mode):
+                result = connection.execute_list_query(queries[0])
                 return "\n".join(row[0] for row in result)
 
             run_setup(
@@ -375,10 +348,19 @@ def main():
             "--mariadb-url",
             help="mysql:// URL (omitting this option disables MariaDB).",
         )
+        parser.add_argument(
+            "--print-example-sql",
+            action="store_true",
+            help="Print exact example-plan SQL as JSON for the standalone-app build.",
+        )
         return parser.parse_args()
 
     os.chdir(BASE_DIR)
     args = parse_args()
+    if args.print_example_sql:
+        index = json.loads(INDEX_FILE.read_text())
+        print(json.dumps(generate_example_sql(index, QUERIES_DIR)))
+        return 0
     engines = [
         ("postgres", lambda: dump_postgres_compatible("postgres", args.postgres_dsn)),
         ("umbra", lambda: dump_postgres_compatible("umbra", args.umbra_dsn)),

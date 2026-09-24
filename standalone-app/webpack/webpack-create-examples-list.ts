@@ -1,8 +1,13 @@
 import type webpack from "webpack";
+import {execFileSync} from "node:child_process";
 import fs from "fs/promises";
 import path from "path";
 
 const examplesDirectory = "examples";
+
+interface ExamplesIndex {
+    engines: Record<string, {queries: Record<string, Record<string, {plan: string; sql: string}>>}>;
+}
 
 function escapeHtml(unsafe: string) {
     return unsafe
@@ -55,12 +60,47 @@ export class CreateExamplesListPlugin {
                 },
                 async (_assets) => {
                     const {RawSource} = compiler.webpack.sources;
-                    function createLink(absPath: string) {
-                        const relPath = path.relative(compiler.context, absPath);
-                        const title = path.parse(absPath).base;
-                        return `index.html?file=${encodeURIComponent(relPath)}&title=${encodeURIComponent(title)}`;
+                    const examplesPath = path.join(compiler.context, examplesDirectory);
+                    const index = JSON.parse(await fs.readFile(path.join(examplesPath, "index.json"), "utf8")) as ExamplesIndex;
+                    const indexedExamples = Object.values(index.engines).flatMap((engine) =>
+                        Object.values(engine.queries).flatMap((modes) => Object.values(modes)),
+                    );
+                    const planDumperPath = path.join(compiler.context, "../plan-dumper/dump-plans.py");
+                    const queryFormattingPath = path.join(compiler.context, "../plan-dumper/query_formatting.py");
+                    const queriesPath = path.join(compiler.context, "../plan-dumper/queries");
+                    compilation.fileDependencies.add(planDumperPath);
+                    compilation.fileDependencies.add(queryFormattingPath);
+                    compilation.contextDependencies.add(queriesPath);
+                    const python = process.env.PYTHON ?? (process.platform === "win32" ? "python" : "python3");
+                    const generatedSql = JSON.parse(
+                        execFileSync(python, ["-B", planDumperPath, "--print-example-sql"], {
+                            encoding: "utf8",
+                            maxBuffer: 10 * 1024 * 1024,
+                        }),
+                    ) as Record<string, string>;
+                    const indexedSqlFiles = new Set(indexedExamples.map((files) => `examples/${files.sql}`));
+                    for (const [sqlPath, sql] of Object.entries(generatedSql)) {
+                        const sqlFile = `examples/${sqlPath}`;
+                        if (!indexedSqlFiles.has(sqlFile)) {
+                            throw new Error(`plan-dumper returned unknown SQL file ${sqlPath}`);
+                        }
+                        compilation.emitAsset(sqlFile, new RawSource(sql));
                     }
-                    const code = await generateExamplesList(path.join(compiler.context, examplesDirectory), createLink);
+                    if (Object.keys(generatedSql).length !== indexedSqlFiles.size) {
+                        throw new Error(
+                            `plan-dumper returned ${Object.keys(generatedSql).length} of ${indexedSqlFiles.size} SQL files`,
+                        );
+                    }
+                    function createLink(absPath: string) {
+                        const relPath = path.relative(compiler.context, absPath).split(path.sep).join("/");
+                        const planPath = path.relative(examplesPath, absPath).split(path.sep).join("/");
+                        const title = path.parse(absPath).base;
+                        const params = new URLSearchParams({file: relPath, title});
+                        const sqlPath = indexedExamples.find((files) => files.plan === planPath)?.sql;
+                        if (sqlPath !== undefined) params.set("sql-file", `examples/${sqlPath}`);
+                        return `index.html?${params.toString()}`;
+                    }
+                    const code = await generateExamplesList(examplesPath, createLink);
                     compilation.emitAsset("examples.html", new RawSource(code));
                 },
             );

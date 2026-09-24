@@ -39,6 +39,7 @@ loadPlanFromText(text, {format: "json"}); // Force literal JSON rendering.
 
 Forced dispatch parses only the syntax used by that loader, skips `matches`, and never falls back to another loader.
 An unknown name produces `UnknownPlanFormatError`; invalid input produces `InvalidPlanError` with the requested format.
+Pass `{sql: queryText}` to add an original-SQL document or override one embedded by the plan loader.
 
 ## Adding a New Format
 

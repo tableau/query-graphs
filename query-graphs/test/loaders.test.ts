@@ -52,6 +52,14 @@ test("dispatcher strips text surrounding copied plans", () => {
     assert.equal(loadPlanFromText(xml, {format: "xml"}).format, "xml");
 });
 
+test("dispatcher adds supplied SQL to plans", () => {
+    const tree = loadPlanFromText('{"unrecognized":true}', {sql: "SELECT 1"}).tree;
+    assert.deepEqual(tree.textDocuments, [
+        {id: "query", title: "Original SQL Query", text: "SELECT 1", language: "sql"},
+        {id: "plan", title: "Query Plan", text: '{\n   "unrecognized": true\n}', language: "json"},
+    ]);
+});
+
 test("dispatcher pretty-prints single-line JSON documents with three-space indentation", () => {
     const json = '{"nested":{"value":42},"items":[1,2]}';
     const document = loadPlanFromText(json).tree.textDocuments?.find(({id}) => id === "plan");
