@@ -1,0 +1,2 @@
+EXPLAIN (FORMAT INTERNAL)
+VALUES('a', 'b'),('c', 'd')

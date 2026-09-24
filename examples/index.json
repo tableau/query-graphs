@@ -4,104 +4,206 @@
       "version": "PostgreSQL 16.3 compatible CedarDB v2026-09-16, compiled on 2026-09-16, x86_64 build",
       "queries": {
         "cte": {
-          "analyze": "cedardb/cte-analyze.plan.json"
+          "analyze": {
+            "plan": "cedardb/cte-analyze.plan.json",
+            "sql": "cedardb/cte-analyze.sql"
+          }
         },
         "cte-recursive": {
-          "analyze": "cedardb/cte-recursive-analyze.plan.json"
+          "analyze": {
+            "plan": "cedardb/cte-recursive-analyze.plan.json",
+            "sql": "cedardb/cte-recursive-analyze.sql"
+          }
         },
         "groupby": {
-          "analyze": "cedardb/groupby-analyze.plan.json"
+          "analyze": {
+            "plan": "cedardb/groupby-analyze.plan.json",
+            "sql": "cedardb/groupby-analyze.sql"
+          }
         },
         "insert": {
-          "simple": "cedardb/insert.plan.json"
+          "simple": {
+            "plan": "cedardb/insert.plan.json",
+            "sql": "cedardb/insert.sql"
+          }
         },
         "magicunnesting": {
-          "analyze": "cedardb/magicunnesting-analyze.plan.json"
+          "analyze": {
+            "plan": "cedardb/magicunnesting-analyze.plan.json",
+            "sql": "cedardb/magicunnesting-analyze.sql"
+          }
         },
         "markjoin": {
-          "analyze": "cedardb/markjoin-analyze.plan.json"
+          "analyze": {
+            "plan": "cedardb/markjoin-analyze.plan.json",
+            "sql": "cedardb/markjoin-analyze.sql"
+          }
         },
         "metadata-describe-table": {
-          "simple": "cedardb/metadata-describe-table.plan.json"
+          "simple": {
+            "plan": "cedardb/metadata-describe-table.plan.json",
+            "sql": "cedardb/metadata-describe-table.sql"
+          }
         },
         "setoperation": {
-          "analyze": "cedardb/setoperation-analyze.plan.json"
+          "analyze": {
+            "plan": "cedardb/setoperation-analyze.plan.json",
+            "sql": "cedardb/setoperation-analyze.sql"
+          }
         },
         "tableconstruction": {
-          "simple": "cedardb/tableconstruction.plan.json"
+          "simple": {
+            "plan": "cedardb/tableconstruction.plan.json",
+            "sql": "cedardb/tableconstruction.sql"
+          }
         },
         "tablefunction": {
-          "simple": "cedardb/tablefunction.plan.json"
+          "simple": {
+            "plan": "cedardb/tablefunction.plan.json",
+            "sql": "cedardb/tablefunction.sql"
+          }
         },
         "tablescan": {
-          "analyze": "cedardb/tablescan-analyze.plan.json"
+          "analyze": {
+            "plan": "cedardb/tablescan-analyze.plan.json",
+            "sql": "cedardb/tablescan-analyze.sql"
+          }
         },
         "tpch/tpch-q1": {
-          "analyze": "cedardb/tpch/tpch-q1-analyze.plan.json"
+          "analyze": {
+            "plan": "cedardb/tpch/tpch-q1-analyze.plan.json",
+            "sql": "cedardb/tpch/tpch-q1-analyze.sql"
+          }
         },
         "tpch/tpch-q10": {
-          "analyze": "cedardb/tpch/tpch-q10-analyze.plan.json"
+          "analyze": {
+            "plan": "cedardb/tpch/tpch-q10-analyze.plan.json",
+            "sql": "cedardb/tpch/tpch-q10-analyze.sql"
+          }
         },
         "tpch/tpch-q11": {
-          "analyze": "cedardb/tpch/tpch-q11-analyze.plan.json"
+          "analyze": {
+            "plan": "cedardb/tpch/tpch-q11-analyze.plan.json",
+            "sql": "cedardb/tpch/tpch-q11-analyze.sql"
+          }
         },
         "tpch/tpch-q12": {
-          "analyze": "cedardb/tpch/tpch-q12-analyze.plan.json"
+          "analyze": {
+            "plan": "cedardb/tpch/tpch-q12-analyze.plan.json",
+            "sql": "cedardb/tpch/tpch-q12-analyze.sql"
+          }
         },
         "tpch/tpch-q13": {
-          "analyze": "cedardb/tpch/tpch-q13-analyze.plan.json"
+          "analyze": {
+            "plan": "cedardb/tpch/tpch-q13-analyze.plan.json",
+            "sql": "cedardb/tpch/tpch-q13-analyze.sql"
+          }
         },
         "tpch/tpch-q14": {
-          "analyze": "cedardb/tpch/tpch-q14-analyze.plan.json"
+          "analyze": {
+            "plan": "cedardb/tpch/tpch-q14-analyze.plan.json",
+            "sql": "cedardb/tpch/tpch-q14-analyze.sql"
+          }
         },
         "tpch/tpch-q16": {
-          "analyze": "cedardb/tpch/tpch-q16-analyze.plan.json"
+          "analyze": {
+            "plan": "cedardb/tpch/tpch-q16-analyze.plan.json",
+            "sql": "cedardb/tpch/tpch-q16-analyze.sql"
+          }
         },
         "tpch/tpch-q17": {
-          "analyze": "cedardb/tpch/tpch-q17-analyze.plan.json"
+          "analyze": {
+            "plan": "cedardb/tpch/tpch-q17-analyze.plan.json",
+            "sql": "cedardb/tpch/tpch-q17-analyze.sql"
+          }
         },
         "tpch/tpch-q18": {
-          "analyze": "cedardb/tpch/tpch-q18-analyze.plan.json"
+          "analyze": {
+            "plan": "cedardb/tpch/tpch-q18-analyze.plan.json",
+            "sql": "cedardb/tpch/tpch-q18-analyze.sql"
+          }
         },
         "tpch/tpch-q19": {
-          "analyze": "cedardb/tpch/tpch-q19-analyze.plan.json"
+          "analyze": {
+            "plan": "cedardb/tpch/tpch-q19-analyze.plan.json",
+            "sql": "cedardb/tpch/tpch-q19-analyze.sql"
+          }
         },
         "tpch/tpch-q2": {
-          "simple": "cedardb/tpch/tpch-q2.plan.json",
-          "steps": "cedardb/tpch/tpch-q2-steps.plan.json"
+          "simple": {
+            "plan": "cedardb/tpch/tpch-q2.plan.json",
+            "sql": "cedardb/tpch/tpch-q2.sql"
+          },
+          "steps": {
+            "plan": "cedardb/tpch/tpch-q2-steps.plan.json",
+            "sql": "cedardb/tpch/tpch-q2-steps.sql"
+          }
         },
         "tpch/tpch-q20": {
-          "analyze": "cedardb/tpch/tpch-q20-analyze.plan.json"
+          "analyze": {
+            "plan": "cedardb/tpch/tpch-q20-analyze.plan.json",
+            "sql": "cedardb/tpch/tpch-q20-analyze.sql"
+          }
         },
         "tpch/tpch-q21": {
-          "analyze": "cedardb/tpch/tpch-q21-analyze.plan.json"
+          "analyze": {
+            "plan": "cedardb/tpch/tpch-q21-analyze.plan.json",
+            "sql": "cedardb/tpch/tpch-q21-analyze.sql"
+          }
         },
         "tpch/tpch-q22": {
-          "analyze": "cedardb/tpch/tpch-q22-analyze.plan.json"
+          "analyze": {
+            "plan": "cedardb/tpch/tpch-q22-analyze.plan.json",
+            "sql": "cedardb/tpch/tpch-q22-analyze.sql"
+          }
         },
         "tpch/tpch-q3": {
-          "analyze": "cedardb/tpch/tpch-q3-analyze.plan.json"
+          "analyze": {
+            "plan": "cedardb/tpch/tpch-q3-analyze.plan.json",
+            "sql": "cedardb/tpch/tpch-q3-analyze.sql"
+          }
         },
         "tpch/tpch-q4": {
-          "analyze": "cedardb/tpch/tpch-q4-analyze.plan.json"
+          "analyze": {
+            "plan": "cedardb/tpch/tpch-q4-analyze.plan.json",
+            "sql": "cedardb/tpch/tpch-q4-analyze.sql"
+          }
         },
         "tpch/tpch-q5": {
-          "analyze": "cedardb/tpch/tpch-q5-analyze.plan.json"
+          "analyze": {
+            "plan": "cedardb/tpch/tpch-q5-analyze.plan.json",
+            "sql": "cedardb/tpch/tpch-q5-analyze.sql"
+          }
         },
         "tpch/tpch-q6": {
-          "analyze": "cedardb/tpch/tpch-q6-analyze.plan.json"
+          "analyze": {
+            "plan": "cedardb/tpch/tpch-q6-analyze.plan.json",
+            "sql": "cedardb/tpch/tpch-q6-analyze.sql"
+          }
         },
         "tpch/tpch-q7": {
-          "analyze": "cedardb/tpch/tpch-q7-analyze.plan.json"
+          "analyze": {
+            "plan": "cedardb/tpch/tpch-q7-analyze.plan.json",
+            "sql": "cedardb/tpch/tpch-q7-analyze.sql"
+          }
         },
         "tpch/tpch-q8": {
-          "analyze": "cedardb/tpch/tpch-q8-analyze.plan.json"
+          "analyze": {
+            "plan": "cedardb/tpch/tpch-q8-analyze.plan.json",
+            "sql": "cedardb/tpch/tpch-q8-analyze.sql"
+          }
         },
         "tpch/tpch-q9": {
-          "analyze": "cedardb/tpch/tpch-q9-analyze.plan.json"
+          "analyze": {
+            "plan": "cedardb/tpch/tpch-q9-analyze.plan.json",
+            "sql": "cedardb/tpch/tpch-q9-analyze.sql"
+          }
         },
         "window": {
-          "analyze": "cedardb/window-analyze.plan.json"
+          "analyze": {
+            "plan": "cedardb/window-analyze.plan.json",
+            "sql": "cedardb/window-analyze.sql"
+          }
         }
       }
     },
@@ -109,108 +211,216 @@
       "version": "v1.5.5",
       "queries": {
         "cte": {
-          "analyze": "duckdb/cte-analyze.plan.json"
+          "analyze": {
+            "plan": "duckdb/cte-analyze.plan.json",
+            "sql": "duckdb/cte-analyze.sql"
+          }
         },
         "cte-recursive": {
-          "analyze": "duckdb/cte-recursive-analyze.plan.json"
+          "analyze": {
+            "plan": "duckdb/cte-recursive-analyze.plan.json",
+            "sql": "duckdb/cte-recursive-analyze.sql"
+          }
         },
         "groupby": {
-          "analyze": "duckdb/groupby-analyze.plan.json"
+          "analyze": {
+            "plan": "duckdb/groupby-analyze.plan.json",
+            "sql": "duckdb/groupby-analyze.sql"
+          }
         },
         "insert": {
-          "simple": "duckdb/insert.plan.json"
+          "simple": {
+            "plan": "duckdb/insert.plan.json",
+            "sql": "duckdb/insert.sql"
+          }
         },
         "magicunnesting": {
-          "analyze": "duckdb/magicunnesting-analyze.plan.json"
+          "analyze": {
+            "plan": "duckdb/magicunnesting-analyze.plan.json",
+            "sql": "duckdb/magicunnesting-analyze.sql"
+          }
         },
         "markjoin": {
-          "analyze": "duckdb/markjoin-analyze.plan.json"
+          "analyze": {
+            "plan": "duckdb/markjoin-analyze.plan.json",
+            "sql": "duckdb/markjoin-analyze.sql"
+          }
         },
         "setoperation": {
-          "analyze": "duckdb/setoperation-analyze.plan.json"
+          "analyze": {
+            "plan": "duckdb/setoperation-analyze.plan.json",
+            "sql": "duckdb/setoperation-analyze.sql"
+          }
         },
         "tableconstruction": {
-          "simple": "duckdb/tableconstruction.plan.json"
+          "simple": {
+            "plan": "duckdb/tableconstruction.plan.json",
+            "sql": "duckdb/tableconstruction.sql"
+          }
         },
         "tablefunction": {
-          "simple": "duckdb/tablefunction.plan.json"
+          "simple": {
+            "plan": "duckdb/tablefunction.plan.json",
+            "sql": "duckdb/tablefunction.sql"
+          }
         },
         "tablescan": {
-          "analyze": "duckdb/tablescan-analyze.plan.json"
+          "analyze": {
+            "plan": "duckdb/tablescan-analyze.plan.json",
+            "sql": "duckdb/tablescan-analyze.sql"
+          }
         },
         "tpch-q11-error": {
-          "analyze": "duckdb/tpch-q11-error-analyze.plan.json"
+          "analyze": {
+            "plan": "duckdb/tpch-q11-error-analyze.plan.json",
+            "sql": "duckdb/tpch-q11-error-analyze.sql"
+          }
         },
         "tpch/tpch-q1": {
-          "analyze": "duckdb/tpch/tpch-q1-analyze.plan.json"
+          "analyze": {
+            "plan": "duckdb/tpch/tpch-q1-analyze.plan.json",
+            "sql": "duckdb/tpch/tpch-q1-analyze.sql"
+          }
         },
         "tpch/tpch-q10": {
-          "analyze": "duckdb/tpch/tpch-q10-analyze.plan.json"
+          "analyze": {
+            "plan": "duckdb/tpch/tpch-q10-analyze.plan.json",
+            "sql": "duckdb/tpch/tpch-q10-analyze.sql"
+          }
         },
         "tpch/tpch-q11": {
-          "analyze": "duckdb/tpch/tpch-q11-analyze.plan.json"
+          "analyze": {
+            "plan": "duckdb/tpch/tpch-q11-analyze.plan.json",
+            "sql": "duckdb/tpch/tpch-q11-analyze.sql"
+          }
         },
         "tpch/tpch-q12": {
-          "analyze": "duckdb/tpch/tpch-q12-analyze.plan.json"
+          "analyze": {
+            "plan": "duckdb/tpch/tpch-q12-analyze.plan.json",
+            "sql": "duckdb/tpch/tpch-q12-analyze.sql"
+          }
         },
         "tpch/tpch-q13": {
-          "analyze": "duckdb/tpch/tpch-q13-analyze.plan.json"
+          "analyze": {
+            "plan": "duckdb/tpch/tpch-q13-analyze.plan.json",
+            "sql": "duckdb/tpch/tpch-q13-analyze.sql"
+          }
         },
         "tpch/tpch-q14": {
-          "analyze": "duckdb/tpch/tpch-q14-analyze.plan.json"
+          "analyze": {
+            "plan": "duckdb/tpch/tpch-q14-analyze.plan.json",
+            "sql": "duckdb/tpch/tpch-q14-analyze.sql"
+          }
         },
         "tpch/tpch-q15": {
-          "analyze": "duckdb/tpch/tpch-q15-analyze.plan.json"
+          "analyze": {
+            "plan": "duckdb/tpch/tpch-q15-analyze.plan.json",
+            "sql": "duckdb/tpch/tpch-q15-analyze.sql"
+          }
         },
         "tpch/tpch-q16": {
-          "analyze": "duckdb/tpch/tpch-q16-analyze.plan.json"
+          "analyze": {
+            "plan": "duckdb/tpch/tpch-q16-analyze.plan.json",
+            "sql": "duckdb/tpch/tpch-q16-analyze.sql"
+          }
         },
         "tpch/tpch-q17": {
-          "analyze": "duckdb/tpch/tpch-q17-analyze.plan.json"
+          "analyze": {
+            "plan": "duckdb/tpch/tpch-q17-analyze.plan.json",
+            "sql": "duckdb/tpch/tpch-q17-analyze.sql"
+          }
         },
         "tpch/tpch-q18": {
-          "analyze": "duckdb/tpch/tpch-q18-analyze.plan.json"
+          "analyze": {
+            "plan": "duckdb/tpch/tpch-q18-analyze.plan.json",
+            "sql": "duckdb/tpch/tpch-q18-analyze.sql"
+          }
         },
         "tpch/tpch-q19": {
-          "analyze": "duckdb/tpch/tpch-q19-analyze.plan.json"
+          "analyze": {
+            "plan": "duckdb/tpch/tpch-q19-analyze.plan.json",
+            "sql": "duckdb/tpch/tpch-q19-analyze.sql"
+          }
         },
         "tpch/tpch-q2": {
-          "analyze": "duckdb/tpch/tpch-q2-analyze.plan.json",
-          "simple": "duckdb/tpch/tpch-q2.plan.json",
-          "steps": "duckdb/tpch/tpch-q2-steps.plan.json"
+          "analyze": {
+            "plan": "duckdb/tpch/tpch-q2-analyze.plan.json",
+            "sql": "duckdb/tpch/tpch-q2-analyze.sql"
+          },
+          "simple": {
+            "plan": "duckdb/tpch/tpch-q2.plan.json",
+            "sql": "duckdb/tpch/tpch-q2.sql"
+          },
+          "steps": {
+            "plan": "duckdb/tpch/tpch-q2-steps.plan.json",
+            "sql": "duckdb/tpch/tpch-q2-steps.sql"
+          }
         },
         "tpch/tpch-q20": {
-          "analyze": "duckdb/tpch/tpch-q20-analyze.plan.json"
+          "analyze": {
+            "plan": "duckdb/tpch/tpch-q20-analyze.plan.json",
+            "sql": "duckdb/tpch/tpch-q20-analyze.sql"
+          }
         },
         "tpch/tpch-q21": {
-          "analyze": "duckdb/tpch/tpch-q21-analyze.plan.json"
+          "analyze": {
+            "plan": "duckdb/tpch/tpch-q21-analyze.plan.json",
+            "sql": "duckdb/tpch/tpch-q21-analyze.sql"
+          }
         },
         "tpch/tpch-q22": {
-          "analyze": "duckdb/tpch/tpch-q22-analyze.plan.json"
+          "analyze": {
+            "plan": "duckdb/tpch/tpch-q22-analyze.plan.json",
+            "sql": "duckdb/tpch/tpch-q22-analyze.sql"
+          }
         },
         "tpch/tpch-q3": {
-          "analyze": "duckdb/tpch/tpch-q3-analyze.plan.json"
+          "analyze": {
+            "plan": "duckdb/tpch/tpch-q3-analyze.plan.json",
+            "sql": "duckdb/tpch/tpch-q3-analyze.sql"
+          }
         },
         "tpch/tpch-q4": {
-          "analyze": "duckdb/tpch/tpch-q4-analyze.plan.json"
+          "analyze": {
+            "plan": "duckdb/tpch/tpch-q4-analyze.plan.json",
+            "sql": "duckdb/tpch/tpch-q4-analyze.sql"
+          }
         },
         "tpch/tpch-q5": {
-          "analyze": "duckdb/tpch/tpch-q5-analyze.plan.json"
+          "analyze": {
+            "plan": "duckdb/tpch/tpch-q5-analyze.plan.json",
+            "sql": "duckdb/tpch/tpch-q5-analyze.sql"
+          }
         },
         "tpch/tpch-q6": {
-          "analyze": "duckdb/tpch/tpch-q6-analyze.plan.json"
+          "analyze": {
+            "plan": "duckdb/tpch/tpch-q6-analyze.plan.json",
+            "sql": "duckdb/tpch/tpch-q6-analyze.sql"
+          }
         },
         "tpch/tpch-q7": {
-          "analyze": "duckdb/tpch/tpch-q7-analyze.plan.json"
+          "analyze": {
+            "plan": "duckdb/tpch/tpch-q7-analyze.plan.json",
+            "sql": "duckdb/tpch/tpch-q7-analyze.sql"
+          }
         },
         "tpch/tpch-q8": {
-          "analyze": "duckdb/tpch/tpch-q8-analyze.plan.json"
+          "analyze": {
+            "plan": "duckdb/tpch/tpch-q8-analyze.plan.json",
+            "sql": "duckdb/tpch/tpch-q8-analyze.sql"
+          }
         },
         "tpch/tpch-q9": {
-          "analyze": "duckdb/tpch/tpch-q9-analyze.plan.json"
+          "analyze": {
+            "plan": "duckdb/tpch/tpch-q9-analyze.plan.json",
+            "sql": "duckdb/tpch/tpch-q9-analyze.sql"
+          }
         },
         "window": {
-          "analyze": "duckdb/window-analyze.plan.json"
+          "analyze": {
+            "plan": "duckdb/window-analyze.plan.json",
+            "sql": "duckdb/window-analyze.sql"
+          }
         }
       }
     },
@@ -218,122 +428,248 @@
       "version": "Hyper 9.1.0 emulation, hyper version __UNVERSIONED_HYPER__.0.0.0.r00000000",
       "queries": {
         "cte": {
-          "analyze": "hyper/cte-analyze.plan.json"
+          "analyze": {
+            "plan": "hyper/cte-analyze.plan.json",
+            "sql": "hyper/cte-analyze.sql"
+          }
         },
         "cte-recursive": {
-          "analyze": "hyper/cte-recursive-analyze.plan.json"
+          "analyze": {
+            "plan": "hyper/cte-recursive-analyze.plan.json",
+            "sql": "hyper/cte-recursive-analyze.sql"
+          }
         },
         "forkshare": {
-          "analyze-sql": "hyper/forkshare-analyze-sql.plan.json"
+          "analyze-sql": {
+            "plan": "hyper/forkshare-analyze-sql.plan.json",
+            "sql": "hyper/forkshare-analyze-sql.sql"
+          }
         },
         "groupby": {
-          "analyze": "hyper/groupby-analyze.plan.json"
+          "analyze": {
+            "plan": "hyper/groupby-analyze.plan.json",
+            "sql": "hyper/groupby-analyze.sql"
+          }
         },
         "insert": {
-          "simple": "hyper/insert.plan.json"
+          "simple": {
+            "plan": "hyper/insert.plan.json",
+            "sql": "hyper/insert.sql"
+          }
         },
         "magicunnesting": {
-          "analyze": "hyper/magicunnesting-analyze.plan.json",
-          "analyze-sql": "hyper/magicunnesting-analyze-sql.plan.json"
+          "analyze": {
+            "plan": "hyper/magicunnesting-analyze.plan.json",
+            "sql": "hyper/magicunnesting-analyze.sql"
+          },
+          "analyze-sql": {
+            "plan": "hyper/magicunnesting-analyze-sql.plan.json",
+            "sql": "hyper/magicunnesting-analyze-sql.sql"
+          }
         },
         "markjoin": {
-          "analyze": "hyper/markjoin-analyze.plan.json"
+          "analyze": {
+            "plan": "hyper/markjoin-analyze.plan.json",
+            "sql": "hyper/markjoin-analyze.sql"
+          }
         },
         "materialized": {
-          "analyze-sql": "hyper/materialized-analyze-sql.plan.json"
+          "analyze-sql": {
+            "plan": "hyper/materialized-analyze-sql.plan.json",
+            "sql": "hyper/materialized-analyze-sql.sql"
+          }
         },
         "metadata-describe-table": {
-          "simple": "hyper/metadata-describe-table.plan.json"
+          "simple": {
+            "plan": "hyper/metadata-describe-table.plan.json",
+            "sql": "hyper/metadata-describe-table.sql"
+          }
         },
         "setoperation": {
-          "analyze": "hyper/setoperation-analyze.plan.json"
+          "analyze": {
+            "plan": "hyper/setoperation-analyze.plan.json",
+            "sql": "hyper/setoperation-analyze.sql"
+          }
         },
         "tableconstruction": {
-          "simple": "hyper/tableconstruction.plan.json"
+          "simple": {
+            "plan": "hyper/tableconstruction.plan.json",
+            "sql": "hyper/tableconstruction.sql"
+          }
         },
         "tablefunction": {
-          "simple": "hyper/tablefunction.plan.json"
+          "simple": {
+            "plan": "hyper/tablefunction.plan.json",
+            "sql": "hyper/tablefunction.sql"
+          }
         },
         "tablescan": {
-          "analyze": "hyper/tablescan-analyze.plan.json"
+          "analyze": {
+            "plan": "hyper/tablescan-analyze.plan.json",
+            "sql": "hyper/tablescan-analyze.sql"
+          }
         },
         "tpch-q11-error": {
-          "analyze": "hyper/tpch-q11-error-analyze.plan.json"
+          "analyze": {
+            "plan": "hyper/tpch-q11-error-analyze.plan.json",
+            "sql": "hyper/tpch-q11-error-analyze.sql"
+          }
         },
         "tpch/tpch-q1": {
-          "analyze": "hyper/tpch/tpch-q1-analyze.plan.json",
-          "external-analyze": "hyper/tpch/tpch-q1-external-analyze.plan.json"
+          "analyze": {
+            "plan": "hyper/tpch/tpch-q1-analyze.plan.json",
+            "sql": "hyper/tpch/tpch-q1-analyze.sql"
+          },
+          "external-analyze": {
+            "plan": "hyper/tpch/tpch-q1-external-analyze.plan.json",
+            "sql": "hyper/tpch/tpch-q1-external-analyze.sql"
+          }
         },
         "tpch/tpch-q10": {
-          "analyze": "hyper/tpch/tpch-q10-analyze.plan.json"
+          "analyze": {
+            "plan": "hyper/tpch/tpch-q10-analyze.plan.json",
+            "sql": "hyper/tpch/tpch-q10-analyze.sql"
+          }
         },
         "tpch/tpch-q11": {
-          "analyze": "hyper/tpch/tpch-q11-analyze.plan.json"
+          "analyze": {
+            "plan": "hyper/tpch/tpch-q11-analyze.plan.json",
+            "sql": "hyper/tpch/tpch-q11-analyze.sql"
+          }
         },
         "tpch/tpch-q12": {
-          "analyze": "hyper/tpch/tpch-q12-analyze.plan.json"
+          "analyze": {
+            "plan": "hyper/tpch/tpch-q12-analyze.plan.json",
+            "sql": "hyper/tpch/tpch-q12-analyze.sql"
+          }
         },
         "tpch/tpch-q13": {
-          "analyze": "hyper/tpch/tpch-q13-analyze.plan.json"
+          "analyze": {
+            "plan": "hyper/tpch/tpch-q13-analyze.plan.json",
+            "sql": "hyper/tpch/tpch-q13-analyze.sql"
+          }
         },
         "tpch/tpch-q14": {
-          "analyze": "hyper/tpch/tpch-q14-analyze.plan.json"
+          "analyze": {
+            "plan": "hyper/tpch/tpch-q14-analyze.plan.json",
+            "sql": "hyper/tpch/tpch-q14-analyze.sql"
+          }
         },
         "tpch/tpch-q15": {
-          "analyze": "hyper/tpch/tpch-q15-analyze.plan.json"
+          "analyze": {
+            "plan": "hyper/tpch/tpch-q15-analyze.plan.json",
+            "sql": "hyper/tpch/tpch-q15-analyze.sql"
+          }
         },
         "tpch/tpch-q16": {
-          "analyze": "hyper/tpch/tpch-q16-analyze.plan.json"
+          "analyze": {
+            "plan": "hyper/tpch/tpch-q16-analyze.plan.json",
+            "sql": "hyper/tpch/tpch-q16-analyze.sql"
+          }
         },
         "tpch/tpch-q17": {
-          "analyze": "hyper/tpch/tpch-q17-analyze.plan.json"
+          "analyze": {
+            "plan": "hyper/tpch/tpch-q17-analyze.plan.json",
+            "sql": "hyper/tpch/tpch-q17-analyze.sql"
+          }
         },
         "tpch/tpch-q18": {
-          "analyze": "hyper/tpch/tpch-q18-analyze.plan.json"
+          "analyze": {
+            "plan": "hyper/tpch/tpch-q18-analyze.plan.json",
+            "sql": "hyper/tpch/tpch-q18-analyze.sql"
+          }
         },
         "tpch/tpch-q19": {
-          "analyze": "hyper/tpch/tpch-q19-analyze.plan.json"
+          "analyze": {
+            "plan": "hyper/tpch/tpch-q19-analyze.plan.json",
+            "sql": "hyper/tpch/tpch-q19-analyze.sql"
+          }
         },
         "tpch/tpch-q2": {
-          "analyze": "hyper/tpch/tpch-q2-analyze.plan.json",
-          "simple": "hyper/tpch/tpch-q2.plan.json",
-          "steps": "hyper/tpch/tpch-q2-steps.plan.json"
+          "analyze": {
+            "plan": "hyper/tpch/tpch-q2-analyze.plan.json",
+            "sql": "hyper/tpch/tpch-q2-analyze.sql"
+          },
+          "simple": {
+            "plan": "hyper/tpch/tpch-q2.plan.json",
+            "sql": "hyper/tpch/tpch-q2.sql"
+          },
+          "steps": {
+            "plan": "hyper/tpch/tpch-q2-steps.plan.json",
+            "sql": "hyper/tpch/tpch-q2-steps.sql"
+          }
         },
         "tpch/tpch-q20": {
-          "analyze": "hyper/tpch/tpch-q20-analyze.plan.json"
+          "analyze": {
+            "plan": "hyper/tpch/tpch-q20-analyze.plan.json",
+            "sql": "hyper/tpch/tpch-q20-analyze.sql"
+          }
         },
         "tpch/tpch-q21": {
-          "analyze": "hyper/tpch/tpch-q21-analyze.plan.json"
+          "analyze": {
+            "plan": "hyper/tpch/tpch-q21-analyze.plan.json",
+            "sql": "hyper/tpch/tpch-q21-analyze.sql"
+          }
         },
         "tpch/tpch-q22": {
-          "analyze": "hyper/tpch/tpch-q22-analyze.plan.json"
+          "analyze": {
+            "plan": "hyper/tpch/tpch-q22-analyze.plan.json",
+            "sql": "hyper/tpch/tpch-q22-analyze.sql"
+          }
         },
         "tpch/tpch-q3": {
-          "analyze": "hyper/tpch/tpch-q3-analyze.plan.json"
+          "analyze": {
+            "plan": "hyper/tpch/tpch-q3-analyze.plan.json",
+            "sql": "hyper/tpch/tpch-q3-analyze.sql"
+          }
         },
         "tpch/tpch-q4": {
-          "analyze": "hyper/tpch/tpch-q4-analyze.plan.json"
+          "analyze": {
+            "plan": "hyper/tpch/tpch-q4-analyze.plan.json",
+            "sql": "hyper/tpch/tpch-q4-analyze.sql"
+          }
         },
         "tpch/tpch-q5": {
-          "analyze": "hyper/tpch/tpch-q5-analyze.plan.json"
+          "analyze": {
+            "plan": "hyper/tpch/tpch-q5-analyze.plan.json",
+            "sql": "hyper/tpch/tpch-q5-analyze.sql"
+          }
         },
         "tpch/tpch-q6": {
-          "analyze": "hyper/tpch/tpch-q6-analyze.plan.json"
+          "analyze": {
+            "plan": "hyper/tpch/tpch-q6-analyze.plan.json",
+            "sql": "hyper/tpch/tpch-q6-analyze.sql"
+          }
         },
         "tpch/tpch-q7": {
-          "analyze": "hyper/tpch/tpch-q7-analyze.plan.json"
+          "analyze": {
+            "plan": "hyper/tpch/tpch-q7-analyze.plan.json",
+            "sql": "hyper/tpch/tpch-q7-analyze.sql"
+          }
         },
         "tpch/tpch-q8": {
-          "analyze": "hyper/tpch/tpch-q8-analyze.plan.json"
+          "analyze": {
+            "plan": "hyper/tpch/tpch-q8-analyze.plan.json",
+            "sql": "hyper/tpch/tpch-q8-analyze.sql"
+          }
         },
         "tpch/tpch-q9": {
-          "analyze": "hyper/tpch/tpch-q9-analyze.plan.json"
+          "analyze": {
+            "plan": "hyper/tpch/tpch-q9-analyze.plan.json",
+            "sql": "hyper/tpch/tpch-q9-analyze.sql"
+          }
         },
         "unionall": {
-          "analyze-sql": "hyper/unionall-analyze-sql.plan.json"
+          "analyze-sql": {
+            "plan": "hyper/unionall-analyze-sql.plan.json",
+            "sql": "hyper/unionall-analyze-sql.sql"
+          }
         },
         "window": {
-          "analyze": "hyper/window-analyze.plan.json"
+          "analyze": {
+            "plan": "hyper/window-analyze.plan.json",
+            "sql": "hyper/window-analyze.sql"
+          }
         }
       }
     },
@@ -341,99 +677,198 @@
       "version": "10.11.14-MariaDB-0ubuntu0.24.04.1",
       "queries": {
         "cte": {
-          "analyze": "mariadb/cte-analyze.plan.json"
+          "analyze": {
+            "plan": "mariadb/cte-analyze.plan.json",
+            "sql": "mariadb/cte-analyze.sql"
+          }
         },
         "cte-recursive": {
-          "analyze": "mariadb/cte-recursive-analyze.plan.json"
+          "analyze": {
+            "plan": "mariadb/cte-recursive-analyze.plan.json",
+            "sql": "mariadb/cte-recursive-analyze.sql"
+          }
         },
         "groupby": {
-          "analyze": "mariadb/groupby-analyze.plan.json"
+          "analyze": {
+            "plan": "mariadb/groupby-analyze.plan.json",
+            "sql": "mariadb/groupby-analyze.sql"
+          }
         },
         "magicunnesting": {
-          "analyze": "mariadb/magicunnesting-analyze.plan.json"
+          "analyze": {
+            "plan": "mariadb/magicunnesting-analyze.plan.json",
+            "sql": "mariadb/magicunnesting-analyze.sql"
+          }
         },
         "markjoin": {
-          "analyze": "mariadb/markjoin-analyze.plan.json"
+          "analyze": {
+            "plan": "mariadb/markjoin-analyze.plan.json",
+            "sql": "mariadb/markjoin-analyze.sql"
+          }
         },
         "setoperation": {
-          "analyze": "mariadb/setoperation-analyze.plan.json"
+          "analyze": {
+            "plan": "mariadb/setoperation-analyze.plan.json",
+            "sql": "mariadb/setoperation-analyze.sql"
+          }
         },
         "tableconstruction": {
-          "simple": "mariadb/tableconstruction.plan.json"
+          "simple": {
+            "plan": "mariadb/tableconstruction.plan.json",
+            "sql": "mariadb/tableconstruction.sql"
+          }
         },
         "tablescan": {
-          "analyze": "mariadb/tablescan-analyze.plan.json"
+          "analyze": {
+            "plan": "mariadb/tablescan-analyze.plan.json",
+            "sql": "mariadb/tablescan-analyze.sql"
+          }
         },
         "tpch/tpch-q1": {
-          "analyze": "mariadb/tpch/tpch-q1-analyze.plan.json"
+          "analyze": {
+            "plan": "mariadb/tpch/tpch-q1-analyze.plan.json",
+            "sql": "mariadb/tpch/tpch-q1-analyze.sql"
+          }
         },
         "tpch/tpch-q10": {
-          "analyze": "mariadb/tpch/tpch-q10-analyze.plan.json"
+          "analyze": {
+            "plan": "mariadb/tpch/tpch-q10-analyze.plan.json",
+            "sql": "mariadb/tpch/tpch-q10-analyze.sql"
+          }
         },
         "tpch/tpch-q11": {
-          "analyze": "mariadb/tpch/tpch-q11-analyze.plan.json"
+          "analyze": {
+            "plan": "mariadb/tpch/tpch-q11-analyze.plan.json",
+            "sql": "mariadb/tpch/tpch-q11-analyze.sql"
+          }
         },
         "tpch/tpch-q12": {
-          "analyze": "mariadb/tpch/tpch-q12-analyze.plan.json"
+          "analyze": {
+            "plan": "mariadb/tpch/tpch-q12-analyze.plan.json",
+            "sql": "mariadb/tpch/tpch-q12-analyze.sql"
+          }
         },
         "tpch/tpch-q13": {
-          "analyze": "mariadb/tpch/tpch-q13-analyze.plan.json"
+          "analyze": {
+            "plan": "mariadb/tpch/tpch-q13-analyze.plan.json",
+            "sql": "mariadb/tpch/tpch-q13-analyze.sql"
+          }
         },
         "tpch/tpch-q14": {
-          "analyze": "mariadb/tpch/tpch-q14-analyze.plan.json"
+          "analyze": {
+            "plan": "mariadb/tpch/tpch-q14-analyze.plan.json",
+            "sql": "mariadb/tpch/tpch-q14-analyze.sql"
+          }
         },
         "tpch/tpch-q15": {
-          "analyze": "mariadb/tpch/tpch-q15-analyze.plan.json"
+          "analyze": {
+            "plan": "mariadb/tpch/tpch-q15-analyze.plan.json",
+            "sql": "mariadb/tpch/tpch-q15-analyze.sql"
+          }
         },
         "tpch/tpch-q16": {
-          "analyze": "mariadb/tpch/tpch-q16-analyze.plan.json"
+          "analyze": {
+            "plan": "mariadb/tpch/tpch-q16-analyze.plan.json",
+            "sql": "mariadb/tpch/tpch-q16-analyze.sql"
+          }
         },
         "tpch/tpch-q17": {
-          "analyze": "mariadb/tpch/tpch-q17-analyze.plan.json"
+          "analyze": {
+            "plan": "mariadb/tpch/tpch-q17-analyze.plan.json",
+            "sql": "mariadb/tpch/tpch-q17-analyze.sql"
+          }
         },
         "tpch/tpch-q18": {
-          "analyze": "mariadb/tpch/tpch-q18-analyze.plan.json"
+          "analyze": {
+            "plan": "mariadb/tpch/tpch-q18-analyze.plan.json",
+            "sql": "mariadb/tpch/tpch-q18-analyze.sql"
+          }
         },
         "tpch/tpch-q19": {
-          "analyze": "mariadb/tpch/tpch-q19-analyze.plan.json"
+          "analyze": {
+            "plan": "mariadb/tpch/tpch-q19-analyze.plan.json",
+            "sql": "mariadb/tpch/tpch-q19-analyze.sql"
+          }
         },
         "tpch/tpch-q2": {
-          "analyze": "mariadb/tpch/tpch-q2-analyze.plan.json",
-          "simple": "mariadb/tpch/tpch-q2.plan.json",
-          "steps": "mariadb/tpch/tpch-q2-steps.plan.json"
+          "analyze": {
+            "plan": "mariadb/tpch/tpch-q2-analyze.plan.json",
+            "sql": "mariadb/tpch/tpch-q2-analyze.sql"
+          },
+          "simple": {
+            "plan": "mariadb/tpch/tpch-q2.plan.json",
+            "sql": "mariadb/tpch/tpch-q2.sql"
+          },
+          "steps": {
+            "plan": "mariadb/tpch/tpch-q2-steps.plan.json",
+            "sql": "mariadb/tpch/tpch-q2-steps.sql"
+          }
         },
         "tpch/tpch-q20": {
-          "analyze": "mariadb/tpch/tpch-q20-analyze.plan.json"
+          "analyze": {
+            "plan": "mariadb/tpch/tpch-q20-analyze.plan.json",
+            "sql": "mariadb/tpch/tpch-q20-analyze.sql"
+          }
         },
         "tpch/tpch-q21": {
-          "analyze": "mariadb/tpch/tpch-q21-analyze.plan.json"
+          "analyze": {
+            "plan": "mariadb/tpch/tpch-q21-analyze.plan.json",
+            "sql": "mariadb/tpch/tpch-q21-analyze.sql"
+          }
         },
         "tpch/tpch-q22": {
-          "analyze": "mariadb/tpch/tpch-q22-analyze.plan.json"
+          "analyze": {
+            "plan": "mariadb/tpch/tpch-q22-analyze.plan.json",
+            "sql": "mariadb/tpch/tpch-q22-analyze.sql"
+          }
         },
         "tpch/tpch-q3": {
-          "analyze": "mariadb/tpch/tpch-q3-analyze.plan.json"
+          "analyze": {
+            "plan": "mariadb/tpch/tpch-q3-analyze.plan.json",
+            "sql": "mariadb/tpch/tpch-q3-analyze.sql"
+          }
         },
         "tpch/tpch-q4": {
-          "analyze": "mariadb/tpch/tpch-q4-analyze.plan.json"
+          "analyze": {
+            "plan": "mariadb/tpch/tpch-q4-analyze.plan.json",
+            "sql": "mariadb/tpch/tpch-q4-analyze.sql"
+          }
         },
         "tpch/tpch-q5": {
-          "analyze": "mariadb/tpch/tpch-q5-analyze.plan.json"
+          "analyze": {
+            "plan": "mariadb/tpch/tpch-q5-analyze.plan.json",
+            "sql": "mariadb/tpch/tpch-q5-analyze.sql"
+          }
         },
         "tpch/tpch-q6": {
-          "analyze": "mariadb/tpch/tpch-q6-analyze.plan.json"
+          "analyze": {
+            "plan": "mariadb/tpch/tpch-q6-analyze.plan.json",
+            "sql": "mariadb/tpch/tpch-q6-analyze.sql"
+          }
         },
         "tpch/tpch-q7": {
-          "analyze": "mariadb/tpch/tpch-q7-analyze.plan.json"
+          "analyze": {
+            "plan": "mariadb/tpch/tpch-q7-analyze.plan.json",
+            "sql": "mariadb/tpch/tpch-q7-analyze.sql"
+          }
         },
         "tpch/tpch-q8": {
-          "analyze": "mariadb/tpch/tpch-q8-analyze.plan.json"
+          "analyze": {
+            "plan": "mariadb/tpch/tpch-q8-analyze.plan.json",
+            "sql": "mariadb/tpch/tpch-q8-analyze.sql"
+          }
         },
         "tpch/tpch-q9": {
-          "analyze": "mariadb/tpch/tpch-q9-analyze.plan.json"
+          "analyze": {
+            "plan": "mariadb/tpch/tpch-q9-analyze.plan.json",
+            "sql": "mariadb/tpch/tpch-q9-analyze.sql"
+          }
         },
         "window": {
-          "analyze": "mariadb/window-analyze.plan.json"
+          "analyze": {
+            "plan": "mariadb/window-analyze.plan.json",
+            "sql": "mariadb/window-analyze.sql"
+          }
         }
       }
     },
@@ -441,107 +876,212 @@
       "version": "PostgreSQL 17.11 (Ubuntu 17.11-1.pgdg22.04+2) on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0, 64-bit",
       "queries": {
         "cte": {
-          "analyze": "postgres/cte-analyze.plan.json"
+          "analyze": {
+            "plan": "postgres/cte-analyze.plan.json",
+            "sql": "postgres/cte-analyze.sql"
+          }
         },
         "cte-recursive": {
-          "analyze": "postgres/cte-recursive-analyze.plan.json"
+          "analyze": {
+            "plan": "postgres/cte-recursive-analyze.plan.json",
+            "sql": "postgres/cte-recursive-analyze.sql"
+          }
         },
         "groupby": {
-          "analyze": "postgres/groupby-analyze.plan.json"
+          "analyze": {
+            "plan": "postgres/groupby-analyze.plan.json",
+            "sql": "postgres/groupby-analyze.sql"
+          }
         },
         "insert": {
-          "simple": "postgres/insert.plan.json"
+          "simple": {
+            "plan": "postgres/insert.plan.json",
+            "sql": "postgres/insert.sql"
+          }
         },
         "magicunnesting": {
-          "analyze": "postgres/magicunnesting-analyze.plan.json"
+          "analyze": {
+            "plan": "postgres/magicunnesting-analyze.plan.json",
+            "sql": "postgres/magicunnesting-analyze.sql"
+          }
         },
         "markjoin": {
-          "analyze": "postgres/markjoin-analyze.plan.json"
+          "analyze": {
+            "plan": "postgres/markjoin-analyze.plan.json",
+            "sql": "postgres/markjoin-analyze.sql"
+          }
         },
         "metadata-describe-table": {
-          "simple": "postgres/metadata-describe-table.plan.json"
+          "simple": {
+            "plan": "postgres/metadata-describe-table.plan.json",
+            "sql": "postgres/metadata-describe-table.sql"
+          }
         },
         "setoperation": {
-          "analyze": "postgres/setoperation-analyze.plan.json"
+          "analyze": {
+            "plan": "postgres/setoperation-analyze.plan.json",
+            "sql": "postgres/setoperation-analyze.sql"
+          }
         },
         "tableconstruction": {
-          "simple": "postgres/tableconstruction.plan.json"
+          "simple": {
+            "plan": "postgres/tableconstruction.plan.json",
+            "sql": "postgres/tableconstruction.sql"
+          }
         },
         "tablefunction": {
-          "simple": "postgres/tablefunction.plan.json"
+          "simple": {
+            "plan": "postgres/tablefunction.plan.json",
+            "sql": "postgres/tablefunction.sql"
+          }
         },
         "tablescan": {
-          "analyze": "postgres/tablescan-analyze.plan.json"
+          "analyze": {
+            "plan": "postgres/tablescan-analyze.plan.json",
+            "sql": "postgres/tablescan-analyze.sql"
+          }
         },
         "tpch/tpch-q1": {
-          "analyze": "postgres/tpch/tpch-q1-analyze.plan.json"
+          "analyze": {
+            "plan": "postgres/tpch/tpch-q1-analyze.plan.json",
+            "sql": "postgres/tpch/tpch-q1-analyze.sql"
+          }
         },
         "tpch/tpch-q10": {
-          "analyze": "postgres/tpch/tpch-q10-analyze.plan.json"
+          "analyze": {
+            "plan": "postgres/tpch/tpch-q10-analyze.plan.json",
+            "sql": "postgres/tpch/tpch-q10-analyze.sql"
+          }
         },
         "tpch/tpch-q11": {
-          "analyze": "postgres/tpch/tpch-q11-analyze.plan.json"
+          "analyze": {
+            "plan": "postgres/tpch/tpch-q11-analyze.plan.json",
+            "sql": "postgres/tpch/tpch-q11-analyze.sql"
+          }
         },
         "tpch/tpch-q12": {
-          "analyze": "postgres/tpch/tpch-q12-analyze.plan.json"
+          "analyze": {
+            "plan": "postgres/tpch/tpch-q12-analyze.plan.json",
+            "sql": "postgres/tpch/tpch-q12-analyze.sql"
+          }
         },
         "tpch/tpch-q13": {
-          "analyze": "postgres/tpch/tpch-q13-analyze.plan.json"
+          "analyze": {
+            "plan": "postgres/tpch/tpch-q13-analyze.plan.json",
+            "sql": "postgres/tpch/tpch-q13-analyze.sql"
+          }
         },
         "tpch/tpch-q14": {
-          "analyze": "postgres/tpch/tpch-q14-analyze.plan.json"
+          "analyze": {
+            "plan": "postgres/tpch/tpch-q14-analyze.plan.json",
+            "sql": "postgres/tpch/tpch-q14-analyze.sql"
+          }
         },
         "tpch/tpch-q15": {
-          "analyze": "postgres/tpch/tpch-q15-analyze.plan.json"
+          "analyze": {
+            "plan": "postgres/tpch/tpch-q15-analyze.plan.json",
+            "sql": "postgres/tpch/tpch-q15-analyze.sql"
+          }
         },
         "tpch/tpch-q16": {
-          "analyze": "postgres/tpch/tpch-q16-analyze.plan.json"
+          "analyze": {
+            "plan": "postgres/tpch/tpch-q16-analyze.plan.json",
+            "sql": "postgres/tpch/tpch-q16-analyze.sql"
+          }
         },
         "tpch/tpch-q17": {
-          "analyze": "postgres/tpch/tpch-q17-analyze.plan.json"
+          "analyze": {
+            "plan": "postgres/tpch/tpch-q17-analyze.plan.json",
+            "sql": "postgres/tpch/tpch-q17-analyze.sql"
+          }
         },
         "tpch/tpch-q18": {
-          "analyze": "postgres/tpch/tpch-q18-analyze.plan.json"
+          "analyze": {
+            "plan": "postgres/tpch/tpch-q18-analyze.plan.json",
+            "sql": "postgres/tpch/tpch-q18-analyze.sql"
+          }
         },
         "tpch/tpch-q19": {
-          "analyze": "postgres/tpch/tpch-q19-analyze.plan.json"
+          "analyze": {
+            "plan": "postgres/tpch/tpch-q19-analyze.plan.json",
+            "sql": "postgres/tpch/tpch-q19-analyze.sql"
+          }
         },
         "tpch/tpch-q2": {
-          "analyze": "postgres/tpch/tpch-q2-analyze.plan.json",
-          "simple": "postgres/tpch/tpch-q2.plan.json"
+          "analyze": {
+            "plan": "postgres/tpch/tpch-q2-analyze.plan.json",
+            "sql": "postgres/tpch/tpch-q2-analyze.sql"
+          },
+          "simple": {
+            "plan": "postgres/tpch/tpch-q2.plan.json",
+            "sql": "postgres/tpch/tpch-q2.sql"
+          }
         },
         "tpch/tpch-q20": {
-          "analyze": "postgres/tpch/tpch-q20-analyze.plan.json"
+          "analyze": {
+            "plan": "postgres/tpch/tpch-q20-analyze.plan.json",
+            "sql": "postgres/tpch/tpch-q20-analyze.sql"
+          }
         },
         "tpch/tpch-q21": {
-          "analyze": "postgres/tpch/tpch-q21-analyze.plan.json"
+          "analyze": {
+            "plan": "postgres/tpch/tpch-q21-analyze.plan.json",
+            "sql": "postgres/tpch/tpch-q21-analyze.sql"
+          }
         },
         "tpch/tpch-q22": {
-          "analyze": "postgres/tpch/tpch-q22-analyze.plan.json"
+          "analyze": {
+            "plan": "postgres/tpch/tpch-q22-analyze.plan.json",
+            "sql": "postgres/tpch/tpch-q22-analyze.sql"
+          }
         },
         "tpch/tpch-q3": {
-          "analyze": "postgres/tpch/tpch-q3-analyze.plan.json"
+          "analyze": {
+            "plan": "postgres/tpch/tpch-q3-analyze.plan.json",
+            "sql": "postgres/tpch/tpch-q3-analyze.sql"
+          }
         },
         "tpch/tpch-q4": {
-          "analyze": "postgres/tpch/tpch-q4-analyze.plan.json"
+          "analyze": {
+            "plan": "postgres/tpch/tpch-q4-analyze.plan.json",
+            "sql": "postgres/tpch/tpch-q4-analyze.sql"
+          }
         },
         "tpch/tpch-q5": {
-          "analyze": "postgres/tpch/tpch-q5-analyze.plan.json"
+          "analyze": {
+            "plan": "postgres/tpch/tpch-q5-analyze.plan.json",
+            "sql": "postgres/tpch/tpch-q5-analyze.sql"
+          }
         },
         "tpch/tpch-q6": {
-          "analyze": "postgres/tpch/tpch-q6-analyze.plan.json"
+          "analyze": {
+            "plan": "postgres/tpch/tpch-q6-analyze.plan.json",
+            "sql": "postgres/tpch/tpch-q6-analyze.sql"
+          }
         },
         "tpch/tpch-q7": {
-          "analyze": "postgres/tpch/tpch-q7-analyze.plan.json"
+          "analyze": {
+            "plan": "postgres/tpch/tpch-q7-analyze.plan.json",
+            "sql": "postgres/tpch/tpch-q7-analyze.sql"
+          }
         },
         "tpch/tpch-q8": {
-          "analyze": "postgres/tpch/tpch-q8-analyze.plan.json"
+          "analyze": {
+            "plan": "postgres/tpch/tpch-q8-analyze.plan.json",
+            "sql": "postgres/tpch/tpch-q8-analyze.sql"
+          }
         },
         "tpch/tpch-q9": {
-          "analyze": "postgres/tpch/tpch-q9-analyze.plan.json"
+          "analyze": {
+            "plan": "postgres/tpch/tpch-q9-analyze.plan.json",
+            "sql": "postgres/tpch/tpch-q9-analyze.sql"
+          }
         },
         "window": {
-          "analyze": "postgres/window-analyze.plan.json"
+          "analyze": {
+            "plan": "postgres/window-analyze.plan.json",
+            "sql": "postgres/window-analyze.sql"
+          }
         }
       }
     },
@@ -549,104 +1089,206 @@
       "version": "PostgreSQL 18.1 compatible umbra v0.2-2931-gdd2374de2",
       "queries": {
         "cte": {
-          "analyze": "umbra/cte-analyze.plan.json"
+          "analyze": {
+            "plan": "umbra/cte-analyze.plan.json",
+            "sql": "umbra/cte-analyze.sql"
+          }
         },
         "cte-recursive": {
-          "analyze": "umbra/cte-recursive-analyze.plan.json"
+          "analyze": {
+            "plan": "umbra/cte-recursive-analyze.plan.json",
+            "sql": "umbra/cte-recursive-analyze.sql"
+          }
         },
         "groupby": {
-          "analyze": "umbra/groupby-analyze.plan.json"
+          "analyze": {
+            "plan": "umbra/groupby-analyze.plan.json",
+            "sql": "umbra/groupby-analyze.sql"
+          }
         },
         "insert": {
-          "simple": "umbra/insert.plan.json"
+          "simple": {
+            "plan": "umbra/insert.plan.json",
+            "sql": "umbra/insert.sql"
+          }
         },
         "magicunnesting": {
-          "analyze": "umbra/magicunnesting-analyze.plan.json"
+          "analyze": {
+            "plan": "umbra/magicunnesting-analyze.plan.json",
+            "sql": "umbra/magicunnesting-analyze.sql"
+          }
         },
         "markjoin": {
-          "analyze": "umbra/markjoin-analyze.plan.json"
+          "analyze": {
+            "plan": "umbra/markjoin-analyze.plan.json",
+            "sql": "umbra/markjoin-analyze.sql"
+          }
         },
         "setoperation": {
-          "analyze": "umbra/setoperation-analyze.plan.json"
+          "analyze": {
+            "plan": "umbra/setoperation-analyze.plan.json",
+            "sql": "umbra/setoperation-analyze.sql"
+          }
         },
         "tableconstruction": {
-          "simple": "umbra/tableconstruction.plan.json"
+          "simple": {
+            "plan": "umbra/tableconstruction.plan.json",
+            "sql": "umbra/tableconstruction.sql"
+          }
         },
         "tablefunction": {
-          "simple": "umbra/tablefunction.plan.json"
+          "simple": {
+            "plan": "umbra/tablefunction.plan.json",
+            "sql": "umbra/tablefunction.sql"
+          }
         },
         "tablescan": {
-          "analyze": "umbra/tablescan-analyze.plan.json"
+          "analyze": {
+            "plan": "umbra/tablescan-analyze.plan.json",
+            "sql": "umbra/tablescan-analyze.sql"
+          }
         },
         "tpch/tpch-q1": {
-          "analyze": "umbra/tpch/tpch-q1-analyze.plan.json"
+          "analyze": {
+            "plan": "umbra/tpch/tpch-q1-analyze.plan.json",
+            "sql": "umbra/tpch/tpch-q1-analyze.sql"
+          }
         },
         "tpch/tpch-q10": {
-          "analyze": "umbra/tpch/tpch-q10-analyze.plan.json"
+          "analyze": {
+            "plan": "umbra/tpch/tpch-q10-analyze.plan.json",
+            "sql": "umbra/tpch/tpch-q10-analyze.sql"
+          }
         },
         "tpch/tpch-q11": {
-          "analyze": "umbra/tpch/tpch-q11-analyze.plan.json"
+          "analyze": {
+            "plan": "umbra/tpch/tpch-q11-analyze.plan.json",
+            "sql": "umbra/tpch/tpch-q11-analyze.sql"
+          }
         },
         "tpch/tpch-q12": {
-          "analyze": "umbra/tpch/tpch-q12-analyze.plan.json"
+          "analyze": {
+            "plan": "umbra/tpch/tpch-q12-analyze.plan.json",
+            "sql": "umbra/tpch/tpch-q12-analyze.sql"
+          }
         },
         "tpch/tpch-q13": {
-          "analyze": "umbra/tpch/tpch-q13-analyze.plan.json"
+          "analyze": {
+            "plan": "umbra/tpch/tpch-q13-analyze.plan.json",
+            "sql": "umbra/tpch/tpch-q13-analyze.sql"
+          }
         },
         "tpch/tpch-q14": {
-          "analyze": "umbra/tpch/tpch-q14-analyze.plan.json"
+          "analyze": {
+            "plan": "umbra/tpch/tpch-q14-analyze.plan.json",
+            "sql": "umbra/tpch/tpch-q14-analyze.sql"
+          }
         },
         "tpch/tpch-q15": {
-          "analyze": "umbra/tpch/tpch-q15-analyze.plan.json"
+          "analyze": {
+            "plan": "umbra/tpch/tpch-q15-analyze.plan.json",
+            "sql": "umbra/tpch/tpch-q15-analyze.sql"
+          }
         },
         "tpch/tpch-q16": {
-          "analyze": "umbra/tpch/tpch-q16-analyze.plan.json"
+          "analyze": {
+            "plan": "umbra/tpch/tpch-q16-analyze.plan.json",
+            "sql": "umbra/tpch/tpch-q16-analyze.sql"
+          }
         },
         "tpch/tpch-q17": {
-          "analyze": "umbra/tpch/tpch-q17-analyze.plan.json"
+          "analyze": {
+            "plan": "umbra/tpch/tpch-q17-analyze.plan.json",
+            "sql": "umbra/tpch/tpch-q17-analyze.sql"
+          }
         },
         "tpch/tpch-q18": {
-          "analyze": "umbra/tpch/tpch-q18-analyze.plan.json"
+          "analyze": {
+            "plan": "umbra/tpch/tpch-q18-analyze.plan.json",
+            "sql": "umbra/tpch/tpch-q18-analyze.sql"
+          }
         },
         "tpch/tpch-q19": {
-          "analyze": "umbra/tpch/tpch-q19-analyze.plan.json"
+          "analyze": {
+            "plan": "umbra/tpch/tpch-q19-analyze.plan.json",
+            "sql": "umbra/tpch/tpch-q19-analyze.sql"
+          }
         },
         "tpch/tpch-q2": {
-          "analyze": "umbra/tpch/tpch-q2-analyze.plan.json",
-          "simple": "umbra/tpch/tpch-q2.plan.json"
+          "analyze": {
+            "plan": "umbra/tpch/tpch-q2-analyze.plan.json",
+            "sql": "umbra/tpch/tpch-q2-analyze.sql"
+          },
+          "simple": {
+            "plan": "umbra/tpch/tpch-q2.plan.json",
+            "sql": "umbra/tpch/tpch-q2.sql"
+          }
         },
         "tpch/tpch-q20": {
-          "analyze": "umbra/tpch/tpch-q20-analyze.plan.json"
+          "analyze": {
+            "plan": "umbra/tpch/tpch-q20-analyze.plan.json",
+            "sql": "umbra/tpch/tpch-q20-analyze.sql"
+          }
         },
         "tpch/tpch-q21": {
-          "analyze": "umbra/tpch/tpch-q21-analyze.plan.json"
+          "analyze": {
+            "plan": "umbra/tpch/tpch-q21-analyze.plan.json",
+            "sql": "umbra/tpch/tpch-q21-analyze.sql"
+          }
         },
         "tpch/tpch-q22": {
-          "analyze": "umbra/tpch/tpch-q22-analyze.plan.json"
+          "analyze": {
+            "plan": "umbra/tpch/tpch-q22-analyze.plan.json",
+            "sql": "umbra/tpch/tpch-q22-analyze.sql"
+          }
         },
         "tpch/tpch-q3": {
-          "analyze": "umbra/tpch/tpch-q3-analyze.plan.json"
+          "analyze": {
+            "plan": "umbra/tpch/tpch-q3-analyze.plan.json",
+            "sql": "umbra/tpch/tpch-q3-analyze.sql"
+          }
         },
         "tpch/tpch-q4": {
-          "analyze": "umbra/tpch/tpch-q4-analyze.plan.json"
+          "analyze": {
+            "plan": "umbra/tpch/tpch-q4-analyze.plan.json",
+            "sql": "umbra/tpch/tpch-q4-analyze.sql"
+          }
         },
         "tpch/tpch-q5": {
-          "analyze": "umbra/tpch/tpch-q5-analyze.plan.json"
+          "analyze": {
+            "plan": "umbra/tpch/tpch-q5-analyze.plan.json",
+            "sql": "umbra/tpch/tpch-q5-analyze.sql"
+          }
         },
         "tpch/tpch-q6": {
-          "analyze": "umbra/tpch/tpch-q6-analyze.plan.json"
+          "analyze": {
+            "plan": "umbra/tpch/tpch-q6-analyze.plan.json",
+            "sql": "umbra/tpch/tpch-q6-analyze.sql"
+          }
         },
         "tpch/tpch-q7": {
-          "analyze": "umbra/tpch/tpch-q7-analyze.plan.json"
+          "analyze": {
+            "plan": "umbra/tpch/tpch-q7-analyze.plan.json",
+            "sql": "umbra/tpch/tpch-q7-analyze.sql"
+          }
         },
         "tpch/tpch-q8": {
-          "analyze": "umbra/tpch/tpch-q8-analyze.plan.json"
+          "analyze": {
+            "plan": "umbra/tpch/tpch-q8-analyze.plan.json",
+            "sql": "umbra/tpch/tpch-q8-analyze.sql"
+          }
         },
         "tpch/tpch-q9": {
-          "analyze": "umbra/tpch/tpch-q9-analyze.plan.json"
+          "analyze": {
+            "plan": "umbra/tpch/tpch-q9-analyze.plan.json",
+            "sql": "umbra/tpch/tpch-q9-analyze.sql"
+          }
         },
         "window": {
-          "analyze": "umbra/window-analyze.plan.json"
+          "analyze": {
+            "plan": "umbra/window-analyze.plan.json",
+            "sql": "umbra/window-analyze.sql"
+          }
         }
       }
     }

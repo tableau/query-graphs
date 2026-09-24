@@ -1,0 +1,2 @@
+EXPLAIN (VERBOSE, FORMAT JSON)
+VALUES('a', 'b'),('c', 'd')

@@ -1,0 +1,2 @@
+EXPLAIN (ANALYZE, FORMAT JSON)
+SELECT r_name FROM region;
