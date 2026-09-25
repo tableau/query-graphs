@@ -14,8 +14,11 @@ interface ActiveSourceSelection {
 }
 
 interface HighlightState {
+    /** The semantic selection. These IDs remain unchanged when their nodes are hidden in collapsed subtrees. */
     activeNodeIds: ReadonlySet<string>;
+    /** The closest structurally visible tree nodes representing `activeNodeIds`. */
     highlightedNodeIds: ReadonlySet<string>;
+    /** Visible ancestors standing in for active descendants, whose subtree handles should draw attention. */
     highlightedCollapsedSubtreeRootIds: ReadonlySet<string>;
 }
 
