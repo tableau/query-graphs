@@ -5,14 +5,14 @@ import "@xyflow/react/dist/style.css";
 import type {TreeDescription, TreeNode} from "../tree-description";
 import {allChildren, visitTreeNodes} from "../tree-description";
 import type {MouseEvent, ReactNode} from "react";
-import {useEffect, useMemo} from "react";
+import {useMemo} from "react";
 import cc from "classcat";
 import {QueryNode} from "./QueryNode";
 import type {QueryGraphNode} from "./QueryNode";
 import {ColoredEdge} from "./ColoredEdge";
 import {createGraphRenderingStore, GraphRenderingStoreContext, useGraphRenderingStore} from "./store";
 import {AnimateGraphChangeContext, useAnimatedGraphLayout} from "./useAnimatedGraphLayout";
-import {indexTreeParents} from "./tree-index";
+import {indexTree} from "./tree-index";
 import type {TreeParents} from "./tree-index";
 import "./QueryGraph.css";
 
@@ -57,10 +57,6 @@ function QueryGraphInternal({treeDescription, children, nodeIdMapping, treeParen
     // of `visibility: hidden` because React Flow overrides inherited
     // visibility on nodes after measuring them.
     const initialViewportStyle = {opacity: animatedLayout.initialViewportReady ? 1 : 0};
-    const setVisibleNodeIds = useGraphRenderingStore((state) => state.setVisibleNodeIds);
-    const visibleNodeIds = useMemo(() => new Set(animatedLayout.nodes.map(({id}) => id)), [animatedLayout.nodes]);
-    useEffect(() => setVisibleNodeIds(visibleNodeIds), [setVisibleNodeIds, visibleNodeIds]);
-
     return (
         <AnimateGraphChangeContext.Provider value={animatedLayout.animateGraphChange}>
             <ReactFlow
@@ -104,12 +100,12 @@ function createGraphState(treeDescription: TreeDescription) {
         },
         allChildren,
     );
-    const treeParents = indexTreeParents(treeDescription, nodeIdMapping);
+    const {parents: treeParents, collapsedSubtreeRootIds} = indexTree(treeDescription, nodeIdMapping);
     return {
         instanceId: nextGraphInstanceId++,
         nodeIdMapping,
         treeParents,
-        graphStore: createGraphRenderingStore(expandedSubtrees, nodeIdMapping, treeParents),
+        graphStore: createGraphRenderingStore(expandedSubtrees, nodeIdMapping, treeParents, collapsedSubtreeRootIds),
     };
 }
 

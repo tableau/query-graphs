@@ -3,8 +3,12 @@ import test from "node:test";
 import type {TreeNode} from "../src/tree-description";
 import {createGraphRenderingStore} from "../src/ui/store";
 
-function graphStore(nodes: TreeNode[], parents: ReadonlyMap<string, string> = new Map()) {
-    return createGraphRenderingStore({}, new Map(nodes.map((node, index) => [node, `${index}`])), parents);
+function graphStore(
+    nodes: TreeNode[],
+    parents: ReadonlyMap<string, string> = new Map(),
+    collapsedSubtreeRootIds: ReadonlySet<string> = new Set(),
+) {
+    return createGraphRenderingStore({}, new Map(nodes.map((node, index) => [node, `${index}`])), parents, collapsedSubtreeRootIds);
 }
 
 test("source locations select every node linked to the active ranges", () => {
@@ -28,14 +32,13 @@ test("source locations select every node linked to the active ranges", () => {
 test("active source locations resolve hidden nodes to visible ancestors", () => {
     const root: TreeNode = {};
     const hidden: TreeNode = {sourceLocations: [{documentId: "query", from: 0, to: 5}]};
-    const store = graphStore([root, hidden], new Map([["1", "0"]]));
+    const store = graphStore([root, hidden], new Map([["1", "0"]]), new Set(["1"]));
 
-    store.getState().setVisibleNodeIds(new Set(["0"]));
     store.getState().setActiveSourceLocations("query", [{documentId: "query", from: 0, to: 5}]);
     assert.deepEqual(store.getState().highlightedNodes, new Set([root]));
     assert.deepEqual(store.getState().highlightedCollapsedSubtreeRoots, new Set([root]));
     assert.deepEqual(store.getState().highlightedSourceLocations, [{documentId: "query", from: 0, to: 5}]);
-    store.getState().setVisibleNodeIds(new Set(["0", "1"]));
+    store.getState().toggleExpandedSubtree("0");
     assert.deepEqual(store.getState().highlightedNodes, new Set([hidden]));
     assert.deepEqual(store.getState().highlightedCollapsedSubtreeRoots, new Set());
 });

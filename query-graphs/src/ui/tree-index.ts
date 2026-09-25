@@ -1,21 +1,60 @@
 import {assertNotNull} from "../assert";
 import type {TreeDescription, TreeNode} from "../tree-description";
-import {allChildren} from "../tree-description";
 
 export type TreeParents = ReadonlyMap<string, string>;
 
-/** Indexes every node's parent once, including currently collapsed children. */
-export function indexTreeParents(tree: TreeDescription, nodeIds: ReadonlyMap<TreeNode, string>): TreeParents {
+export interface TreeIndex {
+    parents: TreeParents;
+    collapsedSubtreeRootIds: ReadonlySet<string>;
+}
+
+/** Indexes every parent edge and distinguishes the roots of collapsible subtrees. */
+export function indexTree(tree: TreeDescription, nodeIds: ReadonlyMap<TreeNode, string>): TreeIndex {
     const parents = new Map<string, string>();
-    const pending: [TreeNode, string | undefined][] = [[tree.root, undefined]];
+    const collapsedSubtreeRootIds = new Set<string>();
+    const pending: [TreeNode, string | undefined, boolean][] = [[tree.root, undefined, false]];
     while (pending.length > 0) {
-        const [node, parentId] = pending.pop()!;
+        const [node, parentId, collapsedSubtreeRoot] = pending.pop()!;
         const nodeId = nodeIds.get(node);
         assertNotNull(nodeId);
         if (parentId !== undefined) parents.set(nodeId, parentId);
-        for (const child of allChildren(node)) pending.push([child, nodeId]);
+        if (collapsedSubtreeRoot) collapsedSubtreeRootIds.add(nodeId);
+        for (const child of node.children ?? []) pending.push([child, nodeId, false]);
+        for (const child of node.collapsedChildren ?? []) pending.push([child, nodeId, true]);
     }
-    return parents;
+    return {parents, collapsedSubtreeRootIds};
+}
+
+/** Creates a lazy visibility lookup for the current expanded-subtree state. */
+export function createStructuralNodeVisibility(
+    expandedSubtrees: Readonly<Record<string, boolean>>,
+    treeParents: TreeParents,
+    collapsedSubtreeRootIds: Pick<ReadonlySet<string>, "has">,
+): Pick<ReadonlySet<string>, "has"> {
+    const visibility = new Map<string, boolean>();
+    return {
+        has(nodeId) {
+            const path: string[] = [];
+            let childId: string | undefined = nodeId;
+            let visible = true;
+            while (childId !== undefined) {
+                const cached = visibility.get(childId);
+                if (cached !== undefined) {
+                    visible = cached;
+                    break;
+                }
+                path.push(childId);
+                const parentId = treeParents.get(childId);
+                if (parentId !== undefined && collapsedSubtreeRootIds.has(childId) && !expandedSubtrees[parentId]) {
+                    visible = false;
+                    break;
+                }
+                childId = parentId;
+            }
+            for (const traversedId of path) visibility.set(traversedId, visible);
+            return visible;
+        },
+    };
 }
 
 /**

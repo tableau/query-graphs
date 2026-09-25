@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import type {TreeNode} from "../src/tree-description";
-import {findClosestVisibleAncestors, indexTreeParents} from "../src/ui/tree-index";
+import {findClosestVisibleAncestors, indexTree} from "../src/ui/tree-index";
 
 class CountingParents extends Map<string, string> {
     readonly lookups = new Map<string, number>();
@@ -12,7 +12,7 @@ class CountingParents extends Map<string, string> {
     }
 }
 
-test("parent indexing includes visible and collapsed children", () => {
+test("tree indexing distinguishes visible and collapsed child edges", () => {
     const visible: TreeNode = {name: "visible"};
     const collapsed: TreeNode = {name: "collapsed"};
     const root: TreeNode = {name: "root", children: [visible], collapsedChildren: [collapsed]};
@@ -22,13 +22,13 @@ test("parent indexing includes visible and collapsed children", () => {
         [collapsed, "collapsed"],
     ]);
 
-    assert.deepEqual(
-        indexTreeParents({root}, nodeIds),
-        new Map([
+    assert.deepEqual(indexTree({root}, nodeIds), {
+        parents: new Map([
             ["collapsed", "root"],
             ["visible", "root"],
         ]),
-    );
+        collapsedSubtreeRootIds: new Set(["collapsed"]),
+    });
 });
 
 test("hidden nodes map to their closest visible ancestors", () => {
