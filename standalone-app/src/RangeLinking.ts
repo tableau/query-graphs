@@ -80,12 +80,12 @@ const rangeLinkingTheme = EditorView.baseTheme({
 
 const foldedRangeHighlightClass = "cm-fold-hides-highlighted-range";
 
-function foldIntersectsHighlightedRange(highlightedRanges: DecorationSet, foldFrom: number, foldTo: number): boolean {
-    let intersectsHighlightedRange = false;
+function foldContainsHighlightedRange(highlightedRanges: DecorationSet, foldFrom: number, foldTo: number): boolean {
+    let containsHighlightedRange = false;
     highlightedRanges.between(foldFrom, foldTo, (highlightFrom, highlightTo) => {
-        if (highlightFrom < foldTo && highlightTo > foldFrom) intersectsHighlightedRange = true;
+        if (highlightFrom >= foldFrom && highlightTo <= foldTo) containsHighlightedRange = true;
     });
-    return intersectsHighlightedRange;
+    return containsHighlightedRange;
 }
 
 const foldPlaceholderHighlighting = ViewPlugin.fromClass(
@@ -116,7 +116,7 @@ const foldPlaceholderHighlighting = ViewPlugin.fromClass(
             const highlightedRanges = view.state.field(highlightedRangeDecorations);
             const foldStartsHidingHighlightedRanges = new Set<number>();
             foldedRanges(view.state).between(0, view.state.doc.length, (foldFrom, foldTo) => {
-                if (foldIntersectsHighlightedRange(highlightedRanges, foldFrom, foldTo))
+                if (foldContainsHighlightedRange(highlightedRanges, foldFrom, foldTo))
                     foldStartsHidingHighlightedRanges.add(foldFrom);
             });
             view.requestMeasure({

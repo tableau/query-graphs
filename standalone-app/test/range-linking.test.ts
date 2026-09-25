@@ -40,6 +40,10 @@ test("fold placeholders identify highlighted ranges hidden by their fold", async
         );
         assert.ok(placeholders.every((placeholder) => !placeholder.classList.contains("cm-fold-hides-highlighted-range")));
 
+        view.dispatch({effects: rangeLinking.setHighlightedRanges.of([{documentId: "query", from: 1, to: 18}])});
+        await new Promise((resolve) => requestAnimationFrame(resolve));
+        assert.ok(placeholders.every((placeholder) => !placeholder.classList.contains("cm-fold-hides-highlighted-range")));
+
         view.dispatch({effects: rangeLinking.setHighlightedRanges.of([{documentId: "query", from: 12, to: 13}])});
         await new Promise((resolve) => requestAnimationFrame(resolve));
         assert.deepEqual(
