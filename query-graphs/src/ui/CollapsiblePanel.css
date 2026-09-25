@@ -45,6 +45,7 @@
         cursor: pointer;
 
         &:focus-visible {
+            z-index: 2;
             outline: 2px solid hsl(210, 90%, 65%);
             outline-offset: 1px;
         }
@@ -106,6 +107,7 @@
     grid-column: 2;
     grid-row: 1;
     border-inline-start: 1px solid hsl(0, 0%, 85%);
+    border-start-end-radius: 7px;
 
     & > .qg-icon-button-wrapper {
         align-self: stretch;
@@ -130,6 +132,11 @@
 
 .qg-collapsible-panel:not([data-expanded]) > .qg-collapsible-panel-actions > .qg-icon-button-wrapper:last-child .qg-icon-button {
     /* In a collapsed panel, the action also meets the bottom-end corner. */
+    border-end-end-radius: 7px;
+}
+
+.qg-collapsible-panel:not([data-expanded]) > .qg-collapsible-panel-actions {
+    /* Clip the group's own background to the exposed bottom-end corner. */
     border-end-end-radius: 7px;
 }
 
