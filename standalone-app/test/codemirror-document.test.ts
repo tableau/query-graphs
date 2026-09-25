@@ -4,6 +4,7 @@ import test from "node:test";
 import * as React from "react";
 import {createRoot} from "react-dom/client";
 import {JSDOM} from "jsdom";
+import type {CodeMirrorDocumentProps} from "../src/CodeMirrorDocument";
 
 // Node does not load CSS, so replace stylesheet imports with empty modules.
 registerHooks({
@@ -13,8 +14,14 @@ registerHooks({
     },
 });
 
-// Exercise prop synchronization, editor recreation, linked ranges, and both search entry points.
-test("the document editor synchronizes and activates linked ranges", async () => {
+const textDocument = {id: "query", title: "SQL", text: "SELECT value", language: "sql"};
+const innerRange = {documentId: "query", from: 0, to: 6};
+const tiedRange = {documentId: "query", from: 1, to: 7};
+const outerRange = {documentId: "query", from: 0, to: 12};
+const linkedRanges = [innerRange, tiedRange, outerRange];
+const highlightedRanges = [{documentId: "query", from: 7, to: 12}];
+
+async function createFixture() {
     // Import after registering the CSS hook because the component imports its stylesheet eagerly.
     const {CodeMirrorDocument} = await import("../src/CodeMirrorDocument");
     const dom = new JSDOM("<main></main>", {pretendToBeVisual: true});
@@ -45,16 +52,9 @@ test("the document editor synchronizes and activates linked ranges", async () =>
     // Record callbacks so caret movement can be checked independently of rendered decorations.
     const activeLinkedRangeUpdates: {documentId: string; from: number; to: number}[][] = [];
     const root = createRoot(dom.window.document.querySelector("main")!);
-    const textDocument = {id: "query", title: "SQL", text: "SELECT value", language: "sql"};
     const onActiveLinkedRangesChange = (activeLinkedRanges: readonly {documentId: string; from: number; to: number}[]) =>
         activeLinkedRangeUpdates.push([...activeLinkedRanges]);
-    const innerRange = {documentId: "query", from: 0, to: 6};
-    const tiedRange = {documentId: "query", from: 1, to: 7};
-    const outerRange = {documentId: "query", from: 0, to: 12};
-    const linkedRanges = [innerRange, tiedRange, outerRange];
-    const highlightedRanges = [{documentId: "query", from: 7, to: 12}];
-    try {
-        // Initial linked ranges render without an active graph highlight.
+    const render = async (props: Partial<CodeMirrorDocumentProps> = {}) => {
         await React.act(async () =>
             root.render(
                 React.createElement(CodeMirrorDocument, {
@@ -62,86 +62,12 @@ test("the document editor synchronizes and activates linked ranges", async () =>
                     linkedRanges,
                     highlightedRanges: [],
                     onActiveLinkedRangesChange,
+                    ...props,
                 }),
             ),
         );
-        assert.ok(dom.window.document.querySelector(".cm-linked-range"));
-        assert.equal(dom.window.document.querySelectorAll(".cm-highlighted-range").length, 0);
-
-        // Updating only the highlight prop must update decorations in the existing editor.
-        await React.act(async () =>
-            root.render(
-                React.createElement(CodeMirrorDocument, {
-                    document: textDocument,
-                    linkedRanges,
-                    highlightedRanges,
-                    onActiveLinkedRangesChange,
-                }),
-            ),
-        );
-        assert.equal(dom.window.document.querySelectorAll(".cm-highlighted-range").length, 1);
-
-        // A new document object recreates CodeMirror and reapplies the latest ranges.
-        const replacementDocument = {...textDocument};
-        await React.act(async () =>
-            root.render(
-                React.createElement(CodeMirrorDocument, {
-                    document: replacementDocument,
-                    linkedRanges,
-                    highlightedRanges,
-                    onActiveLinkedRangesChange,
-                }),
-            ),
-        );
-        assert.ok(dom.window.document.querySelector(".cm-linked-range"));
-        assert.equal(dom.window.document.querySelectorAll(".cm-highlighted-range").length, 1);
-
-        // The caret reports every shortest linked range at its offset and clears them on blur.
-        const content = dom.window.document.querySelector<HTMLElement>(".cm-content");
-        assert.ok(content);
-        content.focus();
-        assert.deepEqual(activeLinkedRangeUpdates.at(-1), [innerRange]);
-        content.dispatchEvent(new dom.window.KeyboardEvent("keydown", {key: "ArrowRight", bubbles: true, cancelable: true}));
-        assert.deepEqual(activeLinkedRangeUpdates.at(-1), [innerRange, tiedRange]);
-        content.blur();
-        assert.deepEqual(activeLinkedRangeUpdates.at(-1), []);
-        assert.equal(dom.window.document.querySelector(".cm-search"), null);
-
-        // A request token opens search and transfers focus to its primary field.
-        await React.act(async () =>
-            root.render(
-                React.createElement(CodeMirrorDocument, {
-                    document: replacementDocument,
-                    linkedRanges,
-                    highlightedRanges,
-                    onActiveLinkedRangesChange,
-                    searchRequest: 1,
-                }),
-            ),
-        );
-        const searchField = dom.window.document.querySelector<HTMLInputElement>("input[name=search]");
-        assert.ok(searchField);
-        assert.equal(dom.window.document.activeElement, searchField);
-
-        // A later token must refocus an already-open search panel.
-        content.focus();
-        await React.act(async () =>
-            root.render(
-                React.createElement(CodeMirrorDocument, {
-                    document: replacementDocument,
-                    linkedRanges,
-                    highlightedRanges,
-                    onActiveLinkedRangesChange,
-                    searchRequest: 2,
-                }),
-            ),
-        );
-        assert.equal(dom.window.document.activeElement, searchField);
-
-        // The standard keyboard shortcut remains installed alongside programmatic search.
-        content.dispatchEvent(new dom.window.KeyboardEvent("keydown", {key: "f", ctrlKey: true, bubbles: true}));
-        assert.ok(dom.window.document.querySelector(".cm-search"));
-    } finally {
+    };
+    const cleanup = async () => {
         // Restore process-wide globals so later tests receive their original environment.
         await React.act(async () => root.unmount());
         dom.window.close();
@@ -153,5 +79,87 @@ test("the document editor synchronizes and activates linked ranges", async () =>
             if (descriptor === undefined) Reflect.deleteProperty(globalThis, name);
             else Object.defineProperty(globalThis, name, descriptor);
         }
+    };
+
+    return {activeLinkedRangeUpdates, cleanup, dom, render};
+}
+
+test("the document editor synchronizes range decorations across prop and document changes", async () => {
+    const fixture = await createFixture();
+    try {
+        // Initial linked ranges render without an active graph highlight.
+        await fixture.render();
+        assert.ok(fixture.dom.window.document.querySelector(".cm-linked-range"));
+        assert.equal(fixture.dom.window.document.querySelectorAll(".cm-highlighted-range").length, 0);
+
+        // Updating only the highlight prop must update decorations in the existing editor.
+        await fixture.render({highlightedRanges});
+        assert.equal(fixture.dom.window.document.querySelectorAll(".cm-highlighted-range").length, 1);
+
+        // A new document object recreates CodeMirror and reapplies the latest ranges.
+        await fixture.render({document: {...textDocument}, highlightedRanges});
+        assert.ok(fixture.dom.window.document.querySelector(".cm-linked-range"));
+        assert.equal(fixture.dom.window.document.querySelectorAll(".cm-highlighted-range").length, 1);
+    } finally {
+        await fixture.cleanup();
+    }
+});
+
+test("the document editor reports linked ranges at the focused caret", async () => {
+    const fixture = await createFixture();
+    try {
+        await fixture.render();
+
+        // The caret reports every shortest linked range at its offset and clears them on blur.
+        const content = fixture.dom.window.document.querySelector<HTMLElement>(".cm-content");
+        assert.ok(content);
+        content.focus();
+        assert.deepEqual(fixture.activeLinkedRangeUpdates.at(-1), [innerRange]);
+        content.dispatchEvent(
+            new fixture.dom.window.KeyboardEvent("keydown", {key: "ArrowRight", bubbles: true, cancelable: true}),
+        );
+        assert.deepEqual(fixture.activeLinkedRangeUpdates.at(-1), [innerRange, tiedRange]);
+        content.blur();
+        assert.deepEqual(fixture.activeLinkedRangeUpdates.at(-1), []);
+    } finally {
+        await fixture.cleanup();
+    }
+});
+
+test("a search request opens and refocuses the search panel", async () => {
+    const fixture = await createFixture();
+    try {
+        await fixture.render();
+        const content = fixture.dom.window.document.querySelector<HTMLElement>(".cm-content");
+        assert.ok(content);
+        assert.equal(fixture.dom.window.document.querySelector(".cm-search"), null);
+
+        // A request token opens search and transfers focus to its primary field.
+        await fixture.render({searchRequest: 1});
+        const searchField = fixture.dom.window.document.querySelector<HTMLInputElement>("input[name=search]");
+        assert.ok(searchField);
+        assert.equal(fixture.dom.window.document.activeElement, searchField);
+
+        // A later token must refocus an already-open search panel.
+        content.focus();
+        await fixture.render({searchRequest: 2});
+        assert.equal(fixture.dom.window.document.activeElement, searchField);
+    } finally {
+        await fixture.cleanup();
+    }
+});
+
+test("the standard keyboard shortcut opens the search panel", async () => {
+    const fixture = await createFixture();
+    try {
+        await fixture.render();
+        const content = fixture.dom.window.document.querySelector<HTMLElement>(".cm-content");
+        assert.ok(content);
+
+        // Programmatic search must not displace CodeMirror's standard search keymap.
+        content.dispatchEvent(new fixture.dom.window.KeyboardEvent("keydown", {key: "f", ctrlKey: true, bubbles: true}));
+        assert.ok(fixture.dom.window.document.querySelector(".cm-search"));
+    } finally {
+        await fixture.cleanup();
     }
 });

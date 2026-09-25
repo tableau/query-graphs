@@ -1,4 +1,4 @@
-import {useId, useState, type ReactNode} from "react";
+import {useEffect, useId, useState, type ReactNode} from "react";
 import cc from "classcat";
 import "./CollapsiblePanel.css";
 
@@ -13,7 +13,7 @@ export interface CollapsiblePanelProps {
     highlighted?: boolean;
     /** Additional class name applied to the panel root. */
     className?: string;
-    /** Controls whether the panel is expanded. Omit to let the panel manage its own state. */
+    /** Controls whether the panel is expanded. Omit to let the panel manage its own state; do not add or remove it later. */
     open?: boolean;
     /** Receives expansion changes requested through the disclosure button. */
     onOpenChange?: (open: boolean) => void;
@@ -37,9 +37,16 @@ export function CollapsiblePanel({
     const classes = cc(["qg-collapsible-panel", {"qg-highlighted": highlighted}, className]);
     const [contentMounted, setContentMounted] = useState(open === true);
     const [internalOpen, setInternalOpen] = useState(false);
+    // Choose the source of truth once; switching between controlled and uncontrolled state produces ambiguous behavior.
+    const [isControlled] = useState(() => open !== undefined);
+    const isControlledNow = open !== undefined;
     const contentId = useId();
-    const controlled = open !== undefined;
-    const expanded = open ?? internalOpen;
+    const expanded = isControlled ? open === true : internalOpen;
+
+    useEffect(() => {
+        if (isControlled !== isControlledNow)
+            console.error("CollapsiblePanel must not switch between controlled and uncontrolled state.");
+    }, [isControlled, isControlledNow]);
 
     // Remember a programmatic expansion as intent too, so lazy content stays mounted after it is collapsed again.
     if (mountContentOnFirstIntent && expanded && !contentMounted) setContentMounted(true);
@@ -58,7 +65,7 @@ export function CollapsiblePanel({
                 onClick={() => {
                     const nextOpen = !expanded;
                     if (nextOpen) mountContent();
-                    if (!controlled) setInternalOpen(nextOpen);
+                    if (!isControlled) setInternalOpen(nextOpen);
                     onOpenChange?.(nextOpen);
                 }}
                 onPointerEnter={mountContent}
