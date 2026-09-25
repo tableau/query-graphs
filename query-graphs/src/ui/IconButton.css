@@ -25,6 +25,16 @@
         background: hsl(0, 0%, 95%);
     }
 
+    &[aria-pressed="true"] {
+        color: hsl(210, 80%, 38%);
+        background: hsl(210, 90%, 92%);
+        box-shadow: inset 0 0 0 1px hsl(210, 80%, 70%);
+    }
+
+    &[aria-pressed="true"]:hover:not(:disabled) {
+        background: hsl(210, 90%, 88%);
+    }
+
     &:focus-visible {
         outline: 2px solid hsl(210, 90%, 65%);
         outline-offset: 1px;
@@ -87,6 +97,9 @@
         position-anchor: --qg-icon-button-anchor;
         position-area: block-end span-inline-end;
         /* Move away from viewport edges when the preferred placement does not fit. */
-        position-try-fallbacks: flip-inline, flip-block, flip-block flip-inline;
+        position-try-fallbacks:
+            flip-inline,
+            flip-block,
+            flip-block flip-inline;
     }
 }

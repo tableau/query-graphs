@@ -54,10 +54,70 @@
       stroke-width: 3px;
     }
   }
+
+  & .qg-offscreen-highlight-indicators {
+    position: absolute;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 6;
+  }
+
+  & .qg-offscreen-highlight-indicator {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.7rem;
+    height: 1.35rem;
+    padding: 0 .35rem;
+    border: 1px solid hsl(210, 75%, 45%);
+    border-radius: .7rem;
+    color: hsl(210, 80%, 32%);
+    background-color: hsl(210, 100%, 94%);
+    box-shadow: 0 1px 3px hsl(0, 0%, 0%, .2);
+    font-size: .75rem;
+    font-weight: 600;
+    line-height: 1;
+  }
+
+  & .qg-offscreen-highlight-indicator[hidden] {
+    display: none;
+  }
+
+  & .qg-offscreen-highlight-indicator[data-direction="above"] {
+    top: .35rem;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  & .qg-offscreen-highlight-indicator[data-direction="below"] {
+    bottom: .35rem;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  & .qg-offscreen-highlight-indicator[data-direction="left"] {
+    top: 50%;
+    left: .35rem;
+    transform: translateY(-50%);
+  }
+
+  & .qg-offscreen-highlight-indicator[data-direction="right"] {
+    top: 50%;
+    right: .35rem;
+    transform: translateY(-50%);
+  }
 }
 
 @media (forced-colors: active) {
   .query-graph .react-flow__minimap-node.qg-highlighted {
     stroke: Highlight;
+  }
+
+  .query-graph .qg-offscreen-highlight-indicator {
+    border-color: Highlight;
+    color: Highlight;
+    background-color: Canvas;
+    box-shadow: none;
   }
 }

@@ -1,4 +1,4 @@
-import {lazy, Suspense, type ReactElement, useCallback, useMemo, useState} from "react";
+import {lazy, Suspense, type ReactElement, useCallback, useEffect, useMemo, useState} from "react";
 import {CollapsiblePanel} from "@tableau/query-graphs/lib/ui/CollapsiblePanel";
 import {CopyButton} from "@tableau/query-graphs/lib/ui/CopyButton";
 import {IconButton} from "@tableau/query-graphs/lib/ui/IconButton";
@@ -33,6 +33,7 @@ function LoadingDocument({title}: {title: string}) {
 function TextDocumentPanel({document}: {document: TextDocument}) {
     const [open, setOpen] = useState(false);
     const [searchRequest, setSearchRequest] = useState<number>();
+    const [followLinkedHighlights, setFollowLinkedHighlights] = useState(false);
     const linkedRanges = useGraphRenderingStore((state) => state.getLinkedSourceRanges(document.id));
     const highlightedNodeIds = useGraphRenderingStore((state) => state.highlightedNodeIds);
     const getSourceRangesForNodes = useGraphRenderingStore((state) => state.getSourceRangesForNodes);
@@ -41,10 +42,15 @@ function TextDocumentPanel({document}: {document: TextDocument}) {
         [document.id, getSourceRangesForNodes, highlightedNodeIds],
     );
     const setActiveSourceLocations = useGraphRenderingStore((state) => state.setActiveSourceLocations);
+    const setFollowSourceDocument = useGraphRenderingStore((state) => state.setFollowSourceDocument);
     const onActiveLinkedRangesChange = useCallback(
         (activeLinkedRanges: readonly SourceLocation[]) => setActiveSourceLocations(document.id, activeLinkedRanges),
         [document.id, setActiveSourceLocations],
     );
+    useEffect(() => () => setFollowSourceDocument(document.id, false), [document.id, setFollowSourceDocument]);
+    useEffect(() => {
+        setFollowSourceDocument(document.id, followLinkedHighlights);
+    }, [document.id, followLinkedHighlights, setFollowSourceDocument]);
     const panelTitle = (
         <>
             {document.title}
@@ -63,6 +69,19 @@ function TextDocumentPanel({document}: {document: TextDocument}) {
             onOpenChange={setOpen}
             headerActions={
                 <>
+                    {linkedRanges.length > 0 ? (
+                        <IconButton
+                            label={`Follow linked highlights in ${document.title}`}
+                            tooltip="Follow linked highlights"
+                            aria-pressed={followLinkedHighlights}
+                            onClick={() => setFollowLinkedHighlights((follow) => !follow)}
+                        >
+                            <svg viewBox="0 0 16 16" aria-hidden="true">
+                                <circle cx="8" cy="8" r="3.25" />
+                                <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2" />
+                            </svg>
+                        </IconButton>
+                    ) : null}
                     <IconButton
                         label={`Search ${document.title}`}
                         tooltip="Search"
@@ -88,6 +107,7 @@ function TextDocumentPanel({document}: {document: TextDocument}) {
                         linkedRanges={linkedRanges}
                         highlightedRanges={highlightedRanges}
                         onActiveLinkedRangesChange={onActiveLinkedRangesChange}
+                        followHighlightedRanges={followLinkedHighlights && open}
                         searchRequest={searchRequest}
                     />
                 </Suspense>
@@ -110,7 +130,7 @@ export function TreeLabel({title, setTitle, metadata, metadataHighlighted, textD
     // documents scroll without zooming the canvas, and `nopan` lets users select
     // text or operate controls without dragging the canvas.
     return (
-        <div className="react-flow__panel graph-sidebar nowheel nopan">
+        <div className="react-flow__panel graph-sidebar qg-viewport-obstacle nowheel nopan">
             <input
                 type="text"
                 className="graph-title"
