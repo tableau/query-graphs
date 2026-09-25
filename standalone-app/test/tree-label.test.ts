@@ -5,7 +5,19 @@ import * as React from "react";
 import {createRoot} from "react-dom/client";
 import {JSDOM} from "jsdom";
 
+const queryGraphsSourceModules = new Map([
+    ["@tableau/query-graphs/lib/ui/CollapsiblePanel", "../../query-graphs/src/ui/CollapsiblePanel.tsx"],
+    ["@tableau/query-graphs/lib/ui/CopyButton", "../../query-graphs/src/ui/CopyButton.tsx"],
+    ["@tableau/query-graphs/lib/ui/store", "../../query-graphs/src/ui/store.ts"],
+]);
+
 registerHooks({
+    resolve(specifier, context, nextResolve) {
+        const sourceModule = queryGraphsSourceModules.get(specifier);
+        return sourceModule === undefined
+            ? nextResolve(specifier, context)
+            : nextResolve(new URL(sourceModule, import.meta.url).href, context);
+    },
     load(url, context, nextLoad) {
         if (url.endsWith(".css")) return {format: "module", source: "", shortCircuit: true};
         return nextLoad(url, context);
@@ -15,8 +27,8 @@ registerHooks({
 test("document panel titles reserve and activate their highlight indicator", async () => {
     const [{TreeLabel}, {createSourceLinkIndex}, {createGraphRenderingStore, GraphRenderingStoreContext}] = await Promise.all([
         import("../src/TreeLabel"),
-        import("@tableau/query-graphs/lib/ui/source-link-index"),
-        import("@tableau/query-graphs/lib/ui/store"),
+        import("../../query-graphs/src/ui/source-link-index"),
+        import("../../query-graphs/src/ui/store"),
     ]);
     const dom = new JSDOM("<main></main>", {pretendToBeVisual: true});
     const globalNames = ["window", "document", "Node", "HTMLElement", "MutationObserver"] as const;
