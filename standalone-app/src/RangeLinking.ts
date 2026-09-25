@@ -201,10 +201,12 @@ function activeLinkedRangeTracking(onActiveLinkedRangesChange: (activeLinkedRang
 
                     const textHit = pointerSample.view.posAndSideAtCoords({x: pointerSample.x, y: pointerSample.y});
                     let documentOffset = textHit?.pos;
+                    // On a character's trailing half, CodeMirror returns the caret position after its grapheme cluster.
                     if (textHit?.assoc === -1) {
                         const line = pointerSample.view.state.doc.lineAt(textHit.pos);
                         documentOffset = line.from + findClusterBreak(line.text, textHit.pos - line.from, false);
                     }
+                    // The hit above is the nearest caret even in blank space; only activate links under actual text.
                     const characterBounds = documentOffset === undefined ? null : pointerSample.view.coordsForChar(documentOffset);
                     const isOverCharacter =
                         characterBounds !== null &&
