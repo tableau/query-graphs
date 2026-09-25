@@ -88,9 +88,9 @@
     "statistics": {"error": null, "column-count": 0}
   },
   "pipelines": [
-    {"id": 0, "operators": [1, 2, 4], "dependencies": [1, 2], "statistics": {"cpu-cycles": 38782, "query-metrics": {"wall-clock":1.7491e-05}, "running": false}},
-    {"id": 1, "operators": [2, 3, 7], "dependencies": [], "statistics": {"cpu-cycles": 22905, "query-metrics": {"wall-clock":1.433e-05}, "running": false}},
-    {"id": 2, "operators": [4, 5, 8], "dependencies": [3], "statistics": {"cpu-cycles": 2117498, "query-metrics": {"wall-clock":0.000707723}, "running": false}},
-    {"id": 3, "operators": [5, 6], "dependencies": [1], "statistics": {"cpu-cycles": 10490, "query-metrics": {"wall-clock":5.789e-06}, "running": false}}
+    {"id": 0, "operators": [1, 2, 4], "dependencies": [1, 2], "statistics": {"cpu-cycles": 34498, "query-metrics": {"elapsed":1.5348e-05,"memory-mb-seconds":7.674e-06,"instance-seconds":1.5348e-05,"processed-rows":{"total":0,"native":0},"threads":{"thread-time":1.5348e-05,"cpu-time":1.535e-05,"wait-time":0},"storage":{},"peak-transaction-memory-mb":0.5}, "running": false}},
+    {"id": 1, "operators": [2, 3, 7], "dependencies": [], "statistics": {"cpu-cycles": 19498, "query-metrics": {"elapsed":1.2623e-05,"memory-mb-seconds":6.311e-06,"instance-seconds":1.2623e-05,"processed-rows":{"total":128,"native":128},"threads":{"thread-time":1.2623e-05,"cpu-time":1.265e-05,"wait-time":0},"storage":{},"additional-entries":{"scan-stats":{"rows-matching-restrictions":128}},"peak-transaction-memory-mb":0.5}, "running": false}},
+    {"id": 2, "operators": [4, 5, 8], "dependencies": [3], "statistics": {"cpu-cycles": 2081208, "query-metrics": {"elapsed":0.000695535,"memory-mb-seconds":0.000347767,"instance-seconds":0.000695535,"processed-rows":{"total":572,"native":572},"threads":{"thread-time":0.000695535,"cpu-time":0.000695638,"wait-time":0},"storage":{},"additional-entries":{"scan-stats":{"rows-matching-restrictions":572}},"peak-transaction-memory-mb":0.5}, "running": false}},
+    {"id": 3, "operators": [5, 6], "dependencies": [1], "statistics": {"cpu-cycles": 10689, "query-metrics": {"elapsed":5.916e-06,"memory-mb-seconds":2.958e-06,"instance-seconds":5.916e-06,"processed-rows":{"total":0,"native":0},"threads":{"thread-time":5.916e-06,"cpu-time":5.919e-06,"wait-time":0},"storage":{},"peak-transaction-memory-mb":0.5}, "running": false}}
   ]
 }

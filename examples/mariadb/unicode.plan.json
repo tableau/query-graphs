@@ -1,0 +1,15 @@
+{
+  "query_block": {
+    "select_id": 1,
+    "nested_loop": [
+      {
+        "table": {
+          "table_name": "region",
+          "access_type": "ALL",
+          "rows": 5,
+          "filtered": 100
+        }
+      }
+    ]
+  }
+}
