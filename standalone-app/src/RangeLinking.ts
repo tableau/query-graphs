@@ -137,13 +137,6 @@ const foldPlaceholderHighlighting = ViewPlugin.fromClass(
     },
 );
 
-interface PendingPointerSample {
-    view: EditorView;
-    x: number;
-    y: number;
-    isInsideContent: boolean;
-}
-
 function activeLinkedRangesAtOffset(state: EditorState, documentOffset?: number): readonly SourceLocation[] {
     if (documentOffset === undefined) return [];
     let shortestRangeLength = Infinity;
@@ -173,6 +166,13 @@ function equalSourceLocations(left: readonly SourceLocation[], right: readonly S
 }
 
 function activeLinkedRangeTracking(onActiveLinkedRangesChange: (activeLinkedRanges: readonly SourceLocation[]) => void): Extension {
+    interface PendingPointerSample {
+        view: EditorView;
+        x: number;
+        y: number;
+        isInsideContent: boolean;
+    }
+
     return ViewPlugin.fromClass(
         class {
             private pointerUpdateFrame: number | undefined;
