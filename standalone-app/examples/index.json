@@ -199,6 +199,12 @@
             "sql": "cedardb/tpch/tpch-q9-analyze.sql"
           }
         },
+        "unicode": {
+          "simple": {
+            "plan": "cedardb/unicode.plan.json",
+            "sql": "cedardb/unicode.sql"
+          }
+        },
         "window": {
           "analyze": {
             "plan": "cedardb/window-analyze.plan.json",
@@ -414,6 +420,12 @@
           "analyze": {
             "plan": "duckdb/tpch/tpch-q9-analyze.plan.json",
             "sql": "duckdb/tpch/tpch-q9-analyze.sql"
+          }
+        },
+        "unicode": {
+          "simple": {
+            "plan": "duckdb/unicode.plan.json",
+            "sql": "duckdb/unicode.sql"
           }
         },
         "window": {
@@ -659,6 +671,12 @@
             "sql": "hyper/tpch/tpch-q9-analyze.sql"
           }
         },
+        "unicode": {
+          "simple": {
+            "plan": "hyper/unicode.plan.json",
+            "sql": "hyper/unicode.sql"
+          }
+        },
         "unionall": {
           "analyze-sql": {
             "plan": "hyper/unionall-analyze-sql.plan.json",
@@ -674,7 +692,7 @@
       }
     },
     "mariadb": {
-      "version": "10.11.14-MariaDB-0ubuntu0.24.04.1",
+      "version": "10.11.14-MariaDB-ubu2204",
       "queries": {
         "cte": {
           "analyze": {
@@ -864,6 +882,12 @@
             "sql": "mariadb/tpch/tpch-q9-analyze.sql"
           }
         },
+        "unicode": {
+          "simple": {
+            "plan": "mariadb/unicode.plan.json",
+            "sql": "mariadb/unicode.sql"
+          }
+        },
         "window": {
           "analyze": {
             "plan": "mariadb/window-analyze.plan.json",
@@ -873,7 +897,7 @@
       }
     },
     "postgres": {
-      "version": "PostgreSQL 17.11 (Ubuntu 17.11-1.pgdg22.04+2) on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0, 64-bit",
+      "version": "PostgreSQL 17.11 (Debian 17.11-1.pgdg13+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
       "queries": {
         "cte": {
           "analyze": {
@@ -1075,6 +1099,12 @@
           "analyze": {
             "plan": "postgres/tpch/tpch-q9-analyze.plan.json",
             "sql": "postgres/tpch/tpch-q9-analyze.sql"
+          }
+        },
+        "unicode": {
+          "simple": {
+            "plan": "postgres/unicode.plan.json",
+            "sql": "postgres/unicode.sql"
           }
         },
         "window": {
@@ -1282,6 +1312,12 @@
           "analyze": {
             "plan": "umbra/tpch/tpch-q9-analyze.plan.json",
             "sql": "umbra/tpch/tpch-q9-analyze.sql"
+          }
+        },
+        "unicode": {
+          "simple": {
+            "plan": "umbra/unicode.plan.json",
+            "sql": "umbra/unicode.sql"
           }
         },
         "window": {

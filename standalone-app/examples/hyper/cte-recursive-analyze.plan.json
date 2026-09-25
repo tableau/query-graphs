@@ -54,8 +54,8 @@
     "statistics": {"error": null, "column-count": 0}
   },
   "pipelines": [
-    {"id": 0, "operators": [1, 2], "dependencies": [2], "statistics": {"cpu-cycles": 25712335, "query-metrics": {"wall-clock":0.00857386}, "running": false}},
-    {"id": 1, "operators": [2, 3], "dependencies": [], "statistics": {"cpu-cycles": 15417, "query-metrics": {"wall-clock":1.8086e-05}, "running": false}},
-    {"id": 2, "operators": [2, 4, 5, 6], "dependencies": [1], "statistics": {"cpu-cycles": 43825491, "query-metrics": {"wall-clock":0.0146212}, "running": false}}
+    {"id": 0, "operators": [1, 2], "dependencies": [2], "statistics": {"cpu-cycles": 32085857, "query-metrics": {"elapsed":0.0106983,"memory-mb-seconds":0.00534916,"instance-seconds":0.0106983,"processed-rows":{"total":0,"native":0},"adaptive-compilation":{"compilation-time":0.0106801,"optimized":{"expected":0.004,"actual":0.0106801}},"adaptive-execution-total-time":{},"adaptive-execution-speedups":{},"threads":{"thread-time":0.0106983,"cpu-time":0.0106993,"wait-time":0},"storage":{},"peak-transaction-memory-mb":0.750031}, "running": false}},
+    {"id": 1, "operators": [2, 3], "dependencies": [], "statistics": {"cpu-cycles": 28345, "query-metrics": {"elapsed":3.0317e-05,"memory-mb-seconds":2.2734e-05,"instance-seconds":3.0317e-05,"processed-rows":{"total":0,"native":0},"threads":{"thread-time":3.0317e-05,"cpu-time":3.012e-05,"wait-time":0},"storage":{},"peak-transaction-memory-mb":0.750031}, "running": false}},
+    {"id": 2, "operators": [2, 4, 5, 6], "dependencies": [1], "statistics": {"cpu-cycles": 62920932, "query-metrics": {"elapsed":0.0210024,"memory-mb-seconds":0.0157524,"instance-seconds":0.0210024,"processed-rows":{"total":0,"native":0},"adaptive-compilation":{"compilation-time":0.0209375,"optimized":{"expected":0.005,"actual":0.0209375}},"adaptive-execution-total-time":{},"adaptive-execution-speedups":{},"threads":{"thread-time":0.0210024,"cpu-time":0.0210032,"wait-time":0},"storage":{},"peak-transaction-memory-mb":1.00006}, "running": false}}
   ]
 }

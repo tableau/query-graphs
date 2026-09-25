@@ -73,9 +73,9 @@
     "statistics": {"error": null, "column-count": 0}
   },
   "pipelines": [
-    {"id": 0, "operators": [1, 2], "dependencies": [1], "statistics": {"cpu-cycles": 8922, "query-metrics": {"wall-clock":8.92e-06}, "running": false}},
-    {"id": 1, "operators": [2, 3], "dependencies": [2], "statistics": {"cpu-cycles": 25783, "query-metrics": {"wall-clock":1.8417e-05}, "running": false}},
-    {"id": 2, "operators": [3, 4, 6], "dependencies": [3], "statistics": {"cpu-cycles": 27697, "query-metrics": {"wall-clock":1.5881e-05}, "running": false}},
-    {"id": 3, "operators": [4, 5], "dependencies": [], "statistics": {"cpu-cycles": 65077, "query-metrics": {"wall-clock":3.6763e-05}, "running": false}}
+    {"id": 0, "operators": [1, 2], "dependencies": [1], "statistics": {"cpu-cycles": 3428, "query-metrics": {"elapsed":2.731e-06,"memory-mb-seconds":1.365e-06,"instance-seconds":2.731e-06,"processed-rows":{"total":0,"native":0},"threads":{"thread-time":2.731e-06,"cpu-time":2.771e-06,"wait-time":0},"storage":{},"peak-transaction-memory-mb":0.750031}, "running": false}},
+    {"id": 1, "operators": [2, 3], "dependencies": [2], "statistics": {"cpu-cycles": 5641, "query-metrics": {"elapsed":3.937e-06,"memory-mb-seconds":2.952e-06,"instance-seconds":3.937e-06,"processed-rows":{"total":0,"native":0},"threads":{"thread-time":3.937e-06,"cpu-time":3.929e-06,"wait-time":0},"storage":{},"peak-transaction-memory-mb":0.750031}, "running": false}},
+    {"id": 2, "operators": [3, 4, 6], "dependencies": [3], "statistics": {"cpu-cycles": 9274, "query-metrics": {"elapsed":5.066e-06,"memory-mb-seconds":2.533e-06,"instance-seconds":5.066e-06,"processed-rows":{"total":128,"native":128},"threads":{"thread-time":5.066e-06,"cpu-time":5.064e-06,"wait-time":0},"storage":{},"additional-entries":{"scan-stats":{"rows-matching-restrictions":3}},"peak-transaction-memory-mb":0.5}, "running": false}},
+    {"id": 3, "operators": [4, 5], "dependencies": [], "statistics": {"cpu-cycles": 29170, "query-metrics": {"elapsed":1.371e-05,"memory-mb-seconds":6.855e-06,"instance-seconds":1.371e-05,"processed-rows":{"total":572,"native":572},"threads":{"thread-time":1.371e-05,"cpu-time":1.3723e-05,"wait-time":0},"storage":{},"additional-entries":{"scan-stats":{"rows-matching-restrictions":40}},"peak-transaction-memory-mb":0.5}, "running": false}}
   ]
 }
