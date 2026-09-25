@@ -42,10 +42,16 @@ function TextDocumentPanel({document}: {document: TextDocument}) {
         (activeLinkedRanges: readonly SourceLocation[]) => setActiveSourceLocations(document.id, activeLinkedRanges),
         [document.id, setActiveSourceLocations],
     );
+    const panelTitle = (
+        <>
+            {highlightedRanges.length > 0 ? <span className="graph-source-highlight-indicator" aria-hidden="true" /> : null}
+            {document.title}
+        </>
+    );
 
     return (
         <CollapsiblePanel
-            title={document.title}
+            title={panelTitle}
             className="graph-text-document-panel"
             headerActions={<CopyButton text={document.text} contentName={document.title} />}
             mountContentOnFirstIntent
