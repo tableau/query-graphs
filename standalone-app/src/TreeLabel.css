@@ -53,7 +53,7 @@
 }
 
 /* Document panels */
-.graph-source-highlight-indicator {
+.graph-panel-highlight-indicator {
     display: inline-block;
     width: 0.65em;
     height: 0.65em;
@@ -64,13 +64,13 @@
     visibility: hidden;
 }
 
-.graph-source-highlight-indicator-active {
+.graph-panel-highlight-indicator-active {
     visibility: visible;
-    animation: graph-source-highlight-pulse 1.4s ease-in-out infinite;
+    animation: graph-panel-highlight-pulse 1.4s ease-in-out infinite;
 }
 
-/* The open editor already shows the highlighted ranges directly. */
-.graph-text-document-panel[open] .graph-source-highlight-indicator {
+/* An open panel shows the highlighted content directly. */
+.qg-collapsible-panel[open] .graph-panel-highlight-indicator {
     visibility: hidden;
 }
 
@@ -83,7 +83,7 @@
     }
 }
 
-@keyframes graph-source-highlight-pulse {
+@keyframes graph-panel-highlight-pulse {
     0%,
     100% {
         opacity: 0.55;
@@ -148,7 +148,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .graph-source-highlight-indicator-active {
+    .graph-panel-highlight-indicator-active {
         animation: none;
     }
 

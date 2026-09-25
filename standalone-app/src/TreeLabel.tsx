@@ -46,7 +46,7 @@ function TextDocumentPanel({document}: {document: TextDocument}) {
         <>
             {document.title}
             <span
-                className={`graph-source-highlight-indicator${highlightedRanges.length > 0 ? " graph-source-highlight-indicator-active" : ""}`}
+                className={`graph-panel-highlight-indicator${highlightedRanges.length > 0 ? " graph-panel-highlight-indicator-active" : ""}`}
                 aria-hidden="true"
             />
         </>
