@@ -9,11 +9,10 @@ import {findClosestVisibleAncestors, type TreeParents} from "./tree-index";
 interface SourceNodeEntry {
     location: SourceLocation;
     nodeId: string;
-    maxTo: number;
 }
 
 interface SourceNodeIndex {
-    entriesByDocument: Map<string, SourceNodeEntry[]>;
+    nodeIdsByDocumentAndRange: Map<string, Map<string, ReadonlySet<string>>>;
     linkedRangesByDocument: Map<string, readonly SourceLocation[]>;
 }
 
@@ -21,6 +20,7 @@ const noSourceRanges: readonly SourceLocation[] = [];
 
 function createSourceNodeIndex(nodeIds: ReadonlyMap<TreeNode, string>): SourceNodeIndex {
     const entriesByDocument = new Map<string, SourceNodeEntry[]>();
+    const nodeIdsByDocumentAndRange = new Map<string, Map<string, Set<string>>>();
     for (const [node, nodeId] of nodeIds) {
         for (const location of node.sourceLocations ?? []) {
             if (
@@ -31,19 +31,20 @@ function createSourceNodeIndex(nodeIds: ReadonlyMap<TreeNode, string>): SourceNo
             )
                 continue;
             const entries = entriesByDocument.get(location.documentId) ?? [];
-            entries.push({location, nodeId, maxTo: location.to});
+            entries.push({location, nodeId});
             entriesByDocument.set(location.documentId, entries);
+            const nodeIdsByRange = nodeIdsByDocumentAndRange.get(location.documentId) ?? new Map<string, Set<string>>();
+            const rangeKey = `${location.from}:${location.to}`;
+            const rangeNodeIds = nodeIdsByRange.get(rangeKey) ?? new Set<string>();
+            rangeNodeIds.add(nodeId);
+            nodeIdsByRange.set(rangeKey, rangeNodeIds);
+            nodeIdsByDocumentAndRange.set(location.documentId, nodeIdsByRange);
         }
     }
 
     const linkedRangesByDocument = new Map<string, readonly SourceLocation[]>();
     for (const [documentId, entries] of entriesByDocument) {
         entries.sort((left, right) => left.location.from - right.location.from || left.location.to - right.location.to);
-        let maxTo = -1;
-        for (const entry of entries) {
-            maxTo = Math.max(maxTo, entry.location.to);
-            entry.maxTo = maxTo;
-        }
         const seen = new Set<string>();
         linkedRangesByDocument.set(
             documentId,
@@ -55,49 +56,38 @@ function createSourceNodeIndex(nodeIds: ReadonlyMap<TreeNode, string>): SourceNo
             }),
         );
     }
-    return {entriesByDocument, linkedRangesByDocument};
+    return {nodeIdsByDocumentAndRange, linkedRangesByDocument};
 }
 
-function sourceMatchesAtOffset(
+function nodeIdsForSourceLocations(
     index: SourceNodeIndex,
     documentId: string,
-    offset: number,
-): {nodeIds: Set<string>; locations: SourceLocation[]} {
-    const entries = index.entriesByDocument.get(documentId);
-    if (entries === undefined) return {nodeIds: new Set(), locations: []};
-
-    let low = 0;
-    let high = entries.length;
-    while (low < high) {
-        const middle = (low + high) >>> 1;
-        if (entries[middle].location.from <= offset) low = middle + 1;
-        else high = middle;
-    }
-
-    let shortestRange = Infinity;
+    sourceLocations: readonly SourceLocation[],
+): Set<string> {
+    const nodeIdsByRange = index.nodeIdsByDocumentAndRange.get(documentId);
     const matchingNodeIds = new Set<string>();
-    let matchingLocations: SourceLocation[] = [];
-    for (let index = low - 1; index >= 0 && entries[index].maxTo > offset; index--) {
-        const entry = entries[index];
-        const {from, to} = entry.location;
-        if (offset >= to) continue;
-        const rangeLength = to - from;
-        if (rangeLength < shortestRange) {
-            shortestRange = rangeLength;
-            matchingNodeIds.clear();
-            matchingLocations = [];
-        }
-        if (rangeLength === shortestRange) {
-            matchingNodeIds.add(entry.nodeId);
-            if (!matchingLocations.some(({from, to}) => from === entry.location.from && to === entry.location.to))
-                matchingLocations.push(entry.location);
-        }
+    if (nodeIdsByRange === undefined) return matchingNodeIds;
+    for (const {documentId: locationDocumentId, from, to} of sourceLocations) {
+        if (locationDocumentId !== documentId) continue;
+        for (const nodeId of nodeIdsByRange.get(`${from}:${to}`) ?? []) matchingNodeIds.add(nodeId);
     }
-    return {nodeIds: matchingNodeIds, locations: matchingLocations};
+    return matchingNodeIds;
 }
 
 function equalSets<T>(left: ReadonlySet<T>, right: ReadonlySet<T>): boolean {
     return left.size === right.size && Array.from(left).every((value) => right.has(value));
+}
+
+function equalSourceLocations(left: readonly SourceLocation[], right: readonly SourceLocation[]): boolean {
+    return (
+        left.length === right.length &&
+        left.every(
+            (location, index) =>
+                location.documentId === right[index].documentId &&
+                location.from === right[index].from &&
+                location.to === right[index].to,
+        )
+    );
 }
 
 export interface GraphRenderingState {
@@ -111,7 +101,7 @@ export interface GraphRenderingState {
     highlightedCollapsedSubtreeRoots: ReadonlySet<TreeNode>;
     highlightedSourceLocations: readonly SourceLocation[];
     setHighlightedNode: (node?: TreeNode) => void;
-    highlightNodesAtSourceRangeOffset: (documentId: string, sourceRangeOffset?: number) => void;
+    setActiveSourceLocations: (documentId: string, sourceLocations: readonly SourceLocation[]) => void;
     setVisibleNodeIds: (nodeIds: ReadonlySet<string>) => void;
     getLinkedSourceRanges: (documentId: string) => readonly SourceLocation[];
 }
@@ -129,7 +119,6 @@ export function createGraphRenderingStore(
     let sourceHighlightedNodeIds = new Set<string>();
     let sourceHighlightedLocations: readonly SourceLocation[] = [];
     let activeSourceDocumentId: string | undefined;
-    let activeSourceRangeOffset: number | undefined;
     let hoveredNode: TreeNode | undefined;
     const resolveVisibleHighlights = (): {
         highlightedNodes: ReadonlySet<TreeNode>;
@@ -180,17 +169,12 @@ export function createGraphRenderingStore(
             hoveredNode = node;
             publishHighlights(set);
         },
-        highlightNodesAtSourceRangeOffset: (documentId, sourceRangeOffset) => {
-            if (sourceRangeOffset === undefined && activeSourceDocumentId !== documentId) return;
-            if (activeSourceDocumentId === documentId && activeSourceRangeOffset === sourceRangeOffset) return;
-            const matches =
-                sourceRangeOffset === undefined
-                    ? {nodeIds: new Set<string>(), locations: []}
-                    : sourceMatchesAtOffset(sourceNodeIndex, documentId, sourceRangeOffset);
-            sourceHighlightedNodeIds = matches.nodeIds;
-            sourceHighlightedLocations = matches.locations;
-            activeSourceDocumentId = sourceRangeOffset === undefined ? undefined : documentId;
-            activeSourceRangeOffset = sourceRangeOffset;
+        setActiveSourceLocations: (documentId, sourceLocations) => {
+            if (sourceLocations.length === 0 && activeSourceDocumentId !== documentId) return;
+            if (activeSourceDocumentId === documentId && equalSourceLocations(sourceHighlightedLocations, sourceLocations)) return;
+            sourceHighlightedNodeIds = nodeIdsForSourceLocations(sourceNodeIndex, documentId, sourceLocations);
+            sourceHighlightedLocations = sourceLocations;
+            activeSourceDocumentId = sourceLocations.length === 0 ? undefined : documentId;
             publishHighlights(set);
         },
         setVisibleNodeIds: (nodeIds) => {

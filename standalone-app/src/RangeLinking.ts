@@ -1,6 +1,6 @@
 import {foldedRanges} from "@codemirror/language";
 import {findClusterBreak} from "@codemirror/state";
-import {StateEffect, StateField, type Extension, type StateEffectType} from "@codemirror/state";
+import {StateEffect, StateField, type EditorState, type Extension, type StateEffectType} from "@codemirror/state";
 import {Decoration, type DecorationSet, EditorView, ViewPlugin, type ViewUpdate} from "@codemirror/view";
 import type {SourceLocation} from "@tableau/query-graphs/lib/tree-description";
 
@@ -16,7 +16,9 @@ function rangeDecorationField(effect: StateEffectType<readonly SourceLocation[]>
                 return Decoration.set(
                     transactionEffect.value
                         .filter(({from, to}) => from >= 0 && from < to && to <= transaction.state.doc.length)
-                        .map(({from, to}) => Decoration.mark({class: className}).range(from, to)),
+                        .map((sourceLocation) =>
+                            Decoration.mark({class: className, sourceLocation}).range(sourceLocation.from, sourceLocation.to),
+                        ),
                     true,
                 );
             }
@@ -142,27 +144,57 @@ interface PendingPointerSample {
     isInsideContent: boolean;
 }
 
-function activeRangeOffsetTracking(onActiveRangeOffsetChange: (activeRangeOffset?: number) => void): Extension {
+function activeLinkedRangesAtOffset(state: EditorState, documentOffset?: number): readonly SourceLocation[] {
+    if (documentOffset === undefined) return [];
+    let shortestRangeLength = Infinity;
+    let activeLinkedRanges: SourceLocation[] = [];
+    state.field(linkedRangeDecorations).between(documentOffset, documentOffset, (from, to, decoration) => {
+        if (documentOffset < from || documentOffset >= to) return;
+        const rangeLength = to - from;
+        if (rangeLength < shortestRangeLength) {
+            shortestRangeLength = rangeLength;
+            activeLinkedRanges = [];
+        }
+        if (rangeLength === shortestRangeLength) activeLinkedRanges.push(decoration.spec.sourceLocation as SourceLocation);
+    });
+    return activeLinkedRanges;
+}
+
+function equalSourceLocations(left: readonly SourceLocation[], right: readonly SourceLocation[]): boolean {
+    return (
+        left.length === right.length &&
+        left.every(
+            (location, index) =>
+                location.documentId === right[index].documentId &&
+                location.from === right[index].from &&
+                location.to === right[index].to,
+        )
+    );
+}
+
+function activeLinkedRangeTracking(onActiveLinkedRangesChange: (activeLinkedRanges: readonly SourceLocation[]) => void): Extension {
     return ViewPlugin.fromClass(
         class {
             private pointerUpdateFrame: number | undefined;
             private pendingPointerSample: PendingPointerSample | undefined;
+            private activeLinkedRanges: readonly SourceLocation[] = [];
 
             update(update: ViewUpdate) {
-                if (update.geometryChanged || update.viewportChanged) this.reportCaretOffset(update.view);
-                else if (update.selectionSet && update.view.hasFocus) onActiveRangeOffsetChange(update.state.selection.main.head);
+                if (update.geometryChanged || update.viewportChanged) this.reportCaretPosition(update.view);
+                else if (update.selectionSet && update.view.hasFocus)
+                    this.reportDocumentOffset(update.view, update.state.selection.main.head);
             }
 
             destroy() {
-                this.clearActiveRangeOffset();
+                this.clearActiveLinkedRanges();
             }
 
             focus(view: EditorView) {
-                this.reportCaretOffset(view);
+                this.reportCaretPosition(view);
             }
 
             blur() {
-                this.clearActiveRangeOffset();
+                this.clearActiveLinkedRanges();
             }
 
             mousemove(event: MouseEvent, view: EditorView) {
@@ -176,32 +208,31 @@ function activeRangeOffsetTracking(onActiveRangeOffsetChange: (activeRangeOffset
                     this.pointerUpdateFrame = undefined;
                     const pointerSample = this.pendingPointerSample;
                     this.pendingPointerSample = undefined;
-                    if (pointerSample === undefined || !pointerSample.isInsideContent) return onActiveRangeOffsetChange(undefined);
+                    if (pointerSample === undefined || !pointerSample.isInsideContent) return this.reportDocumentOffset(view);
 
                     const textHit = pointerSample.view.posAndSideAtCoords({x: pointerSample.x, y: pointerSample.y});
-                    let activeRangeOffset = textHit?.pos;
+                    let documentOffset = textHit?.pos;
                     if (textHit?.assoc === -1) {
                         const line = pointerSample.view.state.doc.lineAt(textHit.pos);
-                        activeRangeOffset = line.from + findClusterBreak(line.text, textHit.pos - line.from, false);
+                        documentOffset = line.from + findClusterBreak(line.text, textHit.pos - line.from, false);
                     }
-                    const characterBounds =
-                        activeRangeOffset === undefined ? null : pointerSample.view.coordsForChar(activeRangeOffset);
+                    const characterBounds = documentOffset === undefined ? null : pointerSample.view.coordsForChar(documentOffset);
                     const isOverCharacter =
                         characterBounds !== null &&
                         pointerSample.x >= characterBounds.left &&
                         pointerSample.x <= characterBounds.right &&
                         pointerSample.y >= characterBounds.top &&
                         pointerSample.y <= characterBounds.bottom;
-                    onActiveRangeOffsetChange(isOverCharacter ? activeRangeOffset : undefined);
+                    this.reportDocumentOffset(pointerSample.view, isOverCharacter ? documentOffset : undefined);
                 });
             }
 
             mouseleave(view: EditorView) {
-                this.reportCaretOffset(view);
+                this.reportCaretPosition(view);
             }
 
             scroll(view: EditorView) {
-                this.reportCaretOffset(view);
+                this.reportCaretPosition(view);
             }
 
             private cancelPendingPointerUpdate() {
@@ -210,14 +241,23 @@ function activeRangeOffsetTracking(onActiveRangeOffsetChange: (activeRangeOffset
                 this.pendingPointerSample = undefined;
             }
 
-            private reportCaretOffset(view: EditorView) {
+            private reportCaretPosition(view: EditorView) {
                 this.cancelPendingPointerUpdate();
-                onActiveRangeOffsetChange(view.hasFocus ? view.state.selection.main.head : undefined);
+                this.reportDocumentOffset(view, view.hasFocus ? view.state.selection.main.head : undefined);
             }
 
-            private clearActiveRangeOffset() {
+            private reportDocumentOffset(view: EditorView, documentOffset?: number) {
+                const activeLinkedRanges = activeLinkedRangesAtOffset(view.state, documentOffset);
+                if (equalSourceLocations(this.activeLinkedRanges, activeLinkedRanges)) return;
+                this.activeLinkedRanges = activeLinkedRanges;
+                onActiveLinkedRangesChange(activeLinkedRanges);
+            }
+
+            private clearActiveLinkedRanges() {
                 this.cancelPendingPointerUpdate();
-                onActiveRangeOffsetChange(undefined);
+                if (this.activeLinkedRanges.length === 0) return;
+                this.activeLinkedRanges = [];
+                onActiveLinkedRangesChange([]);
             }
         },
         {
@@ -245,13 +285,13 @@ function activeRangeOffsetTracking(onActiveRangeOffsetChange: (activeRangeOffset
 }
 
 export const rangeLinking = {
-    extension(onActiveRangeOffsetChange?: (activeRangeOffset?: number) => void): Extension {
+    extension(onActiveLinkedRangesChange?: (activeLinkedRanges: readonly SourceLocation[]) => void): Extension {
         return [
             linkedRangeDecorations,
             highlightedRangeDecorations,
             foldPlaceholderHighlighting,
             rangeLinkingTheme,
-            ...(onActiveRangeOffsetChange === undefined ? [] : [activeRangeOffsetTracking(onActiveRangeOffsetChange)]),
+            ...(onActiveLinkedRangesChange === undefined ? [] : [activeLinkedRangeTracking(onActiveLinkedRangesChange)]),
         ];
     },
     setLinkedRanges,

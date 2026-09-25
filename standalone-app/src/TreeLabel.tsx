@@ -2,7 +2,7 @@ import {lazy, Suspense, type ReactElement, useCallback, useMemo} from "react";
 import {CollapsiblePanel} from "@tableau/query-graphs/lib/ui/CollapsiblePanel";
 import {CopyButton} from "@tableau/query-graphs/lib/ui/CopyButton";
 import {useGraphRenderingStore} from "@tableau/query-graphs/lib/ui/store";
-import type {TextDocument} from "@tableau/query-graphs/lib/tree-description";
+import type {SourceLocation, TextDocument} from "@tableau/query-graphs/lib/tree-description";
 import "./TreeLabel.css";
 
 const DocumentPane = lazy(() =>
@@ -36,10 +36,10 @@ function TextDocumentPanel({document}: {document: TextDocument}) {
         () => highlightedSourceLocations.filter(({documentId}) => documentId === document.id),
         [document.id, highlightedSourceLocations],
     );
-    const highlightNodesAtSourceRangeOffset = useGraphRenderingStore((state) => state.highlightNodesAtSourceRangeOffset);
-    const onActiveRangeOffsetChange = useCallback(
-        (activeRangeOffset?: number) => highlightNodesAtSourceRangeOffset(document.id, activeRangeOffset),
-        [document.id, highlightNodesAtSourceRangeOffset],
+    const setActiveSourceLocations = useGraphRenderingStore((state) => state.setActiveSourceLocations);
+    const onActiveLinkedRangesChange = useCallback(
+        (activeLinkedRanges: readonly SourceLocation[]) => setActiveSourceLocations(document.id, activeLinkedRanges),
+        [document.id, setActiveSourceLocations],
     );
 
     return (
@@ -55,7 +55,7 @@ function TextDocumentPanel({document}: {document: TextDocument}) {
                         document={document}
                         linkedRanges={linkedRanges}
                         highlightedRanges={highlightedRanges}
-                        onActiveRangeOffsetChange={onActiveRangeOffsetChange}
+                        onActiveLinkedRangesChange={onActiveLinkedRangesChange}
                     />
                 </Suspense>
             </div>

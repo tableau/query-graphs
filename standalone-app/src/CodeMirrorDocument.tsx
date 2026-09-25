@@ -70,8 +70,8 @@ export interface DocumentViewerProps {
     document: TextDocument;
     linkedRanges?: readonly SourceLocation[];
     highlightedRanges?: readonly SourceLocation[];
-    /** Reports the UTF-16 offset used to activate a linked range: pointer, falling back to the focused caret. */
-    onActiveRangeOffsetChange?: (activeRangeOffset?: number) => void;
+    /** Reports the narrowest linked ranges under the pointer, falling back to the focused caret. */
+    onActiveLinkedRangesChange?: (activeLinkedRanges: readonly SourceLocation[]) => void;
 }
 
 export interface CodeMirrorDocumentProps extends DocumentViewerProps {
@@ -83,7 +83,7 @@ export function CodeMirrorDocument({
     languageExtension = noLanguageExtension,
     linkedRanges = [],
     highlightedRanges = [],
-    onActiveRangeOffsetChange,
+    onActiveLinkedRangesChange,
 }: CodeMirrorDocumentProps) {
     const editorHost = useRef<HTMLDivElement>(null);
     const editorView = useRef<EditorView | undefined>(undefined);
@@ -112,7 +112,7 @@ export function CodeMirrorDocument({
                     folding,
                     foldMarkerTheme,
                     documentTheme,
-                    rangeLinking.extension(onActiveRangeOffsetChange),
+                    rangeLinking.extension(onActiveLinkedRangesChange),
                     keymap.of([...defaultKeymap, ...searchKeymap, ...foldKeymap]),
                     EditorState.readOnly.of(true),
                     EditorView.contentAttributes.of({"aria-label": textDocument.title}),
@@ -130,7 +130,7 @@ export function CodeMirrorDocument({
             editorView.current = undefined;
             view.destroy();
         };
-    }, [textDocument, languageExtension, onActiveRangeOffsetChange]);
+    }, [textDocument, languageExtension, onActiveLinkedRangesChange]);
 
     useEffect(() => {
         editorView.current?.dispatch({effects: rangeLinking.setLinkedRanges.of(linkedRanges)});

@@ -12,7 +12,7 @@ registerHooks({
     },
 });
 
-test("the document editor synchronizes linked ranges and active offsets", async () => {
+test("the document editor synchronizes and activates linked ranges", async () => {
     const {CodeMirrorDocument} = await import("../src/CodeMirrorDocument");
     const dom = new JSDOM("<main></main>", {pretendToBeVisual: true});
     const globalNames = [
@@ -36,11 +36,15 @@ test("the document editor synchronizes linked ranges and active offsets", async 
     Object.defineProperty(globalThis, "IS_REACT_ACT_ENVIRONMENT", {configurable: true, writable: true, value: true});
     Object.defineProperty(globalThis, "React", {configurable: true, writable: true, value: React});
 
-    const activeRangeOffsets: (number | undefined)[] = [];
+    const activeLinkedRangeUpdates: {documentId: string; from: number; to: number}[][] = [];
     const root = createRoot(dom.window.document.querySelector("main")!);
     const textDocument = {id: "query", title: "SQL", text: "SELECT value", language: "sql"};
-    const onActiveRangeOffsetChange = (activeRangeOffset?: number) => activeRangeOffsets.push(activeRangeOffset);
-    const linkedRanges = [{documentId: "query", from: 7, to: 12}];
+    const onActiveLinkedRangesChange = (activeLinkedRanges: readonly {documentId: string; from: number; to: number}[]) =>
+        activeLinkedRangeUpdates.push([...activeLinkedRanges]);
+    const innerRange = {documentId: "query", from: 0, to: 6};
+    const tiedRange = {documentId: "query", from: 1, to: 7};
+    const outerRange = {documentId: "query", from: 0, to: 12};
+    const linkedRanges = [innerRange, tiedRange, outerRange];
     const highlightedRanges = [{documentId: "query", from: 7, to: 12}];
     try {
         await React.act(async () =>
@@ -49,11 +53,11 @@ test("the document editor synchronizes linked ranges and active offsets", async 
                     document: textDocument,
                     linkedRanges,
                     highlightedRanges: [],
-                    onActiveRangeOffsetChange,
+                    onActiveLinkedRangesChange,
                 }),
             ),
         );
-        assert.equal(dom.window.document.querySelectorAll(".cm-linked-range").length, 1);
+        assert.ok(dom.window.document.querySelector(".cm-linked-range"));
         assert.equal(dom.window.document.querySelectorAll(".cm-highlighted-range").length, 0);
 
         await React.act(async () =>
@@ -62,7 +66,7 @@ test("the document editor synchronizes linked ranges and active offsets", async 
                     document: textDocument,
                     linkedRanges,
                     highlightedRanges,
-                    onActiveRangeOffsetChange,
+                    onActiveLinkedRangesChange,
                 }),
             ),
         );
@@ -74,21 +78,21 @@ test("the document editor synchronizes linked ranges and active offsets", async 
                     document: {...textDocument},
                     linkedRanges,
                     highlightedRanges,
-                    onActiveRangeOffsetChange,
+                    onActiveLinkedRangesChange,
                 }),
             ),
         );
-        assert.equal(dom.window.document.querySelectorAll(".cm-linked-range").length, 1);
+        assert.ok(dom.window.document.querySelector(".cm-linked-range"));
         assert.equal(dom.window.document.querySelectorAll(".cm-highlighted-range").length, 1);
 
         const content = dom.window.document.querySelector<HTMLElement>(".cm-content");
         assert.ok(content);
         content.focus();
-        assert.equal(activeRangeOffsets.at(-1), 0);
+        assert.deepEqual(activeLinkedRangeUpdates.at(-1), [innerRange]);
         content.dispatchEvent(new dom.window.KeyboardEvent("keydown", {key: "ArrowRight", bubbles: true, cancelable: true}));
-        assert.equal(activeRangeOffsets.at(-1), 1);
+        assert.deepEqual(activeLinkedRangeUpdates.at(-1), [innerRange, tiedRange]);
         content.blur();
-        assert.equal(activeRangeOffsets.at(-1), undefined);
+        assert.deepEqual(activeLinkedRangeUpdates.at(-1), []);
 
         content.dispatchEvent(new dom.window.KeyboardEvent("keydown", {key: "f", ctrlKey: true, bubbles: true}));
         assert.ok(dom.window.document.querySelector(".cm-search"));
