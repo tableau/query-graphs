@@ -57,16 +57,21 @@
     display: inline-block;
     width: 0.65em;
     height: 0.65em;
-    margin-inline-end: 0.4em;
+    margin-inline-start: 0.4em;
     border-radius: 50%;
     vertical-align: 0.05em;
     background: hsl(210, 90%, 55%);
+    visibility: hidden;
+}
+
+.graph-source-highlight-indicator-active {
+    visibility: visible;
     animation: graph-source-highlight-pulse 1.4s ease-in-out infinite;
 }
 
 /* The open editor already shows the highlighted ranges directly. */
 .graph-text-document-panel[open] .graph-source-highlight-indicator {
-    display: none;
+    visibility: hidden;
 }
 
 .graph-text-document-panel > .qg-collapsible-panel-content {
@@ -143,7 +148,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .graph-source-highlight-indicator {
+    .graph-source-highlight-indicator-active {
         animation: none;
     }
 
