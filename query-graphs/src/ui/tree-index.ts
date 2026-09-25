@@ -3,8 +3,11 @@ import type {TreeDescription, TreeNode} from "../tree-description";
 
 export type TreeParents = ReadonlyMap<string, string>;
 
+/** Immutable topology needed to resolve highlights independently of the animated layout. */
 export interface TreeIndex {
+    /** Includes every parent edge, including nodes currently hidden in collapsed subtrees. */
     parents: TreeParents;
+    /** Nodes connected through their parent's `collapsedChildren` edge. */
     collapsedSubtreeRootIds: ReadonlySet<string>;
 }
 
@@ -25,7 +28,10 @@ export function indexTree(tree: TreeDescription, nodeIds: ReadonlyMap<TreeNode, 
     return {parents, collapsedSubtreeRootIds};
 }
 
-/** Creates a lazy visibility lookup for the current expanded-subtree state. */
+/**
+ * Creates a set-like visibility snapshot for one expanded-subtree state.
+ * Results are cached lazily because highlighting usually touches only a few paths in a potentially large tree.
+ */
 export function createStructuralNodeVisibility(
     expandedSubtrees: Readonly<Record<string, boolean>>,
     treeParents: TreeParents,

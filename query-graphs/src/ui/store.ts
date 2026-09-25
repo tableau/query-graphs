@@ -3,13 +3,16 @@ import {useStore} from "zustand";
 import {createStore} from "zustand/vanilla";
 import type {StoreApi} from "zustand/vanilla";
 import {assertNotNull} from "../assert";
-import type {SourceLocation, TreeNode} from "../tree-description";
-import {createSourceLinkIndex} from "./source-link-index";
-import {createStructuralNodeVisibility, findClosestVisibleAncestors, type TreeIndex} from "./tree-index";
+import type {SourceLocation} from "../tree-description";
+import type {GraphIndex} from "./graph-index";
+import {createStructuralNodeVisibility, findClosestVisibleAncestors} from "./tree-index";
 
 interface ActiveSourceSelection {
+    /** Identifies the document allowed to clear this selection after its pointer or focus leaves. */
     documentId: string;
+    /** Retained by identity to ignore duplicate editor notifications. */
     sourceLocations: readonly SourceLocation[];
+    /** Semantic selection restored after a temporary tree-node hover ends. */
     nodeIds: ReadonlySet<string>;
 }
 
@@ -31,39 +34,39 @@ export interface GraphRenderingState extends HighlightState {
     // `expandedSubtrees` tracks which nodes reveal their `collapsedChildren` (toggled by shift-click or the +/- handle).
     expandedSubtrees: Record<string, boolean>;
     toggleExpandedSubtree: (nodeId: string) => void;
+    /** Temporarily replaces the source-derived active nodes while a linked tree node is hovered. */
     setHoveredNodeId: (nodeId?: string) => void;
+    /** Updates the semantic node selection from the exact linked ranges active in one document. */
     setActiveSourceLocations: (documentId: string, sourceLocations: readonly SourceLocation[]) => void;
+    /** Returns every range that should participate in pointer and caret linking for one document. */
     getLinkedSourceRanges: (documentId: string) => readonly SourceLocation[];
+    /** Derives the ranges a document should highlight for the semantic node selection. */
     getSourceRangesForNodes: (documentId: string, nodeIds: ReadonlySet<string>) => readonly SourceLocation[];
 }
 
 export type GraphRenderingStore = StoreApi<GraphRenderingState>;
 
 export interface GraphRenderingStoreOptions {
-    expandedSubtrees?: Record<string, boolean>;
-    nodeIds?: ReadonlyMap<TreeNode, string>;
-    treeIndex?: TreeIndex;
+    expandedSubtrees: Record<string, boolean>;
+    /** Static topology and source associations for the lifetime of this graph store. */
+    graphIndex: GraphIndex;
 }
 
-export function createGraphRenderingStore({
-    expandedSubtrees = {},
-    nodeIds = new Map(),
-    treeIndex = {parents: new Map(), collapsedSubtreeRootIds: new Set()},
-}: GraphRenderingStoreOptions = {}): GraphRenderingStore {
-    const sourceLinkIndex = createSourceLinkIndex(nodeIds);
+export function createGraphRenderingStore({expandedSubtrees, graphIndex}: GraphRenderingStoreOptions): GraphRenderingStore {
     let activeSourceSelection: ActiveSourceSelection | undefined;
     let hoveredNodeId: string | undefined;
 
     return createStore<GraphRenderingState>()((set) => {
+        // Materialize the visible tree projection once per interaction so each rendered node can subscribe to a boolean.
         const resolveHighlights = (currentExpandedSubtrees: Readonly<Record<string, boolean>>): HighlightState => {
             const activeNodeIds =
                 hoveredNodeId === undefined ? (activeSourceSelection?.nodeIds ?? noNodeIds) : new Set([hoveredNodeId]);
             const visibleNodeIds = createStructuralNodeVisibility(
                 currentExpandedSubtrees,
-                treeIndex.parents,
-                treeIndex.collapsedSubtreeRootIds,
+                graphIndex.tree.parents,
+                graphIndex.tree.collapsedSubtreeRootIds,
             );
-            const closestAncestors = findClosestVisibleAncestors(activeNodeIds, treeIndex.parents, visibleNodeIds);
+            const closestAncestors = findClosestVisibleAncestors(activeNodeIds, graphIndex.tree.parents, visibleNodeIds);
             const highlightedNodeIds = new Set<string>();
             const highlightedCollapsedSubtreeRootIds = new Set<string>();
             for (const [activeNodeId, visibleNodeId] of closestAncestors) {
@@ -101,6 +104,7 @@ export function createGraphRenderingStore({
                 set((state) => resolveHighlights(state.expandedSubtrees));
             },
             setActiveSourceLocations: (documentId, sourceLocations) => {
+                // An editor can report an empty selection after another document has already become active.
                 if (sourceLocations.length === 0 && activeSourceSelection?.documentId !== documentId) return;
                 if (activeSourceSelection?.documentId === documentId && activeSourceSelection.sourceLocations === sourceLocations)
                     return;
@@ -110,12 +114,12 @@ export function createGraphRenderingStore({
                         : {
                               documentId,
                               sourceLocations,
-                              nodeIds: sourceLinkIndex.getNodeIdsForRanges(documentId, sourceLocations),
+                              nodeIds: graphIndex.sourceLinks.getNodeIdsForRanges(documentId, sourceLocations),
                           };
                 set((state) => resolveHighlights(state.expandedSubtrees));
             },
-            getLinkedSourceRanges: sourceLinkIndex.getLinkedRanges,
-            getSourceRangesForNodes: sourceLinkIndex.getRangesForNodeIds,
+            getLinkedSourceRanges: graphIndex.sourceLinks.getLinkedRanges,
+            getSourceRangesForNodes: graphIndex.sourceLinks.getRangesForNodeIds,
         };
     });
 }

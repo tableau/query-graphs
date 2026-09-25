@@ -6,11 +6,15 @@ interface IndexedSourceRange {
 }
 
 export interface SourceLinkIndex {
+    /** Returns the stable, sorted range list made interactive in one document. */
     getLinkedRanges: (documentId: string) => readonly SourceLocation[];
+    /** Resolves exact ranges reported by an editor to every node associated with them. */
     getNodeIdsForRanges: (documentId: string, sourceLocations: readonly SourceLocation[]) => ReadonlySet<string>;
+    /** Returns the sorted, deduplicated ranges associated with the supplied nodes in one document. */
     getRangesForNodeIds: (documentId: string, nodeIds: ReadonlySet<string>) => readonly SourceLocation[];
 }
 
+// Zustand selectors require a stable snapshot when a document has no linked ranges.
 const noSourceRanges: readonly SourceLocation[] = [];
 
 function sourceRangeKey({from, to}: SourceLocation): string {
@@ -25,6 +29,7 @@ function compareSourceRanges(left: SourceLocation, right: SourceLocation): numbe
     return left.from - right.from || left.to - right.to;
 }
 
+/** Builds the immutable bidirectional source-range index shared by tree and document interactions. */
 export function createSourceLinkIndex(nodeIds: ReadonlyMap<TreeNode, string>): SourceLinkIndex {
     const rangesByDocument = new Map<string, Map<string, IndexedSourceRange>>();
     const sourceRangesByNodeId = new Map<string, readonly SourceLocation[]>();
@@ -34,6 +39,7 @@ export function createSourceLinkIndex(nodeIds: ReadonlyMap<TreeNode, string>): S
         for (const location of validLocations) {
             const documentRanges = rangesByDocument.get(location.documentId) ?? new Map<string, IndexedSourceRange>();
             const rangeKey = sourceRangeKey(location);
+            // Preserve one canonical SourceLocation object per document range so editor identity comparisons stay stable.
             const indexedRange = documentRanges.get(rangeKey) ?? {location, nodeIds: new Set<string>()};
             indexedRange.nodeIds.add(nodeId);
             documentRanges.set(rangeKey, indexedRange);

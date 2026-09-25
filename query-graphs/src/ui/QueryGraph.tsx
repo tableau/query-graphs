@@ -12,7 +12,7 @@ import type {QueryGraphNode} from "./QueryNode";
 import {ColoredEdge} from "./ColoredEdge";
 import {createGraphRenderingStore, GraphRenderingStoreContext, useGraphRenderingStore} from "./store";
 import {AnimateGraphChangeContext, useAnimatedGraphLayout} from "./useAnimatedGraphLayout";
-import {indexTree} from "./tree-index";
+import {indexGraph} from "./graph-index";
 import type {TreeParents} from "./tree-index";
 import "./QueryGraph.css";
 
@@ -99,12 +99,12 @@ function createGraphState(treeDescription: TreeDescription) {
         },
         allChildren,
     );
-    const treeIndex = indexTree(treeDescription, nodeIdMapping);
+    const graphIndex = indexGraph(treeDescription, nodeIdMapping);
     return {
         instanceId: nextGraphInstanceId++,
         nodeIdMapping,
-        treeParents: treeIndex.parents,
-        graphStore: createGraphRenderingStore({expandedSubtrees, nodeIds: nodeIdMapping, treeIndex}),
+        treeParents: graphIndex.tree.parents,
+        graphStore: createGraphRenderingStore({expandedSubtrees, graphIndex}),
     };
 }
 
