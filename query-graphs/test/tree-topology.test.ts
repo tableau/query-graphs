@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import type {TreeNode} from "../src/tree-description";
-import {findClosestVisibleAncestors, indexTreeTopology} from "../src/ui/tree-topology";
+import {createStructuralNodeVisibility, findClosestVisibleAncestors, indexTreeTopology} from "../src/ui/tree-topology";
 
 class CountingParents extends Map<string, string> {
     readonly lookups = new Map<string, number>();
@@ -49,4 +49,29 @@ test("hidden nodes map to their closest visible ancestors", () => {
         ]),
     );
     assert.equal(parents.lookups.get("parent"), 1, "shared ancestry should only be traversed once");
+});
+
+test("structural visibility follows nested collapsed-subtree expansion", () => {
+    const parents = new Map([
+        ["collapsed", "root"],
+        ["descendant", "collapsed"],
+        ["nested-collapsed", "descendant"],
+        ["nested-descendant", "nested-collapsed"],
+    ]);
+    const collapsedSubtreeRootIds = new Set(["collapsed", "nested-collapsed"]);
+
+    const collapsed = createStructuralNodeVisibility({}, parents, collapsedSubtreeRootIds);
+    assert.equal(collapsed.has("root"), true);
+    assert.equal(collapsed.has("collapsed"), false);
+    assert.equal(collapsed.has("nested-descendant"), false);
+
+    const outerExpanded = createStructuralNodeVisibility({root: true}, parents, collapsedSubtreeRootIds);
+    assert.equal(outerExpanded.has("collapsed"), true);
+    assert.equal(outerExpanded.has("descendant"), true);
+    assert.equal(outerExpanded.has("nested-collapsed"), false);
+    assert.equal(outerExpanded.has("nested-descendant"), false);
+
+    const fullyExpanded = createStructuralNodeVisibility({root: true, descendant: true}, parents, collapsedSubtreeRootIds);
+    assert.equal(fullyExpanded.has("nested-collapsed"), true);
+    assert.equal(fullyExpanded.has("nested-descendant"), true);
 });
