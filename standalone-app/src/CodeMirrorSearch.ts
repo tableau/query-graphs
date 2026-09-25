@@ -104,7 +104,9 @@ class CompactSearchPanel implements Panel {
 
     mount() {
         // On first open, CodeMirror mounts a custom panel but does not focus its
-        // main-field. select() both focuses the field and selects its contents.
+        // main-field. Focus explicitly because select() alone is not guaranteed
+        // to move keyboard focus in every browser.
+        this.#searchField.focus();
         this.#searchField.select();
     }
 

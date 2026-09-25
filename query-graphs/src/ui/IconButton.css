@@ -1,0 +1,92 @@
+.qg-icon-button-wrapper {
+    position: relative;
+    display: inline-flex;
+    /* Let every button/tooltip pair safely reuse the same anchor name. */
+    anchor-scope: --qg-icon-button-anchor;
+}
+
+.qg-icon-button {
+    /* Panel action groups override these standalone border and corner styles. */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    box-sizing: border-box;
+    padding: 0;
+    border: 1px solid hsl(0, 0%, 70%);
+    border-radius: 4px;
+    color: inherit;
+    background: white;
+    cursor: pointer;
+    anchor-name: --qg-icon-button-anchor;
+
+    &:hover:not(:disabled) {
+        background: hsl(0, 0%, 95%);
+    }
+
+    &:focus-visible {
+        outline: 2px solid hsl(210, 90%, 65%);
+        outline-offset: 1px;
+    }
+
+    &:disabled {
+        cursor: default;
+        opacity: 0.6;
+    }
+
+    & svg {
+        width: 1rem;
+        height: 1rem;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+}
+
+.qg-icon-button-tooltip {
+    /* Fallback for browsers without CSS Anchor Positioning. */
+    position: absolute;
+    z-index: 2;
+    inset-block-start: 100%;
+    inset-inline-end: 0;
+    width: max-content;
+    max-width: 16rem;
+    padding-block-start: 0.35rem;
+    font-size: 0.75rem;
+    font-weight: 400;
+    line-height: 1.2;
+    white-space: nowrap;
+    user-select: none;
+    visibility: hidden;
+}
+
+.qg-icon-button-tooltip > span {
+    /* Keep the outer padding transparent and hoverable as a pointer bridge. */
+    display: block;
+    padding: 0.25rem 0.4rem;
+    border-radius: 3px;
+    color: white;
+    background: hsl(0, 0%, 20%);
+    box-shadow: 0 1px 3px hsl(0, 0%, 0%, 0.25);
+}
+
+.qg-icon-button-wrapper:has(.qg-icon-button:hover, .qg-icon-button:focus-visible, .qg-icon-button-tooltip:hover)
+    .qg-icon-button-tooltip {
+    /* Remain open while the pointer moves from the button into the tooltip. */
+    visibility: visible;
+}
+
+/* Prefer viewport-aware placement when the browser supports scoped anchors. */
+@supports (anchor-scope: --qg-icon-button-anchor) and (position-area: block-end) {
+    .qg-icon-button-tooltip {
+        position: fixed;
+        inset: auto;
+        position-anchor: --qg-icon-button-anchor;
+        position-area: block-end span-inline-end;
+        /* Move away from viewport edges when the preferred placement does not fit. */
+        position-try-fallbacks: flip-inline, flip-block, flip-block flip-inline;
+    }
+}
