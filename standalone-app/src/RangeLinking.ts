@@ -3,7 +3,6 @@ import {findClusterBreak} from "@codemirror/state";
 import {StateEffect, StateField, type EditorState, type Extension, type StateEffectType} from "@codemirror/state";
 import {Decoration, type DecorationSet, EditorView, ViewPlugin, type ViewUpdate} from "@codemirror/view";
 import type {SourceLocation} from "@tableau/query-graphs/lib/tree-description";
-import {equalSourceLocationLists} from "@tableau/query-graphs/lib/tree-description";
 
 const setLinkedRanges = StateEffect.define<readonly SourceLocation[]>();
 const setHighlightedRanges = StateEffect.define<readonly SourceLocation[]>();
@@ -237,7 +236,11 @@ function activeLinkedRangeTracking(onActiveLinkedRangesChange: (activeLinkedRang
 
             private reportDocumentOffset(view: EditorView, documentOffset?: number) {
                 const activeLinkedRanges = activeLinkedRangesAtOffset(view.state, documentOffset);
-                if (equalSourceLocationLists(this.activeLinkedRanges, activeLinkedRanges)) return;
+                if (
+                    this.activeLinkedRanges.length === activeLinkedRanges.length &&
+                    this.activeLinkedRanges.every((range, index) => range === activeLinkedRanges[index])
+                )
+                    return;
                 this.activeLinkedRanges = activeLinkedRanges;
                 onActiveLinkedRangesChange(activeLinkedRanges);
             }

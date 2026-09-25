@@ -4,7 +4,6 @@ import {createStore} from "zustand/vanilla";
 import type {StoreApi} from "zustand/vanilla";
 import {assertNotNull} from "../assert";
 import type {SourceLocation, TreeNode} from "../tree-description";
-import {equalSourceLocationLists} from "../tree-description";
 import {findClosestVisibleAncestors, type TreeParents} from "./tree-index";
 
 interface SourceNodeEntry {
@@ -160,8 +159,7 @@ export function createGraphRenderingStore(
         },
         setActiveSourceLocations: (documentId, sourceLocations) => {
             if (sourceLocations.length === 0 && activeSourceDocumentId !== documentId) return;
-            if (activeSourceDocumentId === documentId && equalSourceLocationLists(sourceHighlightedLocations, sourceLocations))
-                return;
+            if (activeSourceDocumentId === documentId && sourceHighlightedLocations === sourceLocations) return;
             sourceHighlightedNodeIds = nodeIdsForSourceLocations(sourceNodeIndex, documentId, sourceLocations);
             sourceHighlightedLocations = sourceLocations;
             activeSourceDocumentId = sourceLocations.length === 0 ? undefined : documentId;
