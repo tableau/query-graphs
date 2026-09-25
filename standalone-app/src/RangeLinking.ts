@@ -192,6 +192,7 @@ function activeLinkedRangeTracking(onActiveLinkedRangesChange: (activeLinkedRang
                     y: event.clientY,
                     isInsideContent: view.contentDOM.contains(event.target as Node),
                 };
+                // Coalesce high-frequency mouse events so the layout-dependent hit test runs at most once per frame.
                 this.pointerUpdateFrame ??= requestAnimationFrame(() => {
                     this.pointerUpdateFrame = undefined;
                     const pointerSample = this.pendingPointerSample;
