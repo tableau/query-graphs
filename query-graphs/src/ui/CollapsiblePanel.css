@@ -34,7 +34,8 @@
         padding: 0.5em;
         /* Reset native button styles without losing keyboard semantics. */
         border: 0;
-        border-radius: 7px 0 0 0;
+        border-radius: 0;
+        border-start-start-radius: 7px;
         color: inherit;
         background: transparent;
         font: inherit;
@@ -121,16 +122,13 @@
         background: transparent;
     }
 
-    & > .qg-icon-button-wrapper:not(:has(~ .qg-icon-button-wrapper)) .qg-icon-button {
+    & > .qg-icon-button-wrapper:last-child .qg-icon-button {
         /* Follow the inside edge of the panel's top-end corner. */
         border-start-end-radius: 7px;
     }
 }
 
-.qg-collapsible-panel:not([data-expanded])
-    > .qg-collapsible-panel-actions
-    > .qg-icon-button-wrapper:not(:has(~ .qg-icon-button-wrapper))
-    .qg-icon-button {
+.qg-collapsible-panel:not([data-expanded]) > .qg-collapsible-panel-actions > .qg-icon-button-wrapper:last-child .qg-icon-button {
     /* In a collapsed panel, the action also meets the bottom-end corner. */
     border-end-end-radius: 7px;
 }
@@ -145,8 +143,7 @@
     border-start-end-radius: 7px;
 }
 
-.qg-collapsible-panel:not([data-expanded]):not(:has(> .qg-collapsible-panel-actions))
-    > .qg-collapsible-panel-toggle {
+.qg-collapsible-panel:not([data-expanded]):not(:has(> .qg-collapsible-panel-actions)) > .qg-collapsible-panel-toggle {
     /* Complete the remaining corner when collapsed without actions. */
     border-end-end-radius: 7px;
 }
