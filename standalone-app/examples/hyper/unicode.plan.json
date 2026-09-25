@@ -1,0 +1,27 @@
+{
+  "tree": {
+    "operator": "result-sink",
+    "operator-id": 1,
+    "estimated-rows": 5,
+    "produces-rows": true,
+    "output": [{"expression": "const", "value": {"type": ["Varchar"], "value": "Grüße 🌍"}}, {"expression": "iu-ref", "iu": ["scan_r_name", ["Char", 25]]}],
+    "output-names": ["greeting", "r_name"],
+    "inputs": [{
+      "operator": "scan",
+      "operator-id": 2,
+      "type": "native",
+      "sqlpos": [[73, 79]],
+      "estimated-rows": 5,
+      "volatility": "stable",
+      "relation-id": 9,
+      "schema": {"type":"sessionschema"},
+      "attribute-count": 3,
+      "attributes": [{"col-id": 1, "name": "r_name", "type": ["Char", 25], "iu": ["scan_r_name", ["Char", 25]]}],
+      "debug-name": {"classification": "nonsensitive", "value": "region"},
+      "selectivity": 1
+    }]
+  },
+  "pipelines": [
+    {"id": 0, "operators": [1, 2], "dependencies": []}
+  ]
+}

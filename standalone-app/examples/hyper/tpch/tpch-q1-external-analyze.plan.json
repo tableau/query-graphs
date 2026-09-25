@@ -45,10 +45,10 @@
     "output": [{"name": "l_returnflag", "expression": {"expression": "reference", "id": "GroupByKey"}}, {"name": "l_linestatus", "expression": {"expression": "reference", "id": "GroupByKey2"}}, {"name": "sum_qty", "expression": {"expression": "reference", "id": "sum"}}, {"name": "sum_base_price", "expression": {"expression": "reference", "id": "sum2"}}, {"name": "sum_disc_price", "expression": {"expression": "reference", "id": "sum3"}}, {"name": "sum_charge", "expression": {"expression": "reference", "id": "sum4"}}, {"name": "avg_qty", "expression": {"expression": "reference", "id": "avg"}}, {"name": "avg_price", "expression": {"expression": "reference", "id": "avg2"}}, {"name": "avg_disc", "expression": {"expression": "reference", "id": "avg3"}}, {"name": "count_order", "expression": {"expression": "reference", "id": "count"}}]
   },
   "pipelines": [{"id": 0, "operators": [1, 2], "dependencies": [1], "statistics": {
-    "query-metrics": {"wall-clock": 8.325e-06}
+    "query-metrics": {"wall-clock": 4.354e-06}
   }}, {"id": 1, "operators": [2, 3], "dependencies": [2], "statistics": {
-    "query-metrics": {"wall-clock": 1.9699e-05}
+    "query-metrics": {"wall-clock": 1.2629e-05}
   }}, {"id": 2, "operators": [3, 4], "dependencies": [], "statistics": {
-    "query-metrics": {"wall-clock": 3.7609e-05}
+    "query-metrics": {"wall-clock": 2.7024e-05}
   }}]
 }

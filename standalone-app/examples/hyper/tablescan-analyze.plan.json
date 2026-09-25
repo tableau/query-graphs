@@ -24,6 +24,6 @@
     "statistics": {"error": null, "column-count": 0}
   },
   "pipelines": [
-    {"id": 0, "operators": [1, 2], "dependencies": [], "statistics": {"cpu-cycles": 20312, "query-metrics": {"wall-clock":1.1823e-05}, "running": false}}
+    {"id": 0, "operators": [1, 2], "dependencies": [], "statistics": {"cpu-cycles": 17994, "query-metrics": {"elapsed":1.0688e-05,"memory-mb-seconds":5.344e-06,"instance-seconds":1.0688e-05,"processed-rows":{"total":5,"native":5},"threads":{"thread-time":1.0688e-05,"cpu-time":1.0798e-05,"wait-time":0},"storage":{},"additional-entries":{"scan-stats":{"rows-matching-restrictions":5}},"peak-transaction-memory-mb":0.5}, "running": false}}
   ]
 }

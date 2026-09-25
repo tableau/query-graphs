@@ -64,8 +64,8 @@
     "statistics": {"error": null, "column-count": 0}
   },
   "pipelines": [
-    {"id": 0, "operators": [1, 2], "dependencies": [1], "statistics": {"cpu-cycles": 2242, "query-metrics": {"wall-clock":2.184e-06}, "running": false}},
-    {"id": 1, "operators": [2, 3, 5], "dependencies": [2], "statistics": {"cpu-cycles": 38228, "query-metrics": {"wall-clock":1.6385e-05}, "running": false}},
-    {"id": 2, "operators": [3, 4], "dependencies": [], "statistics": {"cpu-cycles": 51595, "query-metrics": {"wall-clock":2.2316e-05}, "running": false}}
+    {"id": 0, "operators": [1, 2], "dependencies": [1], "statistics": {"cpu-cycles": 2306, "query-metrics": {"elapsed":2.418e-06,"memory-mb-seconds":1.209e-06,"instance-seconds":2.418e-06,"processed-rows":{"total":0,"native":0},"threads":{"thread-time":2.418e-06,"cpu-time":2.417e-06,"wait-time":0},"storage":{},"peak-transaction-memory-mb":0.5}, "running": false}},
+    {"id": 1, "operators": [2, 3, 5], "dependencies": [2], "statistics": {"cpu-cycles": 26645, "query-metrics": {"elapsed":1.0724e-05,"memory-mb-seconds":5.362e-06,"instance-seconds":1.0724e-05,"processed-rows":{"total":533,"native":533},"threads":{"thread-time":1.0724e-05,"cpu-time":1.0726e-05,"wait-time":0},"storage":{},"additional-entries":{"scan-stats":{"rows-matching-restrictions":27}},"peak-transaction-memory-mb":0.5}, "running": false}},
+    {"id": 2, "operators": [3, 4], "dependencies": [], "statistics": {"cpu-cycles": 46926, "query-metrics": {"elapsed":2.0534e-05,"memory-mb-seconds":1.0267e-05,"instance-seconds":2.0534e-05,"processed-rows":{"total":572,"native":572},"threads":{"thread-time":2.0534e-05,"cpu-time":2.0577e-05,"wait-time":0},"storage":{},"additional-entries":{"scan-stats":{"rows-matching-restrictions":23}},"peak-transaction-memory-mb":0.5}, "running": false}}
   ]
 }

@@ -301,26 +301,26 @@ def dump_duckdb():
 def dump_hyper(hyper_path):
     from tableauhyperapi import Connection, HyperProcess, Telemetry
 
-    parameters = {"log_config": ""}
-    with HyperProcess(
-        telemetry=Telemetry.SEND_USAGE_DATA_TO_TABLEAU,
-        parameters=parameters,
-        hyper_path=hyper_path,
-    ) as hyper:
-        with Connection(endpoint=hyper.endpoint) as connection:
-            def exec_stmt(sql):
-                connection.execute_command(sql)
+    with tempfile.TemporaryDirectory(prefix="query-graphs-hyper-log-") as log_dir:
+        with HyperProcess(
+            telemetry=Telemetry.SEND_USAGE_DATA_TO_TABLEAU,
+            parameters={"log_dir": log_dir},
+            hyper_path=hyper_path,
+        ) as hyper:
+            with Connection(endpoint=hyper.endpoint) as connection:
+                def exec_stmt(sql):
+                    connection.execute_command(sql)
 
-            def get_plan(queries, _mode):
-                result = connection.execute_list_query(queries[0])
-                return "\n".join(row[0] for row in result)
+                def get_plan(queries, _mode):
+                    result = connection.execute_list_query(queries[0])
+                    return "\n".join(row[0] for row in result)
 
-            run_setup(
-                exec_stmt,
-                SETUP_FILE,
-            )
-            version = connection.execute_scalar_query("SELECT VERSION()")
-            return dump_plans("hyper", version, get_plan)
+                run_setup(
+                    exec_stmt,
+                    SETUP_FILE,
+                )
+                version = connection.execute_scalar_query("SELECT VERSION()")
+                return dump_plans("hyper", version, get_plan)
 
 
 def main():

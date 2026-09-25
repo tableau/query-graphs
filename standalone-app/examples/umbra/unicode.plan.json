@@ -1,0 +1,23 @@
+{
+ "plan":{
+  "operator":"tablescan",
+  "physicalOperator":"tablescan",
+  "cardinality":5,
+  "operatorId":1,
+  "sourceLocation":{"startLine":2, "startColumn":48, "endLine":2, "endColumn":54},
+  "attributes":[{"name":"r_regionkey", "iu":"r_regionkey"}, {"name":"r_name", "iu":"r_name"}, {"name":"r_comment", "iu":"r_comment"}],
+  "restrictions":[],
+  "residuals":[],
+  "tid":"tid",
+  "tableoid":"tableoid",
+  "rowstate":"rowstate",
+  "schema":"pg_temp",
+  "table":{"type":"temporarytable", "id":9},
+  "tableSize":5,
+  "tablename":"region"
+ },
+ "ius":[{"iu":"r_regionkey", "type":{"type":"integer"}, "sourceLocation":{"startLine":2, "startColumn":48, "endLine":2, "endColumn":54}}, {"iu":"r_name", "type":{"type":"char", "precision":25}, "sourceLocation":{"startLine":2, "startColumn":48, "endLine":2, "endColumn":54}}, {"iu":"r_comment", "type":{"type":"text", "precision":152}, "sourceLocation":{"startLine":2, "startColumn":48, "endLine":2, "endColumn":54}}, {"iu":"tid", "type":{"type":"bigint"}}, {"iu":"tableoid", "type":{"type":"integer"}}, {"iu":"rowstate", "type":{"type":"bigint"}}],
+ "output":[{"name":"greeting", "iu":{"expression":"const", "id":5, "value":{"type":{"type":"text"}, "value":"Grüße 🌍"}}}, {"name":"r_name", "iu":{"expression":"iuref", "id":4, "iu":"r_name"}}],
+ "type":"select",
+ "query":true
+}

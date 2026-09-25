@@ -1,0 +1,24 @@
+[
+    {
+        "name": "PROJECTION",
+        "children": [
+            {
+                "name": "SEQ_SCAN",
+                "children": [],
+                "extra_info": {
+                    "Table": "\"temp\".main.region",
+                    "Type": "Sequential Scan",
+                    "Projections": "r_name",
+                    "Estimated Cardinality": "5"
+                }
+            }
+        ],
+        "extra_info": {
+            "Projections": [
+                "greeting",
+                "r_name"
+            ],
+            "Estimated Cardinality": "5"
+        }
+    }
+]
