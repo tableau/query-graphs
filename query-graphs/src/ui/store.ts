@@ -4,169 +4,117 @@ import {createStore} from "zustand/vanilla";
 import type {StoreApi} from "zustand/vanilla";
 import {assertNotNull} from "../assert";
 import type {SourceLocation, TreeNode} from "../tree-description";
-import {createStructuralNodeVisibility, findClosestVisibleAncestors, type TreeParents} from "./tree-index";
+import {createSourceLinkIndex} from "./source-link-index";
+import {createStructuralNodeVisibility, findClosestVisibleAncestors, type TreeIndex} from "./tree-index";
 
-interface SourceNodeEntry {
-    location: SourceLocation;
-    nodeId: string;
+interface ActiveSourceSelection {
+    documentId: string;
+    sourceLocations: readonly SourceLocation[];
+    nodeIds: ReadonlySet<string>;
 }
 
-interface SourceNodeIndex {
-    nodeIdsByDocumentAndRange: Map<string, Map<string, ReadonlySet<string>>>;
-    linkedRangesByDocument: Map<string, readonly SourceLocation[]>;
+interface HighlightState {
+    activeNodeIds: ReadonlySet<string>;
+    highlightedNodeIds: ReadonlySet<string>;
+    highlightedCollapsedSubtreeRootIds: ReadonlySet<string>;
 }
 
-const noSourceRanges: readonly SourceLocation[] = [];
+const noNodeIds: ReadonlySet<string> = new Set();
 
-function createSourceNodeIndex(nodeIds: ReadonlyMap<TreeNode, string>): SourceNodeIndex {
-    const entriesByDocument = new Map<string, SourceNodeEntry[]>();
-    const nodeIdsByDocumentAndRange = new Map<string, Map<string, Set<string>>>();
-    for (const [node, nodeId] of nodeIds) {
-        for (const location of node.sourceLocations ?? []) {
-            if (
-                !Number.isSafeInteger(location.from) ||
-                !Number.isSafeInteger(location.to) ||
-                location.from < 0 ||
-                location.from >= location.to
-            )
-                continue;
-            const entries = entriesByDocument.get(location.documentId) ?? [];
-            entries.push({location, nodeId});
-            entriesByDocument.set(location.documentId, entries);
-            const nodeIdsByRange = nodeIdsByDocumentAndRange.get(location.documentId) ?? new Map<string, Set<string>>();
-            const rangeKey = `${location.from}:${location.to}`;
-            const rangeNodeIds = nodeIdsByRange.get(rangeKey) ?? new Set<string>();
-            rangeNodeIds.add(nodeId);
-            nodeIdsByRange.set(rangeKey, rangeNodeIds);
-            nodeIdsByDocumentAndRange.set(location.documentId, nodeIdsByRange);
-        }
-    }
-
-    const linkedRangesByDocument = new Map<string, readonly SourceLocation[]>();
-    for (const [documentId, entries] of entriesByDocument) {
-        entries.sort((left, right) => left.location.from - right.location.from || left.location.to - right.location.to);
-        const seen = new Set<string>();
-        linkedRangesByDocument.set(
-            documentId,
-            entries.flatMap(({location}) => {
-                const key = `${location.from}:${location.to}`;
-                if (seen.has(key)) return [];
-                seen.add(key);
-                return [location];
-            }),
-        );
-    }
-    return {nodeIdsByDocumentAndRange, linkedRangesByDocument};
-}
-
-function nodeIdsForSourceLocations(
-    index: SourceNodeIndex,
-    documentId: string,
-    sourceLocations: readonly SourceLocation[],
-): Set<string> {
-    const nodeIdsByRange = index.nodeIdsByDocumentAndRange.get(documentId);
-    const matchingNodeIds = new Set<string>();
-    if (nodeIdsByRange === undefined) return matchingNodeIds;
-    for (const {documentId: locationDocumentId, from, to} of sourceLocations) {
-        if (locationDocumentId !== documentId) continue;
-        for (const nodeId of nodeIdsByRange.get(`${from}:${to}`) ?? []) matchingNodeIds.add(nodeId);
-    }
-    return matchingNodeIds;
-}
-
-export interface GraphRenderingState {
+export interface GraphRenderingState extends HighlightState {
     // `expandedNodes` tracks which nodes show their property detail panel (toggled by a plain click).
     expandedNodes: Record<string, boolean>;
     toggleExpandedNode: (nodeId: string) => void;
     // `expandedSubtrees` tracks which nodes reveal their `collapsedChildren` (toggled by shift-click or the +/- handle).
     expandedSubtrees: Record<string, boolean>;
     toggleExpandedSubtree: (nodeId: string) => void;
-    highlightedNodes: ReadonlySet<TreeNode>;
-    highlightedCollapsedSubtreeRoots: ReadonlySet<TreeNode>;
-    highlightedSourceLocations: readonly SourceLocation[];
-    setHighlightedNode: (node?: TreeNode) => void;
+    setHoveredNodeId: (nodeId?: string) => void;
     setActiveSourceLocations: (documentId: string, sourceLocations: readonly SourceLocation[]) => void;
     getLinkedSourceRanges: (documentId: string) => readonly SourceLocation[];
+    getSourceRangesForNodes: (documentId: string, nodeIds: ReadonlySet<string>) => readonly SourceLocation[];
 }
 
 export type GraphRenderingStore = StoreApi<GraphRenderingState>;
 
-export function createGraphRenderingStore(
-    expandedSubtrees: Record<string, boolean>,
-    nodeIds: ReadonlyMap<TreeNode, string> = new Map(),
-    treeParents: TreeParents = new Map(),
-    collapsedSubtreeRootIds: ReadonlySet<string> = new Set(),
-): GraphRenderingStore {
-    const sourceNodeIndex = createSourceNodeIndex(nodeIds);
-    const nodesById = new Map(Array.from(nodeIds, ([node, id]) => [id, node]));
-    let currentExpandedSubtrees = expandedSubtrees;
-    let sourceHighlightedNodeIds = new Set<string>();
-    let sourceHighlightedLocations: readonly SourceLocation[] = [];
-    let activeSourceDocumentId: string | undefined;
-    let hoveredNode: TreeNode | undefined;
-    const resolveVisibleHighlights = (): {
-        highlightedNodes: ReadonlySet<TreeNode>;
-        highlightedCollapsedSubtreeRoots: ReadonlySet<TreeNode>;
-    } => {
-        const visibleNodeIds = createStructuralNodeVisibility(currentExpandedSubtrees, treeParents, collapsedSubtreeRootIds);
-        const closestAncestors = findClosestVisibleAncestors(sourceHighlightedNodeIds, treeParents, visibleNodeIds);
-        const highlightedNodes = new Set<TreeNode>();
-        const highlightedCollapsedSubtreeRoots = new Set<TreeNode>();
-        for (const [sourceNodeId, visibleNodeId] of closestAncestors) {
-            const node = visibleNodeId === undefined ? undefined : nodesById.get(visibleNodeId);
-            if (node === undefined) continue;
-            highlightedNodes.add(node);
-            if (sourceNodeId !== visibleNodeId) highlightedCollapsedSubtreeRoots.add(node);
-        }
-        return {highlightedNodes, highlightedCollapsedSubtreeRoots};
-    };
-    const publishHighlights = (set: (partial: Partial<GraphRenderingState>) => void) => {
-        const visibleHighlights =
-            hoveredNode === undefined
-                ? resolveVisibleHighlights()
-                : {highlightedNodes: new Set([hoveredNode]), highlightedCollapsedSubtreeRoots: new Set<TreeNode>()};
-        const highlightedSourceLocations = hoveredNode?.sourceLocations ?? sourceHighlightedLocations;
-        set({...visibleHighlights, highlightedSourceLocations});
-    };
+export interface GraphRenderingStoreOptions {
+    expandedSubtrees?: Record<string, boolean>;
+    nodeIds?: ReadonlyMap<TreeNode, string>;
+    treeIndex?: TreeIndex;
+}
 
-    return createStore<GraphRenderingState>()((set) => ({
-        expandedNodes: {},
-        expandedSubtrees,
-        toggleExpandedNode: (nodeId) =>
-            set((state) => ({
-                expandedNodes: {
-                    ...state.expandedNodes,
-                    [nodeId]: !state.expandedNodes[nodeId],
-                },
-            })),
-        toggleExpandedSubtree: (nodeId) =>
-            set((state) => {
-                currentExpandedSubtrees = {
-                    ...state.expandedSubtrees,
-                    [nodeId]: !state.expandedSubtrees[nodeId],
-                };
-                const visibleHighlights =
-                    activeSourceDocumentId === undefined || hoveredNode !== undefined ? {} : resolveVisibleHighlights();
-                return {expandedSubtrees: currentExpandedSubtrees, ...visibleHighlights};
-            }),
-        highlightedNodes: new Set(),
-        highlightedCollapsedSubtreeRoots: new Set(),
-        highlightedSourceLocations: [],
-        setHighlightedNode: (node) => {
-            if (hoveredNode === node) return;
-            hoveredNode = node;
-            publishHighlights(set);
-        },
-        setActiveSourceLocations: (documentId, sourceLocations) => {
-            if (sourceLocations.length === 0 && activeSourceDocumentId !== documentId) return;
-            if (activeSourceDocumentId === documentId && sourceHighlightedLocations === sourceLocations) return;
-            sourceHighlightedNodeIds = nodeIdsForSourceLocations(sourceNodeIndex, documentId, sourceLocations);
-            sourceHighlightedLocations = sourceLocations;
-            activeSourceDocumentId = sourceLocations.length === 0 ? undefined : documentId;
-            publishHighlights(set);
-        },
-        getLinkedSourceRanges: (documentId) => sourceNodeIndex.linkedRangesByDocument.get(documentId) ?? noSourceRanges,
-    }));
+export function createGraphRenderingStore({
+    expandedSubtrees = {},
+    nodeIds = new Map(),
+    treeIndex = {parents: new Map(), collapsedSubtreeRootIds: new Set()},
+}: GraphRenderingStoreOptions = {}): GraphRenderingStore {
+    const sourceLinkIndex = createSourceLinkIndex(nodeIds);
+    let activeSourceSelection: ActiveSourceSelection | undefined;
+    let hoveredNodeId: string | undefined;
+
+    return createStore<GraphRenderingState>()((set) => {
+        const resolveHighlights = (currentExpandedSubtrees: Readonly<Record<string, boolean>>): HighlightState => {
+            const activeNodeIds =
+                hoveredNodeId === undefined ? (activeSourceSelection?.nodeIds ?? noNodeIds) : new Set([hoveredNodeId]);
+            const visibleNodeIds = createStructuralNodeVisibility(
+                currentExpandedSubtrees,
+                treeIndex.parents,
+                treeIndex.collapsedSubtreeRootIds,
+            );
+            const closestAncestors = findClosestVisibleAncestors(activeNodeIds, treeIndex.parents, visibleNodeIds);
+            const highlightedNodeIds = new Set<string>();
+            const highlightedCollapsedSubtreeRootIds = new Set<string>();
+            for (const [activeNodeId, visibleNodeId] of closestAncestors) {
+                if (visibleNodeId === undefined) continue;
+                highlightedNodeIds.add(visibleNodeId);
+                if (activeNodeId !== visibleNodeId) highlightedCollapsedSubtreeRootIds.add(visibleNodeId);
+            }
+            return {activeNodeIds, highlightedNodeIds, highlightedCollapsedSubtreeRootIds};
+        };
+
+        return {
+            expandedNodes: {},
+            expandedSubtrees,
+            toggleExpandedNode: (nodeId) =>
+                set((state) => ({
+                    expandedNodes: {
+                        ...state.expandedNodes,
+                        [nodeId]: !state.expandedNodes[nodeId],
+                    },
+                })),
+            toggleExpandedSubtree: (nodeId) =>
+                set((state) => {
+                    const nextExpandedSubtrees = {
+                        ...state.expandedSubtrees,
+                        [nodeId]: !state.expandedSubtrees[nodeId],
+                    };
+                    return {expandedSubtrees: nextExpandedSubtrees, ...resolveHighlights(nextExpandedSubtrees)};
+                }),
+            activeNodeIds: noNodeIds,
+            highlightedNodeIds: noNodeIds,
+            highlightedCollapsedSubtreeRootIds: noNodeIds,
+            setHoveredNodeId: (nodeId) => {
+                if (hoveredNodeId === nodeId) return;
+                hoveredNodeId = nodeId;
+                set((state) => resolveHighlights(state.expandedSubtrees));
+            },
+            setActiveSourceLocations: (documentId, sourceLocations) => {
+                if (sourceLocations.length === 0 && activeSourceSelection?.documentId !== documentId) return;
+                if (activeSourceSelection?.documentId === documentId && activeSourceSelection.sourceLocations === sourceLocations)
+                    return;
+                activeSourceSelection =
+                    sourceLocations.length === 0
+                        ? undefined
+                        : {
+                              documentId,
+                              sourceLocations,
+                              nodeIds: sourceLinkIndex.getNodeIdsForRanges(documentId, sourceLocations),
+                          };
+                set((state) => resolveHighlights(state.expandedSubtrees));
+            },
+            getLinkedSourceRanges: sourceLinkIndex.getLinkedRanges,
+            getSourceRangesForNodes: sourceLinkIndex.getRangesForNodeIds,
+        };
+    });
 }
 
 export const GraphRenderingStoreContext = createContext<GraphRenderingStore | null>(null);

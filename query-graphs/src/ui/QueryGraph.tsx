@@ -1,4 +1,4 @@
-import {ReactFlow, MiniMap, MiniMapNode, Controls, ReactFlowProvider, useNodesData} from "@xyflow/react";
+import {ReactFlow, MiniMap, MiniMapNode, Controls, ReactFlowProvider} from "@xyflow/react";
 import type {MiniMapNodeProps} from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 
@@ -33,8 +33,7 @@ function minimapNodeColor(n: QueryGraphNode): string {
 }
 
 function QueryGraphMiniMapNode(props: MiniMapNodeProps) {
-    const node = useNodesData<QueryGraphNode>(props.id);
-    const highlighted = useGraphRenderingStore((state) => node !== null && state.highlightedNodes.has(node.data));
+    const highlighted = useGraphRenderingStore((state) => state.highlightedNodeIds.has(props.id));
     return <MiniMapNode {...props} className={cc([props.className, {"qg-highlighted": highlighted}])} />;
 }
 
@@ -100,12 +99,12 @@ function createGraphState(treeDescription: TreeDescription) {
         },
         allChildren,
     );
-    const {parents: treeParents, collapsedSubtreeRootIds} = indexTree(treeDescription, nodeIdMapping);
+    const treeIndex = indexTree(treeDescription, nodeIdMapping);
     return {
         instanceId: nextGraphInstanceId++,
         nodeIdMapping,
-        treeParents,
-        graphStore: createGraphRenderingStore(expandedSubtrees, nodeIdMapping, treeParents, collapsedSubtreeRootIds),
+        treeParents: treeIndex.parents,
+        graphStore: createGraphRenderingStore({expandedSubtrees, nodeIds: nodeIdMapping, treeIndex}),
     };
 }
 

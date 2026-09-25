@@ -8,7 +8,10 @@ function graphStore(
     parents: ReadonlyMap<string, string> = new Map(),
     collapsedSubtreeRootIds: ReadonlySet<string> = new Set(),
 ) {
-    return createGraphRenderingStore({}, new Map(nodes.map((node, index) => [node, `${index}`])), parents, collapsedSubtreeRootIds);
+    return createGraphRenderingStore({
+        nodeIds: new Map(nodes.map((node, index) => [node, `${index}`])),
+        treeIndex: {parents, collapsedSubtreeRootIds},
+    });
 }
 
 test("source locations select every node linked to the active ranges", () => {
@@ -18,11 +21,12 @@ test("source locations select every node linked to the active ranges", () => {
     const store = graphStore([outer, first, second]);
 
     store.getState().setActiveSourceLocations("query", [{documentId: "query", from: 12, to: 16}]);
-    assert.deepEqual(store.getState().highlightedNodes, new Set([first, second]));
+    assert.deepEqual(store.getState().activeNodeIds, new Set(["1", "2"]));
+    assert.deepEqual(store.getState().highlightedNodeIds, new Set(["1", "2"]));
     store.getState().setActiveSourceLocations("query", [{documentId: "query", from: 10, to: 20}]);
-    assert.deepEqual(store.getState().highlightedNodes, new Set([outer]));
+    assert.deepEqual(store.getState().highlightedNodeIds, new Set(["0"]));
     store.getState().setActiveSourceLocations("query", []);
-    assert.deepEqual(store.getState().highlightedNodes, new Set());
+    assert.deepEqual(store.getState().highlightedNodeIds, new Set());
     assert.deepEqual(store.getState().getLinkedSourceRanges("query"), [
         {documentId: "query", from: 10, to: 20},
         {documentId: "query", from: 12, to: 16},
@@ -35,12 +39,12 @@ test("active source locations resolve hidden nodes to visible ancestors", () => 
     const store = graphStore([root, hidden], new Map([["1", "0"]]), new Set(["1"]));
 
     store.getState().setActiveSourceLocations("query", [{documentId: "query", from: 0, to: 5}]);
-    assert.deepEqual(store.getState().highlightedNodes, new Set([root]));
-    assert.deepEqual(store.getState().highlightedCollapsedSubtreeRoots, new Set([root]));
-    assert.deepEqual(store.getState().highlightedSourceLocations, [{documentId: "query", from: 0, to: 5}]);
+    assert.deepEqual(store.getState().activeNodeIds, new Set(["1"]));
+    assert.deepEqual(store.getState().highlightedNodeIds, new Set(["0"]));
+    assert.deepEqual(store.getState().highlightedCollapsedSubtreeRootIds, new Set(["0"]));
     store.getState().toggleExpandedSubtree("0");
-    assert.deepEqual(store.getState().highlightedNodes, new Set([hidden]));
-    assert.deepEqual(store.getState().highlightedCollapsedSubtreeRoots, new Set());
+    assert.deepEqual(store.getState().highlightedNodeIds, new Set(["1"]));
+    assert.deepEqual(store.getState().highlightedCollapsedSubtreeRootIds, new Set());
 });
 
 test("tree-node hover temporarily overrides and then restores source highlighting", () => {
@@ -54,18 +58,20 @@ test("tree-node hover temporarily overrides and then restores source highlightin
     const store = graphStore([node, hovered]);
 
     store.getState().setActiveSourceLocations("query", [{documentId: "query", from: 0, to: 5}]);
-    assert.deepEqual(store.getState().highlightedNodes, new Set([node]));
-    store.getState().setHighlightedNode(hovered);
-    assert.deepEqual(store.getState().highlightedNodes, new Set([hovered]));
-    assert.deepEqual(store.getState().highlightedSourceLocations, hovered.sourceLocations);
-    store.getState().setHighlightedNode(undefined);
-    assert.deepEqual(store.getState().highlightedNodes, new Set([node]));
-    assert.deepEqual(store.getState().highlightedSourceLocations, [node.sourceLocations?.[0]]);
+    assert.deepEqual(store.getState().highlightedNodeIds, new Set(["0"]));
+    store.getState().setHoveredNodeId("1");
+    assert.deepEqual(store.getState().activeNodeIds, new Set(["1"]));
+    assert.deepEqual(store.getState().highlightedNodeIds, new Set(["1"]));
+    assert.deepEqual(store.getState().getSourceRangesForNodes("query", store.getState().activeNodeIds), hovered.sourceLocations);
+    store.getState().setHoveredNodeId(undefined);
+    assert.deepEqual(store.getState().activeNodeIds, new Set(["0"]));
+    assert.deepEqual(store.getState().highlightedNodeIds, new Set(["0"]));
+    assert.deepEqual(store.getState().getSourceRangesForNodes("query", store.getState().activeNodeIds), node.sourceLocations);
 
     store.getState().setActiveSourceLocations("plan", []);
-    assert.deepEqual(store.getState().highlightedNodes, new Set([node]));
+    assert.deepEqual(store.getState().highlightedNodeIds, new Set(["0"]));
     store.getState().setActiveSourceLocations("query", []);
-    assert.deepEqual(store.getState().highlightedNodes, new Set());
+    assert.deepEqual(store.getState().highlightedNodeIds, new Set());
 });
 
 test("malformed source ranges do not participate in highlighting", () => {
@@ -74,7 +80,7 @@ test("malformed source ranges do not participate in highlighting", () => {
     const store = graphStore([malformed, valid]);
 
     store.getState().setActiveSourceLocations("query", [{documentId: "query", from: 10, to: 20}]);
-    assert.deepEqual(store.getState().highlightedNodes, new Set([valid]));
+    assert.deepEqual(store.getState().highlightedNodeIds, new Set(["1"]));
 });
 
 test("repeated active source locations do not republish highlight state", () => {
@@ -85,13 +91,13 @@ test("repeated active source locations do not republish highlight state", () => 
 
     const sourceLocations = [{documentId: "query", from: 0, to: 5}];
     store.getState().setActiveSourceLocations("query", sourceLocations);
-    const highlightedNodes = store.getState().highlightedNodes;
-    const highlightedSourceLocations = store.getState().highlightedSourceLocations;
+    const activeNodeIds = store.getState().activeNodeIds;
+    const highlightedNodeIds = store.getState().highlightedNodeIds;
     store.getState().setActiveSourceLocations("query", sourceLocations);
 
     assert.equal(updates, 1);
-    assert.equal(store.getState().highlightedNodes, highlightedNodes);
-    assert.equal(store.getState().highlightedSourceLocations, highlightedSourceLocations);
+    assert.equal(store.getState().activeNodeIds, activeNodeIds);
+    assert.equal(store.getState().highlightedNodeIds, highlightedNodeIds);
     unsubscribe();
 });
 
@@ -102,4 +108,33 @@ test("documents without source locations have a stable empty snapshot", () => {
     const second = store.getState().getLinkedSourceRanges("plan");
     assert.equal(first, second);
     assert.deepEqual(first, []);
+});
+
+test("active nodes link all of their ranges across documents", () => {
+    const sharedRange = {documentId: "query", from: 0, to: 5};
+    const first: TreeNode = {
+        sourceLocations: [sharedRange, {documentId: "query", from: 10, to: 15}, {documentId: "plan", from: 20, to: 25}],
+    };
+    const second: TreeNode = {
+        sourceLocations: [sharedRange, {documentId: "plan", from: 30, to: 35}],
+    };
+    const store = graphStore([first, second]);
+
+    store.getState().setHoveredNodeId("0");
+    assert.deepEqual(store.getState().getSourceRangesForNodes("plan", store.getState().activeNodeIds), [
+        {documentId: "plan", from: 20, to: 25},
+    ]);
+    store.getState().setHoveredNodeId(undefined);
+
+    store.getState().setActiveSourceLocations("query", [sharedRange]);
+
+    assert.deepEqual(store.getState().activeNodeIds, new Set(["0", "1"]));
+    assert.deepEqual(store.getState().getSourceRangesForNodes("query", store.getState().activeNodeIds), [
+        sharedRange,
+        {documentId: "query", from: 10, to: 15},
+    ]);
+    assert.deepEqual(store.getState().getSourceRangesForNodes("plan", store.getState().activeNodeIds), [
+        {documentId: "plan", from: 20, to: 25},
+        {documentId: "plan", from: 30, to: 35},
+    ]);
 });
