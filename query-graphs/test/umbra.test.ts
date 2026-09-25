@@ -140,6 +140,7 @@ test("Umbra applies format-specific names and icons", () => {
     assert.equal(markJoin.root.children?.[0].icon, undefined);
 });
 
+// Source-location metadata remains inspectable but must not become auxiliary graph nodes of its own.
 test("Umbra keeps source locations in properties instead of graph subtrees", () => {
     const tree = loadUmbraPlan({
         plan: {
@@ -171,6 +172,7 @@ test("Umbra keeps source locations in properties instead of graph subtrees", () 
     assert.ok(!treeNodes(tree.root).some((node) => node.name === "sourceLocation"));
 });
 
+// Multibyte probe text documents that Umbra columns are one-based UTF-8 bytes rather than UTF-16 offsets.
 test("Umbra links nodes using the one-based UTF-8 columns observed in a Unicode probe", () => {
     const sql = `EXPLAIN (FORMAT JSON) SELECT 'é😀' AS prefix, "é😀s" + 2 AS target FROM generate_series(1, 2) AS t("é😀s");`;
     const tree = loadPlanFromText(
@@ -189,6 +191,7 @@ test("Umbra links nodes using the one-based UTF-8 columns observed in a Unicode 
     assert.equal(sql.slice(46, 56), `"é😀s" + 2`);
 });
 
+// Invalid one-based columns and absent query documents must not leak unusable ranges into the graph.
 test("Umbra ignores malformed source locations and locations without SQL", () => {
     const plan = JSON.stringify({
         plan: {

@@ -7,6 +7,7 @@ function sourceLinkIndex(nodes: TreeNode[]) {
     return createSourceLinkIndex(new Map(nodes.map((node, index) => [node, `${index}`])));
 }
 
+// One exact range can represent multiple nodes, and a notification can include ranges from multiple documents.
 test("source ranges resolve to every linked node", () => {
     const sharedRange = {documentId: "query", from: 10, to: 20};
     const index = sourceLinkIndex([
@@ -20,6 +21,7 @@ test("source ranges resolve to every linked node", () => {
     assert.deepEqual(index.getNodeIdsForRanges([sharedRange, {documentId: "plan", from: 10, to: 20}]), new Set(["0", "1", "3"]));
 });
 
+// Reverse lookups feed document highlights and therefore require deterministic order without shared-range duplicates.
 test("nodes resolve to their sorted, deduplicated ranges in each document", () => {
     const sharedRange = {documentId: "query", from: 0, to: 5};
     const index = sourceLinkIndex([
@@ -40,6 +42,7 @@ test("nodes resolve to their sorted, deduplicated ranges in each document", () =
     ]);
 });
 
+// Invalid offsets must be discarded once while indexing so neither lookup direction exposes unusable decorations.
 test("malformed ranges are excluded from the index", () => {
     const validRange = {documentId: "query", from: 10, to: 20};
     const index = sourceLinkIndex([
@@ -57,6 +60,7 @@ test("malformed ranges are excluded from the index", () => {
     assert.deepEqual(index.getNodeIdsForRanges([validRange]), new Set(["0"]));
 });
 
+// Zustand selectors use referential equality, so empty lookups must return one stable snapshot.
 test("documents without source ranges share a stable empty result", () => {
     const index = sourceLinkIndex([]);
 

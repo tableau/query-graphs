@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {createSqlSourceLocator} from "../src/loaders";
 
+// Hyper counts raw UTF-8 bytes while the editor consumes UTF-16 offsets after newline normalization.
 test("SQL source locations map UTF-8 byte offsets to normalized UTF-16 offsets", () => {
     const source = createSqlSourceLocator("aé😀\r\nb\rc");
 
@@ -12,6 +13,7 @@ test("SQL source locations map UTF-8 byte offsets to normalized UTF-16 offsets",
     assert.equal(source.fromUtf8Bytes(7, 8), undefined);
 });
 
+// Byte positions are usable only when they are finite integer boundaries between complete UTF-8 sequences.
 test("SQL source locations reject invalid and non-boundary UTF-8 byte offsets", () => {
     const source = createSqlSourceLocator("aé😀");
 
@@ -26,6 +28,7 @@ test("SQL source locations reject invalid and non-boundary UTF-8 byte offsets", 
     }
 });
 
+// TextEncoder replaces an unpaired surrogate, and both byte- and column-based conversions must follow that behavior.
 test("SQL source locations match TextEncoder semantics for unpaired surrogates", () => {
     const source = createSqlSourceLocator("\ud800x");
 
@@ -33,6 +36,7 @@ test("SQL source locations match TextEncoder semantics for unpaired surrogates",
     assert.deepEqual(source.fromUtf8LineColumns(1, 1, 1, 4), {documentId: "query", from: 0, to: 1});
 });
 
+// Umbra reports one-based UTF-8 columns, including positions spanning normalized lines and the final empty line.
 test("SQL source locations map one-based UTF-8 line and column ranges", () => {
     const source = createSqlSourceLocator("é😀 first\r\nsecond target");
 

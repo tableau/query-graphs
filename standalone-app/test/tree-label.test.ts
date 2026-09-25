@@ -24,6 +24,7 @@ registerHooks({
     },
 });
 
+// The indicator stays mounted to reserve title width and activates when the collapsed document contains a node highlight.
 test("document panel titles reserve and activate their highlight indicator", async () => {
     const [{TreeLabel}, {createSourceLinkIndex}, {createGraphRenderingStore, GraphRenderingStoreContext}] = await Promise.all([
         import("../src/TreeLabel"),

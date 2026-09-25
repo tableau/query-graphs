@@ -12,6 +12,7 @@ class CountingParents extends Map<string, string> {
     }
 }
 
+// The topology retains every parent edge while separately identifying children hidden by their collapsed edge.
 test("tree indexing distinguishes visible and collapsed child edges", () => {
     const visible: TreeNode = {name: "visible"};
     const collapsed: TreeNode = {name: "collapsed"};
@@ -31,6 +32,7 @@ test("tree indexing distinguishes visible and collapsed child edges", () => {
     });
 });
 
+// Shared hidden paths should resolve to the closest rendered ancestor without repeatedly walking common ancestry.
 test("hidden nodes map to their closest visible ancestors", () => {
     const parents = new CountingParents([
         ["branch", "root"],
@@ -51,6 +53,7 @@ test("hidden nodes map to their closest visible ancestors", () => {
     assert.equal(parents.lookups.get("parent"), 1, "shared ancestry should only be traversed once");
 });
 
+// Each collapsed edge is controlled by its own parent, so nested subtrees become visible one expansion level at a time.
 test("structural visibility follows nested collapsed-subtree expansion", () => {
     const parents = new Map([
         ["collapsed", "root"],

@@ -148,6 +148,7 @@ test("Hyper optimizer steps preserve additional envelope fields", () => {
     assert.equal(loaded.tree.root.children?.[0].children?.[0].name, "scan");
 });
 
+// Hyper positions are UTF-8 byte offsets, so preceding multibyte characters must not shift the UTF-16 editor ranges.
 test("Hyper links nodes to every valid SQL byte range", () => {
     const sql = "EXPLAIN SELECT 'é😀', value FROM table";
     const valueStart = Buffer.byteLength("EXPLAIN SELECT 'é😀', ");
@@ -170,6 +171,7 @@ test("Hyper links nodes to every valid SQL byte range", () => {
     ]);
 });
 
+// A plan can be opened without its original query; raw offsets must not create links into a nonexistent document.
 test("Hyper ignores SQL positions without matching SQL", () => {
     const tree = loadPlanFromText('{"operator":"scan","sqlpos":[[0,6]]}', {format: "hyper"}).tree;
     assert.equal(tree.root.sourceLocations, undefined);

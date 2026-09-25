@@ -12,6 +12,7 @@ registerHooks({
     },
 });
 
+// The React wrapper must synchronize dynamic range props while preserving caret linking and unrelated editor extensions.
 test("the document editor synchronizes and activates linked ranges", async () => {
     const {CodeMirrorDocument} = await import("../src/CodeMirrorDocument");
     const dom = new JSDOM("<main></main>", {pretendToBeVisual: true});
