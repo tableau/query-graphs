@@ -27,9 +27,9 @@ const jsonTreeConfig: DecoratedJsonTreeConfig = {
 export const jsonPlanLoader: PlanLoader<Json> = {
     format: "json",
     matches: () => true,
-    load(json) {
+    load(json, context) {
         const state = createDecoratedJsonTreeState();
-        const root = convertDecoratedJsonNode(json, "root", state, jsonTreeConfig);
+        const root = convertDecoratedJsonNode(json, "root", state, jsonTreeConfig, context);
         return {root};
     },
 };

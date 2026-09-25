@@ -1,8 +1,8 @@
 import {StandardSQL} from "@codemirror/lang-sql";
 import {foldNodeProp, foldService} from "@codemirror/language";
 import type {EditorState} from "@codemirror/state";
-import type {TextDocument} from "@tableau/query-graphs/lib/tree-description";
 import {CodeMirrorDocument} from "./CodeMirrorDocument";
+import type {DocumentViewerProps} from "./CodeMirrorDocument";
 import {findSqlFolds, type FoldRange} from "./SqlFolding";
 
 const sqlFolds = new WeakMap<object, ReadonlyMap<number, FoldRange>>();
@@ -22,6 +22,6 @@ const sqlLanguage = sqlDialect.language.extension;
 const customSqlFolding = foldService.of((state, lineStart) => getSqlFolds(state).get(lineStart) ?? null);
 const sqlExtensions = [sqlLanguage, customSqlFolding];
 
-export function SqlDocument({document}: {document: TextDocument}) {
-    return <CodeMirrorDocument document={document} languageExtension={sqlExtensions} />;
+export function SqlDocument(props: DocumentViewerProps) {
+    return <CodeMirrorDocument {...props} languageExtension={sqlExtensions} />;
 }

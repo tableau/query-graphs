@@ -11,6 +11,10 @@ function treeNodes(root: TreeNode): TreeNode[] {
     return nodes;
 }
 
+function loadUmbraPlan(input: Parameters<typeof umbraPlanLoader.load>[0]) {
+    return umbraPlanLoader.load(input, {});
+}
+
 test("Umbra and CedarDB examples are recognized", () => {
     for (const engine of ["umbra", "cedardb"]) {
         for (const fixturePath of fixturePathsFor(engine)) {
@@ -35,7 +39,7 @@ test("Umbra decorates cardinalities, pipelines, and recursive crosslinks", () =>
 });
 
 test("Umbra keeps operator and pipeline identifier namespaces separate", () => {
-    const tree = umbraPlanLoader.load({
+    const tree = loadUmbraPlan({
         plan: {
             operator: "temp",
             operatorId: 1,
@@ -58,7 +62,7 @@ test("Umbra keeps operator and pipeline identifier namespaces separate", () => {
 });
 
 test("Umbra combines repeated records for the same pipeline", () => {
-    const tree = umbraPlanLoader.load({
+    const tree = loadUmbraPlan({
         plan: {
             operator: "setoperation",
             operatorId: 1,
@@ -80,7 +84,7 @@ test("Umbra combines repeated records for the same pipeline", () => {
 });
 
 test("Umbra normalizes exclusive pipeline memberships at operator boundaries", () => {
-    const tree = umbraPlanLoader.load({
+    const tree = loadUmbraPlan({
         plan: {
             operator: "sort",
             operatorId: 1,
@@ -104,7 +108,7 @@ test("Umbra normalizes exclusive pipeline memberships at operator boundaries", (
 });
 
 test("Umbra normalizes exclusive pipeline memberships across crosslinks", () => {
-    const tree = umbraPlanLoader.load({
+    const tree = loadUmbraPlan({
         plan: {
             operator: "setoperation",
             operatorId: 1,
@@ -136,8 +140,9 @@ test("Umbra applies format-specific names and icons", () => {
     assert.equal(markJoin.root.children?.[0].icon, undefined);
 });
 
+// Source-location metadata remains inspectable but must not become auxiliary graph nodes of its own.
 test("Umbra keeps source locations in properties instead of graph subtrees", () => {
-    const tree = umbraPlanLoader.load({
+    const tree = loadUmbraPlan({
         plan: {
             operator: "tablescan",
             operatorId: 1,
@@ -167,6 +172,38 @@ test("Umbra keeps source locations in properties instead of graph subtrees", () 
     assert.ok(!treeNodes(tree.root).some((node) => node.name === "sourceLocation"));
 });
 
+// Multibyte probe text documents that Umbra columns are one-based UTF-8 bytes rather than UTF-16 offsets.
+test("Umbra links nodes using the one-based UTF-8 columns observed in a Unicode probe", () => {
+    const sql = `EXPLAIN (FORMAT JSON) SELECT 'é😀' AS prefix, "é😀s" + 2 AS target FROM generate_series(1, 2) AS t("é😀s");`;
+    const tree = loadPlanFromText(
+        JSON.stringify({
+            plan: {
+                operator: "tablescan",
+                operatorId: 1,
+                sourceLocation: {startLine: 1, startColumn: 50, endLine: 1, endColumn: 63},
+            },
+        }),
+        {format: "umbra", sql},
+    ).tree;
+
+    const operator = treeNodes(tree.root).find((node) => node.properties?.get("operatorId") === "1");
+    assert.deepEqual(operator?.sourceLocations, [{documentId: "query", from: 46, to: 56}]);
+    assert.equal(sql.slice(46, 56), `"é😀s" + 2`);
+});
+
+// Invalid one-based columns and absent query documents must not leak unusable ranges into the graph.
+test("Umbra ignores malformed source locations and locations without SQL", () => {
+    const plan = JSON.stringify({
+        plan: {
+            operator: "tablescan",
+            operatorId: 1,
+            sourceLocation: {startLine: 1, startColumn: 0, endLine: 1, endColumn: 4},
+        },
+    });
+    assert.equal(loadPlanFromText(plan, {format: "umbra", sql: "abc"}).tree.root.sourceLocations, undefined);
+    assert.equal(loadPlanFromText(plan, {format: "umbra"}).tree.root.sourceLocations, undefined);
+});
+
 test("CedarDB optimizer stages are collapsed independently", () => {
     const tree = loadFixture("cedardb/tpch/tpch-q2-steps.plan.json").tree;
     assert.equal(tree.root.name, "optimizer steps");
@@ -191,7 +228,7 @@ test("the Umbra loader remains permissive when explicitly selected", () => {
     const malformed = {plan: {operator: {}, operatorId: "unknown"}};
 
     assert.equal(umbraPlanLoader.matches(malformed), false);
-    assert.equal(umbraPlanLoader.load(malformed).root.name, "result");
+    assert.equal(loadUmbraPlan(malformed).root.name, "result");
     assert.equal(loadPlanFromText(JSON.stringify(malformed)).format, "json");
 
     const forced = loadPlanFromText("{}", {format: "umbra"});

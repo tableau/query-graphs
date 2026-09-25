@@ -25,7 +25,7 @@ import {
     sameLayoutTarget,
     staticLayout,
 } from "./animated-layout";
-import type {TreeParents} from "./tree-index";
+import type {TreeParents} from "./tree-topology";
 
 interface NodeResizeRequest {
     nodeId: string;

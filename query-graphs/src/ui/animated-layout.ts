@@ -1,7 +1,7 @@
 import type {layoutTree} from "./tree-layout";
 import type {QueryGraphNode} from "./QueryNode";
-import {findClosestVisibleAncestors} from "./tree-index";
-import type {TreeParents} from "./tree-index";
+import {findClosestVisibleAncestors} from "./tree-topology";
+import type {TreeParents} from "./tree-topology";
 
 export type GraphLayout = ReturnType<typeof layoutTree>;
 type GraphEdge = GraphLayout["edges"][number];

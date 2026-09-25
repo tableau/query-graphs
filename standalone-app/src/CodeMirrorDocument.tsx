@@ -4,8 +4,9 @@ import {bracketMatching, defaultHighlightStyle, foldGutter, foldKeymap, syntaxHi
 import {searchKeymap} from "@codemirror/search";
 import {EditorState, type Extension} from "@codemirror/state";
 import {EditorView, highlightSpecialChars, keymap, lineNumbers, scrollPastEnd} from "@codemirror/view";
-import type {TextDocument} from "@tableau/query-graphs/lib/tree-description";
+import type {SourceLocation, TextDocument} from "@tableau/query-graphs/lib/tree-description";
 import {compactSearch} from "./CodeMirrorSearch";
+import {rangeLinking} from "./RangeLinking";
 import "./CodeMirrorDocument.css";
 
 function createFoldMarker(open: boolean): HTMLElement {
@@ -65,20 +66,41 @@ const documentTheme = EditorView.theme({
 });
 const noLanguageExtension: Extension = [];
 
-export interface CodeMirrorDocumentProps {
+export interface DocumentViewerProps {
     document: TextDocument;
+    linkedRanges?: readonly SourceLocation[];
+    highlightedRanges?: readonly SourceLocation[];
+    /** Reports the narrowest linked ranges under the pointer, falling back to the focused caret. */
+    onActiveLinkedRangesChange?: (activeLinkedRanges: readonly SourceLocation[]) => void;
+}
+
+export interface CodeMirrorDocumentProps extends DocumentViewerProps {
     languageExtension?: Extension;
 }
 
-export function CodeMirrorDocument({document, languageExtension = noLanguageExtension}: CodeMirrorDocumentProps) {
-    const parent = useRef<HTMLDivElement>(null);
+export function CodeMirrorDocument({
+    document: textDocument,
+    languageExtension = noLanguageExtension,
+    linkedRanges = [],
+    highlightedRanges = [],
+    onActiveLinkedRangesChange,
+}: CodeMirrorDocumentProps) {
+    const editorHost = useRef<HTMLDivElement>(null);
+    const editorView = useRef<EditorView | undefined>(undefined);
+    const linkedRangesRef = useRef(linkedRanges);
+    const highlightedRangesRef = useRef(highlightedRanges);
 
     useEffect(() => {
-        if (parent.current === null) return;
+        linkedRangesRef.current = linkedRanges;
+        highlightedRangesRef.current = highlightedRanges;
+    }, [linkedRanges, highlightedRanges]);
+
+    useEffect(() => {
+        if (editorHost.current === null) return;
         const view = new EditorView({
-            parent: parent.current,
+            parent: editorHost.current,
             state: EditorState.create({
-                doc: document.text,
+                doc: textDocument.text,
                 extensions: [
                     languageExtension,
                     syntaxHighlighting(defaultHighlightStyle, {fallback: true}),
@@ -90,14 +112,33 @@ export function CodeMirrorDocument({document, languageExtension = noLanguageExte
                     folding,
                     foldMarkerTheme,
                     documentTheme,
+                    rangeLinking.extension(onActiveLinkedRangesChange),
                     keymap.of([...defaultKeymap, ...searchKeymap, ...foldKeymap]),
                     EditorState.readOnly.of(true),
-                    EditorView.contentAttributes.of({"aria-label": document.title}),
+                    EditorView.contentAttributes.of({"aria-label": textDocument.title}),
                 ],
             }),
         });
-        return () => view.destroy();
-    }, [document, languageExtension]);
+        view.dispatch({
+            effects: [
+                rangeLinking.setLinkedRanges.of(linkedRangesRef.current),
+                rangeLinking.setHighlightedRanges.of(highlightedRangesRef.current),
+            ],
+        });
+        editorView.current = view;
+        return () => {
+            editorView.current = undefined;
+            view.destroy();
+        };
+    }, [textDocument, languageExtension, onActiveLinkedRangesChange]);
 
-    return <div ref={parent} className="graph-text-document" />;
+    useEffect(() => {
+        editorView.current?.dispatch({effects: rangeLinking.setLinkedRanges.of(linkedRanges)});
+    }, [linkedRanges]);
+
+    useEffect(() => {
+        editorView.current?.dispatch({effects: rangeLinking.setHighlightedRanges.of(highlightedRanges)});
+    }, [highlightedRanges]);
+
+    return <div ref={editorHost} className="graph-text-document" />;
 }

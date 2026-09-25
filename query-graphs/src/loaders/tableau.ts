@@ -157,7 +157,7 @@ function convertXML(xml: ParsedXML): TreeNode {
 export const tableauPlanLoader: PlanLoader<ParsedXML> = {
     format: "tableau",
     matches: (xml) => xml.tag === "logical-query" || xml.tag === "fed-op",
-    load(xml) {
+    load(xml, _context) {
         const root = convertXML(xml);
         return {root, crosslinks: undefined};
     },

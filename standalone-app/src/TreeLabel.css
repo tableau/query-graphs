@@ -53,12 +53,46 @@
 }
 
 /* Document panels */
+.graph-panel-highlight-indicator {
+    display: inline-block;
+    width: 0.65em;
+    height: 0.65em;
+    margin-inline-start: 0.4em;
+    border-radius: 50%;
+    vertical-align: 0.05em;
+    background: hsl(210, 90%, 55%);
+    visibility: hidden;
+}
+
+.graph-panel-highlight-indicator-active {
+    visibility: visible;
+    animation: graph-panel-highlight-pulse 1.4s ease-in-out infinite;
+}
+
+/* An open panel shows the highlighted content directly. */
+.qg-collapsible-panel[open] .graph-panel-highlight-indicator {
+    visibility: hidden;
+}
+
 .graph-text-document-panel > .qg-collapsible-panel-content {
     /* The editor supplies the panel body, so it should meet the panel border directly. */
     padding: 0;
 
     & .cm-editor {
         border: 0;
+    }
+}
+
+@keyframes graph-panel-highlight-pulse {
+    0%,
+    100% {
+        opacity: 0.55;
+        box-shadow: 0 0 0 0 hsl(210, 90%, 55%, 0.45);
+    }
+
+    50% {
+        opacity: 1;
+        box-shadow: 0 0 0 0.4em hsl(210, 90%, 55%, 0);
     }
 }
 
@@ -114,6 +148,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+    .graph-panel-highlight-indicator-active {
+        animation: none;
+    }
+
     .graph-text-document-loading span {
         animation: none;
         background: hsl(210, 8%, 84%);

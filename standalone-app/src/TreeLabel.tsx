@@ -1,7 +1,8 @@
-import {lazy, Suspense, type ReactElement} from "react";
+import {lazy, Suspense, type ReactElement, useCallback, useMemo} from "react";
 import {CollapsiblePanel} from "@tableau/query-graphs/lib/ui/CollapsiblePanel";
 import {CopyButton} from "@tableau/query-graphs/lib/ui/CopyButton";
-import type {TextDocument} from "@tableau/query-graphs/lib/tree-description";
+import {useGraphRenderingStore} from "@tableau/query-graphs/lib/ui/store";
+import type {SourceLocation, TextDocument} from "@tableau/query-graphs/lib/tree-description";
 import "./TreeLabel.css";
 
 const DocumentPane = lazy(() =>
@@ -29,16 +30,43 @@ function LoadingDocument({title}: {title: string}) {
 }
 
 function TextDocumentPanel({document}: {document: TextDocument}) {
+    const linkedRanges = useGraphRenderingStore((state) => state.getLinkedSourceRanges(document.id));
+    const highlightedNodeIds = useGraphRenderingStore((state) => state.highlightedNodeIds);
+    const getSourceRangesForNodes = useGraphRenderingStore((state) => state.getSourceRangesForNodes);
+    const highlightedRanges = useMemo(
+        () => getSourceRangesForNodes(document.id, highlightedNodeIds),
+        [document.id, getSourceRangesForNodes, highlightedNodeIds],
+    );
+    const setActiveSourceLocations = useGraphRenderingStore((state) => state.setActiveSourceLocations);
+    const onActiveLinkedRangesChange = useCallback(
+        (activeLinkedRanges: readonly SourceLocation[]) => setActiveSourceLocations(document.id, activeLinkedRanges),
+        [document.id, setActiveSourceLocations],
+    );
+    const panelTitle = (
+        <>
+            {document.title}
+            <span
+                className={`graph-panel-highlight-indicator${highlightedRanges.length > 0 ? " graph-panel-highlight-indicator-active" : ""}`}
+                aria-hidden="true"
+            />
+        </>
+    );
+
     return (
         <CollapsiblePanel
-            title={document.title}
+            title={panelTitle}
             className="graph-text-document-panel"
             headerActions={<CopyButton text={document.text} contentName={document.title} />}
             mountContentOnFirstIntent
         >
             <div className="graph-text-document-frame">
                 <Suspense fallback={<LoadingDocument title={document.title} />}>
-                    <DocumentPane document={document} />
+                    <DocumentPane
+                        document={document}
+                        linkedRanges={linkedRanges}
+                        highlightedRanges={highlightedRanges}
+                        onActiveLinkedRangesChange={onActiveLinkedRangesChange}
+                    />
                 </Suspense>
             </div>
         </CollapsiblePanel>

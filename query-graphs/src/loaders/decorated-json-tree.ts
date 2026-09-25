@@ -10,11 +10,11 @@
  * continue through the baseline conversion instead of being discarded.
  */
 
-import type {IconName, TreeNode} from "../tree-description";
+import type {IconName, SourceLocation, TreeNode} from "../tree-description";
 import type {Json, JsonObject} from "./loader-utils";
 import {forceToString, formatMetric, hasOwnProperty, isJsonObject, tryToString} from "./loader-utils";
 import type {UnresolvedCrosslink} from "./tree-postprocessing";
-import {InvalidPlanError} from "./types";
+import {InvalidPlanError, type PlanLoadContext} from "./types";
 
 export interface NodeRenderingConfig {
     /** Use this converted scalar property as the node's display name. */
@@ -48,6 +48,8 @@ export interface DecoratedJsonTreeConfig {
     getRenderingConfig(nodeTypeKey: string, tag: string, rawNode: JsonObject): NodeRenderingConfig;
     /** Override the usual property, tag, or parent-key-derived display name. */
     getDisplayName?(rawNode: JsonObject): string | undefined;
+    /** Link the converted node to ranges in an associated text document. */
+    getSourceLocations?(rawNode: JsonObject, context: PlanLoadContext): SourceLocation[] | undefined;
     /** Identify the target of a crosslink originating at this object. */
     getCrosslinkTarget?(rawNode: JsonObject): string | undefined;
     /** Put a nested value in `collapsedChildren` instead of `children`. */
@@ -126,6 +128,7 @@ function convertDecoratedJsonValue(
     parentKey: string,
     state: DecoratedJsonTreeState,
     config: DecoratedJsonTreeConfig,
+    context: PlanLoadContext,
 ): TreeNode | TreeNode[] {
     const scalar = tryToString(rawNode);
     if (scalar !== undefined) {
@@ -135,7 +138,7 @@ function convertDecoratedJsonValue(
     if (Array.isArray(rawNode)) {
         return rawNode.map((value, index) => {
             const name = `${parentKey}.${index}`;
-            const converted = convertDecoratedJsonValue(value, name, state, config);
+            const converted = convertDecoratedJsonValue(value, name, state, config, context);
             const node = Array.isArray(converted) ? {children: converted} : converted;
             if (!node.name) {
                 node.name = name;
@@ -185,7 +188,7 @@ function convertDecoratedJsonValue(
         // Format loaders decide which nested structures are initially visible.
         const collapse = config.shouldCollapseChild?.(rawNode, key, rawNode[key]) ?? false;
         const target = collapse ? collapsedChildren : expandedChildren;
-        const converted = convertDecoratedJsonValue(rawNode[key], key, state, config);
+        const converted = convertDecoratedJsonValue(rawNode[key], key, state, config, context);
         appendChild(target, converted, key, config.structuralChildKeys.includes(key), collapse);
     }
 
@@ -205,6 +208,7 @@ function convertDecoratedJsonValue(
         children: expandedChildren,
         collapsedChildren,
         expandedByDefault: expandedChildren.length === 0 && (config.shouldExpandCollapsedChildren?.(rawNode, nodeTypeKey) ?? true),
+        sourceLocations: config.getSourceLocations?.(rawNode, context),
     };
 
     // Display cardinality on incoming edges and collect it for relative edge sizing.
@@ -245,10 +249,11 @@ export function convertDecoratedJsonNode(
     rootName: string,
     state: DecoratedJsonTreeState,
     config: DecoratedJsonTreeConfig,
+    context: PlanLoadContext,
 ): TreeNode {
     // Recursive array conversion naturally produces sibling nodes. At the API
     // boundary, wrap them so every caller receives exactly one tree root.
-    const converted = convertDecoratedJsonValue(rawNode, rootName, state, config);
+    const converted = convertDecoratedJsonValue(rawNode, rootName, state, config, context);
     const root = Array.isArray(converted) ? {name: rootName, children: converted} : converted;
     if (!root.name) {
         root.name = rootName;

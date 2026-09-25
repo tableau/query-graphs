@@ -1,17 +1,19 @@
-import {ReactFlow, MiniMap, Controls, ReactFlowProvider} from "@xyflow/react";
+import {ReactFlow, MiniMap, MiniMapNode, Controls, ReactFlowProvider} from "@xyflow/react";
+import type {MiniMapNodeProps} from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 
 import type {TreeDescription, TreeNode} from "../tree-description";
 import {allChildren, visitTreeNodes} from "../tree-description";
 import type {MouseEvent, ReactNode} from "react";
 import {useMemo} from "react";
+import cc from "classcat";
 import {QueryNode} from "./QueryNode";
 import type {QueryGraphNode} from "./QueryNode";
 import {ColoredEdge} from "./ColoredEdge";
 import {createGraphRenderingStore, GraphRenderingStoreContext, useGraphRenderingStore} from "./store";
 import {AnimateGraphChangeContext, useAnimatedGraphLayout} from "./useAnimatedGraphLayout";
-import {indexTreeParents} from "./tree-index";
-import type {TreeParents} from "./tree-index";
+import {indexGraph} from "./graph-index";
+import type {TreeParents} from "./tree-topology";
 import "./QueryGraph.css";
 
 interface QueryGraphProps {
@@ -28,6 +30,11 @@ function minimapNodeColor(n: QueryGraphNode): string {
     if (n.data.nodeColor) return n.data.nodeColor;
     if (n.data.iconColor) return n.data.iconColor;
     return "hsl(0, 0%, 72%)";
+}
+
+function QueryGraphMiniMapNode(props: MiniMapNodeProps) {
+    const highlighted = useGraphRenderingStore((state) => state.visibleHighlightedNodeIds.has(props.id));
+    return <MiniMapNode {...props} className={cc([props.className, {"qg-highlighted": highlighted}])} />;
 }
 
 const nodeTypes = {
@@ -71,7 +78,7 @@ function QueryGraphInternal({treeDescription, children, nodeIdMapping, treeParen
                 inert={!animatedLayout.initialViewportReady}
             >
                 {...Array.isArray(children) ? children : [children]}
-                <MiniMap zoomable={true} pannable={true} nodeColor={minimapNodeColor} />
+                <MiniMap zoomable={true} pannable={true} nodeColor={minimapNodeColor} nodeComponent={QueryGraphMiniMapNode} />
                 <Controls showInteractive={false} />
             </ReactFlow>
         </AnimateGraphChangeContext.Provider>
@@ -93,16 +100,17 @@ function createGraphState(treeDescription: TreeDescription) {
         },
         allChildren,
     );
+    const graphIndex = indexGraph(treeDescription, nodeIdMapping);
     return {
         instanceId: nextGraphInstanceId++,
         nodeIdMapping,
-        treeParents: indexTreeParents(treeDescription, nodeIdMapping),
-        graphStore: createGraphRenderingStore(expandedSubtrees),
+        graphIndex,
+        graphStore: createGraphRenderingStore({expandedSubtrees, graphIndex}),
     };
 }
 
 export function QueryGraph(props: QueryGraphProps) {
-    const {instanceId, nodeIdMapping, treeParents, graphStore} = useMemo(
+    const {instanceId, nodeIdMapping, graphIndex, graphStore} = useMemo(
         () => createGraphState(props.treeDescription),
         [props.treeDescription],
     );
@@ -112,7 +120,7 @@ export function QueryGraph(props: QueryGraphProps) {
     return (
         <ReactFlowProvider key={instanceId}>
             <GraphRenderingStoreContext.Provider value={graphStore}>
-                <QueryGraphInternal {...props} nodeIdMapping={nodeIdMapping} treeParents={treeParents} />
+                <QueryGraphInternal {...props} nodeIdMapping={nodeIdMapping} treeParents={graphIndex.treeTopology.parents} />
             </GraphRenderingStoreContext.Provider>
         </ReactFlowProvider>
     );

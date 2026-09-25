@@ -86,7 +86,7 @@ function convertXML(xml: ParsedXML): TreeNode {
 export const xmlPlanLoader: PlanLoader<ParsedXML> = {
     format: "xml",
     matches: () => true,
-    load(xml) {
+    load(xml, _context) {
         return {root: convertXML(xml)};
     },
 };

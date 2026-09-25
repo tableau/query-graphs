@@ -15,7 +15,7 @@ import {convertDecoratedJsonNode, createDecoratedJsonTreeState} from "./decorate
 import type {Json, JsonObject} from "./loader-utils";
 import {forceToString, hasOwnProperty, hasSubObject, isJsonObject, tryToNonNullString, tryToNumber} from "./loader-utils";
 import {buildIdMap, colorRelativeNumber, resolveCrosslinks, setRelativeEdgeWidths} from "./tree-postprocessing";
-import type {PlanLoader} from "./types";
+import type {PlanLoadContext, PlanLoader} from "./types";
 
 function getExtraInfo(rawNode: JsonObject): JsonObject | undefined {
     return hasSubObject(rawNode, "extra_info") ? rawNode["extra_info"] : undefined;
@@ -135,9 +135,14 @@ function applyOperatorTimings(root: TreeNode): void {
     colorRelativeNumber(timings);
 }
 
-function convertDuckPlan(rawRoot: Json, metadata?: Map<string, string>, textDocuments?: TextDocument[]): TreeDescription {
+function convertDuckPlan(
+    rawRoot: Json,
+    context: PlanLoadContext,
+    metadata?: Map<string, string>,
+    textDocuments?: TextDocument[],
+): TreeDescription {
     const state = createDecoratedJsonTreeState();
-    const root = convertDecoratedJsonNode(rawRoot, "DuckDB plan", state, duckDbConfig);
+    const root = convertDecoratedJsonNode(rawRoot, "DuckDB plan", state, duckDbConfig, context);
     applyOperatorTimings(root);
     setRelativeEdgeWidths(state.edgeWidths);
     const crosslinkTargets = new Map<string, TreeNode>();
@@ -219,22 +224,22 @@ function getQueryDocument(json: JsonObject): TextDocument[] | undefined {
     return query === undefined ? undefined : [{id: "query", title: "Original SQL Query", text: query, language: "sql"}];
 }
 
-function combinePlanStages(stages: [string, Json][]): TreeDescription {
+function combinePlanStages(stages: [string, Json][], context: PlanLoadContext): TreeDescription {
     const children: TreeNode[] = [];
     const crosslinks: Crosslink[] = [];
     for (const [name, root] of stages) {
-        const converted = convertDuckPlan(root);
+        const converted = convertDuckPlan(root, context);
         children.push({name, collapsedChildren: [converted.root]});
         crosslinks.push(...(converted.crosslinks ?? []));
     }
     return {root: {name: "optimizer stages", children}, crosslinks};
 }
 
-function loadDuckDbPlan(json: Json): TreeDescription {
+function loadDuckDbPlan(json: Json, context: PlanLoadContext): TreeDescription {
     // Plans with multiple stages (`SET explain_output='all'`)
     const stages = getPlanStages(json);
     if (stages !== undefined) {
-        return combinePlanStages(stages);
+        return combinePlanStages(stages, context);
     }
 
     // ANALYZEd plans
@@ -243,11 +248,11 @@ function loadDuckDbPlan(json: Json): TreeDescription {
         if (isDuckNode(root) && root["operator_type"] === "EXPLAIN_ANALYZE" && isSingletonArray(root["children"])) {
             root = root["children"][0];
         }
-        return convertDuckPlan(root, analyzeMetadata(json), getQueryDocument(json));
+        return convertDuckPlan(root, context, analyzeMetadata(json), getQueryDocument(json));
     }
 
     // Normal plans
-    return convertDuckPlan(Array.isArray(json) && json.length > 0 ? json[0] : json);
+    return convertDuckPlan(Array.isArray(json) && json.length > 0 ? json[0] : json, context);
 }
 
 export const duckDbPlanLoader: PlanLoader<Json> = {

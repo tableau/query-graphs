@@ -52,10 +52,11 @@ test("dispatcher strips text surrounding copied plans", () => {
     assert.equal(loadPlanFromText(xml, {format: "xml"}).format, "xml");
 });
 
-test("dispatcher adds supplied SQL to plans", () => {
-    const tree = loadPlanFromText('{"unrecognized":true}', {sql: "SELECT 1"}).tree;
+// Supplied SQL becomes the canonical query document, including the newline normalization expected by CodeMirror.
+test("dispatcher adds normalized supplied SQL to plans", () => {
+    const tree = loadPlanFromText('{"unrecognized":true}', {sql: "SELECT\r\n1"}).tree;
     assert.deepEqual(tree.textDocuments, [
-        {id: "query", title: "Original SQL Query", text: "SELECT 1", language: "sql"},
+        {id: "query", title: "Original SQL Query", text: "SELECT\n1", language: "sql"},
         {id: "plan", title: "Query Plan", text: '{\n   "unrecognized": true\n}', language: "json"},
     ]);
 });
