@@ -78,6 +78,18 @@ export interface SourceLocation {
     to: number;
 }
 
+export function equalSourceLocationLists(left: readonly SourceLocation[], right: readonly SourceLocation[]): boolean {
+    return (
+        left.length === right.length &&
+        left.every(
+            (location, index) =>
+                location.documentId === right[index].documentId &&
+                location.from === right[index].from &&
+                location.to === right[index].to,
+        )
+    );
+}
+
 export interface TreeDescription {
     /// The tree root
     root: TreeNode;

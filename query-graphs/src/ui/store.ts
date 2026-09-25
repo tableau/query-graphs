@@ -4,6 +4,7 @@ import {createStore} from "zustand/vanilla";
 import type {StoreApi} from "zustand/vanilla";
 import {assertNotNull} from "../assert";
 import type {SourceLocation, TreeNode} from "../tree-description";
+import {equalSourceLocationLists} from "../tree-description";
 import {findClosestVisibleAncestors, type TreeParents} from "./tree-index";
 
 interface SourceNodeEntry {
@@ -76,18 +77,6 @@ function nodeIdsForSourceLocations(
 
 function equalSets<T>(left: ReadonlySet<T>, right: ReadonlySet<T>): boolean {
     return left.size === right.size && Array.from(left).every((value) => right.has(value));
-}
-
-function equalSourceLocations(left: readonly SourceLocation[], right: readonly SourceLocation[]): boolean {
-    return (
-        left.length === right.length &&
-        left.every(
-            (location, index) =>
-                location.documentId === right[index].documentId &&
-                location.from === right[index].from &&
-                location.to === right[index].to,
-        )
-    );
 }
 
 export interface GraphRenderingState {
@@ -171,7 +160,8 @@ export function createGraphRenderingStore(
         },
         setActiveSourceLocations: (documentId, sourceLocations) => {
             if (sourceLocations.length === 0 && activeSourceDocumentId !== documentId) return;
-            if (activeSourceDocumentId === documentId && equalSourceLocations(sourceHighlightedLocations, sourceLocations)) return;
+            if (activeSourceDocumentId === documentId && equalSourceLocationLists(sourceHighlightedLocations, sourceLocations))
+                return;
             sourceHighlightedNodeIds = nodeIdsForSourceLocations(sourceNodeIndex, documentId, sourceLocations);
             sourceHighlightedLocations = sourceLocations;
             activeSourceDocumentId = sourceLocations.length === 0 ? undefined : documentId;

@@ -3,6 +3,7 @@ import {findClusterBreak} from "@codemirror/state";
 import {StateEffect, StateField, type EditorState, type Extension, type StateEffectType} from "@codemirror/state";
 import {Decoration, type DecorationSet, EditorView, ViewPlugin, type ViewUpdate} from "@codemirror/view";
 import type {SourceLocation} from "@tableau/query-graphs/lib/tree-description";
+import {equalSourceLocationLists} from "@tableau/query-graphs/lib/tree-description";
 
 const setLinkedRanges = StateEffect.define<readonly SourceLocation[]>();
 const setHighlightedRanges = StateEffect.define<readonly SourceLocation[]>();
@@ -153,18 +154,6 @@ function activeLinkedRangesAtOffset(state: EditorState, documentOffset?: number)
     return activeLinkedRanges;
 }
 
-function equalSourceLocations(left: readonly SourceLocation[], right: readonly SourceLocation[]): boolean {
-    return (
-        left.length === right.length &&
-        left.every(
-            (location, index) =>
-                location.documentId === right[index].documentId &&
-                location.from === right[index].from &&
-                location.to === right[index].to,
-        )
-    );
-}
-
 function activeLinkedRangeTracking(onActiveLinkedRangesChange: (activeLinkedRanges: readonly SourceLocation[]) => void): Extension {
     interface PendingPointerSample {
         view: EditorView;
@@ -248,7 +237,7 @@ function activeLinkedRangeTracking(onActiveLinkedRangesChange: (activeLinkedRang
 
             private reportDocumentOffset(view: EditorView, documentOffset?: number) {
                 const activeLinkedRanges = activeLinkedRangesAtOffset(view.state, documentOffset);
-                if (equalSourceLocations(this.activeLinkedRanges, activeLinkedRanges)) return;
+                if (equalSourceLocationLists(this.activeLinkedRanges, activeLinkedRanges)) return;
                 this.activeLinkedRanges = activeLinkedRanges;
                 onActiveLinkedRangesChange(activeLinkedRanges);
             }
