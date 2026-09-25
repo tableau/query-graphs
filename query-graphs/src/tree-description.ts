@@ -78,6 +78,10 @@ export interface SourceLocation {
     to: number;
 }
 
+export function compareSourceLocations(left: SourceLocation, right: SourceLocation): number {
+    return left.from - right.from || left.to - right.to;
+}
+
 export interface TreeDescription {
     /// The tree root
     root: TreeNode;

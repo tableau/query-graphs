@@ -1,15 +1,10 @@
-import type {SourceLocation, TreeNode} from "../tree-description";
-
-interface IndexedSourceRange {
-    location: SourceLocation;
-    nodeIds: Set<string>;
-}
+import {compareSourceLocations, type SourceLocation, type TreeNode} from "../tree-description";
 
 export interface SourceLinkIndex {
     /** Returns the stable, sorted range list made interactive in one document. */
     getLinkedRanges: (documentId: string) => readonly SourceLocation[];
     /** Resolves exact ranges reported by an editor to every node associated with them. */
-    getNodeIdsForRanges: (documentId: string, sourceLocations: readonly SourceLocation[]) => ReadonlySet<string>;
+    getNodeIdsForRanges: (sourceLocations: readonly SourceLocation[]) => ReadonlySet<string>;
     /** Returns the sorted, deduplicated ranges associated with the supplied nodes in one document. */
     getRangesForNodeIds: (documentId: string, nodeIds: ReadonlySet<string>) => readonly SourceLocation[];
 }
@@ -25,12 +20,13 @@ function validSourceRange({from, to}: SourceLocation): boolean {
     return Number.isSafeInteger(from) && Number.isSafeInteger(to) && from >= 0 && from < to;
 }
 
-function compareSourceRanges(left: SourceLocation, right: SourceLocation): number {
-    return left.from - right.from || left.to - right.to;
-}
-
 /** Builds the immutable bidirectional source-range index shared by tree and document interactions. */
 export function createSourceLinkIndex(nodeIds: ReadonlyMap<TreeNode, string>): SourceLinkIndex {
+    interface IndexedSourceRange {
+        location: SourceLocation;
+        nodeIds: Set<string>;
+    }
+
     const rangesByDocument = new Map<string, Map<string, IndexedSourceRange>>();
     const sourceRangesByNodeId = new Map<string, readonly SourceLocation[]>();
     for (const [node, nodeId] of nodeIds) {
@@ -49,18 +45,16 @@ export function createSourceLinkIndex(nodeIds: ReadonlyMap<TreeNode, string>): S
 
     const linkedRangesByDocument = new Map<string, readonly SourceLocation[]>();
     for (const [documentId, ranges] of rangesByDocument) {
-        linkedRangesByDocument.set(documentId, Array.from(ranges.values(), ({location}) => location).sort(compareSourceRanges));
+        linkedRangesByDocument.set(documentId, Array.from(ranges.values(), ({location}) => location).sort(compareSourceLocations));
     }
 
     return {
         getLinkedRanges: (documentId) => linkedRangesByDocument.get(documentId) ?? noSourceRanges,
-        getNodeIdsForRanges: (documentId, sourceLocations) => {
-            const documentRanges = rangesByDocument.get(documentId);
+        getNodeIdsForRanges: (sourceLocations) => {
             const matchingNodeIds = new Set<string>();
-            if (documentRanges === undefined) return matchingNodeIds;
             for (const location of sourceLocations) {
-                if (location.documentId !== documentId) continue;
-                for (const nodeId of documentRanges.get(sourceRangeKey(location))?.nodeIds ?? []) matchingNodeIds.add(nodeId);
+                const documentRanges = rangesByDocument.get(location.documentId);
+                for (const nodeId of documentRanges?.get(sourceRangeKey(location))?.nodeIds ?? []) matchingNodeIds.add(nodeId);
             }
             return matchingNodeIds;
         },
@@ -72,7 +66,7 @@ export function createSourceLinkIndex(nodeIds: ReadonlyMap<TreeNode, string>): S
                 }
             }
             if (matchingRanges.size === 0) return noSourceRanges;
-            return Array.from(matchingRanges.values()).sort(compareSourceRanges);
+            return Array.from(matchingRanges.values()).sort(compareSourceLocations);
         },
     };
 }

@@ -56,6 +56,7 @@ function QueryGraphInternal({treeDescription, children, nodeIdMapping, treeParen
     // of `visibility: hidden` because React Flow overrides inherited
     // visibility on nodes after measuring them.
     const initialViewportStyle = {opacity: animatedLayout.initialViewportReady ? 1 : 0};
+
     return (
         <AnimateGraphChangeContext.Provider value={animatedLayout.animateGraphChange}>
             <ReactFlow

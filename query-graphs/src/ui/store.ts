@@ -121,7 +121,7 @@ export function createGraphRenderingStore({expandedSubtrees, graphIndex}: GraphR
                         : {
                               documentId,
                               sourceLocations,
-                              nodeIds: graphIndex.sourceLinks.getNodeIdsForRanges(documentId, sourceLocations),
+                              nodeIds: graphIndex.sourceLinks.getNodeIdsForRanges(sourceLocations),
                           };
                 set((state) => resolveHighlights(state.expandedSubtrees));
             },

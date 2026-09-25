@@ -13,10 +13,11 @@ test("source ranges resolve to every linked node", () => {
         {sourceLocations: [sharedRange]},
         {sourceLocations: [sharedRange]},
         {sourceLocations: [{documentId: "query", from: 12, to: 16}]},
+        {sourceLocations: [{documentId: "plan", from: 10, to: 20}]},
     ]);
 
-    assert.deepEqual(index.getNodeIdsForRanges("query", [sharedRange]), new Set(["0", "1"]));
-    assert.deepEqual(index.getNodeIdsForRanges("query", [{documentId: "plan", from: 10, to: 20}]), new Set());
+    assert.deepEqual(index.getNodeIdsForRanges([sharedRange]), new Set(["0", "1"]));
+    assert.deepEqual(index.getNodeIdsForRanges([sharedRange, {documentId: "plan", from: 10, to: 20}]), new Set(["0", "1", "3"]));
 });
 
 test("nodes resolve to their sorted, deduplicated ranges in each document", () => {
@@ -53,7 +54,7 @@ test("malformed ranges are excluded from the index", () => {
     ]);
 
     assert.deepEqual(index.getLinkedRanges("query"), [validRange]);
-    assert.deepEqual(index.getNodeIdsForRanges("query", [validRange]), new Set(["0"]));
+    assert.deepEqual(index.getNodeIdsForRanges([validRange]), new Set(["0"]));
 });
 
 test("documents without source ranges share a stable empty result", () => {
