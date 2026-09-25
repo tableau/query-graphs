@@ -12,8 +12,8 @@
     max-height: 100dvh;
     overflow: hidden;
 
-    /* Reserve a stable editor width only while a document is visible. */
-    &:has(.graph-text-document-panel[open]) {
+    /* Reserve a stable editor width only while the disclosure is expanded. */
+    &:has(.graph-text-document-panel[data-expanded]) {
         width: min(30em, 40vw);
     }
 }
@@ -69,8 +69,8 @@
     animation: graph-panel-highlight-pulse 1.4s ease-in-out infinite;
 }
 
-/* An open panel shows the highlighted content directly. */
-.qg-collapsible-panel[open] .graph-panel-highlight-indicator {
+/* Hide the cue once the expanded panel shows its highlighted content. */
+.qg-collapsible-panel[data-expanded] .graph-panel-highlight-indicator {
     visibility: hidden;
 }
 
@@ -163,7 +163,8 @@
     .graph-sidebar {
         max-width: 100vw;
 
-        &:has(.graph-text-document-panel[open]) {
+        /* Expanded documents use the full narrow viewport. */
+        &:has(.graph-text-document-panel[data-expanded]) {
             width: 100vw;
         }
     }

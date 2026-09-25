@@ -1,7 +1,7 @@
 import {useEffect, useRef} from "react";
 import {defaultKeymap} from "@codemirror/commands";
 import {bracketMatching, defaultHighlightStyle, foldGutter, foldKeymap, syntaxHighlighting} from "@codemirror/language";
-import {searchKeymap} from "@codemirror/search";
+import {openSearchPanel, searchKeymap} from "@codemirror/search";
 import {EditorState, type Extension} from "@codemirror/state";
 import {EditorView, highlightSpecialChars, keymap, lineNumbers, scrollPastEnd} from "@codemirror/view";
 import type {SourceLocation, TextDocument} from "@tableau/query-graphs/lib/tree-description";
@@ -72,6 +72,8 @@ export interface DocumentViewerProps {
     highlightedRanges?: readonly SourceLocation[];
     /** Reports the narrowest linked ranges under the pointer, falling back to the focused caret. */
     onActiveLinkedRangesChange?: (activeLinkedRanges: readonly SourceLocation[]) => void;
+    /** Opens and focuses search whenever this value changes to a defined request token. */
+    searchRequest?: number;
 }
 
 export interface CodeMirrorDocumentProps extends DocumentViewerProps {
@@ -84,6 +86,7 @@ export function CodeMirrorDocument({
     linkedRanges = [],
     highlightedRanges = [],
     onActiveLinkedRangesChange,
+    searchRequest,
 }: CodeMirrorDocumentProps) {
     const editorHost = useRef<HTMLDivElement>(null);
     const editorView = useRef<EditorView | undefined>(undefined);
@@ -139,6 +142,10 @@ export function CodeMirrorDocument({
     useEffect(() => {
         editorView.current?.dispatch({effects: rangeLinking.setHighlightedRanges.of(highlightedRanges)});
     }, [highlightedRanges]);
+
+    useEffect(() => {
+        if (searchRequest !== undefined && editorView.current !== undefined) openSearchPanel(editorView.current);
+    }, [searchRequest]);
 
     return <div ref={editorHost} className="graph-text-document" />;
 }

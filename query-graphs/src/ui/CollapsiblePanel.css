@@ -1,11 +1,10 @@
 .qg-collapsible-panel {
     box-sizing: border-box;
-    /*
-     * Together with the summary/content z-index rules below, keep body widgets in a
-     * panel-local stacking order. In particular, CodeMirror's z-index: 200 gutter
-     * remains inside the body's z-index: 0 context, allowing the summary's z-index: 1
-     * focus outline to paint above it.
-     */
+    position: relative;
+    /* Keep the disclosure and actions in one row; content spans both columns. */
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    /* Contain CodeMirror's z-index so the header can paint above it. */
     isolation: isolate;
     /* Match the card treatment used by hovered and expanded graph nodes. */
     background: white;
@@ -15,30 +14,40 @@
         0 2px 6px hsl(0, 0%, 0%, 0.08),
         0 1px 2px hsl(0, 0%, 0%, 0.06);
 
-    & > summary {
+    /* Lift an open tooltip's stacking context above subsequent sibling panels. */
+    &:has(.qg-icon-button:hover, .qg-icon-button:focus-visible, .qg-icon-button-tooltip:hover) {
+        z-index: 2;
+    }
+
+    & > .qg-collapsible-panel-toggle {
         /* Paint the interactive header above any high-z-index body widgets. */
         position: relative;
         z-index: 1;
+        grid-column: 1;
+        grid-row: 1;
 
         /* Lay out the header contents in a row. */
         display: flex;
         align-items: center;
         gap: 0.4em;
+        min-width: 0;
         padding: 0.5em;
+        /* Reset native button styles without losing keyboard semantics. */
+        border: 0;
+        border-radius: 0;
+        border-start-start-radius: 7px;
+        color: inherit;
+        background: transparent;
+        font: inherit;
         font-weight: 600;
-        list-style: none;
+        text-align: start;
         user-select: none;
         cursor: pointer;
 
         &:focus-visible {
+            z-index: 2;
             outline: 2px solid hsl(210, 90%, 65%);
-            outline-offset: 2px;
-            border-radius: 8px;
-        }
-
-        /* Replace the browser marker with the consistently styled chevron below. */
-        &::-webkit-details-marker {
-            display: none;
+            outline-offset: 1px;
         }
 
         & .qg-collapsible-panel-chevron {
@@ -55,7 +64,7 @@
         }
     }
 
-    &[open] > summary .qg-collapsible-panel-chevron {
+    &[data-expanded] > .qg-collapsible-panel-toggle .qg-collapsible-panel-chevron {
         transform: rotate(90deg);
     }
 
@@ -66,11 +75,14 @@
             0 2px 6px hsl(0, 72%, 45%, 0.12),
             0 1px 2px hsl(0, 72%, 45%, 0.1);
 
-        & > summary {
+        & > .qg-collapsible-panel-toggle {
             color: hsl(0, 72%, 40%);
             background: hsl(0, 75%, 97%);
-            /* Follow the inside edge of the root's 8px radius and 1px border. */
-            border-radius: 7px;
+        }
+
+        & > .qg-collapsible-panel-actions {
+            color: hsl(0, 72%, 40%);
+            background: hsl(0, 75%, 97%);
         }
     }
 }
@@ -89,15 +101,73 @@
 }
 
 .qg-collapsible-panel-actions {
+    /* Use the panel border as the group's outer border. */
     display: flex;
-    gap: 0.4em;
-    margin-left: auto;
+    z-index: 1;
+    grid-column: 2;
+    grid-row: 1;
+    border-inline-start: 1px solid hsl(0, 0%, 85%);
+    border-start-end-radius: 7px;
+
+    & > .qg-icon-button-wrapper {
+        align-self: stretch;
+    }
+
+    & > .qg-icon-button-wrapper + .qg-icon-button-wrapper {
+        border-inline-start: 1px solid hsl(0, 0%, 85%);
+    }
+
+    & .qg-icon-button {
+        height: 100%;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+    }
+
+    & > .qg-icon-button-wrapper:last-child .qg-icon-button {
+        /* Follow the inside edge of the panel's top-end corner. */
+        border-start-end-radius: 7px;
+    }
+}
+
+.qg-collapsible-panel:not([data-expanded]) > .qg-collapsible-panel-actions > .qg-icon-button-wrapper:last-child .qg-icon-button {
+    /* In a collapsed panel, the action also meets the bottom-end corner. */
+    border-end-end-radius: 7px;
+}
+
+.qg-collapsible-panel:not([data-expanded]) > .qg-collapsible-panel-actions {
+    /* Clip the group's own background to the exposed bottom-end corner. */
+    border-end-end-radius: 7px;
+}
+
+.qg-collapsible-panel:not([data-expanded]) > .qg-collapsible-panel-toggle {
+    /* Complete the bottom-start corner when content is hidden. */
+    border-end-start-radius: 7px;
+}
+
+.qg-collapsible-panel:not(:has(> .qg-collapsible-panel-actions)) > .qg-collapsible-panel-toggle {
+    /* Complete the top-end corner when there is no action group. */
+    border-start-end-radius: 7px;
+}
+
+.qg-collapsible-panel:not([data-expanded]):not(:has(> .qg-collapsible-panel-actions)) > .qg-collapsible-panel-toggle {
+    /* Complete the remaining corner when collapsed without actions. */
+    border-end-end-radius: 7px;
+}
+
+.qg-collapsible-panel-title {
+    /* Let long titles shrink beside the action group. */
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .qg-collapsible-panel-content {
     /* Establish the lower half of the panel-local stacking order described above. */
     position: relative;
     z-index: 0;
+    grid-column: 1 / -1;
     /* Constrain the body and separate it visually from the header. */
     max-height: 70vh;
     overflow: auto;

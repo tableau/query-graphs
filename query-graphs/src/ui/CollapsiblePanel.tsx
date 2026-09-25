@@ -1,4 +1,4 @@
-import {useState, type ReactNode} from "react";
+import {useEffect, useId, useState, type ReactNode} from "react";
 import cc from "classcat";
 import "./CollapsiblePanel.css";
 
@@ -11,8 +11,12 @@ export interface CollapsiblePanelProps {
     children: ReactNode;
     /** Whether to draw attention to the panel. */
     highlighted?: boolean;
-    /** Additional class name applied to the root details element. */
+    /** Additional class name applied to the panel root. */
     className?: string;
+    /** Controls whether the panel is expanded. Omit to let the panel manage its own state; do not add or remove it later. */
+    open?: boolean;
+    /** Receives expansion changes requested through the disclosure button. */
+    onOpenChange?: (open: boolean) => void;
     /**
      * Delays mounting the panel body until hover, keyboard focus, or opening indicates that it will be needed.
      * Once mounted, the body remains mounted across subsequent close/open cycles.
@@ -26,24 +30,47 @@ export function CollapsiblePanel({
     children,
     highlighted,
     className,
+    open,
+    onOpenChange,
     mountContentOnFirstIntent,
 }: CollapsiblePanelProps) {
     const classes = cc(["qg-collapsible-panel", {"qg-highlighted": highlighted}, className]);
-    const [contentMounted, setContentMounted] = useState(false);
+    const [contentMounted, setContentMounted] = useState(open === true);
+    const [internalOpen, setInternalOpen] = useState(false);
+    // Choose the source of truth once; switching between controlled and uncontrolled state produces ambiguous behavior.
+    const [isControlled] = useState(() => open !== undefined);
+    const isControlledNow = open !== undefined;
+    const contentId = useId();
+    const expanded = isControlled ? open === true : internalOpen;
+
+    useEffect(() => {
+        if (isControlled !== isControlledNow)
+            console.error("CollapsiblePanel must not switch between controlled and uncontrolled state.");
+    }, [isControlled, isControlledNow]);
+
+    // Remember a programmatic expansion as intent too, so lazy content stays mounted after it is collapsed again.
+    if (mountContentOnFirstIntent && expanded && !contentMounted) setContentMounted(true);
 
     const mountContent = () => {
         if (mountContentOnFirstIntent) setContentMounted(true);
     };
 
     return (
-        <details
-            className={classes}
-            onToggle={(event) => {
-                if (!event.currentTarget.open) return;
-                mountContent();
-            }}
-        >
-            <summary onPointerEnter={mountContent} onFocus={mountContent}>
+        <div className={classes} data-expanded={expanded ? "" : undefined}>
+            <button
+                type="button"
+                className="qg-collapsible-panel-toggle"
+                aria-expanded={expanded}
+                aria-controls={contentId}
+                onClick={() => {
+                    const nextOpen = !expanded;
+                    if (nextOpen) mountContent();
+                    if (!isControlled) setInternalOpen(nextOpen);
+                    onOpenChange?.(nextOpen);
+                }}
+                onPointerEnter={mountContent}
+                onFocus={mountContent}
+            >
                 <svg className="qg-collapsible-panel-chevron" viewBox="0 0 16 16" aria-hidden="true">
                     <path d="M5.5 3.5 10.5 8l-5 4.5" />
                 </svg>
@@ -53,13 +80,15 @@ export function CollapsiblePanel({
                         !
                     </span>
                 ) : null}
-                {headerActions ? (
-                    <span className="qg-collapsible-panel-actions" onClick={(event) => event.stopPropagation()}>
-                        {headerActions}
-                    </span>
-                ) : null}
-            </summary>
-            {!mountContentOnFirstIntent || contentMounted ? <div className="qg-collapsible-panel-content">{children}</div> : null}
-        </details>
+            </button>
+            {headerActions ? (
+                <span className="qg-collapsible-panel-actions" role="group" aria-label="Panel actions">
+                    {headerActions}
+                </span>
+            ) : null}
+            <div id={contentId} className="qg-collapsible-panel-content" hidden={!expanded}>
+                {!mountContentOnFirstIntent || contentMounted || expanded ? children : null}
+            </div>
+        </div>
     );
 }

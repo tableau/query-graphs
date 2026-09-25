@@ -1,6 +1,7 @@
-import {lazy, Suspense, type ReactElement, useCallback, useMemo} from "react";
+import {lazy, Suspense, type ReactElement, useCallback, useMemo, useState} from "react";
 import {CollapsiblePanel} from "@tableau/query-graphs/lib/ui/CollapsiblePanel";
 import {CopyButton} from "@tableau/query-graphs/lib/ui/CopyButton";
+import {IconButton} from "@tableau/query-graphs/lib/ui/IconButton";
 import {useGraphRenderingStore} from "@tableau/query-graphs/lib/ui/store";
 import type {SourceLocation, TextDocument} from "@tableau/query-graphs/lib/tree-description";
 import "./TreeLabel.css";
@@ -30,6 +31,8 @@ function LoadingDocument({title}: {title: string}) {
 }
 
 function TextDocumentPanel({document}: {document: TextDocument}) {
+    const [open, setOpen] = useState(false);
+    const [searchRequest, setSearchRequest] = useState<number>();
     const linkedRanges = useGraphRenderingStore((state) => state.getLinkedSourceRanges(document.id));
     const highlightedNodeIds = useGraphRenderingStore((state) => state.highlightedNodeIds);
     const getSourceRangesForNodes = useGraphRenderingStore((state) => state.getSourceRangesForNodes);
@@ -56,7 +59,26 @@ function TextDocumentPanel({document}: {document: TextDocument}) {
         <CollapsiblePanel
             title={panelTitle}
             className="graph-text-document-panel"
-            headerActions={<CopyButton text={document.text} contentName={document.title} />}
+            open={open}
+            onOpenChange={setOpen}
+            headerActions={
+                <>
+                    <IconButton
+                        label={`Search ${document.title}`}
+                        tooltip="Search"
+                        onClick={() => {
+                            setOpen(true);
+                            setSearchRequest((request) => (request ?? 0) + 1);
+                        }}
+                    >
+                        <svg viewBox="0 0 16 16" aria-hidden="true">
+                            <circle cx="7" cy="7" r="4.25" />
+                            <path d="m10.25 10.25 3.25 3.25" />
+                        </svg>
+                    </IconButton>
+                    <CopyButton text={document.text} contentName={document.title} />
+                </>
+            }
             mountContentOnFirstIntent
         >
             <div className="graph-text-document-frame">
@@ -66,6 +88,7 @@ function TextDocumentPanel({document}: {document: TextDocument}) {
                         linkedRanges={linkedRanges}
                         highlightedRanges={highlightedRanges}
                         onActiveLinkedRangesChange={onActiveLinkedRangesChange}
+                        searchRequest={searchRequest}
                     />
                 </Suspense>
             </div>
