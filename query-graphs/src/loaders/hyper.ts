@@ -355,7 +355,7 @@ function isHyperPlan(json: Json): boolean {
         return isHyperPlanRoot(json["tree"]);
     }
     // TODO(2026-12-18): Require the {tree, pipelines} envelope and stop auto-detecting pre-2026-09-18 direct-root plans.
-    return isOptimizerStepsPlan(json) || isHyperPlanRoot(json);
+    return isOptimizerStepsPlan(json) || isHyperPlanRoot(json) || (isJsonObject(json) && Object.values(json).some(isHyperPlan));
 }
 
 function loadHyperPlan(json: Json): TreeDescription {
