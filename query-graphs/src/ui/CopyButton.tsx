@@ -19,7 +19,7 @@ interface CopyFeedback {
 const statusDuration = 2000;
 
 function announce(message: string): void {
-    // Visible tooltip feedback remains available, so limited ariaNotify support is acceptable here.
+    // Visible tooltip feedback remains available, so limited browser support for ariaNotify is acceptable here.
     if ("ariaNotify" in document && typeof document.ariaNotify === "function") document.ariaNotify(message);
 }
 
