@@ -26,12 +26,13 @@ test("source locations select every node linked to the active ranges", () => {
     const store = graphStore([outer, first, second]);
 
     store.getState().setActiveSourceLocations("query", [{documentId: "query", from: 12, to: 16}]);
-    assert.deepEqual(store.getState().activeNodeIds, new Set(["1", "2"]));
     assert.deepEqual(store.getState().highlightedNodeIds, new Set(["1", "2"]));
+    assert.deepEqual(store.getState().visibleHighlightedNodeIds, new Set(["1", "2"]));
     store.getState().setActiveSourceLocations("query", [{documentId: "query", from: 10, to: 20}]);
-    assert.deepEqual(store.getState().highlightedNodeIds, new Set(["0"]));
+    assert.deepEqual(store.getState().visibleHighlightedNodeIds, new Set(["0"]));
     store.getState().setActiveSourceLocations("query", []);
     assert.deepEqual(store.getState().highlightedNodeIds, new Set());
+    assert.deepEqual(store.getState().visibleHighlightedNodeIds, new Set());
 });
 
 test("active source locations resolve hidden nodes to visible ancestors", () => {
@@ -40,12 +41,12 @@ test("active source locations resolve hidden nodes to visible ancestors", () => 
     const store = graphStore([root, hidden], new Map([["1", "0"]]), new Set(["1"]));
 
     store.getState().setActiveSourceLocations("query", [{documentId: "query", from: 0, to: 5}]);
-    assert.deepEqual(store.getState().activeNodeIds, new Set(["1"]));
-    assert.deepEqual(store.getState().highlightedNodeIds, new Set(["0"]));
-    assert.deepEqual(store.getState().highlightedCollapsedSubtreeRootIds, new Set(["0"]));
-    store.getState().toggleExpandedSubtree("0");
     assert.deepEqual(store.getState().highlightedNodeIds, new Set(["1"]));
-    assert.deepEqual(store.getState().highlightedCollapsedSubtreeRootIds, new Set());
+    assert.deepEqual(store.getState().visibleHighlightedNodeIds, new Set(["0"]));
+    assert.deepEqual(store.getState().highlightedCollapsedAncestorIds, new Set(["0"]));
+    store.getState().toggleExpandedSubtree("0");
+    assert.deepEqual(store.getState().visibleHighlightedNodeIds, new Set(["1"]));
+    assert.deepEqual(store.getState().highlightedCollapsedAncestorIds, new Set());
 });
 
 test("tree-node hover temporarily overrides and then restores source highlighting", () => {
@@ -59,16 +60,16 @@ test("tree-node hover temporarily overrides and then restores source highlightin
     const store = graphStore([node, hovered]);
 
     store.getState().setActiveSourceLocations("query", [{documentId: "query", from: 0, to: 5}]);
-    assert.deepEqual(store.getState().highlightedNodeIds, new Set(["0"]));
+    assert.deepEqual(store.getState().visibleHighlightedNodeIds, new Set(["0"]));
     store.getState().setHoveredNodeId("1");
-    assert.deepEqual(store.getState().activeNodeIds, new Set(["1"]));
     assert.deepEqual(store.getState().highlightedNodeIds, new Set(["1"]));
+    assert.deepEqual(store.getState().visibleHighlightedNodeIds, new Set(["1"]));
     store.getState().setHoveredNodeId(undefined);
-    assert.deepEqual(store.getState().activeNodeIds, new Set(["0"]));
     assert.deepEqual(store.getState().highlightedNodeIds, new Set(["0"]));
+    assert.deepEqual(store.getState().visibleHighlightedNodeIds, new Set(["0"]));
 
     store.getState().setActiveSourceLocations("plan", []);
-    assert.deepEqual(store.getState().highlightedNodeIds, new Set(["0"]));
+    assert.deepEqual(store.getState().visibleHighlightedNodeIds, new Set(["0"]));
     store.getState().setActiveSourceLocations("query", []);
     assert.deepEqual(store.getState().highlightedNodeIds, new Set());
 });
@@ -81,12 +82,12 @@ test("repeated active source locations do not republish highlight state", () => 
 
     const sourceLocations = [{documentId: "query", from: 0, to: 5}];
     store.getState().setActiveSourceLocations("query", sourceLocations);
-    const activeNodeIds = store.getState().activeNodeIds;
     const highlightedNodeIds = store.getState().highlightedNodeIds;
+    const visibleHighlightedNodeIds = store.getState().visibleHighlightedNodeIds;
     store.getState().setActiveSourceLocations("query", sourceLocations);
 
     assert.equal(updates, 1);
-    assert.equal(store.getState().activeNodeIds, activeNodeIds);
     assert.equal(store.getState().highlightedNodeIds, highlightedNodeIds);
+    assert.equal(store.getState().visibleHighlightedNodeIds, visibleHighlightedNodeIds);
     unsubscribe();
 });

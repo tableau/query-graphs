@@ -31,11 +31,11 @@ function LoadingDocument({title}: {title: string}) {
 
 function TextDocumentPanel({document}: {document: TextDocument}) {
     const linkedRanges = useGraphRenderingStore((state) => state.getLinkedSourceRanges(document.id));
-    const activeNodeIds = useGraphRenderingStore((state) => state.activeNodeIds);
+    const highlightedNodeIds = useGraphRenderingStore((state) => state.highlightedNodeIds);
     const getSourceRangesForNodes = useGraphRenderingStore((state) => state.getSourceRangesForNodes);
     const highlightedRanges = useMemo(
-        () => getSourceRangesForNodes(document.id, activeNodeIds),
-        [activeNodeIds, document.id, getSourceRangesForNodes],
+        () => getSourceRangesForNodes(document.id, highlightedNodeIds),
+        [document.id, getSourceRangesForNodes, highlightedNodeIds],
     );
     const setActiveSourceLocations = useGraphRenderingStore((state) => state.setActiveSourceLocations);
     const onActiveLinkedRangesChange = useCallback(

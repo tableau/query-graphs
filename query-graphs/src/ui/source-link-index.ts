@@ -64,9 +64,9 @@ export function createSourceLinkIndex(nodeIds: ReadonlyMap<TreeNode, string>): S
             }
             return matchingNodeIds;
         },
-        getRangesForNodeIds: (documentId, activeNodeIds) => {
+        getRangesForNodeIds: (documentId, nodeIds) => {
             const matchingRanges = new Map<string, SourceLocation>();
-            for (const nodeId of activeNodeIds) {
+            for (const nodeId of nodeIds) {
                 for (const location of sourceRangesByNodeId.get(nodeId) ?? []) {
                     if (location.documentId === documentId) matchingRanges.set(sourceRangeKey(location), location);
                 }

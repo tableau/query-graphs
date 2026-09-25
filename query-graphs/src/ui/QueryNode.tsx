@@ -16,8 +16,8 @@ function QueryNode({data, id}: NodeProps<QueryGraphNode>) {
     const toggleNode = useGraphRenderingStore((s) => s.toggleExpandedNode);
     const subtreeExpanded = useGraphRenderingStore((s) => s.expandedSubtrees[id]);
     const toggleSubtree = useGraphRenderingStore((s) => s.toggleExpandedSubtree);
-    const highlighted = useGraphRenderingStore((s) => s.highlightedNodeIds.has(id));
-    const descendantHighlighted = useGraphRenderingStore((s) => s.highlightedCollapsedSubtreeRootIds.has(id));
+    const highlighted = useGraphRenderingStore((s) => s.visibleHighlightedNodeIds.has(id));
+    const descendantHighlighted = useGraphRenderingStore((s) => s.highlightedCollapsedAncestorIds.has(id));
     const setHoveredNodeId = useGraphRenderingStore((s) => s.setHoveredNodeId);
     const animateGraphChange = useAnimateGraphChange();
 
