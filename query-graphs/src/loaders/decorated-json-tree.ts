@@ -49,7 +49,7 @@ export interface DecoratedJsonTreeConfig {
     /** Override the usual property, tag, or parent-key-derived display name. */
     getDisplayName?(rawNode: JsonObject): string | undefined;
     /** Link the converted node to ranges in an associated text document. */
-    getSourceLocations?(rawNode: JsonObject, context: PlanLoadContext | undefined): SourceLocation[] | undefined;
+    getSourceLocations?(rawNode: JsonObject, context: PlanLoadContext): SourceLocation[] | undefined;
     /** Identify the target of a crosslink originating at this object. */
     getCrosslinkTarget?(rawNode: JsonObject): string | undefined;
     /** Put a nested value in `collapsedChildren` instead of `children`. */
@@ -128,7 +128,7 @@ function convertDecoratedJsonValue(
     parentKey: string,
     state: DecoratedJsonTreeState,
     config: DecoratedJsonTreeConfig,
-    context?: PlanLoadContext,
+    context: PlanLoadContext,
 ): TreeNode | TreeNode[] {
     const scalar = tryToString(rawNode);
     if (scalar !== undefined) {
@@ -249,7 +249,7 @@ export function convertDecoratedJsonNode(
     rootName: string,
     state: DecoratedJsonTreeState,
     config: DecoratedJsonTreeConfig,
-    context?: PlanLoadContext,
+    context: PlanLoadContext,
 ): TreeNode {
     // Recursive array conversion naturally produces sibling nodes. At the API
     // boundary, wrap them so every caller receives exactly one tree root.

@@ -11,6 +11,10 @@ function treeNodes(root: TreeNode): TreeNode[] {
     return nodes;
 }
 
+function loadUmbraPlan(input: Parameters<typeof umbraPlanLoader.load>[0]) {
+    return umbraPlanLoader.load(input, {});
+}
+
 test("Umbra and CedarDB examples are recognized", () => {
     for (const engine of ["umbra", "cedardb"]) {
         for (const fixturePath of fixturePathsFor(engine)) {
@@ -35,7 +39,7 @@ test("Umbra decorates cardinalities, pipelines, and recursive crosslinks", () =>
 });
 
 test("Umbra keeps operator and pipeline identifier namespaces separate", () => {
-    const tree = umbraPlanLoader.load({
+    const tree = loadUmbraPlan({
         plan: {
             operator: "temp",
             operatorId: 1,
@@ -58,7 +62,7 @@ test("Umbra keeps operator and pipeline identifier namespaces separate", () => {
 });
 
 test("Umbra combines repeated records for the same pipeline", () => {
-    const tree = umbraPlanLoader.load({
+    const tree = loadUmbraPlan({
         plan: {
             operator: "setoperation",
             operatorId: 1,
@@ -80,7 +84,7 @@ test("Umbra combines repeated records for the same pipeline", () => {
 });
 
 test("Umbra normalizes exclusive pipeline memberships at operator boundaries", () => {
-    const tree = umbraPlanLoader.load({
+    const tree = loadUmbraPlan({
         plan: {
             operator: "sort",
             operatorId: 1,
@@ -104,7 +108,7 @@ test("Umbra normalizes exclusive pipeline memberships at operator boundaries", (
 });
 
 test("Umbra normalizes exclusive pipeline memberships across crosslinks", () => {
-    const tree = umbraPlanLoader.load({
+    const tree = loadUmbraPlan({
         plan: {
             operator: "setoperation",
             operatorId: 1,
@@ -137,7 +141,7 @@ test("Umbra applies format-specific names and icons", () => {
 });
 
 test("Umbra keeps source locations in properties instead of graph subtrees", () => {
-    const tree = umbraPlanLoader.load({
+    const tree = loadUmbraPlan({
         plan: {
             operator: "tablescan",
             operatorId: 1,
@@ -221,7 +225,7 @@ test("the Umbra loader remains permissive when explicitly selected", () => {
     const malformed = {plan: {operator: {}, operatorId: "unknown"}};
 
     assert.equal(umbraPlanLoader.matches(malformed), false);
-    assert.equal(umbraPlanLoader.load(malformed).root.name, "result");
+    assert.equal(loadUmbraPlan(malformed).root.name, "result");
     assert.equal(loadPlanFromText(JSON.stringify(malformed)).format, "json");
 
     const forced = loadPlanFromText("{}", {format: "umbra"});

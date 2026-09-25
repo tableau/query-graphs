@@ -11,7 +11,7 @@ import {convertDecoratedJsonNode, createDecoratedJsonTreeState} from "./decorate
 import type {Json, JsonObject} from "./loader-utils";
 import {hasOwnProperty, hasSubObject, tryToNonNullString, tryToNumber} from "./loader-utils";
 import {buildIdMap, resolveCrosslinks, setRelativeEdgeWidths} from "./tree-postprocessing";
-import type {PlanLoader} from "./types";
+import type {PlanLoadContext, PlanLoader} from "./types";
 
 function getStringProperty(rawNode: JsonObject, key: string): string | undefined {
     return tryToNonNullString(rawNode[key]);
@@ -176,10 +176,10 @@ function isPostgresPlan(json: Json): boolean {
     return hasSubObject(json, "Plan") && hasOwnProperty(json.Plan, "Node Type");
 }
 
-function loadPostgresPlan(json: Json): TreeDescription {
+function loadPostgresPlan(json: Json, context: PlanLoadContext): TreeDescription {
     json = unwrapPostgresPlan(json);
     const state = createDecoratedJsonTreeState();
-    const root = convertDecoratedJsonNode(json, "result", state, postgresConfig);
+    const root = convertDecoratedJsonNode(json, "result", state, postgresConfig, context);
     colorRelativeExecutionTime(root);
     setRelativeEdgeWidths(state.edgeWidths);
     const operatorsById = buildIdMap(root, "Subplan Name");

@@ -145,7 +145,7 @@ const hyperConfig: DecoratedJsonTreeConfig = {
     },
     getSourceLocations(rawNode, context) {
         const sqlPositions = rawNode["sqlpos"];
-        const sqlSource = context?.sqlSource;
+        const sqlSource = context.sqlSource;
         if (!Array.isArray(sqlPositions) || sqlSource === undefined) return undefined;
         const locations = sqlPositions.flatMap((range) => {
             if (!Array.isArray(range) || range.length !== 2) return [];
@@ -257,7 +257,7 @@ function applyPipelineStatistics(pipelines: HyperPipeline[], metadata: Map<strin
     colorRelativeNumber(cpuCycles);
 }
 
-function convertHyperPlan(node: Json, context?: PlanLoadContext, pipelines?: Json): TreeDescription {
+function convertHyperPlan(node: Json, context: PlanLoadContext, pipelines?: Json): TreeDescription {
     const state = createDecoratedJsonTreeState();
     const errorMessage = tryGetPropertyPath(node, ["statistics", "error", "message", "original"]);
     if (errorMessage) {
@@ -295,7 +295,7 @@ function isHyperPlanRoot(json: Json): json is JsonObject {
     );
 }
 
-function convertOptimizerSteps(node: Json, context?: PlanLoadContext): TreeDescription | undefined {
+function convertOptimizerSteps(node: Json, context: PlanLoadContext): TreeDescription | undefined {
     if (!isJsonObject(node)) return undefined;
     if (!hasOwnProperty(node, "optimizersteps")) return undefined;
     const steps = node["optimizersteps"];
@@ -371,7 +371,7 @@ function isHyperPlan(json: Json): boolean {
     return isOptimizerStepsPlan(json) || isHyperPlanRoot(json);
 }
 
-function loadHyperPlan(json: Json, context?: PlanLoadContext): TreeDescription {
+function loadHyperPlan(json: Json, context: PlanLoadContext): TreeDescription {
     if (hasPipelineEnvelope(json)) {
         return convertHyperPlan(json["tree"], context, json["pipelines"]);
     }

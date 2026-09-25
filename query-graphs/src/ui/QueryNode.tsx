@@ -16,8 +16,8 @@ function QueryNode({data, id}: NodeProps<QueryGraphNode>) {
     const toggleNode = useGraphRenderingStore((s) => s.toggleExpandedNode);
     const subtreeExpanded = useGraphRenderingStore((s) => s.expandedSubtrees[id]);
     const toggleSubtree = useGraphRenderingStore((s) => s.toggleExpandedSubtree);
-    const sourceHighlighted = useGraphRenderingStore((s) => s.highlightedNodes.has(data));
-    const collapsedSubtreeHighlighted = useGraphRenderingStore((s) => s.highlightedCollapsedSubtreeRoots.has(data));
+    const highlighted = useGraphRenderingStore((s) => s.highlightedNodes.has(data));
+    const descendantHighlighted = useGraphRenderingStore((s) => s.highlightedCollapsedSubtreeRoots.has(data));
     const setHighlightedNode = useGraphRenderingStore((s) => s.setHighlightedNode);
     const animateGraphChange = useAnimateGraphChange();
 
@@ -61,7 +61,7 @@ function QueryNode({data, id}: NodeProps<QueryGraphNode>) {
             "qg-expanded": expanded,
             "qg-collapsed": hasProperties && !expanded,
             "qg-no-props": !hasProperties,
-            "qg-source-highlighted": sourceHighlighted,
+            "qg-highlighted": highlighted,
         },
     ]);
 
@@ -80,7 +80,7 @@ function QueryNode({data, id}: NodeProps<QueryGraphNode>) {
         {
             "qg-expanded": subtreeExpanded,
             "qg-collapsed": !subtreeExpanded,
-            "qg-source-descendant-highlighted": collapsedSubtreeHighlighted && !subtreeExpanded,
+            "qg-descendant-highlighted": descendantHighlighted && !subtreeExpanded,
         },
     ]);
     const subtreeToggleLabel = `${subtreeExpanded ? "Collapse" : "Expand"} subtree${data.name ? ` for ${data.name}` : ""}`;

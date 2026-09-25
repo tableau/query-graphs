@@ -19,7 +19,7 @@ export interface PlanLoader<Input> {
      * Renders the input as permissively as possible, including input for which `matches` returns false.
      * Throw `InvalidPlanError` only when producing a useful tree is impossible.
      */
-    load(input: Input, context?: PlanLoadContext): TreeDescription;
+    load(input: Input, context: PlanLoadContext): TreeDescription;
 }
 
 export class InvalidPlanError extends Error {

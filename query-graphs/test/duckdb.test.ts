@@ -14,6 +14,10 @@ function treeNodes(root: TreeNode): TreeNode[] {
     return nodes;
 }
 
+function loadDuckDbPlan(input: Parameters<typeof duckDbPlanLoader.load>[0]) {
+    return duckDbPlanLoader.load(input, {});
+}
+
 function delimiterJoin(id: string, scanCount: number) {
     return {
         name: "LEFT_DELIM_JOIN",
@@ -86,7 +90,7 @@ test("DuckDB keeps CTE and delimiter crosslink identifiers separate within a pla
             {name: "CTE_SCAN", extra_info: {"CTE Index": "1"}, children: []},
         ],
     };
-    const tree = duckDbPlanLoader.load([
+    const tree = loadDuckDbPlan([
         {
             name: "UNION",
             extra_info: {},
@@ -132,7 +136,7 @@ test("DuckDB simple and optimizer-stage plans preserve plan structure", () => {
 });
 
 test("DuckDB scopes delimiter indexes to individual optimizer stages", () => {
-    const tree = duckDbPlanLoader.load({
+    const tree = loadDuckDbPlan({
         logical_plan: [delimiterJoin("1", 1)],
         logical_opt: [delimiterJoin("1", 1)],
         physical_plan: [delimiterJoin("1", 1)],
@@ -150,7 +154,7 @@ test("DuckDB scopes delimiter indexes to individual optimizer stages", () => {
 });
 
 test("DuckDB resolves analyzed delimiter targets from operator types", () => {
-    const tree = duckDbPlanLoader.load({
+    const tree = loadDuckDbPlan({
         query_name: "select 1",
         children: [
             {
@@ -174,7 +178,7 @@ test("DuckDB resolves analyzed delimiter targets from operator types", () => {
 });
 
 test("DuckDB lowercases only all-uppercase operator names", () => {
-    const tree = duckDbPlanLoader.load([
+    const tree = loadDuckDbPlan([
         {
             name: "UNION",
             children: [
@@ -219,7 +223,7 @@ test("the DuckDB loader accepts forced plans and optional profile fields", () =>
     const forced = loadPlanFromText('[{"name":"SEQ_SCAN","children":[]}]', {format: "duckdb"});
     assert.equal(forced.tree.root.name, "seq_scan");
 
-    const malformedExplainAnalyze = duckDbPlanLoader.load({
+    const malformedExplainAnalyze = loadDuckDbPlan({
         query_name: "select 1",
         children: [{operator_type: "EXPLAIN_ANALYZE", children: []}],
     });

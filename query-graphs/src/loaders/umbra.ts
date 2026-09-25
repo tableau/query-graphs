@@ -79,7 +79,7 @@ const umbraConfig: DecoratedJsonTreeConfig = {
     },
     getSourceLocations(rawNode, context) {
         const source = rawNode["sourceLocation"];
-        if (!isJsonObject(source) || context?.sqlSource === undefined) return undefined;
+        if (!isJsonObject(source) || context.sqlSource === undefined) return undefined;
         const {startLine, startColumn, endLine, endColumn} = source;
         if (
             typeof startLine !== "number" ||
@@ -181,7 +181,7 @@ function normalizePipelineMemberships(root: TreeNode, pipelines: ExecutionPipeli
     }
 }
 
-function convertUmbraPlan(statement: Json, context?: PlanLoadContext): TreeDescription {
+function convertUmbraPlan(statement: Json, context: PlanLoadContext): TreeDescription {
     const state = createDecoratedJsonTreeState();
     const root = convertDecoratedJsonNode(statement, "result", state, umbraConfig, context);
 
@@ -200,7 +200,7 @@ function convertUmbraPlan(statement: Json, context?: PlanLoadContext): TreeDescr
     return {root, crosslinks};
 }
 
-function combineOptimizerStages(stages: [string, UmbraStatement][], context?: PlanLoadContext): TreeDescription {
+function combineOptimizerStages(stages: [string, UmbraStatement][], context: PlanLoadContext): TreeDescription {
     const children: TreeNode[] = [];
     const crosslinks: Crosslink[] = [];
     for (const [name, stage] of stages) {
@@ -211,7 +211,7 @@ function combineOptimizerStages(stages: [string, UmbraStatement][], context?: Pl
     return {root: {name: "optimizer steps", children}, crosslinks};
 }
 
-function loadUmbraPlan(json: Json, context?: PlanLoadContext): TreeDescription {
+function loadUmbraPlan(json: Json, context: PlanLoadContext): TreeDescription {
     const stages = optimizerStages(json, (value) => hasSubObject(value, "plan"));
     if (stages !== undefined) {
         return combineOptimizerStages(stages, context);

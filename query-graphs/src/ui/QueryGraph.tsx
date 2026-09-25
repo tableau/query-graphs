@@ -34,8 +34,8 @@ function minimapNodeColor(n: QueryGraphNode): string {
 
 function QueryGraphMiniMapNode(props: MiniMapNodeProps) {
     const node = useNodesData<QueryGraphNode>(props.id);
-    const sourceHighlighted = useGraphRenderingStore((state) => node !== null && state.highlightedNodes.has(node.data));
-    return <MiniMapNode {...props} className={cc([props.className, {"qg-source-highlighted": sourceHighlighted}])} />;
+    const highlighted = useGraphRenderingStore((state) => node !== null && state.highlightedNodes.has(node.data));
+    return <MiniMapNode {...props} className={cc([props.className, {"qg-highlighted": highlighted}])} />;
 }
 
 const nodeTypes = {

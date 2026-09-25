@@ -30,14 +30,14 @@
         box-shadow: 1px 2px 5px hsl(0,0%,90%);
     }
 
-    &.qg-source-highlighted {
+    &.qg-highlighted {
         border-color: hsl(210, 80%, 55%);
         box-shadow: 0 0 0 2px hsl(210, 80%, 55%);
     }
 }
 
 @media (forced-colors: active) {
-    .qg-graph-node.qg-source-highlighted {
+    .qg-graph-node.qg-highlighted {
         outline: 2px solid Highlight;
     }
 }
@@ -65,11 +65,11 @@
         opacity: 0;
     }
 
-    &.qg-source-descendant-highlighted {
+    &.qg-descendant-highlighted {
         opacity: 1;
 
         & .qg-subtree-handle-background {
-            animation: qg-source-descendant-pulse 0.8s ease-in-out infinite alternate;
+            animation: qg-descendant-highlight-pulse 0.8s ease-in-out infinite alternate;
         }
     }
 
@@ -82,7 +82,7 @@
     }
 }
 
-@keyframes qg-source-descendant-pulse {
+@keyframes qg-descendant-highlight-pulse {
     from {
         fill: hsl(210, 100%, 90%);
         stroke: hsl(210, 80%, 55%);
@@ -97,7 +97,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .query-graph .qg-subtree-toggle.qg-source-descendant-highlighted .qg-subtree-handle-background {
+    .query-graph .qg-subtree-toggle.qg-descendant-highlighted .qg-subtree-handle-background {
         animation: none;
         fill: hsl(210, 100%, 80%);
         stroke: hsl(210, 80%, 45%);
@@ -106,7 +106,7 @@
 }
 
 @media (forced-colors: active) {
-    .query-graph .qg-subtree-toggle.qg-source-descendant-highlighted .qg-subtree-handle-background {
+    .query-graph .qg-subtree-toggle.qg-descendant-highlighted .qg-subtree-handle-background {
         animation: none;
         fill: Canvas;
         stroke: Highlight;

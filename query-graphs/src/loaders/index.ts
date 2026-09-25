@@ -37,8 +37,8 @@ function loadMatchingPlan<Input>(
     input: Input,
     loaders: readonly PlanLoader<Input>[],
     errors: unknown[],
+    context: PlanLoadContext,
     format?: string,
-    context?: PlanLoadContext,
 ): LoadedPlan | undefined {
     for (const loader of loaders) {
         if (format === undefined ? loader.matches(input) : loader.format === format) {
@@ -151,7 +151,7 @@ export function loadPlanFromText(text: string, options: LoadPlanOptions = {}): L
     if (acceptsJson) {
         try {
             const json = JSON.parse(planText) as Json;
-            const plan = loadMatchingPlan(json, jsonPlanLoaders, errors, format, context);
+            const plan = loadMatchingPlan(json, jsonPlanLoaders, errors, context, format);
             if (plan !== undefined)
                 return addPlanDocument(addSqlDocument(plan, sqlSource?.document), formatJsonDocument(planText), "json");
         } catch (error) {
@@ -162,7 +162,7 @@ export function loadPlanFromText(text: string, options: LoadPlanOptions = {}): L
     if (acceptsXml) {
         try {
             const xml = parseXml(planText);
-            const plan = loadMatchingPlan(xml, xmlPlanLoaders, errors, format, context);
+            const plan = loadMatchingPlan(xml, xmlPlanLoaders, errors, context, format);
             if (plan !== undefined) return addPlanDocument(addSqlDocument(plan, sqlSource?.document), planText, "xml");
         } catch (error) {
             errors.push(error);
