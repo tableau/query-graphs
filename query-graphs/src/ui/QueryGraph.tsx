@@ -13,7 +13,7 @@ import {ColoredEdge} from "./ColoredEdge";
 import {createGraphRenderingStore, GraphRenderingStoreContext, useGraphRenderingStore} from "./store";
 import {AnimateGraphChangeContext, useAnimatedGraphLayout} from "./useAnimatedGraphLayout";
 import {indexGraph} from "./graph-index";
-import type {TreeParents} from "./tree-index";
+import type {TreeParents} from "./tree-topology";
 import "./QueryGraph.css";
 
 interface QueryGraphProps {
@@ -103,13 +103,13 @@ function createGraphState(treeDescription: TreeDescription) {
     return {
         instanceId: nextGraphInstanceId++,
         nodeIdMapping,
-        treeParents: graphIndex.tree.parents,
+        graphIndex,
         graphStore: createGraphRenderingStore({expandedSubtrees, graphIndex}),
     };
 }
 
 export function QueryGraph(props: QueryGraphProps) {
-    const {instanceId, nodeIdMapping, treeParents, graphStore} = useMemo(
+    const {instanceId, nodeIdMapping, graphIndex, graphStore} = useMemo(
         () => createGraphState(props.treeDescription),
         [props.treeDescription],
     );
@@ -119,7 +119,7 @@ export function QueryGraph(props: QueryGraphProps) {
     return (
         <ReactFlowProvider key={instanceId}>
             <GraphRenderingStoreContext.Provider value={graphStore}>
-                <QueryGraphInternal {...props} nodeIdMapping={nodeIdMapping} treeParents={treeParents} />
+                <QueryGraphInternal {...props} nodeIdMapping={nodeIdMapping} treeParents={graphIndex.treeTopology.parents} />
             </GraphRenderingStoreContext.Provider>
         </ReactFlowProvider>
     );

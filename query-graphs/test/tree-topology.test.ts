@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import type {TreeNode} from "../src/tree-description";
-import {findClosestVisibleAncestors, indexTree} from "../src/ui/tree-index";
+import {findClosestVisibleAncestors, indexTreeTopology} from "../src/ui/tree-topology";
 
 class CountingParents extends Map<string, string> {
     readonly lookups = new Map<string, number>();
@@ -22,7 +22,7 @@ test("tree indexing distinguishes visible and collapsed child edges", () => {
         [collapsed, "collapsed"],
     ]);
 
-    assert.deepEqual(indexTree({root}, nodeIds), {
+    assert.deepEqual(indexTreeTopology({root}, nodeIds), {
         parents: new Map([
             ["collapsed", "root"],
             ["visible", "root"],

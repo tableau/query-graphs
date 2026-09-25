@@ -1,10 +1,10 @@
 import type {TreeDescription, TreeNode} from "../tree-description";
 import {createSourceLinkIndex, type SourceLinkIndex} from "./source-link-index";
-import {indexTree, type TreeIndex} from "./tree-index";
+import {indexTreeTopology, type TreeTopology} from "./tree-topology";
 
 export interface GraphIndex {
     /** Tree topology used by layout and visible-highlight resolution. */
-    tree: TreeIndex;
+    treeTopology: TreeTopology;
     /** Bidirectional associations used to synchronize tree and document interactions. */
     sourceLinks: SourceLinkIndex;
 }
@@ -12,7 +12,7 @@ export interface GraphIndex {
 /** Builds all immutable indexes that share the lifetime of one rendered graph. */
 export function indexGraph(tree: TreeDescription, nodeIds: ReadonlyMap<TreeNode, string>): GraphIndex {
     return {
-        tree: indexTree(tree, nodeIds),
+        treeTopology: indexTreeTopology(tree, nodeIds),
         sourceLinks: createSourceLinkIndex(nodeIds),
     };
 }

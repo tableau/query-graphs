@@ -4,7 +4,7 @@ import type {TreeDescription, TreeNode} from "../tree-description";
 export type TreeParents = ReadonlyMap<string, string>;
 
 /** Immutable topology needed to resolve highlights independently of the animated layout. */
-export interface TreeIndex {
+export interface TreeTopology {
     /** Includes every parent edge, including nodes currently hidden in collapsed subtrees. */
     parents: TreeParents;
     /** Nodes connected through their parent's `collapsedChildren` edge. */
@@ -12,7 +12,7 @@ export interface TreeIndex {
 }
 
 /** Indexes every parent edge and distinguishes the roots of collapsible subtrees. */
-export function indexTree(tree: TreeDescription, nodeIds: ReadonlyMap<TreeNode, string>): TreeIndex {
+export function indexTreeTopology(tree: TreeDescription, nodeIds: ReadonlyMap<TreeNode, string>): TreeTopology {
     const parents = new Map<string, string>();
     const collapsedSubtreeRootIds = new Set<string>();
     const pending: [TreeNode, string | undefined, boolean][] = [[tree.root, undefined, false]];

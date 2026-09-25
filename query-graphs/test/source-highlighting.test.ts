@@ -13,7 +13,7 @@ function graphStore(
     return createGraphRenderingStore({
         expandedSubtrees: {},
         graphIndex: {
-            tree: {parents, collapsedSubtreeRootIds},
+            treeTopology: {parents, collapsedSubtreeRootIds},
             sourceLinks: createSourceLinkIndex(nodeIds),
         },
     });

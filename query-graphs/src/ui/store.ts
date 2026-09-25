@@ -5,7 +5,7 @@ import type {StoreApi} from "zustand/vanilla";
 import {assertNotNull} from "../assert";
 import type {SourceLocation} from "../tree-description";
 import type {GraphIndex} from "./graph-index";
-import {createStructuralNodeVisibility, findClosestVisibleAncestors} from "./tree-index";
+import {createStructuralNodeVisibility, findClosestVisibleAncestors} from "./tree-topology";
 
 interface ActiveSourceSelection {
     /** Identifies the document allowed to clear this selection after its pointer or focus leaves. */
@@ -63,10 +63,10 @@ export function createGraphRenderingStore({expandedSubtrees, graphIndex}: GraphR
                 hoveredNodeId === undefined ? (activeSourceSelection?.nodeIds ?? noNodeIds) : new Set([hoveredNodeId]);
             const visibleNodeIds = createStructuralNodeVisibility(
                 currentExpandedSubtrees,
-                graphIndex.tree.parents,
-                graphIndex.tree.collapsedSubtreeRootIds,
+                graphIndex.treeTopology.parents,
+                graphIndex.treeTopology.collapsedSubtreeRootIds,
             );
-            const closestAncestors = findClosestVisibleAncestors(activeNodeIds, graphIndex.tree.parents, visibleNodeIds);
+            const closestAncestors = findClosestVisibleAncestors(activeNodeIds, graphIndex.treeTopology.parents, visibleNodeIds);
             const highlightedNodeIds = new Set<string>();
             const highlightedCollapsedSubtreeRootIds = new Set<string>();
             for (const [activeNodeId, visibleNodeId] of closestAncestors) {
