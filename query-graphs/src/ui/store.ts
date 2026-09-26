@@ -38,6 +38,10 @@ export interface GraphRenderingState extends HighlightState {
     setHoveredNodeId: (nodeId?: string) => void;
     /** Updates the semantic node highlights from the exact linked ranges active in one document. */
     setActiveSourceLocations: (documentId: string, sourceLocations: readonly SourceLocation[]) => void;
+    /** Enables or disables viewport navigation for highlights originating in one source document. */
+    setFollowSourceDocument: (documentId: string, follow: boolean) => void;
+    /** A new set requests that the graph reveal these nodes for an opted-in source document. */
+    nodeIdsToReveal?: ReadonlySet<string>;
     /** Returns every range that should participate in pointer and caret linking for one document. */
     getLinkedSourceRanges: (documentId: string) => readonly SourceLocation[];
     /** Derives the ranges a document should highlight for the semantic node highlights. */
@@ -55,12 +59,13 @@ export interface GraphRenderingStoreOptions {
 export function createGraphRenderingStore({expandedSubtrees, graphIndex}: GraphRenderingStoreOptions): GraphRenderingStore {
     let sourceHighlightSelection: SourceHighlightSelection | undefined;
     let hoveredNodeId: string | undefined;
+    const followedSourceDocumentIds = new Set<string>();
 
     return createStore<GraphRenderingState>()((set) => {
-        // Materialize the visible tree projection once per interaction so each rendered node can subscribe to a boolean.
-        const resolveHighlights = (currentExpandedSubtrees: Readonly<Record<string, boolean>>): HighlightState => {
-            const highlightedNodeIds =
-                hoveredNodeId === undefined ? (sourceHighlightSelection?.nodeIds ?? noNodeIds) : new Set([hoveredNodeId]);
+        const projectNodeHighlights = (
+            highlightedNodeIds: ReadonlySet<string>,
+            currentExpandedSubtrees: Readonly<Record<string, boolean>>,
+        ): HighlightState => {
             const visibleNodeIds = createStructuralNodeVisibility(
                 currentExpandedSubtrees,
                 graphIndex.treeTopology.parents,
@@ -80,6 +85,17 @@ export function createGraphRenderingStore({expandedSubtrees, graphIndex}: GraphR
             }
             return {highlightedNodeIds, visibleHighlightedNodeIds, highlightedCollapsedAncestorIds};
         };
+        // Materialize the visible tree projection once per interaction so each rendered node can subscribe to a boolean.
+        const resolveHighlights = (currentExpandedSubtrees: Readonly<Record<string, boolean>>): HighlightState =>
+            projectNodeHighlights(
+                hoveredNodeId === undefined ? (sourceHighlightSelection?.nodeIds ?? noNodeIds) : new Set([hoveredNodeId]),
+                currentExpandedSubtrees,
+            );
+        const getNodeIdsToReveal = (visibleNodeIds: ReadonlySet<string>): ReadonlySet<string> | undefined => {
+            if (sourceHighlightSelection === undefined || !followedSourceDocumentIds.has(sourceHighlightSelection.documentId))
+                return undefined;
+            return visibleNodeIds.size === 0 ? undefined : visibleNodeIds;
+        };
 
         return {
             expandedNodes: {},
@@ -97,7 +113,13 @@ export function createGraphRenderingStore({expandedSubtrees, graphIndex}: GraphR
                         ...state.expandedSubtrees,
                         [nodeId]: !state.expandedSubtrees[nodeId],
                     };
-                    return {expandedSubtrees: nextExpandedSubtrees, ...resolveHighlights(nextExpandedSubtrees)};
+                    // Expanding or collapsing changes which DOM node represents a semantic highlight. Cancel any
+                    // delayed request rather than navigating to geometry captured for the previous topology.
+                    return {
+                        expandedSubtrees: nextExpandedSubtrees,
+                        ...resolveHighlights(nextExpandedSubtrees),
+                        nodeIdsToReveal: undefined,
+                    };
                 }),
             highlightedNodeIds: noNodeIds,
             visibleHighlightedNodeIds: noNodeIds,
@@ -105,7 +127,9 @@ export function createGraphRenderingStore({expandedSubtrees, graphIndex}: GraphR
             setHoveredNodeId: (nodeId) => {
                 if (hoveredNodeId === nodeId) return;
                 hoveredNodeId = nodeId;
-                set((state) => resolveHighlights(state.expandedSubtrees));
+                // Tree hover temporarily owns the highlight. It must also cancel delayed navigation originating
+                // from an earlier source hover, or the viewport could move to a now-stale target.
+                set((state) => ({...resolveHighlights(state.expandedSubtrees), nodeIdsToReveal: undefined}));
             },
             setActiveSourceLocations: (documentId, sourceLocations) => {
                 // An editor can report an empty selection after another document has already become active.
@@ -123,8 +147,26 @@ export function createGraphRenderingStore({expandedSubtrees, graphIndex}: GraphR
                               sourceLocations,
                               nodeIds: graphIndex.sourceLinks.getNodeIdsForRanges(sourceLocations),
                           };
-                set((state) => resolveHighlights(state.expandedSubtrees));
+                set((state) => {
+                    const highlights = resolveHighlights(state.expandedSubtrees);
+                    return {
+                        ...highlights,
+                        nodeIdsToReveal:
+                            hoveredNodeId === undefined ? getNodeIdsToReveal(highlights.visibleHighlightedNodeIds) : undefined,
+                    };
+                });
             },
+            setFollowSourceDocument: (documentId, follow) => {
+                if (follow === followedSourceDocumentIds.has(documentId)) return;
+                if (follow) followedSourceDocumentIds.add(documentId);
+                else followedSourceDocumentIds.delete(documentId);
+                if (sourceHighlightSelection?.documentId === documentId)
+                    set((state) => ({
+                        nodeIdsToReveal:
+                            hoveredNodeId === undefined ? getNodeIdsToReveal(state.visibleHighlightedNodeIds) : undefined,
+                    }));
+            },
+            nodeIdsToReveal: undefined,
             getLinkedSourceRanges: graphIndex.sourceLinks.getLinkedRanges,
             getSourceRangesForNodes: graphIndex.sourceLinks.getRangesForNodeIds,
         };

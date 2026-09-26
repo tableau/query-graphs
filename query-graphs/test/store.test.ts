@@ -95,3 +95,65 @@ test("repeated active source locations do not republish highlight state", () => 
     assert.equal(store.getState().visibleHighlightedNodeIds, visibleHighlightedNodeIds);
     unsubscribe();
 });
+
+// Viewport navigation stays inert by default and only requests the nodes linked from an explicitly followed document.
+test("following a source document requests its linked nodes", () => {
+    const queryNode: TreeNode = {sourceLocations: [{documentId: "query", from: 0, to: 5}]};
+    const secondQueryNode: TreeNode = {sourceLocations: [{documentId: "query", from: 0, to: 5}]};
+    const planNode: TreeNode = {sourceLocations: [{documentId: "plan", from: 0, to: 5}]};
+    const store = graphStore([queryNode, secondQueryNode, planNode]);
+    const queryRange = [{documentId: "query", from: 0, to: 5}];
+
+    store.getState().setActiveSourceLocations("query", queryRange);
+    assert.equal(store.getState().nodeIdsToReveal, undefined);
+
+    store.getState().setFollowSourceDocument("query", true);
+    assert.deepEqual(store.getState().nodeIdsToReveal, new Set(["0", "1"]));
+
+    store.getState().setActiveSourceLocations("plan", [{documentId: "plan", from: 0, to: 5}]);
+    assert.equal(store.getState().nodeIdsToReveal, undefined);
+    store.getState().setActiveSourceLocations("query", queryRange);
+    assert.deepEqual(store.getState().nodeIdsToReveal, new Set(["0", "1"]));
+
+    store.getState().setFollowSourceDocument("query", false);
+    assert.equal(store.getState().nodeIdsToReveal, undefined);
+});
+
+// A newer tree interaction cancels source-driven navigation before its hover-intent delay can move the viewport.
+test("tree interactions cancel pending source navigation", () => {
+    const sourceNode: TreeNode = {sourceLocations: [{documentId: "query", from: 0, to: 5}]};
+    const hoveredNode: TreeNode = {};
+    const store = graphStore([sourceNode, hoveredNode]);
+
+    store.getState().setFollowSourceDocument("query", true);
+    store.getState().setActiveSourceLocations("query", [{documentId: "query", from: 0, to: 5}]);
+    assert.deepEqual(store.getState().nodeIdsToReveal, new Set(["0"]));
+
+    store.getState().setHoveredNodeId("1");
+    assert.equal(store.getState().nodeIdsToReveal, undefined);
+
+    store.getState().setActiveSourceLocations("query", [{documentId: "query", from: 0, to: 5}]);
+    assert.equal(store.getState().nodeIdsToReveal, undefined);
+
+    store.getState().setHoveredNodeId(undefined);
+    store.getState().setActiveSourceLocations("query", [{documentId: "query", from: 0, to: 5}]);
+    assert.ok(store.getState().nodeIdsToReveal);
+    store.getState().toggleExpandedSubtree("0");
+    assert.equal(store.getState().nodeIdsToReveal, undefined);
+});
+
+// A linked node inside a collapsed subtree navigates to the visible ancestor that represents it on screen.
+test("source navigation projects hidden nodes to their visible ancestors", () => {
+    const root: TreeNode = {};
+    const hidden: TreeNode = {sourceLocations: [{documentId: "query", from: 0, to: 5}]};
+    const store = graphStore([root, hidden], new Map([["1", "0"]]), new Set(["1"]));
+
+    store.getState().setFollowSourceDocument("query", true);
+    store.getState().setActiveSourceLocations("query", [{documentId: "query", from: 0, to: 5}]);
+    assert.deepEqual(store.getState().nodeIdsToReveal, new Set(["0"]));
+
+    store.getState().toggleExpandedSubtree("0");
+    store.getState().setActiveSourceLocations("query", []);
+    store.getState().setActiveSourceLocations("query", [{documentId: "query", from: 0, to: 5}]);
+    assert.deepEqual(store.getState().nodeIdsToReveal, new Set(["1"]));
+});

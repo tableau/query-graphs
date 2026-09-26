@@ -72,6 +72,8 @@ export interface DocumentViewerProps {
     highlightedRanges?: readonly SourceLocation[];
     /** Reports the narrowest linked ranges under the pointer, falling back to the focused caret. */
     onActiveLinkedRangesChange?: (activeLinkedRanges: readonly SourceLocation[]) => void;
+    /** Automatically reveals highlighted ranges that remain outside the rendered viewport. */
+    autoRevealHighlightedRanges?: boolean;
     /** Opens and focuses search whenever this value changes to a defined request token. */
     searchRequest?: number;
 }
@@ -86,6 +88,7 @@ export function CodeMirrorDocument({
     linkedRanges = [],
     highlightedRanges = [],
     onActiveLinkedRangesChange,
+    autoRevealHighlightedRanges = false,
     searchRequest,
 }: CodeMirrorDocumentProps) {
     const editorHost = useRef<HTMLDivElement>(null);
@@ -140,8 +143,13 @@ export function CodeMirrorDocument({
     }, [linkedRanges]);
 
     useEffect(() => {
-        editorView.current?.dispatch({effects: rangeLinking.setHighlightedRanges.of(highlightedRanges)});
-    }, [highlightedRanges]);
+        const view = editorView.current;
+        if (view === undefined) return;
+        view.dispatch({effects: rangeLinking.setHighlightedRanges.of(highlightedRanges)});
+        if (!autoRevealHighlightedRanges) return;
+        const followTimer = window.setTimeout(() => rangeLinking.revealNearestHighlightedRange(view), 150);
+        return () => window.clearTimeout(followTimer);
+    }, [textDocument, highlightedRanges, autoRevealHighlightedRanges]);
 
     useEffect(() => {
         if (searchRequest !== undefined && editorView.current !== undefined) openSearchPanel(editorView.current);

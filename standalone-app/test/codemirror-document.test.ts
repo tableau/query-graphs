@@ -5,6 +5,7 @@ import * as React from "react";
 import {createRoot} from "react-dom/client";
 import {JSDOM} from "jsdom";
 import type {CodeMirrorDocumentProps} from "../src/CodeMirrorDocument";
+import {rangeLinking} from "../src/RangeLinking";
 
 // Node does not load CSS, so replace stylesheet imports with empty modules.
 registerHooks({
@@ -160,6 +161,36 @@ test("the standard keyboard shortcut opens the search panel", async () => {
         content.dispatchEvent(new fixture.dom.window.KeyboardEvent("keydown", {key: "f", ctrlKey: true, bubbles: true}));
         assert.ok(fixture.dom.window.document.querySelector(".cm-search"));
     } finally {
+        await fixture.cleanup();
+    }
+});
+
+test("the document editor schedules highlight navigation only while following is enabled", async () => {
+    const fixture = await createFixture();
+    const originalRevealNearestHighlightedRange = rangeLinking.revealNearestHighlightedRange;
+    let revealRequests = 0;
+    rangeLinking.revealNearestHighlightedRange = () => revealRequests++;
+    try {
+        // Merely highlighting a range must not request navigation while the follow toggle is off.
+        await fixture.render({highlightedRanges});
+        await React.act(async () => new Promise((resolve) => setTimeout(resolve, 175)));
+        assert.equal(revealRequests, 0);
+
+        // Enabling follow reveals that same highlight after the brief hover-intent delay.
+        await fixture.render({highlightedRanges, autoRevealHighlightedRanges: true});
+        await React.act(async () => new Promise((resolve) => setTimeout(resolve, 175)));
+        assert.equal(revealRequests, 1);
+
+        // Disabling follow before the delay expires cancels the pending viewport change.
+        await fixture.render({
+            highlightedRanges: [{...highlightedRanges[0]}],
+            autoRevealHighlightedRanges: true,
+        });
+        await fixture.render({highlightedRanges, autoRevealHighlightedRanges: false});
+        await React.act(async () => new Promise((resolve) => setTimeout(resolve, 175)));
+        assert.equal(revealRequests, 1);
+    } finally {
+        rangeLinking.revealNearestHighlightedRange = originalRevealNearestHighlightedRange;
         await fixture.cleanup();
     }
 });

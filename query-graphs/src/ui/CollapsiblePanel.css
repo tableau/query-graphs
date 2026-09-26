@@ -121,6 +121,9 @@
         height: 100%;
         border: 0;
         border-radius: 0;
+    }
+
+    & .qg-icon-button:not([aria-pressed="true"]) {
         background: transparent;
     }
 
