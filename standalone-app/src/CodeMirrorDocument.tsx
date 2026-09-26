@@ -3,7 +3,7 @@ import {defaultKeymap} from "@codemirror/commands";
 import {bracketMatching, defaultHighlightStyle, foldGutter, foldKeymap, syntaxHighlighting} from "@codemirror/language";
 import {openSearchPanel, searchKeymap} from "@codemirror/search";
 import {EditorState, type Extension} from "@codemirror/state";
-import {EditorView, highlightSpecialChars, keymap, lineNumbers, scrollPastEnd} from "@codemirror/view";
+import {EditorView, drawSelection, highlightSpecialChars, keymap, lineNumbers, scrollPastEnd} from "@codemirror/view";
 import type {SourceLocation, TextDocument} from "@tableau/query-graphs/lib/tree-description";
 import {compactSearch} from "./CodeMirrorSearch";
 import {rangeLinking} from "./RangeLinking";
@@ -109,6 +109,7 @@ export function CodeMirrorDocument({
                     syntaxHighlighting(defaultHighlightStyle, {fallback: true}),
                     lineNumbers(),
                     highlightSpecialChars(),
+                    drawSelection(),
                     scrollPastEnd(),
                     bracketMatching(),
                     compactSearch,
@@ -118,7 +119,8 @@ export function CodeMirrorDocument({
                     rangeLinking.extension(onActiveLinkedRangesChange),
                     keymap.of([...defaultKeymap, ...searchKeymap, ...foldKeymap]),
                     EditorState.readOnly.of(true),
-                    EditorView.contentAttributes.of({"aria-label": textDocument.title}),
+                    EditorView.editable.of(false),
+                    EditorView.contentAttributes.of({"aria-label": textDocument.title, tabindex: "0"}),
                 ],
             }),
         });
