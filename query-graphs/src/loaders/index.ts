@@ -2,13 +2,13 @@ import type {TextDocument, TreeDescription} from "../tree-description";
 import {duckDbPlanLoader} from "./duckdb";
 import {hyperPlanLoader} from "./hyper";
 import {jsonPlanLoader} from "./json";
-import type {Json} from "./loader-utils";
 import {postgresPlanLoader} from "./postgres";
 import {createSqlSourceLocator} from "./sql-source";
 import {tableauPlanLoader} from "./tableau";
-import {InvalidPlanError, type PlanLoadContext, type PlanLoader, UnknownPlanFormatError} from "./types";
+import {InvalidPlanError, type JsonPlanLoader, type PlanLoadContext, type PlanLoader, UnknownPlanFormatError} from "./types";
 import {umbraPlanLoader} from "./umbra";
 import {parseXml, type ParsedXML, xmlPlanLoader} from "./xml";
+import {parsePositionedJson} from "./json-source";
 
 export interface LoadedPlan {
     format: string;
@@ -21,17 +21,24 @@ export interface LoadPlanOptions {
 }
 
 export {createSqlSourceLocator, type SqlSourceLocator} from "./sql-source";
-export {InvalidPlanError, type PlanLoadContext, type PlanLoader, UnknownPlanFormatError} from "./types";
+export {parsePositionedJson, type JsonSourceLocator, type PositionedJson} from "./json-source";
+export {InvalidPlanError, type JsonPlanLoader, type PlanLoadContext, type PlanLoader, UnknownPlanFormatError} from "./types";
 
 // Order matters: format-specific loaders must precede the more permissive Hyper loader, and generic fallbacks must stay last.
-export const jsonPlanLoaders: readonly PlanLoader<Json>[] = [
+export const jsonPlanLoaders: readonly JsonPlanLoader[] = [
     postgresPlanLoader,
     umbraPlanLoader,
     duckDbPlanLoader,
     hyperPlanLoader,
     jsonPlanLoader,
 ];
+// Use one small union for automatic and forced dispatch. This keeps parser setup independent of
+// loader selection; checking six keys is negligible compared with scanning and constructing JSON.
+export const jsonPlanSourcePropertyKeys: ReadonlySet<string> = new Set(
+    jsonPlanLoaders.flatMap(({sourcePropertyKeys}) => [...sourcePropertyKeys]),
+);
 export const xmlPlanLoaders: readonly PlanLoader<ParsedXML>[] = [tableauPlanLoader, xmlPlanLoader];
+const planDocumentId = "plan";
 
 function loadMatchingPlan<Input>(
     input: Input,
@@ -59,7 +66,7 @@ function stripSurroundingText(text: string): string {
 }
 
 function addPlanDocument(plan: LoadedPlan, text: string, language: string): LoadedPlan {
-    const planDocument: TextDocument = {id: "plan", title: "Query Plan", text, language};
+    const planDocument: TextDocument = {id: planDocumentId, title: "Query Plan", text, language};
     plan.tree.textDocuments ??= [];
     plan.tree.textDocuments.push(planDocument);
     return plan;
@@ -78,7 +85,7 @@ function addSqlDocument(plan: LoadedPlan, queryDocument: TextDocument | undefine
 }
 
 /**
- * Pretty-prints the original token stream after `JSON.parse` has validated it.
+ * Pretty-prints the original token stream before the positioned parser validates it.
  * Re-serializing the parsed value with `JSON.stringify` would round large numbers,
  * discard duplicate keys, and potentially reorder keys, making the displayed plan
  * differ from the source supplied by the user.
@@ -150,10 +157,12 @@ export function loadPlanFromText(text: string, options: LoadPlanOptions = {}): L
     const context: PlanLoadContext = {sqlSource};
     if (acceptsJson) {
         try {
-            const json = JSON.parse(planText) as Json;
-            const plan = loadMatchingPlan(json, jsonPlanLoaders, errors, context, format);
-            if (plan !== undefined)
-                return addPlanDocument(addSqlDocument(plan, sqlSource?.document), formatJsonDocument(planText), "json");
+            // CodeMirror and other browser text models use LF internally, so keep the
+            // displayed document and its source offsets in that canonical form.
+            const jsonText = formatJsonDocument(planText).replace(/\r\n?/g, "\n");
+            const json = parsePositionedJson(jsonText, planDocumentId, jsonPlanSourcePropertyKeys);
+            const plan = loadMatchingPlan(json.value, jsonPlanLoaders, errors, {...context, jsonSource: json.source}, format);
+            if (plan !== undefined) return addPlanDocument(addSqlDocument(plan, sqlSource?.document), jsonText, "json");
         } catch (error) {
             errors.push(error);
         }

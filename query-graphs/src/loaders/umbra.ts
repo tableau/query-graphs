@@ -17,7 +17,7 @@ import {hasOwnProperty, hasSubObject, isJsonObject, tryToString} from "./loader-
 import type {ExecutionPipeline} from "./pipeline-coloring";
 import {assignPipelineColors} from "./pipeline-coloring";
 import {buildIdMap, resolveCrosslinks, setRelativeEdgeWidths} from "./tree-postprocessing";
-import type {PlanLoadContext, PlanLoader} from "./types";
+import type {JsonPlanLoader, PlanLoadContext} from "./types";
 
 const nodeRenderingConfig: Record<string, NodeRenderingConfig> = {
     "op:select": {icon: "filter-symbol"},
@@ -219,8 +219,9 @@ function loadUmbraPlan(json: Json, context: PlanLoadContext): TreeDescription {
     return convertUmbraPlan(json, context);
 }
 
-export const umbraPlanLoader: PlanLoader<Json> = {
+export const umbraPlanLoader: JsonPlanLoader = {
     format: "umbra",
+    sourcePropertyKeys: new Set(umbraConfig.nodeTypeKeys),
     matches(json) {
         return isUmbraStatement(json) || optimizerStages(json, isUmbraStatement) !== undefined;
     },

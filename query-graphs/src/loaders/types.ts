@@ -1,7 +1,10 @@
 import type {TreeDescription} from "../tree-description";
 import type {SqlSourceLocator} from "./sql-source";
+import type {JsonSourceLocator} from "./json-source";
+import type {Json} from "./loader-utils";
 
 export interface PlanLoadContext {
+    jsonSource?: JsonSourceLocator;
     sqlSource?: SqlSourceLocator;
 }
 
@@ -20,6 +23,15 @@ export interface PlanLoader<Input> {
      * Throw `InvalidPlanError` only when producing a useful tree is impossible.
      */
     load(input: Input, context: PlanLoadContext): TreeDescription;
+}
+
+/** A JSON loader that declares every property it may use for source links. */
+export interface JsonPlanLoader extends PlanLoader<Json> {
+    /**
+     * Property keys whose JSON tokens may be linked to graph nodes. Values still parse when a key
+     * is omitted here, but their positions are intentionally unavailable to the converted tree.
+     */
+    readonly sourcePropertyKeys: ReadonlySet<string>;
 }
 
 export class InvalidPlanError extends Error {

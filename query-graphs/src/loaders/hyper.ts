@@ -21,7 +21,7 @@ import {convertDecoratedJsonNode, createDecoratedJsonTreeState} from "./decorate
 import type {ExecutionPipeline} from "./pipeline-coloring";
 import {assignPipelineColors} from "./pipeline-coloring";
 import {buildIdMap, colorRelativeNumber, resolveCrosslinks, setRelativeEdgeWidths} from "./tree-postprocessing";
-import type {PlanLoadContext, PlanLoader} from "./types";
+import type {JsonPlanLoader, PlanLoadContext} from "./types";
 
 const nodeRenderingConfig: Record<string, NodeRenderingConfig> = {
     "op:result-sink": {icon: "run-query-symbol"},
@@ -379,8 +379,9 @@ function loadHyperPlan(json: Json, context: PlanLoadContext): TreeDescription {
     return convertOptimizerSteps(json, context) ?? convertHyperPlan(json, context);
 }
 
-export const hyperPlanLoader: PlanLoader<Json> = {
+export const hyperPlanLoader: JsonPlanLoader = {
     format: "hyper",
+    sourcePropertyKeys: new Set(hyperConfig.nodeTypeKeys),
     matches: isHyperPlan,
     load: loadHyperPlan,
 };
