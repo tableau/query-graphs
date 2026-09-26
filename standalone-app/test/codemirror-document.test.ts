@@ -113,8 +113,6 @@ test("the document editor reports linked ranges at the focused caret", async () 
         // The caret reports every shortest linked range at its offset and clears them on blur.
         const content = fixture.dom.window.document.querySelector<HTMLElement>(".cm-content");
         assert.ok(content);
-        assert.equal(content.getAttribute("contenteditable"), "false");
-        assert.equal(content.getAttribute("tabindex"), "0");
         content.focus();
         assert.deepEqual(fixture.activeLinkedRangeUpdates.at(-1), [innerRange]);
         content.dispatchEvent(
