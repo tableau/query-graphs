@@ -12,7 +12,7 @@
 
 import type {IconName, SourceLocation, TreeNode} from "../tree-description";
 import type {Json, JsonObject} from "./loader-utils";
-import {forceToString, formatMetric, hasOwnProperty, isJsonObject, tryToString} from "./loader-utils";
+import {forceToString, formatMetric, hasOwnProperty, isJsonObject, tryToNonNullString, tryToString} from "./loader-utils";
 import type {UnresolvedCrosslink} from "./tree-postprocessing";
 import {InvalidPlanError, type PlanLoadContext} from "./types";
 
@@ -38,6 +38,8 @@ export function createDecoratedJsonTreeState(): DecoratedJsonTreeState {
 export interface DecoratedJsonTreeConfig {
     /** Object keys whose scalar values identify a semantic node type, in precedence order. */
     nodeTypeKeys: readonly string[];
+    /** Keep the selected node-type field in the tooltip instead of using it only as the node name. */
+    retainNodeTypeProperty?: boolean;
     /** Show these structural children in the listed order and omit their redundant key wrapper. */
     structuralChildKeys: readonly string[];
     /** Keep these values in the tooltip even when they are objects or arrays. */
@@ -50,8 +52,6 @@ export interface DecoratedJsonTreeConfig {
     getDisplayName?(rawNode: JsonObject): string | undefined;
     /** Link the converted node to ranges in an associated text document. */
     getSourceLocations?(rawNode: JsonObject, context: PlanLoadContext): SourceLocation[] | undefined;
-    /** Choose the identifier property whose key and scalar-value tokens link to the converted node. */
-    getSourcePropertyKey?(rawNode: JsonObject, nodeTypeKey: string | undefined): string | undefined;
     /** Identify the target of a crosslink originating at this object. */
     getCrosslinkTarget?(rawNode: JsonObject): string | undefined;
     /** Put a nested value in `collapsedChildren` instead of `children`. */
@@ -70,7 +70,7 @@ function orderedKeys(rawNode: JsonObject, nodeTypeKey: string | undefined, confi
     return Object.getOwnPropertyNames(rawNode)
         .filter(
             (key) =>
-                key !== nodeTypeKey &&
+                (key !== nodeTypeKey || config.retainNodeTypeProperty) &&
                 !config.alwaysPropertyKeys.includes(key) &&
                 !(config.flattenPropertyObjectKeys?.includes(key) && isJsonObject(rawNode[key])),
         )
@@ -116,11 +116,10 @@ function classifyNode(rawNode: JsonObject, config: DecoratedJsonTreeConfig): {no
         if (!hasOwnProperty(rawNode, nodeTypeKey)) {
             continue;
         }
-        const nodeTag = tryToString(rawNode[nodeTypeKey]);
+        const nodeTag = tryToNonNullString(rawNode[nodeTypeKey]);
         if (nodeTag !== undefined) {
             return {nodeTypeKey, nodeTag};
         }
-        break;
     }
     return {};
 }
@@ -212,12 +211,11 @@ function convertDecoratedJsonValue(
         expandedByDefault: expandedChildren.length === 0 && (config.shouldExpandCollapsedChildren?.(rawNode, nodeTypeKey) ?? true),
     };
     const sourceLocations = [...(config.getSourceLocations?.(rawNode, context) ?? [])];
-    const sourcePropertyKey = config.getSourcePropertyKey?.(rawNode, nodeTypeKey) ?? nodeTypeKey;
     // Link only scalar identifiers. Falling back to a container's full
     // range makes wrapper nodes highlight most or all of a large plan.
-    if (sourcePropertyKey !== undefined && tryToString(rawNode[sourcePropertyKey]) !== undefined) {
-        const keyLocation = context.jsonSource?.propertyKeyLocation(rawNode, sourcePropertyKey);
-        const valueLocation = context.jsonSource?.propertyValueLocation(rawNode, sourcePropertyKey);
+    if (nodeTypeKey !== undefined) {
+        const keyLocation = context.jsonSource?.propertyKeyLocation(rawNode, nodeTypeKey);
+        const valueLocation = context.jsonSource?.propertyValueLocation(rawNode, nodeTypeKey);
         if (keyLocation !== undefined) sourceLocations.push(keyLocation);
         if (valueLocation !== undefined) sourceLocations.push(valueLocation);
     }

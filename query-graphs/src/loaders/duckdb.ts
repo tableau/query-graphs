@@ -101,7 +101,6 @@ const duckDbConfig: DecoratedJsonTreeConfig = {
         return {icon: getIcon(rawNode)};
     },
     getDisplayName,
-    getSourcePropertyKey: getOperatorTypeKey,
     getCrosslinkTarget(rawNode) {
         const operatorType = getOperatorType(rawNode);
         // Recursive scans are emitted as REC_CTE_SCAN, so match the CTE scan family.
