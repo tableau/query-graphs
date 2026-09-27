@@ -195,6 +195,17 @@ test("DuckDB lowercases only all-uppercase operator names", () => {
     );
 });
 
+test("DuckDB source locations follow the operator-name fallback", () => {
+    const text = '[{"operator_name": null, "name": "SEQ_SCAN", "children": [], "extra_info": {}}]';
+    const loaded = loadPlanFromText(text, {format: "duckdb"});
+    const root = loaded.tree.root;
+    const document = loaded.tree.textDocuments?.find(({id}) => id === "plan");
+    const keyFrom = document?.text.indexOf('"name"') ?? -1;
+    const valueFrom = document?.text.indexOf('"SEQ_SCAN"') ?? -1;
+    assert.equal(root.name, "seq_scan");
+    assert.deepEqual(root.sourceLocations, [{documentId: "plan", from: keyFrom, to: valueFrom + '"SEQ_SCAN"'.length}]);
+});
+
 test("DuckDB recognizes only singleton arrays but loads larger arrays permissively when forced", () => {
     const plans = JSON.stringify([
         {name: "SEQ_SCAN", extra_info: {}, children: []},
