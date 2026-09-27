@@ -171,8 +171,7 @@ test("Hyper nodes retain both SQL and JSON source ranges", () => {
     assert.deepEqual(loaded.tree.root.sourceLocations, [
         {documentId: "query", from: 22, to: 27},
         {documentId: "query", from: 33, to: 38},
-        {documentId: "plan", from: keyFrom, to: keyFrom + '"operator"'.length},
-        {documentId: "plan", from: valueFrom, to: valueFrom + '"scan"'.length},
+        {documentId: "plan", from: keyFrom, to: valueFrom + '"scan"'.length},
     ]);
 });
 

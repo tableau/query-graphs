@@ -102,13 +102,10 @@ test("JSON plan documents and their source offsets use canonical line endings", 
     assert.equal(document?.text, '{\n  "operator": "scan"\n}');
     const keyFrom = document?.text.indexOf('"operator"') ?? -1;
     const valueFrom = document?.text.indexOf('"scan"') ?? -1;
-    assert.deepEqual(loaded.tree.root.sourceLocations, [
-        {documentId: "plan", from: keyFrom, to: keyFrom + '"operator"'.length},
-        {documentId: "plan", from: valueFrom, to: valueFrom + '"scan"'.length},
-    ]);
+    assert.deepEqual(loaded.tree.root.sourceLocations, [{documentId: "plan", from: keyFrom, to: valueFrom + '"scan"'.length}]);
 });
 
-test("JSON loaders retain key and value source locations for semantic node names", () => {
+test("JSON loaders retain source locations spanning semantic node names", () => {
     const examples = [
         {text: '{"operator": "scan"}', format: "hyper", name: "scan", key: "operator", token: '"scan"'},
         {text: '{"expression": "literal"}', format: "hyper", name: "literal", key: "expression", token: '"literal"'},
@@ -189,8 +186,7 @@ test("JSON loaders retain key and value source locations for semantic node names
         const keyFrom = document?.text.indexOf(keyToken) ?? -1;
         const valueFrom = document?.text.indexOf(example.token) ?? -1;
         assert.deepEqual(matchingNode?.sourceLocations, [
-            {documentId: "plan", from: keyFrom, to: keyFrom + keyToken.length},
-            {documentId: "plan", from: valueFrom, to: valueFrom + example.token.length},
+            {documentId: "plan", from: keyFrom, to: valueFrom + example.token.length},
         ]);
     }
 });
@@ -218,7 +214,7 @@ test("JSON loaders do not link wrapper nodes to broad container ranges", () => {
     assert.equal(loaded.tree.root.name, "select");
     assert.equal(loaded.tree.root.sourceLocations, undefined);
     assert.equal(loaded.tree.root.children?.[0].name, "scan");
-    assert.equal(loaded.tree.root.children?.[0].sourceLocations?.length, 2);
+    assert.equal(loaded.tree.root.children?.[0].sourceLocations?.length, 1);
 
     const cedarText = readFileSync(path.join(examplesRoot, "cedardb", "tableconstruction.plan.json"), "utf8");
     const cedar = loadPlanFromText(cedarText, {format: "umbra"});
@@ -234,10 +230,7 @@ test("DuckDB source locations follow the operator-name fallback", () => {
     const keyFrom = document?.text.indexOf('"name"') ?? -1;
     const valueFrom = document?.text.indexOf('"SEQ_SCAN"') ?? -1;
     assert.equal(root.name, "seq_scan");
-    assert.deepEqual(root.sourceLocations, [
-        {documentId: "plan", from: keyFrom, to: keyFrom + '"name"'.length},
-        {documentId: "plan", from: valueFrom, to: valueFrom + '"SEQ_SCAN"'.length},
-    ]);
+    assert.deepEqual(root.sourceLocations, [{documentId: "plan", from: keyFrom, to: valueFrom + '"SEQ_SCAN"'.length}]);
 });
 
 test("dispatcher reports invalid plans", () => {

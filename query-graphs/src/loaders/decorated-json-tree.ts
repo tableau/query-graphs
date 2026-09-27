@@ -216,8 +216,9 @@ function convertDecoratedJsonValue(
     if (nodeTypeKey !== undefined) {
         const keyLocation = context.jsonSource?.propertyKeyLocation(rawNode, nodeTypeKey);
         const valueLocation = context.jsonSource?.propertyValueLocation(rawNode, nodeTypeKey);
-        if (keyLocation !== undefined) sourceLocations.push(keyLocation);
-        if (valueLocation !== undefined) sourceLocations.push(valueLocation);
+        if (keyLocation !== undefined && valueLocation !== undefined) {
+            sourceLocations.push({...keyLocation, to: valueLocation.to});
+        }
     }
     if (sourceLocations.length > 0) convertedNode.sourceLocations = sourceLocations;
 

@@ -11,10 +11,8 @@ import type {DecoratedJsonTreeConfig} from "./decorated-json-tree";
 import {convertDecoratedJsonNode, createDecoratedJsonTreeState} from "./decorated-json-tree";
 import type {JsonPlanLoader} from "./types";
 
-const namePropertyKey = "name";
-
 const jsonTreeConfig: DecoratedJsonTreeConfig = {
-    nodeTypeKeys: [namePropertyKey],
+    nodeTypeKeys: ["name"],
     // Generic JSON has historically shown `name` in the tooltip as well as
     // using it as the node label.
     retainNodeTypeProperty: true,
@@ -26,7 +24,7 @@ const jsonTreeConfig: DecoratedJsonTreeConfig = {
 
 export const jsonPlanLoader: JsonPlanLoader = {
     format: "json",
-    sourcePropertyKeys: new Set([namePropertyKey]),
+    sourcePropertyKeys: new Set(jsonTreeConfig.nodeTypeKeys),
     matches: () => true,
     load(json, context) {
         const state = createDecoratedJsonTreeState();
