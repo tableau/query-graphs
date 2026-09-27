@@ -13,8 +13,6 @@ import type {JsonPlanLoader} from "./types";
 
 const jsonTreeConfig: DecoratedJsonTreeConfig = {
     nodeTypeKeys: ["name"],
-    // Generic JSON has historically shown `name` in the tooltip as well as
-    // using it as the node label.
     retainNodeTypeProperty: true,
     structuralChildKeys: [],
     alwaysPropertyKeys: [],

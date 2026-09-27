@@ -149,7 +149,7 @@ test("Hyper optimizer steps preserve additional envelope fields", () => {
 });
 
 // Hyper positions are UTF-8 byte offsets, so preceding multibyte characters must not shift the UTF-16 editor ranges.
-test("Hyper nodes retain both SQL and JSON source ranges", () => {
+test("Hyper nodes link both SQL and JSON source ranges", () => {
     const sql = "EXPLAIN SELECT 'é😀', value FROM table";
     const valueStart = Buffer.byteLength("EXPLAIN SELECT 'é😀', ");
     const tableStart = Buffer.byteLength("EXPLAIN SELECT 'é😀', value FROM ");
