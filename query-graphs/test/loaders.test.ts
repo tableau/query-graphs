@@ -24,7 +24,6 @@ function treeDigest(tree: TreeDescription): string {
 
     const crosslinks = tree.crosslinks?.map(({source, target}) => [nodeIds.get(source), nodeIds.get(target)]);
     const json = JSON.stringify({root: tree.root, crosslinks, metadata: tree.metadata}, (_key, value: unknown) => {
-        if (_key === "sourceLocations") return undefined;
         if (value instanceof Map) return Array.from(value);
         if (typeof value === "object" && value !== null && !Array.isArray(value)) {
             return Object.fromEntries(Object.entries(value).sort(([a], [b]) => a.localeCompare(b)));
