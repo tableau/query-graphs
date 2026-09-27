@@ -14,19 +14,14 @@ test("positioned JSON parsing preserves JSON semantics and UTF-16 source offsets
     const emojiFrom = text.indexOf(emoji);
     const emojiKey = '"emoji"';
     const emojiKeyFrom = text.indexOf(emojiKey);
-    assert.deepEqual(parsed.source.propertyKeyLocation(object, "emoji"), {
+    assert.deepEqual(parsed.source.propertyLocation(object, "emoji"), {
         documentId: "plan",
         from: emojiKeyFrom,
-        to: emojiKeyFrom + emojiKey.length,
-    });
-    assert.deepEqual(parsed.source.propertyValueLocation(object, "emoji"), {
-        documentId: "plan",
-        from: emojiFrom,
         to: emojiFrom + emoji.length,
     });
-    assert.deepEqual(parsed.source.propertyValueLocation(object, "__proto__"), {
+    assert.deepEqual(parsed.source.propertyLocation(object, "__proto__"), {
         documentId: "plan",
-        from: text.indexOf('{"value"'),
+        from: text.indexOf('"__proto__"'),
         to: text.indexOf('{"value"') + '{"value": 1}'.length,
     });
 });
@@ -42,9 +37,9 @@ test("duplicate properties retain the last value and its location", () => {
     const parsed = parsePositionedJson(text, "plan", new Set(["name"]));
     const object = parsed.value as JsonObject;
     assert.equal(object["name"], "last");
-    assert.deepEqual(parsed.source.propertyValueLocation(object, "name"), {
+    assert.deepEqual(parsed.source.propertyLocation(object, "name"), {
         documentId: "plan",
-        from: text.lastIndexOf('"last"'),
+        from: text.lastIndexOf('"name"'),
         to: text.lastIndexOf('"last"') + '"last"'.length,
     });
 });
@@ -54,12 +49,11 @@ test("duplicate container properties retain the winning container range", () => 
     const parsed = parsePositionedJson(text, "plan", new Set(["item"]));
     const root = parsed.value as JsonObject;
     const item = root["item"] as JsonObject[];
-    const arrayFrom = text.lastIndexOf("[");
 
     assert.equal(item[0]?.["name"], "last");
-    assert.deepEqual(parsed.source.propertyValueLocation(root, "item"), {
+    assert.deepEqual(parsed.source.propertyLocation(root, "item"), {
         documentId: "plan",
-        from: arrayFrom,
+        from: text.lastIndexOf('"item"'),
         to: text.lastIndexOf("]") + 1,
     });
 });
@@ -77,13 +71,13 @@ test("positioned JSON indexes only requested property keys", () => {
     const statistics = root["statistics"] as JsonObject;
 
     assert.deepEqual(parsed.value, {name: "scan", statistics: {metric: 1}});
-    assert.deepEqual(parsed.source.propertyKeyLocation(root, "name"), {
+    assert.deepEqual(parsed.source.propertyLocation(root, "name"), {
         documentId: "plan",
         from: text.indexOf('"na\\u006de"'),
-        to: text.indexOf('"na\\u006de"') + '"na\\u006de"'.length,
+        to: text.indexOf('"scan"') + '"scan"'.length,
     });
-    assert.equal(parsed.source.propertyKeyLocation(root, "statistics"), undefined);
-    assert.equal(parsed.source.propertyValueLocation(statistics, "metric"), undefined);
+    assert.equal(parsed.source.propertyLocation(root, "statistics"), undefined);
+    assert.equal(parsed.source.propertyLocation(statistics, "metric"), undefined);
 });
 
 test("an empty positioned-key set still preserves nested values and prototype-sensitive keys", () => {
@@ -94,5 +88,5 @@ test("an empty positioned-key set still preserves nested values and prototype-se
     assert.equal(Object.getPrototypeOf(root), Object.prototype);
     assert.equal(Object.hasOwn(root, "__proto__"), true);
     assert.deepEqual(root, JSON.parse(text));
-    assert.equal(parsed.source.propertyKeyLocation(root, "__proto__"), undefined);
+    assert.equal(parsed.source.propertyLocation(root, "__proto__"), undefined);
 });

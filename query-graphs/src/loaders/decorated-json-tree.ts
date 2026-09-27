@@ -214,11 +214,8 @@ function convertDecoratedJsonValue(
     // Link only scalar identifiers. Falling back to a container's full
     // range makes wrapper nodes highlight most or all of a large plan.
     if (nodeTypeKey !== undefined) {
-        const keyLocation = context.jsonSource?.propertyKeyLocation(rawNode, nodeTypeKey);
-        const valueLocation = context.jsonSource?.propertyValueLocation(rawNode, nodeTypeKey);
-        if (keyLocation !== undefined && valueLocation !== undefined) {
-            sourceLocations.push({...keyLocation, to: valueLocation.to});
-        }
+        const propertyLocation = context.jsonSource?.propertyLocation(rawNode, nodeTypeKey);
+        if (propertyLocation !== undefined) sourceLocations.push(propertyLocation);
     }
     if (sourceLocations.length > 0) convertedNode.sourceLocations = sourceLocations;
 
