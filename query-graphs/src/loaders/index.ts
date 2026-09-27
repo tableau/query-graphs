@@ -32,8 +32,6 @@ export const jsonPlanLoaders: readonly JsonPlanLoader[] = [
     hyperPlanLoader,
     jsonPlanLoader,
 ];
-// Use one small union for automatic and forced dispatch. This keeps parser setup independent of
-// loader selection; checking six keys is negligible compared with scanning and constructing JSON.
 export const jsonPlanSourcePropertyKeys: ReadonlySet<string> = new Set(
     jsonPlanLoaders.flatMap(({sourcePropertyKeys}) => [...sourcePropertyKeys]),
 );

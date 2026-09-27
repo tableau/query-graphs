@@ -56,8 +56,6 @@ JSON loaded through `loadPlanFromText` retains source provenance.
 Each JSON loader advertises the property keys it may use to identify nodes, and the dispatcher passes their union to a single streaming parse.
 That parse constructs ordinary JSON values while retaining positions only for the requested keys.
 The decorated-tree conversion by default links each identifying key and value (`operator`, `expression`, `Node Type`, and similar fields) to the resulting `TreeNode`.
-Parsing remains synchronous; off-thread loading is separate follow-up work for multi-megabyte plans.
-JSON plan documents use canonical LF line endings so these offsets also match browser text models such as CodeMirror.
 Calling a loader with a `JSON.parse` result is also supported, but cannot produce source locations.
 
 ## The Renderer

@@ -29,7 +29,7 @@ export interface PlanLoader<Input> {
 export interface JsonPlanLoader extends PlanLoader<Json> {
     /**
      * Property keys whose JSON tokens may be linked to graph nodes. Values still parse when a key
-     * is omitted here, but their positions are intentionally unavailable to the converted tree.
+     * is omitted here, but their positions are unavailable to the loader.
      */
     readonly sourcePropertyKeys: ReadonlySet<string>;
 }

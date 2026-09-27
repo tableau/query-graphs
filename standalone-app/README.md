@@ -23,7 +23,7 @@ The same function doubles as the input validator in `FileOpener`, so the paste b
 ## Source Highlighting
 
 The graph is linked bidirectionally to the source text when the plan provides source locations.
-Hovering a graph node highlights the corresponding SQL expression or JSON identifier, while hovering linked text highlights the graph node.
+Hovering a graph node highlights the corresponding SQL expression or JSON identifier, and vice versa.
 Moving the text cursor across a linked range provides the same graph highlight for keyboard navigation.
 
 ## The Plan Lives in the URL

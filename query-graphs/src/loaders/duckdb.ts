@@ -25,15 +25,12 @@ function crosslinkId(namespace: "cte" | "delim", id: string): string {
     return `${namespace}:${id}`;
 }
 
-const operatorTypeKeys = ["operator_name", "name", "operator_type"] as const;
-
-function getOperatorTypeKey(rawNode: JsonObject): (typeof operatorTypeKeys)[number] | undefined {
-    return operatorTypeKeys.find((key) => tryToNonNullString(rawNode[key]) !== undefined);
-}
-
 function getOperatorType(rawNode: JsonObject): string {
-    const operatorTypeKey = getOperatorTypeKey(rawNode);
-    const operatorType = operatorTypeKey === undefined ? "unknown" : (tryToNonNullString(rawNode[operatorTypeKey]) ?? "unknown");
+    const operatorType =
+        tryToNonNullString(rawNode["operator_name"]) ??
+        tryToNonNullString(rawNode["name"]) ??
+        tryToNonNullString(rawNode["operator_type"]) ??
+        "unknown";
     // DuckDB's built-in operator names are often emitted in CAPS_LOCK form.
     // Preserve mixed-case names because extensions may supply their own labels.
     return operatorType === operatorType.toUpperCase() ? operatorType.toLowerCase() : operatorType;
@@ -93,7 +90,7 @@ function getDisplayName(rawNode: JsonObject): string {
 }
 
 const duckDbConfig: DecoratedJsonTreeConfig = {
-    nodeTypeKeys: operatorTypeKeys,
+    nodeTypeKeys: ["operator_name", "name", "operator_type"],
     structuralChildKeys: ["children"],
     alwaysPropertyKeys: [],
     flattenPropertyObjectKeys: ["extra_info"],
@@ -260,7 +257,7 @@ function loadDuckDbPlan(json: Json, context: PlanLoadContext): TreeDescription {
 
 export const duckDbPlanLoader: JsonPlanLoader = {
     format: "duckdb",
-    sourcePropertyKeys: new Set(operatorTypeKeys),
+    sourcePropertyKeys: new Set(duckDbConfig.nodeTypeKeys),
     matches(json) {
         const stages = getPlanStages(json);
         return (
