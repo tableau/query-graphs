@@ -1,4 +1,4 @@
-import {printParseErrorCode, visit, type ParseError} from "jsonc-parser";
+import * as jsonc from "jsonc-parser";
 import type {SourceLocation} from "../tree-description";
 import type {Json, JsonObject} from "./loader-utils";
 
@@ -12,12 +12,6 @@ export interface PositionedJson {
     source: JsonSourceLocator;
 }
 
-function parseError(errors: ParseError[]): SyntaxError {
-    const first = errors[0];
-    if (first === undefined) return new SyntaxError("Invalid JSON");
-    return new SyntaxError(`${printParseErrorCode(first.error)} at offset ${first.offset}`);
-}
-
 interface PropertyLocation {
     keyFrom: number;
     keyTo: number;
@@ -25,25 +19,21 @@ interface PropertyLocation {
     valueTo?: number;
 }
 
-function sourceLocation(documentId: string, from?: number, to?: number): SourceLocation | undefined {
-    return from === undefined || to === undefined ? undefined : {documentId, from, to};
-}
-
 /**
  * Parses strict JSON while retaining source ranges only for the requested property keys.
  *
  * `visit` is slower than the engine's `JSON.parse`, but produces values and source offsets in
- * one pass. In a property-heavy 50 MiB Node 24 benchmark it was about 2.5 times slower, so moving
- * this work off the main thread is preferable to dropping source links above a size threshold.
- * Restricting the index is essential: indexing every property retained nearly five times as much
- * heap, while the loader-key union remained within one percent of the values-only empty-set path.
+ * one pass. In a property-heavy 50 MiB Node 24 benchmark it was about 2.5 times slower than
+ * `JSON.parse`. This performance cost is acceptable, given we can cross-link the tree with the
+ * JSON document in return. Restricting the index is essential: indexing every property costs
+ * nearly five times as much memory.
  */
 export function parsePositionedJson(text: string, documentId: string, positionedKeys: ReadonlySet<string>): PositionedJson {
-    const errors: ParseError[] = [];
+    const errors: jsonc.ParseError[] = [];
     const locations = new WeakMap<JsonObject, Map<string, PropertyLocation>>();
-    // An artificial array root handles scalar and container roots uniformly. Keep only parent
-    // references and location references on the stacks: allocating a frame for every container
-    // and defining every property reflectively made the 50 MiB values-only path about 60% slower.
+    // Follow jsonc-parser's `parse` implementation: an artificial array root handles every root
+    // type uniformly, while a parent stack restores the enclosing container. The parallel location
+    // stack extends an indexed container property's range when `visit` reports its closing delimiter.
     const root: Json[] = [];
     const previousParents: (JsonObject | Json[])[] = [];
     const containerPropertyLocations: (PropertyLocation | undefined)[] = [];
@@ -98,7 +88,7 @@ export function parsePositionedJson(text: string, documentId: string, positioned
         currentPropertyLocation = undefined;
     }
 
-    visit(
+    jsonc.visit(
         text,
         {
             onObjectBegin: (offset, length) => beginContainer({}, offset, length),
@@ -129,18 +119,24 @@ export function parsePositionedJson(text: string, documentId: string, positioned
         },
         {disallowComments: true, allowTrailingComma: false, allowEmptyContent: false},
     );
-    if (root.length === 0 || errors.length > 0) throw parseError(errors);
+    const firstError = errors[0];
+    if (firstError !== undefined) {
+        throw new SyntaxError(`${jsonc.printParseErrorCode(firstError.error)} at offset ${firstError.offset}`);
+    }
+    if (root.length === 0) throw new SyntaxError("Invalid JSON");
 
     return {
         value: root[0],
         source: {
             propertyKeyLocation: (object, key) => {
                 const property = locations.get(object)?.get(key);
-                return sourceLocation(documentId, property?.keyFrom, property?.keyTo);
+                return property === undefined ? undefined : {documentId, from: property.keyFrom, to: property.keyTo};
             },
             propertyValueLocation: (object, key) => {
                 const property = locations.get(object)?.get(key);
-                return sourceLocation(documentId, property?.valueFrom, property?.valueTo);
+                return property?.valueFrom === undefined || property.valueTo === undefined
+                    ? undefined
+                    : {documentId, from: property.valueFrom, to: property.valueTo};
             },
         },
     };
