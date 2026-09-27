@@ -13,8 +13,10 @@ export interface PositionedJson {
 
 interface PropertyLocation {
     from: number;
-    to?: number;
+    to: number;
 }
+
+type JsonContainer = JsonObject | Json[];
 
 /**
  * Parses JSON while retaining source ranges.
@@ -32,11 +34,11 @@ export function parsePositionedJson(text: string, documentId: string, positioned
     // type uniformly, while a parent stack restores the enclosing container. The parallel location
     // stack extends an indexed container property's range when `visit` reports its closing delimiter.
     const root: Json[] = [];
-    const previousParents: (JsonObject | Json[])[] = [];
+    const previousParents: JsonContainer[] = [];
     const containerPropertyLocations: (PropertyLocation | undefined)[] = [];
-    let currentParent: JsonObject | Json[] = root;
+    let currentParent: JsonContainer = root;
     let currentProperty: string | undefined;
-    let currentPropertyLocation: PropertyLocation | undefined;
+    let currentPropertyFrom: number | undefined;
 
     function addValue(value: Json, to: number): PropertyLocation | undefined {
         if (Array.isArray(currentParent)) {
@@ -44,44 +46,51 @@ export function parsePositionedJson(text: string, documentId: string, positioned
             return undefined;
         }
 
-        if (currentProperty === undefined) return undefined;
+        // `visit` reports object values only after their property callback. Invalid documents are
+        // rejected below, so a runtime assertion here would only penalize every valid object value.
+        const property = currentProperty!;
         // Ordinary assignment gives V8 its fast object-shape path. Only "__proto__" needs the
         // reflective path because assignment would mutate the prototype instead of matching JSON.parse.
-        if (currentProperty === "__proto__") {
-            Object.defineProperty(currentParent, currentProperty, {
+        if (property !== "__proto__") {
+            currentParent[property] = value;
+        } else {
+            Object.defineProperty(currentParent, property, {
                 value,
                 enumerable: true,
                 configurable: true,
                 writable: true,
             });
-        } else {
-            currentParent[currentProperty] = value;
         }
-        if (currentPropertyLocation !== undefined) {
-            currentPropertyLocation.to = to;
+        if (currentPropertyFrom === undefined) return undefined;
+
+        const location = {from: currentPropertyFrom, to};
+        // Most plan properties are statistics or other unlinked data. Allocate a map only
+        // for objects with requested keys; set() also gives duplicate keys last-write-wins
+        // positions, matching the value semantics of JSON.parse.
+        let objectLocations = locations.get(currentParent);
+        if (objectLocations === undefined) {
+            objectLocations = new Map();
+            locations.set(currentParent, objectLocations);
         }
-        const propertyLocation = currentPropertyLocation;
-        currentProperty = undefined;
-        currentPropertyLocation = undefined;
-        return propertyLocation;
+        objectLocations.set(property, location);
+        return location;
     }
 
-    function beginContainer(value: JsonObject | Json[], offset: number, length: number): void {
+    function beginContainer(value: JsonContainer, offset: number, length: number): void {
         // The begin callback only covers the opening delimiter. Remember the parent property
         // so the matching end callback can extend its value range across the full container.
         const parentProperty = addValue(value, offset + length);
         previousParents.push(currentParent);
         containerPropertyLocations.push(parentProperty);
         currentParent = value;
+        currentProperty = undefined;
+        currentPropertyFrom = undefined;
     }
 
     function endContainer(offset: number, length: number): void {
         const parentProperty = containerPropertyLocations.pop();
         if (parentProperty !== undefined) parentProperty.to = offset + length;
-        const parent = previousParents.pop();
-        if (parent !== undefined) currentParent = parent;
-        currentProperty = undefined;
-        currentPropertyLocation = undefined;
+        currentParent = previousParents.pop()!;
     }
 
     jsonc.visit(
@@ -89,23 +98,8 @@ export function parsePositionedJson(text: string, documentId: string, positioned
         {
             onObjectBegin: (offset, length) => beginContainer({}, offset, length),
             onObjectProperty: (key, offset) => {
-                if (Array.isArray(currentParent)) return;
                 currentProperty = key;
-                if (!positionedKeys.has(key)) {
-                    currentPropertyLocation = undefined;
-                    return;
-                }
-                const location = {from: offset};
-                // Most plan properties are statistics or other unlinked data. Allocate a map only
-                // for objects with requested keys; set() also gives duplicate keys last-write-wins
-                // positions, matching the value semantics of JSON.parse.
-                let objectLocations = locations.get(currentParent);
-                if (objectLocations === undefined) {
-                    objectLocations = new Map();
-                    locations.set(currentParent, objectLocations);
-                }
-                objectLocations.set(key, location);
-                currentPropertyLocation = location;
+                currentPropertyFrom = positionedKeys.has(key) ? offset : undefined;
             },
             onObjectEnd: endContainer,
             onArrayBegin: (offset, length) => beginContainer([], offset, length),
@@ -119,14 +113,13 @@ export function parsePositionedJson(text: string, documentId: string, positioned
     if (firstError !== undefined) {
         throw new SyntaxError(`${jsonc.printParseErrorCode(firstError.error)} at offset ${firstError.offset}`);
     }
-    if (root.length === 0) throw new SyntaxError("Invalid JSON");
 
     return {
-        value: root[0],
+        value: root[0]!,
         source: {
             propertyLocation: (object, key) => {
                 const property = locations.get(object)?.get(key);
-                return property?.to === undefined ? undefined : {documentId, from: property.from, to: property.to};
+                return property === undefined ? undefined : {documentId, from: property.from, to: property.to};
             },
         },
     };
