@@ -32,25 +32,19 @@ test("positioned JSON parsing remains strict", () => {
     }
 });
 
-test("duplicate properties retain the last value and its location", () => {
-    const text = '{"name": "first", "name": "last"}';
-    const parsed = parsePositionedJson(text, "plan", new Set(["name"]));
-    const object = parsed.value as JsonObject;
-    assert.equal(object["name"], "last");
-    assert.deepEqual(parsed.source.propertyLocation(object, "name"), {
+test("duplicate scalar and container properties retain the last value and its location", () => {
+    const text = '{"name":"first","item":{"child":"first"},"name":"last","item":[{"child":"last"}]}';
+    const parsed = parsePositionedJson(text, "plan", new Set(["name", "item"]));
+    const root = parsed.value as JsonObject;
+
+    assert.equal(root["name"], "last");
+    assert.deepEqual(parsed.source.propertyLocation(root, "name"), {
         documentId: "plan",
         from: text.lastIndexOf('"name"'),
-        to: text.lastIndexOf('"last"') + '"last"'.length,
+        to: text.indexOf('"last"', text.lastIndexOf('"name"')) + '"last"'.length,
     });
-});
-
-test("duplicate container properties retain the winning container range", () => {
-    const text = '{"item": {"name": "first"}, "item": [{"name": "last"}]}';
-    const parsed = parsePositionedJson(text, "plan", new Set(["item"]));
-    const root = parsed.value as JsonObject;
     const item = root["item"] as JsonObject[];
-
-    assert.equal(item[0]?.["name"], "last");
+    assert.equal(item[0]?.["child"], "last");
     assert.deepEqual(parsed.source.propertyLocation(root, "item"), {
         documentId: "plan",
         from: text.lastIndexOf('"item"'),
@@ -80,7 +74,7 @@ test("positioned JSON indexes only requested property keys", () => {
     assert.equal(parsed.source.propertyLocation(statistics, "metric"), undefined);
 });
 
-test("an empty positioned-key set still preserves nested values and prototype-sensitive keys", () => {
+test("positioned JSON preserves nested values and prototype-sensitive keys", () => {
     const text = '{"__proto__":{"value":1},"items":[true,null]}';
     const parsed = parsePositionedJson(text, "plan", new Set());
     const root = parsed.value as JsonObject;
