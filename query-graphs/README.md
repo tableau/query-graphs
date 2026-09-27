@@ -54,12 +54,11 @@ The library intentionally exposes low-level loaders (`json`, `xml`) as generic f
 
 JSON loaded through `loadPlanFromText` retains source provenance.
 Each JSON loader advertises the property keys it may use to identify nodes, and the dispatcher passes their union to a single streaming parse.
-That parse constructs ordinary JSON values while retaining positions only for those keys, and the decorated-tree conversion attaches each identifying key and value (`operator`, `expression`, `Node Type`, and similar fields) to the resulting `TreeNode`.
-Only the UTF-16 character ranges used by the converted tree remain in `sourceLocations` after loading.
+That parse constructs ordinary JSON values while retaining positions only for the requested keys.
+The decorated-tree conversion by default links each identifying key and value (`operator`, `expression`, `Node Type`, and similar fields) to the resulting `TreeNode`.
 Parsing remains synchronous; off-thread loading is separate follow-up work for multi-megabyte plans.
 JSON plan documents use canonical LF line endings so these offsets also match browser text models such as CodeMirror.
-Calling a low-level loader with an already-parsed value remains supported, but cannot produce source locations unless the caller also supplies a loader context.
-`parsePositionedJson`, `jsonPlanSourcePropertyKeys`, `PlanLoadContext`, and the source-locator types are exported from `loaders/index.ts` for callers that need that low-level path.
+Calling a loader with a `JSON.parse` result is also supported, but cannot produce source locations.
 
 ## The Renderer
 
