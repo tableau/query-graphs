@@ -48,10 +48,9 @@ export function parsePositionedJson(text: string, documentId: string, positioned
     // Follow jsonc-parser's `parse` implementation: an artificial array root handles every root
     // type uniformly, while a parent stack restores the enclosing container. The parallel location
     // stack extends an indexed container property's range when `visit` reports its closing delimiter.
-    const root: Json[] = [];
     const previousParents: JsonContainer[] = [];
     const openContainerPropertyLocations: (PropertyLocation | undefined)[] = [];
-    let currentParent: JsonContainer = root;
+    let currentParent: JsonContainer = [];
     let currentProperty: string | undefined;
     let currentPropertyFrom: number | undefined;
 
@@ -122,7 +121,7 @@ export function parsePositionedJson(text: string, documentId: string, positioned
     }
 
     return {
-        value: root[0]!,
+        value: currentParent[0]!,
         source: {
             propertyLocation: (object, key) => {
                 const property = locations.get(object)?.get(key);
