@@ -64,15 +64,16 @@ export function parsePositionedJson(text: string, documentId: string, positioned
             return;
         }
 
-        // `visit` reports object values only after their property callback. Invalid documents are
-        // rejected below, so a runtime assertion here would only penalize every valid object value.
+        // `visit` reports object values only after their property callback.
+        // Hence, we can assert that `currentProperty` is not `undefined` here.
+        // A runtime assertion here would penalize every valid object value, hence we use a type assertion without a runtime check.
         const property = currentProperty!;
         setObjectProperty(currentParent, property, value);
         if (location === undefined) return;
 
-        // Most plan properties are statistics or other unlinked data. Allocate a map only
-        // for objects with requested keys; set() also gives duplicate keys last-write-wins
-        // positions, matching the value semantics of JSON.parse.
+        // Most plan properties are statistics or other data which shouldn't track source ranges.
+        // Allocate the map here lazily, so we avoid this allocation for objects which don't contain
+        // any location-tracked properties.
         let objectLocations = locations.get(currentParent);
         if (objectLocations === undefined) {
             objectLocations = new Map();
