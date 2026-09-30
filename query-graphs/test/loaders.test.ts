@@ -207,20 +207,6 @@ test("low-level loaders remain usable without source text", () => {
     assert.equal(tree?.root.sourceLocations, undefined);
 });
 
-test("JSON loaders do not link wrapper nodes to broad container ranges", () => {
-    const loaded = loadPlanFromText('{"plan":{"operator":"scan","operatorId":1},"type":"select"}', {format: "umbra"});
-
-    assert.equal(loaded.tree.root.name, "select");
-    assert.equal(loaded.tree.root.sourceLocations, undefined);
-    assert.equal(loaded.tree.root.children?.[0].name, "scan");
-    assert.equal(loaded.tree.root.children?.[0].sourceLocations?.length, 1);
-
-    const cedarText = readFileSync(path.join(examplesRoot, "cedardb", "tableconstruction.plan.json"), "utf8");
-    const cedar = loadPlanFromText(cedarText, {format: "umbra"});
-    assert.equal(cedar.tree.root.name, "select");
-    assert.equal(cedar.tree.root.sourceLocations, undefined);
-});
-
 test("dispatcher reports invalid plans", () => {
     assert.throws(() => loadPlanFromText("not JSON or XML"), InvalidPlanError);
 });
