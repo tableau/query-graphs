@@ -50,7 +50,7 @@ export function parsePositionedJson(text: string, documentId: string, positioned
     // stack extends an indexed container property's range when `visit` reports its closing delimiter.
     const root: Json[] = [];
     const previousParents: JsonContainer[] = [];
-    const containerPropertyLocations: (PropertyLocation | undefined)[] = [];
+    const openContainerPropertyLocations: (PropertyLocation | undefined)[] = [];
     let currentParent: JsonContainer = root;
     let currentProperty: string | undefined;
     let currentPropertyFrom: number | undefined;
@@ -85,18 +85,18 @@ export function parsePositionedJson(text: string, documentId: string, positioned
     function beginContainer(value: JsonContainer, to: number): void {
         // The begin callback only covers the opening delimiter. Remember the parent property
         // so the matching end callback can extend its value range across the full container.
-        const parentProperty = currentPropertyLocation(to);
-        attachValue(value, parentProperty);
+        const propertyLocation = currentPropertyLocation(to);
+        attachValue(value, propertyLocation);
         previousParents.push(currentParent);
-        containerPropertyLocations.push(parentProperty);
+        openContainerPropertyLocations.push(propertyLocation);
         currentParent = value;
         currentProperty = undefined;
         currentPropertyFrom = undefined;
     }
 
     function endContainer(offset: number, length: number): void {
-        const parentProperty = containerPropertyLocations.pop();
-        if (parentProperty !== undefined) parentProperty.to = offset + length;
+        const propertyLocation = openContainerPropertyLocations.pop();
+        if (propertyLocation !== undefined) propertyLocation.to = offset + length;
         currentParent = previousParents.pop()!;
     }
 
