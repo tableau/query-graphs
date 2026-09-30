@@ -173,9 +173,9 @@ test("Umbra keeps source locations in properties instead of graph subtrees", () 
 });
 
 // Multibyte probe text documents that Umbra columns are one-based UTF-8 bytes rather than UTF-16 offsets.
-test("Umbra links nodes using the one-based UTF-8 columns observed in a Unicode probe", () => {
+test("Umbra nodes link both SQL and JSON source ranges", () => {
     const sql = `EXPLAIN (FORMAT JSON) SELECT 'é😀' AS prefix, "é😀s" + 2 AS target FROM generate_series(1, 2) AS t("é😀s");`;
-    const tree = loadPlanFromText(
+    const loaded = loadPlanFromText(
         JSON.stringify({
             plan: {
                 operator: "tablescan",
@@ -184,10 +184,16 @@ test("Umbra links nodes using the one-based UTF-8 columns observed in a Unicode 
             },
         }),
         {format: "umbra", sql},
-    ).tree;
+    );
+    const planText = loaded.tree.textDocuments?.find(({id}) => id === "plan")?.text ?? "";
+    const keyFrom = planText.indexOf('"operator"');
+    const valueFrom = planText.indexOf('"tablescan"');
 
-    const operator = treeNodes(tree.root).find((node) => node.properties?.get("operatorId") === "1");
-    assert.deepEqual(operator?.sourceLocations, [{documentId: "query", from: 46, to: 56}]);
+    const operator = treeNodes(loaded.tree.root).find((node) => node.properties?.get("operatorId") === "1");
+    assert.deepEqual(operator?.sourceLocations, [
+        {documentId: "query", from: 46, to: 56},
+        {documentId: "plan", from: keyFrom, to: valueFrom + '"tablescan"'.length},
+    ]);
     assert.equal(sql.slice(46, 56), `"é😀s" + 2`);
 });
 
@@ -200,8 +206,16 @@ test("Umbra ignores malformed source locations and locations without SQL", () =>
             sourceLocation: {startLine: 1, startColumn: 0, endLine: 1, endColumn: 4},
         },
     });
-    assert.equal(loadPlanFromText(plan, {format: "umbra", sql: "abc"}).tree.root.sourceLocations, undefined);
-    assert.equal(loadPlanFromText(plan, {format: "umbra"}).tree.root.sourceLocations, undefined);
+    assert.equal(
+        loadPlanFromText(plan, {format: "umbra", sql: "abc"}).tree.root.sourceLocations?.find(
+            ({documentId}) => documentId === "query",
+        ),
+        undefined,
+    );
+    assert.equal(
+        loadPlanFromText(plan, {format: "umbra"}).tree.root.sourceLocations?.find(({documentId}) => documentId === "query"),
+        undefined,
+    );
 });
 
 test("CedarDB optimizer stages are collapsed independently", () => {

@@ -26,7 +26,7 @@ Every loader outputs one; the renderer only ever consumes one.
   * `properties` — a `Map` of key/value strings shown in the node's tooltip/detail panel.
   * `children` vs `collapsedChildren` — see [The Collapse/Expand Model](#the-collapseexpand-model).
   * `edgeLabel`, `edgeWidth`, `edgeClass` — decorate the incoming edge (e.g. cardinality labels).
-  * `sourceLocations` — half-open UTF-16 ranges linking the node to associated text documents.
+  * `sourceLocations` — optional half-open UTF-16 ranges linking the node to associated text documents.
 * `Crosslink` — an extra `source → target` edge between nodes that are related but not parent/child (e.g. a CTE and its scan).
 * `IconName` — the set of icons the renderer knows how to draw (joins, scans, sort, group-by, …), realized as SVG in `NodeIcon`.
 
@@ -51,6 +51,12 @@ Shared post-processing helpers resolve crosslinks and scale edge widths. Hyper's
 Shared parsing/formatting helpers live in `loader-utils.ts` (`tryToString`, `forceToString`, `formatMetric`, `tryGetPropertyPath`, the `Json` type).
 
 The library intentionally exposes low-level loaders (`json`, `xml`) as generic fallbacks so that even an unrecognized plan renders as *something* rather than an error.
+
+JSON loaded through `loadPlanFromText` retains source provenance.
+Each JSON loader advertises the property keys it may use to identify nodes, and the dispatcher passes their union to a single streaming parse.
+That parse constructs ordinary JSON values while retaining positions only for the requested keys.
+The decorated-tree conversion by default links each identifying key and value (`operator`, `expression`, `Node Type`, and similar fields) to the resulting `TreeNode`.
+Calling a loader with a `JSON.parse` result is also supported, but cannot produce source locations.
 
 ## The Renderer
 
@@ -100,7 +106,8 @@ It tracks three things, and the distinction between the first two is the key sub
 * `expandedSubtrees` — which nodes reveal their **`collapsedChildren`** in the graph.
 * `nodeDimensions` — react-flow's measurements, retained across controlled-node layout updates.
 
-When loaders provide SQL source locations, hovering a graph node highlights its SQL ranges and hovering or moving the cursor through SQL highlights the narrowest matching graph nodes.
+When loaders provide source locations, hovering a graph node highlights its ranges and hovering or moving the cursor through a document highlights the narrowest matching graph nodes.
+SQL locations come from database-provided offsets; JSON loaders link identifying keys and scalar values rather than broad container ranges.
 Locations on collapsed nodes resolve to their closest visible ancestors.
 
 ## Tech Debt

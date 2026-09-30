@@ -20,13 +20,19 @@ The app provides:
 `QueryGraphsApp.tsx` uses the core library's [`loadPlanFromText` dispatcher](../docs/PlanFormatsAndLoaders.md#loader-dispatch).
 The same function doubles as the input validator in `FileOpener`, so the paste box can tell the user immediately whether their text is a recognized plan.
 
+## Source Highlighting
+
+The graph is linked bidirectionally to the source text when the plan provides source locations.
+Hovering a graph node highlights the corresponding SQL expression or JSON identifier, and vice versa.
+Moving the text cursor across a linked range provides the same graph highlight for keyboard navigation.
+
 ## The Plan Lives in the URL
 
 The currently open plan is not React state that vanishes on reload — it is a URL parameter.
 `QueryGraphsApp.tsx` reads a `file` parameter (the plan's URL), an optional `sql-file` parameter (the URL of the SQL query), and a `title` parameter via the hooks in `browserUrlHooks.ts`, and renders either the `FileOpener` (no plan) or the `QueryGraph` (plan loaded).
 When `sql-file` is present, its contents are displayed as the original SQL query and override SQL embedded in the plan.
 
-Note that the `file` parameter can point to arbitrary valid URLs.
+Note that the `file` and `sql-file` parameters can point to arbitrary valid URLs.
 You can construct deeplinks — for example with a `data:` URL — to open a specific query plan directly:
 
 ```

@@ -15,7 +15,7 @@ import {convertDecoratedJsonNode, createDecoratedJsonTreeState} from "./decorate
 import type {Json, JsonObject} from "./loader-utils";
 import {forceToString, hasOwnProperty, hasSubObject, isJsonObject, tryToNonNullString, tryToNumber} from "./loader-utils";
 import {buildIdMap, colorRelativeNumber, resolveCrosslinks, setRelativeEdgeWidths} from "./tree-postprocessing";
-import type {PlanLoadContext, PlanLoader} from "./types";
+import type {JsonPlanLoader, PlanLoadContext} from "./types";
 
 function getExtraInfo(rawNode: JsonObject): JsonObject | undefined {
     return hasSubObject(rawNode, "extra_info") ? rawNode["extra_info"] : undefined;
@@ -255,8 +255,9 @@ function loadDuckDbPlan(json: Json, context: PlanLoadContext): TreeDescription {
     return convertDuckPlan(Array.isArray(json) && json.length > 0 ? json[0] : json, context);
 }
 
-export const duckDbPlanLoader: PlanLoader<Json> = {
+export const duckDbPlanLoader: JsonPlanLoader = {
     format: "duckdb",
+    sourcePropertyKeys: new Set(duckDbConfig.nodeTypeKeys),
     matches(json) {
         const stages = getPlanStages(json);
         return (

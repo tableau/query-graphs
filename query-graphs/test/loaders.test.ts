@@ -4,7 +4,14 @@ import {readFileSync} from "node:fs";
 import path from "node:path";
 import {fileURLToPath} from "node:url";
 import test from "node:test";
-import {InvalidPlanError, jsonPlanLoaders, loadPlanFromText, UnknownPlanFormatError, xmlPlanLoaders} from "../src/loaders";
+import {
+    InvalidPlanError,
+    jsonPlanLoaders,
+    jsonPlanSourcePropertyKeys,
+    loadPlanFromText,
+    UnknownPlanFormatError,
+    xmlPlanLoaders,
+} from "../src/loaders";
 import type {TreeDescription, TreeNode} from "../src/tree-description";
 import {allChildren, visitTreeNodes} from "../src/tree-description";
 import {examplesRoot, fixturePaths} from "./loader-test-utils";
@@ -76,11 +83,128 @@ test("dispatcher pretty-prints JSON without changing its tokens", () => {
     );
 });
 
-test("dispatcher preserves already multi-line JSON documents", () => {
-    for (const json of ['{\n "unrecognized": true\n}', '{\r\n\t"unrecognized": true\r\n}', '{\r "unrecognized": true\r}']) {
+test("dispatcher preserves multiline JSON formatting while normalizing line endings", () => {
+    const examples = [
+        {json: '{\n "unrecognized": true\n}', expected: '{\n "unrecognized": true\n}'},
+        {json: '{\r\n\t"unrecognized": true\r\n}', expected: '{\n\t"unrecognized": true\n}'},
+        {json: '{\r "unrecognized": true\r}', expected: '{\n "unrecognized": true\n}'},
+    ];
+    for (const {json, expected} of examples) {
         const document = loadPlanFromText(json).tree.textDocuments?.find(({id}) => id === "plan");
-        assert.equal(document?.text, json);
+        assert.equal(document?.text, expected);
     }
+});
+
+test("JSON plan documents and their source offsets use canonical line endings", () => {
+    const loaded = loadPlanFromText('{\r\n  "operator": "scan"\r\n}', {format: "hyper"});
+    const document = loaded.tree.textDocuments?.find(({id}) => id === "plan");
+    assert.equal(document?.text, '{\n  "operator": "scan"\n}');
+    const keyFrom = document?.text.indexOf('"operator"') ?? -1;
+    const valueFrom = document?.text.indexOf('"scan"') ?? -1;
+    assert.deepEqual(loaded.tree.root.sourceLocations, [{documentId: "plan", from: keyFrom, to: valueFrom + '"scan"'.length}]);
+});
+
+test("JSON loaders retain source locations spanning semantic node names", () => {
+    const examples = [
+        {text: '{"operator": "scan"}', format: "hyper", name: "scan", key: "operator", token: '"scan"'},
+        {text: '{"expression": "literal"}', format: "hyper", name: "literal", key: "expression", token: '"literal"'},
+        {
+            text: '{"tree": {"operator": "scan"}, "pipelines": []}',
+            format: "hyper",
+            name: "scan",
+            key: "operator",
+            token: '"scan"',
+        },
+        {
+            text: '{"optimizersteps": [{"name": "step", "plan": {"operator": "scan"}}]}',
+            format: "hyper",
+            name: "scan",
+            key: "operator",
+            token: '"scan"',
+        },
+        {
+            text: '{"plan": {"operator": "scan", "operatorId": 1}}',
+            format: "umbra",
+            name: "scan",
+            key: "operator",
+            token: '"scan"',
+        },
+        {text: '{"expression": "literal"}', format: "umbra", name: "literal", key: "expression", token: '"literal"'},
+        {
+            text: '{"optimized": {"plan": {"operator": "scan", "operatorId": 1}}}',
+            format: "umbra",
+            name: "scan",
+            key: "operator",
+            token: '"scan"',
+        },
+        {text: '{"Plan": {"Node Type": "Result"}}', format: "postgres", name: "Result", key: "Node Type", token: '"Result"'},
+        {text: '[{"Plan": {"Node Type": "Result"}}]', format: "postgres", name: "Result", key: "Node Type", token: '"Result"'},
+        {
+            text: '[{"name": "SEQ_SCAN", "children": [], "extra_info": {}}]',
+            format: "duckdb",
+            name: "seq_scan",
+            key: "name",
+            token: '"SEQ_SCAN"',
+        },
+        {
+            text: '{"logical_plan": [{"name": "SEQ_SCAN", "children": [], "extra_info": {}}]}',
+            format: "duckdb",
+            name: "seq_scan",
+            key: "name",
+            token: '"SEQ_SCAN"',
+        },
+        {
+            text: '{"query_name": "select 1", "children": [{"operator_name": "SEQ_SCAN", "children": [], "extra_info": {}}]}',
+            format: "duckdb",
+            name: "seq_scan",
+            key: "operator_name",
+            token: '"SEQ_SCAN"',
+        },
+        {
+            text: '[{"operator_type": "SEQ_SCAN", "children": [], "extra_info": {}}]',
+            format: "duckdb",
+            name: "seq_scan",
+            key: "operator_type",
+            token: '"SEQ_SCAN"',
+        },
+        {text: '{"name": "root", "value": 1}', format: "json", name: "root", key: "name", token: '"root"'},
+    ];
+
+    for (const example of examples) {
+        const loaded = loadPlanFromText(example.text, {format: example.format});
+        let matchingNode: TreeNode | undefined;
+        visitTreeNodes(
+            loaded.tree.root,
+            (node) => {
+                if (node.name === example.name) matchingNode = node;
+            },
+            allChildren,
+        );
+        const document = loaded.tree.textDocuments?.find(({id}) => id === "plan");
+        const keyToken = JSON.stringify(example.key);
+        const keyFrom = document?.text.indexOf(keyToken) ?? -1;
+        const valueFrom = document?.text.indexOf(example.token) ?? -1;
+        assert.deepEqual(matchingNode?.sourceLocations, [
+            {documentId: "plan", from: keyFrom, to: valueFrom + example.token.length},
+        ]);
+    }
+});
+
+test("JSON loaders advertise every property that can identify a linked node", () => {
+    assert.deepEqual([...jsonPlanSourcePropertyKeys].sort(), [
+        "Node Type",
+        "expression",
+        "name",
+        "operator",
+        "operator_name",
+        "operator_type",
+    ]);
+});
+
+test("low-level loaders remain usable without source text", () => {
+    const tree = jsonPlanLoaders.find(({format}) => format === "hyper")?.load({operator: "scan"}, {});
+    assert.equal(tree?.root.name, "scan");
+    assert.equal(tree?.root.sourceLocations, undefined);
 });
 
 test("dispatcher reports invalid plans", () => {
