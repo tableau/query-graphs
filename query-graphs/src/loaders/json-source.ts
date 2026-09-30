@@ -18,6 +18,21 @@ interface PropertyLocation {
 
 type JsonContainer = JsonObject | Json[];
 
+function setObjectProperty(object: JsonObject, key: string, value: Json): void {
+    // Ordinary assignment gives V8 its fast object-shape path. Only "__proto__" needs the
+    // reflective path because assignment would mutate the prototype instead of matching JSON.parse.
+    if (key !== "__proto__") {
+        object[key] = value;
+    } else {
+        Object.defineProperty(object, key, {
+            value,
+            enumerable: true,
+            configurable: true,
+            writable: true,
+        });
+    }
+}
+
 /**
  * Parses JSON while retaining source ranges.
  *
@@ -40,30 +55,22 @@ export function parsePositionedJson(text: string, documentId: string, positioned
     let currentProperty: string | undefined;
     let currentPropertyFrom: number | undefined;
 
-    function addValue(value: Json, to: number): PropertyLocation | undefined {
+    function currentPropertyLocation(to: number): PropertyLocation | undefined {
+        return currentPropertyFrom === undefined ? undefined : {from: currentPropertyFrom, to};
+    }
+
+    function attachValue(value: Json, location: PropertyLocation | undefined): void {
         if (Array.isArray(currentParent)) {
             currentParent.push(value);
-            return undefined;
+            return;
         }
 
         // `visit` reports object values only after their property callback. Invalid documents are
         // rejected below, so a runtime assertion here would only penalize every valid object value.
         const property = currentProperty!;
-        // Ordinary assignment gives V8 its fast object-shape path. Only "__proto__" needs the
-        // reflective path because assignment would mutate the prototype instead of matching JSON.parse.
-        if (property !== "__proto__") {
-            currentParent[property] = value;
-        } else {
-            Object.defineProperty(currentParent, property, {
-                value,
-                enumerable: true,
-                configurable: true,
-                writable: true,
-            });
-        }
-        if (currentPropertyFrom === undefined) return undefined;
+        setObjectProperty(currentParent, property, value);
+        if (location === undefined) return;
 
-        const location = {from: currentPropertyFrom, to};
         // Most plan properties are statistics or other unlinked data. Allocate a map only
         // for objects with requested keys; set() also gives duplicate keys last-write-wins
         // positions, matching the value semantics of JSON.parse.
@@ -73,13 +80,13 @@ export function parsePositionedJson(text: string, documentId: string, positioned
             locations.set(currentParent, objectLocations);
         }
         objectLocations.set(property, location);
-        return location;
     }
 
-    function beginContainer(value: JsonContainer, offset: number, length: number): void {
+    function beginContainer(value: JsonContainer, to: number): void {
         // The begin callback only covers the opening delimiter. Remember the parent property
         // so the matching end callback can extend its value range across the full container.
-        const parentProperty = addValue(value, offset + length);
+        const parentProperty = currentPropertyLocation(to);
+        attachValue(value, parentProperty);
         previousParents.push(currentParent);
         containerPropertyLocations.push(parentProperty);
         currentParent = value;
@@ -96,15 +103,15 @@ export function parsePositionedJson(text: string, documentId: string, positioned
     jsonc.visit(
         text,
         {
-            onObjectBegin: (offset, length) => beginContainer({}, offset, length),
+            onObjectBegin: (offset, length) => beginContainer({}, offset + length),
             onObjectProperty: (key, offset) => {
                 currentProperty = key;
                 currentPropertyFrom = positionedKeys.has(key) ? offset : undefined;
             },
             onObjectEnd: endContainer,
-            onArrayBegin: (offset, length) => beginContainer([], offset, length),
+            onArrayBegin: (offset, length) => beginContainer([], offset + length),
             onArrayEnd: endContainer,
-            onLiteralValue: (value: Json, offset, length) => addValue(value, offset + length),
+            onLiteralValue: (value: Json, offset, length) => attachValue(value, currentPropertyLocation(offset + length)),
             onError: (error, offset, length) => errors.push({error, offset, length}),
         },
         {disallowComments: true, allowTrailingComma: false, allowEmptyContent: false},
