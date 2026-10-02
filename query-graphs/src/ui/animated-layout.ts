@@ -44,8 +44,9 @@ export interface ViewportBounds extends Position {
 
 /**
  * Returns the visible explicit anchor nearest the viewport's top center, or the
- * nearest persistent node. Query plans are generally read top-down, making the
- * top center a useful default near the graph root and the user's likely focus.
+ * nearest visible persistent node. Query plans are generally read top-down,
+ * making the top center a useful default near the graph root and the user's
+ * likely focus.
  */
 export function closestAnimationAnchor(
     from: AnimatedLayout,
@@ -67,10 +68,11 @@ export function closestAnimationAnchor(
             left <= viewport.x + viewport.width &&
             position.y + height >= viewport.y &&
             position.y <= viewport.y + viewport.height;
+        if (!visible) continue;
         const x = position.x - focus.x;
         const y = position.y + height / 2 - focus.y;
         const distance = x * x + y * y;
-        const visibleAnchor = visible && anchorNodeIds.has(node.id);
+        const visibleAnchor = anchorNodeIds.has(node.id);
         if (
             closest === undefined ||
             (visibleAnchor && !closest.visibleAnchor) ||

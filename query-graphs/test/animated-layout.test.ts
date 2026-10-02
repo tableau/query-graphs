@@ -35,16 +35,16 @@ function dimensions(nodeIds: readonly string[]): Map<string, {width: number; hei
     return new Map(nodeIds.map((nodeId) => [nodeId, {width: 40, height: 20}]));
 }
 
-test("the viewport anchor falls back to the persistent node nearest the top center", () => {
+test("the viewport anchor falls back to the visible persistent node nearest the top center", () => {
     const start = staticLayout(layout([node("left", 10, 0), node("top", 50, 0), node("center", 50, 40)]));
     const target = layout([node("left", 20, 0), node("top", 50, 0), node("center", 60, 40)]);
 
     const measured = dimensions(["left", "top", "center"]);
     assert.equal(closestAnimationAnchor(start, target, new Set(), measured, {x: 0, y: 0, width: 100, height: 100}), "top");
-    assert.equal(closestAnimationAnchor(start, target, new Set(), measured, {x: -200, y: 0, width: 100, height: 100}), "left");
+    assert.equal(closestAnimationAnchor(start, target, new Set(), measured, {x: -40, y: 0, width: 100, height: 100}), "left");
 });
 
-test("the fallback uses the nearest node even when it is just offscreen", () => {
+test("the viewport anchor ignores persistent nodes outside the viewport", () => {
     const start = staticLayout(layout([node("visible", 100, 80), node("offscreen", 50, -21)]));
     const target = layout([node("visible", 110, 80), node("offscreen", 60, -21)]);
 
@@ -55,7 +55,7 @@ test("the fallback uses the nearest node even when it is just offscreen", () => 
             width: 100,
             height: 100,
         }),
-        "offscreen",
+        "visible",
     );
 });
 
