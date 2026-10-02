@@ -31,7 +31,9 @@ function QueryNode({data, id}: NodeProps<QueryGraphNode>) {
                 if (hasSubtree) animateGraphChange(() => toggleSubtree(id));
             } else {
                 if (hasProperties) {
-                    animateGraphChange(() => toggleNode(id), [{nodeId: id, nodeElement: e.currentTarget}]);
+                    animateGraphChange(() => toggleNode(id), {
+                        resizingNodes: [{nodeId: id, nodeElement: e.currentTarget}],
+                    });
                 }
             }
             e.stopPropagation();

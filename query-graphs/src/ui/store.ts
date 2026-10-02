@@ -31,6 +31,7 @@ export interface GraphRenderingState extends HighlightState {
     // `expandedNodes` tracks which nodes show their property detail panel (toggled by a plain click).
     expandedNodes: Record<string, boolean>;
     toggleExpandedNode: (nodeId: string) => void;
+    toggleAllNodePanels: () => void;
     // `expandedSubtrees` tracks which nodes reveal their `collapsedChildren` (toggled by shift-click or the +/- handle).
     expandedSubtrees: Record<string, boolean>;
     toggleExpandedSubtree: (nodeId: string) => void;
@@ -48,11 +49,16 @@ export type GraphRenderingStore = StoreApi<GraphRenderingState>;
 
 export interface GraphRenderingStoreOptions {
     expandedSubtrees: Record<string, boolean>;
+    panelNodeIds: readonly string[];
     /** Static topology and source associations for the lifetime of this graph store. */
     graphIndex: GraphIndex;
 }
 
-export function createGraphRenderingStore({expandedSubtrees, graphIndex}: GraphRenderingStoreOptions): GraphRenderingStore {
+export function createGraphRenderingStore({
+    expandedSubtrees,
+    panelNodeIds,
+    graphIndex,
+}: GraphRenderingStoreOptions): GraphRenderingStore {
     let sourceHighlightSelection: SourceHighlightSelection | undefined;
     let hoveredNodeId: string | undefined;
 
@@ -91,6 +97,14 @@ export function createGraphRenderingStore({expandedSubtrees, graphIndex}: GraphR
                         [nodeId]: !state.expandedNodes[nodeId],
                     },
                 })),
+            toggleAllNodePanels: () =>
+                set((state) => {
+                    if (panelNodeIds.length === 0) return state;
+                    const collapse = panelNodeIds.some((nodeId) => state.expandedNodes[nodeId]);
+                    return {
+                        expandedNodes: collapse ? {} : Object.fromEntries(panelNodeIds.map((nodeId) => [nodeId, true])),
+                    };
+                }),
             toggleExpandedSubtree: (nodeId) =>
                 set((state) => {
                     const nextExpandedSubtrees = {

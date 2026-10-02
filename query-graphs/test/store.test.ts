@@ -12,12 +12,30 @@ function graphStore(
     const nodeIds = new Map(nodes.map((node, index) => [node, `${index}`]));
     return createGraphRenderingStore({
         expandedSubtrees: {},
+        panelNodeIds: nodes.flatMap((node, index) => (node.properties?.size ? [`${index}`] : [])),
         graphIndex: {
             treeTopology: {parents, collapsedSubtreeRootIds},
             sourceLinks: createSourceLinkIndex(nodeIds),
         },
     });
 }
+
+test("all node panels expand only when every panel is collapsed", () => {
+    const first: TreeNode = {properties: new Map([["First", "value"]])};
+    const second: TreeNode = {properties: new Map([["Second", "value"]])};
+    const noPanel: TreeNode = {};
+    const store = graphStore([first, second, noPanel]);
+
+    store.getState().toggleAllNodePanels();
+    assert.deepEqual(store.getState().expandedNodes, {0: true, 1: true});
+
+    store.getState().toggleExpandedNode("0");
+    store.getState().toggleAllNodePanels();
+    assert.deepEqual(store.getState().expandedNodes, {});
+
+    store.getState().toggleAllNodePanels();
+    assert.deepEqual(store.getState().expandedNodes, {0: true, 1: true});
+});
 
 // Exact ranges, rather than merely containing ranges, determine the semantic node highlights.
 test("source locations select every node linked to the active ranges", () => {

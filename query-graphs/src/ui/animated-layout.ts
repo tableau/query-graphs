@@ -42,7 +42,7 @@ export interface ViewportBounds extends Position {
     height: number;
 }
 
-/** Returns the nearest visible explicit anchor, falling back to the nearest persistent node. */
+/** Returns the visible explicit anchor nearest the viewport's top center, or the nearest persistent node. */
 export function closestAnimationAnchor(
     from: AnimatedLayout,
     to: GraphLayout,
@@ -50,7 +50,7 @@ export function closestAnimationAnchor(
     dimensions: ReadonlyMap<string, Dimensions>,
     viewport: ViewportBounds,
 ): string | undefined {
-    const center = {x: viewport.x + viewport.width / 2, y: viewport.y + viewport.height / 2};
+    const focus = {x: viewport.x + viewport.width / 2, y: viewport.y};
     let closest: {nodeId: string; visibleAnchor: boolean; distance: number} | undefined;
     const targetNodeIds = new Set(to.nodes.map((node) => node.id));
     for (const {node, position, transient} of from.nodes) {
@@ -63,8 +63,8 @@ export function closestAnimationAnchor(
             left <= viewport.x + viewport.width &&
             position.y + height >= viewport.y &&
             position.y <= viewport.y + viewport.height;
-        const x = position.x - center.x;
-        const y = position.y + height / 2 - center.y;
+        const x = position.x - focus.x;
+        const y = position.y + height / 2 - focus.y;
         const distance = x * x + y * y;
         const visibleAnchor = visible && anchorNodeIds.has(node.id);
         if (
