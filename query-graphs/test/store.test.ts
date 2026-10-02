@@ -20,21 +20,22 @@ function graphStore(
     });
 }
 
-test("all node panels expand only when every panel is collapsed", () => {
+test("node panel state includes every expandable node and updates in bulk", () => {
     const first: TreeNode = {properties: new Map([["First", "value"]])};
     const second: TreeNode = {properties: new Map([["Second", "value"]])};
     const noPanel: TreeNode = {};
     const store = graphStore([first, second, noPanel]);
 
-    store.getState().toggleAllNodePanels();
+    assert.deepEqual(store.getState().expandedNodes, {0: false, 1: false});
+
+    store.getState().setAllNodePanelsExpanded(true);
     assert.deepEqual(store.getState().expandedNodes, {0: true, 1: true});
 
     store.getState().toggleExpandedNode("0");
-    store.getState().toggleAllNodePanels();
-    assert.deepEqual(store.getState().expandedNodes, {});
+    assert.deepEqual(store.getState().expandedNodes, {0: false, 1: true});
 
-    store.getState().toggleAllNodePanels();
-    assert.deepEqual(store.getState().expandedNodes, {0: true, 1: true});
+    store.getState().setAllNodePanelsExpanded(false);
+    assert.deepEqual(store.getState().expandedNodes, {0: false, 1: false});
 });
 
 // Exact ranges, rather than merely containing ranges, determine the semantic node highlights.

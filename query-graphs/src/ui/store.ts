@@ -28,10 +28,10 @@ interface HighlightState {
 const noNodeIds: ReadonlySet<string> = new Set();
 
 export interface GraphRenderingState extends HighlightState {
-    // `expandedNodes` tracks which nodes show their property detail panel (toggled by a plain click).
+    // `expandedNodes` contains every property panel and tracks which ones are expanded.
     expandedNodes: Record<string, boolean>;
     toggleExpandedNode: (nodeId: string) => void;
-    toggleAllNodePanels: () => void;
+    setAllNodePanelsExpanded: (expanded: boolean) => void;
     // `expandedSubtrees` tracks which nodes reveal their `collapsedChildren` (toggled by shift-click or the +/- handle).
     expandedSubtrees: Record<string, boolean>;
     toggleExpandedSubtree: (nodeId: string) => void;
@@ -61,6 +61,7 @@ export function createGraphRenderingStore({
 }: GraphRenderingStoreOptions): GraphRenderingStore {
     let sourceHighlightSelection: SourceHighlightSelection | undefined;
     let hoveredNodeId: string | undefined;
+    const collapsedNodes = Object.fromEntries(panelNodeIds.map((nodeId) => [nodeId, false]));
 
     return createStore<GraphRenderingState>()((set) => {
         // Materialize the visible tree projection once per interaction so each rendered node can subscribe to a boolean.
@@ -88,7 +89,7 @@ export function createGraphRenderingStore({
         };
 
         return {
-            expandedNodes: {},
+            expandedNodes: collapsedNodes,
             expandedSubtrees,
             toggleExpandedNode: (nodeId) =>
                 set((state) => ({
@@ -97,14 +98,8 @@ export function createGraphRenderingStore({
                         [nodeId]: !state.expandedNodes[nodeId],
                     },
                 })),
-            toggleAllNodePanels: () =>
-                set((state) => {
-                    if (panelNodeIds.length === 0) return state;
-                    const collapse = panelNodeIds.some((nodeId) => state.expandedNodes[nodeId]);
-                    return {
-                        expandedNodes: collapse ? {} : Object.fromEntries(panelNodeIds.map((nodeId) => [nodeId, true])),
-                    };
-                }),
+            setAllNodePanelsExpanded: (expanded) =>
+                set({expandedNodes: Object.fromEntries(panelNodeIds.map((nodeId) => [nodeId, expanded]))}),
             toggleExpandedSubtree: (nodeId) =>
                 set((state) => {
                     const nextExpandedSubtrees = {

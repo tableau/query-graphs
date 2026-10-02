@@ -23,7 +23,6 @@ interface QueryGraphProps {
 
 interface QueryGraphInternalProps extends QueryGraphProps {
     nodeIdMapping: Map<TreeNode, string>;
-    panelNodeIds: readonly string[];
     treeParents: TreeParents;
 }
 
@@ -50,27 +49,33 @@ function preventNodeDoubleClickZoom(event: MouseEvent): void {
     if (event.target instanceof Element && event.target.closest(".react-flow__node") !== null) event.stopPropagation();
 }
 
-function NodePanelControl({panelNodeIds}: {panelNodeIds: readonly string[]}) {
+function NodePanelControl() {
     const expandedNodes = useGraphRenderingStore((state) => state.expandedNodes);
-    const toggleAllNodePanels = useGraphRenderingStore((state) => state.toggleAllNodePanels);
+    const setAllNodePanelsExpanded = useGraphRenderingStore((state) => state.setAllNodePanelsExpanded);
     const animateGraphChange = useAnimateGraphChange();
-    const anyPanelExpanded = panelNodeIds.some((nodeId) => expandedNodes[nodeId]);
+    const panelStates = Object.entries(expandedNodes);
+    const anyPanelExpanded = panelStates.some(([, expanded]) => expanded);
     const label = `${anyPanelExpanded ? "Collapse" : "Expand"} all node panels`;
 
     const onClick = (event: MouseEvent<HTMLButtonElement>) => {
         // Hidden nodes adopt the new state without resizing; rendered panels that change animate together.
-        const resizingNodeIds = new Set(anyPanelExpanded ? panelNodeIds.filter((nodeId) => expandedNodes[nodeId]) : panelNodeIds);
+        const resizingNodeIds = new Set(
+            panelStates.filter(([, expanded]) => expanded === anyPanelExpanded).map(([nodeId]) => nodeId),
+        );
         const resizingNodes = [
             ...(event.currentTarget.closest(".react-flow")?.querySelectorAll<HTMLElement>(".qg-graph-node") ?? []),
         ].flatMap((nodeElement) => {
             const nodeId = nodeElement.closest<HTMLElement>(".react-flow__node")?.dataset.id;
             return nodeId !== undefined && resizingNodeIds.has(nodeId) ? [{nodeId, nodeElement}] : [];
         });
-        animateGraphChange(toggleAllNodePanels, {resizingNodes, anchorAllVisibleNodes: true});
+        animateGraphChange(() => setAllNodePanelsExpanded(!anyPanelExpanded), {
+            resizingNodes,
+            anchorAllVisibleNodes: true,
+        });
     };
 
     return (
-        <ControlButton onClick={onClick} title={label} aria-label={label} disabled={panelNodeIds.length === 0}>
+        <ControlButton onClick={onClick} title={label} aria-label={label} disabled={panelStates.length === 0}>
             <svg viewBox="0 0 24 24" aria-hidden="true">
                 {anyPanelExpanded ? <path d="M5 3h14l-7 7zM12 14l7 7H5z" /> : <path d="M12 3l7 7H5zM5 14h14l-7 7z" />}
             </svg>
@@ -78,7 +83,7 @@ function NodePanelControl({panelNodeIds}: {panelNodeIds: readonly string[]}) {
     );
 }
 
-function QueryGraphInternal({treeDescription, children, nodeIdMapping, panelNodeIds, treeParents}: QueryGraphInternalProps) {
+function QueryGraphInternal({treeDescription, children, nodeIdMapping, treeParents}: QueryGraphInternalProps) {
     const expandedSubtrees = useGraphRenderingStore((s) => s.expandedSubtrees);
     const animatedLayout = useAnimatedGraphLayout(treeDescription, nodeIdMapping, treeParents, expandedSubtrees);
     // Hide the full tree initially to avoid flickering. We use `opacity` instead
@@ -109,7 +114,7 @@ function QueryGraphInternal({treeDescription, children, nodeIdMapping, panelNode
                 {...Array.isArray(children) ? children : [children]}
                 <MiniMap zoomable={true} pannable={true} nodeColor={minimapNodeColor} nodeComponent={QueryGraphMiniMapNode} />
                 <Controls showInteractive={false}>
-                    <NodePanelControl panelNodeIds={panelNodeIds} />
+                    <NodePanelControl />
                 </Controls>
             </ReactFlow>
         </AnimateGraphChangeContext.Provider>
@@ -137,14 +142,13 @@ function createGraphState(treeDescription: TreeDescription) {
     return {
         instanceId: nextGraphInstanceId++,
         nodeIdMapping,
-        panelNodeIds,
         graphIndex,
         graphStore: createGraphRenderingStore({expandedSubtrees, panelNodeIds, graphIndex}),
     };
 }
 
 export function QueryGraph(props: QueryGraphProps) {
-    const {instanceId, nodeIdMapping, panelNodeIds, graphIndex, graphStore} = useMemo(
+    const {instanceId, nodeIdMapping, graphIndex, graphStore} = useMemo(
         () => createGraphState(props.treeDescription),
         [props.treeDescription],
     );
@@ -154,12 +158,7 @@ export function QueryGraph(props: QueryGraphProps) {
     return (
         <ReactFlowProvider key={instanceId}>
             <GraphRenderingStoreContext.Provider value={graphStore}>
-                <QueryGraphInternal
-                    {...props}
-                    nodeIdMapping={nodeIdMapping}
-                    panelNodeIds={panelNodeIds}
-                    treeParents={graphIndex.treeTopology.parents}
-                />
+                <QueryGraphInternal {...props} nodeIdMapping={nodeIdMapping} treeParents={graphIndex.treeTopology.parents} />
             </GraphRenderingStoreContext.Provider>
         </ReactFlowProvider>
     );

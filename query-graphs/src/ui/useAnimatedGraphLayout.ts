@@ -209,8 +209,6 @@ export function useAnimatedGraphLayout(
     // Size our inner shells imperatively: putting animated dimensions on React
     // Flow's observed wrappers would create a ResizeObserver feedback loop.
     const nodeResizesRef = useRef(new Map<string, NodeResize>());
-    // Bulk gestures can select viewport anchors independently from the nodes
-    // whose dimensions change.
     const animationAnchorNodeIdsRef = useRef<ReadonlySet<string> | undefined>(undefined);
     const animationRequestedRef = useRef(false);
     const animationFrameRef = useRef<number | undefined>(undefined);
@@ -310,9 +308,7 @@ export function useAnimatedGraphLayout(
         for (const {nodeId} of anchors.values()) animationAnchorNodeIds.add(nodeId);
         const {width: viewportWidth, height: viewportHeight, transform} = flowStore.getState();
         const [viewportX, viewportY, viewportZoom] = transform;
-        // Preserve one moving, persistent node rather than the potentially
-        // empty centroid of several transitions. Prefer a visible node near
-        // the viewport's top center, where the graph root normally appears.
+        // Preserve the position of one node so the user can keep a visual reference.
         const viewportAnchorNodeId = closestAnimationAnchor(
             renderedLayoutRef.current,
             targetLayout,
