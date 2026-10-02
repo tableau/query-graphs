@@ -178,7 +178,7 @@ function withAnimationStyle(style: CSSProperties | undefined, opacity: number, t
  */
 export function useAnimatedGraphLayout(
     treeDescription: TreeDescription,
-    nodeIds: Map<TreeNode, string>,
+    nodeIds: ReadonlyMap<TreeNode, string>,
     treeParents: TreeParents,
     expandedSubtrees: Record<string, boolean>,
 ): GraphLayout & {
@@ -259,9 +259,7 @@ export function useAnimatedGraphLayout(
             cancelLayoutFrame();
             for (const {nodeId} of resizingNodes) finishNodeResize(nodeResizesRef.current, nodeId);
             for (const [nodeId, resize] of resizes) nodeResizesRef.current.set(nodeId, resize);
-            animationAnchorNodeIdsRef.current = anchorAllVisibleNodes
-                ? new Set(renderedLayoutRef.current.nodes.map(({node}) => node.id))
-                : undefined;
+            animationAnchorNodeIdsRef.current = anchorAllVisibleNodes ? new Set() : undefined;
             animationRequestedRef.current = motionEnabled;
             applyChange();
             setGraphChangeRevision((revision) => revision + 1);
