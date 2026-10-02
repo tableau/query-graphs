@@ -23,7 +23,7 @@ interface TreeLayout {
 // Returns node and edge lists
 export function layoutTree(
     treeData: TreeDescription,
-    nodeIds: Map<TreeNode, string>,
+    nodeIds: ReadonlyMap<TreeNode, string>,
     targetDimensions: ReadonlyMap<string, Dimensions>,
     expandedSubtrees: Record<string, boolean>,
 ): TreeLayout {

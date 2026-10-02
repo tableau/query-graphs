@@ -35,16 +35,16 @@ function dimensions(nodeIds: readonly string[]): Map<string, {width: number; hei
     return new Map(nodeIds.map((nodeId) => [nodeId, {width: 40, height: 20}]));
 }
 
-test("the viewport anchor falls back to the persistent node nearest the center", () => {
-    const start = staticLayout(layout([node("left", 10, 40), node("stationary", 50, 40), node("right", 80, 40)]));
-    const target = layout([node("left", 20, 40), node("stationary", 50, 40), node("right", 90, 40)]);
+test("the viewport anchor falls back to the visible persistent node nearest the top center", () => {
+    const start = staticLayout(layout([node("left", 10, 0), node("top", 50, 0), node("center", 50, 40)]));
+    const target = layout([node("left", 20, 0), node("top", 50, 0), node("center", 60, 40)]);
 
-    const measured = dimensions(["left", "stationary", "right"]);
-    assert.equal(closestAnimationAnchor(start, target, new Set(), measured, {x: 0, y: 0, width: 100, height: 100}), "stationary");
-    assert.equal(closestAnimationAnchor(start, target, new Set(), measured, {x: -200, y: 0, width: 100, height: 100}), "left");
+    const measured = dimensions(["left", "top", "center"]);
+    assert.equal(closestAnimationAnchor(start, target, new Set(), measured, {x: 0, y: 0, width: 100, height: 100}), "top");
+    assert.equal(closestAnimationAnchor(start, target, new Set(), measured, {x: -40, y: 0, width: 100, height: 100}), "left");
 });
 
-test("the fallback uses the nearest node even when it is just offscreen", () => {
+test("the viewport anchor ignores persistent nodes outside the viewport", () => {
     const start = staticLayout(layout([node("visible", 100, 80), node("offscreen", 50, -21)]));
     const target = layout([node("visible", 110, 80), node("offscreen", 60, -21)]);
 
@@ -55,25 +55,25 @@ test("the fallback uses the nearest node even when it is just offscreen", () => 
             width: 100,
             height: 100,
         }),
-        "offscreen",
+        "visible",
     );
 });
 
-test("visible explicit anchors take precedence but invisible anchors do not", () => {
-    const start = staticLayout(layout([node("moving", 50, 40), node("anchor", 10, 40)]));
-    const target = layout([node("moving", 60, 40), node("anchor", 10, 40)]);
+test("the closest visible explicit anchor takes precedence but invisible anchors do not", () => {
+    const start = staticLayout(layout([node("moving", 100, 40), node("anchor", 10, 40), node("top-anchor", 50, 0)]));
+    const target = layout([node("moving", 110, 40), node("anchor", 10, 40), node("top-anchor", 50, 0)]);
 
     assert.equal(
-        closestAnimationAnchor(start, target, new Set(["anchor"]), dimensions(["moving", "anchor"]), {
+        closestAnimationAnchor(start, target, new Set(["anchor", "top-anchor"]), dimensions(["moving", "anchor", "top-anchor"]), {
             x: 0,
             y: 0,
             width: 100,
             height: 100,
         }),
-        "anchor",
+        "top-anchor",
     );
     assert.equal(
-        closestAnimationAnchor(start, target, new Set(["anchor"]), dimensions(["moving", "anchor"]), {
+        closestAnimationAnchor(start, target, new Set(["anchor", "top-anchor"]), dimensions(["moving", "anchor", "top-anchor"]), {
             x: 100,
             y: 0,
             width: 100,

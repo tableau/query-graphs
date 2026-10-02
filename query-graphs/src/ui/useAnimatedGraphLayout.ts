@@ -33,12 +33,18 @@ interface NodeResizeRequest {
     nodeElement: HTMLElement;
 }
 
+interface GraphChangeAnimationOptions {
+    resizingNodes?: readonly NodeResizeRequest[];
+    /** Chooses the viewport anchor from every visible node instead of only the nodes involved in the change. */
+    anchorAllVisibleNodes?: boolean;
+}
+
 /**
- * Animates a graph change applied synchronously by `applyChange`. List
- * persistent nodes that may resize; entering and exiting nodes are
- * inferred from the resulting layout.
+ * Animates a graph change applied synchronously by `applyChange`. Persistent
+ * nodes that may resize can be listed; entering and exiting nodes are inferred
+ * from the resulting layout.
  */
-export type AnimateGraphChange = (applyChange: () => void, resizingNodes?: readonly NodeResizeRequest[]) => void;
+export type AnimateGraphChange = (applyChange: () => void, options?: GraphChangeAnimationOptions) => void;
 
 /** Makes the surrounding query graph's animation callback available to nodes. */
 export const AnimateGraphChangeContext = createContext<AnimateGraphChange | null>(null);
@@ -172,7 +178,7 @@ function withAnimationStyle(style: CSSProperties | undefined, opacity: number, t
  */
 export function useAnimatedGraphLayout(
     treeDescription: TreeDescription,
-    nodeIds: Map<TreeNode, string>,
+    nodeIds: ReadonlyMap<TreeNode, string>,
     treeParents: TreeParents,
     expandedSubtrees: Record<string, boolean>,
 ): GraphLayout & {
@@ -203,6 +209,7 @@ export function useAnimatedGraphLayout(
     // Size our inner shells imperatively: putting animated dimensions on React
     // Flow's observed wrappers would create a ResizeObserver feedback loop.
     const nodeResizesRef = useRef(new Map<string, NodeResize>());
+    const animationAnchorNodeIdsRef = useRef<ReadonlySet<string> | undefined>(undefined);
     const animationRequestedRef = useRef(false);
     const animationFrameRef = useRef<number | undefined>(undefined);
     const [graphChangeRevision, setGraphChangeRevision] = useState(0);
@@ -233,7 +240,7 @@ export function useAnimatedGraphLayout(
     // Capture resizing nodes before applying arbitrary graph state. Entering
     // and exiting nodes are inferred from the resulting layout below.
     const animateGraphChange = useCallback<AnimateGraphChange>(
-        (applyChange, resizingNodes = []) => {
+        (applyChange, {resizingNodes = [], anchorAllVisibleNodes = false} = {}) => {
             const motionEnabled = graphAnimationsEnabled();
             // Read every starting size before clearing interrupted styles.
             const resizes = new Map<string, NodeResize>();
@@ -252,6 +259,7 @@ export function useAnimatedGraphLayout(
             cancelLayoutFrame();
             for (const {nodeId} of resizingNodes) finishNodeResize(nodeResizesRef.current, nodeId);
             for (const [nodeId, resize] of resizes) nodeResizesRef.current.set(nodeId, resize);
+            animationAnchorNodeIdsRef.current = anchorAllVisibleNodes ? new Set() : undefined;
             animationRequestedRef.current = motionEnabled;
             applyChange();
             setGraphChangeRevision((revision) => revision + 1);
@@ -294,13 +302,11 @@ export function useAnimatedGraphLayout(
         const animationRequested = transitionAnchorMap !== undefined && animationRequestedRef.current;
         animationRequestedRef.current = animationRequested;
         const anchors = transitionAnchorMap ?? new Map();
-        const animationAnchorNodeIds = new Set(nodeResizesRef.current.keys());
+        const animationAnchorNodeIds = new Set(animationAnchorNodeIdsRef.current ?? nodeResizesRef.current.keys());
         for (const {nodeId} of anchors.values()) animationAnchorNodeIds.add(nodeId);
         const {width: viewportWidth, height: viewportHeight, transform} = flowStore.getState();
         const [viewportX, viewportY, viewportZoom] = transform;
-        // Preserve one moving, persistent node rather than the potentially
-        // empty centroid of several transitions. Prefer a visible node near
-        // the user's focus.
+        // Preserve the position of one node so the user can keep a visual reference.
         const viewportAnchorNodeId = closestAnimationAnchor(
             renderedLayoutRef.current,
             targetLayout,
@@ -319,6 +325,9 @@ export function useAnimatedGraphLayout(
             anchorStart === undefined || anchorTarget === undefined
                 ? undefined
                 : {x: anchorTarget.x - anchorStart.x, y: anchorTarget.y - anchorStart.y};
+        // Unmeasured entering nodes may require another layout pass before the
+        // animation starts; retain the requested candidates until then.
+        if (targetLayoutMeasured) animationAnchorNodeIdsRef.current = undefined;
         // Apply the precomputed movement incrementally so concurrent viewport
         // input is retained instead of being replaced with a fixed transform.
         const preserveViewportAnchorPosition = (progress: number) => {

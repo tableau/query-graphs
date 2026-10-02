@@ -28,9 +28,10 @@ interface HighlightState {
 const noNodeIds: ReadonlySet<string> = new Set();
 
 export interface GraphRenderingState extends HighlightState {
-    // `expandedNodes` tracks which nodes show their property detail panel (toggled by a plain click).
+    // `expandedNodes` contains every expandable node and tracks which ones are expanded.
     expandedNodes: Record<string, boolean>;
     toggleExpandedNode: (nodeId: string) => void;
+    setAllNodesExpanded: (expanded: boolean) => void;
     // `expandedSubtrees` tracks which nodes reveal their `collapsedChildren` (toggled by shift-click or the +/- handle).
     expandedSubtrees: Record<string, boolean>;
     toggleExpandedSubtree: (nodeId: string) => void;
@@ -47,14 +48,19 @@ export interface GraphRenderingState extends HighlightState {
 export type GraphRenderingStore = StoreApi<GraphRenderingState>;
 
 export interface GraphRenderingStoreOptions {
-    expandedSubtrees: Record<string, boolean>;
-    /** Static topology and source associations for the lifetime of this graph store. */
+    /** Static node identities, topology, and source associations for the lifetime of this graph store. */
     graphIndex: GraphIndex;
 }
 
-export function createGraphRenderingStore({expandedSubtrees, graphIndex}: GraphRenderingStoreOptions): GraphRenderingStore {
+export function createGraphRenderingStore({graphIndex}: GraphRenderingStoreOptions): GraphRenderingStore {
     let sourceHighlightSelection: SourceHighlightSelection | undefined;
     let hoveredNodeId: string | undefined;
+    const initialExpandedNodes = Object.fromEntries(
+        [...graphIndex.nodeIds].flatMap(([node, nodeId]) => (node.properties?.size ? [[nodeId, false]] : [])),
+    );
+    const initialExpandedSubtrees = Object.fromEntries(
+        [...graphIndex.nodeIds].flatMap(([node, nodeId]) => (node.expandedByDefault ? [[nodeId, true]] : [])),
+    );
 
     return createStore<GraphRenderingState>()((set) => {
         // Materialize the visible tree projection once per interaction so each rendered node can subscribe to a boolean.
@@ -82,8 +88,8 @@ export function createGraphRenderingStore({expandedSubtrees, graphIndex}: GraphR
         };
 
         return {
-            expandedNodes: {},
-            expandedSubtrees,
+            expandedNodes: initialExpandedNodes,
+            expandedSubtrees: initialExpandedSubtrees,
             toggleExpandedNode: (nodeId) =>
                 set((state) => ({
                     expandedNodes: {
@@ -91,6 +97,10 @@ export function createGraphRenderingStore({expandedSubtrees, graphIndex}: GraphR
                         [nodeId]: !state.expandedNodes[nodeId],
                     },
                 })),
+            setAllNodesExpanded: (expanded) =>
+                set({
+                    expandedNodes: Object.fromEntries(Object.keys(initialExpandedNodes).map((nodeId) => [nodeId, expanded])),
+                }),
             toggleExpandedSubtree: (nodeId) =>
                 set((state) => {
                     const nextExpandedSubtrees = {

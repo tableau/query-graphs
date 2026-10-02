@@ -1,9 +1,8 @@
-import {ReactFlow, MiniMap, MiniMapNode, Controls, ReactFlowProvider} from "@xyflow/react";
+import {ReactFlow, MiniMap, MiniMapNode, Controls, ControlButton, ReactFlowProvider} from "@xyflow/react";
 import type {MiniMapNodeProps} from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 
 import type {TreeDescription, TreeNode} from "../tree-description";
-import {allChildren, visitTreeNodes} from "../tree-description";
 import type {MouseEvent, ReactNode} from "react";
 import {useMemo} from "react";
 import cc from "classcat";
@@ -11,7 +10,7 @@ import {QueryNode} from "./QueryNode";
 import type {QueryGraphNode} from "./QueryNode";
 import {ColoredEdge} from "./ColoredEdge";
 import {createGraphRenderingStore, GraphRenderingStoreContext, useGraphRenderingStore} from "./store";
-import {AnimateGraphChangeContext, useAnimatedGraphLayout} from "./useAnimatedGraphLayout";
+import {AnimateGraphChangeContext, useAnimatedGraphLayout, useAnimateGraphChange} from "./useAnimatedGraphLayout";
 import {indexGraph} from "./graph-index";
 import type {TreeParents} from "./tree-topology";
 import "./QueryGraph.css";
@@ -22,7 +21,7 @@ interface QueryGraphProps {
 }
 
 interface QueryGraphInternalProps extends QueryGraphProps {
-    nodeIdMapping: Map<TreeNode, string>;
+    nodeIdMapping: ReadonlyMap<TreeNode, string>;
     treeParents: TreeParents;
 }
 
@@ -47,6 +46,40 @@ const edgeTypes = {
 
 function preventNodeDoubleClickZoom(event: MouseEvent): void {
     if (event.target instanceof Element && event.target.closest(".react-flow__node") !== null) event.stopPropagation();
+}
+
+function ExpandedNodesControl() {
+    const expandedNodes = useGraphRenderingStore((state) => state.expandedNodes);
+    const setAllNodesExpanded = useGraphRenderingStore((state) => state.setAllNodesExpanded);
+    const animateGraphChange = useAnimateGraphChange();
+    const nodeExpansionStates = Object.entries(expandedNodes);
+    const anyNodeExpanded = nodeExpansionStates.some(([, expanded]) => expanded);
+    const label = `${anyNodeExpanded ? "Collapse" : "Expand"} all nodes`;
+
+    const onClick = (event: MouseEvent<HTMLButtonElement>) => {
+        // Hidden nodes adopt the new state without resizing; rendered nodes that change animate together.
+        const resizingNodeIds = new Set(
+            nodeExpansionStates.filter(([, expanded]) => expanded === anyNodeExpanded).map(([nodeId]) => nodeId),
+        );
+        const resizingNodes = [
+            ...(event.currentTarget.closest(".react-flow")?.querySelectorAll<HTMLElement>(".qg-graph-node") ?? []),
+        ].flatMap((nodeElement) => {
+            const nodeId = nodeElement.closest<HTMLElement>(".react-flow__node")?.dataset.id;
+            return nodeId !== undefined && resizingNodeIds.has(nodeId) ? [{nodeId, nodeElement}] : [];
+        });
+        animateGraphChange(() => setAllNodesExpanded(!anyNodeExpanded), {
+            resizingNodes,
+            anchorAllVisibleNodes: true,
+        });
+    };
+
+    return (
+        <ControlButton onClick={onClick} title={label} aria-label={label} disabled={nodeExpansionStates.length === 0}>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                {anyNodeExpanded ? <path d="M5 3h14l-7 7zM12 14l7 7H5z" /> : <path d="M12 3l7 7H5zM5 14h14l-7 7z" />}
+            </svg>
+        </ControlButton>
+    );
 }
 
 function QueryGraphInternal({treeDescription, children, nodeIdMapping, treeParents}: QueryGraphInternalProps) {
@@ -79,7 +112,9 @@ function QueryGraphInternal({treeDescription, children, nodeIdMapping, treeParen
             >
                 {...Array.isArray(children) ? children : [children]}
                 <MiniMap zoomable={true} pannable={true} nodeColor={minimapNodeColor} nodeComponent={QueryGraphMiniMapNode} />
-                <Controls showInteractive={false} />
+                <Controls showInteractive={false}>
+                    <ExpandedNodesControl />
+                </Controls>
             </ReactFlow>
         </AnimateGraphChangeContext.Provider>
     );
@@ -88,39 +123,23 @@ function QueryGraphInternal({treeDescription, children, nodeIdMapping, treeParen
 let nextGraphInstanceId = 0;
 
 function createGraphState(treeDescription: TreeDescription) {
-    let nextId = 0;
-    const nodeIdMapping = new Map<TreeNode, string>();
-    const expandedSubtrees: Record<string, boolean> = {};
-    visitTreeNodes(
-        treeDescription.root,
-        (node) => {
-            const id = "" + nextId++;
-            nodeIdMapping.set(node, id);
-            if (node.expandedByDefault) expandedSubtrees[id] = true;
-        },
-        allChildren,
-    );
-    const graphIndex = indexGraph(treeDescription, nodeIdMapping);
+    const graphIndex = indexGraph(treeDescription);
     return {
         instanceId: nextGraphInstanceId++,
-        nodeIdMapping,
         graphIndex,
-        graphStore: createGraphRenderingStore({expandedSubtrees, graphIndex}),
+        graphStore: createGraphRenderingStore({graphIndex}),
     };
 }
 
 export function QueryGraph(props: QueryGraphProps) {
-    const {instanceId, nodeIdMapping, graphIndex, graphStore} = useMemo(
-        () => createGraphState(props.treeDescription),
-        [props.treeDescription],
-    );
+    const {instanceId, graphIndex, graphStore} = useMemo(() => createGraphState(props.treeDescription), [props.treeDescription]);
 
     // This artificial key remounts React Flow when the tree changes, keeping
     // its viewport, measurements, and animation state scoped to one graph.
     return (
         <ReactFlowProvider key={instanceId}>
             <GraphRenderingStoreContext.Provider value={graphStore}>
-                <QueryGraphInternal {...props} nodeIdMapping={nodeIdMapping} treeParents={graphIndex.treeTopology.parents} />
+                <QueryGraphInternal {...props} nodeIdMapping={graphIndex.nodeIds} treeParents={graphIndex.treeTopology.parents} />
             </GraphRenderingStoreContext.Provider>
         </ReactFlowProvider>
     );
