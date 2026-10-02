@@ -110,6 +110,42 @@ When loaders provide source locations, hovering a graph node highlights its rang
 SQL locations come from database-provided offsets; JSON loaders link identifying keys and scalar values rather than broad container ranges.
 Locations on collapsed nodes resolve to their closest visible ancestors.
 
+### Plan Insights
+
+Plan Insights are being developed incrementally.
+This section describes the intended design, including parts that are not implemented yet.
+
+Plan Insights provide high-level summaries of query plans.
+The design includes the following types of insights:
+
+* **Top-K lists** rank nodes by a metric (for example, "top operators by CPU cycles", "top operators by rows produced", or "top scans by rows processed").
+* **Node groups** highlight all nodes that match a predicate (for example, "unselective scans" or "operators with misestimated cardinalities").
+* **Category lists** partition matching nodes by the distinct values of one property (for example, "scan type: native, iceberg, parquet" or "join type: inner, left-outer, full-outer").
+
+Insights are rendered in a "Plan Insights" panel.
+Hovering or focusing an insight entry highlights every matching graph node and its linked SQL and JSON ranges;
+hovering a graph node or linked source range highlights the corresponding insight entries.
+Insights reuse this transient linked-highlight mechanism rather than assigning persistent colors to nodes.
+A node can therefore participate in several insight definitions without creating conflicting color assignments.
+
+Insight definitions are config-driven and live outside the loaders.
+They operate on the property bags of tree nodes produced by the loaders.
+Each definition selects nodes and describes how to summarize them.
+For example, the scan-type category list is configured as:
+
+```ts
+{
+    id: "scan-types",
+    title: "Scan types",
+    where: {property: "operator", equals: "scan"},
+    groupBy: "type",
+}
+```
+
+For now, the definitions are hard-coded in `query-graphs/src/insights/presets.ts`.
+The standalone app selects definitions using the detected plan format.
+A future UI could allow users to configure their own insights directly.
+
 ## Tech Debt
 
 * `tsconfig.json` disables `strict` (and several related checks) with `TODO`s to tighten them; new code should still be written to satisfy strict mode where practical.

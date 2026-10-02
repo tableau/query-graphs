@@ -23,7 +23,6 @@ function QueryNode({data, id}: NodeProps<QueryGraphNode>) {
 
     const hasProperties = data.properties?.size;
     const hasSubtree = data.collapsedChildren && data.collapsedChildren.length > 0;
-    const hasSourceLocations = (data.sourceLocations?.length ?? 0) > 0;
 
     const onClick = useCallback(
         (e: MouseEvent<HTMLDivElement>) => {
@@ -93,7 +92,7 @@ function QueryNode({data, id}: NodeProps<QueryGraphNode>) {
             <div
                 className={nodeClassName}
                 onClick={onClick}
-                onMouseEnter={() => setHoveredNodeId(hasSourceLocations ? id : undefined)}
+                onMouseEnter={() => setHoveredNodeId(id)}
                 onMouseLeave={() => setHoveredNodeId(undefined)}
             >
                 {colorBar(data.barsAbove, "above")}

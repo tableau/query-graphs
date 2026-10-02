@@ -2,8 +2,10 @@ import {lazy, Suspense, type ReactElement, useCallback, useMemo, useState} from 
 import {CollapsiblePanel} from "@tableau/query-graphs/lib/ui/CollapsiblePanel";
 import {CopyButton} from "@tableau/query-graphs/lib/ui/CopyButton";
 import {IconButton} from "@tableau/query-graphs/lib/ui/IconButton";
+import {PlanInsights} from "@tableau/query-graphs/lib/ui/PlanInsights";
 import {useGraphRenderingStore} from "@tableau/query-graphs/lib/ui/store";
-import type {SourceLocation, TextDocument} from "@tableau/query-graphs/lib/tree-description";
+import type {SourceLocation, TextDocument, TreeNode} from "@tableau/query-graphs/lib/tree-description";
+import type {CategoricalInsightDefinition} from "@tableau/query-graphs/lib/insights/categorical";
 import "./TreeLabel.css";
 
 const DocumentPane = lazy(() =>
@@ -16,6 +18,7 @@ export interface TreeLabelProps {
     metadata?: Map<string, string>;
     metadataHighlighted?: boolean;
     textDocuments?: TextDocument[];
+    insights?: {root: TreeNode; definitions: readonly CategoricalInsightDefinition[]};
 }
 
 function LoadingDocument({title}: {title: string}) {
@@ -96,7 +99,7 @@ function TextDocumentPanel({document}: {document: TextDocument}) {
     );
 }
 
-export function TreeLabel({title, setTitle, metadata, metadataHighlighted, textDocuments}: TreeLabelProps) {
+export function TreeLabel({title, setTitle, metadata, metadataHighlighted, textDocuments, insights}: TreeLabelProps) {
     const metadataChildren = [] as ReactElement[];
     for (const [key, value] of (metadata || []).entries()) {
         metadataChildren.push(
@@ -120,6 +123,7 @@ export function TreeLabel({title, setTitle, metadata, metadataHighlighted, textD
             />
             <div className="graph-sidebar-panels">
                 <div className="graph-sidebar-panel-stack">
+                    {insights ? <PlanInsights root={insights.root} definitions={insights.definitions} /> : null}
                     {metadataChildren.length > 0 ? (
                         <CollapsiblePanel title="Plan Metadata" highlighted={metadataHighlighted}>
                             <div className="graph-metadata">{metadataChildren}</div>
