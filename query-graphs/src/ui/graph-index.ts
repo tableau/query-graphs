@@ -1,3 +1,4 @@
+import {allChildren, visitTreeNodes} from "../tree-description";
 import type {TreeDescription, TreeNode} from "../tree-description";
 import {createSourceLinkIndex, type SourceLinkIndex} from "./source-link-index";
 import {indexTreeTopology, type TreeTopology} from "./tree-topology";
@@ -12,7 +13,9 @@ export interface GraphIndex {
 }
 
 /** Builds all immutable indexes that share the lifetime of one rendered graph. */
-export function indexGraph(tree: TreeDescription, nodeIds: ReadonlyMap<TreeNode, string>): GraphIndex {
+export function indexGraph(tree: TreeDescription): GraphIndex {
+    const nodeIds = new Map<TreeNode, string>();
+    visitTreeNodes(tree.root, (node) => nodeIds.set(node, "" + nodeIds.size), allChildren);
     return {
         nodeIds,
         treeTopology: indexTreeTopology(tree, nodeIds),

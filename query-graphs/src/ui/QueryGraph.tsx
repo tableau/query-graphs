@@ -3,7 +3,6 @@ import type {MiniMapNodeProps} from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 
 import type {TreeDescription, TreeNode} from "../tree-description";
-import {allChildren, visitTreeNodes} from "../tree-description";
 import type {MouseEvent, ReactNode} from "react";
 import {useMemo} from "react";
 import cc from "classcat";
@@ -124,17 +123,7 @@ function QueryGraphInternal({treeDescription, children, nodeIdMapping, treeParen
 let nextGraphInstanceId = 0;
 
 function createGraphState(treeDescription: TreeDescription) {
-    let nextId = 0;
-    const nodeIdMapping = new Map<TreeNode, string>();
-    visitTreeNodes(
-        treeDescription.root,
-        (node) => {
-            const id = "" + nextId++;
-            nodeIdMapping.set(node, id);
-        },
-        allChildren,
-    );
-    const graphIndex = indexGraph(treeDescription, nodeIdMapping);
+    const graphIndex = indexGraph(treeDescription);
     return {
         instanceId: nextGraphInstanceId++,
         graphIndex,
