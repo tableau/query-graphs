@@ -201,6 +201,10 @@
     .qg-panel-highlight-indicator-active {
         animation: none;
     }
+
+    .qg-collapsible-panel > .qg-collapsible-panel-toggle .qg-collapsible-panel-chevron {
+        transition: none;
+    }
 }
 
 .qg-collapsible-panel-content {

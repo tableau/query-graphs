@@ -4,7 +4,7 @@ import "@xyflow/react/dist/style.css";
 
 import type {TreeDescription, TreeNode} from "../tree-description";
 import type {MouseEvent, ReactNode} from "react";
-import {useMemo} from "react";
+import {useId, useMemo} from "react";
 import cc from "classcat";
 import {QueryNode} from "./QueryNode";
 import type {QueryGraphNode} from "./QueryNode";
@@ -13,6 +13,7 @@ import {createGraphRenderingStore, GraphRenderingStoreContext, useGraphRendering
 import {AnimateGraphChangeContext, useAnimatedGraphLayout, useAnimateGraphChange} from "./useAnimatedGraphLayout";
 import {indexGraph} from "./graph-index";
 import type {TreeParents} from "./tree-topology";
+import {SettingsButton, SettingsPanel} from "./SettingsPanel";
 import "./QueryGraph.css";
 
 interface QueryGraphProps {
@@ -83,6 +84,7 @@ function ExpandedNodesControl() {
 }
 
 function QueryGraphInternal({treeDescription, children, nodeIdMapping, treeParents}: QueryGraphInternalProps) {
+    const settingsPopoverId = useId();
     const expandedSubtrees = useGraphRenderingStore((s) => s.expandedSubtrees);
     const animatedLayout = useAnimatedGraphLayout(treeDescription, nodeIdMapping, treeParents, expandedSubtrees);
     // Hide the full tree initially to avoid flickering. We use `opacity` instead
@@ -114,7 +116,9 @@ function QueryGraphInternal({treeDescription, children, nodeIdMapping, treeParen
                 <MiniMap zoomable={true} pannable={true} nodeColor={minimapNodeColor} nodeComponent={QueryGraphMiniMapNode} />
                 <Controls showInteractive={false}>
                     <ExpandedNodesControl />
+                    <SettingsButton popoverId={settingsPopoverId} />
                 </Controls>
+                <SettingsPanel popoverId={settingsPopoverId} />
             </ReactFlow>
         </AnimateGraphChangeContext.Provider>
     );
