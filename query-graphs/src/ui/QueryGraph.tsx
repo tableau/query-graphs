@@ -49,18 +49,18 @@ function preventNodeDoubleClickZoom(event: MouseEvent): void {
     if (event.target instanceof Element && event.target.closest(".react-flow__node") !== null) event.stopPropagation();
 }
 
-function NodePanelControl() {
+function ExpandedNodesControl() {
     const expandedNodes = useGraphRenderingStore((state) => state.expandedNodes);
-    const setAllNodePanelsExpanded = useGraphRenderingStore((state) => state.setAllNodePanelsExpanded);
+    const setAllNodesExpanded = useGraphRenderingStore((state) => state.setAllNodesExpanded);
     const animateGraphChange = useAnimateGraphChange();
-    const panelStates = Object.entries(expandedNodes);
-    const anyPanelExpanded = panelStates.some(([, expanded]) => expanded);
-    const label = `${anyPanelExpanded ? "Collapse" : "Expand"} all node panels`;
+    const nodeExpansionStates = Object.entries(expandedNodes);
+    const anyNodeExpanded = nodeExpansionStates.some(([, expanded]) => expanded);
+    const label = `${anyNodeExpanded ? "Collapse" : "Expand"} all nodes`;
 
     const onClick = (event: MouseEvent<HTMLButtonElement>) => {
-        // Hidden nodes adopt the new state without resizing; rendered panels that change animate together.
+        // Hidden nodes adopt the new state without resizing; rendered nodes that change animate together.
         const resizingNodeIds = new Set(
-            panelStates.filter(([, expanded]) => expanded === anyPanelExpanded).map(([nodeId]) => nodeId),
+            nodeExpansionStates.filter(([, expanded]) => expanded === anyNodeExpanded).map(([nodeId]) => nodeId),
         );
         const resizingNodes = [
             ...(event.currentTarget.closest(".react-flow")?.querySelectorAll<HTMLElement>(".qg-graph-node") ?? []),
@@ -68,16 +68,16 @@ function NodePanelControl() {
             const nodeId = nodeElement.closest<HTMLElement>(".react-flow__node")?.dataset.id;
             return nodeId !== undefined && resizingNodeIds.has(nodeId) ? [{nodeId, nodeElement}] : [];
         });
-        animateGraphChange(() => setAllNodePanelsExpanded(!anyPanelExpanded), {
+        animateGraphChange(() => setAllNodesExpanded(!anyNodeExpanded), {
             resizingNodes,
             anchorAllVisibleNodes: true,
         });
     };
 
     return (
-        <ControlButton onClick={onClick} title={label} aria-label={label} disabled={panelStates.length === 0}>
+        <ControlButton onClick={onClick} title={label} aria-label={label} disabled={nodeExpansionStates.length === 0}>
             <svg viewBox="0 0 24 24" aria-hidden="true">
-                {anyPanelExpanded ? <path d="M5 3h14l-7 7zM12 14l7 7H5z" /> : <path d="M12 3l7 7H5zM5 14h14l-7 7z" />}
+                {anyNodeExpanded ? <path d="M5 3h14l-7 7zM12 14l7 7H5z" /> : <path d="M12 3l7 7H5zM5 14h14l-7 7z" />}
             </svg>
         </ControlButton>
     );
@@ -114,7 +114,7 @@ function QueryGraphInternal({treeDescription, children, nodeIdMapping, treeParen
                 {...Array.isArray(children) ? children : [children]}
                 <MiniMap zoomable={true} pannable={true} nodeColor={minimapNodeColor} nodeComponent={QueryGraphMiniMapNode} />
                 <Controls showInteractive={false}>
-                    <NodePanelControl />
+                    <ExpandedNodesControl />
                 </Controls>
             </ReactFlow>
         </AnimateGraphChangeContext.Provider>
@@ -126,14 +126,12 @@ let nextGraphInstanceId = 0;
 function createGraphState(treeDescription: TreeDescription) {
     let nextId = 0;
     const nodeIdMapping = new Map<TreeNode, string>();
-    const panelNodeIds: string[] = [];
     const expandedSubtrees: Record<string, boolean> = {};
     visitTreeNodes(
         treeDescription.root,
         (node) => {
             const id = "" + nextId++;
             nodeIdMapping.set(node, id);
-            if (node.properties?.size) panelNodeIds.push(id);
             if (node.expandedByDefault) expandedSubtrees[id] = true;
         },
         allChildren,
@@ -143,7 +141,7 @@ function createGraphState(treeDescription: TreeDescription) {
         instanceId: nextGraphInstanceId++,
         nodeIdMapping,
         graphIndex,
-        graphStore: createGraphRenderingStore({expandedSubtrees, panelNodeIds, graphIndex}),
+        graphStore: createGraphRenderingStore({expandedSubtrees, graphIndex}),
     };
 }
 

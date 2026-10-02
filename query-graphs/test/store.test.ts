@@ -12,15 +12,15 @@ function graphStore(
     const nodeIds = new Map(nodes.map((node, index) => [node, `${index}`]));
     return createGraphRenderingStore({
         expandedSubtrees: {},
-        panelNodeIds: nodes.flatMap((node, index) => (node.properties?.size ? [`${index}`] : [])),
         graphIndex: {
+            nodeIds,
             treeTopology: {parents, collapsedSubtreeRootIds},
             sourceLinks: createSourceLinkIndex(nodeIds),
         },
     });
 }
 
-test("node panel state includes every expandable node and updates in bulk", () => {
+test("expanded node state includes every expandable node and updates in bulk", () => {
     const first: TreeNode = {properties: new Map([["First", "value"]])};
     const second: TreeNode = {properties: new Map([["Second", "value"]])};
     const noPanel: TreeNode = {};
@@ -28,13 +28,13 @@ test("node panel state includes every expandable node and updates in bulk", () =
 
     assert.deepEqual(store.getState().expandedNodes, {0: false, 1: false});
 
-    store.getState().setAllNodePanelsExpanded(true);
+    store.getState().setAllNodesExpanded(true);
     assert.deepEqual(store.getState().expandedNodes, {0: true, 1: true});
 
     store.getState().toggleExpandedNode("0");
     assert.deepEqual(store.getState().expandedNodes, {0: false, 1: true});
 
-    store.getState().setAllNodePanelsExpanded(false);
+    store.getState().setAllNodesExpanded(false);
     assert.deepEqual(store.getState().expandedNodes, {0: false, 1: false});
 });
 
