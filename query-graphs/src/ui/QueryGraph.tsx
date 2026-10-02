@@ -22,7 +22,7 @@ interface QueryGraphProps {
 }
 
 interface QueryGraphInternalProps extends QueryGraphProps {
-    nodeIdMapping: Map<TreeNode, string>;
+    nodeIdMapping: ReadonlyMap<TreeNode, string>;
     treeParents: TreeParents;
 }
 
@@ -137,24 +137,20 @@ function createGraphState(treeDescription: TreeDescription) {
     const graphIndex = indexGraph(treeDescription, nodeIdMapping);
     return {
         instanceId: nextGraphInstanceId++,
-        nodeIdMapping,
         graphIndex,
         graphStore: createGraphRenderingStore({graphIndex}),
     };
 }
 
 export function QueryGraph(props: QueryGraphProps) {
-    const {instanceId, nodeIdMapping, graphIndex, graphStore} = useMemo(
-        () => createGraphState(props.treeDescription),
-        [props.treeDescription],
-    );
+    const {instanceId, graphIndex, graphStore} = useMemo(() => createGraphState(props.treeDescription), [props.treeDescription]);
 
     // This artificial key remounts React Flow when the tree changes, keeping
     // its viewport, measurements, and animation state scoped to one graph.
     return (
         <ReactFlowProvider key={instanceId}>
             <GraphRenderingStoreContext.Provider value={graphStore}>
-                <QueryGraphInternal {...props} nodeIdMapping={nodeIdMapping} treeParents={graphIndex.treeTopology.parents} />
+                <QueryGraphInternal {...props} nodeIdMapping={graphIndex.nodeIds} treeParents={graphIndex.treeTopology.parents} />
             </GraphRenderingStoreContext.Provider>
         </ReactFlowProvider>
     );
