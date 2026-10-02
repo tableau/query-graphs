@@ -73,6 +73,14 @@ Edge thickness is scaled from `edgeWidth`, and `crosslinks` are added as extra e
 `CollapsiblePanel` (`src/ui/CollapsiblePanel.tsx`) is a reusable panel for graph overlays and other secondary content.
 `CopyButton` (`src/ui/CopyButton.tsx`) copies text with temporary success or failure feedback and an accessible status announcement.
 
+### Plan Insights
+
+`src/insights/categorical.ts` evaluates declarative category definitions against the existing string-valued node properties.
+The standalone app selects definitions from `src/insights/presets.ts` using the detected plan format; the Hyper preset groups nodes with `operator = scan` by their `type` property.
+The `PlanInsights` component renders counts in the left sidebar.
+Hovering or focusing a category highlights all its nodes, including visible ancestors of collapsed nodes, and their linked SQL or plan-text ranges.
+Hovering linked text or a graph node highlights any category containing its semantic node ID.
+
 ### Making Large Graphs Approachable
 
 Query plans are large, so the library aggressively hides detail by default and lets the user drill in.
