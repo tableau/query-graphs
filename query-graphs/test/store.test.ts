@@ -11,7 +11,6 @@ function graphStore(
 ) {
     const nodeIds = new Map(nodes.map((node, index) => [node, `${index}`]));
     return createGraphRenderingStore({
-        expandedSubtrees: {},
         graphIndex: {
             nodeIds,
             treeTopology: {parents, collapsedSubtreeRootIds},
@@ -23,8 +22,8 @@ function graphStore(
 test("expanded node state includes every expandable node and updates in bulk", () => {
     const first: TreeNode = {properties: new Map([["First", "value"]])};
     const second: TreeNode = {properties: new Map([["Second", "value"]])};
-    const noPanel: TreeNode = {};
-    const store = graphStore([first, second, noPanel]);
+    const noProperties: TreeNode = {};
+    const store = graphStore([first, second, noProperties]);
 
     assert.deepEqual(store.getState().expandedNodes, {0: false, 1: false});
 
@@ -36,6 +35,16 @@ test("expanded node state includes every expandable node and updates in bulk", (
 
     store.getState().setAllNodesExpanded(false);
     assert.deepEqual(store.getState().expandedNodes, {0: false, 1: false});
+});
+
+test("expanded subtree state honors each node's initial state", () => {
+    const collapsed: TreeNode = {};
+    const expanded: TreeNode = {expandedByDefault: true};
+    const store = graphStore([collapsed, expanded]);
+
+    assert.deepEqual(store.getState().expandedSubtrees, {1: true});
+    store.getState().toggleExpandedSubtree("0");
+    assert.deepEqual(store.getState().expandedSubtrees, {0: true, 1: true});
 });
 
 // Exact ranges, rather than merely containing ranges, determine the semantic node highlights.

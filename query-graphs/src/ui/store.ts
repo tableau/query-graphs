@@ -48,16 +48,18 @@ export interface GraphRenderingState extends HighlightState {
 export type GraphRenderingStore = StoreApi<GraphRenderingState>;
 
 export interface GraphRenderingStoreOptions {
-    expandedSubtrees: Record<string, boolean>;
     /** Static node identities, topology, and source associations for the lifetime of this graph store. */
     graphIndex: GraphIndex;
 }
 
-export function createGraphRenderingStore({expandedSubtrees, graphIndex}: GraphRenderingStoreOptions): GraphRenderingStore {
+export function createGraphRenderingStore({graphIndex}: GraphRenderingStoreOptions): GraphRenderingStore {
     let sourceHighlightSelection: SourceHighlightSelection | undefined;
     let hoveredNodeId: string | undefined;
     const initialExpandedNodes = Object.fromEntries(
         [...graphIndex.nodeIds].flatMap(([node, nodeId]) => (node.properties?.size ? [[nodeId, false]] : [])),
+    );
+    const initialExpandedSubtrees = Object.fromEntries(
+        [...graphIndex.nodeIds].flatMap(([node, nodeId]) => (node.expandedByDefault ? [[nodeId, true]] : [])),
     );
 
     return createStore<GraphRenderingState>()((set) => {
@@ -87,7 +89,7 @@ export function createGraphRenderingStore({expandedSubtrees, graphIndex}: GraphR
 
         return {
             expandedNodes: initialExpandedNodes,
-            expandedSubtrees,
+            expandedSubtrees: initialExpandedSubtrees,
             toggleExpandedNode: (nodeId) =>
                 set((state) => ({
                     expandedNodes: {

@@ -126,13 +126,11 @@ let nextGraphInstanceId = 0;
 function createGraphState(treeDescription: TreeDescription) {
     let nextId = 0;
     const nodeIdMapping = new Map<TreeNode, string>();
-    const expandedSubtrees: Record<string, boolean> = {};
     visitTreeNodes(
         treeDescription.root,
         (node) => {
             const id = "" + nextId++;
             nodeIdMapping.set(node, id);
-            if (node.expandedByDefault) expandedSubtrees[id] = true;
         },
         allChildren,
     );
@@ -141,7 +139,7 @@ function createGraphState(treeDescription: TreeDescription) {
         instanceId: nextGraphInstanceId++,
         nodeIdMapping,
         graphIndex,
-        graphStore: createGraphRenderingStore({expandedSubtrees, graphIndex}),
+        graphStore: createGraphRenderingStore({graphIndex}),
     };
 }
 
