@@ -100,3 +100,24 @@ test("the Postgres loader remains permissive when explicitly selected", () => {
     assert.equal(forced.format, "postgres");
     assert.equal(forced.tree.root.name, "result");
 });
+
+test("edge labels and tooltips read actual before estimated", () => {
+    const tree = loadPlanFromText(
+        JSON.stringify({
+            Plan: {
+                "Node Type": "Hash Join",
+                "Plan Rows": 980,
+                "Actual Rows": 1234567,
+                Plans: [{"Node Type": "Seq Scan", "Plan Rows": 2500}],
+            },
+        }),
+        {format: "postgres"},
+    ).tree;
+    const join = tree.root.children?.[0] ?? tree.root;
+    const scan = join.children?.[0];
+
+    assert.equal(join.edgeLabel, "1M/980");
+    assert.equal(join.edgeTooltip, "Actual rows: 1,234,567\nEstimated rows: 980");
+    assert.equal(scan?.edgeLabel, "3k");
+    assert.equal(scan?.edgeTooltip, "Estimated rows: 2,500");
+});

@@ -10,6 +10,8 @@ export type ColoredEdgeData = {
     // The colors of this edge. More than one is drawn as a contiguous
     // color-band gradient (source -> target); a single color is a solid stroke.
     colors?: string[];
+    // Native hover tooltip for the edge
+    tooltip?: string;
 };
 
 export type ColoredGraphEdge = Edge<ColoredEdgeData, "colored">;
@@ -20,14 +22,17 @@ export type ColoredGraphEdge = Edge<ColoredEdgeData, "colored">;
 export function ColoredEdge(props: EdgeProps<ColoredGraphEdge>) {
     const {id, sourceX, sourceY, targetX, targetY, style} = props;
     const colors = props.data?.colors ?? [];
+    const tooltip = props.data?.tooltip;
     const multi = colors.length > 1;
 
     // Unique gradient id for this edge (only used in the multi-color case).
     const gradientId = `qg-edge-grad-${id}`.replace(/[^a-zA-Z0-9_-]/g, "_");
+    const title = tooltip ? <title>{tooltip}</title> : null;
 
     if (multi) {
         return (
             <>
+                {title}
                 <defs>
                     {/* Contiguous color bands along the edge (source -> target). */}
                     <linearGradient
@@ -49,5 +54,10 @@ export function ColoredEdge(props: EdgeProps<ColoredGraphEdge>) {
         );
     }
 
-    return <BezierEdge {...props} style={{...style, stroke: colors[0] ?? style?.stroke}} />;
+    return (
+        <>
+            {title}
+            <BezierEdge {...props} style={{...style, stroke: colors[0] ?? style?.stroke}} />
+        </>
+    );
 }
