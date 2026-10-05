@@ -1,41 +1,42 @@
-.qg-insight-category-list h3 {
-    margin: 0 0 0.5em;
-    font-size: 0.9em;
-}
+.qg-insight-category-list {
+    & h3 {
+        margin: 0 0 0.5em;
+        font-size: 0.9em;
+    }
 
-.qg-insight-category-list ul {
-    padding: 0;
-    margin: 0;
-    list-style: none;
+    & ul {
+        padding: 0;
+        margin: 0;
+        list-style: none;
+    }
 }
 
 .qg-insight-category {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 0.2em 0.7em;
+    display: flex;
+    gap: 0.7em;
     padding: 0.3em 0.4em;
     border-radius: 4px;
     cursor: default;
-}
 
-.qg-insight-category:hover,
-.qg-insight-category:focus-visible,
-.qg-insight-category-active {
-    background: hsl(210, 90%, 94%);
-}
+    &:hover,
+    &:focus-visible,
+    &.qg-insight-category-active {
+        background: hsl(210, 90%, 94%);
+    }
 
-.qg-insight-category:focus-visible {
-    outline: 2px solid hsl(210, 90%, 55%);
-}
+    &:focus-visible {
+        outline: 2px solid hsl(210, 90%, 55%);
+    }
 
-.qg-insight-category-label {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
+    & .qg-insight-category-label {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
 
-.qg-insight-category-count {
-    justify-self: end;
-    text-align: right;
-    font-variant-numeric: tabular-nums;
+    & .qg-insight-category-count {
+        margin-left: auto;
+        font-variant-numeric: tabular-nums;
+    }
 }
