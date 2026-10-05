@@ -84,7 +84,7 @@ test("scan-type rows and source highlights use the same semantic node selection"
         // A linked source range activates its category even when the matching node is hidden below a collapsed root.
         await React.act(async () => store.getState().setActiveSourceLocations("query", virtual.sourceLocations!));
         assert.ok(rows[1].classList.contains("qg-insight-category-active"));
-        assert.ok(dom.window.document.querySelector(".qg-insights-active-indicator"));
+        assert.ok(dom.window.document.querySelector(".qg-panel-highlight-indicator-active"));
 
         // Pointer interaction with a category temporarily overrides the source-derived selection and restores it on exit.
         await React.act(async () => rows[0].dispatchEvent(new dom.window.MouseEvent("mouseover", {bubbles: true})));

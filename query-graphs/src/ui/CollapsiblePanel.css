@@ -163,6 +163,46 @@
     white-space: nowrap;
 }
 
+.qg-panel-highlight-indicator {
+    display: inline-block;
+    width: 0.65em;
+    height: 0.65em;
+    margin-inline-start: 0.4em;
+    border-radius: 50%;
+    vertical-align: 0.05em;
+    background: hsl(210, 90%, 55%);
+    visibility: hidden;
+}
+
+.qg-panel-highlight-indicator-active {
+    visibility: visible;
+    animation: qg-panel-highlight-pulse 1.4s ease-in-out infinite;
+}
+
+/* Hide the cue once the expanded panel shows its highlighted content. */
+.qg-collapsible-panel[data-expanded] .qg-panel-highlight-indicator {
+    visibility: hidden;
+}
+
+@keyframes qg-panel-highlight-pulse {
+    0%,
+    100% {
+        opacity: 0.55;
+        box-shadow: 0 0 0 0 hsl(210, 90%, 55%, 0.45);
+    }
+
+    50% {
+        opacity: 1;
+        box-shadow: 0 0 0 0.4em hsl(210, 90%, 55%, 0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .qg-panel-highlight-indicator-active {
+        animation: none;
+    }
+}
+
 .qg-collapsible-panel-content {
     /* Establish the lower half of the panel-local stacking order described above. */
     position: relative;

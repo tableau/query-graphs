@@ -59,15 +59,9 @@ export function PlanInsights({root, definitions}: PlanInsightsProps) {
     );
     return (
         <CollapsiblePanel
-            title={
-                <>
-                    Plan insights
-                    {active ? (
-                        <span className="qg-insights-active-indicator" role="img" aria-label="Contains highlighted nodes" />
-                    ) : null}
-                </>
-            }
+            title="Plan insights"
             className="qg-insights-panel"
+            containsHighlightedContent={active}
             open={open}
             onOpenChange={setOpen}
         >

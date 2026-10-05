@@ -48,20 +48,11 @@ function TextDocumentPanel({document}: {document: TextDocument}) {
         (activeLinkedRanges: readonly SourceLocation[]) => setActiveSourceLocations(document.id, activeLinkedRanges),
         [document.id, setActiveSourceLocations],
     );
-    const panelTitle = (
-        <>
-            {document.title}
-            <span
-                className={`graph-panel-highlight-indicator${highlightedRanges.length > 0 ? " graph-panel-highlight-indicator-active" : ""}`}
-                aria-hidden="true"
-            />
-        </>
-    );
-
     return (
         <CollapsiblePanel
-            title={panelTitle}
+            title={document.title}
             className="graph-text-document-panel"
+            containsHighlightedContent={highlightedRanges.length > 0}
             open={open}
             onOpenChange={setOpen}
             headerActions={

@@ -1,12 +1,3 @@
-.qg-insights-active-indicator {
-    display: inline-block;
-    width: 0.65em;
-    height: 0.65em;
-    margin-inline-start: 0.4em;
-    border-radius: 50%;
-    background: hsl(210, 90%, 55%);
-}
-
 .qg-insight-category-list h3 {
     margin: 0 0 0.5em;
     font-size: 0.9em;

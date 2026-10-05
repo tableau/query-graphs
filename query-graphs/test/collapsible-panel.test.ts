@@ -66,7 +66,7 @@ async function createFixture() {
 test("an uncontrolled panel exposes and toggles its disclosure state", async () => {
     const fixture = await createFixture();
     try {
-        await fixture.render({className: "custom-panel", highlighted: true});
+        await fixture.render({className: "custom-panel", highlighted: true, containsHighlightedContent: true});
         const panel = fixture.dom.window.document.querySelector<HTMLElement>(".qg-collapsible-panel");
         const toggle = fixture.dom.window.document.querySelector<HTMLButtonElement>(".qg-collapsible-panel-toggle");
         const content = fixture.dom.window.document.querySelector<HTMLElement>(".qg-collapsible-panel-content");
@@ -78,6 +78,7 @@ test("an uncontrolled panel exposes and toggles its disclosure state", async () 
         assert.ok(panel.classList.contains("custom-panel"));
         assert.ok(panel.classList.contains("qg-highlighted"));
         assert.equal(toggle.querySelector(".qg-collapsible-panel-title")?.textContent, "Details");
+        assert.ok(toggle.querySelector(".qg-panel-highlight-indicator-active"));
         assert.equal(toggle.querySelector("[aria-label='Needs attention']")?.textContent?.trim(), "!");
         assert.equal(toggle.type, "button");
         assert.equal(toggle.ariaExpanded, "false");

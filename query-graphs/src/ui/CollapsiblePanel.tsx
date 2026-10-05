@@ -11,6 +11,8 @@ export interface CollapsiblePanelProps {
     children: ReactNode;
     /** Whether to draw attention to the panel. */
     highlighted?: boolean;
+    /** Whether collapsed panel content contains the current linked highlight. */
+    containsHighlightedContent?: boolean;
     /** Additional class name applied to the panel root. */
     className?: string;
     /** Controls whether the panel is expanded. Omit to let the panel manage its own state; do not add or remove it later. */
@@ -29,6 +31,7 @@ export function CollapsiblePanel({
     headerActions,
     children,
     highlighted,
+    containsHighlightedContent,
     className,
     open,
     onOpenChange,
@@ -74,7 +77,16 @@ export function CollapsiblePanel({
                 <svg className="qg-collapsible-panel-chevron" viewBox="0 0 16 16" aria-hidden="true">
                     <path d="M5.5 3.5 10.5 8l-5 4.5" />
                 </svg>
-                <span className="qg-collapsible-panel-title">{title}</span>
+                <span className="qg-collapsible-panel-title">
+                    {title}
+                    <span
+                        className={cc([
+                            "qg-panel-highlight-indicator",
+                            containsHighlightedContent && "qg-panel-highlight-indicator-active",
+                        ])}
+                        aria-hidden="true"
+                    />
+                </span>
                 {highlighted ? (
                     <span className="qg-attention-needed-icon" role="img" aria-label="Needs attention">
                         !
