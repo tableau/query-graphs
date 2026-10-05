@@ -44,6 +44,8 @@ export type TreeNode = {
     edgeClass?: string;
     // Label placed on the incoming edge
     edgeLabel?: string;
+    // Hover tooltip for the incoming edge
+    edgeTooltip?: string;
     // Width of the incoming edge
     edgeWidth?: number;
     // Colors of the incoming edge. Several colors are drawn as a gradient,

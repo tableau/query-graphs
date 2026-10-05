@@ -83,7 +83,7 @@ export function layoutTree(
             label: e.target.data.edgeLabel,
             className: e.target.data.edgeClass,
             style: style,
-            data: {colors: e.target.data.edgeColors},
+            data: {colors: e.target.data.edgeColors, tooltip: e.target.data.edgeTooltip},
             focusable: false,
         };
     });

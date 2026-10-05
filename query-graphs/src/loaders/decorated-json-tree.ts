@@ -231,6 +231,13 @@ function convertDecoratedJsonValue(
                 : estimatedCardinality === undefined
                   ? `${formatMetric(actualCardinality)}/?`
                   : `${formatMetric(actualCardinality)}/${formatMetric(estimatedCardinality)}`;
+        const exactCardinality = (value: number) => value.toLocaleString("en-US", {maximumFractionDigits: 3});
+        convertedNode.edgeTooltip =
+            actualCardinality === undefined
+                ? `Estimated rows: ${exactCardinality(cardinality)}`
+                : `Actual rows: ${exactCardinality(actualCardinality)}\nEstimated rows: ${
+                      estimatedCardinality === undefined ? "?" : exactCardinality(estimatedCardinality)
+                  }`;
         // Highlight estimates that differ from the actual cardinality by more than one order of magnitude.
         if (
             estimatedCardinality !== undefined &&
