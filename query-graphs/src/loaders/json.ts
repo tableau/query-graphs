@@ -13,7 +13,6 @@ import type {JsonPlanLoader} from "./types";
 
 const jsonTreeConfig: DecoratedJsonTreeConfig = {
     nodeTypeKeys: ["name"],
-    retainNodeTypeProperty: true,
     structuralChildKeys: [],
     alwaysPropertyKeys: [],
     getRenderingConfig: () => ({}),

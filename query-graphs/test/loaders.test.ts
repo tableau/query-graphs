@@ -104,7 +104,7 @@ test("JSON plan documents and their source offsets use canonical line endings", 
     assert.deepEqual(loaded.tree.root.sourceLocations, [{documentId: "plan", from: keyFrom, to: valueFrom + '"scan"'.length}]);
 });
 
-test("JSON loaders retain source locations spanning semantic node names", () => {
+test("JSON loaders retain identifying properties and source locations spanning semantic node names", () => {
     const examples = [
         {text: '{"operator": "scan"}', format: "hyper", name: "scan", key: "operator", token: '"scan"'},
         {text: '{"expression": "literal"}', format: "hyper", name: "literal", key: "expression", token: '"literal"'},
@@ -187,6 +187,7 @@ test("JSON loaders retain source locations spanning semantic node names", () => 
         assert.deepEqual(matchingNode?.sourceLocations, [
             {documentId: "plan", from: keyFrom, to: valueFrom + example.token.length},
         ]);
+        assert.equal(matchingNode?.properties?.get(example.key), JSON.parse(example.token));
     }
 });
 

@@ -38,8 +38,6 @@ export function createDecoratedJsonTreeState(): DecoratedJsonTreeState {
 export interface DecoratedJsonTreeConfig {
     /** Object keys whose scalar values identify a semantic node type, in precedence order. */
     nodeTypeKeys: readonly string[];
-    /** Keep the selected node-type field in the tooltip instead of using it only as the node name. */
-    retainNodeTypeProperty?: boolean;
     /** Show these structural children in the listed order and omit their redundant key wrapper. */
     structuralChildKeys: readonly string[];
     /** Keep these values in the tooltip even when they are objects or arrays. */
@@ -64,13 +62,12 @@ export interface DecoratedJsonTreeConfig {
     getActualCardinality?(rawNode: JsonObject): number | undefined;
 }
 
-function orderedKeys(rawNode: JsonObject, nodeTypeKey: string | undefined, config: DecoratedJsonTreeConfig): string[] {
+function orderedKeys(rawNode: JsonObject, config: DecoratedJsonTreeConfig): string[] {
     // Enforce a format-specific order for structural children (for example,
     // "left" before "right") and display all remaining keys alphabetically.
     return Object.getOwnPropertyNames(rawNode)
         .filter(
             (key) =>
-                (key !== nodeTypeKey || config.retainNodeTypeProperty) &&
                 !config.alwaysPropertyKeys.includes(key) &&
                 !(config.flattenPropertyObjectKeys?.includes(key) && isJsonObject(rawNode[key])),
         )
@@ -155,8 +152,9 @@ function convertDecoratedJsonValue(
     const expandedChildren: TreeNode[] = [];
     const collapsedChildren: TreeNode[] = [];
     const properties = new Map<string, string>();
-    // Classify semantic nodes before processing their remaining fields so the
-    // identifying key itself does not also appear as a tooltip property.
+    // Classify semantic nodes before processing their fields so the identifying
+    // property can also drive format-specific rendering and source links. It remains
+    // in the properties map so generic insights can inspect it.
     const {nodeTypeKey, nodeTag} = classifyNode(rawNode, config);
 
     // Some complex values are more useful as tooltip properties than subtrees.
@@ -179,7 +177,7 @@ function convertDecoratedJsonValue(
 
     // Display remaining fields adaptively: scalars become tooltip properties,
     // while objects and arrays remain visible in the tree.
-    for (const key of orderedKeys(rawNode, nodeTypeKey, config)) {
+    for (const key of orderedKeys(rawNode, config)) {
         const value = tryToString(rawNode[key]);
         if (value !== undefined) {
             properties.set(key, value);
