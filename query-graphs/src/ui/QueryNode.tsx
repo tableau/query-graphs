@@ -18,12 +18,11 @@ function QueryNode({data, id}: NodeProps<QueryGraphNode>) {
     const toggleSubtree = useGraphRenderingStore((s) => s.toggleExpandedSubtree);
     const highlighted = useGraphRenderingStore((s) => s.visibleHighlightedNodeIds.has(id));
     const descendantHighlighted = useGraphRenderingStore((s) => s.highlightedCollapsedAncestorIds.has(id));
-    const setHoveredNodeId = useGraphRenderingStore((s) => s.setHoveredNodeId);
+    const setHoveredNodeIds = useGraphRenderingStore((s) => s.setHoveredNodeIds);
     const animateGraphChange = useAnimateGraphChange();
 
     const hasProperties = data.properties?.size;
     const hasSubtree = data.collapsedChildren && data.collapsedChildren.length > 0;
-    const hasSourceLocations = (data.sourceLocations?.length ?? 0) > 0;
 
     const onClick = useCallback(
         (e: MouseEvent<HTMLDivElement>) => {
@@ -93,8 +92,8 @@ function QueryNode({data, id}: NodeProps<QueryGraphNode>) {
             <div
                 className={nodeClassName}
                 onClick={onClick}
-                onMouseEnter={() => setHoveredNodeId(hasSourceLocations ? id : undefined)}
-                onMouseLeave={() => setHoveredNodeId(undefined)}
+                onMouseEnter={() => setHoveredNodeIds(new Set([id]))}
+                onMouseLeave={() => setHoveredNodeIds(undefined)}
             >
                 {colorBar(data.barsAbove, "above")}
                 <div className="qg-graph-node-head">

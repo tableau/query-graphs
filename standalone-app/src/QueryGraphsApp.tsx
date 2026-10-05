@@ -3,8 +3,9 @@ import {useBrowserUrl, useUrlParam} from "./browserUrlHooks";
 import type {FileOpenerData} from "./FileOpener";
 import {FileOpener, useLoadStateController} from "./FileOpener";
 import {loadPlanFromText} from "@tableau/query-graphs/lib/loaders";
+import type {LoadedPlan} from "@tableau/query-graphs/lib/loaders";
+import {insightPresets} from "@tableau/query-graphs/lib/insights/presets";
 import {QueryGraph} from "@tableau/query-graphs/lib/ui/QueryGraph";
-import type {TreeDescription} from "@tableau/query-graphs/lib/tree-description";
 import {tryCreateLocalStorageUrl, isLocalStorageURL, loadLocalStorageURL} from "./LocalStorageUrl";
 import {assert} from "./assert";
 import {TreeLabel} from "./TreeLabel";
@@ -12,7 +13,7 @@ import {TreeLabel} from "./TreeLabel";
 export function QueryGraphsApp() {
     const loadStateController = useLoadStateController();
     const {setProgress, clearLoadState, tryAndDisplayErrors} = loadStateController;
-    const [tree, setTree] = useState<TreeDescription | undefined>(undefined);
+    const [loadedPlan, setLoadedPlan] = useState<LoadedPlan | undefined>(undefined);
     const browserUrl = useBrowserUrl();
     // We store the currently opened tree in a URL parameter.
     // Thereby, we automatically integrate with the browser's history.
@@ -67,12 +68,12 @@ export function QueryGraphsApp() {
     // We keep the displayed tree in sync with the URL parameter
     useEffect(() => {
         if (!treeUrl) {
-            // Resetting `tree` here (rather than deriving it from `treeUrl` at render
+            // Resetting `loadedPlan` here (rather than deriving it from `treeUrl` at render
             // time) means the old tree stays on screen for one extra frame after
             // `treeUrl` clears, until this effect runs. We accept that flicker to
-            // keep `tree` as the single source of truth for what's displayed.
+            // keep `loadedPlan` as the single source of truth for what's displayed.
             // eslint-disable-next-line react-hooks/set-state-in-effect
-            setTree(undefined);
+            setLoadedPlan(undefined);
             clearLoadState();
             return;
         }
@@ -81,7 +82,7 @@ export function QueryGraphsApp() {
         tryAndDisplayErrors(async () => {
             // Reset the tree before parsing or loading either URL. In case we fail,
             // we don't want an outdated tree to stay around.
-            setTree(undefined);
+            setLoadedPlan(undefined);
             // Interpret relative URLs. This is important such that
             // the "examples.html" page works correctly.
             const url = new URL(treeUrl, window.location.href);
@@ -116,9 +117,9 @@ export function QueryGraphsApp() {
             const [text, sql] = loadedFiles;
             // Parse the tree
             setProgress("Parsing plan...");
-            const {tree} = loadPlanFromText(text, {sql});
-            // Display the freshly loaded tree=
-            setTree(tree);
+            const plan = loadPlanFromText(text, {sql});
+            // Display the freshly loaded plan.
+            setLoadedPlan(plan);
             clearLoadState();
         });
         return () => {
@@ -139,9 +140,10 @@ export function QueryGraphsApp() {
         }
     }, []);
 
-    if (!tree) {
+    if (!loadedPlan) {
         return <FileOpener setData={openPickedData} loadStateController={loadStateController} validate={validate} />;
     } else {
+        const {tree, format} = loadedPlan;
         return (
             <QueryGraph treeDescription={tree}>
                 <TreeLabel
@@ -150,6 +152,7 @@ export function QueryGraphsApp() {
                     metadata={tree.metadata}
                     metadataHighlighted={tree.metadataHighlighted}
                     textDocuments={tree.textDocuments}
+                    insights={insightPresets[format] ? {root: tree.root, definitions: insightPresets[format]} : undefined}
                 />
             </QueryGraph>
         );

@@ -92,16 +92,53 @@ test("tree-node hover temporarily overrides and then restores source highlightin
 
     store.getState().setActiveSourceLocations("query", [{documentId: "query", from: 0, to: 5}]);
     assert.deepEqual(store.getState().visibleHighlightedNodeIds, new Set(["0"]));
-    store.getState().setHoveredNodeId("1");
+    store.getState().setHoveredNodeIds(new Set(["1"]));
     assert.deepEqual(store.getState().highlightedNodeIds, new Set(["1"]));
     assert.deepEqual(store.getState().visibleHighlightedNodeIds, new Set(["1"]));
-    store.getState().setHoveredNodeId(undefined);
+    store.getState().setHoveredNodeIds(undefined);
     assert.deepEqual(store.getState().highlightedNodeIds, new Set(["0"]));
     assert.deepEqual(store.getState().visibleHighlightedNodeIds, new Set(["0"]));
 
     store.getState().setActiveSourceLocations("plan", []);
     assert.deepEqual(store.getState().visibleHighlightedNodeIds, new Set(["0"]));
     store.getState().setActiveSourceLocations("query", []);
+    assert.deepEqual(store.getState().highlightedNodeIds, new Set());
+});
+
+test("category hover highlights multiple nodes and restores source selection", () => {
+    const first: TreeNode = {sourceLocations: [{documentId: "query", from: 0, to: 5}]};
+    const second: TreeNode = {sourceLocations: [{documentId: "query", from: 10, to: 15}]};
+    const store = graphStore([first, second]);
+
+    store.getState().setActiveSourceLocations("query", first.sourceLocations!);
+    store.getState().setHoveredNodeIds(new Set(["0", "1"]));
+    assert.deepEqual(store.getState().highlightedNodeIds, new Set(["0", "1"]));
+    assert.deepEqual(store.getState().getSourceRangesForNodes("query", store.getState().highlightedNodeIds), [
+        ...first.sourceLocations!,
+        ...second.sourceLocations!,
+    ]);
+
+    store.getState().setHoveredNodeIds(undefined);
+    assert.deepEqual(store.getState().highlightedNodeIds, new Set(["0"]));
+    assert.equal(store.getState().getNodeId(second), "1");
+});
+
+test("pointer, source, and focus highlights have explicit precedence", () => {
+    const first: TreeNode = {sourceLocations: [{documentId: "query", from: 0, to: 5}]};
+    const second: TreeNode = {sourceLocations: [{documentId: "query", from: 10, to: 15}]};
+    const store = graphStore([first, second]);
+
+    store.getState().setFocusedNodeIds(new Set(["0"]));
+    assert.deepEqual(store.getState().highlightedNodeIds, new Set(["0"]));
+    store.getState().setActiveSourceLocations("query", second.sourceLocations!);
+    assert.deepEqual(store.getState().highlightedNodeIds, new Set(["1"]));
+    store.getState().setHoveredNodeIds(new Set(["0", "1"]));
+    assert.deepEqual(store.getState().highlightedNodeIds, new Set(["0", "1"]));
+    store.getState().setHoveredNodeIds(undefined);
+    assert.deepEqual(store.getState().highlightedNodeIds, new Set(["1"]));
+    store.getState().setActiveSourceLocations("query", []);
+    assert.deepEqual(store.getState().highlightedNodeIds, new Set(["0"]));
+    store.getState().setFocusedNodeIds(undefined);
     assert.deepEqual(store.getState().highlightedNodeIds, new Set());
 });
 

@@ -3,7 +3,7 @@ import {useStore} from "zustand";
 import {createStore} from "zustand/vanilla";
 import type {StoreApi} from "zustand/vanilla";
 import {assertNotNull} from "../assert";
-import type {SourceLocation} from "../tree-description";
+import type {SourceLocation, TreeNode} from "../tree-description";
 import type {GraphIndex} from "./graph-index";
 import {createStructuralNodeVisibility, findClosestVisibleAncestors} from "./tree-topology";
 
@@ -12,7 +12,7 @@ interface SourceHighlightSelection {
     documentId: string;
     /** Retained by identity to ignore duplicate editor notifications. */
     sourceLocations: readonly SourceLocation[];
-    /** Semantic highlights restored after a temporary tree-node hover ends. */
+    /** Nodes linked to the active source locations. */
     nodeIds: ReadonlySet<string>;
 }
 
@@ -35,8 +35,12 @@ export interface GraphRenderingState extends HighlightState {
     // `expandedSubtrees` tracks which nodes reveal their `collapsedChildren` (toggled by shift-click or the +/- handle).
     expandedSubtrees: Record<string, boolean>;
     toggleExpandedSubtree: (nodeId: string) => void;
-    /** Temporarily replaces the source-derived highlights while a linked tree node is hovered. */
-    setHoveredNodeId: (nodeId?: string) => void;
+    /** Highlights nodes under the pointer, taking precedence over source and keyboard-focus highlights. */
+    setHoveredNodeIds: (nodeIds?: ReadonlySet<string>) => void;
+    /** Highlights keyboard-focused nodes when neither pointer nor source highlights are active. */
+    setFocusedNodeIds: (nodeIds?: ReadonlySet<string>) => void;
+    /** Returns the graph-local ID assigned to a tree node, if that node belongs to this graph. */
+    getNodeId: (node: TreeNode) => string | undefined;
     /** Updates the semantic node highlights from the exact linked ranges active in one document. */
     setActiveSourceLocations: (documentId: string, sourceLocations: readonly SourceLocation[]) => void;
     /** Returns every range that should participate in pointer and caret linking for one document. */
@@ -54,7 +58,8 @@ export interface GraphRenderingStoreOptions {
 
 export function createGraphRenderingStore({graphIndex}: GraphRenderingStoreOptions): GraphRenderingStore {
     let sourceHighlightSelection: SourceHighlightSelection | undefined;
-    let hoveredNodeId: string | undefined;
+    let hoveredNodeIds: ReadonlySet<string> | undefined;
+    let focusedNodeIds: ReadonlySet<string> | undefined;
     const initialExpandedNodes = Object.fromEntries(
         [...graphIndex.nodeIds].flatMap(([node, nodeId]) => (node.properties?.size ? [[nodeId, false]] : [])),
     );
@@ -65,8 +70,7 @@ export function createGraphRenderingStore({graphIndex}: GraphRenderingStoreOptio
     return createStore<GraphRenderingState>()((set) => {
         // Materialize the visible tree projection once per interaction so each rendered node can subscribe to a boolean.
         const resolveHighlights = (currentExpandedSubtrees: Readonly<Record<string, boolean>>): HighlightState => {
-            const highlightedNodeIds =
-                hoveredNodeId === undefined ? (sourceHighlightSelection?.nodeIds ?? noNodeIds) : new Set([hoveredNodeId]);
+            const highlightedNodeIds = hoveredNodeIds ?? sourceHighlightSelection?.nodeIds ?? focusedNodeIds ?? noNodeIds;
             const visibleNodeIds = createStructuralNodeVisibility(
                 currentExpandedSubtrees,
                 graphIndex.treeTopology.parents,
@@ -112,11 +116,17 @@ export function createGraphRenderingStore({graphIndex}: GraphRenderingStoreOptio
             highlightedNodeIds: noNodeIds,
             visibleHighlightedNodeIds: noNodeIds,
             highlightedCollapsedAncestorIds: noNodeIds,
-            setHoveredNodeId: (nodeId) => {
-                if (hoveredNodeId === nodeId) return;
-                hoveredNodeId = nodeId;
+            setHoveredNodeIds: (nodeIds) => {
+                if (hoveredNodeIds === nodeIds) return;
+                hoveredNodeIds = nodeIds?.size ? nodeIds : undefined;
                 set((state) => resolveHighlights(state.expandedSubtrees));
             },
+            setFocusedNodeIds: (nodeIds) => {
+                if (focusedNodeIds === nodeIds) return;
+                focusedNodeIds = nodeIds?.size ? nodeIds : undefined;
+                set((state) => resolveHighlights(state.expandedSubtrees));
+            },
+            getNodeId: (node) => graphIndex.nodeIds.get(node),
             setActiveSourceLocations: (documentId, sourceLocations) => {
                 // An editor can report an empty selection after another document has already become active.
                 if (sourceLocations.length === 0 && sourceHighlightSelection?.documentId !== documentId) return;

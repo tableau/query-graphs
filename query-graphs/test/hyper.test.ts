@@ -37,6 +37,9 @@ test("Hyper applies rendering, ordering, metrics, and crosslinks", () => {
     const details = tree.root.collapsedChildren?.[0];
 
     assert.equal(tree.root.name, "left-outer");
+    assert.equal(tree.root.properties?.get("operator"), "join");
+    assert.equal(left?.properties?.get("operator"), "scan");
+    assert.equal(left?.properties?.get("type"), "virtual-table");
     assert.equal(tree.root.icon, "left-join-symbol");
     assert.equal(tree.root.nodeColor, "hsl(309, 84%, 72.000%)");
     assert.equal(tree.root.edgeLabel, "100/1");
