@@ -21,6 +21,12 @@ function getExtraInfo(rawNode: JsonObject): JsonObject | undefined {
     return hasSubObject(rawNode, "extra_info") ? rawNode["extra_info"] : undefined;
 }
 
+// Read a converted node's scalar tooltip property as a string.
+function scalarProperty(node: TreeNode, key: string): string | undefined {
+    const entry = node.properties?.get(key);
+    return entry !== undefined && typeof entry.value === "string" ? entry.value : undefined;
+}
+
 function crosslinkId(namespace: "cte" | "delim", id: string): string {
     return `${namespace}:${id}`;
 }
@@ -125,7 +131,7 @@ function applyOperatorTimings(root: TreeNode): void {
     visitTreeNodes(
         root,
         (node) => {
-            const timing = tryToNumber(node.properties?.get("operator_timing"));
+            const timing = tryToNumber(scalarProperty(node, "operator_timing"));
             if (timing !== undefined) {
                 timings.push({node, value: timing});
             }
@@ -152,8 +158,8 @@ function convertDuckPlan(
     visitTreeNodes(
         root,
         (node) => {
-            const operatorType = node.properties?.get("operator_type");
-            const id = node.properties?.get("Delim Index");
+            const operatorType = scalarProperty(node, "operator_type");
+            const id = scalarProperty(node, "Delim Index");
             const isDelimJoin = operatorType?.endsWith("DELIM_JOIN") ?? node.name?.endsWith("delim_join") ?? false;
             if (isDelimJoin && id !== undefined) {
                 crosslinkTargets.set(crosslinkId("delim", id), node);

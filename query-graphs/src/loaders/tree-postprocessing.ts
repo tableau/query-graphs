@@ -11,9 +11,9 @@ export function buildIdMap(root: TreeNode, key: string): Map<string, TreeNode> {
     visitTreeNodes(
         root,
         (node) => {
-            const id = node.properties?.get(key);
-            if (id !== undefined) {
-                idMap.set(id, node);
+            const entry = node.properties?.get(key);
+            if (entry !== undefined && typeof entry.value === "string") {
+                idMap.set(entry.value, node);
             }
         },
         allChildren,

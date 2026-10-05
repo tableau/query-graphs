@@ -224,3 +224,83 @@
     -ms-user-select: text;
     user-select: text;
 }
+
+/* A runtime-hotspot row (magenta), echoing the node's heat color. */
+.qg-prop-highlighted {
+    border-radius: .3em;
+    padding: 0 .2em;
+    margin: 0 -.2em;
+    background: hsl(309, 84%, 90%);
+
+    & .qg-prop-name {
+        color: hsl(309, 40%, 40%);
+    }
+}
+
+/* An advisory row or whole group (e.g. the index-recommendation candidate);
+   green, so it never reads as a runtime hotspot. */
+.qg-prop-recommended {
+    border-radius: .3em;
+    padding: 0 .2em;
+    margin: 0 -.2em;
+    background: hsl(140, 60%, 88%);
+
+    & .qg-prop-name {
+        color: hsl(140, 45%, 28%);
+    }
+}
+
+/* An informational row (e.g. the index a scan used); blue, distinct from
+   hotspots (magenta) and recommendations (green). */
+.qg-prop-informational {
+    border-radius: .3em;
+    padding: 0 .2em;
+    margin: 0 -.2em;
+    background: hsl(210, 80%, 90%);
+
+    & .qg-prop-name {
+        color: hsl(210, 50%, 35%);
+    }
+}
+
+/* A nested, expandable property group (e.g. the raw statistics block). */
+.qg-prop-group-header {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+
+    & .qg-prop-group-toggle {
+        display: inline-block;
+        width: 0;
+        height: 0;
+        margin-right: .35em;
+        border-top: .3em solid transparent;
+        border-bottom: .3em solid transparent;
+        border-left: .35em solid hsl(0, 0%, 50%);
+        transition: transform 0.12s ease;
+    }
+
+    &.qg-expanded .qg-prop-group-toggle {
+        transform: rotate(90deg);
+    }
+}
+
+.qg-prop-group-body {
+    margin-left: .9em;
+    border-left: 1px solid hsl(0, 0%, 88%);
+    padding-left: .4em;
+}
+
+@media (forced-colors: active) {
+    .qg-prop-highlighted {
+        outline: 1px solid Highlight;
+    }
+
+    .qg-prop-recommended {
+        outline: 1px dashed Highlight;
+    }
+
+    .qg-prop-informational {
+        outline: 1px dotted Highlight;
+    }
+}

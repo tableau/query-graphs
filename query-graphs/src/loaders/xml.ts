@@ -10,6 +10,7 @@ in the tooltips.
 */
 
 import type {TreeNode} from "../tree-description";
+import {stringMapToProperties} from "./loader-utils";
 import type {PlanLoader} from "./types";
 
 export interface ParsedXML {
@@ -78,7 +79,7 @@ function convertXML(xml: ParsedXML): TreeNode {
 
     return {
         name: tag,
-        properties: properties,
+        properties: stringMapToProperties(properties),
         children: children,
     };
 }

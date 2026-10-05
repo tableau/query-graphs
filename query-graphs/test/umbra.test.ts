@@ -3,7 +3,7 @@ import test from "node:test";
 import {loadPlanFromText} from "../src/loaders";
 import {umbraPlanLoader} from "../src/loaders/umbra";
 import {allChildren, visitTreeNodes, type TreeNode} from "../src/tree-description";
-import {fixturePathsFor, loadFixture} from "./loader-test-utils";
+import {fixturePathsFor, loadFixture, propGroup, propValue} from "./loader-test-utils";
 
 function treeNodes(root: TreeNode): TreeNode[] {
     const nodes: TreeNode[] = [];
@@ -31,7 +31,7 @@ test("Umbra decorates cardinalities, pipelines, and recursive crosslinks", () =>
     const analyzedScan = loadFixture("umbra/tablescan-analyze.plan.json").tree;
     const plan = analyzedScan.root.children?.[0];
     assert.equal(analyzedScan.root.name, "select");
-    assert.equal(analyzedScan.root.properties?.get("query"), "true");
+    assert.equal(propValue(analyzedScan.root, "query"), "true");
     assert.equal(plan?.name, "region");
     assert.notEqual(plan?.iconColor, undefined);
     assert.equal(plan?.edgeLabel, "5/5");
@@ -162,13 +162,13 @@ test("Umbra keeps source locations in properties instead of graph subtrees", () 
         ],
     });
     const nodes = treeNodes(tree.root);
-    const operator = nodes.find((node) => node.properties?.get("operatorId") === "1");
-    const expression = nodes.find((node) => node.properties?.get("id") === "2");
-    const iu = nodes.find((node) => node.properties?.get("iu") === "value");
+    const operator = nodes.find((node) => propValue(node, "operatorId") === "1");
+    const expression = nodes.find((node) => propValue(node, "id") === "2");
+    const iu = nodes.find((node) => propValue(node, "iu") === "value");
 
-    assert.equal(operator?.properties?.get("sourceLocation"), '{"startLine":1,"startColumn":2,"endLine":1,"endColumn":7}');
-    assert.equal(expression?.properties?.get("sourceLocation"), '{"startLine":1,"startColumn":8,"endLine":1,"endColumn":9}');
-    assert.equal(iu?.properties?.get("sourceLocation"), '{"startLine":1,"startColumn":10,"endLine":1,"endColumn":15}');
+    assert.deepEqual(propGroup(operator, "sourceLocation"), {startLine: "1", startColumn: "2", endLine: "1", endColumn: "7"});
+    assert.deepEqual(propGroup(expression, "sourceLocation"), {startLine: "1", startColumn: "8", endLine: "1", endColumn: "9"});
+    assert.deepEqual(propGroup(iu, "sourceLocation"), {startLine: "1", startColumn: "10", endLine: "1", endColumn: "15"});
     assert.ok(!treeNodes(tree.root).some((node) => node.name === "sourceLocation"));
 });
 
@@ -189,7 +189,7 @@ test("Umbra nodes link both SQL and JSON source ranges", () => {
     const keyFrom = planText.indexOf('"operator"');
     const valueFrom = planText.indexOf('"tablescan"');
 
-    const operator = treeNodes(loaded.tree.root).find((node) => node.properties?.get("operatorId") === "1");
+    const operator = treeNodes(loaded.tree.root).find((node) => propValue(node, "operatorId") === "1");
     assert.deepEqual(operator?.sourceLocations, [
         {documentId: "query", from: 46, to: 56},
         {documentId: "plan", from: keyFrom, to: valueFrom + '"tablescan"'.length},

@@ -2,6 +2,7 @@ import type {TextDocument, TreeDescription} from "../tree-description";
 import {duckDbPlanLoader} from "./duckdb";
 import {hyperPlanLoader} from "./hyper";
 import {jsonPlanLoader} from "./json";
+import {trailPropertyGroups, surfaceRowAttributes} from "./loader-utils";
 import {postgresPlanLoader} from "./postgres";
 import {createSqlSourceLocator} from "./sql-source";
 import {tableauPlanLoader} from "./tableau";
@@ -48,7 +49,10 @@ function loadMatchingPlan<Input>(
     for (const loader of loaders) {
         if (format === undefined ? loader.matches(input) : loader.format === format) {
             try {
-                return {format: loader.format, tree: loader.load(input, context)};
+                const tree = loader.load(input, context);
+                surfaceRowAttributes(tree.root);
+                trailPropertyGroups(tree.root);
+                return {format: loader.format, tree};
             } catch (error) {
                 errors.push(error);
             }

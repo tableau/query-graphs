@@ -10,7 +10,7 @@ export type ColoredEdgeData = {
     // The colors of this edge. More than one is drawn as a contiguous
     // color-band gradient (source -> target); a single color is a solid stroke.
     colors?: string[];
-    // Native hover tooltip for the edge
+    // Native hover tooltip for the edge (e.g. spelled-out actual/estimated rows).
     tooltip?: string;
 };
 
@@ -27,6 +27,7 @@ export function ColoredEdge(props: EdgeProps<ColoredGraphEdge>) {
 
     // Unique gradient id for this edge (only used in the multi-color case).
     const gradientId = `qg-edge-grad-${id}`.replace(/[^a-zA-Z0-9_-]/g, "_");
+    // Native hover tooltip covering the whole edge group (path + label).
     const title = tooltip ? <title>{tooltip}</title> : null;
 
     if (multi) {

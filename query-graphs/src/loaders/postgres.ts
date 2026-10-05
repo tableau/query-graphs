@@ -17,6 +17,12 @@ function getStringProperty(rawNode: JsonObject, key: string): string | undefined
     return tryToNonNullString(rawNode[key]);
 }
 
+// Read a numeric value from a converted node's scalar tooltip property.
+function numericProperty(node: TreeNode, key: string): number | undefined {
+    const entry = node.properties?.get(key);
+    return entry !== undefined && typeof entry.value === "string" ? tryToNumber(entry.value) : undefined;
+}
+
 function getOperatorIcon(operatorType: string, rawNode: JsonObject): IconName | undefined {
     switch (operatorType) {
         case "Hash Join":
@@ -109,10 +115,10 @@ function planChildren(node: TreeNode): TreeNode[] {
 // Parallelized nodes have Actual Loops = Workers Launched + 1 for the leader
 // Not all Postgres plans have a root Execution Time even when children have Actual Total Time
 function colorRelativeExecutionTime(root: TreeNode) {
-    let executionTime = tryToNumber(root.properties?.get("Execution Time"));
+    let executionTime = numericProperty(root, "Execution Time");
     if (executionTime === undefined) {
         const childExecutionTimes = planChildren(root).flatMap((child) => {
-            const actualTotalTime = tryToNumber(child.properties?.get("Actual Total Time"));
+            const actualTotalTime = numericProperty(child, "Actual Total Time");
             return actualTotalTime === undefined ? [] : [actualTotalTime];
         });
         executionTime = childExecutionTimes.length === 0 ? undefined : Math.max(...childExecutionTimes);
@@ -126,14 +132,14 @@ function colorRelativeExecutionTime(root: TreeNode) {
 function colorChildRelativeExecutionRatio(node: TreeNode, executionTime: number, degreeOfParallelism: number) {
     let childrenTime = 0;
     if (node.name === "Gather" || node.name === "Gather Merge") {
-        const workersLaunched = tryToNumber(node.properties?.get("Workers Launched"));
+        const workersLaunched = numericProperty(node, "Workers Launched");
         if (workersLaunched === undefined || workersLaunched < 0) return;
         degreeOfParallelism = workersLaunched + 1; /* leader */
     }
     let childTimingsComplete = true;
     for (const child of planChildren(node)) {
-        const actualTotalTime = tryToNumber(child.properties?.get("Actual Total Time"));
-        const actualLoops = tryToNumber(child.properties?.get("Actual Loops"));
+        const actualTotalTime = numericProperty(child, "Actual Total Time");
+        const actualLoops = numericProperty(child, "Actual Loops");
         if (actualTotalTime !== undefined && actualLoops !== undefined) {
             const childLoops = actualLoops / degreeOfParallelism;
             childrenTime += actualTotalTime * childLoops;
@@ -141,8 +147,8 @@ function colorChildRelativeExecutionRatio(node: TreeNode, executionTime: number,
             childTimingsComplete = false;
         }
     }
-    const actualTotalTime = tryToNumber(node.properties?.get("Actual Total Time"));
-    const actualLoops = tryToNumber(node.properties?.get("Actual Loops"));
+    const actualTotalTime = numericProperty(node, "Actual Total Time");
+    const actualLoops = numericProperty(node, "Actual Loops");
     if (actualTotalTime !== undefined && actualLoops !== undefined && childTimingsComplete) {
         let nodeLoops = actualLoops;
         if (node.name !== "Gather" && node.name !== "Gather Merge") {
@@ -154,8 +160,8 @@ function colorChildRelativeExecutionRatio(node: TreeNode, executionTime: number,
         // TODO: remove Actual Total Time of a CTE from referencing CTE Scan subplans
         // TODO: assert(relativeExecutionRatio >= 0, "Unexpected relative execution ratio");
 
-        node.properties?.set("~Relative Time", relativeTotalTime.toFixed(3));
-        node.properties?.set("~Relative Time Ratio", relativeExecutionRatio.toFixed(3));
+        node.properties?.set("~Relative Time", {value: relativeTotalTime.toFixed(3)});
+        node.properties?.set("~Relative Time Ratio", {value: relativeExecutionRatio.toFixed(3)});
         const l = (95 + (72 - 95) * relativeExecutionRatio).toFixed(3);
         node.nodeColor = relativeExecutionRatio >= 0.05 ? `hsl(309, 84%, ${l}%)` : undefined;
     }
