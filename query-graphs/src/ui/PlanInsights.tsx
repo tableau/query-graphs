@@ -59,7 +59,7 @@ export function PlanInsights({root, definitions}: PlanInsightsProps) {
     );
     return (
         <CollapsiblePanel
-            title="Plan insights"
+            title="Plan Insights"
             className="qg-insights-panel"
             containsHighlightedContent={active}
             open={open}
