@@ -74,6 +74,12 @@ test("scan-type rows and source highlights use the same semantic node selection"
                 ),
             ),
         );
+        const toggle = dom.window.document.querySelector<HTMLButtonElement>(".qg-collapsible-panel-toggle");
+        assert.ok(toggle);
+        assert.equal(toggle.ariaExpanded, "false");
+        await React.act(async () => toggle.click());
+        assert.equal(toggle.ariaExpanded, "true");
+
         const rows = [...dom.window.document.querySelectorAll<HTMLElement>(".qg-insight-category")];
         assert.equal(rows.length, 2);
         assert.deepEqual(

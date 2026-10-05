@@ -34,7 +34,7 @@ function CategoryRow({value, nodeIds, active}: {value: string; nodeIds: Readonly
 export function PlanInsights({root, definitions}: PlanInsightsProps) {
     const getNodeId = useGraphRenderingStore((state) => state.getNodeId);
     const highlightedNodeIds = useGraphRenderingStore((state) => state.highlightedNodeIds);
-    const [open, setOpen] = useState(true);
+    const [open, setOpen] = useState(false);
     const categoryLists = useMemo(
         () =>
             definitions.map((definition) => ({
