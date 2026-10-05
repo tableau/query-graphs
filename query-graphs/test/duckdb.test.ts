@@ -6,7 +6,7 @@ import {loadPlanFromText} from "../src/loaders";
 import {duckDbPlanLoader} from "../src/loaders/duckdb";
 import type {TreeNode} from "../src/tree-description";
 import {allChildren, visitTreeNodes} from "../src/tree-description";
-import {examplesRoot, fixturePathsFor, loadFixture} from "./loader-test-utils";
+import {examplesRoot, fixturePathsFor, loadFixture, propValue} from "./loader-test-utils";
 
 function treeNodes(root: TreeNode): TreeNode[] {
     const nodes: TreeNode[] = [];
@@ -47,7 +47,7 @@ test("DuckDB examples are recognized", () => {
 test("DuckDB analyzed plans preserve metrics, metadata, and CTE crosslinks", () => {
     const analyzedScan = loadFixture("duckdb/tablescan-analyze.plan.json").tree;
     assert.equal(analyzedScan.root.name, '"temp".main.region (seq_scan)');
-    assert.equal(analyzedScan.root.properties?.get("Table"), '"temp".main.region');
+    assert.equal(propValue(analyzedScan.root, "Table"), '"temp".main.region');
     assert.equal(analyzedScan.root.edgeLabel, "5/5");
     assert.notEqual(analyzedScan.root.nodeColor, undefined);
     assert.equal(analyzedScan.metadata?.has("query_name"), false);

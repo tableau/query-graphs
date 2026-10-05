@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {loadPlanFromText} from "../src/loaders";
-import {fixturePathsFor, loadFixture} from "./loader-test-utils";
+import {fixturePathsFor, loadFixture, propValue} from "./loader-test-utils";
 
 test("Postgres examples are recognized", () => {
     for (const fixturePath of fixturePathsFor("postgres")) {
@@ -74,25 +74,25 @@ test("Postgres computes relative execution time", () => {
     }).tree;
     const scan = tree.root.children?.[0];
 
-    assert.equal(scan?.properties?.get("~Relative Time"), "4.000");
-    assert.equal(scan?.properties?.get("~Relative Time Ratio"), "0.800");
+    assert.equal(propValue(scan, "~Relative Time"), "4.000");
+    assert.equal(propValue(scan, "~Relative Time Ratio"), "0.800");
     assert.notEqual(scan?.nodeColor, undefined);
 });
 
 test("Postgres keeps semantic rendering when execution metrics are incomplete", () => {
     const missingWorkers = loadPlanFromText('{"Plan":{"Node Type":"Gather","Actual Total Time":1,"Actual Loops":1,"Plans":[]}}');
     assert.equal(missingWorkers.format, "postgres");
-    assert.equal(missingWorkers.tree.root.children?.[0].properties?.get("~Relative Time"), undefined);
+    assert.equal(propValue(missingWorkers.tree.root.children?.[0], "~Relative Time"), undefined);
 
     const missingLoops = loadPlanFromText('{"Plan":{"Node Type":"Result","Actual Total Time":1,"Plans":[]}}');
     assert.equal(missingLoops.format, "postgres");
-    assert.equal(missingLoops.tree.root.children?.[0].properties?.get("~Relative Time"), undefined);
+    assert.equal(propValue(missingLoops.tree.root.children?.[0], "~Relative Time"), undefined);
 
     const missingChildTime = loadPlanFromText(
         '{"Plan":{"Node Type":"Nested Loop","Actual Total Time":1,"Actual Loops":1,"Plans":[{"Node Type":"Seq Scan"}]}}',
     );
     assert.equal(missingChildTime.format, "postgres");
-    assert.equal(missingChildTime.tree.root.children?.[0].properties?.get("~Relative Time"), undefined);
+    assert.equal(propValue(missingChildTime.tree.root.children?.[0], "~Relative Time"), undefined);
 });
 
 test("the Postgres loader remains permissive when explicitly selected", () => {
@@ -116,8 +116,8 @@ test("edge labels and tooltips read actual before estimated", () => {
     const join = tree.root.children?.[0] ?? tree.root;
     const scan = join.children?.[0];
 
-    assert.equal(join.edgeLabel, "1M/980");
+    assert.equal(join.edgeLabel, "1.2M/980");
     assert.equal(join.edgeTooltip, "Actual rows: 1,234,567\nEstimated rows: 980");
-    assert.equal(scan?.edgeLabel, "3k");
+    assert.equal(scan?.edgeLabel, "2.5K");
     assert.equal(scan?.edgeTooltip, "Estimated rows: 2,500");
 });

@@ -1,9 +1,9 @@
-import type {ReactElement, MouseEvent} from "react";
-import {memo, useCallback} from "react";
+import type {MouseEvent} from "react";
+import {memo, useCallback, useState} from "react";
 import type {Node, NodeProps} from "@xyflow/react";
 import {Handle, Position} from "@xyflow/react";
 import cc from "classcat";
-import type {TreeNode} from "../tree-description";
+import type {PropertyEntry, TreeNode} from "../tree-description";
 import {NodeIcon} from "./NodeIcon";
 import "./PanelSurface.css";
 import "./QueryNode.css";
@@ -12,6 +12,73 @@ import {useGraphRenderingStore} from "./store";
 import {subtreeHandleId, useAnimateGraphChange} from "./useAnimatedGraphLayout";
 
 export type QueryGraphNode = Node<TreeNode, "querynode">;
+
+// Render a scalar property as `name: value`, colored by its emphasis.
+function ScalarRow({name, entry}: {name: string; entry: PropertyEntry}) {
+    return (
+        <div
+            className={cc([
+                "qg-prop-row",
+                {
+                    "qg-prop-highlighted": entry.highlighted,
+                    "qg-prop-recommended": entry.recommended,
+                    "qg-prop-informational": entry.informational,
+                },
+            ])}
+        >
+            <span className="qg-prop-name">{name}:</span> <span className="qg-prop-value">{entry.value as string}</span>
+        </div>
+    );
+}
+
+// Render a property group as a header that expands and collapses its rows.
+// Groups start collapsed, except recommended ones. Expanding a group also
+// expands every group nested in it (`expandGroups`); each can then be
+// collapsed on its own.
+function GroupRow({name, entry, expandGroups}: {name: string; entry: PropertyEntry; expandGroups?: boolean}) {
+    const [expanded, setExpanded] = useState(expandGroups ?? entry.recommended === true);
+    const onClick = useCallback((e: MouseEvent) => {
+        setExpanded((value) => !value);
+        e.stopPropagation();
+    }, []);
+    return (
+        <div className={cc(["qg-prop-group", {"qg-prop-recommended": entry.recommended}])}>
+            <div
+                className={cc(["qg-prop-group-header", {"qg-prop-highlighted": entry.highlighted, "qg-expanded": expanded}])}
+                onClick={onClick}
+            >
+                <span className="qg-prop-group-toggle" aria-hidden="true" />
+                <span className="qg-prop-name">{name}</span>
+            </div>
+            {expanded ? (
+                <div className="qg-prop-group-body">
+                    <PropertyList properties={entry.value as Map<string, PropertyEntry>} expandGroups />
+                </div>
+            ) : null}
+        </div>
+    );
+}
+
+// Render a single property row, dispatching scalars to `ScalarRow` and nested
+// groups to the expandable `GroupRow`.
+function PropertyRow({name, entry, expandGroups}: {name: string; entry: PropertyEntry; expandGroups?: boolean}) {
+    return typeof entry.value === "string" ? (
+        <ScalarRow name={name} entry={entry} />
+    ) : (
+        <GroupRow name={name} entry={entry} expandGroups={expandGroups} />
+    );
+}
+
+// Render a map of properties, one row each.
+function PropertyList({properties, expandGroups}: {properties: Map<string, PropertyEntry>; expandGroups?: boolean}) {
+    return (
+        <>
+            {Array.from(properties.entries()).map(([key, entry]) => (
+                <PropertyRow key={key} name={key} entry={entry} expandGroups={expandGroups} />
+            ))}
+        </>
+    );
+}
 
 function QueryNode({data, id}: NodeProps<QueryGraphNode>) {
     const expanded = useGraphRenderingStore((s) => s.expandedNodes[id]);
@@ -48,15 +115,6 @@ function QueryNode({data, id}: NodeProps<QueryGraphNode>) {
         },
         [animateGraphChange, toggleSubtree, hasSubtree, id],
     );
-
-    const children = [] as ReactElement[];
-    for (const [key, value] of (data.properties || []).entries()) {
-        children.push(
-            <div key={key}>
-                <span className="qg-prop-name">{key}:</span> <span className="qg-prop-value">{value}</span>
-            </div>,
-        );
-    }
 
     const nodeClassName = cc([
         "qg-graph-node",
@@ -105,7 +163,9 @@ function QueryNode({data, id}: NodeProps<QueryGraphNode>) {
                     </div>
                 </div>
                 <div className="qg-graph-node-body-wrapper nowheel">
-                    <ScrollableArea className="qg-graph-node-body">{children}</ScrollableArea>
+                    <ScrollableArea className="qg-graph-node-body">
+                        {data.properties ? <PropertyList properties={data.properties} /> : null}
+                    </ScrollableArea>
                 </div>
                 {colorBar(data.barsBelow, "below")}
             </div>

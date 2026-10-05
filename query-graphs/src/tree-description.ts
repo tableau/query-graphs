@@ -12,6 +12,24 @@ export type IconName =
     | "virtual-table-symbol"
     | "const-table-symbol";
 
+// One row in a node's property panel.
+//
+// A row is either a scalar, shown as `name: value`, or a group of nested rows,
+// shown as an expandable sub-tree. Groups let a loader show arbitrary nested
+// JSON (e.g. a plan's `statistics` block) instead of an opaque string.
+// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+export type PropertyEntry = {
+    // The scalar text, or the nested rows of a group.
+    value: string | Map<string, PropertyEntry>;
+    // Runtime hotspot (magenta), echoing the node's heat color.
+    highlighted?: boolean;
+    // Advice worth acting on (green), e.g. a recommended index candidate.
+    // A recommended group starts expanded.
+    recommended?: boolean;
+    // Noteworthy fact (blue), e.g. the index a scan used.
+    informational?: boolean;
+};
+
 // Must be a `type` instead of the usual `interface`.
 // xyflow's `Node<NodeData>` requires NodeData to satisfy `Record<string, unknown>` and
 // TypeScript only infers that implicit index signature for type aliases, not interfaces.
@@ -27,7 +45,7 @@ export type TreeNode = {
     // The color for the icon
     iconColor?: string;
     // Rendered in the tooltip
-    properties?: Map<string, string>;
+    properties?: Map<string, PropertyEntry>;
     // Ranges in associated text documents represented by this node
     sourceLocations?: SourceLocation[];
 
@@ -44,7 +62,7 @@ export type TreeNode = {
     edgeClass?: string;
     // Label placed on the incoming edge
     edgeLabel?: string;
-    // Hover tooltip for the incoming edge
+    // Hover tooltip for the incoming edge (e.g. spelled-out actual/estimated rows)
     edgeTooltip?: string;
     // Width of the incoming edge
     edgeWidth?: number;

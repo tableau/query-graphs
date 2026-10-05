@@ -10,9 +10,9 @@
  * continue through the baseline conversion instead of being discarded.
  */
 
-import type {IconName, SourceLocation, TreeNode} from "../tree-description";
+import type {IconName, PropertyEntry, SourceLocation, TreeNode} from "../tree-description";
 import type {Json, JsonObject} from "./loader-utils";
-import {forceToString, formatMetric, hasOwnProperty, isJsonObject, tryToNonNullString, tryToString} from "./loader-utils";
+import {formatCount, hasOwnProperty, isJsonObject, jsonToPropertyEntry, tryToNonNullString, tryToString} from "./loader-utils";
 import type {UnresolvedCrosslink} from "./tree-postprocessing";
 import {InvalidPlanError, type PlanLoadContext} from "./types";
 
@@ -60,6 +60,8 @@ export interface DecoratedJsonTreeConfig {
     getEstimatedCardinality?(rawNode: JsonObject): number | undefined;
     /** Prefer the actual cardinality when available and compare it with the estimate. */
     getActualCardinality?(rawNode: JsonObject): number | undefined;
+    /** Adjust the fully converted node (for example to curate its tooltip rows). */
+    enrichNode?(rawNode: JsonObject, node: TreeNode, nodeTypeKey: string | undefined, context: PlanLoadContext): void;
 }
 
 function orderedKeys(rawNode: JsonObject, config: DecoratedJsonTreeConfig): string[] {
@@ -151,16 +153,22 @@ function convertDecoratedJsonValue(
 
     const expandedChildren: TreeNode[] = [];
     const collapsedChildren: TreeNode[] = [];
-    const properties = new Map<string, string>();
+    const properties = new Map<string, PropertyEntry>();
+    // A property's text, or `undefined` for a group (which has no single value).
+    const scalarProperty = (key: string): string | undefined => {
+        const entry = properties.get(key);
+        return entry !== undefined && typeof entry.value === "string" ? entry.value : undefined;
+    };
     // Classify semantic nodes before processing their fields so the identifying
     // property can also drive format-specific rendering and source links. It remains
     // in the properties map so generic insights can inspect it.
     const {nodeTypeKey, nodeTag} = classifyNode(rawNode, config);
 
     // Some complex values are more useful as tooltip properties than subtrees.
+    // They become (possibly nested) property groups rather than a raw JSON string.
     for (const key of config.alwaysPropertyKeys) {
         if (hasOwnProperty(rawNode, key)) {
-            properties.set(key, forceToString(rawNode[key]));
+            properties.set(key, jsonToPropertyEntry(rawNode[key]));
         }
     }
 
@@ -171,7 +179,7 @@ function convertDecoratedJsonValue(
             continue;
         }
         for (const propertyKey of Object.keys(propertyObject).sort()) {
-            properties.set(propertyKey, forceToString(propertyObject[propertyKey]));
+            properties.set(propertyKey, jsonToPropertyEntry(propertyObject[propertyKey]));
         }
     }
 
@@ -180,7 +188,7 @@ function convertDecoratedJsonValue(
     for (const key of orderedKeys(rawNode, config)) {
         const value = tryToString(rawNode[key]);
         if (value !== undefined) {
-            properties.set(key, value);
+            properties.set(key, {value});
             continue;
         }
 
@@ -196,7 +204,7 @@ function convertDecoratedJsonValue(
         nodeTypeKey !== undefined && nodeTag !== undefined ? config.getRenderingConfig(nodeTypeKey, nodeTag, rawNode) : {};
     const displayName =
         config.getDisplayName?.(rawNode) ??
-        (renderingConfig.displayNameKey === undefined ? undefined : properties.get(renderingConfig.displayNameKey)) ??
+        (renderingConfig.displayNameKey === undefined ? undefined : scalarProperty(renderingConfig.displayNameKey)) ??
         nodeTag ??
         "";
     // Build the converted node before collecting decorations that reference it.
@@ -225,10 +233,10 @@ function convertDecoratedJsonValue(
         state.edgeWidths.push({node: convertedNode, width: cardinality});
         convertedNode.edgeLabel =
             actualCardinality === undefined
-                ? formatMetric(cardinality)
+                ? formatCount(cardinality)
                 : estimatedCardinality === undefined
-                  ? `${formatMetric(actualCardinality)}/?`
-                  : `${formatMetric(actualCardinality)}/${formatMetric(estimatedCardinality)}`;
+                  ? `${formatCount(actualCardinality)}/?`
+                  : `${formatCount(actualCardinality)}/${formatCount(estimatedCardinality)}`;
         const exactCardinality = (value: number) => value.toLocaleString("en-US", {maximumFractionDigits: 3});
         convertedNode.edgeTooltip =
             actualCardinality === undefined
@@ -249,10 +257,14 @@ function convertDecoratedJsonValue(
     // Record crosslinks now and resolve their target nodes after the full tree exists.
     const targetId =
         config.getCrosslinkTarget?.(rawNode) ??
-        (renderingConfig.crosslinkSourceKey === undefined ? undefined : properties.get(renderingConfig.crosslinkSourceKey));
+        (renderingConfig.crosslinkSourceKey === undefined ? undefined : scalarProperty(renderingConfig.crosslinkSourceKey));
     if (targetId !== undefined) {
         state.crosslinks.push({source: convertedNode, targetId});
     }
+
+    // Let the format curate the fully assembled node (e.g. Hyper adds metric
+    // rows read from its `statistics` group).
+    config.enrichNode?.(rawNode, convertedNode, nodeTypeKey, context);
 
     return convertedNode;
 }
