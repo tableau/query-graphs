@@ -51,6 +51,7 @@ export function PlanInsights({root, definitions}: PlanInsightsProps) {
             })),
         [definitions, getNodeId, root],
     ).filter(({categories}) => categories.length > 0);
+    // If there are no insights, don't render this panel at all.
     if (categoryLists.length === 0) return null;
 
     const active = categoryLists.some(({categories}) =>

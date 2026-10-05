@@ -18,6 +18,7 @@ registerHooks({
 
 test("scan-type rows and source highlights use the same semantic node selection", async () => {
     const {PlanInsights} = await import("../src/ui/PlanInsights");
+    // Put one scan in the visible tree and one in a collapsed subtree to exercise both highlight projections.
     const native: TreeNode = {
         properties: new Map([
             ["operator", "scan"],
@@ -80,15 +81,18 @@ test("scan-type rows and source highlights use the same semantic node selection"
             ["native", "virtual-table"],
         );
 
+        // A linked source range activates its category even when the matching node is hidden below a collapsed root.
         await React.act(async () => store.getState().setActiveSourceLocations("query", virtual.sourceLocations!));
         assert.ok(rows[1].classList.contains("qg-insight-category-active"));
         assert.ok(dom.window.document.querySelector(".qg-insights-active-indicator"));
 
+        // Pointer interaction with a category temporarily overrides the source-derived selection and restores it on exit.
         await React.act(async () => rows[0].dispatchEvent(new dom.window.MouseEvent("mouseover", {bubbles: true})));
         assert.deepEqual(store.getState().highlightedNodeIds, new Set(["1"]));
         await React.act(async () => rows[0].dispatchEvent(new dom.window.MouseEvent("mouseout", {bubbles: true})));
         assert.deepEqual(store.getState().highlightedNodeIds, new Set(["2"]));
 
+        // Keyboard focus highlights the same nodes independently after the source-derived selection is cleared.
         await React.act(async () => store.getState().setActiveSourceLocations("query", []));
         await React.act(async () => rows[0].focus());
         assert.deepEqual(store.getState().highlightedNodeIds, new Set(["1"]));
