@@ -12,6 +12,8 @@ interface SourceHighlightSelection {
     documentId: string;
     /** Retained by identity to ignore duplicate editor notifications. */
     sourceLocations: readonly SourceLocation[];
+    /** Nodes linked to the active source locations. */
+    nodeIds: ReadonlySet<string>;
 }
 
 interface HighlightState {
@@ -24,7 +26,6 @@ interface HighlightState {
 }
 
 const noNodeIds: ReadonlySet<string> = new Set();
-const sourceHighlightOwner = Symbol("source");
 
 export interface GraphRenderingState extends HighlightState {
     // `expandedNodes` contains every expandable node and tracks which ones are expanded.
@@ -34,10 +35,10 @@ export interface GraphRenderingState extends HighlightState {
     // `expandedSubtrees` tracks which nodes reveal their `collapsedChildren` (toggled by shift-click or the +/- handle).
     expandedSubtrees: Record<string, boolean>;
     toggleExpandedSubtree: (nodeId: string) => void;
-    /** Temporarily replaces the source-derived highlights while a linked tree node is hovered. */
-    setHoveredNodeId: (nodeId?: string) => void;
-    /** Temporarily highlights a set of nodes; clearing one owner preserves other active hovers. */
-    setTransientHighlightedNodeIds: (owner: string, nodeIds?: ReadonlySet<string>) => void;
+    /** Highlights nodes under the pointer, taking precedence over source and keyboard-focus highlights. */
+    setHoveredNodeIds: (nodeIds?: ReadonlySet<string>) => void;
+    /** Highlights keyboard-focused nodes when neither pointer nor source highlights are active. */
+    setFocusedNodeIds: (nodeIds?: ReadonlySet<string>) => void;
     getNodeId: (node: TreeNode) => string | undefined;
     /** Updates the semantic node highlights from the exact linked ranges active in one document. */
     setActiveSourceLocations: (documentId: string, sourceLocations: readonly SourceLocation[]) => void;
@@ -56,7 +57,8 @@ export interface GraphRenderingStoreOptions {
 
 export function createGraphRenderingStore({graphIndex}: GraphRenderingStoreOptions): GraphRenderingStore {
     let sourceHighlightSelection: SourceHighlightSelection | undefined;
-    const transientHighlights = new Map<string | symbol, ReadonlySet<string>>();
+    let hoveredNodeIds: ReadonlySet<string> | undefined;
+    let focusedNodeIds: ReadonlySet<string> | undefined;
     const initialExpandedNodes = Object.fromEntries(
         [...graphIndex.nodeIds].flatMap(([node, nodeId]) => (node.properties?.size ? [[nodeId, false]] : [])),
     );
@@ -67,8 +69,7 @@ export function createGraphRenderingStore({graphIndex}: GraphRenderingStoreOptio
     return createStore<GraphRenderingState>()((set) => {
         // Materialize the visible tree projection once per interaction so each rendered node can subscribe to a boolean.
         const resolveHighlights = (currentExpandedSubtrees: Readonly<Record<string, boolean>>): HighlightState => {
-            const latestTransient = [...transientHighlights.values()].at(-1);
-            const highlightedNodeIds = latestTransient ?? noNodeIds;
+            const highlightedNodeIds = hoveredNodeIds ?? sourceHighlightSelection?.nodeIds ?? focusedNodeIds ?? noNodeIds;
             const visibleNodeIds = createStructuralNodeVisibility(
                 currentExpandedSubtrees,
                 graphIndex.treeTopology.parents,
@@ -87,12 +88,6 @@ export function createGraphRenderingStore({graphIndex}: GraphRenderingStoreOptio
                 if (highlightedNodeId !== visibleNodeId) highlightedCollapsedAncestorIds.add(visibleNodeId);
             }
             return {highlightedNodeIds, visibleHighlightedNodeIds, highlightedCollapsedAncestorIds};
-        };
-
-        const setTransientHighlightedNodeIds = (owner: string, nodeIds?: ReadonlySet<string>) => {
-            transientHighlights.delete(owner);
-            if (nodeIds !== undefined && nodeIds.size > 0) transientHighlights.set(owner, nodeIds);
-            set((state) => resolveHighlights(state.expandedSubtrees));
         };
 
         return {
@@ -120,9 +115,16 @@ export function createGraphRenderingStore({graphIndex}: GraphRenderingStoreOptio
             highlightedNodeIds: noNodeIds,
             visibleHighlightedNodeIds: noNodeIds,
             highlightedCollapsedAncestorIds: noNodeIds,
-            setHoveredNodeId: (nodeId) =>
-                setTransientHighlightedNodeIds("graph", nodeId === undefined ? undefined : new Set([nodeId])),
-            setTransientHighlightedNodeIds,
+            setHoveredNodeIds: (nodeIds) => {
+                if (hoveredNodeIds === nodeIds) return;
+                hoveredNodeIds = nodeIds?.size ? nodeIds : undefined;
+                set((state) => resolveHighlights(state.expandedSubtrees));
+            },
+            setFocusedNodeIds: (nodeIds) => {
+                if (focusedNodeIds === nodeIds) return;
+                focusedNodeIds = nodeIds?.size ? nodeIds : undefined;
+                set((state) => resolveHighlights(state.expandedSubtrees));
+            },
             getNodeId: (node) => graphIndex.nodeIds.get(node),
             setActiveSourceLocations: (documentId, sourceLocations) => {
                 // An editor can report an empty selection after another document has already become active.
@@ -138,11 +140,8 @@ export function createGraphRenderingStore({graphIndex}: GraphRenderingStoreOptio
                         : {
                               documentId,
                               sourceLocations,
+                              nodeIds: graphIndex.sourceLinks.getNodeIdsForRanges(sourceLocations),
                           };
-                transientHighlights.delete(sourceHighlightOwner);
-                if (sourceLocations.length > 0) {
-                    transientHighlights.set(sourceHighlightOwner, graphIndex.sourceLinks.getNodeIdsForRanges(sourceLocations));
-                }
                 set((state) => resolveHighlights(state.expandedSubtrees));
             },
             getLinkedSourceRanges: graphIndex.sourceLinks.getLinkedRanges,

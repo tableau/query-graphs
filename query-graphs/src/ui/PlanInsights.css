@@ -7,12 +7,12 @@
     background: hsl(210, 90%, 55%);
 }
 
-.qg-insight-histogram h3 {
+.qg-insight-category-list h3 {
     margin: 0 0 0.5em;
     font-size: 0.9em;
 }
 
-.qg-insight-histogram ul {
+.qg-insight-category-list ul {
     padding: 0;
     margin: 0;
     list-style: none;

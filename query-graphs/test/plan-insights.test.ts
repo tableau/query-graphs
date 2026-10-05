@@ -89,13 +89,14 @@ test("scan-type rows and source highlights use the same semantic node selection"
         await React.act(async () => rows[0].dispatchEvent(new dom.window.MouseEvent("mouseout", {bubbles: true})));
         assert.deepEqual(store.getState().highlightedNodeIds, new Set(["2"]));
 
+        await React.act(async () => store.getState().setActiveSourceLocations("query", []));
         await React.act(async () => rows[0].focus());
         assert.deepEqual(store.getState().highlightedNodeIds, new Set(["1"]));
         assert.deepEqual(store.getState().visibleHighlightedNodeIds, new Set(["1"]));
         assert.ok(rows[0].classList.contains("qg-insight-category-active"));
         await React.act(async () => rows[0].blur());
-        assert.deepEqual(store.getState().highlightedNodeIds, new Set(["2"]));
-        assert.deepEqual(store.getState().visibleHighlightedNodeIds, new Set(["0"]));
+        assert.deepEqual(store.getState().highlightedNodeIds, new Set());
+        assert.deepEqual(store.getState().visibleHighlightedNodeIds, new Set());
     } finally {
         await React.act(async () => root.unmount());
         dom.window.close();

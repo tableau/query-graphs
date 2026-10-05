@@ -92,10 +92,10 @@ test("tree-node hover temporarily overrides and then restores source highlightin
 
     store.getState().setActiveSourceLocations("query", [{documentId: "query", from: 0, to: 5}]);
     assert.deepEqual(store.getState().visibleHighlightedNodeIds, new Set(["0"]));
-    store.getState().setHoveredNodeId("1");
+    store.getState().setHoveredNodeIds(new Set(["1"]));
     assert.deepEqual(store.getState().highlightedNodeIds, new Set(["1"]));
     assert.deepEqual(store.getState().visibleHighlightedNodeIds, new Set(["1"]));
-    store.getState().setHoveredNodeId(undefined);
+    store.getState().setHoveredNodeIds(undefined);
     assert.deepEqual(store.getState().highlightedNodeIds, new Set(["0"]));
     assert.deepEqual(store.getState().visibleHighlightedNodeIds, new Set(["0"]));
 
@@ -105,38 +105,41 @@ test("tree-node hover temporarily overrides and then restores source highlightin
     assert.deepEqual(store.getState().highlightedNodeIds, new Set());
 });
 
-test("category hover highlights multiple nodes and restores source selection without stale clears", () => {
+test("category hover highlights multiple nodes and restores source selection", () => {
     const first: TreeNode = {sourceLocations: [{documentId: "query", from: 0, to: 5}]};
     const second: TreeNode = {sourceLocations: [{documentId: "query", from: 10, to: 15}]};
     const store = graphStore([first, second]);
 
     store.getState().setActiveSourceLocations("query", first.sourceLocations!);
-    store.getState().setTransientHighlightedNodeIds("insights:old", new Set(["0", "1"]));
+    store.getState().setHoveredNodeIds(new Set(["0", "1"]));
     assert.deepEqual(store.getState().highlightedNodeIds, new Set(["0", "1"]));
     assert.deepEqual(store.getState().getSourceRangesForNodes("query", store.getState().highlightedNodeIds), [
         ...first.sourceLocations!,
         ...second.sourceLocations!,
     ]);
 
-    store.getState().setTransientHighlightedNodeIds("insights:new", new Set(["1"]));
-    store.getState().setTransientHighlightedNodeIds("insights:old");
-    assert.deepEqual(store.getState().highlightedNodeIds, new Set(["1"]));
-    store.getState().setTransientHighlightedNodeIds("insights:new");
+    store.getState().setHoveredNodeIds(undefined);
     assert.deepEqual(store.getState().highlightedNodeIds, new Set(["0"]));
     assert.equal(store.getState().getNodeId(second), "1");
 });
 
-test("source hover supersedes a focused category and restores it when leaving", () => {
+test("pointer, source, and focus highlights have explicit precedence", () => {
     const first: TreeNode = {sourceLocations: [{documentId: "query", from: 0, to: 5}]};
     const second: TreeNode = {sourceLocations: [{documentId: "query", from: 10, to: 15}]};
     const store = graphStore([first, second]);
 
-    store.getState().setTransientHighlightedNodeIds("insight:focus", new Set(["0"]));
+    store.getState().setFocusedNodeIds(new Set(["0"]));
     assert.deepEqual(store.getState().highlightedNodeIds, new Set(["0"]));
     store.getState().setActiveSourceLocations("query", second.sourceLocations!);
     assert.deepEqual(store.getState().highlightedNodeIds, new Set(["1"]));
+    store.getState().setHoveredNodeIds(new Set(["0", "1"]));
+    assert.deepEqual(store.getState().highlightedNodeIds, new Set(["0", "1"]));
+    store.getState().setHoveredNodeIds(undefined);
+    assert.deepEqual(store.getState().highlightedNodeIds, new Set(["1"]));
     store.getState().setActiveSourceLocations("query", []);
     assert.deepEqual(store.getState().highlightedNodeIds, new Set(["0"]));
+    store.getState().setFocusedNodeIds(undefined);
+    assert.deepEqual(store.getState().highlightedNodeIds, new Set());
 });
 
 // CodeMirror can report the same range-array instance repeatedly; ignoring it avoids unnecessary Zustand rerenders.
