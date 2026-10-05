@@ -1,7 +1,7 @@
 import type {TreeNode} from "../tree-description";
 import {allChildren, visitTreeNodes} from "../tree-description";
 
-/** Describes a category list derived from flat properties on matching plan nodes. */
+/** Describes a category list derived from a property on matching plan nodes. */
 export interface CategoricalInsightDefinition {
     /** Stable identifier used to distinguish this insight from other definitions. */
     id: string;

@@ -39,6 +39,7 @@ export interface GraphRenderingState extends HighlightState {
     setHoveredNodeIds: (nodeIds?: ReadonlySet<string>) => void;
     /** Highlights keyboard-focused nodes when neither pointer nor source highlights are active. */
     setFocusedNodeIds: (nodeIds?: ReadonlySet<string>) => void;
+    /** Returns the graph-local ID assigned to a tree node, if that node belongs to this graph. */
     getNodeId: (node: TreeNode) => string | undefined;
     /** Updates the semantic node highlights from the exact linked ranges active in one document. */
     setActiveSourceLocations: (documentId: string, sourceLocations: readonly SourceLocation[]) => void;
