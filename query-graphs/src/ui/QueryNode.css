@@ -190,6 +190,7 @@
 }
 
 .qg-graph-node-body-wrapper {
+    position: relative;
     max-width: 0;
     max-height: 0;
     overflow: hidden;
@@ -263,7 +264,19 @@
     }
 }
 
-/* A nested, expandable property group (e.g. the raw statistics block). */
+/* A nested, expandable property group (e.g. the raw statistics block).
+   A <button>, so it is keyboard operable, reset to look like a plain row.
+   `:where` keeps the reset below the emphasis classes (e.g. a highlighted header). */
+:where(.qg-prop-group-header) {
+    width: 100%;
+    padding: 0;
+    border: none;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+}
+
 .qg-prop-group-header {
     display: flex;
     align-items: center;

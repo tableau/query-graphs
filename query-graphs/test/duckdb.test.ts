@@ -254,7 +254,7 @@ test("the DuckDB loader accepts forced plans and optional profile fields", () =>
             children: [{operator_name: "DUMMY_SCAN", operator_type: "DUMMY_SCAN", extra_info: {}, children: []}],
         }),
     ).tree.metadata;
-    assert.equal(futureMetadata?.get("future_metadata"), '{"version":1}');
+    assert.deepEqual(futureMetadata?.get("future_metadata"), {value: new Map([["version", {value: 1}]])});
 });
 
 test("DuckDB recognition does not claim generic child trees", () => {

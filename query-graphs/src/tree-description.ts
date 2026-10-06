@@ -12,15 +12,29 @@ export type IconName =
     | "virtual-table-symbol"
     | "const-table-symbol";
 
+// How a numeric property is presented to the user.
+export type NumberFormat =
+    // As an approximate number, using "K" (thousand), "M" (million), "B" (billion) etc. suffixes
+    | "rounded"
+    // As an exact number with thousand separators.
+    // Use this for numbers which must never be rounded (e.g., ids)
+    | "exact"
+    // As a memory unit ("KiB", "MiB", ...). The value is measured in bytes.
+    | "memory-bytes"
+    // As a time unit ("850µs", "12ms", "3.5s", "2.1min"). The value is measured in seconds.
+    | "time-seconds";
+
 // One row in a node's property panel.
 //
 // A row is either a scalar, shown as `name: value`, or a group of nested rows,
 // shown as an expandable sub-tree. Groups let a loader show arbitrary nested
 // JSON (e.g. a plan's `statistics` block) instead of an opaque string.
-// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-export type PropertyEntry = {
-    // The scalar text, or the nested rows of a group.
-    value: string | Map<string, PropertyEntry>;
+export interface PropertyEntry {
+    // The scalar text or number, or the nested rows of a group.
+    // Numbers are kept as such and only formatted when rendered.
+    value: string | number | Map<string, PropertyEntry>;
+    // How to render a numeric value. Unset: as is, without rounding or separators.
+    numberFormat?: NumberFormat;
     // Runtime hotspot (magenta), echoing the node's heat color.
     highlighted?: boolean;
     // Advice worth acting on (green), e.g. a recommended index candidate.
@@ -28,7 +42,7 @@ export type PropertyEntry = {
     recommended?: boolean;
     // Noteworthy fact (blue), e.g. the index a scan used.
     informational?: boolean;
-};
+}
 
 // Must be a `type` instead of the usual `interface`.
 // xyflow's `Node<NodeData>` requires NodeData to satisfy `Record<string, unknown>` and
@@ -106,7 +120,7 @@ export interface TreeDescription {
     /// The tree root
     root: TreeNode;
     /// Metadata about the graph; displayed in the top-level tree label
-    metadata?: Map<string, string>;
+    metadata?: Map<string, PropertyEntry>;
     /// Whether the metadata panel should be visually highlighted
     metadataHighlighted?: boolean;
     /// Additional links between indirectly related nodes

@@ -9,18 +9,12 @@ import type {IconName, TreeDescription, TreeNode} from "../tree-description";
 import type {DecoratedJsonTreeConfig} from "./decorated-json-tree";
 import {convertDecoratedJsonNode, createDecoratedJsonTreeState} from "./decorated-json-tree";
 import type {Json, JsonObject} from "./loader-utils";
-import {hasOwnProperty, hasSubObject, tryToNonNullString, tryToNumber} from "./loader-utils";
+import {applyNumberFormats, getNumericProperty, hasOwnProperty, hasSubObject, tryToNonNullString} from "./loader-utils";
 import {buildIdMap, resolveCrosslinks, setRelativeEdgeWidths} from "./tree-postprocessing";
 import type {JsonPlanLoader, PlanLoadContext} from "./types";
 
 function getStringProperty(rawNode: JsonObject, key: string): string | undefined {
     return tryToNonNullString(rawNode[key]);
-}
-
-// Read a numeric value from a converted node's scalar tooltip property.
-function numericProperty(node: TreeNode, key: string): number | undefined {
-    const entry = node.properties?.get(key);
-    return entry !== undefined && typeof entry.value === "string" ? tryToNumber(entry.value) : undefined;
 }
 
 function getOperatorIcon(operatorType: string, rawNode: JsonObject): IconName | undefined {
@@ -115,10 +109,10 @@ function planChildren(node: TreeNode): TreeNode[] {
 // Parallelized nodes have Actual Loops = Workers Launched + 1 for the leader
 // Not all Postgres plans have a root Execution Time even when children have Actual Total Time
 function colorRelativeExecutionTime(root: TreeNode) {
-    let executionTime = numericProperty(root, "Execution Time");
+    let executionTime = getNumericProperty(root.properties, "Execution Time");
     if (executionTime === undefined) {
         const childExecutionTimes = planChildren(root).flatMap((child) => {
-            const actualTotalTime = numericProperty(child, "Actual Total Time");
+            const actualTotalTime = getNumericProperty(child.properties, "Actual Total Time");
             return actualTotalTime === undefined ? [] : [actualTotalTime];
         });
         executionTime = childExecutionTimes.length === 0 ? undefined : Math.max(...childExecutionTimes);
@@ -132,14 +126,14 @@ function colorRelativeExecutionTime(root: TreeNode) {
 function colorChildRelativeExecutionRatio(node: TreeNode, executionTime: number, degreeOfParallelism: number) {
     let childrenTime = 0;
     if (node.name === "Gather" || node.name === "Gather Merge") {
-        const workersLaunched = numericProperty(node, "Workers Launched");
+        const workersLaunched = getNumericProperty(node.properties, "Workers Launched");
         if (workersLaunched === undefined || workersLaunched < 0) return;
         degreeOfParallelism = workersLaunched + 1; /* leader */
     }
     let childTimingsComplete = true;
     for (const child of planChildren(node)) {
-        const actualTotalTime = numericProperty(child, "Actual Total Time");
-        const actualLoops = numericProperty(child, "Actual Loops");
+        const actualTotalTime = getNumericProperty(child.properties, "Actual Total Time");
+        const actualLoops = getNumericProperty(child.properties, "Actual Loops");
         if (actualTotalTime !== undefined && actualLoops !== undefined) {
             const childLoops = actualLoops / degreeOfParallelism;
             childrenTime += actualTotalTime * childLoops;
@@ -147,8 +141,8 @@ function colorChildRelativeExecutionRatio(node: TreeNode, executionTime: number,
             childTimingsComplete = false;
         }
     }
-    const actualTotalTime = numericProperty(node, "Actual Total Time");
-    const actualLoops = numericProperty(node, "Actual Loops");
+    const actualTotalTime = getNumericProperty(node.properties, "Actual Total Time");
+    const actualLoops = getNumericProperty(node.properties, "Actual Loops");
     if (actualTotalTime !== undefined && actualLoops !== undefined && childTimingsComplete) {
         let nodeLoops = actualLoops;
         if (node.name !== "Gather" && node.name !== "Gather Merge") {
@@ -187,6 +181,8 @@ function loadPostgresPlan(json: Json, context: PlanLoadContext): TreeDescription
     const state = createDecoratedJsonTreeState();
     const root = convertDecoratedJsonNode(json, "result", state, postgresConfig, context);
     colorRelativeExecutionTime(root);
+    // Postgres reports times in milliseconds, so only row counts are formatted.
+    applyNumberFormats(root, ["rounded"]);
     setRelativeEdgeWidths(state.edgeWidths);
     const operatorsById = buildIdMap(root, "Subplan Name");
     const crosslinks = resolveCrosslinks(state.crosslinks, operatorsById);

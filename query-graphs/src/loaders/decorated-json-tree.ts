@@ -12,7 +12,15 @@
 
 import type {IconName, PropertyEntry, SourceLocation, TreeNode} from "../tree-description";
 import type {Json, JsonObject} from "./loader-utils";
-import {formatCount, hasOwnProperty, isJsonObject, jsonToPropertyEntry, tryToNonNullString, tryToString} from "./loader-utils";
+import {
+    formatCount,
+    getScalarProperty,
+    hasOwnProperty,
+    isJsonObject,
+    jsonToPropertyEntry,
+    tryToNonNullString,
+    tryToString,
+} from "./loader-utils";
 import type {UnresolvedCrosslink} from "./tree-postprocessing";
 import {InvalidPlanError, type PlanLoadContext} from "./types";
 
@@ -28,7 +36,7 @@ export interface NodeRenderingConfig {
 export interface DecoratedJsonTreeState {
     crosslinks: UnresolvedCrosslink[];
     edgeWidths: {node: TreeNode; width: number}[];
-    metadata: Map<string, string>;
+    metadata: Map<string, PropertyEntry>;
 }
 
 export function createDecoratedJsonTreeState(): DecoratedJsonTreeState {
@@ -154,11 +162,6 @@ function convertDecoratedJsonValue(
     const expandedChildren: TreeNode[] = [];
     const collapsedChildren: TreeNode[] = [];
     const properties = new Map<string, PropertyEntry>();
-    // A property's text, or `undefined` for a group (which has no single value).
-    const scalarProperty = (key: string): string | undefined => {
-        const entry = properties.get(key);
-        return entry !== undefined && typeof entry.value === "string" ? entry.value : undefined;
-    };
     // Classify semantic nodes before processing their fields so the identifying
     // property can also drive format-specific rendering and source links. It remains
     // in the properties map so generic insights can inspect it.
@@ -186,9 +189,9 @@ function convertDecoratedJsonValue(
     // Display remaining fields adaptively: scalars become tooltip properties,
     // while objects and arrays remain visible in the tree.
     for (const key of orderedKeys(rawNode, config)) {
-        const value = tryToString(rawNode[key]);
-        if (value !== undefined) {
-            properties.set(key, {value});
+        const value = rawNode[key];
+        if (!isJsonObject(value) && !Array.isArray(value)) {
+            properties.set(key, jsonToPropertyEntry(value));
             continue;
         }
 
@@ -204,7 +207,9 @@ function convertDecoratedJsonValue(
         nodeTypeKey !== undefined && nodeTag !== undefined ? config.getRenderingConfig(nodeTypeKey, nodeTag, rawNode) : {};
     const displayName =
         config.getDisplayName?.(rawNode) ??
-        (renderingConfig.displayNameKey === undefined ? undefined : scalarProperty(renderingConfig.displayNameKey)) ??
+        (renderingConfig.displayNameKey === undefined
+            ? undefined
+            : getScalarProperty(properties, renderingConfig.displayNameKey)) ??
         nodeTag ??
         "";
     // Build the converted node before collecting decorations that reference it.
@@ -257,7 +262,9 @@ function convertDecoratedJsonValue(
     // Record crosslinks now and resolve their target nodes after the full tree exists.
     const targetId =
         config.getCrosslinkTarget?.(rawNode) ??
-        (renderingConfig.crosslinkSourceKey === undefined ? undefined : scalarProperty(renderingConfig.crosslinkSourceKey));
+        (renderingConfig.crosslinkSourceKey === undefined
+            ? undefined
+            : getScalarProperty(properties, renderingConfig.crosslinkSourceKey));
     if (targetId !== undefined) {
         state.crosslinks.push({source: convertedNode, targetId});
     }

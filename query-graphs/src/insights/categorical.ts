@@ -1,3 +1,4 @@
+import {getScalarProperty} from "../loaders/loader-utils";
 import type {TreeNode} from "../tree-description";
 import {allChildren, visitTreeNodes} from "../tree-description";
 
@@ -26,8 +27,8 @@ export function computeCategoricalInsight(root: TreeNode, definition: Categorica
     visitTreeNodes(
         root,
         (node) => {
-            if (node.properties?.get(definition.where.property) !== definition.where.equals) return;
-            const value = node.properties?.get(definition.groupBy);
+            if (getScalarProperty(node.properties, definition.where.property) !== definition.where.equals) return;
+            const value = getScalarProperty(node.properties, definition.groupBy);
             if (value === undefined || value === "") return;
             const nodes = groups.get(value) ?? [];
             nodes.push(node);

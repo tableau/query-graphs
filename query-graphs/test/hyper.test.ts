@@ -11,7 +11,7 @@ test("Hyper examples are recognized", () => {
 
 test("Hyper error examples highlight their metadata", () => {
     const tree = loadFixture("hyper/tpch-q11-error-analyze.plan.json").tree;
-    assert.equal(tree.metadata?.get("Error"), "division by zero");
+    assert.equal(tree.metadata?.get("Error")?.value, "division by zero");
     assert.equal(tree.metadataHighlighted, true);
 });
 
@@ -37,9 +37,9 @@ test("Hyper applies rendering, ordering, metrics, and crosslinks", () => {
     const details = tree.root.collapsedChildren?.[0];
 
     assert.equal(tree.root.name, "left-outer");
-    assert.equal(tree.root.properties?.get("operator"), "join");
-    assert.equal(left?.properties?.get("operator"), "scan");
-    assert.equal(left?.properties?.get("type"), "virtual-table");
+    assert.equal(tree.root.properties?.get("operator")?.value, "join");
+    assert.equal(left?.properties?.get("operator")?.value, "scan");
+    assert.equal(left?.properties?.get("type")?.value, "virtual-table");
     assert.equal(tree.root.icon, "left-join-symbol");
     assert.equal(tree.root.nodeColor, "hsl(309, 84%, 72.000%)");
     assert.equal(tree.root.edgeLabel, "100/1");
@@ -68,7 +68,7 @@ test("Hyper lists every property group after the scalar rows", () => {
     ).tree;
     const properties = tree.root.properties;
 
-    const groups = [...(properties ?? [])].filter(([, entry]) => typeof entry.value !== "string").map(([key]) => key);
+    const groups = [...(properties ?? [])].filter(([, entry]) => entry.value instanceof Map).map(([key]) => key);
     assert.deepEqual([...(properties?.keys() ?? [])].slice(-groups.length), groups);
     assert.ok(groups.includes("statistics") && groups.includes("table-metadata"));
 });
@@ -135,11 +135,11 @@ test("Hyper applies pipeline-level runtime statistics to the pipeline driver", (
     ).tree;
     const sort = failedPlan.root.children?.[0];
     const scan = sort?.children?.[0];
-    assert.equal(failedPlan.metadata?.get("Error"), "query failed");
+    assert.equal(failedPlan.metadata?.get("Error")?.value, "query failed");
     assert.equal(failedPlan.metadataHighlighted, true);
     assert.equal(propValue(sort, "pipeline-stats", "cpu-cycles"), "100");
     assert.equal(propValue(sort, "pipeline-stats", "running"), "true");
-    assert.equal(propValue(sort, "pipeline-stats", "query-metrics", "wall-clock"), "0.25");
+    assert.equal(propValue(sort, "pipeline-stats", "query-metrics", "wall-clock"), "250ms");
     assert.equal(propValue(sort, "pipeline-stats", "query-metrics", "custom"), "7");
     assert.equal(propValue(scan, "pipeline-stats", "cpu-cycles"), "25");
     // The hotspot heat is echoed onto the driver's pipeline-stats row.
@@ -212,6 +212,33 @@ test("Hyper lists the raw SQL positions as a property group, offsets unabbreviat
     const root = loadPlanFromText('{"operator":"scan","sqlpos":[[1234,12345]]}', {format: "hyper"}).tree.root;
     assert.equal(propValue(root, "sqlpos", "0", "0"), "1234");
     assert.equal(propValue(root, "sqlpos", "0", "1"), "12345");
+});
+
+test("Hyper keeps the debug name unless it becomes the table or alias", () => {
+    const aliased = loadPlanFromText('{"operator":"tablescan","debug-name":{"value":"lineitem"}}', {format: "hyper"}).tree.root;
+    assert.equal(propValue(aliased, "table-or-alias"), "lineitem");
+    assert.ok(!aliased.properties?.has("debug-name"));
+
+    const unnamed = loadPlanFromText('{"operator":"tablescan","debug-name":{"kind":"generated"}}', {format: "hyper"}).tree.root;
+    assert.ok(!unnamed.properties?.has("table-or-alias"));
+    assert.equal(propValue(unnamed, "debug-name", "kind"), "generated");
+});
+
+test("Hyper rounds row counts and metrics only when rendered, and leaves other numbers as is", () => {
+    const root = loadPlanFromText(
+        JSON.stringify({
+            operator: "tablescan",
+            operatorId: 123456,
+            statistics: {"output-rows": 2345678901, "memory-bytes": 1536, "execution-time": 0.0209},
+        }),
+        {format: "hyper"},
+    ).tree.root;
+    assert.equal(propValue(root, "operatorId"), "123456");
+    assert.equal(root.properties?.get("output-rows")?.value, 2345678901);
+    assert.equal(propValue(root, "output-rows"), "2.3B");
+    assert.equal(propValue(root, "statistics", "output-rows"), "2.3B");
+    assert.equal(propValue(root, "memory-bytes"), "1.5 KiB");
+    assert.equal(propValue(root, "execution-time"), "20.9ms");
 });
 
 test("Hyper surfaces every index attribute as top-level rows", () => {
