@@ -1,4 +1,4 @@
-import type {PropertyEntry, TreeNode} from "../tree-description";
+import type {NumberFormat, PropertyEntry, TreeNode} from "../tree-description";
 import {allChildren, visitTreeNodes} from "../tree-description";
 
 // Stricter type for JSON data
@@ -54,15 +54,6 @@ export function tryToNonNullString(value: unknown): string | undefined {
     return value === undefined || value === null ? undefined : tryToString(value);
 }
 
-// Convert to string. Returns the JSON serialization if not supported.
-export function forceToString(d: unknown): string {
-    let str = tryToString(d);
-    if (str === undefined) {
-        str = JSON.stringify(d);
-    }
-    return str;
-}
-
 export function tryToNumber(value: unknown): number | undefined {
     if (typeof value === "number") {
         return Number.isFinite(value) ? value : undefined;
@@ -74,18 +65,7 @@ export function tryToNumber(value: unknown): number | undefined {
     return undefined;
 }
 
-// Format a number using metric suffixes
-export function formatMetric(x: number): string {
-    const sizes = ["", "k", "M", "G", "T", "P", "E", "Z", "Y"];
-    let idx = 0;
-    while (x > 1000 && idx < sizes.length - 1) {
-        x /= 1000;
-        ++idx;
-    }
-    return x.toFixed(0) + sizes[idx];
-}
-
-// Format a row count using count suffixes (K/M/B/T for thousand, million,
+// Format a count using count suffixes (K/M/B/T for thousand, million,
 // billion, trillion) rather than the metric `G`. Scaled values below 100 keep
 // one decimal (`1.2B`), so large counts stay distinguishable; unscaled values
 // keep three significant digits (`57.5`, `0.476`), so small fractions survive.
@@ -114,17 +94,59 @@ export function formatBytes(bytes: number): string {
         value /= 1024;
         ++idx;
     }
+    // Rounding may carry into the next unit (1023.96 KiB → "1024.0 KiB" → "1.0 MiB").
+    if (idx > 0 && Math.abs(Number(value.toFixed(1))) >= 1024 && idx < units.length - 1) {
+        value /= 1024;
+        ++idx;
+    }
     return `${idx === 0 ? value.toString() : value.toFixed(1)} ${units[idx]}`;
 }
 
-// The first argument that is a finite number, if any.
-export function firstNumber(...values: unknown[]): number | undefined {
-    for (const value of values) {
-        if (typeof value === "number" && Number.isFinite(value)) {
-            return value;
-        }
+// Format a duration given in seconds with three significant digits in the
+// largest fitting unit (`8.51µs`, `20.9ms`, `1.5s`, `2.5min`, `1.2h`).
+export function formatSeconds(seconds: number): string {
+    const units: [string, number][] = [
+        ["µs", 1e-6],
+        ["ms", 1e-3],
+        ["s", 1],
+        ["min", 60],
+        ["h", 3600],
+    ];
+    let idx = 0;
+    while (idx < units.length - 1 && Math.abs(seconds) >= units[idx + 1][1]) ++idx;
+    let rounded = Number((seconds / units[idx][1]).toPrecision(3));
+    // Rounding may carry into the next unit (999.6ms → "1000ms" → "1s", 59.96s → "60s" → "1min").
+    if (idx < units.length - 1 && Math.abs(rounded) * units[idx][1] >= units[idx + 1][1]) {
+        rounded = Number(((rounded * units[idx][1]) / units[idx + 1][1]).toPrecision(3));
+        ++idx;
     }
-    return undefined;
+    return `${rounded}${units[idx][0]}`;
+}
+
+// Format a number exactly, with thousand separators and every fraction digit.
+export function formatExact(x: number): string {
+    return x.toLocaleString("en-US", {maximumFractionDigits: 20});
+}
+
+export function formatNumber(x: number, format: NumberFormat | undefined): string {
+    switch (format) {
+        case "rounded":
+            return formatCount(x);
+        case "exact":
+            return formatExact(x);
+        case "memory-bytes":
+            return formatBytes(x);
+        case "time-seconds":
+            return formatSeconds(x);
+        case undefined:
+            return x.toString();
+    }
+}
+
+// The text shown for a scalar property; groups have no single value.
+export function formatPropertyValue(entry: PropertyEntry): string | undefined {
+    if (typeof entry.value === "number") return formatNumber(entry.value, entry.numberFormat);
+    return typeof entry.value === "string" ? entry.value : undefined;
 }
 
 // Reorder a property map so the listed keys appear first, in the given order,
@@ -156,8 +178,11 @@ export function stringMapToProperties(map: Map<string, string>): Map<string, Pro
 }
 
 // Convert any JSON value into a property row: objects and arrays become groups
-// (array items keyed by index), scalars become strings.
+// (array items keyed by index), empty ones the text `{}` or `[]`, numbers stay
+// numbers (formatted only when rendered), and the remaining scalars become strings.
 export function jsonToPropertyEntry(value: Json): PropertyEntry {
+    if (isJsonObject(value) && Object.keys(value).length === 0) return {value: "{}"};
+    if (Array.isArray(value) && value.length === 0) return {value: "[]"};
     if (isJsonObject(value)) {
         const nested = new Map<string, PropertyEntry>();
         for (const key of Object.keys(value)) {
@@ -172,99 +197,72 @@ export function jsonToPropertyEntry(value: Json): PropertyEntry {
         });
         return {value: nested};
     }
-    return {value: forceToString(value)};
+    return {value: typeof value === "number" ? value : String(value)};
 }
 
-// Matches attribute names that mention "rows" as a word, across naming styles
-// ("Plan Rows", "output-rows", "r_rows", "outputRows"), but not words that
-// merely contain the letters ("rowstate", "throws").
-const rowAttributePattern = /(?:^|[^a-zA-Z])[Rr]ows(?![a-z])|[a-z]Rows(?![a-z])/;
-
-export function isRowAttribute(name: string): boolean {
-    return rowAttributePattern.test(name);
+// Read a scalar property as a string; groups have no single value.
+export function getScalarProperty(properties: Map<string, PropertyEntry> | undefined, key: string): string | undefined {
+    const value = properties?.get(key)?.value;
+    return typeof value === "string" ? value : typeof value === "number" ? value.toString() : undefined;
 }
 
-// Matches CPU-cycle attributes across naming styles ("cpu-cycles", "CPU Cycles", "cpuCycles").
-const cpuCyclesAttributePattern = /cpu[-_ ]?cycles/i;
-
-// Matches index attributes across naming styles ("Index Name", "used-index",
-// "available-indexes", "indexRecommendationCandidate", "usedIndex"), but not
-// ordinal IDs such as DuckDB's "Table Index" / "CTE Index".
-const indexAttributePattern = /(?:^|[^a-zA-Z])[Ii]ndex|[a-z]Index/;
-const ordinalIndexPattern = / Index$/;
-
-export function isIndexAttribute(name: string): boolean {
-    return indexAttributePattern.test(name) && !ordinalIndexPattern.test(name);
+// Read a scalar property as a number, if it is one or parses as one.
+export function getNumericProperty(properties: Map<string, PropertyEntry> | undefined, key: string): number | undefined {
+    const value = properties?.get(key)?.value;
+    return value instanceof Map ? undefined : tryToNumber(value);
 }
 
-// Attributes copied out of nested groups to the top level: row counts and CPU cycles.
-function isNestedSurfacedAttribute(name: string): boolean {
-    return isRowAttribute(name) || cpuCyclesAttributePattern.test(name);
-}
-
-// Attributes that get special treatment at a node's top level: row counts, CPU
-// cycles and indexes. Unlike the others, index attributes are never copied out
-// of nested groups (e.g. `statistics.index-recommender` stays put).
-export function isSurfacedAttribute(name: string): boolean {
-    return isNestedSurfacedAttribute(name) || isIndexAttribute(name);
-}
-
-// Flatten an index group into scalar rows named by their path
-// (`<group>.<key>`, e.g. `used-index.name`), so index details read at a glance.
-function flattenIndexGroup(prefix: string, group: Map<string, PropertyEntry>, out: [string, PropertyEntry][]): void {
-    for (const [key, entry] of group) {
-        const path = `${prefix}.${key}`;
-        if (typeof entry.value === "string") out.push([path, entry]);
-        else flattenIndexGroup(path, entry.value, out);
+// Follow a path of keys into nested property groups.
+export function getPropertyPath(
+    properties: Map<string, PropertyEntry> | undefined,
+    path: readonly string[],
+): PropertyEntry | undefined {
+    let entry: PropertyEntry | undefined = undefined;
+    let group = properties;
+    for (const key of path) {
+        entry = group?.get(key);
+        group = entry?.value instanceof Map ? entry.value : undefined;
     }
+    return entry;
 }
 
-// Format a numeric scalar row value as a compact count; anything else (groups,
-// booleans, already formatted text) is returned unchanged.
-function formatRowCount(value: PropertyEntry["value"]): PropertyEntry["value"] {
-    if (typeof value !== "string") return value;
-    const count = tryToNumber(value);
-    return count === undefined ? value : formatCount(count);
+// A row count: a top-level property name, or the path to one nested in
+// property groups (e.g. `["statistics", "output-rows"]`).
+export type RowProperty = string | readonly string[];
+
+export interface SurfaceRowOptions {
+    // The plan format's row counts (and similar figures, such as CPU cycles),
+    // by their exact names.
+    rowProps: readonly RowProperty[];
 }
 
-// Collect surfaced attributes nested anywhere inside property groups, depth-first.
-function collectNestedRowAttributes(group: Map<string, PropertyEntry>, found: [string, PropertyEntry][]): void {
-    for (const [key, entry] of group) {
-        if (isNestedSurfacedAttribute(key)) found.push([key, entry]);
-        if (typeof entry.value !== "string") collectNestedRowAttributes(entry.value, found);
-    }
-}
-
-// Bring a node's row counts and CPU cycles (see `isSurfacedAttribute`) to its
-// top level, so they show without opening any group:
-// - top-level ones are formatted compactly via `formatCount`;
-// - ones nested in groups are copied (formatted) to the top level, right after
-//   the last top-level row attribute; the groups themselves are left as is;
-// - a top-level index group is also flattened into rows, unless recommended.
-// On a name clash, the top-level row wins, then the first nested one found.
+// Show a node's row counts without opening any group: nested ones are copied to the top level under their own
+// name, right after the last top-level row count. On a name clash, the
+// top-level row wins, then the first listed path. Groups are never surfaced.
 // Returns the (possibly reordered) properties.
-export function surfaceNodeRowAttributes(properties: Map<string, PropertyEntry>): Map<string, PropertyEntry> {
-    const nested: [string, PropertyEntry][] = [];
-    let insertAfter: string | undefined;
-    for (const [key, entry] of properties) {
-        if (isSurfacedAttribute(key)) {
-            entry.value = formatRowCount(entry.value);
-            insertAfter = key;
-            // Recommended groups stay whole, so they read as one suggestion.
-            if (typeof entry.value !== "string" && isIndexAttribute(key) && !entry.recommended) {
-                flattenIndexGroup(key, entry.value, nested);
-            }
-        }
-        if (typeof entry.value !== "string") collectNestedRowAttributes(entry.value, nested);
-    }
+export function surfaceNodeRowAttributes(
+    properties: Map<string, PropertyEntry>,
+    {rowProps}: SurfaceRowOptions,
+): Map<string, PropertyEntry> {
+    const topLevel = new Set<string>();
     const surfaced = new Map<string, PropertyEntry>();
-    for (const [key, entry] of nested) {
-        if (!properties.has(key) && !surfaced.has(key)) {
-            surfaced.set(key, {...entry, value: formatRowCount(entry.value)});
+    for (const rowProp of rowProps) {
+        const path = typeof rowProp === "string" ? [rowProp] : rowProp;
+        const entry = getPropertyPath(properties, path);
+        if (entry === undefined || entry.value instanceof Map) continue;
+        const name = path[path.length - 1];
+        if (path.length === 1) {
+            topLevel.add(name);
+        } else if (!properties.has(name) && !surfaced.has(name)) {
+            surfaced.set(name, {...entry});
         }
     }
     if (surfaced.size === 0) return properties;
 
+    let insertAfter: string | undefined;
+    for (const key of properties.keys()) {
+        if (topLevel.has(key)) insertAfter = key;
+    }
     const reordered = new Map<string, PropertyEntry>(insertAfter === undefined ? surfaced : []);
     for (const [key, entry] of properties) {
         reordered.set(key, entry);
@@ -273,12 +271,76 @@ export function surfaceNodeRowAttributes(properties: Map<string, PropertyEntry>)
     return reordered;
 }
 
-// Apply `surfaceNodeRowAttributes` to every node, for all plan formats.
-export function surfaceRowAttributes(root: TreeNode): void {
+const otherUnits = ["ns", "us", "ms", "kb", "mb", "gb", "kib", "mib", "gib"];
+
+// The lowercase words of a property name, split on separators and camelCase.
+function nameWords(name: string): string[] {
+    return name.split(/[^a-zA-Z]+|(?<=[a-z])(?=[A-Z])/).map((word) => word.toLowerCase());
+}
+
+// Whether a name states a unit we don't format (`memory-mb`, `total_ms`).
+function hasOtherUnit(name: string): boolean {
+    const words = nameWords(name);
+    return otherUnits.some((unit) => words.includes(unit));
+}
+
+// Infer a number's display format from the words of its property name:
+// counts of rows or cycles are `rounded`, memory and bytes are
+// `memory-bytes`, and time, elapsed, clock or seconds are `time-seconds`.
+// Names with another unit (`memory-mb`, `total_time_ms`) and other names
+// (ids, codes, ratios) get none.
+export function inferNumberFormat(name: string): NumberFormat | undefined {
+    if (hasOtherUnit(name)) return undefined;
+    const words = new Set(nameWords(name));
+    if (words.has("rows") || words.has("cycles")) return "rounded";
+    if (words.has("memory") || words.has("bytes")) return "memory-bytes";
+    if (words.has("time") || words.has("elapsed") || words.has("clock") || words.has("seconds")) return "time-seconds";
+    return undefined;
+}
+
+// Set the display format of numbers in properties, at any depth, from their
+// names via `inferNumberFormat`. A group named for a measure by its last word
+// (`processed-rows`, `wall-clock`) passes its format to the numbers inside it
+// whose own name implies none; others (`memory-stats`) don't. Neither do
+// groups or numbers named with another unit (`wall-clock-ms`). `accepted`
+// limits the formats used, e.g. for plans reporting milliseconds.
+export function applyPropertyNumberFormats(
+    properties: Map<string, PropertyEntry>,
+    accepted?: readonly NumberFormat[],
+    inherited?: NumberFormat,
+): void {
+    const accept = (format: NumberFormat | undefined) =>
+        format !== undefined && accepted?.includes(format) !== false ? format : undefined;
+    for (const [key, entry] of properties) {
+        if (entry.value instanceof Map) {
+            const groupFormat = hasOtherUnit(key)
+                ? undefined
+                : (accept(inferNumberFormat(nameWords(key).at(-1) ?? "")) ?? inherited);
+            applyPropertyNumberFormats(entry.value, accepted, groupFormat);
+        } else if (typeof entry.value === "number") {
+            const format = hasOtherUnit(key) ? undefined : (accept(inferNumberFormat(key)) ?? inherited);
+            if (format !== undefined) entry.numberFormat = format;
+        }
+    }
+}
+
+// Apply `applyPropertyNumberFormats` to every node of a loaded plan.
+export function applyNumberFormats(root: TreeNode, accepted?: readonly NumberFormat[]): void {
     visitTreeNodes(
         root,
         (node) => {
-            if (node.properties !== undefined) node.properties = surfaceNodeRowAttributes(node.properties);
+            if (node.properties !== undefined) applyPropertyNumberFormats(node.properties, accepted);
+        },
+        allChildren,
+    );
+}
+
+// Apply `surfaceNodeRowAttributes` to every node of a loaded plan.
+export function surfaceRowAttributes(root: TreeNode, options: SurfaceRowOptions): void {
+    visitTreeNodes(
+        root,
+        (node) => {
+            if (node.properties !== undefined) node.properties = surfaceNodeRowAttributes(node.properties, options);
         },
         allChildren,
     );
@@ -294,14 +356,14 @@ function isEmphasized(entry: PropertyEntry): boolean {
 // keys compare as numbers, so `2` precedes `10`).
 export function trailNestedGroups(properties: Map<string, PropertyEntry>): void {
     const groups = [...properties]
-        .filter(([, entry]) => typeof entry.value !== "string")
+        .filter((row): row is [string, PropertyEntry & {value: Map<string, PropertyEntry>}] => row[1].value instanceof Map)
         .sort(
             ([leftKey, left], [rightKey, right]) =>
                 Number(isEmphasized(right)) - Number(isEmphasized(left)) ||
                 leftKey.localeCompare(rightKey, undefined, {numeric: true}),
         );
     for (const [key, entry] of groups) {
-        trailNestedGroups(entry.value as Map<string, PropertyEntry>);
+        trailNestedGroups(entry.value);
         // Re-inserting moves the entry to the end of the map's iteration order.
         properties.delete(key);
         properties.set(key, entry);
@@ -317,18 +379,4 @@ export function trailPropertyGroups(root: TreeNode): void {
         },
         allChildren,
     );
-}
-
-// Format every number inside a property group, at any depth, via
-// `formatCount` (`2.3B` rather than `2345678901`). Non-numeric values are
-// left as they are; nothing is hidden or dropped.
-export function formatNumbers(group: Map<string, PropertyEntry>): void {
-    for (const entry of group.values()) {
-        if (typeof entry.value !== "string") {
-            formatNumbers(entry.value);
-            continue;
-        }
-        const value = tryToNumber(entry.value);
-        if (value !== undefined) entry.value = formatCount(value);
-    }
 }

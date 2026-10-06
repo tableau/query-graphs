@@ -1,5 +1,6 @@
 import type {Crosslink, TreeNode} from "../tree-description";
 import {allChildren, visitTreeNodes} from "../tree-description";
+import {getScalarProperty} from "./loader-utils";
 
 export interface UnresolvedCrosslink {
     source: TreeNode;
@@ -11,9 +12,9 @@ export function buildIdMap(root: TreeNode, key: string): Map<string, TreeNode> {
     visitTreeNodes(
         root,
         (node) => {
-            const entry = node.properties?.get(key);
-            if (entry !== undefined && typeof entry.value === "string") {
-                idMap.set(entry.value, node);
+            const id = getScalarProperty(node.properties, key);
+            if (id !== undefined) {
+                idMap.set(id, node);
             }
         },
         allChildren,

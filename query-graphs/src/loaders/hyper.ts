@@ -14,20 +14,15 @@ known.
 
 import type {Crosslink, PropertyEntry, TreeDescription, TreeNode} from "../tree-description";
 import {allChildren, visitTreeNodes} from "../tree-description";
-import type {Json, JsonObject} from "./loader-utils";
+import type {Json, JsonObject, SurfaceRowOptions} from "./loader-utils";
 import {
-    firstNumber,
-    forceToString,
-    formatBytes,
-    formatCount,
-    formatNumbers,
-    formatMetric,
+    applyNumberFormats,
+    getPropertyPath,
     hasOwnProperty,
     isJsonObject,
-    isRowAttribute,
     jsonToPropertyEntry,
     reorderProperties,
-    surfaceNodeRowAttributes,
+    surfaceRowAttributes,
     tryGetPropertyPath,
     tryToNumber,
     tryToString,
@@ -140,20 +135,37 @@ function containsOperator(value: Json): boolean {
     return isJsonObject(value) && hasOwnProperty(value, "operator");
 }
 
-// Curated operator tooltip rows, in display order after `table-or-alias` and
-// every row attribute (see `isRowAttribute`). Unlisted rows such as
+// Row counts and CPU cycles, shown at an operator's top level (nested ones are
+// copied there), so they read without opening any group.
+const hyperRows: SurfaceRowOptions = {
+    rowProps: [
+        "estimated-rows",
+        ["statistics", "estimated-rows"],
+        ["statistics", "output-rows"],
+        ["statistics", "processed-rows"],
+        ["statistics", "rows-matching-restrictions"],
+        ["pipeline-stats", "query-metrics", "additional-entries", "scan-stats", "rows-matching-restrictions"],
+        ["pipeline-stats", "cpu-cycles"],
+    ],
+};
+
+// Curated operator tooltip rows, in display order. Unlisted rows such as
 // `operator-id` keep their order after these; groups always come last.
-const operatorMetricOrder = ["memory-bytes", "cpu-cycles", "execution-time"] as const;
+const operatorRowOrder = [
+    "table-or-alias",
+    "estimated-rows",
+    "output-rows",
+    "processed-rows",
+    "rows-matching-restrictions",
+    "memory-bytes",
+    "cpu-cycles",
+    "execution-time",
+] as const;
 
 // Read a numeric member of a converted, possibly nested statistics group.
 function readStatistic(node: TreeNode, path: readonly string[]): number | undefined {
-    let entry: PropertyEntry | undefined = node.properties?.get(path[0]);
-    for (let i = 1; i < path.length; ++i) {
-        if (entry === undefined || typeof entry.value === "string") return undefined;
-        entry = entry.value.get(path[i]);
-    }
-    if (entry === undefined || typeof entry.value !== "string") return undefined;
-    return tryToNumber(entry.value);
+    const value = getPropertyPath(node.properties, path)?.value;
+    return value instanceof Map ? undefined : tryToNumber(value);
 }
 
 // Curate an operator's rows: name, key metrics and index details on top, while
@@ -162,25 +174,25 @@ function enrichOperatorNode(rawNode: JsonObject, node: TreeNode): void {
     const properties = node.properties ?? new Map<string, PropertyEntry>();
     const statistics = isJsonObject(rawNode["statistics"]) ? rawNode["statistics"] : {};
 
-    const setMetric = (key: string, value: number | undefined, format: (n: number) => string): void => {
-        if (value !== undefined) {
-            properties.set(key, {value: format(value)});
+    const setMetric = (key: string, value: unknown): void => {
+        if (typeof value === "number" && Number.isFinite(value)) {
+            properties.set(key, {value});
         }
     };
 
-    // Identity: prefer the human-readable table or alias name over the raw dump.
+    // Identity: prefer the human-readable table or alias name over the raw dump,
+    // which it then replaces. (`sqlpos` is kept: it is listed and also links to the SQL text.)
     const tableOrAlias = tryGetPropertyPath(rawNode, ["debug-name", "value"]);
     if (typeof tableOrAlias === "string") {
         properties.set("table-or-alias", {value: tableOrAlias});
+        properties.delete("debug-name");
     }
-    // Replaced by `table-or-alias`. (`sqlpos` is kept: it is listed and also links to the SQL text.)
-    properties.delete("debug-name");
 
-    // Resource metrics, copied out of `statistics` with units. Row counts need no
-    // curation here: `surfaceNodeRowAttributes` lifts every row attribute.
-    setMetric("memory-bytes", firstNumber(statistics["memory-bytes"]), formatBytes);
-    setMetric("cpu-cycles", firstNumber(statistics["cpu-cycles"]), formatCount);
-    setMetric("execution-time", firstNumber(statistics["execution-time"]), formatMetric);
+    // Resource metrics, copied out of `statistics`. Row counts are surfaced
+    // once the whole plan is converted (see `hyperRows`).
+    setMetric("memory-bytes", statistics["memory-bytes"]);
+    setMetric("cpu-cycles", statistics["cpu-cycles"]);
+    setMetric("execution-time", statistics["execution-time"]);
 
     // Show the index-recommendation candidate only when the recommender actually suggests it.
     const recommended = ["statistics", "analyze"].some(
@@ -216,10 +228,7 @@ function enrichOperatorNode(rawNode: JsonObject, node: TreeNode): void {
         const group = jsonToPropertyEntry(tableMetadata).value as Map<string, PropertyEntry>;
         properties.set("table-metadata", {value: reorderProperties(group, ["identifier", "partitioned-by", "sort-order"])});
     }
-
-    const surfaced = surfaceNodeRowAttributes(properties);
-    const rowKeys = [...surfaced.keys()].filter(isRowAttribute);
-    node.properties = reorderProperties(surfaced, ["table-or-alias", ...rowKeys, ...operatorMetricOrder]);
+    node.properties = properties;
 }
 
 const hyperConfig: DecoratedJsonTreeConfig = {
@@ -306,7 +315,7 @@ function highlightHotspots(root: TreeNode): void {
             }
             // Carried over when `surfaceRowAttributes` lifts it to the top level.
             const pipelineStats = node.properties?.get("pipeline-stats")?.value;
-            const pipelineCycles = typeof pipelineStats === "string" ? undefined : pipelineStats?.get("cpu-cycles");
+            const pipelineCycles = pipelineStats instanceof Map ? pipelineStats.get("cpu-cycles") : undefined;
             if (pipelineCycles !== undefined) pipelineCycles.highlighted = true;
         },
         allChildren,
@@ -364,7 +373,7 @@ function parsePipelines(pipelinesJson: Json, operatorsById: Map<string, TreeNode
     return pipelines;
 }
 
-function applyPipelineStatistics(pipelines: HyperPipeline[], metadata: Map<string, string>): void {
+function applyPipelineStatistics(pipelines: HyperPipeline[], metadata: Map<string, PropertyEntry>): void {
     const cpuCycles: {node: TreeNode; value: number}[] = [];
     for (const pipeline of pipelines) {
         if (pipeline.driver !== undefined && pipeline.statistics !== undefined) {
@@ -385,15 +394,14 @@ function applyPipelineStatistics(pipelines: HyperPipeline[], metadata: Map<strin
     colorRelativeNumber(cpuCycles);
 }
 
-// Format every number inside each node's property groups, except the SQL byte
-// offsets in `sqlpos`, which are positions rather than counts.
-function formatPropertyGroups(root: TreeNode): void {
+// Surface, format and order each operator's statistics rows.
+function curateStatisticsRows(root: TreeNode): void {
+    surfaceRowAttributes(root, hyperRows);
+    applyNumberFormats(root);
     visitTreeNodes(
         root,
         (node) => {
-            for (const [key, entry] of node.properties ?? []) {
-                if (key !== "sqlpos" && typeof entry.value !== "string") formatNumbers(entry.value);
-            }
+            if (node.properties !== undefined) node.properties = reorderProperties(node.properties, operatorRowOrder);
         },
         allChildren,
     );
@@ -403,7 +411,7 @@ function convertHyperPlan(node: Json, context: PlanLoadContext, pipelines?: Json
     const state = createDecoratedJsonTreeState();
     const errorMessage = tryGetPropertyPath(node, ["statistics", "error", "message", "original"]);
     if (errorMessage) {
-        state.metadata.set("Error", forceToString(errorMessage));
+        state.metadata.set("Error", jsonToPropertyEntry(errorMessage));
     }
 
     const root = convertDecoratedJsonNode(node, "result", state, hyperConfig, context);
@@ -418,8 +426,7 @@ function convertHyperPlan(node: Json, context: PlanLoadContext, pipelines?: Json
         applyLegacyOperatorStatistics(root);
     }
     highlightHotspots(root);
-    // Runs last: statistics coloring above reads these figures back as numbers.
-    formatPropertyGroups(root);
+    curateStatisticsRows(root);
     return {root, crosslinks, metadata: state.metadata, metadataHighlighted: state.metadata.has("Error") || undefined};
 }
 
@@ -448,7 +455,7 @@ function convertOptimizerSteps(node: Json, context: PlanLoadContext): TreeDescri
 
     const crosslinks: Crosslink[] = [];
     const children: TreeNode[] = [];
-    const metadata = new Map<string, string>();
+    const metadata = new Map<string, PropertyEntry>();
     let metadataHighlighted = false;
     for (const step of steps) {
         if (typeof step !== "object" || Array.isArray(step) || step === null) return undefined;
@@ -467,7 +474,7 @@ function convertOptimizerSteps(node: Json, context: PlanLoadContext): TreeDescri
         crosslinks.push(...(newCrosslinks ?? []));
         metadataHighlighted ||= childMetadataHighlighted ?? false;
         children.push({name, properties: extraProperties(step, ["name", "plan"]), children: [childRoot]});
-        for (const property of newProperties ?? new Map<string, string>()) {
+        for (const property of newProperties ?? new Map<string, PropertyEntry>()) {
             metadata.set(property[0], property[1]);
         }
     }
