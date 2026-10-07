@@ -7,7 +7,7 @@ export const animationSpeedOptions = [
     {value: "fast", label: "Fast", duration: 100},
     {value: "medium", label: "Medium", duration: 200},
     {value: "slow", label: "Slow", duration: 500},
-    {value: "excruciating", label: "Excruciatingly slow", duration: 2000},
+    {value: "debug", label: "Debug", duration: 5000},
 ] as const;
 
 export type AnimationSpeed = (typeof animationSpeedOptions)[number]["value"];
@@ -42,15 +42,15 @@ function settingsFromJson(serialized: string | null | undefined): SettingsValues
     return settings;
 }
 
-function loadSettings(): SettingsValues {
-    try {
-        return settingsFromJson(localStorage.getItem(settingsStorageKey));
-    } catch {
-        return defaultSettings;
-    }
-}
-
 export function createSettingsStore(): StoreApi<ApplicationSettingsState> {
+    function loadSettings(): SettingsValues {
+        try {
+            return settingsFromJson(localStorage.getItem(settingsStorageKey));
+        } catch {
+            return defaultSettings;
+        }
+    }
+
     const store = createStore<ApplicationSettingsState>()((set) => ({
         values: loadSettings(),
         setSettings: (settings) =>

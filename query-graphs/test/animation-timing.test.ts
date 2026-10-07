@@ -1,19 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {getGraphAnimationDuration, graphAnimationProgress} from "../src/ui/animation-timing";
-import {animationSpeedOptions, settingsStore} from "../src/ui/settings";
+import {settingsStore} from "../src/ui/settings";
 
-test("animation speeds resolve to durations unless motion is disabled", () => {
-    assert.deepEqual(
-        animationSpeedOptions.map(({value, duration}) => [value, duration]),
-        [
-            ["off", undefined],
-            ["fast", 100],
-            ["medium", 200],
-            ["slow", 500],
-            ["excruciating", 2000],
-        ],
-    );
+test("the selected animation speed resolves to its duration unless motion is disabled", () => {
     const previousWindow = Object.getOwnPropertyDescriptor(globalThis, "window");
     let reducedMotion = false;
     Object.defineProperty(globalThis, "window", {

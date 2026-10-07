@@ -44,7 +44,7 @@ test("settings load recognized properties and ignore unknown properties", () => 
     const valid = memoryStorage(JSON.stringify({animationSpeed: "slow", futureSetting: true}));
     withBrowserStorage(valid, () => assert.equal(createSettingsStore().getState().values.animationSpeed, "slow"));
 
-    for (const invalid of ["not JSON", JSON.stringify({futureSetting: true}), JSON.stringify({animationSpeed: "instant"})]) {
+    for (const invalid of ["not JSON", JSON.stringify({futureSetting: true}), JSON.stringify({animationSpeed: "no-such-speed"})]) {
         const storage = memoryStorage(invalid);
         withBrowserStorage(storage, () => assert.equal(createSettingsStore().getState().values.animationSpeed, "medium"));
     }
@@ -57,9 +57,9 @@ test("settings updates persist and reset to defaults", () => {
         let updates = 0;
         const unsubscribe = store.subscribe(() => updates++);
 
-        store.getState().setSettings({animationSpeed: "excruciating"});
-        assert.equal(store.getState().values.animationSpeed, "excruciating");
-        assert.deepEqual(JSON.parse(storage.getItem(storageKey)!), {animationSpeed: "excruciating"});
+        store.getState().setSettings({animationSpeed: "debug"});
+        assert.equal(store.getState().values.animationSpeed, "debug");
+        assert.deepEqual(JSON.parse(storage.getItem(storageKey)!), {animationSpeed: "debug"});
 
         store.getState().resetSettings();
         assert.equal(store.getState().values.animationSpeed, "medium");

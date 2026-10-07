@@ -103,7 +103,7 @@ test("settings panel offers every animation speed and a reset action", async () 
                 ["fast", "Fast"],
                 ["medium", "Medium"],
                 ["slow", "Slow"],
-                ["excruciating", "Excruciatingly slow"],
+                ["debug", "Debug"],
             ],
         );
         assert.equal(panel?.querySelector("footer button")?.textContent, "Reset to defaults");
