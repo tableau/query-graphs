@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {getGraphAnimationDuration, graphAnimationProgress} from "../src/ui/animation-timing";
-import {settingsStore} from "../src/ui/settings";
 
 test("the selected animation speed resolves to its duration unless motion is disabled", () => {
     const previousWindow = Object.getOwnPropertyDescriptor(globalThis, "window");
@@ -11,12 +10,10 @@ test("the selected animation speed resolves to its duration unless motion is dis
         value: {matchMedia: () => ({matches: reducedMotion})},
     });
     try {
-        settingsStore.getState().setSettings({animationSpeed: "slow"});
-        assert.equal(getGraphAnimationDuration(), 500);
+        assert.equal(getGraphAnimationDuration("slow"), 500);
         reducedMotion = true;
-        assert.equal(getGraphAnimationDuration(), undefined);
+        assert.equal(getGraphAnimationDuration("slow"), undefined);
     } finally {
-        settingsStore.getState().setSettings({animationSpeed: "medium"});
         if (previousWindow === undefined) Reflect.deleteProperty(globalThis, "window");
         else Object.defineProperty(globalThis, "window", previousWindow);
     }

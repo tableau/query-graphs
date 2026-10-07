@@ -165,6 +165,8 @@ function MyPlanViewer({planText}: {planText: string}) {
 }
 ```
 
+`animationSpeed` selects the graph-transition duration and defaults to `"medium"`; the browser's reduced-motion preference always disables those transitions. Hosts can append buttons beside the built-in graph controls through `additionalControls`. Use the exported `QueryGraphControlButton` for matching React Flow styling without depending on React Flow directly.
+
 Pass `{format: "hyper"}` (or another registered format) as the second argument to bypass automatic format detection.
 
 The component imports its own CSS (`QueryGraph.css`, `QueryNode.css`, `NodeIcon.css`) and react-flow's default stylesheet; with a bundler that honors the package's `sideEffects`, those styles are included automatically when you import the component.

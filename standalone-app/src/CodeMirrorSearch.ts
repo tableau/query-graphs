@@ -171,7 +171,14 @@ class CompactSearchPanel implements Panel {
     }
 }
 
-const compactSearchTheme = EditorView.theme({
+const compactSearchTheme = EditorView.baseTheme({
+    "&": {
+        // These fallbacks adapt to any theme's foreground color. Themes with
+        // an exposed palette can override them with more specific colors.
+        "--qg-control-hover-background": "color-mix(in srgb, currentColor 10%, transparent)",
+        "--qg-control-active-background": "color-mix(in srgb, currentColor 18%, transparent)",
+        "--qg-control-active-border": "currentColor",
+    },
     ".cm-panel.cm-search": {
         display: "flex",
         alignItems: "center",
@@ -210,7 +217,7 @@ const compactSearchTheme = EditorView.theme({
         cursor: "pointer",
     },
     ".cm-panel.cm-search button:hover:not(:disabled)": {
-        backgroundColor: "hsl(0, 0%, 90%)",
+        backgroundColor: "var(--qg-control-hover-background)",
     },
     ".cm-panel.cm-search button:focus-visible": {
         outline: "2px solid hsl(210, 90%, 65%)",
@@ -249,15 +256,15 @@ const compactSearchTheme = EditorView.theme({
         userSelect: "none",
     },
     ".cm-panel.cm-search .compact-search-toggle:hover": {
-        backgroundColor: "hsl(0, 0%, 90%)",
+        backgroundColor: "var(--qg-control-hover-background)",
     },
     ".cm-panel.cm-search .compact-search-toggle:has(input:focus-visible)": {
         outline: "2px solid hsl(210, 90%, 65%)",
         outlineOffset: "-2px",
     },
     ".cm-panel.cm-search .compact-search-toggle:has(input:checked)": {
-        borderColor: "hsl(210, 70%, 65%)",
-        backgroundColor: "hsl(210, 90%, 92%)",
+        borderColor: "var(--qg-control-active-border)",
+        backgroundColor: "var(--qg-control-active-background)",
     },
     ".cm-panel.cm-search .compact-search-toggle span": {
         fontSize: "0.75rem",

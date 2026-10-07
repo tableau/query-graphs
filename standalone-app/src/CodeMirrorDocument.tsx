@@ -1,10 +1,15 @@
-import {useEffect, useRef} from "react";
+import {useEffect, useRef, useSyncExternalStore} from "react";
 import {defaultKeymap} from "@codemirror/commands";
 import {bracketMatching, defaultHighlightStyle, foldGutter, foldKeymap, syntaxHighlighting} from "@codemirror/language";
 import {openSearchPanel, searchKeymap} from "@codemirror/search";
-import {EditorState, type Extension} from "@codemirror/state";
+import {Compartment, EditorState, type Extension} from "@codemirror/state";
+import {color as oneDarkColor, oneDark} from "@codemirror/theme-one-dark";
 import {EditorView, drawSelection, highlightSpecialChars, keymap, lineNumbers, scrollPastEnd} from "@codemirror/view";
+import {emacs} from "@replit/codemirror-emacs";
+import {vim} from "@replit/codemirror-vim";
 import type {SourceLocation, TextDocument} from "@tableau/query-graphs/lib/tree-description";
+import {useSettings} from "./settings";
+import type {EditorKeybindings, Theme} from "./settings";
 import {compactSearch} from "./CodeMirrorSearch";
 import {rangeLinking} from "./RangeLinking";
 import "./CodeMirrorDocument.css";
@@ -64,7 +69,67 @@ const documentTheme = EditorView.theme({
         overflow: "auto",
     },
 });
-const noLanguageExtension: Extension = [];
+const emptyExtension: Extension = [];
+
+interface EditorThemeColors {
+    hoverBackground: string;
+    activeBackground: string;
+    activeBorder: string;
+    linkedRange: string;
+    highlightedRangeBackground: string;
+}
+
+/** Exposes a theme's palette through semantic colors shared by editor extensions. */
+function withEditorThemeColors(theme: Extension, colors: EditorThemeColors): Extension {
+    return [
+        theme,
+        EditorView.theme({
+            "&": {
+                "--qg-control-hover-background": colors.hoverBackground,
+                "--qg-control-active-background": colors.activeBackground,
+                "--qg-control-active-border": colors.activeBorder,
+                "--qg-linked-range-color": colors.linkedRange,
+                "--qg-highlighted-range-background": colors.highlightedRangeBackground,
+            },
+        }),
+    ];
+}
+
+const oneDarkWithEditorThemeColors = withEditorThemeColors(oneDark, {
+    hoverBackground: oneDarkColor.highlightBackground,
+    activeBackground: oneDarkColor.selection,
+    activeBorder: oneDarkColor.cursor,
+    linkedRange: oneDarkColor.malibu,
+    highlightedRangeBackground: oneDarkColor.selection,
+});
+const darkThemeQuery = "(prefers-color-scheme: dark)";
+const themeConfiguration = new Compartment();
+const keybindingsConfiguration = new Compartment();
+const standardKeybindings = keymap.of([...defaultKeymap, ...searchKeymap, ...foldKeymap]);
+const keybindings: Record<EditorKeybindings, Extension> = {
+    standard: standardKeybindings,
+    // Alternative keybindings must precede the fallback keymap so they can handle
+    // overlapping shortcuts first.
+    vim: [vim(), standardKeybindings],
+    emacs: [emacs(), standardKeybindings],
+};
+// Third-party keymaps do not consistently honor CodeMirror's read-only facet.
+const preventDocumentChanges = EditorState.changeFilter.of((transaction) => !transaction.docChanged);
+
+function subscribeToSystemTheme(onStoreChange: () => void): () => void {
+    const mediaQuery = window.matchMedia(darkThemeQuery);
+    mediaQuery.addEventListener("change", onStoreChange);
+    return () => mediaQuery.removeEventListener("change", onStoreChange);
+}
+
+function getSystemTheme(): Exclude<Theme, "system"> {
+    return window.matchMedia(darkThemeQuery).matches ? "dark" : "light";
+}
+
+function useResolvedTheme(theme: Theme): Exclude<Theme, "system"> {
+    const currentSystemTheme = useSyncExternalStore(subscribeToSystemTheme, getSystemTheme, () => "light" as const);
+    return theme === "system" ? currentSystemTheme : theme;
+}
 
 export interface DocumentViewerProps {
     document: TextDocument;
@@ -82,7 +147,7 @@ export interface CodeMirrorDocumentProps extends DocumentViewerProps {
 
 export function CodeMirrorDocument({
     document: textDocument,
-    languageExtension = noLanguageExtension,
+    languageExtension = emptyExtension,
     linkedRanges = [],
     highlightedRanges = [],
     onActiveLinkedRangesChange,
@@ -92,6 +157,24 @@ export function CodeMirrorDocument({
     const editorView = useRef<EditorView | undefined>(undefined);
     const linkedRangesRef = useRef(linkedRanges);
     const highlightedRangesRef = useRef(highlightedRanges);
+    const theme = useSettings((settings) => settings.values.theme);
+    const editorKeybindings = useSettings((settings) => settings.values.editorKeybindings);
+    const themeExtension = useResolvedTheme(theme) === "dark" ? oneDarkWithEditorThemeColors : emptyExtension;
+    const themeExtensionRef = useRef(themeExtension);
+    const keybindingsExtensionRef = useRef(keybindings[editorKeybindings]);
+
+    // Reconfigure the current editor in place and initialize replacement
+    // documents from the same latest preferences.
+    useEffect(() => {
+        themeExtensionRef.current = themeExtension;
+        keybindingsExtensionRef.current = keybindings[editorKeybindings];
+        editorView.current?.dispatch({
+            effects: [
+                themeConfiguration.reconfigure(themeExtension),
+                keybindingsConfiguration.reconfigure(keybindings[editorKeybindings]),
+            ],
+        });
+    }, [themeExtension, editorKeybindings]);
 
     useEffect(() => {
         linkedRangesRef.current = linkedRanges;
@@ -107,6 +190,7 @@ export function CodeMirrorDocument({
                 extensions: [
                     languageExtension,
                     syntaxHighlighting(defaultHighlightStyle, {fallback: true}),
+                    themeConfiguration.of(themeExtensionRef.current),
                     lineNumbers(),
                     highlightSpecialChars(),
                     drawSelection(),
@@ -117,8 +201,9 @@ export function CodeMirrorDocument({
                     foldMarkerTheme,
                     documentTheme,
                     rangeLinking.extension(onActiveLinkedRangesChange),
-                    keymap.of([...defaultKeymap, ...searchKeymap, ...foldKeymap]),
+                    keybindingsConfiguration.of(keybindingsExtensionRef.current),
                     EditorState.readOnly.of(true),
+                    preventDocumentChanges,
                     EditorView.editable.of(false),
                     EditorView.contentAttributes.of({"aria-label": textDocument.title, tabindex: "0"}),
                 ],

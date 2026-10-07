@@ -36,7 +36,7 @@ async function renderSettingsPanel() {
     Object.defineProperty(globalThis, "React", {configurable: true, writable: true, value: React});
     const root = createRoot(dom.window.document.querySelector("main")!);
     const popoverId = "settings-test";
-    const {SettingsButton, SettingsPanel} = await import("../src/ui/SettingsPanel");
+    const {SettingsButton, SettingsPanel} = await import("../src/SettingsPanel");
     await React.act(async () =>
         root.render(
             React.createElement(
@@ -85,27 +85,39 @@ test("settings button and panel form a labelled automatic popover", async () => 
         assert.equal(panel?.getAttribute("aria-labelledby"), panel?.querySelector("h2")?.id);
         assert.equal(closeButton?.getAttribute("popovertarget"), rendered.popoverId);
         assert.equal(closeButton?.getAttribute("popovertargetaction"), "hide");
+        assert.equal(panel?.querySelector(".qg-settings-body")?.lastElementChild?.tagName, "FOOTER");
     } finally {
         await rendered.cleanup();
     }
 });
 
-test("settings panel offers every animation speed and a reset action", async () => {
+test("settings panel offers every application setting and a reset action", async () => {
     const rendered = await renderSettingsPanel();
     try {
         const panel = rendered.document.getElementById(rendered.popoverId);
-        const select = panel?.querySelector<HTMLSelectElement>(`select`);
-        assert.equal(select?.closest("label")?.textContent?.startsWith("Graph animation speed"), true);
-        assert.deepEqual(
-            [...(select?.options ?? [])].map(({value, text}) => [value, text]),
-            [
-                ["off", "Off"],
-                ["fast", "Fast"],
-                ["medium", "Medium"],
-                ["slow", "Slow"],
-                ["debug", "Debug"],
-            ],
+        const optionsByLabel = new Map(
+            [...(panel?.querySelectorAll<HTMLLabelElement>("label") ?? [])].map((label) => [
+                label.querySelector("span")?.textContent,
+                [...(label.querySelector("select")?.options ?? [])].map(({value, text}) => [value, text]),
+            ]),
         );
+        assert.deepEqual(optionsByLabel.get("Graph animation speed"), [
+            ["off", "Off"],
+            ["fast", "Fast"],
+            ["medium", "Medium"],
+            ["slow", "Slow"],
+            ["debug", "Debug"],
+        ]);
+        assert.deepEqual(optionsByLabel.get("CodeMirror theme"), [
+            ["system", "System"],
+            ["light", "Light"],
+            ["dark", "Dark"],
+        ]);
+        assert.deepEqual(optionsByLabel.get("CodeMirror keybindings"), [
+            ["standard", "Standard"],
+            ["vim", "Vim"],
+            ["emacs", "Emacs"],
+        ]);
         assert.equal(panel?.querySelector("footer button")?.textContent, "Reset to defaults");
     } finally {
         await rendered.cleanup();

@@ -1,7 +1,8 @@
-import {ControlButton} from "@xyflow/react";
-import {usePrefersReducedMotion} from "./animation-timing";
-import {animationSpeedOptions, useSettings} from "./settings";
-import type {AnimationSpeed} from "./settings";
+import {animationSpeedOptions, usePrefersReducedMotion} from "@tableau/query-graphs/lib/ui/animation-timing";
+import type {AnimationSpeed} from "@tableau/query-graphs/lib/ui/animation-timing";
+import {QueryGraphControlButton} from "@tableau/query-graphs/lib/ui/QueryGraph";
+import {editorKeybindingsOptions, themeOptions, useSettings} from "./settings";
+import type {EditorKeybindings, Theme} from "./settings";
 import "./SettingsPanel.css";
 
 interface SettingsTargetProps {
@@ -10,7 +11,7 @@ interface SettingsTargetProps {
 
 export function SettingsButton({popoverId}: SettingsTargetProps) {
     return (
-        <ControlButton
+        <QueryGraphControlButton
             className="qg-settings-button"
             popoverTarget={popoverId}
             title="Settings"
@@ -23,12 +24,12 @@ export function SettingsButton({popoverId}: SettingsTargetProps) {
                     <rect key={angle} x="10" y="2" width="4" height="5" rx="0.5" transform={`rotate(${angle} 12 12)`} />
                 ))}
             </svg>
-        </ControlButton>
+        </QueryGraphControlButton>
     );
 }
 
 export function SettingsPanel({popoverId}: SettingsTargetProps) {
-    const animationSpeed = useSettings((settings) => settings.values.animationSpeed);
+    const {animationSpeed, theme, editorKeybindings} = useSettings((settings) => settings.values);
     const setSettings = useSettings((settings) => settings.setSettings);
     const resetSettings = useSettings((settings) => settings.resetSettings);
     const reducedMotion = usePrefersReducedMotion();
@@ -71,6 +72,29 @@ export function SettingsPanel({popoverId}: SettingsTargetProps) {
                         Animations are disabled by your system’s reduced-motion setting.
                     </p>
                 ) : null}
+                <label className="qg-settings-row">
+                    <span>CodeMirror theme</span>
+                    <select value={theme} onChange={(event) => setSettings({theme: event.target.value as Theme})}>
+                        {themeOptions.map(({value, label}) => (
+                            <option key={value} value={value}>
+                                {label}
+                            </option>
+                        ))}
+                    </select>
+                </label>
+                <label className="qg-settings-row">
+                    <span>CodeMirror keybindings</span>
+                    <select
+                        value={editorKeybindings}
+                        onChange={(event) => setSettings({editorKeybindings: event.target.value as EditorKeybindings})}
+                    >
+                        {editorKeybindingsOptions.map(({value, label}) => (
+                            <option key={value} value={value}>
+                                {label}
+                            </option>
+                        ))}
+                    </select>
+                </label>
                 <footer className="qg-settings-footer">
                     <button type="button" onClick={resetSettings}>
                         Reset to defaults

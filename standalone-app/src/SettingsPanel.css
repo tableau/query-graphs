@@ -8,10 +8,10 @@
     --qg-settings-focus: hsl(210, 90%, 55%);
 
     position: fixed;
-    inset: auto auto 15px calc(15px + 26px + 0.5rem);
+    inset: auto auto 15px calc(15px + 26px + 0.5em);
     box-sizing: border-box;
-    inline-size: min(22rem, calc(100vw - 2rem));
-    max-block-size: calc(100dvh - 2rem);
+    inline-size: min(22em, calc(100vw - 2em));
+    max-block-size: calc(100dvh - 2em);
     margin: 0;
     padding: 0;
     overflow: auto;
@@ -25,12 +25,12 @@
 }
 
 .qg-settings-body {
-    font-size: 0.875rem;
+    font-size: 0.875em;
     line-height: 1.4;
 }
 
 .qg-settings-note {
-    margin: -0.4rem 0.75rem 0.9rem;
+    margin: -0.2em 0.75em 0.6em;
     color: hsl(0, 0%, 40%);
     font-size: 0.85em;
 }
@@ -39,7 +39,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.5em 0.75rem;
+    padding: 0.5em 0.75em;
     border-block-end: 1px solid var(--qg-settings-divider);
 
     & h2 {
@@ -53,11 +53,11 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    inline-size: 1.75rem;
-    block-size: 1.75rem;
+    inline-size: 1.75em;
+    block-size: 1.75em;
     padding: 0;
     border: 0;
-    border-radius: 0.25rem;
+    border-radius: 0.25em;
     color: inherit;
     background: transparent;
     cursor: pointer;
@@ -67,8 +67,8 @@
     }
 
     & svg {
-        inline-size: 1rem;
-        block-size: 1rem;
+        inline-size: 1em;
+        block-size: 1em;
         fill: none;
         stroke: currentColor;
         stroke-width: 2;
@@ -80,22 +80,22 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 1rem;
-    padding: 0.9rem 0.75rem;
+    gap: 1em;
+    padding: 0.4em 0.75em;
 
     & select {
-        min-inline-size: 9rem;
-        padding: 0.25rem;
+        min-inline-size: 9em;
+        padding: 0.25em;
         color: inherit;
         background: var(--qg-settings-surface);
         border: 1px solid var(--qg-settings-border);
-        border-radius: 0.25rem;
+        border-radius: 0.25em;
         font: inherit;
     }
 }
 
 .qg-settings-footer {
-    padding: 0.65rem 0.75rem;
+    padding: 0.65em 0.75em;
     border-block-start: 1px solid var(--qg-settings-divider);
 
     & button {
@@ -125,26 +125,26 @@
 @supports (position-area: inline-end) {
     .qg-settings-popover {
         inset: auto;
-        margin-inline-start: 0.5rem;
+        margin-inline-start: 0.5em;
         position-area: inline-end span-block-start;
         position-try-fallbacks: flip-inline, flip-block, flip-block flip-inline;
     }
 }
 
-@media (max-width: 32rem) {
+@media (max-width: 32em) {
     .qg-settings-popover {
         inset: auto 0 0;
         inline-size: 100%;
         max-block-size: 80dvh;
         margin: 0;
-        border-radius: 0.75rem 0.75rem 0 0;
+        border-radius: 0.75em 0.75em 0 0;
         position-area: none;
     }
 
     .qg-settings-row {
         align-items: stretch;
         flex-direction: column;
-        gap: 0.35rem;
+        gap: 0.35em;
     }
 }
 
