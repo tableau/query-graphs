@@ -7,6 +7,7 @@ test("Hyper examples are recognized", () => {
     for (const fixturePath of fixturePathsFor("hyper")) {
         assert.equal(loadFixture(fixturePath).format, "hyper", fixturePath);
     }
+    assert.equal(loadPlanFromText('{"plan":{"operator":"scan"}}').format, "hyper");
 });
 
 test("Hyper error examples highlight their metadata", () => {
