@@ -16,7 +16,7 @@ import {assertNotNull} from "../assert";
 import type {TreeDescription, TreeNode} from "../tree-description";
 import type {QueryGraphNode} from "./QueryNode";
 import {layoutTree} from "./tree-layout";
-import {graphAnimationsEnabled, graphAnimationProgress} from "./animation-timing";
+import {getGraphAnimationDuration, graphAnimationProgress} from "./animation-timing";
 import type {GraphLayout} from "./animated-layout";
 import {
     closestAnimationAnchor,
@@ -210,7 +210,7 @@ export function useAnimatedGraphLayout(
     // Flow's observed wrappers would create a ResizeObserver feedback loop.
     const nodeResizesRef = useRef(new Map<string, NodeResize>());
     const animationAnchorNodeIdsRef = useRef<ReadonlySet<string> | undefined>(undefined);
-    const animationRequestedRef = useRef(false);
+    const animationDurationRef = useRef<number | undefined>(undefined);
     const animationFrameRef = useRef<number | undefined>(undefined);
     const [graphChangeRevision, setGraphChangeRevision] = useState(0);
 
@@ -241,7 +241,6 @@ export function useAnimatedGraphLayout(
     // and exiting nodes are inferred from the resulting layout below.
     const animateGraphChange = useCallback<AnimateGraphChange>(
         (applyChange, {resizingNodes = [], anchorAllVisibleNodes = false} = {}) => {
-            const motionEnabled = graphAnimationsEnabled();
             // Read every starting size before clearing interrupted styles.
             const resizes = new Map<string, NodeResize>();
             for (const {nodeId, nodeElement} of resizingNodes) {
@@ -260,7 +259,7 @@ export function useAnimatedGraphLayout(
             for (const {nodeId} of resizingNodes) finishNodeResize(nodeResizesRef.current, nodeId);
             for (const [nodeId, resize] of resizes) nodeResizesRef.current.set(nodeId, resize);
             animationAnchorNodeIdsRef.current = anchorAllVisibleNodes ? new Set() : undefined;
-            animationRequestedRef.current = motionEnabled;
+            animationDurationRef.current = getGraphAnimationDuration();
             applyChange();
             setGraphChangeRevision((revision) => revision + 1);
         },
@@ -297,10 +296,10 @@ export function useAnimatedGraphLayout(
             return {nodeId: node.id, offset: {x: x - node.position.x, y: y - node.position.y}};
         });
         // Missing handles make origin-based interpolation worse than snapping.
-        // The graph-change callback checks reduced motion before staging new nodes;
-        // layout changes outside an explicit transaction settle immediately.
-        const animationRequested = transitionAnchorMap !== undefined && animationRequestedRef.current;
-        animationRequestedRef.current = animationRequested;
+        // The graph-change callback captures the requested duration before staging
+        // new nodes; layout changes outside an explicit transaction settle immediately.
+        const animationDuration = transitionAnchorMap === undefined ? undefined : animationDurationRef.current;
+        animationDurationRef.current = animationDuration;
         const anchors = transitionAnchorMap ?? new Map();
         const animationAnchorNodeIds = new Set(animationAnchorNodeIdsRef.current ?? nodeResizesRef.current.keys());
         for (const {nodeId} of anchors.values()) animationAnchorNodeIds.add(nodeId);
@@ -339,35 +338,44 @@ export function useAnimatedGraphLayout(
                 zoom,
             });
         };
-        const canStartAnimation = animationRequested && targetLayoutMeasured && animationFrameRef.current === undefined;
+        const pendingAnimationReady =
+            animationDuration !== undefined && targetLayoutMeasured && animationFrameRef.current === undefined;
+        const mustSettleStagedLayout =
+            animationDuration === undefined &&
+            targetLayoutMeasured &&
+            (renderedLayoutRef.current.nodes.some(({transient}) => transient) ||
+                renderedLayoutRef.current.edges.some(({transient}) => transient));
+        const mustApplyLayoutTransition = targetLayoutChanged || pendingAnimationReady || mustSettleStagedLayout;
         targetLayoutRef.current = targetLayout;
         renderedLayoutRef.current = refreshLayoutPayloads(renderedLayoutRef.current, targetLayout);
-        // Publish payload-only updates without restarting equivalent geometry.
-        // Staged nodes becoming measurable still need to start their animation.
-        if (!targetLayoutChanged && !canStartAnimation) {
+        // Consecutive targets may be geometrically equal while the rendered
+        // layout still contains staged nodes waiting to animate or settle.
+        if (!mustApplyLayoutTransition) {
             if (targetLayoutDataChanged) setRenderedLayout(renderedLayoutRef.current);
-            if (targetLayoutMeasured && !animationRequested) finishNodeResizes(nodeResizesRef.current);
+            if (targetLayoutMeasured && animationDuration === undefined) finishNodeResizes(nodeResizesRef.current);
             return;
         }
 
-        // Choose between settling immediately, staging nodes, and animating.
+        // Choose between staging nodes, settling immediately, and animating.
         cancelLayoutFrame();
-        if (!animationRequested) {
-            finishNodeResizes(nodeResizesRef.current);
-            const next = staticLayout(targetLayout);
-            preserveViewportAnchorPosition(1);
-            renderedLayoutRef.current = next;
-            setRenderedLayout(next);
-            return;
-        }
-
         // Newly revealed nodes have no dimensions yet. Render them invisibly at
-        // the anchor so React Flow can measure them before computing the endpoint.
+        // the anchor so React Flow can measure them before computing the endpoint,
+        // even when animations are disabled.
         if (!targetLayoutMeasured) {
             const interpolate = createLayoutInterpolator(renderedLayoutRef.current, targetLayout, anchors);
             const staged = interpolate(0);
             renderedLayoutRef.current = staged;
             setRenderedLayout(staged);
+            return;
+        }
+
+        if (animationDuration === undefined) {
+            finishNodeResizes(nodeResizesRef.current);
+            const next = staticLayout(targetLayout);
+            // Disabled animations still preserve the user's visual reference.
+            preserveViewportAnchorPosition(1);
+            renderedLayoutRef.current = next;
+            setRenderedLayout(next);
             return;
         }
 
@@ -386,7 +394,7 @@ export function useAnimatedGraphLayout(
         });
         let previousProgress = 0;
         const step = (now: number) => {
-            const progress = graphAnimationProgress(startTime, now);
+            const progress = graphAnimationProgress(startTime, now, animationDuration);
             for (const {element, target, start} of nodeResizeTransitions) {
                 element.style.width = `${start.width + (target.width - start.width) * progress}px`;
                 element.style.height = `${start.height + (target.height - start.height) * progress}px`;
@@ -407,7 +415,7 @@ export function useAnimatedGraphLayout(
             } else {
                 animationFrameRef.current = undefined;
                 for (const {nodeId} of nodeResizeTransitions) finishNodeResize(nodeResizesRef.current, nodeId);
-                animationRequestedRef.current = false;
+                animationDurationRef.current = undefined;
             }
         };
         animationFrameRef.current = requestAnimationFrame(step);
@@ -428,7 +436,7 @@ export function useAnimatedGraphLayout(
         if (
             initialViewportReady ||
             !targetLayoutMeasured ||
-            animationRequestedRef.current ||
+            animationDurationRef.current !== undefined ||
             animationFrameRef.current !== undefined
         )
             return;

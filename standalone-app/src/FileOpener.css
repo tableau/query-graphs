@@ -115,6 +115,11 @@
 /* Spinner */
 
 .qg-spinner {
+    --qg-spinner-faint: color-mix(in srgb, currentColor 10%, transparent);
+    --qg-spinner-dim: color-mix(in srgb, currentColor 20%, transparent);
+    --qg-spinner-medium: color-mix(in srgb, currentColor 40%, transparent);
+    --qg-spinner-strong: color-mix(in srgb, currentColor 50%, transparent);
+
     margin: 3em auto;
     font-size: 1em;
     width: 1em;
@@ -129,27 +134,33 @@
 @keyframes qg-spinner-anim {
 0%,
 100% {
-    box-shadow: 0em -2.6em 0em 0em rgba(var(--secondary-fg-color-rgb), 0.1), 1.8em -1.8em 0 0em rgba(var(--secondary-fg-color-rgb), 0.2), 2.5em 0em 0 0em rgba(var(--secondary-fg-color-rgb), 0.2), 1.75em 1.75em 0 0em rgba(var(--secondary-fg-color-rgb), 0.2), 0em 2.5em 0 0em rgba(var(--secondary-fg-color-rgb), 0.2), -1.8em 1.8em 0 0em rgba(var(--secondary-fg-color-rgb), 0.2), -2.6em 0em 0 0em rgba(var(--secondary-fg-color-rgb), 0.4), -1.8em -1.8em 0 0em rgba(var(--secondary-fg-color-rgb), 0.5);
+    box-shadow: 0em -2.6em 0em 0em var(--qg-spinner-faint), 1.8em -1.8em 0 0em var(--qg-spinner-dim), 2.5em 0em 0 0em var(--qg-spinner-dim), 1.75em 1.75em 0 0em var(--qg-spinner-dim), 0em 2.5em 0 0em var(--qg-spinner-dim), -1.8em 1.8em 0 0em var(--qg-spinner-dim), -2.6em 0em 0 0em var(--qg-spinner-medium), -1.8em -1.8em 0 0em var(--qg-spinner-strong);
 }
 12.5% {
-    box-shadow: 0em -2.6em 0em 0em rgba(var(--secondary-fg-color-rgb), 0.5), 1.8em -1.8em 0 0em rgba(var(--secondary-fg-color-rgb), 0.1), 2.5em 0em 0 0em rgba(var(--secondary-fg-color-rgb), 0.2), 1.75em 1.75em 0 0em rgba(var(--secondary-fg-color-rgb), 0.2), 0em 2.5em 0 0em rgba(var(--secondary-fg-color-rgb), 0.2), -1.8em 1.8em 0 0em rgba(var(--secondary-fg-color-rgb), 0.2), -2.6em 0em 0 0em rgba(var(--secondary-fg-color-rgb), 0.2), -1.8em -1.8em 0 0em rgba(var(--secondary-fg-color-rgb), 0.4);
+    box-shadow: 0em -2.6em 0em 0em var(--qg-spinner-strong), 1.8em -1.8em 0 0em var(--qg-spinner-faint), 2.5em 0em 0 0em var(--qg-spinner-dim), 1.75em 1.75em 0 0em var(--qg-spinner-dim), 0em 2.5em 0 0em var(--qg-spinner-dim), -1.8em 1.8em 0 0em var(--qg-spinner-dim), -2.6em 0em 0 0em var(--qg-spinner-dim), -1.8em -1.8em 0 0em var(--qg-spinner-medium);
 }
 25% {
-    box-shadow: 0em -2.6em 0em 0em rgba(var(--secondary-fg-color-rgb), 0.4), 1.8em -1.8em 0 0em rgba(var(--secondary-fg-color-rgb), 0.5), 2.5em 0em 0 0em rgba(var(--secondary-fg-color-rgb), 0.1), 1.75em 1.75em 0 0em rgba(var(--secondary-fg-color-rgb), 0.2), 0em 2.5em 0 0em rgba(var(--secondary-fg-color-rgb), 0.2), -1.8em 1.8em 0 0em rgba(var(--secondary-fg-color-rgb), 0.2), -2.6em 0em 0 0em rgba(var(--secondary-fg-color-rgb), 0.2), -1.8em -1.8em 0 0em rgba(var(--secondary-fg-color-rgb), 0.2);
+    box-shadow: 0em -2.6em 0em 0em var(--qg-spinner-medium), 1.8em -1.8em 0 0em var(--qg-spinner-strong), 2.5em 0em 0 0em var(--qg-spinner-faint), 1.75em 1.75em 0 0em var(--qg-spinner-dim), 0em 2.5em 0 0em var(--qg-spinner-dim), -1.8em 1.8em 0 0em var(--qg-spinner-dim), -2.6em 0em 0 0em var(--qg-spinner-dim), -1.8em -1.8em 0 0em var(--qg-spinner-dim);
 }
 37.5% {
-    box-shadow: 0em -2.6em 0em 0em rgba(var(--secondary-fg-color-rgb), 0.2), 1.8em -1.8em 0 0em rgba(var(--secondary-fg-color-rgb), 0.4), 2.5em 0em 0 0em rgba(var(--secondary-fg-color-rgb), 0.5), 1.75em 1.75em 0 0em rgba(var(--secondary-fg-color-rgb), 0.1), 0em 2.5em 0 0em rgba(var(--secondary-fg-color-rgb), 0.2), -1.8em 1.8em 0 0em rgba(var(--secondary-fg-color-rgb), 0.2), -2.6em 0em 0 0em rgba(var(--secondary-fg-color-rgb), 0.2), -1.8em -1.8em 0 0em rgba(var(--secondary-fg-color-rgb), 0.2);
+    box-shadow: 0em -2.6em 0em 0em var(--qg-spinner-dim), 1.8em -1.8em 0 0em var(--qg-spinner-medium), 2.5em 0em 0 0em var(--qg-spinner-strong), 1.75em 1.75em 0 0em var(--qg-spinner-faint), 0em 2.5em 0 0em var(--qg-spinner-dim), -1.8em 1.8em 0 0em var(--qg-spinner-dim), -2.6em 0em 0 0em var(--qg-spinner-dim), -1.8em -1.8em 0 0em var(--qg-spinner-dim);
 }
 50% {
-    box-shadow: 0em -2.6em 0em 0em rgba(var(--secondary-fg-color-rgb), 0.2), 1.8em -1.8em 0 0em rgba(var(--secondary-fg-color-rgb), 0.2), 2.5em 0em 0 0em rgba(var(--secondary-fg-color-rgb), 0.4), 1.75em 1.75em 0 0em rgba(var(--secondary-fg-color-rgb), 0.5), 0em 2.5em 0 0em rgba(var(--secondary-fg-color-rgb), 0.1), -1.8em 1.8em 0 0em rgba(var(--secondary-fg-color-rgb), 0.2), -2.6em 0em 0 0em rgba(var(--secondary-fg-color-rgb), 0.2), -1.8em -1.8em 0 0em rgba(var(--secondary-fg-color-rgb), 0.2);
+    box-shadow: 0em -2.6em 0em 0em var(--qg-spinner-dim), 1.8em -1.8em 0 0em var(--qg-spinner-dim), 2.5em 0em 0 0em var(--qg-spinner-medium), 1.75em 1.75em 0 0em var(--qg-spinner-strong), 0em 2.5em 0 0em var(--qg-spinner-faint), -1.8em 1.8em 0 0em var(--qg-spinner-dim), -2.6em 0em 0 0em var(--qg-spinner-dim), -1.8em -1.8em 0 0em var(--qg-spinner-dim);
 }
 62.5% {
-    box-shadow: 0em -2.6em 0em 0em rgba(var(--secondary-fg-color-rgb), 0.2), 1.8em -1.8em 0 0em rgba(var(--secondary-fg-color-rgb), 0.2), 2.5em 0em 0 0em rgba(var(--secondary-fg-color-rgb), 0.2), 1.75em 1.75em 0 0em rgba(var(--secondary-fg-color-rgb), 0.4), 0em 2.5em 0 0em rgba(var(--secondary-fg-color-rgb), 0.5), -1.8em 1.8em 0 0em rgba(var(--secondary-fg-color-rgb), 0.1), -2.6em 0em 0 0em rgba(var(--secondary-fg-color-rgb), 0.2), -1.8em -1.8em 0 0em rgba(var(--secondary-fg-color-rgb), 0.2);
+    box-shadow: 0em -2.6em 0em 0em var(--qg-spinner-dim), 1.8em -1.8em 0 0em var(--qg-spinner-dim), 2.5em 0em 0 0em var(--qg-spinner-dim), 1.75em 1.75em 0 0em var(--qg-spinner-medium), 0em 2.5em 0 0em var(--qg-spinner-strong), -1.8em 1.8em 0 0em var(--qg-spinner-faint), -2.6em 0em 0 0em var(--qg-spinner-dim), -1.8em -1.8em 0 0em var(--qg-spinner-dim);
 }
 75% {
-    box-shadow: 0em -2.6em 0em 0em rgba(var(--secondary-fg-color-rgb), 0.2), 1.8em -1.8em 0 0em rgba(var(--secondary-fg-color-rgb), 0.2), 2.5em 0em 0 0em rgba(var(--secondary-fg-color-rgb), 0.2), 1.75em 1.75em 0 0em rgba(var(--secondary-fg-color-rgb), 0.2), 0em 2.5em 0 0em rgba(var(--secondary-fg-color-rgb), 0.4), -1.8em 1.8em 0 0em rgba(var(--secondary-fg-color-rgb), 0.5), -2.6em 0em 0 0em rgba(var(--secondary-fg-color-rgb), 0.1), -1.8em -1.8em 0 0em rgba(var(--secondary-fg-color-rgb), 0.2);
+    box-shadow: 0em -2.6em 0em 0em var(--qg-spinner-dim), 1.8em -1.8em 0 0em var(--qg-spinner-dim), 2.5em 0em 0 0em var(--qg-spinner-dim), 1.75em 1.75em 0 0em var(--qg-spinner-dim), 0em 2.5em 0 0em var(--qg-spinner-medium), -1.8em 1.8em 0 0em var(--qg-spinner-strong), -2.6em 0em 0 0em var(--qg-spinner-faint), -1.8em -1.8em 0 0em var(--qg-spinner-dim);
 }
 87.5% {
-    box-shadow: 0em -2.6em 0em 0em rgba(var(--secondary-fg-color-rgb), 0.2), 1.8em -1.8em 0 0em rgba(var(--secondary-fg-color-rgb), 0.2), 2.5em 0em 0 0em rgba(var(--secondary-fg-color-rgb), 0.2), 1.75em 1.75em 0 0em rgba(var(--secondary-fg-color-rgb), 0.2), 0em 2.5em 0 0em rgba(var(--secondary-fg-color-rgb), 0.2), -1.8em 1.8em 0 0em rgba(var(--secondary-fg-color-rgb), 0.4), -2.6em 0em 0 0em rgba(var(--secondary-fg-color-rgb), 0.5), -1.8em -1.8em 0 0em rgba(var(--secondary-fg-color-rgb), 0.1);
+    box-shadow: 0em -2.6em 0em 0em var(--qg-spinner-dim), 1.8em -1.8em 0 0em var(--qg-spinner-dim), 2.5em 0em 0 0em var(--qg-spinner-dim), 1.75em 1.75em 0 0em var(--qg-spinner-dim), 0em 2.5em 0 0em var(--qg-spinner-dim), -1.8em 1.8em 0 0em var(--qg-spinner-medium), -2.6em 0em 0 0em var(--qg-spinner-strong), -1.8em -1.8em 0 0em var(--qg-spinner-faint);
 }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .qg-spinner {
+        animation-play-state: paused;
+    }
 }

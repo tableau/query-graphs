@@ -1,14 +1,35 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import {graphAnimationDuration, graphAnimationProgress} from "../src/ui/animation-timing";
+import {getGraphAnimationDuration, graphAnimationProgress} from "../src/ui/animation-timing";
+import {settingsStore} from "../src/ui/settings";
+
+test("the selected animation speed resolves to its duration unless motion is disabled", () => {
+    const previousWindow = Object.getOwnPropertyDescriptor(globalThis, "window");
+    let reducedMotion = false;
+    Object.defineProperty(globalThis, "window", {
+        configurable: true,
+        value: {matchMedia: () => ({matches: reducedMotion})},
+    });
+    try {
+        settingsStore.getState().setSettings({animationSpeed: "slow"});
+        assert.equal(getGraphAnimationDuration(), 500);
+        reducedMotion = true;
+        assert.equal(getGraphAnimationDuration(), undefined);
+    } finally {
+        settingsStore.getState().setSettings({animationSpeed: "medium"});
+        if (previousWindow === undefined) Reflect.deleteProperty(globalThis, "window");
+        else Object.defineProperty(globalThis, "window", previousWindow);
+    }
+});
 
 test("animation progress is eased and clamped", () => {
     const start = 100;
-    assert.equal(graphAnimationProgress(start, start - 1), 0);
-    assert.equal(graphAnimationProgress(start, start), 0);
-    assert.ok(graphAnimationProgress(start, start + graphAnimationDuration / 4) < 0.25);
-    assert.ok(Math.abs(graphAnimationProgress(start, start + graphAnimationDuration / 2) - 0.5) < Number.EPSILON);
-    assert.ok(graphAnimationProgress(start, start + (3 * graphAnimationDuration) / 4) > 0.75);
-    assert.equal(graphAnimationProgress(start, start + graphAnimationDuration), 1);
-    assert.equal(graphAnimationProgress(start, start + graphAnimationDuration + 1), 1);
+    const duration = 200;
+    assert.equal(graphAnimationProgress(start, start - 1, duration), 0);
+    assert.equal(graphAnimationProgress(start, start, duration), 0);
+    assert.ok(graphAnimationProgress(start, start + duration / 4, duration) < 0.25);
+    assert.ok(Math.abs(graphAnimationProgress(start, start + duration / 2, duration) - 0.5) < Number.EPSILON);
+    assert.ok(graphAnimationProgress(start, start + (3 * duration) / 4, duration) > 0.75);
+    assert.equal(graphAnimationProgress(start, start + duration, duration), 1);
+    assert.equal(graphAnimationProgress(start, start + duration + 1, duration), 1);
 });

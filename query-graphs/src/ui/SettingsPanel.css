@@ -1,0 +1,158 @@
+.qg-settings-popover {
+    --qg-settings-surface: white;
+    --qg-settings-text: hsl(0, 0%, 15%);
+    --qg-settings-border: hsl(0, 0%, 85%);
+    --qg-settings-divider: hsl(0, 0%, 90%);
+    --qg-settings-hover: hsl(0, 0%, 94%);
+    --qg-settings-accent: hsl(210, 75%, 38%);
+    --qg-settings-focus: hsl(210, 90%, 55%);
+
+    position: fixed;
+    inset: auto auto 15px calc(15px + 26px + 0.5rem);
+    box-sizing: border-box;
+    inline-size: min(22rem, calc(100vw - 2rem));
+    max-block-size: calc(100dvh - 2rem);
+    margin: 0;
+    padding: 0;
+    overflow: auto;
+    border: 1px solid var(--qg-settings-border);
+    border-radius: 8px;
+    color: var(--qg-settings-text);
+    background: var(--qg-settings-surface);
+    box-shadow:
+        0 2px 6px hsl(0, 0%, 0%, 0.08),
+        0 1px 2px hsl(0, 0%, 0%, 0.06);
+}
+
+.qg-settings-body {
+    font-size: 0.875rem;
+    line-height: 1.4;
+}
+
+.qg-settings-note {
+    margin: -0.4rem 0.75rem 0.9rem;
+    color: hsl(0, 0%, 40%);
+    font-size: 0.85em;
+}
+
+.qg-settings-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5em 0.75rem;
+    border-block-end: 1px solid var(--qg-settings-divider);
+
+    & h2 {
+        margin: 0;
+        font: inherit;
+        font-weight: 600;
+    }
+}
+
+.qg-settings-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 1.75rem;
+    block-size: 1.75rem;
+    padding: 0;
+    border: 0;
+    border-radius: 0.25rem;
+    color: inherit;
+    background: transparent;
+    cursor: pointer;
+
+    &:hover {
+        background: var(--qg-settings-hover);
+    }
+
+    & svg {
+        inline-size: 1rem;
+        block-size: 1rem;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 2;
+        stroke-linecap: round;
+    }
+}
+
+.qg-settings-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.9rem 0.75rem;
+
+    & select {
+        min-inline-size: 9rem;
+        padding: 0.25rem;
+        color: inherit;
+        background: var(--qg-settings-surface);
+        border: 1px solid var(--qg-settings-border);
+        border-radius: 0.25rem;
+        font: inherit;
+    }
+}
+
+.qg-settings-footer {
+    padding: 0.65rem 0.75rem;
+    border-block-start: 1px solid var(--qg-settings-divider);
+
+    & button {
+        padding: 0;
+        border: 0;
+        color: var(--qg-settings-accent);
+        background: transparent;
+        font: inherit;
+        cursor: pointer;
+    }
+}
+
+.qg-settings-close:focus-visible,
+.qg-settings-row select:focus-visible,
+.qg-settings-footer button:focus-visible {
+    outline: 2px solid var(--qg-settings-focus);
+    outline-offset: 2px;
+}
+
+.query-graph:has(.qg-settings-popover:popover-open) .qg-settings-button {
+    background: var(
+        --xy-controls-button-background-color-hover-props,
+        var(--xy-controls-button-background-color-hover, var(--xy-controls-button-background-color-hover-default))
+    );
+}
+
+@supports (position-area: inline-end) {
+    .qg-settings-popover {
+        inset: auto;
+        margin-inline-start: 0.5rem;
+        position-area: inline-end span-block-start;
+        position-try-fallbacks: flip-inline, flip-block, flip-block flip-inline;
+    }
+}
+
+@media (max-width: 32rem) {
+    .qg-settings-popover {
+        inset: auto 0 0;
+        inline-size: 100%;
+        max-block-size: 80dvh;
+        margin: 0;
+        border-radius: 0.75rem 0.75rem 0 0;
+        position-area: none;
+    }
+
+    .qg-settings-row {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 0.35rem;
+    }
+}
+
+@media (forced-colors: active) {
+    .qg-settings-popover,
+    .qg-settings-header,
+    .qg-settings-footer,
+    .qg-settings-row select {
+        border-color: CanvasText;
+    }
+}

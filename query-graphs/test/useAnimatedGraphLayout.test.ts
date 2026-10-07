@@ -58,6 +58,8 @@ test("pending node resizes record outer layout and sizing-shell targets before w
     const firstWrite = events.findIndex((event) => event.startsWith("write") || event.startsWith("add"));
     const lastRead = events.reduce((last, event, index) => (event.startsWith("read") ? index : last), -1);
     assert.ok(lastRead >= 0 && firstWrite > lastRead);
+    assert.ok(events.includes("add first sizing shell.qg-resizing"));
+    assert.ok(events.includes("add second sizing shell.qg-resizing"));
     assert.ok(events.includes("write first sizing shell.width=40px"));
     assert.ok(events.includes("write second sizing shell.width=50px"));
     events.length = 0;

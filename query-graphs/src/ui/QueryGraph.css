@@ -56,6 +56,12 @@
   }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .query-graph .react-flow__edge.qg-crosslink .react-flow__edge-path {
+    transition: stroke .2s;
+  }
+}
+
 @media (forced-colors: active) {
   .query-graph .react-flow__minimap-node.qg-highlighted {
     stroke: Highlight;
