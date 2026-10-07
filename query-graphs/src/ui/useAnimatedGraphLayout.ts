@@ -338,19 +338,19 @@ export function useAnimatedGraphLayout(
                 zoom,
             });
         };
-        const canStartAnimation =
+        const pendingAnimationReady =
             animationDuration !== undefined && targetLayoutMeasured && animationFrameRef.current === undefined;
-        const canSettleStagedLayout =
+        const mustSettleStagedLayout =
             animationDuration === undefined &&
             targetLayoutMeasured &&
             (renderedLayoutRef.current.nodes.some(({transient}) => transient) ||
                 renderedLayoutRef.current.edges.some(({transient}) => transient));
+        const mustApplyLayoutTransition = targetLayoutChanged || pendingAnimationReady || mustSettleStagedLayout;
         targetLayoutRef.current = targetLayout;
         renderedLayoutRef.current = refreshLayoutPayloads(renderedLayoutRef.current, targetLayout);
-        // Equivalent target geometry normally needs only a payload refresh.
-        // Once staged nodes become measurable, however, their transition must
-        // still start or settle even if measuring did not move the endpoint.
-        if (!targetLayoutChanged && !canStartAnimation && !canSettleStagedLayout) {
+        // Consecutive targets may be geometrically equal while the rendered
+        // layout still contains staged nodes waiting to animate or settle.
+        if (!mustApplyLayoutTransition) {
             if (targetLayoutDataChanged) setRenderedLayout(renderedLayoutRef.current);
             if (targetLayoutMeasured && animationDuration === undefined) finishNodeResizes(nodeResizesRef.current);
             return;
