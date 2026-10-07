@@ -23,7 +23,7 @@
 
     &.qg-collapsed:hover,
     &.qg-expanded,
-    &.qg-resize-visuals {
+    &.qg-resizing {
         cursor: pointer;
         background: white;
         border-color: hsl(0,0%, 80%);

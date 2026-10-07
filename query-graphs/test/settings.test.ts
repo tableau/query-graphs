@@ -14,46 +14,74 @@ function memoryStorage(initialValue?: string) {
     };
 }
 
+function withBrowserStorage<T>(
+    storage: Pick<Storage, "getItem" | "setItem" | "removeItem">,
+    run: (notify: (key: string | null) => void) => T,
+): T {
+    const previousLocalStorage = Object.getOwnPropertyDescriptor(globalThis, "localStorage");
+    const previousWindow = Object.getOwnPropertyDescriptor(globalThis, "window");
+    let storageListener: ((event: StorageEvent) => void) | undefined;
+    Object.defineProperty(globalThis, "localStorage", {configurable: true, value: storage});
+    Object.defineProperty(globalThis, "window", {
+        configurable: true,
+        value: {
+            addEventListener: (type: string, listener: (event: StorageEvent) => void) => {
+                if (type === "storage") storageListener = listener;
+            },
+        },
+    });
+    try {
+        return run((key) => storageListener?.({key, storageArea: storage} as unknown as StorageEvent));
+    } finally {
+        if (previousLocalStorage === undefined) Reflect.deleteProperty(globalThis, "localStorage");
+        else Object.defineProperty(globalThis, "localStorage", previousLocalStorage);
+        if (previousWindow === undefined) Reflect.deleteProperty(globalThis, "window");
+        else Object.defineProperty(globalThis, "window", previousWindow);
+    }
+}
+
 test("settings load recognized properties and ignore unknown properties", () => {
     const valid = memoryStorage(JSON.stringify({animationSpeed: "slow", futureSetting: true}));
-    assert.equal(createSettingsStore(valid).getState().values.animationSpeed, "slow");
+    withBrowserStorage(valid, () => assert.equal(createSettingsStore().getState().values.animationSpeed, "slow"));
 
     for (const invalid of ["not JSON", JSON.stringify({futureSetting: true}), JSON.stringify({animationSpeed: "instant"})]) {
-        assert.equal(createSettingsStore(memoryStorage(invalid)).getState().values.animationSpeed, "medium");
+        const storage = memoryStorage(invalid);
+        withBrowserStorage(storage, () => assert.equal(createSettingsStore().getState().values.animationSpeed, "medium"));
     }
 });
 
 test("settings updates persist and reset to defaults", () => {
     const storage = memoryStorage();
-    const store = createSettingsStore(storage);
-    let updates = 0;
-    const unsubscribe = store.subscribe(() => updates++);
+    withBrowserStorage(storage, () => {
+        const store = createSettingsStore();
+        let updates = 0;
+        const unsubscribe = store.subscribe(() => updates++);
 
-    store.getState().setAnimationSpeed("excruciating");
-    assert.equal(store.getState().values.animationSpeed, "excruciating");
-    assert.deepEqual(JSON.parse(storage.getItem(storageKey)!), {animationSpeed: "excruciating"});
+        store.getState().setSettings({animationSpeed: "excruciating"});
+        assert.equal(store.getState().values.animationSpeed, "excruciating");
+        assert.deepEqual(JSON.parse(storage.getItem(storageKey)!), {animationSpeed: "excruciating"});
 
-    store.getState().resetSettings();
-    assert.equal(store.getState().values.animationSpeed, "medium");
-    assert.equal(storage.getItem(storageKey), null);
-    assert.equal(updates, 2);
-    unsubscribe();
+        store.getState().resetSettings();
+        assert.equal(store.getState().values.animationSpeed, "medium");
+        assert.equal(storage.getItem(storageKey), null);
+        assert.equal(updates, 2);
+        unsubscribe();
+    });
 });
 
 test("settings follow updates and resets from other tabs", () => {
     const storage = memoryStorage();
-    let reloadSettings = () => assert.fail("storage subscription not initialized");
-    const store = createSettingsStore(storage, (_storage, onChange) => {
-        reloadSettings = onChange;
+    withBrowserStorage(storage, (notify) => {
+        const store = createSettingsStore();
+
+        storage.setItem(storageKey, JSON.stringify({animationSpeed: "slow", futureSetting: true}));
+        notify(storageKey);
+        assert.equal(store.getState().values.animationSpeed, "slow");
+
+        storage.removeItem(storageKey);
+        notify(storageKey);
+        assert.equal(store.getState().values.animationSpeed, "medium");
     });
-
-    storage.setItem(storageKey, JSON.stringify({animationSpeed: "slow", futureSetting: true}));
-    reloadSettings();
-    assert.equal(store.getState().values.animationSpeed, "slow");
-
-    storage.removeItem(storageKey);
-    reloadSettings();
-    assert.equal(store.getState().values.animationSpeed, "medium");
 });
 
 test("settings remain usable when storage is unavailable", () => {
@@ -68,11 +96,13 @@ test("settings remain usable when storage is unavailable", () => {
             throw new Error("unavailable");
         },
     };
-    const store = createSettingsStore(unavailableStorage);
+    withBrowserStorage(unavailableStorage, () => {
+        const store = createSettingsStore();
 
-    assert.equal(store.getState().values.animationSpeed, "medium");
-    store.getState().setAnimationSpeed("fast");
-    assert.equal(store.getState().values.animationSpeed, "fast");
-    store.getState().resetSettings();
-    assert.equal(store.getState().values.animationSpeed, "medium");
+        assert.equal(store.getState().values.animationSpeed, "medium");
+        store.getState().setSettings({animationSpeed: "fast"});
+        assert.equal(store.getState().values.animationSpeed, "fast");
+        store.getState().resetSettings();
+        assert.equal(store.getState().values.animationSpeed, "medium");
+    });
 });

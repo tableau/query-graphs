@@ -29,7 +29,7 @@ export function SettingsButton({popoverId}: SettingsTargetProps) {
 
 export function SettingsPanel({popoverId}: SettingsTargetProps) {
     const animationSpeed = useSettings((settings) => settings.values.animationSpeed);
-    const setAnimationSpeed = useSettings((settings) => settings.setAnimationSpeed);
+    const setSettings = useSettings((settings) => settings.setSettings);
     const resetSettings = useSettings((settings) => settings.resetSettings);
     const reducedMotion = usePrefersReducedMotion();
     const titleId = `${popoverId}-title`;
@@ -57,7 +57,7 @@ export function SettingsPanel({popoverId}: SettingsTargetProps) {
                     <select
                         value={animationSpeed}
                         aria-describedby={reducedMotion ? reducedMotionDescriptionId : undefined}
-                        onChange={(event) => setAnimationSpeed(event.target.value as AnimationSpeed)}
+                        onChange={(event) => setSettings({animationSpeed: event.target.value as AnimationSpeed})}
                     >
                         {animationSpeedOptions.map(({value, label}) => (
                             <option key={value} value={value}>

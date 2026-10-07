@@ -1,14 +1,35 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import {durationForAnimationSpeed, graphAnimationProgress} from "../src/ui/animation-timing";
+import {getGraphAnimationDuration, graphAnimationProgress} from "../src/ui/animation-timing";
+import {animationSpeedOptions, settingsStore} from "../src/ui/settings";
 
 test("animation speeds resolve to durations unless motion is disabled", () => {
-    assert.equal(durationForAnimationSpeed("off", false), undefined);
-    assert.equal(durationForAnimationSpeed("fast", false), 100);
-    assert.equal(durationForAnimationSpeed("medium", false), 200);
-    assert.equal(durationForAnimationSpeed("slow", false), 500);
-    assert.equal(durationForAnimationSpeed("excruciating", false), 2000);
-    assert.equal(durationForAnimationSpeed("slow", true), undefined);
+    assert.deepEqual(
+        animationSpeedOptions.map(({value, duration}) => [value, duration]),
+        [
+            ["off", undefined],
+            ["fast", 100],
+            ["medium", 200],
+            ["slow", 500],
+            ["excruciating", 2000],
+        ],
+    );
+    const previousWindow = Object.getOwnPropertyDescriptor(globalThis, "window");
+    let reducedMotion = false;
+    Object.defineProperty(globalThis, "window", {
+        configurable: true,
+        value: {matchMedia: () => ({matches: reducedMotion})},
+    });
+    try {
+        settingsStore.getState().setSettings({animationSpeed: "slow"});
+        assert.equal(getGraphAnimationDuration(), 500);
+        reducedMotion = true;
+        assert.equal(getGraphAnimationDuration(), undefined);
+    } finally {
+        settingsStore.getState().setSettings({animationSpeed: "medium"});
+        if (previousWindow === undefined) Reflect.deleteProperty(globalThis, "window");
+        else Object.defineProperty(globalThis, "window", previousWindow);
+    }
 });
 
 test("animation progress is eased and clamped", () => {

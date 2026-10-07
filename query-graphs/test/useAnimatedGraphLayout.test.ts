@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import type {AnimatedLayout} from "../src/ui/animated-layout";
-import {applyMeasuredDimensions, preparePendingNodeResizes, shouldSettleWithoutAnimation} from "../src/ui/useAnimatedGraphLayout";
+import {applyMeasuredDimensions, preparePendingNodeResizes} from "../src/ui/useAnimatedGraphLayout";
 
 function measuredElement(events: string[], name: string, width: number, height: number): HTMLElement {
     const style = {removeProperty: (property: string) => events.push(`remove ${name}.${property}`)};
@@ -59,8 +58,8 @@ test("pending node resizes record outer layout and sizing-shell targets before w
     const firstWrite = events.findIndex((event) => event.startsWith("write") || event.startsWith("add"));
     const lastRead = events.reduce((last, event, index) => (event.startsWith("read") ? index : last), -1);
     assert.ok(lastRead >= 0 && firstWrite > lastRead);
-    assert.ok(events.includes("add first sizing shell.qg-resize-visuals"));
-    assert.ok(events.includes("add second sizing shell.qg-resize-visuals"));
+    assert.ok(events.includes("add first sizing shell.qg-resizing"));
+    assert.ok(events.includes("add second sizing shell.qg-resizing"));
     assert.ok(events.includes("write first sizing shell.width=40px"));
     assert.ok(events.includes("write second sizing shell.width=50px"));
     events.length = 0;
@@ -107,27 +106,4 @@ test("applying measured dimensions preserves active resize targets until they se
     const settled = applyMeasuredDimensions(resizing, [["node", measured]], new Set());
     assert.equal(settled.targets.get("node"), measured);
     assert.equal(applyMeasuredDimensions(settled, [["node", measured]], new Set()), settled);
-});
-
-test("measured staged layouts settle immediately when animation is disabled", () => {
-    const staged: AnimatedLayout = {
-        nodes: [
-            {
-                node: {id: "node", type: "querynode", data: {name: "node"}, position: {x: 0, y: 0}},
-                position: {x: 0, y: 0},
-                opacity: 0,
-                transient: true,
-            },
-        ],
-        edges: [],
-    };
-    const settled: AnimatedLayout = {
-        nodes: staged.nodes.map((node) => ({...node, opacity: 1, transient: false})),
-        edges: [],
-    };
-
-    assert.equal(shouldSettleWithoutAnimation(staged, false, undefined), false);
-    assert.equal(shouldSettleWithoutAnimation(staged, true, 200), false);
-    assert.equal(shouldSettleWithoutAnimation(staged, true, undefined), true);
-    assert.equal(shouldSettleWithoutAnimation(settled, true, undefined), false);
 });

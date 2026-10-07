@@ -3,11 +3,11 @@ import {createStore} from "zustand/vanilla";
 import type {StoreApi} from "zustand/vanilla";
 
 export const animationSpeedOptions = [
-    {value: "off", label: "Off"},
-    {value: "fast", label: "Fast"},
-    {value: "medium", label: "Medium"},
-    {value: "slow", label: "Slow"},
-    {value: "excruciating", label: "Excruciatingly slow"},
+    {value: "off", label: "Off", duration: undefined},
+    {value: "fast", label: "Fast", duration: 100},
+    {value: "medium", label: "Medium", duration: 200},
+    {value: "slow", label: "Slow", duration: 500},
+    {value: "excruciating", label: "Excruciatingly slow", duration: 2000},
 ] as const;
 
 export type AnimationSpeed = (typeof animationSpeedOptions)[number]["value"];
@@ -19,84 +19,64 @@ export interface SettingsValues {
 /** Preferences shared by the graph and host-application features. */
 export interface ApplicationSettingsState {
     values: SettingsValues;
-    setAnimationSpeed: (animationSpeed: AnimationSpeed) => void;
+    setSettings: (settings: Partial<SettingsValues>) => void;
     resetSettings: () => void;
 }
-
-type SettingsStorage = Pick<Storage, "getItem" | "setItem" | "removeItem">;
-type SubscribeToSettingsStorage = (storage: SettingsStorage | undefined, onChange: () => void) => void;
 
 const defaultSettings: SettingsValues = {animationSpeed: "medium"};
 const settingsStorageKey = "query-graphs-settings";
 
-function availableStorage(): SettingsStorage | undefined {
-    try {
-        return typeof window === "undefined" ? undefined : window.localStorage;
-    } catch {
-        return undefined;
-    }
-}
-
 function settingsFromJson(serialized: string | null | undefined): SettingsValues {
+    if (serialized === undefined || serialized === null) return defaultSettings;
+    let rawSettings: unknown;
     try {
-        if (serialized === undefined || serialized === null) return defaultSettings;
-        const settings: unknown = JSON.parse(serialized);
-        if (typeof settings === "object" && settings !== null && "animationSpeed" in settings) {
-            const animationSpeed = settings.animationSpeed;
-            if (animationSpeedOptions.some(({value}) => value === animationSpeed))
-                return {animationSpeed: animationSpeed as AnimationSpeed};
-        }
+        rawSettings = JSON.parse(serialized);
     } catch {
         // Malformed settings should not prevent the graph from rendering.
+        return defaultSettings;
     }
-    return defaultSettings;
+    const settings = {...defaultSettings};
+    if (typeof rawSettings !== "object" || rawSettings === null) return settings;
+    if ("animationSpeed" in rawSettings && animationSpeedOptions.some(({value}) => value === rawSettings.animationSpeed))
+        settings.animationSpeed = rawSettings.animationSpeed as AnimationSpeed;
+    return settings;
 }
 
-function loadSettings(storage: SettingsStorage | undefined): SettingsValues {
+function loadSettings(): SettingsValues {
     try {
-        return settingsFromJson(storage?.getItem(settingsStorageKey));
+        return settingsFromJson(localStorage.getItem(settingsStorageKey));
     } catch {
         return defaultSettings;
     }
 }
 
-function subscribeToBrowserStorage(storage: SettingsStorage | undefined, onChange: () => void): void {
-    if (typeof window === "undefined") return;
-    window.addEventListener("storage", (event) => {
-        if (event.storageArea === storage && (event.key === settingsStorageKey || event.key === null)) onChange();
-    });
-}
-
-function saveSettings(storage: SettingsStorage | undefined, values: SettingsValues): void {
-    try {
-        storage?.setItem(settingsStorageKey, JSON.stringify(values));
-    } catch {
-        // Keep the in-memory preference when storage is unavailable.
-    }
-}
-
-export function createSettingsStore(
-    storage = availableStorage(),
-    subscribeToStorage: SubscribeToSettingsStorage = subscribeToBrowserStorage,
-): StoreApi<ApplicationSettingsState> {
+export function createSettingsStore(): StoreApi<ApplicationSettingsState> {
     const store = createStore<ApplicationSettingsState>()((set) => ({
-        values: loadSettings(storage),
-        setAnimationSpeed: (animationSpeed) =>
+        values: loadSettings(),
+        setSettings: (settings) =>
             set((state) => {
-                const values = {...state.values, animationSpeed};
-                saveSettings(storage, values);
+                const values = {...state.values, ...settings};
+                try {
+                    localStorage.setItem(settingsStorageKey, JSON.stringify(values));
+                } catch {
+                    // Keep the in-memory preference when storage is unavailable.
+                }
                 return {values};
             }),
         resetSettings: () => {
             try {
-                storage?.removeItem(settingsStorageKey);
+                localStorage.removeItem(settingsStorageKey);
             } catch {
                 // Keep resetting the in-memory preference when storage is unavailable.
             }
             set({values: defaultSettings});
         },
     }));
-    subscribeToStorage(storage, () => store.setState({values: loadSettings(storage)}));
+    if (typeof window !== "undefined")
+        window.addEventListener("storage", (event) => {
+            if (event.storageArea === localStorage && (event.key === settingsStorageKey || event.key === null))
+                store.setState({values: loadSettings()});
+        });
     return store;
 }
 

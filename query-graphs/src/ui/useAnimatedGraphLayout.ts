@@ -17,7 +17,7 @@ import type {TreeDescription, TreeNode} from "../tree-description";
 import type {QueryGraphNode} from "./QueryNode";
 import {layoutTree} from "./tree-layout";
 import {getGraphAnimationDuration, graphAnimationProgress} from "./animation-timing";
-import type {AnimatedLayout, GraphLayout} from "./animated-layout";
+import type {GraphLayout} from "./animated-layout";
 import {
     closestAnimationAnchor,
     createLayoutInterpolator,
@@ -132,7 +132,6 @@ export function preparePendingNodeResizes(resizes: Map<string, NodeResize>): Map
         }
         targets.set(nodeId, nodeTarget);
         resize.target = sizingTarget;
-        resize.sizingElement.classList.add("qg-resize-visuals");
         resize.sizingElement.classList.add("qg-resizing");
         resize.sizingElement.style.width = `${resize.start.width}px`;
         resize.sizingElement.style.height = `${resize.start.height}px`;
@@ -142,7 +141,6 @@ export function preparePendingNodeResizes(resizes: Map<string, NodeResize>): Map
 
 /** Restores intrinsic sizing after measuring or animating a query-node shell. */
 function clearNodeSize(element: HTMLElement): void {
-    element.classList.remove("qg-resize-visuals");
     element.classList.remove("qg-resizing");
     element.style.removeProperty("width");
     element.style.removeProperty("height");
@@ -170,19 +168,6 @@ function withAnimationStyle(style: CSSProperties | undefined, opacity: number, t
         ...(opacity === 1 ? {} : {opacity}),
         ...(transient ? {pointerEvents: "none"} : {}),
     };
-}
-
-/** Detects a measured transient frame that no animation loop remains to settle. */
-export function shouldSettleWithoutAnimation(
-    renderedLayout: AnimatedLayout,
-    targetLayoutMeasured: boolean,
-    animationDuration: number | undefined,
-): boolean {
-    return (
-        animationDuration === undefined &&
-        targetLayoutMeasured &&
-        (renderedLayout.nodes.some(({transient}) => transient) || renderedLayout.edges.some(({transient}) => transient))
-    );
 }
 
 /**
@@ -256,7 +241,6 @@ export function useAnimatedGraphLayout(
     // and exiting nodes are inferred from the resulting layout below.
     const animateGraphChange = useCallback<AnimateGraphChange>(
         (applyChange, {resizingNodes = [], anchorAllVisibleNodes = false} = {}) => {
-            const duration = getGraphAnimationDuration();
             // Read every starting size before clearing interrupted styles.
             const resizes = new Map<string, NodeResize>();
             for (const {nodeId, nodeElement} of resizingNodes) {
@@ -275,7 +259,7 @@ export function useAnimatedGraphLayout(
             for (const {nodeId} of resizingNodes) finishNodeResize(nodeResizesRef.current, nodeId);
             for (const [nodeId, resize] of resizes) nodeResizesRef.current.set(nodeId, resize);
             animationAnchorNodeIdsRef.current = anchorAllVisibleNodes ? new Set() : undefined;
-            animationDurationRef.current = duration;
+            animationDurationRef.current = getGraphAnimationDuration();
             applyChange();
             setGraphChangeRevision((revision) => revision + 1);
         },
@@ -356,16 +340,17 @@ export function useAnimatedGraphLayout(
         };
         const canStartAnimation =
             animationDuration !== undefined && targetLayoutMeasured && animationFrameRef.current === undefined;
-        const mustSettleStagedLayout = shouldSettleWithoutAnimation(
-            renderedLayoutRef.current,
-            targetLayoutMeasured,
-            animationDuration,
-        );
+        const canSettleStagedLayout =
+            animationDuration === undefined &&
+            targetLayoutMeasured &&
+            (renderedLayoutRef.current.nodes.some(({transient}) => transient) ||
+                renderedLayoutRef.current.edges.some(({transient}) => transient));
         targetLayoutRef.current = targetLayout;
         renderedLayoutRef.current = refreshLayoutPayloads(renderedLayoutRef.current, targetLayout);
-        // Publish payload-only updates without restarting equivalent geometry.
-        // Staged nodes becoming measurable still need to start their animation.
-        if (!targetLayoutChanged && !canStartAnimation && !mustSettleStagedLayout) {
+        // Equivalent target geometry normally needs only a payload refresh.
+        // Once staged nodes become measurable, however, their transition must
+        // still start or settle even if measuring did not move the endpoint.
+        if (!targetLayoutChanged && !canStartAnimation && !canSettleStagedLayout) {
             if (targetLayoutDataChanged) setRenderedLayout(renderedLayoutRef.current);
             if (targetLayoutMeasured && animationDuration === undefined) finishNodeResizes(nodeResizesRef.current);
             return;
@@ -375,7 +360,7 @@ export function useAnimatedGraphLayout(
         cancelLayoutFrame();
         // Newly revealed nodes have no dimensions yet. Render them invisibly at
         // the anchor so React Flow can measure them before computing the endpoint,
-        // even when interpolation is disabled.
+        // even when animations are disabled.
         if (!targetLayoutMeasured) {
             const interpolate = createLayoutInterpolator(renderedLayoutRef.current, targetLayout, anchors);
             const staged = interpolate(0);
@@ -387,6 +372,7 @@ export function useAnimatedGraphLayout(
         if (animationDuration === undefined) {
             finishNodeResizes(nodeResizesRef.current);
             const next = staticLayout(targetLayout);
+            // Disabled animations still preserve the user's visual reference.
             preserveViewportAnchorPosition(1);
             renderedLayoutRef.current = next;
             setRenderedLayout(next);

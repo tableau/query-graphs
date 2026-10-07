@@ -12,7 +12,7 @@ registerHooks({
     },
 });
 
-test("settings controls expose a labelled automatic popover and the system motion override", async () => {
+async function renderSettingsPanel() {
     const dom = new JSDOM("<main></main>", {pretendToBeVisual: true});
     const globalNames = ["window", "document", "Node", "HTMLElement", "Event"] as const;
     const previousGlobals = new Map(globalNames.map((name) => [name, Object.getOwnPropertyDescriptor(globalThis, name)]));
@@ -36,32 +36,65 @@ test("settings controls expose a labelled automatic popover and the system motio
     Object.defineProperty(globalThis, "React", {configurable: true, writable: true, value: React});
     const root = createRoot(dom.window.document.querySelector("main")!);
     const popoverId = "settings-test";
-    try {
-        const {SettingsButton, SettingsPanel} = await import("../src/ui/SettingsPanel");
-        await React.act(async () =>
-            root.render(
-                React.createElement(
-                    React.Fragment,
-                    null,
-                    React.createElement(SettingsButton, {popoverId}),
-                    React.createElement(SettingsPanel, {popoverId}),
-                ),
+    const {SettingsButton, SettingsPanel} = await import("../src/ui/SettingsPanel");
+    await React.act(async () =>
+        root.render(
+            React.createElement(
+                React.Fragment,
+                null,
+                React.createElement(SettingsButton, {popoverId}),
+                React.createElement(SettingsPanel, {popoverId}),
             ),
-        );
-        const document = dom.window.document;
-        const openButton = document.querySelector<HTMLButtonElement>(`.qg-settings-button`);
-        const panel = document.getElementById(popoverId);
-        const closeButton = panel?.querySelector<HTMLButtonElement>(`.qg-settings-close`);
-        const select = panel?.querySelector<HTMLSelectElement>(`select`);
+        ),
+    );
+    return {
+        document: dom.window.document,
+        popoverId,
+        setReducedMotion: async (value: boolean) => {
+            await React.act(async () => {
+                reducedMotion = value;
+                for (const listener of motionListeners) listener();
+            });
+        },
+        cleanup: async () => {
+            await React.act(async () => root.unmount());
+            dom.window.close();
+            if (previousActEnvironment === undefined) Reflect.deleteProperty(globalThis, "IS_REACT_ACT_ENVIRONMENT");
+            else Object.defineProperty(globalThis, "IS_REACT_ACT_ENVIRONMENT", previousActEnvironment);
+            if (previousReact === undefined) Reflect.deleteProperty(globalThis, "React");
+            else Object.defineProperty(globalThis, "React", previousReact);
+            for (const [name, descriptor] of previousGlobals) {
+                if (descriptor === undefined) Reflect.deleteProperty(globalThis, name);
+                else Object.defineProperty(globalThis, name, descriptor);
+            }
+        },
+    };
+}
 
-        assert.equal(openButton?.getAttribute("popovertarget"), popoverId);
+test("settings button and panel form a labelled automatic popover", async () => {
+    const rendered = await renderSettingsPanel();
+    try {
+        const openButton = rendered.document.querySelector<HTMLButtonElement>(`.qg-settings-button`);
+        const panel = rendered.document.getElementById(rendered.popoverId);
+        const closeButton = panel?.querySelector<HTMLButtonElement>(`.qg-settings-close`);
+        assert.equal(openButton?.getAttribute("popovertarget"), rendered.popoverId);
         assert.equal(openButton?.getAttribute("aria-label"), "Settings");
         assert.equal(openButton?.getAttribute("aria-haspopup"), "dialog");
         assert.equal(panel?.getAttribute("popover"), "auto");
         assert.equal(panel?.getAttribute("role"), "dialog");
         assert.equal(panel?.getAttribute("aria-labelledby"), panel?.querySelector("h2")?.id);
-        assert.equal(closeButton?.getAttribute("popovertarget"), popoverId);
+        assert.equal(closeButton?.getAttribute("popovertarget"), rendered.popoverId);
         assert.equal(closeButton?.getAttribute("popovertargetaction"), "hide");
+    } finally {
+        await rendered.cleanup();
+    }
+});
+
+test("settings panel offers every animation speed and a reset action", async () => {
+    const rendered = await renderSettingsPanel();
+    try {
+        const panel = rendered.document.getElementById(rendered.popoverId);
+        const select = panel?.querySelector<HTMLSelectElement>(`select`);
         assert.equal(select?.closest("label")?.textContent?.startsWith("Graph animation speed"), true);
         assert.deepEqual(
             [...(select?.options ?? [])].map(({value, text}) => [value, text]),
@@ -74,26 +107,24 @@ test("settings controls expose a labelled automatic popover and the system motio
             ],
         );
         assert.equal(panel?.querySelector("footer button")?.textContent, "Reset to defaults");
+    } finally {
+        await rendered.cleanup();
+    }
+});
+
+test("settings panel reactively explains the system reduced-motion override", async () => {
+    const rendered = await renderSettingsPanel();
+    try {
+        const panel = rendered.document.getElementById(rendered.popoverId);
+        const select = panel?.querySelector<HTMLSelectElement>(`select`);
         assert.equal(panel?.querySelector(".qg-settings-note"), null);
         assert.equal(select?.hasAttribute("aria-describedby"), false);
 
-        await React.act(async () => {
-            reducedMotion = true;
-            for (const listener of motionListeners) listener();
-        });
+        await rendered.setReducedMotion(true);
         const note = panel?.querySelector<HTMLElement>(".qg-settings-note");
         assert.equal(note?.textContent?.trim(), "Animations are disabled by your system’s reduced-motion setting.");
         assert.equal(select?.getAttribute("aria-describedby"), note?.id);
     } finally {
-        await React.act(async () => root.unmount());
-        dom.window.close();
-        if (previousActEnvironment === undefined) Reflect.deleteProperty(globalThis, "IS_REACT_ACT_ENVIRONMENT");
-        else Object.defineProperty(globalThis, "IS_REACT_ACT_ENVIRONMENT", previousActEnvironment);
-        if (previousReact === undefined) Reflect.deleteProperty(globalThis, "React");
-        else Object.defineProperty(globalThis, "React", previousReact);
-        for (const [name, descriptor] of previousGlobals) {
-            if (descriptor === undefined) Reflect.deleteProperty(globalThis, name);
-            else Object.defineProperty(globalThis, name, descriptor);
-        }
+        await rendered.cleanup();
     }
 });
