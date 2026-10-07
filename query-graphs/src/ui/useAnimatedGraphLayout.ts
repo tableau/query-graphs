@@ -127,7 +127,7 @@ export function preparePendingNodeResizes(resizes: Map<string, NodeResize>): Map
     const targets = new Map<string, Dimensions>();
     for (const {nodeId, resize, nodeTarget, sizingTarget} of measurements) {
         if (nodeTarget.width === 0 || nodeTarget.height === 0) {
-            finishNodeResize(resizes, nodeId);
+            resizes.delete(nodeId);
             continue;
         }
         targets.set(nodeId, nodeTarget);
