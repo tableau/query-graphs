@@ -32,8 +32,16 @@ const linkedRangeDecorations = rangeDecorationField(setLinkedRanges, "cm-linked-
 const highlightedRangeDecorations = rangeDecorationField(setHighlightedRanges, "cm-highlighted-range");
 
 const rangeLinkingTheme = EditorView.baseTheme({
+    "&": {
+        "--qg-linked-range-color": "hsl(210, 55%, 55%)",
+        "--qg-highlighted-range-background": "hsl(210, 100%, 85%)",
+    },
+    "&dark": {
+        "--qg-linked-range-color": "currentColor",
+        "--qg-highlighted-range-background": "color-mix(in srgb, currentColor 18%, transparent)",
+    },
     ".cm-linked-range": {
-        textDecoration: "underline dotted hsl(210, 55%, 55%)",
+        textDecoration: "underline dotted var(--qg-linked-range-color)",
         textUnderlineOffset: ".18em",
     },
     ".cm-linked-range:hover": {
@@ -41,7 +49,7 @@ const rangeLinkingTheme = EditorView.baseTheme({
         textDecorationThickness: "2px",
     },
     ".cm-highlighted-range": {
-        background: "hsl(210, 100%, 85%)",
+        background: "var(--qg-highlighted-range-background)",
         borderRadius: ".15em",
     },
     ".cm-foldPlaceholder.cm-fold-hides-highlighted-range": {
@@ -49,19 +57,19 @@ const rangeLinkingTheme = EditorView.baseTheme({
     },
     "@keyframes cm-folded-range-highlight-pulse": {
         from: {
-            backgroundColor: "hsl(210, 100%, 90%)",
-            borderColor: "hsl(210, 80%, 55%)",
+            backgroundColor: "color-mix(in srgb, var(--qg-linked-range-color) 12%, transparent)",
+            borderColor: "color-mix(in srgb, var(--qg-linked-range-color) 75%, transparent)",
         },
         to: {
-            backgroundColor: "hsl(210, 100%, 70%)",
-            borderColor: "hsl(210, 90%, 40%)",
+            backgroundColor: "color-mix(in srgb, var(--qg-linked-range-color) 35%, transparent)",
+            borderColor: "var(--qg-linked-range-color)",
         },
     },
     "@media (prefers-reduced-motion: reduce)": {
         ".cm-foldPlaceholder.cm-fold-hides-highlighted-range": {
             animation: "none",
-            backgroundColor: "hsl(210, 100%, 80%)",
-            borderColor: "hsl(210, 80%, 45%)",
+            backgroundColor: "var(--qg-highlighted-range-background)",
+            borderColor: "var(--qg-linked-range-color)",
         },
     },
     "@media (forced-colors: active)": {

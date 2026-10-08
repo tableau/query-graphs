@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useState} from "react";
+import {useCallback, useEffect, useId, useState} from "react";
 import {useBrowserUrl, useUrlParam} from "./browserUrlHooks";
 import type {FileOpenerData} from "./FileOpener";
 import {FileOpener, useLoadStateController} from "./FileOpener";
@@ -9,8 +9,12 @@ import {QueryGraph} from "@tableau/query-graphs/lib/ui/QueryGraph";
 import {tryCreateLocalStorageUrl, isLocalStorageURL, loadLocalStorageURL} from "./LocalStorageUrl";
 import {assert} from "./assert";
 import {TreeLabel} from "./TreeLabel";
+import {SettingsButton, SettingsPanel} from "./SettingsPanel";
+import {useSettings} from "./settings";
 
 export function QueryGraphsApp() {
+    const settingsPopoverId = useId();
+    const animationSpeed = useSettings((settings) => settings.values.animationSpeed);
     const loadStateController = useLoadStateController();
     const {setProgress, clearLoadState, tryAndDisplayErrors} = loadStateController;
     const [loadedPlan, setLoadedPlan] = useState<LoadedPlan | undefined>(undefined);
@@ -145,7 +149,11 @@ export function QueryGraphsApp() {
     } else {
         const {tree, format} = loadedPlan;
         return (
-            <QueryGraph treeDescription={tree}>
+            <QueryGraph
+                treeDescription={tree}
+                animationSpeed={animationSpeed}
+                additionalControls={<SettingsButton popoverId={settingsPopoverId} />}
+            >
                 <TreeLabel
                     title={treeTitle ?? ""}
                     setTitle={setTreeTitle}
@@ -154,6 +162,7 @@ export function QueryGraphsApp() {
                     textDocuments={tree.textDocuments}
                     insights={insightPresets[format] ? {root: tree.root, definitions: insightPresets[format]} : undefined}
                 />
+                <SettingsPanel popoverId={settingsPopoverId} />
             </QueryGraph>
         );
     }

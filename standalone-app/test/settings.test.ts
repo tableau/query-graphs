@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import {createSettingsStore} from "../src/ui/settings";
+import {createSettingsStore} from "../src/settings";
 
 const storageKey = "query-graphs-settings";
 
@@ -41,12 +41,30 @@ function withBrowserStorage<T>(
 }
 
 test("settings load recognized properties and ignore unknown properties", () => {
-    const valid = memoryStorage(JSON.stringify({animationSpeed: "slow", futureSetting: true}));
-    withBrowserStorage(valid, () => assert.equal(createSettingsStore().getState().values.animationSpeed, "slow"));
+    const valid = memoryStorage(
+        JSON.stringify({animationSpeed: "slow", theme: "dark", editorKeybindings: "vim", futureSetting: true}),
+    );
+    withBrowserStorage(valid, () =>
+        assert.deepEqual(createSettingsStore().getState().values, {
+            animationSpeed: "slow",
+            theme: "dark",
+            editorKeybindings: "vim",
+        }),
+    );
 
-    for (const invalid of ["not JSON", JSON.stringify({futureSetting: true}), JSON.stringify({animationSpeed: "no-such-speed"})]) {
+    for (const invalid of [
+        "not JSON",
+        JSON.stringify({futureSetting: true}),
+        JSON.stringify({animationSpeed: "no-such-speed", theme: "sepia", editorKeybindings: "vscode"}),
+    ]) {
         const storage = memoryStorage(invalid);
-        withBrowserStorage(storage, () => assert.equal(createSettingsStore().getState().values.animationSpeed, "medium"));
+        withBrowserStorage(storage, () =>
+            assert.deepEqual(createSettingsStore().getState().values, {
+                animationSpeed: "medium",
+                theme: "system",
+                editorKeybindings: "standard",
+            }),
+        );
     }
 });
 
@@ -59,7 +77,11 @@ test("settings updates persist and reset to defaults", () => {
 
         store.getState().setSettings({animationSpeed: "debug"});
         assert.equal(store.getState().values.animationSpeed, "debug");
-        assert.deepEqual(JSON.parse(storage.getItem(storageKey)!), {animationSpeed: "debug"});
+        assert.deepEqual(JSON.parse(storage.getItem(storageKey)!), {
+            animationSpeed: "debug",
+            theme: "system",
+            editorKeybindings: "standard",
+        });
 
         store.getState().resetSettings();
         assert.equal(store.getState().values.animationSpeed, "medium");

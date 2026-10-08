@@ -4,7 +4,10 @@ import test from "node:test";
 import * as React from "react";
 import {createRoot} from "react-dom/client";
 import {JSDOM} from "jsdom";
+import {color as oneDarkColor} from "@codemirror/theme-one-dark";
+import {settingsStore} from "../src/settings";
 import type {CodeMirrorDocumentProps} from "../src/CodeMirrorDocument";
+import type {SettingsValues} from "../src/settings";
 
 // Node does not load CSS, so replace stylesheet imports with empty modules.
 registerHooks({
@@ -42,12 +45,30 @@ async function createFixture() {
     const previousGlobals = new Map(globalNames.map((name) => [name, Object.getOwnPropertyDescriptor(globalThis, name)]));
     for (const name of globalNames)
         Object.defineProperty(globalThis, name, {configurable: true, writable: true, value: dom.window[name]});
+    let darkSystemTheme = false;
+    const colorSchemeQuery = "(prefers-color-scheme: dark)";
+    const colorSchemeListeners = new Set<(event: MediaQueryListEvent) => void>();
+    Object.defineProperty(dom.window, "matchMedia", {
+        configurable: true,
+        value: (query: string) => ({
+            get matches() {
+                return query === colorSchemeQuery && darkSystemTheme;
+            },
+            addEventListener: (_type: string, listener: (event: MediaQueryListEvent) => void) => {
+                if (query === colorSchemeQuery) colorSchemeListeners.add(listener);
+            },
+            removeEventListener: (_type: string, listener: (event: MediaQueryListEvent) => void) => {
+                if (query === colorSchemeQuery) colorSchemeListeners.delete(listener);
+            },
+        }),
+    });
     // jsdom has no layout; an empty rectangle list is sufficient for these editor interactions.
     Object.defineProperty(dom.window.Range.prototype, "getClientRects", {configurable: true, value: () => []});
     const previousActEnvironment = Object.getOwnPropertyDescriptor(globalThis, "IS_REACT_ACT_ENVIRONMENT");
     const previousReact = Object.getOwnPropertyDescriptor(globalThis, "React");
     Object.defineProperty(globalThis, "IS_REACT_ACT_ENVIRONMENT", {configurable: true, writable: true, value: true});
     Object.defineProperty(globalThis, "React", {configurable: true, writable: true, value: React});
+    settingsStore.getState().resetSettings();
 
     // Record callbacks so caret movement can be checked independently of rendered decorations.
     const activeLinkedRangeUpdates: {documentId: string; from: number; to: number}[][] = [];
@@ -70,6 +91,7 @@ async function createFixture() {
     const cleanup = async () => {
         // Restore process-wide globals so later tests receive their original environment.
         await React.act(async () => root.unmount());
+        settingsStore.getState().resetSettings();
         dom.window.close();
         if (previousActEnvironment === undefined) Reflect.deleteProperty(globalThis, "IS_REACT_ACT_ENVIRONMENT");
         else Object.defineProperty(globalThis, "IS_REACT_ACT_ENVIRONMENT", previousActEnvironment);
@@ -81,7 +103,22 @@ async function createFixture() {
         }
     };
 
-    return {activeLinkedRangeUpdates, cleanup, dom, render};
+    return {
+        activeLinkedRangeUpdates,
+        cleanup,
+        dom,
+        render,
+        setSettings: async (settings: Partial<SettingsValues>) => {
+            await React.act(async () => settingsStore.getState().setSettings(settings));
+        },
+        setSystemTheme: async (theme: "light" | "dark") => {
+            await React.act(async () => {
+                darkSystemTheme = theme === "dark";
+                for (const listener of colorSchemeListeners)
+                    listener({matches: darkSystemTheme, media: colorSchemeQuery} as MediaQueryListEvent);
+            });
+        },
+    };
 }
 
 test("the document editor synchronizes range decorations across prop and document changes", async () => {
@@ -159,6 +196,49 @@ test("the standard keyboard shortcut opens the search panel", async () => {
         // Programmatic search must not displace CodeMirror's standard search keymap.
         content.dispatchEvent(new fixture.dom.window.KeyboardEvent("keydown", {key: "f", ctrlKey: true, bubbles: true}));
         assert.ok(fixture.dom.window.document.querySelector(".cm-search"));
+    } finally {
+        await fixture.cleanup();
+    }
+});
+
+test("editor settings reconfigure the existing document editor", async () => {
+    const fixture = await createFixture();
+    try {
+        await fixture.render();
+        const editor = fixture.dom.window.document.querySelector<HTMLElement>(".cm-editor");
+        const content = fixture.dom.window.document.querySelector<HTMLElement>(".cm-content");
+        assert.ok(editor);
+        assert.ok(content);
+        const lightThemeClasses = editor.className;
+
+        await fixture.setSystemTheme("dark");
+        assert.equal(fixture.dom.window.document.querySelector(".cm-editor"), editor);
+        assert.notEqual(editor.className, lightThemeClasses);
+        const darkThemeStyle = fixture.dom.window.getComputedStyle(editor);
+        assert.equal(darkThemeStyle.getPropertyValue("--qg-control-hover-background"), oneDarkColor.highlightBackground);
+        assert.equal(darkThemeStyle.getPropertyValue("--qg-control-active-background"), oneDarkColor.selection);
+        assert.equal(darkThemeStyle.getPropertyValue("--qg-control-active-border"), oneDarkColor.cursor);
+        assert.equal(darkThemeStyle.getPropertyValue("--qg-linked-range-color"), oneDarkColor.malibu);
+        assert.equal(darkThemeStyle.getPropertyValue("--qg-highlighted-range-background"), oneDarkColor.selection);
+
+        content.focus();
+        await fixture.setSettings({editorKeybindings: "vim"});
+        const documentText = content.textContent;
+        content.dispatchEvent(new fixture.dom.window.KeyboardEvent("keydown", {key: "x", bubbles: true}));
+        assert.equal(content.textContent, documentText);
+        content.dispatchEvent(new fixture.dom.window.KeyboardEvent("keydown", {key: "l", bubbles: true}));
+        assert.deepEqual(fixture.activeLinkedRangeUpdates.at(-1), [innerRange, tiedRange]);
+
+        content.dispatchEvent(new fixture.dom.window.KeyboardEvent("keydown", {key: "h", bubbles: true}));
+        await fixture.setSettings({editorKeybindings: "emacs"});
+        content.dispatchEvent(
+            new fixture.dom.window.KeyboardEvent("keydown", {key: "f", code: "KeyF", ctrlKey: true, bubbles: true}),
+        );
+        assert.deepEqual(fixture.activeLinkedRangeUpdates.at(-1), [innerRange, tiedRange]);
+        content.dispatchEvent(
+            new fixture.dom.window.KeyboardEvent("keydown", {key: "k", code: "KeyK", ctrlKey: true, bubbles: true}),
+        );
+        assert.equal(content.textContent, documentText);
     } finally {
         await fixture.cleanup();
     }

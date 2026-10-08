@@ -17,6 +17,7 @@ import type {TreeDescription, TreeNode} from "../tree-description";
 import type {QueryGraphNode} from "./QueryNode";
 import {layoutTree} from "./tree-layout";
 import {getGraphAnimationDuration, graphAnimationProgress} from "./animation-timing";
+import type {AnimationSpeed} from "./animation-timing";
 import type {GraphLayout} from "./animated-layout";
 import {
     closestAnimationAnchor,
@@ -181,6 +182,7 @@ export function useAnimatedGraphLayout(
     nodeIds: ReadonlyMap<TreeNode, string>,
     treeParents: TreeParents,
     expandedSubtrees: Record<string, boolean>,
+    animationSpeed: AnimationSpeed,
 ): GraphLayout & {
     onNodesChange: (changes: NodeChange<QueryGraphNode>[]) => void;
     animateGraphChange: AnimateGraphChange;
@@ -259,11 +261,11 @@ export function useAnimatedGraphLayout(
             for (const {nodeId} of resizingNodes) finishNodeResize(nodeResizesRef.current, nodeId);
             for (const [nodeId, resize] of resizes) nodeResizesRef.current.set(nodeId, resize);
             animationAnchorNodeIdsRef.current = anchorAllVisibleNodes ? new Set() : undefined;
-            animationDurationRef.current = getGraphAnimationDuration();
+            animationDurationRef.current = getGraphAnimationDuration(animationSpeed);
             applyChange();
             setGraphChangeRevision((revision) => revision + 1);
         },
-        [cancelLayoutFrame],
+        [animationSpeed, cancelLayoutFrame],
     );
 
     // Apply each computed target to the currently rendered frame. New

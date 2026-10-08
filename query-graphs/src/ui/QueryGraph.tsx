@@ -4,7 +4,7 @@ import "@xyflow/react/dist/style.css";
 
 import type {TreeDescription, TreeNode} from "../tree-description";
 import type {MouseEvent, ReactNode} from "react";
-import {useId, useMemo} from "react";
+import {useMemo} from "react";
 import cc from "classcat";
 import {QueryNode} from "./QueryNode";
 import type {QueryGraphNode} from "./QueryNode";
@@ -13,13 +13,19 @@ import {createGraphRenderingStore, GraphRenderingStoreContext, useGraphRendering
 import {AnimateGraphChangeContext, useAnimatedGraphLayout, useAnimateGraphChange} from "./useAnimatedGraphLayout";
 import {indexGraph} from "./graph-index";
 import type {TreeParents} from "./tree-topology";
-import {SettingsButton, SettingsPanel} from "./SettingsPanel";
+import type {AnimationSpeed} from "./animation-timing";
 import "./QueryGraph.css";
 
-interface QueryGraphProps {
+export interface QueryGraphProps {
     treeDescription: TreeDescription;
     children: ReactNode | ReactNode[];
+    /** Selects the duration of graph layout transitions. Defaults to medium. */
+    animationSpeed?: AnimationSpeed;
+    /** Additional buttons, normally `QueryGraphControlButton`s, appended to the built-in graph controls. */
+    additionalControls?: ReactNode;
 }
+
+export const QueryGraphControlButton = ControlButton;
 
 interface QueryGraphInternalProps extends QueryGraphProps {
     nodeIdMapping: ReadonlyMap<TreeNode, string>;
@@ -83,10 +89,16 @@ function ExpandedNodesControl() {
     );
 }
 
-function QueryGraphInternal({treeDescription, children, nodeIdMapping, treeParents}: QueryGraphInternalProps) {
-    const settingsPopoverId = useId();
+function QueryGraphInternal({
+    treeDescription,
+    children,
+    animationSpeed = "medium",
+    additionalControls,
+    nodeIdMapping,
+    treeParents,
+}: QueryGraphInternalProps) {
     const expandedSubtrees = useGraphRenderingStore((s) => s.expandedSubtrees);
-    const animatedLayout = useAnimatedGraphLayout(treeDescription, nodeIdMapping, treeParents, expandedSubtrees);
+    const animatedLayout = useAnimatedGraphLayout(treeDescription, nodeIdMapping, treeParents, expandedSubtrees, animationSpeed);
     // Hide the full tree initially to avoid flickering. We use `opacity` instead
     // of `visibility: hidden` because React Flow overrides inherited
     // visibility on nodes after measuring them.
@@ -116,9 +128,8 @@ function QueryGraphInternal({treeDescription, children, nodeIdMapping, treeParen
                 <MiniMap zoomable={true} pannable={true} nodeColor={minimapNodeColor} nodeComponent={QueryGraphMiniMapNode} />
                 <Controls showInteractive={false}>
                     <ExpandedNodesControl />
-                    <SettingsButton popoverId={settingsPopoverId} />
+                    {additionalControls}
                 </Controls>
-                <SettingsPanel popoverId={settingsPopoverId} />
             </ReactFlow>
         </AnimateGraphChangeContext.Provider>
     );
