@@ -116,18 +116,16 @@ const keybindings: Record<EditorKeybindings, Extension> = {
 // Third-party keymaps do not consistently honor CodeMirror's read-only facet.
 const preventDocumentChanges = EditorState.changeFilter.of((transaction) => !transaction.docChanged);
 
-function subscribeToSystemTheme(onStoreChange: () => void): () => void {
-    const mediaQuery = window.matchMedia(darkThemeQuery);
-    mediaQuery.addEventListener("change", onStoreChange);
-    return () => mediaQuery.removeEventListener("change", onStoreChange);
-}
-
-function getSystemTheme(): Exclude<Theme, "system"> {
-    return window.matchMedia(darkThemeQuery).matches ? "dark" : "light";
-}
-
 function useResolvedTheme(theme: Theme): Exclude<Theme, "system"> {
-    const currentSystemTheme = useSyncExternalStore(subscribeToSystemTheme, getSystemTheme, () => "light" as const);
+    const currentSystemTheme = useSyncExternalStore(
+        (onStoreChange) => {
+            const mediaQuery = window.matchMedia(darkThemeQuery);
+            mediaQuery.addEventListener("change", onStoreChange);
+            return () => mediaQuery.removeEventListener("change", onStoreChange);
+        },
+        () => (window.matchMedia(darkThemeQuery).matches ? "dark" : "light"),
+        () => "light" as const,
+    );
     return theme === "system" ? currentSystemTheme : theme;
 }
 
