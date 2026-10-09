@@ -1,7 +1,3 @@
-.qg-insights-scrollable-area {
-    max-height: min(20em, 35dvh);
-}
-
 .qg-insight-category-list {
     & h3 {
         margin: 0 0 0.5em;

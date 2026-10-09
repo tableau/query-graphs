@@ -1,13 +1,5 @@
 .qg-scrollable-area {
-    position: relative;
-    min-width: 0;
-    min-height: 0;
-}
-
-.qg-scrollable-area-viewport {
     container-type: scroll-state;
-    max-width: inherit;
-    max-height: inherit;
     overflow: auto;
 }
 

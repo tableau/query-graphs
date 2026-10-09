@@ -20,11 +20,9 @@ function ScrollOverflowIndicator({direction}: {direction: "above" | "below"}) {
 export function ScrollableArea({children, className}: ScrollableAreaProps) {
     return (
         <div className={cc(["qg-scrollable-area", className])}>
-            <div className="qg-scrollable-area-viewport">
-                <ScrollOverflowIndicator direction="above" />
-                <div className="qg-scrollable-area-content">{children}</div>
-                <ScrollOverflowIndicator direction="below" />
-            </div>
+            <ScrollOverflowIndicator direction="above" />
+            <div className="qg-scrollable-area-content">{children}</div>
+            <ScrollOverflowIndicator direction="below" />
         </div>
     );
 }

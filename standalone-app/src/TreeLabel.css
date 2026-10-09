@@ -67,10 +67,6 @@
     height: clamp(12em, 50dvh, 30em);
 }
 
-.graph-metadata-scrollable-area {
-    max-height: min(20em, 35dvh);
-}
-
 /* Loading state */
 .graph-text-document-loading {
     box-sizing: border-box;

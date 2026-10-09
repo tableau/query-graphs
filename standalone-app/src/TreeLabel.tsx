@@ -118,7 +118,7 @@ export function TreeLabel({title, setTitle, metadata, metadataHighlighted, textD
                     {insights ? <PlanInsights root={insights.root} definitions={insights.definitions} /> : null}
                     {metadataChildren.length > 0 ? (
                         <CollapsiblePanel title="Plan Metadata" highlighted={metadataHighlighted}>
-                            <ScrollableArea className="graph-metadata-scrollable-area">
+                            <ScrollableArea>
                                 <div className="graph-metadata">{metadataChildren}</div>
                             </ScrollableArea>
                         </CollapsiblePanel>

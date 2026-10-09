@@ -66,7 +66,7 @@ export function PlanInsights({root, definitions}: PlanInsightsProps) {
             open={open}
             onOpenChange={setOpen}
         >
-            <ScrollableArea className="qg-insights-scrollable-area">
+            <ScrollableArea>
                 {categoryLists.map(({definition, categories}) => (
                     <section key={definition.id} className="qg-insight-category-list" aria-label={definition.title}>
                         <h3>{definition.title}</h3>
