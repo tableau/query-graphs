@@ -10,7 +10,7 @@ import type {DecoratedJsonTreeConfig} from "./decorated-json-tree";
 import {convertDecoratedJsonNode, createDecoratedJsonTreeState} from "./decorated-json-tree";
 import type {Json, JsonObject} from "./loader-utils";
 import {hasOwnProperty, hasSubObject, tryToNonNullString, tryToNumber} from "./loader-utils";
-import {buildIdMap, resolveCrosslinks, setRelativeEdgeWidths} from "./tree-postprocessing";
+import {buildIdMap, relativeHeatColor, resolveCrosslinks, setRelativeEdgeWidths} from "./tree-postprocessing";
 import type {JsonPlanLoader, PlanLoadContext} from "./types";
 
 function getStringProperty(rawNode: JsonObject, key: string): string | undefined {
@@ -156,8 +156,7 @@ function colorChildRelativeExecutionRatio(node: TreeNode, executionTime: number,
 
         node.properties?.set("~Relative Time", relativeTotalTime.toFixed(3));
         node.properties?.set("~Relative Time Ratio", relativeExecutionRatio.toFixed(3));
-        const l = (95 + (72 - 95) * relativeExecutionRatio).toFixed(3);
-        node.nodeColor = relativeExecutionRatio >= 0.05 ? `hsl(309, 84%, ${l}%)` : undefined;
+        node.nodeColor = relativeHeatColor(relativeExecutionRatio);
     }
     for (const child of planChildren(node)) {
         colorChildRelativeExecutionRatio(child, executionTime, degreeOfParallelism);

@@ -1,4 +1,4 @@
-body, html, .main-app-container {
+body, html, .main-app-container, .app-root {
     margin: 0;
     padding: 0;
     height: 100%;
@@ -6,20 +6,16 @@ body, html, .main-app-container {
 }
 
 .main-app-container {
-    /* Colors for the main-area, i.e. the graph view panel */
-    --primary-bg-color: #fdfdfd;
-    --primary-fg-color: #111;
-    --primary-border-color: #999;
     --border-radius: 10px;
 }
 
 .span-link {
-    color: #5c8aff;
+    color: var(--qg-accent);
     cursor: pointer;
 
     &:hover,
     &:focus {
-        color: #2965ff;
+        color: var(--qg-accent);
         text-decoration: underline;
     }
 }

@@ -14,19 +14,19 @@
     height: 1.75em;
     box-sizing: border-box;
     padding: 0;
-    border: 1px solid hsl(0, 0%, 70%);
+    border: 1px solid var(--qg-border);
     border-radius: 4px;
     color: inherit;
-    background: white;
+    background: var(--qg-surface);
     cursor: pointer;
     anchor-name: --qg-icon-button-anchor;
 
     &:hover:not(:disabled) {
-        background: hsl(0, 0%, 95%);
+        background: var(--qg-surface-hover);
     }
 
     &:focus-visible {
-        outline: 2px solid hsl(210, 90%, 65%);
+        outline: 2px solid var(--qg-focus);
         outline-offset: 1px;
     }
 
@@ -68,9 +68,9 @@
     display: block;
     padding: 0.25em 0.4em;
     border-radius: 3px;
-    color: white;
-    background: hsl(0, 0%, 20%);
-    box-shadow: 0 1px 3px hsl(0, 0%, 0%, 0.25);
+    color: var(--qg-tooltip-text);
+    background: var(--qg-tooltip);
+    box-shadow: 0 1px 3px color-mix(in srgb, var(--qg-text) 25%, transparent);
 }
 
 .qg-icon-button-wrapper:has(.qg-icon-button:hover, .qg-icon-button:focus-visible, .qg-icon-button-tooltip:hover)

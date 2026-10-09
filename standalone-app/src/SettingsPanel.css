@@ -1,8 +1,4 @@
 .qg-settings-popover {
-    --qg-settings-text: hsl(0, 0%, 15%);
-    --qg-settings-accent: hsl(210, 75%, 38%);
-    --qg-settings-focus: hsl(210, 90%, 55%);
-
     position: fixed;
     inset: auto auto 15px calc(15px + var(--qg-graph-toolbar-button-size) + 0.5em);
     inline-size: min(22em, calc(100vw - 2em));
@@ -10,7 +6,7 @@
     margin: 0;
     padding: 0;
     overflow: auto;
-    color: var(--qg-settings-text);
+    color: var(--qg-text);
 }
 
 .qg-settings-body {
@@ -20,7 +16,7 @@
 
 .qg-settings-note {
     margin: -0.2em 0.75em 0.6em;
-    color: hsl(0, 0%, 40%);
+    color: var(--qg-text-muted);
     font-size: 0.85em;
 }
 
@@ -90,7 +86,7 @@
     & button {
         padding: 0;
         border: 0;
-        color: var(--qg-settings-accent);
+        color: var(--qg-accent);
         background: transparent;
         font: inherit;
         cursor: pointer;
@@ -100,7 +96,7 @@
 .qg-settings-close:focus-visible,
 .qg-settings-row select:focus-visible,
 .qg-settings-footer button:focus-visible {
-    outline: 2px solid var(--qg-settings-focus);
+    outline: 2px solid var(--qg-focus);
     outline-offset: 2px;
 }
 

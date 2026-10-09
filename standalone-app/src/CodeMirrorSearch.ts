@@ -194,10 +194,10 @@ const compactSearchTheme = EditorView.baseTheme({
         margin: "0 2px 0 0",
     },
     ".cm-panel.cm-search .cm-textfield[name=search][aria-invalid=true]": {
-        borderColor: "hsl(0, 70%, 50%)",
+        borderColor: "var(--qg-danger)",
     },
     ".cm-panel.cm-search .cm-textfield[name=search][aria-invalid=true]:focus": {
-        outline: "2px solid hsl(0, 70%, 50%)",
+        outline: "2px solid var(--qg-danger)",
         outlineOffset: "-1px",
     },
     ".cm-panel.cm-search button": {
@@ -220,7 +220,7 @@ const compactSearchTheme = EditorView.baseTheme({
         backgroundColor: "var(--qg-control-hover-background)",
     },
     ".cm-panel.cm-search button:focus-visible": {
-        outline: "2px solid hsl(210, 90%, 65%)",
+        outline: "2px solid var(--qg-focus)",
         outlineOffset: "-2px",
     },
     ".cm-panel.cm-search button:disabled": {
@@ -259,7 +259,7 @@ const compactSearchTheme = EditorView.baseTheme({
         backgroundColor: "var(--qg-control-hover-background)",
     },
     ".cm-panel.cm-search .compact-search-toggle:has(input:focus-visible)": {
-        outline: "2px solid hsl(210, 90%, 65%)",
+        outline: "2px solid var(--qg-focus)",
         outlineOffset: "-2px",
     },
     ".cm-panel.cm-search .compact-search-toggle:has(input:checked)": {

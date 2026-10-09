@@ -1,4 +1,4 @@
-import {useEffect, useRef, useSyncExternalStore} from "react";
+import {useEffect, useRef} from "react";
 import {defaultKeymap} from "@codemirror/commands";
 import {bracketMatching, defaultHighlightStyle, foldGutter, foldKeymap, syntaxHighlighting} from "@codemirror/language";
 import {openSearchPanel, searchKeymap} from "@codemirror/search";
@@ -9,7 +9,8 @@ import {emacs} from "@replit/codemirror-emacs";
 import {vim} from "@replit/codemirror-vim";
 import type {SourceLocation, TextDocument} from "@tableau/query-graphs/lib/tree-description";
 import {useSettings} from "./settings";
-import type {EditorKeybindings, Theme} from "./settings";
+import type {EditorKeybindings} from "./settings";
+import {useTheme} from "./theme";
 import {compactSearch} from "./CodeMirrorSearch";
 import {rangeLinking} from "./RangeLinking";
 import "./CodeMirrorDocument.css";
@@ -57,7 +58,7 @@ const foldMarkerTheme = EditorView.baseTheme({
 const documentTheme = EditorView.theme({
     "&": {
         height: "100%",
-        border: "1px solid hsl(0, 0%, 85%)",
+        border: "1px solid var(--qg-border)",
     },
     "&.cm-focused": {
         outline: "none",
@@ -102,7 +103,6 @@ const oneDarkWithEditorThemeColors = withEditorThemeColors(oneDark, {
     linkedRange: oneDarkColor.malibu,
     highlightedRangeBackground: oneDarkColor.selection,
 });
-const darkThemeQuery = "(prefers-color-scheme: dark)";
 const themeConfiguration = new Compartment();
 const keybindingsConfiguration = new Compartment();
 const standardKeybindings = keymap.of([...defaultKeymap, ...searchKeymap, ...foldKeymap]);
@@ -115,19 +115,6 @@ const keybindings: Record<EditorKeybindings, Extension> = {
 };
 // Third-party keymaps do not consistently honor CodeMirror's read-only facet.
 const preventDocumentChanges = EditorState.changeFilter.of((transaction) => !transaction.docChanged);
-
-function useResolvedTheme(theme: Theme): Exclude<Theme, "system"> {
-    const currentSystemTheme = useSyncExternalStore(
-        (onStoreChange) => {
-            const mediaQuery = window.matchMedia(darkThemeQuery);
-            mediaQuery.addEventListener("change", onStoreChange);
-            return () => mediaQuery.removeEventListener("change", onStoreChange);
-        },
-        () => (window.matchMedia(darkThemeQuery).matches ? "dark" : "light"),
-        () => "light" as const,
-    );
-    return theme === "system" ? currentSystemTheme : theme;
-}
 
 export interface DocumentViewerProps {
     document: TextDocument;
@@ -155,9 +142,9 @@ export function CodeMirrorDocument({
     const editorView = useRef<EditorView | undefined>(undefined);
     const linkedRangesRef = useRef(linkedRanges);
     const highlightedRangesRef = useRef(highlightedRanges);
-    const theme = useSettings((settings) => settings.values.theme);
+    const theme = useTheme();
     const editorKeybindings = useSettings((settings) => settings.values.editorKeybindings);
-    const themeExtension = useResolvedTheme(theme) === "dark" ? oneDarkWithEditorThemeColors : emptyExtension;
+    const themeExtension = theme === "dark" ? oneDarkWithEditorThemeColors : emptyExtension;
     const themeExtensionRef = useRef(themeExtension);
     const keybindingsExtensionRef = useRef(keybindings[editorKeybindings]);
 

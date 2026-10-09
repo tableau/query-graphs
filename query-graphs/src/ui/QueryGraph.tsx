@@ -15,6 +15,7 @@ import {indexGraph} from "./graph-index";
 import type {TreeParents} from "./tree-topology";
 import {getGraphAnimationDuration, type AnimationSpeed} from "./animation-timing";
 import {IconButton} from "./IconButton";
+import "./Theme.css";
 import "./PanelSurface.css";
 import "./QueryGraph.css";
 
@@ -23,6 +24,8 @@ export interface QueryGraphProps {
     children: ReactNode | ReactNode[];
     /** Selects the duration of graph layout transitions. Defaults to medium. */
     animationSpeed?: AnimationSpeed;
+    /** Color scheme for the graph and its overlays. Defaults to light. */
+    theme?: "light" | "dark";
 }
 
 interface QueryGraphInternalProps extends QueryGraphProps {
@@ -147,6 +150,7 @@ function QueryGraphInternal({
     treeDescription,
     children,
     animationSpeed = "medium",
+    theme = "light",
     nodeIdMapping,
     treeParents,
 }: QueryGraphInternalProps) {
@@ -173,7 +177,8 @@ function QueryGraphInternal({
                 nodesDraggable={false}
                 nodesConnectable={false}
                 nodesFocusable={false}
-                className={"query-graph"}
+                className={"query-graph qg-theme"}
+                data-theme={theme}
                 style={initialViewportStyle}
                 inert={!animatedLayout.initialViewportReady}
             >

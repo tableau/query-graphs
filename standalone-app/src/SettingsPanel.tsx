@@ -74,7 +74,7 @@ export function SettingsPanel({popoverId}: SettingsTargetProps) {
                     </p>
                 ) : null}
                 <label className="qg-settings-row">
-                    <span>CodeMirror theme</span>
+                    <span>Theme</span>
                     <select value={theme} onChange={(event) => setSettings({theme: event.target.value as Theme})}>
                         {themeOptions.map(({value, label}) => (
                             <option key={value} value={value}>

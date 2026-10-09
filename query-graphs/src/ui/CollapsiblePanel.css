@@ -39,7 +39,7 @@
 
         &:focus-visible {
             z-index: 2;
-            outline: 2px solid hsl(210, 90%, 65%);
+            outline: 2px solid var(--qg-focus);
             outline-offset: 1px;
         }
 
@@ -63,19 +63,19 @@
 
     /* Use red to distinguish panels that need attention. */
     &.qg-highlighted {
-        border-color: hsl(0, 72%, 55%);
+        border-color: var(--qg-danger);
         box-shadow:
-            0 2px 6px hsl(0, 72%, 45%, 0.12),
-            0 1px 2px hsl(0, 72%, 45%, 0.1);
+            0 2px 6px color-mix(in srgb, var(--qg-danger) 12%, transparent),
+            0 1px 2px color-mix(in srgb, var(--qg-danger) 10%, transparent);
 
         & > .qg-collapsible-panel-toggle {
-            color: hsl(0, 72%, 40%);
-            background: hsl(0, 75%, 97%);
+            color: var(--qg-danger);
+            background: var(--qg-danger-subtle);
         }
 
         & > .qg-collapsible-panel-actions {
-            color: hsl(0, 72%, 40%);
-            background: hsl(0, 75%, 97%);
+            color: var(--qg-danger);
+            background: var(--qg-danger-subtle);
         }
     }
 }
@@ -87,8 +87,8 @@
     width: 1.25em;
     height: 1.25em;
     border-radius: 50%;
-    color: white;
-    background: hsl(0, 72%, 45%);
+    color: var(--qg-surface);
+    background: var(--qg-danger);
     font-size: 0.85em;
     font-weight: bold;
 }
@@ -163,7 +163,7 @@
     margin-inline-start: 0.4em;
     border-radius: 50%;
     vertical-align: 0.05em;
-    background: hsl(210, 90%, 55%);
+    background: var(--qg-accent);
     visibility: hidden;
 }
 
@@ -181,12 +181,12 @@
     0%,
     100% {
         opacity: 0.55;
-        box-shadow: 0 0 0 0 hsl(210, 90%, 55%, 0.45);
+        box-shadow: 0 0 0 0 color-mix(in srgb, var(--qg-accent) 45%, transparent);
     }
 
     50% {
         opacity: 1;
-        box-shadow: 0 0 0 0.4em hsl(210, 90%, 55%, 0);
+        box-shadow: 0 0 0 0.4em color-mix(in srgb, var(--qg-accent) 0%, transparent);
     }
 }
 

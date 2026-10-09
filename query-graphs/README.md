@@ -167,5 +167,9 @@ function MyPlanViewer({planText}: {planText: string}) {
 
 Pass `{format: "hyper"}` (or another registered format) as the second argument to bypass automatic format detection.
 
-The component imports its own CSS (`QueryGraph.css`, `QueryNode.css`, `NodeIcon.css`) and react-flow's default stylesheet; with a bundler that honors the package's `sideEffects`, those styles are included automatically when you import the component.
+`QueryGraph` accepts `theme="light"` (the default) or `theme="dark"`.
+Its colors come from the semantic custom properties in `src/ui/Theme.css`; an embedding application can override those properties on `.query-graph`.
+The runtime heat tint uses transparency so it blends with either theme, while pipeline colors retain their assigned hues.
+
+The component imports its own CSS (`Theme.css`, `QueryGraph.css`, `QueryNode.css`, `NodeIcon.css`) and react-flow's default stylesheet; with a bundler that honors the package's `sideEffects`, those styles are included automatically when you import the component.
 If you build a plan programmatically instead of parsing text, construct a `TreeDescription` directly — that is the only contract the renderer depends on.

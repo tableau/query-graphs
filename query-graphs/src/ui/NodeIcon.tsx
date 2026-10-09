@@ -30,7 +30,7 @@ function RunQueryIcon(p: NodeIconProps) {
     return (
         <svg viewBox="-7 -7 14 14" {...sharedSvgProps(p)}>
             <circle r="6" fill="currentColor" />
-            <path d="M-2.5,-3.5L4,0L-2.5,3.5 z" fill="#fff" />
+            <path d="M-2.5,-3.5L4,0L-2.5,3.5 z" fill="var(--qg-icon-cutout, #fff)" />
         </svg>
     );
 }
@@ -50,7 +50,7 @@ function GroupByIcon(p: NodeIconProps) {
 function SortIcon(p: NodeIconProps) {
     return (
         <svg viewBox="-9 -8 18 18" {...sharedSvgProps(p)}>
-            <rect x={-8} y={-8} width={16} height="16" fill="#fff" stroke="none"></rect>
+            <rect x={-8} y={-8} width={16} height="16" fill="var(--qg-icon-cutout, #fff)" stroke="none"></rect>
             <path d="M6,3 L6,6 L-7,6 L-7,3 Z" fill="currentColor" />
             <path d="M0,-2 L0,1 L-7,1 L-7,-2 Z" fill="currentColor" />
             <path d="M-3,-7 L-3,-4 L-7,-4 L-7,-7 Z" fill="currentColor" />
@@ -83,8 +83,18 @@ function createJoinIcon(joinFills: JoinFills) {
         return (
             <svg viewBox="-10 -7 20 14" {...sharedSvgProps(p)}>
                 {/* left and right circle */}
-                <circle r={radius} cx={leftOffset} stroke="none" fill={joinFills.left ? "currentColor" : "#fff"} />
-                <circle r={radius} cx={rightOffset} stroke="none" fill={joinFills.right ? "currentColor" : "#fff"} />
+                <circle
+                    r={radius}
+                    cx={leftOffset}
+                    stroke="none"
+                    fill={joinFills.left ? "currentColor" : "var(--qg-icon-cutout, #fff)"}
+                />
+                <circle
+                    r={radius}
+                    cx={rightOffset}
+                    stroke="none"
+                    fill={joinFills.right ? "currentColor" : "var(--qg-icon-cutout, #fff)"}
+                />
                 {/* intersection of both circles */}
                 <clipPath id="join-clip">
                     <circle r={radius} cx={leftOffset} />
@@ -94,7 +104,7 @@ function createJoinIcon(joinFills: JoinFills) {
                     cx={rightOffset}
                     clipPath="url(#join-clip)"
                     stroke="none"
-                    fill={joinFills.center ? "currentColor" : "#fff"}
+                    fill={joinFills.center ? "currentColor" : "var(--qg-icon-cutout, #fff)"}
                 />
                 {/* the borders */}
                 <circle r={radius} cx={leftOffset} fill="none" />
@@ -150,7 +160,13 @@ function createTableIcon(labelText?: string) {
 
         return (
             <svg viewBox="-10 -7 20 14" {...sharedSvgProps(p)}>
-                <rect x={tableStartLeft} width={tableWidth} y={tableStartTop} height={tableHeight} fill="#fff" />
+                <rect
+                    x={tableStartLeft}
+                    width={tableWidth}
+                    y={tableStartTop}
+                    height={tableHeight}
+                    fill="var(--qg-icon-cutout, #fff)"
+                />
                 <rect x={tableStartLeft} width={tableWidth} y={tableStartTop} height={tableRowHeight} fill="currentColor" />
                 {content}
             </svg>

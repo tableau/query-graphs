@@ -21,11 +21,11 @@
     &:hover,
     &:focus-visible,
     &.qg-insight-category-active {
-        background: hsl(210, 90%, 94%);
+        background: var(--qg-accent-subtle);
     }
 
     &:focus-visible {
-        outline: 2px solid hsl(210, 90%, 55%);
+        outline: 2px solid var(--qg-focus);
     }
 
     & .qg-insight-category-label {
