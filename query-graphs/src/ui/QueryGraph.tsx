@@ -23,11 +23,9 @@ export interface QueryGraphProps {
     children: ReactNode | ReactNode[];
     /** Selects the duration of graph layout transitions. Defaults to medium. */
     animationSpeed?: AnimationSpeed;
-    /** Additional `IconButton`s appended to the graph toolbar. */
-    additionalControls?: ReactNode;
 }
 
-interface QueryGraphInternalProps extends Omit<QueryGraphProps, "additionalControls"> {
+interface QueryGraphInternalProps extends QueryGraphProps {
     nodeIdMapping: ReadonlyMap<TreeNode, string>;
     treeParents: TreeParents;
 }
@@ -101,7 +99,8 @@ function ExpandedNodesButton() {
     );
 }
 
-function GraphToolbar({children}: {children?: ReactNode}) {
+/** Standard graph controls followed by any application-specific buttons. */
+export function GraphToolbar({children}: {children?: ReactNode}) {
     return (
         <Panel className="qg-graph-toolbar qg-panel-surface" position="bottom-left" role="group" aria-label="Graph controls">
             <FitGraphButton />
@@ -164,7 +163,6 @@ function createGraphState(treeDescription: TreeDescription) {
 }
 
 export function QueryGraph(props: QueryGraphProps) {
-    const {children, additionalControls, ...graphProps} = props;
     const {instanceId, graphIndex, graphStore} = useMemo(() => createGraphState(props.treeDescription), [props.treeDescription]);
 
     // This artificial key remounts React Flow when the tree changes, keeping
@@ -172,14 +170,7 @@ export function QueryGraph(props: QueryGraphProps) {
     return (
         <ReactFlowProvider key={instanceId}>
             <GraphRenderingStoreContext.Provider value={graphStore}>
-                <QueryGraphInternal
-                    {...graphProps}
-                    nodeIdMapping={graphIndex.nodeIds}
-                    treeParents={graphIndex.treeTopology.parents}
-                >
-                    {children}
-                    <GraphToolbar>{additionalControls}</GraphToolbar>
-                </QueryGraphInternal>
+                <QueryGraphInternal {...props} nodeIdMapping={graphIndex.nodeIds} treeParents={graphIndex.treeTopology.parents} />
             </GraphRenderingStoreContext.Provider>
         </ReactFlowProvider>
     );
