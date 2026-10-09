@@ -124,9 +124,9 @@ test("Hyper applies pipeline-level runtime statistics to the pipeline driver", (
     );
     assert.equal(scan?.properties?.get("pipeline-stats"), '{"cpu-cycles":25,"query-metrics":{"wall-clock":0.1},"running":false}');
     assert.equal(failedPlan.metadata?.has("Pipeline statistics"), false);
-    assert.equal(failedPlan.root.iconColor, "red");
-    assert.equal(sort?.iconColor, "red");
-    assert.notEqual(scan?.iconColor, "red");
+    assert.equal(failedPlan.root.iconColor, "var(--qg-danger)");
+    assert.equal(sort?.iconColor, "var(--qg-danger)");
+    assert.notEqual(scan?.iconColor, "var(--qg-danger)");
     assert.equal(failedPlan.root.nodeColor, undefined);
     assert.equal(sort?.nodeColor, "light-dark(hsl(309 84% 76.600%), hsl(309 45% 33.200%))");
     assert.equal(scan?.nodeColor, "light-dark(hsl(309 84% 90.400%), hsl(309 45% 24.800%))");
