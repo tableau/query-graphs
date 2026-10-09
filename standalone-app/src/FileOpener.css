@@ -60,7 +60,7 @@
     display: flex;
     flex-direction: column;
     border: 1px solid var(--qg-border);
-    border-radius: var(--border-radius);
+    border-radius: var(--qg-border-radius);
     overflow: hidden;
     box-shadow: 1px 2px 5px color-mix(in srgb, var(--qg-text) 12%, transparent);
 
@@ -91,13 +91,13 @@
     color: var(--qg-danger);
     background: var(--qg-danger-subtle);
     border: 1px solid var(--qg-danger);
-    border-radius: var(--border-radius);
+    border-radius: var(--qg-border-radius);
     white-space: pre-line;
 }
 
 /* Submit button */
 .file-selection-page button {
-    border-radius: var(--border-radius);
+    border-radius: var(--qg-border-radius);
 }
 
 .file-selection-page > .dragging-operlay {

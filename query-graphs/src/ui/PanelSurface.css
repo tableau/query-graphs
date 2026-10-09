@@ -1,7 +1,7 @@
 .qg-panel-surface {
     box-sizing: border-box;
     border: 1px solid var(--qg-border);
-    border-radius: var(--qg-panel-border-radius);
+    border-radius: var(--qg-border-radius);
     background-color: var(--qg-surface);
     box-shadow: var(--qg-panel-shadow);
 }

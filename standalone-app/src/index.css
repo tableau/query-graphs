@@ -5,10 +5,6 @@ body, html, .main-app-container, .app-root {
     width: 100%;
 }
 
-.main-app-container {
-    --border-radius: 10px;
-}
-
 .span-link {
     color: var(--qg-accent);
     cursor: pointer;

@@ -4,7 +4,7 @@
     display: flex;
     flex-direction: column;
     border: 1px solid transparent;
-    border-radius: var(--qg-panel-border-radius);
+    border-radius: var(--qg-border-radius);
     padding: .3em .5em;
     transition-property: border-color, background-color, box-shadow;
     transition-duration: 0.2s;
