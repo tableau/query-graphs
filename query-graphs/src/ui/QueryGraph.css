@@ -1,8 +1,13 @@
 .query-graph {
   --qg-graph-toolbar-button-size: 2em;
+  --xy-edge-stroke: var(--qg-border);
+  --xy-edge-stroke-selected: var(--qg-text-muted);
+  --xy-minimap-background-color: var(--qg-surface);
+  --xy-minimap-mask-background-color: color-mix(in srgb, var(--qg-minimap-mask-color) 60%, transparent);
+  --xy-minimap-node-background-color: var(--qg-text-muted);
 
   & .react-flow__pane {
-    background: #fdfdfd;
+    background: var(--qg-canvas);
   }
 
   & .react-flow__handle {
@@ -21,8 +26,8 @@
 
   & .react-flow__edge-textbg {
     opacity: .7;
-    fill: white;
-    stroke: #777;
+    fill: var(--qg-surface);
+    stroke: var(--qg-edge-label-border);
   }
 
   & .react-flow__edge-text {
@@ -31,12 +36,12 @@
   }
 
   & .react-flow__edge.qg-label-highlighted .react-flow__edge-text {
-    fill: hsl(309, 84%, 36%);
+    fill: var(--qg-accent-2);
   }
 
   & .react-flow__edge.qg-crosslink {
     & .react-flow__edge-path {
-      stroke: #ccc;
+      stroke: var(--qg-border);
       stroke-dasharray: 4 4;
       transition-property: stroke, stroke-width, stroke-dasharray;
       transition-duration: .5s;
@@ -44,7 +49,7 @@
 
     &:hover .react-flow__edge-path,
     &:focus .react-flow__edge-path {
-      stroke: hsl(309, 84%, 36%);
+      stroke: var(--qg-accent-3);
       stroke-width: 1.5px;
       stroke-dasharray: 6 2;
     }
@@ -55,7 +60,7 @@
     vector-effect: non-scaling-stroke;
 
     &.qg-highlighted {
-      stroke: hsl(210, 80%, 55%);
+      stroke: var(--qg-focus);
       stroke-width: 3px;
     }
   }
@@ -69,7 +74,7 @@
     }
 
     & > .qg-icon-button-wrapper + .qg-icon-button-wrapper {
-      border-block-start: 1px solid var(--qg-panel-divider-color);
+      border-block-start: 1px solid var(--qg-border);
     }
 
     & .qg-icon-button {
@@ -99,7 +104,7 @@
     }
 
     & .qg-icon-button:hover:not(:disabled) {
-      background: var(--qg-panel-hover-background);
+      background: var(--qg-surface-hover);
     }
 
     /* Open toolbar tooltips into the canvas rather than below the viewport. */

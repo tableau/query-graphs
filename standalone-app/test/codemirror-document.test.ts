@@ -27,6 +27,11 @@ const highlightedRanges = [{documentId: "query", from: 7, to: 12}];
 async function createFixture() {
     // Import after registering the CSS hook because the component imports its stylesheet eagerly.
     const {CodeMirrorDocument} = await import("../src/CodeMirrorDocument");
+    const {ThemeContext, useResolvedThemeSetting} = await import("../src/theme");
+    function TestThemeHost({children}: {children: React.ReactNode}) {
+        const theme = useResolvedThemeSetting();
+        return React.createElement(ThemeContext.Provider, {value: theme}, children);
+    }
     const dom = new JSDOM("<main></main>", {pretendToBeVisual: true});
     // CodeMirror reads these browser globals directly rather than through the jsdom window.
     const globalNames = [
@@ -78,13 +83,17 @@ async function createFixture() {
     const render = async (props: Partial<CodeMirrorDocumentProps> = {}) => {
         await React.act(async () =>
             root.render(
-                React.createElement(CodeMirrorDocument, {
-                    document: textDocument,
-                    linkedRanges,
-                    highlightedRanges: [],
-                    onActiveLinkedRangesChange,
-                    ...props,
-                }),
+                React.createElement(
+                    TestThemeHost,
+                    null,
+                    React.createElement(CodeMirrorDocument, {
+                        document: textDocument,
+                        linkedRanges,
+                        highlightedRanges: [],
+                        onActiveLinkedRangesChange,
+                        ...props,
+                    }),
+                ),
             ),
         );
     };

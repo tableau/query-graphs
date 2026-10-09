@@ -1,9 +1,10 @@
 .qg-graph-node {
     box-sizing: border-box;
+    --qg-icon-cutout: var(--qg-canvas);
     display: flex;
     flex-direction: column;
     border: 1px solid transparent;
-    border-radius: var(--qg-panel-border-radius);
+    border-radius: var(--qg-border-radius);
     padding: .3em .5em;
     transition-property: border-color, background-color, box-shadow;
     transition-duration: 0.2s;
@@ -25,15 +26,16 @@
     &.qg-collapsed:hover,
     &.qg-expanded,
     &.qg-resizing {
+        --qg-icon-cutout: var(--qg-surface);
         cursor: pointer;
-        background-color: var(--qg-panel-background);
-        border-color: var(--qg-panel-border-color);
+        background-color: var(--qg-surface);
+        border-color: var(--qg-border);
         box-shadow: var(--qg-panel-shadow);
     }
 
     &.qg-highlighted {
-        border-color: hsl(210, 80%, 55%);
-        box-shadow: 0 0 0 2px hsl(210, 80%, 55%);
+        border-color: var(--qg-focus);
+        box-shadow: 0 0 0 2px var(--qg-focus);
     }
 }
 
@@ -77,21 +79,25 @@
         opacity: 1;
     }
 
-    &:hover .qg-subtree-handle-background {
-        fill: hsl(0,0%,70%);
+    &:hover {
+        color: var(--qg-subtree-handle-hover-text);
+
+        & .qg-subtree-handle-background {
+            fill: var(--qg-subtree-handle-hover);
+        }
     }
 }
 
 @keyframes qg-descendant-highlight-pulse {
     from {
-        fill: hsl(210, 100%, 90%);
-        stroke: hsl(210, 80%, 55%);
+        fill: var(--qg-accent-subtle);
+        stroke: var(--qg-focus);
         stroke-width: 1.5;
     }
 
     to {
-        fill: hsl(210, 100%, 70%);
-        stroke: hsl(210, 90%, 40%);
+        fill: var(--qg-accent);
+        stroke: var(--qg-focus);
         stroke-width: 3;
     }
 }
@@ -99,8 +105,8 @@
 @media (prefers-reduced-motion: reduce) {
     .query-graph .qg-subtree-toggle.qg-descendant-highlighted .qg-subtree-handle-background {
         animation: none;
-        fill: hsl(210, 100%, 80%);
-        stroke: hsl(210, 80%, 45%);
+        fill: var(--qg-accent-subtle);
+        stroke: var(--qg-focus);
         stroke-width: 2.5;
     }
 }
@@ -121,8 +127,8 @@
     overflow: visible;
 
     & .qg-subtree-handle-background {
-        fill: hsl(0,0%,85%);
-        stroke: var(--qg-panel-border-color);
+        fill: var(--qg-border);
+        stroke: var(--qg-border);
         stroke-width: 1.5;
         transition: fill 0.2s;
     }
@@ -213,7 +219,7 @@
 }
 
 .qg-prop-name {
-    color: hsl(0, 0%, 50%);
+    color: var(--qg-text-muted);
     -webkit-user-select: none;
     -ms-user-select: none;
     user-select: none;

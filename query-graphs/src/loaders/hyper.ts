@@ -250,7 +250,7 @@ function applyPipelineStatistics(pipelines: HyperPipeline[], metadata: Map<strin
         }
         for (const node of pipeline.nodes) {
             if (metadata.has("Error") && pipeline.running) {
-                node.iconColor = "red";
+                node.iconColor = "var(--qg-danger)";
             }
         }
     }

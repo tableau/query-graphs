@@ -11,10 +11,12 @@ import {assert} from "./assert";
 import {TreeLabel} from "./TreeLabel";
 import {SettingsButton, SettingsPanel} from "./SettingsPanel";
 import {useSettings} from "./settings";
+import {useTheme} from "./theme";
 
 export function QueryGraphsApp() {
     const settingsPopoverId = useId();
     const animationSpeed = useSettings((settings) => settings.values.animationSpeed);
+    const theme = useTheme();
     const loadStateController = useLoadStateController();
     const {setProgress, clearLoadState, tryAndDisplayErrors} = loadStateController;
     const [loadedPlan, setLoadedPlan] = useState<LoadedPlan | undefined>(undefined);
@@ -149,7 +151,7 @@ export function QueryGraphsApp() {
     } else {
         const {tree, format} = loadedPlan;
         return (
-            <QueryGraph treeDescription={tree} animationSpeed={animationSpeed}>
+            <QueryGraph treeDescription={tree} animationSpeed={animationSpeed} theme={theme}>
                 <TreeLabel
                     title={treeTitle ?? ""}
                     setTitle={setTreeTitle}

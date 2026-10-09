@@ -1,0 +1,53 @@
+.qg-theme {
+    color-scheme: light;
+    --qg-canvas: #fdfdfd;
+    --qg-surface: #fff;
+    --qg-text: #111;
+    --qg-text-muted: #666;
+    --qg-border: #ccc;
+    --qg-focus: hsl(210, 90%, 55%);
+    --qg-accent: hsl(210, 75%, 38%);
+    --qg-accent-2: hsl(309, 84%, 36%);
+    --qg-accent-3: hsl(309, 84%, 36%);
+    --qg-danger: hsl(0, 72%, 40%);
+    --qg-tooltip: hsl(0, 0%, 20%);
+    --qg-tooltip-text: #fff;
+
+    --qg-surface-hover: color-mix(in srgb, var(--qg-text) 6%, var(--qg-surface));
+    --qg-minimap-mask-color: color-mix(in srgb, var(--qg-border) 25%, var(--qg-surface));
+    --qg-subtree-handle-hover: color-mix(in srgb, var(--qg-text-muted) 25%, var(--qg-border));
+    --qg-subtree-handle-hover-text: var(--qg-text);
+    --qg-edge-label-border: color-mix(in srgb, var(--qg-text) 57%, var(--qg-surface));
+    --qg-accent-subtle: color-mix(in srgb, var(--qg-accent) 18%, var(--qg-surface));
+    --qg-danger-subtle: color-mix(in srgb, var(--qg-danger) 18%, var(--qg-surface));
+    --qg-icon-stroke: var(--qg-text-muted);
+    --qg-icon-fill: color-mix(in srgb, var(--qg-icon-stroke) 45%, var(--qg-surface));
+    --qg-border-radius: 0.5em;
+    --qg-panel-inner-radius: calc(var(--qg-border-radius) - 1px);
+    --qg-panel-shadow:
+        0 2px 6px color-mix(in srgb, var(--qg-text) 8%, transparent),
+        0 1px 2px color-mix(in srgb, var(--qg-text) 6%, transparent);
+
+    color: var(--qg-text);
+    background: var(--qg-canvas);
+}
+
+.qg-theme[data-theme="dark"] {
+    color-scheme: dark;
+    --qg-canvas: #171a20;
+    --qg-surface: #252a32;
+    --qg-text: #edf0f4;
+    --qg-text-muted: #adb6c2;
+    --qg-border: #596371;
+    --qg-focus: #85c5ff;
+    --qg-accent: #9ac9ff;
+    --qg-accent-2: hsl(309, 70%, 75%);
+    --qg-accent-3: hsl(309, 70%, 75%);
+    --qg-danger: #ff8790;
+    --qg-tooltip: #edf0f4;
+    --qg-tooltip-text: #171a20;
+    --qg-icon-fill: var(--qg-text-muted);
+    --qg-icon-stroke: color-mix(in srgb, currentColor 60%, var(--qg-surface));
+    --qg-subtree-handle-hover: color-mix(in srgb, var(--qg-text-muted) 75%, var(--qg-border));
+    --qg-subtree-handle-hover-text: var(--qg-canvas);
+}

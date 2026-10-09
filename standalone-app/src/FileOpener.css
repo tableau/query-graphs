@@ -1,7 +1,7 @@
 .file-selection-page {
     min-height: 100%;
-    background: var(--primary-bg-color);
-    color: var(--primary-fg-color);
+    background: var(--qg-canvas);
+    color: var(--qg-text);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -34,24 +34,24 @@
 }
 
 .landing-footer {
-    border-top: 1px solid #ccc;
+    border-top: 1px solid var(--qg-border);
     margin-top: 3em;
     padding-top: 0.8em;
     font-size: 0.9em;
     text-align: center;
-    color: gray;
+    color: var(--qg-text-muted);
 }
 
 .github-link {
     & a {
-        color: gray;
+        color: var(--qg-text-muted);
     }
 }
 
 .build-info {
     margin-top: 0.4em;
     font-size: 0.85em;
-    color: #999;
+    color: var(--qg-text-muted);
 }
 
 /* Hinted text area */
@@ -59,15 +59,17 @@
 .hinted-textarea {
     display: flex;
     flex-direction: column;
-    border: 1px solid #666;
-    border-radius: var(--border-radius);
+    border: 1px solid var(--qg-border);
+    border-radius: var(--qg-border-radius);
     overflow: hidden;
-    box-shadow: 1px 2px 5px hsl(0,0%,90%);
+    box-shadow: 1px 2px 5px color-mix(in srgb, var(--qg-text) 12%, transparent);
 
     & > textarea {
         resize: vertical;
         border: none;
         padding: 0.3em;
+        color: var(--qg-text);
+        background: var(--qg-surface);
 
         &:focus {
             outline: none;
@@ -75,11 +77,10 @@
     }
 
     & > .textarea-hint {
-        background: white;
-        border-top: 1px solid #666;
-        border-color: hsl(0,0%, 80%);
+        background: var(--qg-surface);
+        border-top: 1px solid var(--qg-border);
         padding: 0.4em;
-        color: #555;
+        color: var(--qg-text-muted);
         font-size: .8em;
     }
 }
@@ -87,29 +88,30 @@
 /* Error message */
 .file-selection-page .load-error {
     padding: 1em;
-    background: hsl(0, 87%, 85%);
-    border: 1px solid hsl(0, 48%, 48%);
-    border-radius: var(--border-radius);
+    color: var(--qg-danger);
+    background: var(--qg-danger-subtle);
+    border: 1px solid var(--qg-danger);
+    border-radius: var(--qg-border-radius);
     white-space: pre-line;
 }
 
 /* Submit button */
 .file-selection-page button {
-    border-radius: var(--border-radius);
+    border-radius: var(--qg-border-radius);
 }
 
 .file-selection-page > .dragging-operlay {
     position: absolute;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.2);
-    border: .3em dashed #aaa;
+    background: color-mix(in srgb, var(--qg-text) 20%, transparent);
+    border: .3em dashed var(--qg-border);
     border-radius: .6em;
     padding-top: 20vh;
     font-weight: bold;
     text-align: center;
     font-size: 3em;
-    color: rgba(0, 0, 0, .6);
+    color: var(--qg-text);
 }
 
 /* Spinner */

@@ -111,7 +111,7 @@ test("settings panel offers every application setting and a reset action", async
             ["slow", "Slow"],
             ["debug", "Debug"],
         ]);
-        assert.deepEqual(optionsByLabel.get("CodeMirror theme"), [
+        assert.deepEqual(optionsByLabel.get("Theme"), [
             ["system", "System"],
             ["light", "Light"],
             ["dark", "Dark"],

@@ -38,9 +38,16 @@ export function colorRelativeNumber(
 ): void {
     for (const entry of nodeValues) {
         const relativeValue = entry.value / total;
-        const lightness = (95 + (72 - 95) * relativeValue).toFixed(3);
-        entry.node.nodeColor = relativeValue >= 0.05 ? `hsl(309, 84%, ${lightness}%)` : undefined;
+        entry.node.nodeColor = relativeHeatColor(relativeValue);
     }
+}
+
+export function relativeHeatColor(relativeValue: number): string | undefined {
+    if (relativeValue < 0.05) return undefined;
+    const value = Math.min(relativeValue, 1);
+    const lightness = (95 - 23 * value).toFixed(3);
+    const darkLightness = (22 + 14 * value).toFixed(3);
+    return `light-dark(hsl(309 84% ${lightness}%), hsl(309 45% ${darkLightness}%))`;
 }
 
 export function setRelativeEdgeWidths(edgeWidths: {node: TreeNode; width: number}[]): void {

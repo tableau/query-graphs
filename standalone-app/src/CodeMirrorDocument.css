@@ -22,7 +22,7 @@
         inset: 0;
         z-index: 1;
         box-sizing: border-box;
-        border: 2px solid hsl(210, 90%, 65%);
+        border: 2px solid var(--qg-focus);
         pointer-events: none;
     }
 }

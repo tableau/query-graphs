@@ -12,8 +12,8 @@
 .qg-icon {
     height: 1.5em;
     stroke-width: 0.8;
-    stroke: hsl(0, 0%, 40%);
-    color: hsl(0, 0%, 72%);
+    stroke: var(--qg-icon-stroke);
+    color: var(--qg-icon-fill);
 }
 
 text.qg-table-text {
@@ -22,5 +22,5 @@ text.qg-table-text {
     font-weight: bold;
     font-family: Monaco, Consolas, monospace;
     stroke: none;
-    fill: hsl(0, 0%, 40%);
+    fill: var(--qg-icon-stroke);
 }
