@@ -1,0 +1,69 @@
+.qg-scrollable-area {
+    container-type: scroll-state;
+    overflow: auto;
+}
+
+/* The cues live inside the viewport so native scrollbars paint above them. */
+.qg-scroll-overflow-indicator {
+    position: sticky;
+    z-index: 1;
+    inset-inline-start: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 3em;
+    color: hsl(0, 0%, 25%);
+    pointer-events: none;
+    visibility: hidden;
+
+    & > svg {
+        width: 1em;
+        height: 1em;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.6;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+}
+
+@container scroll-state(scrollable: top) {
+    .qg-scroll-overflow-indicator-above {
+        visibility: visible;
+    }
+}
+
+@container scroll-state(scrollable: bottom) {
+    .qg-scroll-overflow-indicator-below {
+        visibility: visible;
+    }
+}
+
+.qg-scroll-overflow-indicator-above {
+    top: 0;
+    align-items: flex-start;
+    margin-bottom: -3em;
+    background: linear-gradient(to bottom, white, transparent);
+
+    & > svg {
+        transform: translateY(0.15em);
+    }
+}
+
+.qg-scroll-overflow-indicator-below {
+    bottom: 0;
+    align-items: flex-end;
+    margin-top: -3em;
+    background: linear-gradient(to top, white, transparent);
+
+    & > svg {
+        transform: translateY(-0.15em);
+    }
+}
+
+@media (forced-colors: active) {
+    .qg-scroll-overflow-indicator {
+        color: CanvasText;
+    }
+}

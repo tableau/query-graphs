@@ -203,12 +203,11 @@
 .qg-graph-node-body {
     width: max-content;
     height: max-content;
-    overflow: auto;
     max-width: 30em;
     max-height: 20em;
 
-    .qg-graph-node.qg-expanded &,
-    .qg-graph-node.qg-resizing & {
+    .qg-graph-node.qg-expanded & > .qg-scrollable-area-content,
+    .qg-graph-node.qg-resizing & > .qg-scrollable-area-content {
         padding-bottom: 0.6em;
     }
 }

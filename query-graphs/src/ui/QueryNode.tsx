@@ -7,6 +7,7 @@ import type {TreeNode} from "../tree-description";
 import {NodeIcon} from "./NodeIcon";
 import "./PanelSurface.css";
 import "./QueryNode.css";
+import {ScrollableArea} from "./ScrollableArea";
 import {useGraphRenderingStore} from "./store";
 import {subtreeHandleId, useAnimateGraphChange} from "./useAnimatedGraphLayout";
 
@@ -104,7 +105,7 @@ function QueryNode({data, id}: NodeProps<QueryGraphNode>) {
                     </div>
                 </div>
                 <div className="qg-graph-node-body-wrapper nowheel">
-                    <div className="qg-graph-node-body">{children}</div>
+                    <ScrollableArea className="qg-graph-node-body">{children}</ScrollableArea>
                 </div>
                 {colorBar(data.barsBelow, "below")}
             </div>
