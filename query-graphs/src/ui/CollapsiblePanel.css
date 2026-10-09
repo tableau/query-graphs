@@ -211,3 +211,12 @@
     padding: 0.75em;
     border-top: 1px solid var(--qg-panel-divider-color);
 }
+
+/* Keep panel padding with content when the panel delegates scrolling to a ScrollableArea. */
+.qg-collapsible-panel-content:has(> .qg-scrollable-area) {
+    padding: 0;
+
+    & > .qg-scrollable-area > .qg-scrollable-area-viewport > .qg-scrollable-area-content {
+        padding: 0.75em;
+    }
+}

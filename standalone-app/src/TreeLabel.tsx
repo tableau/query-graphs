@@ -3,6 +3,7 @@ import {CollapsiblePanel} from "@tableau/query-graphs/lib/ui/CollapsiblePanel";
 import {CopyButton} from "@tableau/query-graphs/lib/ui/CopyButton";
 import {IconButton} from "@tableau/query-graphs/lib/ui/IconButton";
 import {PlanInsights} from "@tableau/query-graphs/lib/ui/PlanInsights";
+import {ScrollableArea} from "@tableau/query-graphs/lib/ui/ScrollableArea";
 import {useGraphRenderingStore} from "@tableau/query-graphs/lib/ui/store";
 import type {SourceLocation, TextDocument, TreeNode} from "@tableau/query-graphs/lib/tree-description";
 import type {CategoricalInsightDefinition} from "@tableau/query-graphs/lib/insights/categorical";
@@ -117,7 +118,9 @@ export function TreeLabel({title, setTitle, metadata, metadataHighlighted, textD
                     {insights ? <PlanInsights root={insights.root} definitions={insights.definitions} /> : null}
                     {metadataChildren.length > 0 ? (
                         <CollapsiblePanel title="Plan Metadata" highlighted={metadataHighlighted}>
-                            <div className="graph-metadata">{metadataChildren}</div>
+                            <ScrollableArea className="graph-metadata-scrollable-area">
+                                <div className="graph-metadata">{metadataChildren}</div>
+                            </ScrollableArea>
                         </CollapsiblePanel>
                     ) : null}
                     {textDocuments?.map((document) => (

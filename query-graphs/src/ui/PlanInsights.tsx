@@ -3,6 +3,7 @@ import type {TreeNode} from "../tree-description";
 import type {CategoricalInsightDefinition} from "../insights/categorical";
 import {computeCategoricalInsight} from "../insights/categorical";
 import {CollapsiblePanel} from "./CollapsiblePanel";
+import {ScrollableArea} from "./ScrollableArea";
 import {useGraphRenderingStore} from "./store";
 import "./PlanInsights.css";
 
@@ -65,21 +66,23 @@ export function PlanInsights({root, definitions}: PlanInsightsProps) {
             open={open}
             onOpenChange={setOpen}
         >
-            {categoryLists.map(({definition, categories}) => (
-                <section key={definition.id} className="qg-insight-category-list" aria-label={definition.title}>
-                    <h3>{definition.title}</h3>
-                    <ul>
-                        {categories.map(({value, nodeIds}) => (
-                            <CategoryRow
-                                key={value}
-                                value={value}
-                                nodeIds={nodeIds}
-                                active={[...nodeIds].some((id) => highlightedNodeIds.has(id))}
-                            />
-                        ))}
-                    </ul>
-                </section>
-            ))}
+            <ScrollableArea className="qg-insights-scrollable-area">
+                {categoryLists.map(({definition, categories}) => (
+                    <section key={definition.id} className="qg-insight-category-list" aria-label={definition.title}>
+                        <h3>{definition.title}</h3>
+                        <ul>
+                            {categories.map(({value, nodeIds}) => (
+                                <CategoryRow
+                                    key={value}
+                                    value={value}
+                                    nodeIds={nodeIds}
+                                    active={[...nodeIds].some((id) => highlightedNodeIds.has(id))}
+                                />
+                            ))}
+                        </ul>
+                    </section>
+                ))}
+            </ScrollableArea>
         </CollapsiblePanel>
     );
 }
