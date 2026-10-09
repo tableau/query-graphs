@@ -1,6 +1,7 @@
 import {animationSpeedOptions, usePrefersReducedMotion} from "@tableau/query-graphs/lib/ui/animation-timing";
 import type {AnimationSpeed} from "@tableau/query-graphs/lib/ui/animation-timing";
-import {QueryGraphControlButton} from "@tableau/query-graphs/lib/ui/QueryGraph";
+import {IconButton} from "@tableau/query-graphs/lib/ui/IconButton";
+import "@tableau/query-graphs/lib/ui/PanelSurface.css";
 import {editorKeybindingsOptions, themeOptions, useSettings} from "./settings";
 import type {EditorKeybindings, Theme} from "./settings";
 import "./SettingsPanel.css";
@@ -11,20 +12,14 @@ interface SettingsTargetProps {
 
 export function SettingsButton({popoverId}: SettingsTargetProps) {
     return (
-        <QueryGraphControlButton
-            className="qg-settings-button"
-            popoverTarget={popoverId}
-            title="Settings"
-            aria-label="Settings"
-            aria-haspopup="dialog"
-        >
+        <IconButton className="qg-settings-button" popoverTarget={popoverId} label="Settings" aria-haspopup="dialog">
             <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path fillRule="evenodd" d="M12 5a7 7 0 1 0 0 14 7 7 0 0 0 0-14Zm0 3.5a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7Z" />
                 {[0, 60, 120, 180, 240, 300].map((angle) => (
                     <rect key={angle} x="10" y="2" width="4" height="5" rx="0.5" transform={`rotate(${angle} 12 12)`} />
                 ))}
             </svg>
-        </QueryGraphControlButton>
+        </IconButton>
     );
 }
 
@@ -37,7 +32,13 @@ export function SettingsPanel({popoverId}: SettingsTargetProps) {
     const reducedMotionDescriptionId = `${popoverId}-reduced-motion`;
 
     return (
-        <div id={popoverId} className="qg-settings-popover nowheel nopan" popover="auto" role="dialog" aria-labelledby={titleId}>
+        <div
+            id={popoverId}
+            className="qg-settings-popover qg-panel-surface nowheel nopan"
+            popover="auto"
+            role="dialog"
+            aria-labelledby={titleId}
+        >
             <header className="qg-settings-header">
                 <h2 id={titleId}>Settings</h2>
                 <button

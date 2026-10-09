@@ -79,7 +79,10 @@ test("settings button and panel form a labelled automatic popover", async () => 
         const closeButton = panel?.querySelector<HTMLButtonElement>(`.qg-settings-close`);
         assert.equal(openButton?.getAttribute("popovertarget"), rendered.popoverId);
         assert.equal(openButton?.getAttribute("aria-label"), "Settings");
+        assert.equal(openButton?.hasAttribute("title"), false);
         assert.equal(openButton?.getAttribute("aria-haspopup"), "dialog");
+        assert.equal(openButton?.nextElementSibling?.getAttribute("role"), "tooltip");
+        assert.equal(openButton?.nextElementSibling?.textContent, "Settings");
         assert.equal(panel?.getAttribute("popover"), "auto");
         assert.equal(panel?.getAttribute("role"), "dialog");
         assert.equal(panel?.getAttribute("aria-labelledby"), panel?.querySelector("h2")?.id);

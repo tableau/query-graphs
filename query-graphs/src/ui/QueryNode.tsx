@@ -5,6 +5,7 @@ import {Handle, Position} from "@xyflow/react";
 import cc from "classcat";
 import type {TreeNode} from "../tree-description";
 import {NodeIcon} from "./NodeIcon";
+import "./PanelSurface.css";
 import "./QueryNode.css";
 import {useGraphRenderingStore} from "./store";
 import {subtreeHandleId, useAnimateGraphChange} from "./useAnimatedGraphLayout";

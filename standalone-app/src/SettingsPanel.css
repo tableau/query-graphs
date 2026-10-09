@@ -1,27 +1,16 @@
 .qg-settings-popover {
-    --qg-settings-surface: white;
     --qg-settings-text: hsl(0, 0%, 15%);
-    --qg-settings-border: hsl(0, 0%, 85%);
-    --qg-settings-divider: hsl(0, 0%, 90%);
-    --qg-settings-hover: hsl(0, 0%, 94%);
     --qg-settings-accent: hsl(210, 75%, 38%);
     --qg-settings-focus: hsl(210, 90%, 55%);
 
     position: fixed;
-    inset: auto auto 15px calc(15px + 26px + 0.5em);
-    box-sizing: border-box;
+    inset: auto auto 15px calc(15px + var(--qg-graph-toolbar-button-size) + 0.5em);
     inline-size: min(22em, calc(100vw - 2em));
     max-block-size: calc(100dvh - 2em);
     margin: 0;
     padding: 0;
     overflow: auto;
-    border: 1px solid var(--qg-settings-border);
-    border-radius: 8px;
     color: var(--qg-settings-text);
-    background: var(--qg-settings-surface);
-    box-shadow:
-        0 2px 6px hsl(0, 0%, 0%, 0.08),
-        0 1px 2px hsl(0, 0%, 0%, 0.06);
 }
 
 .qg-settings-body {
@@ -40,7 +29,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 0.5em 0.75em;
-    border-block-end: 1px solid var(--qg-settings-divider);
+    border-block-end: 1px solid var(--qg-panel-divider-color);
 
     & h2 {
         margin: 0;
@@ -63,7 +52,7 @@
     cursor: pointer;
 
     &:hover {
-        background: var(--qg-settings-hover);
+        background: var(--qg-panel-hover-background);
     }
 
     & svg {
@@ -87,8 +76,8 @@
         min-inline-size: 9em;
         padding: 0.25em;
         color: inherit;
-        background: var(--qg-settings-surface);
-        border: 1px solid var(--qg-settings-border);
+        background: var(--qg-panel-background);
+        border: 1px solid var(--qg-panel-border-color);
         border-radius: 0.25em;
         font: inherit;
     }
@@ -96,7 +85,7 @@
 
 .qg-settings-footer {
     padding: 0.65em 0.75em;
-    border-block-start: 1px solid var(--qg-settings-divider);
+    border-block-start: 1px solid var(--qg-panel-divider-color);
 
     & button {
         padding: 0;
@@ -116,10 +105,16 @@
 }
 
 .query-graph:has(.qg-settings-popover:popover-open) .qg-settings-button {
-    background: var(
-        --xy-controls-button-background-color-hover-props,
-        var(--xy-controls-button-background-color-hover, var(--xy-controls-button-background-color-hover-default))
-    );
+    background: var(--qg-panel-hover-background);
+}
+
+.query-graph:has(.qg-settings-popover:popover-open) .qg-settings-button ~ .qg-icon-button-tooltip {
+    visibility: hidden;
+}
+
+.qg-settings-button svg {
+    fill: currentColor;
+    stroke: none;
 }
 
 @supports (position-area: inline-end) {
@@ -149,7 +144,6 @@
 }
 
 @media (forced-colors: active) {
-    .qg-settings-popover,
     .qg-settings-header,
     .qg-settings-footer,
     .qg-settings-row select {

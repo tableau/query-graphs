@@ -1,5 +1,6 @@
 import {useEffect, useId, useState, type ReactNode} from "react";
 import cc from "classcat";
+import "./PanelSurface.css";
 import "./CollapsiblePanel.css";
 
 export interface CollapsiblePanelProps {
@@ -37,7 +38,7 @@ export function CollapsiblePanel({
     onOpenChange,
     mountContentOnFirstIntent,
 }: CollapsiblePanelProps) {
-    const classes = cc(["qg-collapsible-panel", {"qg-highlighted": highlighted}, className]);
+    const classes = cc(["qg-collapsible-panel", "qg-panel-surface", {"qg-highlighted": highlighted}, className]);
     const [contentMounted, setContentMounted] = useState(open === true);
     const [internalOpen, setInternalOpen] = useState(false);
     // Choose the source of truth once; switching between controlled and uncontrolled state produces ambiguous behavior.

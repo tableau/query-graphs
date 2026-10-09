@@ -1,6 +1,6 @@
-import {ReactFlow, MiniMap, MiniMapNode, Controls, ControlButton, ReactFlowProvider} from "@xyflow/react";
+import {ReactFlow, MiniMap, MiniMapNode, Panel, ReactFlowProvider, useReactFlow} from "@xyflow/react";
 import type {MiniMapNodeProps} from "@xyflow/react";
-import "@xyflow/react/dist/style.css";
+import "@xyflow/react/dist/base.css";
 
 import type {TreeDescription, TreeNode} from "../tree-description";
 import type {MouseEvent, ReactNode} from "react";
@@ -14,6 +14,8 @@ import {AnimateGraphChangeContext, useAnimatedGraphLayout, useAnimateGraphChange
 import {indexGraph} from "./graph-index";
 import type {TreeParents} from "./tree-topology";
 import type {AnimationSpeed} from "./animation-timing";
+import {IconButton} from "./IconButton";
+import "./PanelSurface.css";
 import "./QueryGraph.css";
 
 export interface QueryGraphProps {
@@ -21,11 +23,9 @@ export interface QueryGraphProps {
     children: ReactNode | ReactNode[];
     /** Selects the duration of graph layout transitions. Defaults to medium. */
     animationSpeed?: AnimationSpeed;
-    /** Additional buttons, normally `QueryGraphControlButton`s, appended to the built-in graph controls. */
+    /** Additional `IconButton`s appended to the graph toolbar. */
     additionalControls?: ReactNode;
 }
-
-export const QueryGraphControlButton = ControlButton;
 
 interface QueryGraphInternalProps extends QueryGraphProps {
     nodeIdMapping: ReadonlyMap<TreeNode, string>;
@@ -55,7 +55,19 @@ function preventNodeDoubleClickZoom(event: MouseEvent): void {
     if (event.target instanceof Element && event.target.closest(".react-flow__node") !== null) event.stopPropagation();
 }
 
-function ExpandedNodesControl() {
+function FitGraphButton() {
+    const {fitView} = useReactFlow();
+
+    return (
+        <IconButton label="Fit graph to view" onClick={() => void fitView()}>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M9 4H4v5M15 4h5v5M20 15v5h-5M9 20H4v-5" />
+            </svg>
+        </IconButton>
+    );
+}
+
+function ExpandedNodesButton() {
     const expandedNodes = useGraphRenderingStore((state) => state.expandedNodes);
     const setAllNodesExpanded = useGraphRenderingStore((state) => state.setAllNodesExpanded);
     const animateGraphChange = useAnimateGraphChange();
@@ -81,11 +93,21 @@ function ExpandedNodesControl() {
     };
 
     return (
-        <ControlButton onClick={onClick} title={label} aria-label={label} disabled={nodeExpansionStates.length === 0}>
-            <svg viewBox="0 0 24 24" aria-hidden="true">
+        <IconButton label={label} onClick={onClick} disabled={nodeExpansionStates.length === 0}>
+            <svg className="qg-expanded-nodes-icon" viewBox="0 0 24 24" aria-hidden="true">
                 {anyNodeExpanded ? <path d="M5 3h14l-7 7zM12 14l7 7H5z" /> : <path d="M12 3l7 7H5zM5 14h14l-7 7z" />}
             </svg>
-        </ControlButton>
+        </IconButton>
+    );
+}
+
+function GraphToolbar({children}: {children?: ReactNode}) {
+    return (
+        <Panel className="qg-graph-toolbar qg-panel-surface" position="bottom-left" role="group" aria-label="Graph controls">
+            <FitGraphButton />
+            <ExpandedNodesButton />
+            {children}
+        </Panel>
     );
 }
 
@@ -126,10 +148,7 @@ function QueryGraphInternal({
             >
                 {...Array.isArray(children) ? children : [children]}
                 <MiniMap zoomable={true} pannable={true} nodeColor={minimapNodeColor} nodeComponent={QueryGraphMiniMapNode} />
-                <Controls showInteractive={false}>
-                    <ExpandedNodesControl />
-                    {additionalControls}
-                </Controls>
+                <GraphToolbar>{additionalControls}</GraphToolbar>
             </ReactFlow>
         </AnimateGraphChangeContext.Provider>
     );

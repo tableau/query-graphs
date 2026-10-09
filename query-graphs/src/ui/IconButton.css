@@ -10,8 +10,8 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 1.75rem;
-    height: 1.75rem;
+    width: 1.75em;
+    height: 1.75em;
     box-sizing: border-box;
     padding: 0;
     border: 1px solid hsl(0, 0%, 70%);
@@ -36,8 +36,8 @@
     }
 
     & svg {
-        width: 1rem;
-        height: 1rem;
+        width: 1em;
+        height: 1em;
         fill: none;
         stroke: currentColor;
         stroke-width: 1.5;
@@ -53,9 +53,9 @@
     inset-block-start: 100%;
     inset-inline-end: 0;
     width: max-content;
-    max-width: 16rem;
-    padding-block-start: 0.35rem;
-    font-size: 0.75rem;
+    max-width: 16em;
+    padding-block-start: 0.35em;
+    font-size: 0.75em;
     font-weight: 400;
     line-height: 1.2;
     white-space: nowrap;
@@ -66,7 +66,7 @@
 .qg-icon-button-tooltip > span {
     /* Keep the outer padding transparent and hoverable as a pointer bridge. */
     display: block;
-    padding: 0.25rem 0.4rem;
+    padding: 0.25em 0.4em;
     border-radius: 3px;
     color: white;
     background: hsl(0, 0%, 20%);
