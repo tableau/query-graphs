@@ -16,6 +16,7 @@
     --qg-surface-hover: color-mix(in srgb, var(--qg-text) 6%, var(--qg-surface));
     --qg-minimap-mask-color: color-mix(in srgb, var(--qg-border) 25%, var(--qg-surface));
     --qg-subtree-handle-hover: color-mix(in srgb, var(--qg-text-muted) 25%, var(--qg-border));
+    --qg-subtree-handle-hover-text: var(--qg-text);
     --qg-edge-label-border: color-mix(in srgb, var(--qg-text) 57%, var(--qg-surface));
     --qg-accent-subtle: color-mix(in srgb, var(--qg-accent) 18%, var(--qg-surface));
     --qg-danger-subtle: color-mix(in srgb, var(--qg-danger) 18%, var(--qg-surface));
@@ -47,4 +48,6 @@
     --qg-tooltip-text: #171a20;
     --qg-icon-fill: var(--qg-text-muted);
     --qg-icon-stroke: color-mix(in srgb, currentColor 60%, var(--qg-surface));
+    --qg-subtree-handle-hover: color-mix(in srgb, var(--qg-text-muted) 75%, var(--qg-border));
+    --qg-subtree-handle-hover-text: var(--qg-canvas);
 }

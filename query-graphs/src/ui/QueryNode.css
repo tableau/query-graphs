@@ -79,8 +79,12 @@
         opacity: 1;
     }
 
-    &:hover .qg-subtree-handle-background {
-        fill: var(--qg-subtree-handle-hover);
+    &:hover {
+        color: var(--qg-subtree-handle-hover-text);
+
+        & .qg-subtree-handle-background {
+            fill: var(--qg-subtree-handle-hover);
+        }
     }
 }
 
