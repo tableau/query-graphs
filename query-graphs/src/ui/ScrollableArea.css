@@ -13,7 +13,7 @@
     justify-content: center;
     width: 100%;
     height: 3em;
-    color: hsl(0, 0%, 25%);
+    color: var(--qg-text-muted);
     pointer-events: none;
     visibility: hidden;
 
@@ -44,7 +44,7 @@
     top: 0;
     align-items: flex-start;
     margin-bottom: -3em;
-    background: linear-gradient(to bottom, white, transparent);
+    background: linear-gradient(to bottom, var(--qg-surface), transparent);
 
     & > svg {
         transform: translateY(0.15em);
@@ -55,7 +55,7 @@
     bottom: 0;
     align-items: flex-end;
     margin-top: -3em;
-    background: linear-gradient(to top, white, transparent);
+    background: linear-gradient(to top, var(--qg-surface), transparent);
 
     & > svg {
         transform: translateY(-0.15em);
