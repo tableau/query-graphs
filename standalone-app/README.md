@@ -14,7 +14,6 @@ The app provides:
 * **Getting a plan in** — `FileOpener.tsx`, handling paste, drag & drop, and validation.
 * **Persisting and sharing a plan** — `LocalStorageUrl.ts` plus the optional `upload-server` integration.
 * **App chrome** — `TreeLabel` (editable title + metadata), `ErrorBoundary`, and the PWA/offline setup.
-* **Appearance** — `settings.ts` persists the system, light, or dark preference; `theme.ts` resolves it for the app, graph, and CodeMirror.
 
 ## Loader Dispatch
 
