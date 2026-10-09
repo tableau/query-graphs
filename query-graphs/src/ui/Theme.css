@@ -16,6 +16,11 @@
     --qg-danger-subtle: color-mix(in srgb, var(--qg-danger) 18%, var(--qg-surface));
     --qg-icon-stroke: var(--qg-text-muted);
     --qg-icon-fill: color-mix(in srgb, var(--qg-icon-stroke) 45%, var(--qg-surface));
+    --qg-panel-border-radius: 0.5em;
+    --qg-panel-inner-radius: calc(var(--qg-panel-border-radius) - 1px);
+    --qg-panel-shadow:
+        0 2px 6px color-mix(in srgb, var(--qg-text) 8%, transparent),
+        0 1px 2px color-mix(in srgb, var(--qg-text) 6%, transparent);
 
     color: var(--qg-text);
     background: var(--qg-canvas);

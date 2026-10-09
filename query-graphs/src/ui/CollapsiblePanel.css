@@ -99,7 +99,7 @@
     z-index: 1;
     grid-column: 2;
     grid-row: 1;
-    border-inline-start: 1px solid var(--qg-panel-border-color);
+    border-inline-start: 1px solid var(--qg-border);
     border-start-end-radius: var(--qg-panel-inner-radius);
 
     & > .qg-icon-button-wrapper {
@@ -107,7 +107,7 @@
     }
 
     & > .qg-icon-button-wrapper + .qg-icon-button-wrapper {
-        border-inline-start: 1px solid var(--qg-panel-border-color);
+        border-inline-start: 1px solid var(--qg-border);
     }
 
     & .qg-icon-button {
@@ -209,7 +209,7 @@
     max-height: 70vh;
     overflow: auto;
     padding: 0.75em;
-    border-top: 1px solid var(--qg-panel-divider-color);
+    border-top: 1px solid var(--qg-border);
 }
 
 /* Keep panel padding with content when the panel delegates scrolling to a ScrollableArea. */

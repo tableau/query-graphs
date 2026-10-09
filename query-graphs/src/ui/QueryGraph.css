@@ -74,7 +74,7 @@
     }
 
     & > .qg-icon-button-wrapper + .qg-icon-button-wrapper {
-      border-block-start: 1px solid var(--qg-panel-divider-color);
+      border-block-start: 1px solid var(--qg-border);
     }
 
     & .qg-icon-button {
@@ -104,7 +104,7 @@
     }
 
     & .qg-icon-button:hover:not(:disabled) {
-      background: var(--qg-panel-hover-background);
+      background: var(--qg-surface-hover);
     }
 
     /* Open toolbar tooltips into the canvas rather than below the viewport. */

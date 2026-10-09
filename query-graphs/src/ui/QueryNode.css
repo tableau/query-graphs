@@ -28,8 +28,8 @@
     &.qg-resizing {
         --qg-icon-cutout: var(--qg-surface);
         cursor: pointer;
-        background-color: var(--qg-panel-background);
-        border-color: var(--qg-panel-border-color);
+        background-color: var(--qg-surface);
+        border-color: var(--qg-border);
         box-shadow: var(--qg-panel-shadow);
     }
 
@@ -124,7 +124,7 @@
 
     & .qg-subtree-handle-background {
         fill: var(--qg-border);
-        stroke: var(--qg-panel-border-color);
+        stroke: var(--qg-border);
         stroke-width: 1.5;
         transition: fill 0.2s;
     }

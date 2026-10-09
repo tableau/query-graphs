@@ -25,7 +25,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 0.5em 0.75em;
-    border-block-end: 1px solid var(--qg-panel-divider-color);
+    border-block-end: 1px solid var(--qg-border);
 
     & h2 {
         margin: 0;
@@ -48,7 +48,7 @@
     cursor: pointer;
 
     &:hover {
-        background: var(--qg-panel-hover-background);
+        background: var(--qg-surface-hover);
     }
 
     & svg {
@@ -72,8 +72,8 @@
         min-inline-size: 9em;
         padding: 0.25em;
         color: inherit;
-        background: var(--qg-panel-background);
-        border: 1px solid var(--qg-panel-border-color);
+        background: var(--qg-surface);
+        border: 1px solid var(--qg-border);
         border-radius: 0.25em;
         font: inherit;
     }
@@ -81,7 +81,7 @@
 
 .qg-settings-footer {
     padding: 0.65em 0.75em;
-    border-block-start: 1px solid var(--qg-panel-divider-color);
+    border-block-start: 1px solid var(--qg-border);
 
     & button {
         padding: 0;
@@ -101,7 +101,7 @@
 }
 
 .query-graph:has(.qg-settings-popover:popover-open) .qg-settings-button {
-    background: var(--qg-panel-hover-background);
+    background: var(--qg-surface-hover);
 }
 
 .query-graph:has(.qg-settings-popover:popover-open) .qg-settings-button ~ .qg-icon-button-tooltip {

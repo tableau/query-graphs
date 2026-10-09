@@ -1,20 +1,8 @@
-:where(.qg-panel-surface, .qg-graph-node) {
-    --qg-panel-background: var(--qg-surface, white);
-    --qg-panel-border-color: var(--qg-border, hsl(0, 0%, 85%));
-    --qg-panel-divider-color: var(--qg-border, hsl(0, 0%, 90%));
-    --qg-panel-hover-background: var(--qg-surface-hover, hsl(0, 0%, 94%));
-    --qg-panel-border-radius: 0.5em;
-    --qg-panel-inner-radius: calc(var(--qg-panel-border-radius) - 1px);
-    --qg-panel-shadow:
-        0 2px 6px color-mix(in srgb, var(--qg-text, black) 8%, transparent),
-        0 1px 2px color-mix(in srgb, var(--qg-text, black) 6%, transparent);
-}
-
 .qg-panel-surface {
     box-sizing: border-box;
-    border: 1px solid var(--qg-panel-border-color);
+    border: 1px solid var(--qg-border);
     border-radius: var(--qg-panel-border-radius);
-    background-color: var(--qg-panel-background);
+    background-color: var(--qg-surface);
     box-shadow: var(--qg-panel-shadow);
 }
 
