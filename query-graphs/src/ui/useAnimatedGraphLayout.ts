@@ -112,16 +112,11 @@ interface NodeResize {
 }
 
 function measureElement(element: HTMLElement): Dimensions {
-    if (typeof getComputedStyle === "undefined") {
-        return {width: element.offsetWidth, height: element.offsetHeight};
-    }
-
-    const style = getComputedStyle(element);
+    const view = element.ownerDocument.defaultView;
+    assertNotNull(view);
+    const style = view.getComputedStyle(element);
     const width = Number.parseFloat(style.width);
     const height = Number.parseFloat(style.height);
-    if (!Number.isFinite(width) || !Number.isFinite(height)) {
-        return {width: element.offsetWidth, height: element.offsetHeight};
-    }
 
     if (style.boxSizing === "border-box") return {width, height};
 
