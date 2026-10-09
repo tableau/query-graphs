@@ -36,7 +36,7 @@
   }
 
   & .react-flow__edge.qg-label-highlighted .react-flow__edge-text {
-    fill: var(--qg-danger);
+    fill: var(--qg-accent-2);
   }
 
   & .react-flow__edge.qg-crosslink {
@@ -49,7 +49,7 @@
 
     &:hover .react-flow__edge-path,
     &:focus .react-flow__edge-path {
-      stroke: var(--qg-accent);
+      stroke: var(--qg-accent-3);
       stroke-width: 1.5px;
       stroke-dasharray: 6 2;
     }
