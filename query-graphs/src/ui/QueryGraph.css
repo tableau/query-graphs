@@ -3,7 +3,7 @@
   --xy-edge-stroke: var(--qg-border);
   --xy-edge-stroke-selected: var(--qg-text-muted);
   --xy-minimap-background-color: var(--qg-surface);
-  --xy-minimap-mask-background-color: color-mix(in srgb, var(--qg-canvas) 65%, transparent);
+  --xy-minimap-mask-background-color: color-mix(in srgb, var(--qg-minimap-mask-color) 60%, transparent);
   --xy-minimap-node-background-color: var(--qg-text-muted);
 
   & .react-flow__pane {

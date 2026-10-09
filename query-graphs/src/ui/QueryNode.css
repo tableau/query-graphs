@@ -80,7 +80,7 @@
     }
 
     &:hover .qg-subtree-handle-background {
-        fill: var(--qg-text-muted);
+        fill: var(--qg-subtree-handle-hover);
     }
 }
 
