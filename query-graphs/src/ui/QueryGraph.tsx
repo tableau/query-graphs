@@ -1,10 +1,10 @@
-import {ReactFlow, MiniMap, MiniMapNode, Panel, ReactFlowProvider, useReactFlow} from "@xyflow/react";
-import type {MiniMapNodeProps} from "@xyflow/react";
+import {ReactFlow, MiniMap, MiniMapNode, Panel, ReactFlowProvider, useOnViewportChange, useReactFlow} from "@xyflow/react";
+import type {MiniMapNodeProps, Viewport} from "@xyflow/react";
 import "@xyflow/react/dist/base.css";
 
 import type {TreeDescription, TreeNode} from "../tree-description";
 import type {MouseEvent, ReactNode} from "react";
-import {useMemo} from "react";
+import {createContext, useContext, useMemo, useState} from "react";
 import cc from "classcat";
 import {QueryNode} from "./QueryNode";
 import type {QueryGraphNode} from "./QueryNode";
@@ -13,7 +13,7 @@ import {createGraphRenderingStore, GraphRenderingStoreContext, useGraphRendering
 import {AnimateGraphChangeContext, useAnimatedGraphLayout, useAnimateGraphChange} from "./useAnimatedGraphLayout";
 import {indexGraph} from "./graph-index";
 import type {TreeParents} from "./tree-topology";
-import type {AnimationSpeed} from "./animation-timing";
+import {getGraphAnimationDuration, type AnimationSpeed} from "./animation-timing";
 import {IconButton} from "./IconButton";
 import "./PanelSurface.css";
 import "./QueryGraph.css";
@@ -53,11 +53,44 @@ function preventNodeDoubleClickZoom(event: MouseEvent): void {
     if (event.target instanceof Element && event.target.closest(".react-flow__node") !== null) event.stopPropagation();
 }
 
+const GraphAnimationSpeedContext = createContext<AnimationSpeed>("medium");
+
+interface FittedView {
+    previous: Viewport;
+    fitted: Viewport;
+}
+
+function sameViewport(left: Viewport, right: Viewport): boolean {
+    return left.x === right.x && left.y === right.y && left.zoom === right.zoom;
+}
+
 function FitGraphButton() {
-    const {fitView} = useReactFlow();
+    const {fitView, getViewport, setViewport} = useReactFlow();
+    const animationSpeed = useContext(GraphAnimationSpeedContext);
+    const [fittedView, setFittedView] = useState<FittedView>();
+    useOnViewportChange({
+        onChange(viewport) {
+            // The fit animation completes before `fittedView` is set. Any
+            // subsequent viewport change makes restoring the old view stale.
+            setFittedView((current) => (current && !sameViewport(current.fitted, viewport) ? undefined : current));
+        },
+    });
+
+    const onClick = async () => {
+        const duration = getGraphAnimationDuration(animationSpeed);
+        if (fittedView) {
+            setFittedView(undefined);
+            await setViewport(fittedView.previous, {duration, interpolate: "linear"});
+        } else {
+            const previous = getViewport();
+            if (await fitView({duration, interpolate: "linear"})) {
+                setFittedView({previous, fitted: getViewport()});
+            }
+        }
+    };
 
     return (
-        <IconButton label="Fit graph to view" onClick={() => void fitView()}>
+        <IconButton label={fittedView ? "Restore previous view" : "Fit graph to view"} onClick={() => void onClick()}>
             <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M4 4h6v2H6v4H4zm10 0h6v6h-2V6h-4zm4 10h2v6h-6v-2h4zM4 14h2v4h4v2H4z" />
             </svg>
@@ -170,7 +203,13 @@ export function QueryGraph(props: QueryGraphProps) {
     return (
         <ReactFlowProvider key={instanceId}>
             <GraphRenderingStoreContext.Provider value={graphStore}>
-                <QueryGraphInternal {...props} nodeIdMapping={graphIndex.nodeIds} treeParents={graphIndex.treeTopology.parents} />
+                <GraphAnimationSpeedContext.Provider value={props.animationSpeed ?? "medium"}>
+                    <QueryGraphInternal
+                        {...props}
+                        nodeIdMapping={graphIndex.nodeIds}
+                        treeParents={graphIndex.treeTopology.parents}
+                    />
+                </GraphAnimationSpeedContext.Provider>
             </GraphRenderingStoreContext.Provider>
         </ReactFlowProvider>
     );
