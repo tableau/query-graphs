@@ -5,7 +5,7 @@ import {FileOpener, useLoadStateController} from "./FileOpener";
 import {loadPlanFromText} from "@tableau/query-graphs/lib/loaders";
 import type {LoadedPlan} from "@tableau/query-graphs/lib/loaders";
 import {insightPresets} from "@tableau/query-graphs/lib/insights/presets";
-import {QueryGraph} from "@tableau/query-graphs/lib/ui/QueryGraph";
+import {GraphToolbar, QueryGraph} from "@tableau/query-graphs/lib/ui/QueryGraph";
 import {tryCreateLocalStorageUrl, isLocalStorageURL, loadLocalStorageURL} from "./LocalStorageUrl";
 import {assert} from "./assert";
 import {TreeLabel} from "./TreeLabel";
@@ -149,11 +149,7 @@ export function QueryGraphsApp() {
     } else {
         const {tree, format} = loadedPlan;
         return (
-            <QueryGraph
-                treeDescription={tree}
-                animationSpeed={animationSpeed}
-                additionalControls={<SettingsButton popoverId={settingsPopoverId} />}
-            >
+            <QueryGraph treeDescription={tree} animationSpeed={animationSpeed}>
                 <TreeLabel
                     title={treeTitle ?? ""}
                     setTitle={setTreeTitle}
@@ -163,6 +159,9 @@ export function QueryGraphsApp() {
                     insights={insightPresets[format] ? {root: tree.root, definitions: insightPresets[format]} : undefined}
                 />
                 <SettingsPanel popoverId={settingsPopoverId} />
+                <GraphToolbar>
+                    <SettingsButton popoverId={settingsPopoverId} />
+                </GraphToolbar>
             </QueryGraph>
         );
     }

@@ -6,13 +6,6 @@
     grid-template-columns: minmax(0, 1fr) auto;
     /* Contain CodeMirror's z-index so the header can paint above it. */
     isolation: isolate;
-    /* Match the card treatment used by hovered and expanded graph nodes. */
-    background: white;
-    border: 1px solid hsl(0, 0%, 85%);
-    border-radius: 8px;
-    box-shadow:
-        0 2px 6px hsl(0, 0%, 0%, 0.08),
-        0 1px 2px hsl(0, 0%, 0%, 0.06);
 
     /* Lift an open tooltip's stacking context above subsequent sibling panels. */
     &:has(.qg-icon-button:hover, .qg-icon-button:focus-visible, .qg-icon-button-tooltip:hover) {
@@ -35,7 +28,7 @@
         /* Reset native button styles without losing keyboard semantics. */
         border: 0;
         border-radius: 0;
-        border-start-start-radius: 7px;
+        border-start-start-radius: var(--qg-panel-inner-radius);
         color: inherit;
         background: transparent;
         font: inherit;
@@ -106,15 +99,15 @@
     z-index: 1;
     grid-column: 2;
     grid-row: 1;
-    border-inline-start: 1px solid hsl(0, 0%, 85%);
-    border-start-end-radius: 7px;
+    border-inline-start: 1px solid var(--qg-panel-border-color);
+    border-start-end-radius: var(--qg-panel-inner-radius);
 
     & > .qg-icon-button-wrapper {
         align-self: stretch;
     }
 
     & > .qg-icon-button-wrapper + .qg-icon-button-wrapper {
-        border-inline-start: 1px solid hsl(0, 0%, 85%);
+        border-inline-start: 1px solid var(--qg-panel-border-color);
     }
 
     & .qg-icon-button {
@@ -126,33 +119,33 @@
 
     & > .qg-icon-button-wrapper:last-child .qg-icon-button {
         /* Follow the inside edge of the panel's top-end corner. */
-        border-start-end-radius: 7px;
+        border-start-end-radius: var(--qg-panel-inner-radius);
     }
 }
 
 .qg-collapsible-panel:not([data-expanded]) > .qg-collapsible-panel-actions > .qg-icon-button-wrapper:last-child .qg-icon-button {
     /* In a collapsed panel, the action also meets the bottom-end corner. */
-    border-end-end-radius: 7px;
+    border-end-end-radius: var(--qg-panel-inner-radius);
 }
 
 .qg-collapsible-panel:not([data-expanded]) > .qg-collapsible-panel-actions {
     /* Clip the group's own background to the exposed bottom-end corner. */
-    border-end-end-radius: 7px;
+    border-end-end-radius: var(--qg-panel-inner-radius);
 }
 
 .qg-collapsible-panel:not([data-expanded]) > .qg-collapsible-panel-toggle {
     /* Complete the bottom-start corner when content is hidden. */
-    border-end-start-radius: 7px;
+    border-end-start-radius: var(--qg-panel-inner-radius);
 }
 
 .qg-collapsible-panel:not(:has(> .qg-collapsible-panel-actions)) > .qg-collapsible-panel-toggle {
     /* Complete the top-end corner when there is no action group. */
-    border-start-end-radius: 7px;
+    border-start-end-radius: var(--qg-panel-inner-radius);
 }
 
 .qg-collapsible-panel:not([data-expanded]):not(:has(> .qg-collapsible-panel-actions)) > .qg-collapsible-panel-toggle {
     /* Complete the remaining corner when collapsed without actions. */
-    border-end-end-radius: 7px;
+    border-end-end-radius: var(--qg-panel-inner-radius);
 }
 
 .qg-collapsible-panel-title {
@@ -216,5 +209,5 @@
     max-height: 70vh;
     overflow: auto;
     padding: 0.75em;
-    border-top: 1px solid hsl(0, 0%, 90%);
+    border-top: 1px solid var(--qg-panel-divider-color);
 }

@@ -1,9 +1,13 @@
 .query-graph {
+  --qg-graph-toolbar-button-size: 2em;
+
   & .react-flow__pane {
     background: #fdfdfd;
   }
 
   & .react-flow__handle {
+    width: 6px;
+    height: 6px;
     background-color: transparent;
     border: none;
     pointer-events: none;
@@ -23,6 +27,7 @@
 
   & .react-flow__edge-text {
     font-size: .6em;
+    fill: currentColor;
   }
 
   & .react-flow__edge.qg-label-highlighted .react-flow__edge-text {
@@ -53,6 +58,66 @@
       stroke: hsl(210, 80%, 55%);
       stroke-width: 3px;
     }
+  }
+
+  & .qg-graph-toolbar {
+    display: flex;
+    flex-direction: column;
+
+    & > .qg-icon-button-wrapper {
+      display: flex;
+    }
+
+    & > .qg-icon-button-wrapper + .qg-icon-button-wrapper {
+      border-block-start: 1px solid var(--qg-panel-divider-color);
+    }
+
+    & .qg-icon-button {
+      width: var(--qg-graph-toolbar-button-size);
+      height: var(--qg-graph-toolbar-button-size);
+      padding: 0.425em;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+
+      & svg {
+        width: 100%;
+        height: 100%;
+        fill: currentColor;
+        stroke: none;
+      }
+    }
+
+    & > .qg-icon-button-wrapper:first-child .qg-icon-button {
+      border-start-start-radius: var(--qg-panel-inner-radius);
+      border-start-end-radius: var(--qg-panel-inner-radius);
+    }
+
+    & > .qg-icon-button-wrapper:last-child .qg-icon-button {
+      border-end-start-radius: var(--qg-panel-inner-radius);
+      border-end-end-radius: var(--qg-panel-inner-radius);
+    }
+
+    & .qg-icon-button:hover:not(:disabled) {
+      background: var(--qg-panel-hover-background);
+    }
+
+    /* Open toolbar tooltips into the canvas rather than below the viewport. */
+    & .qg-icon-button-tooltip {
+      inset-block-start: 50%;
+      inset-inline: 100% auto;
+      padding-block-start: 0;
+      padding-inline-start: 0.35em;
+      transform: translateY(-50%);
+    }
+  }
+}
+
+@supports (anchor-scope: --qg-icon-button-anchor) and (position-area: inline-end) {
+  .query-graph .qg-graph-toolbar .qg-icon-button-tooltip {
+    inset: auto;
+    position-area: inline-end center;
+    transform: none;
   }
 }
 

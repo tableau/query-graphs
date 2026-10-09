@@ -2,7 +2,7 @@
     display: flex;
     flex-direction: column;
     border: 1px solid transparent;
-    border-radius: .8em;
+    border-radius: var(--qg-panel-border-radius);
     padding: .3em .5em;
     transition-property: border-color, background-color, box-shadow;
     transition-duration: 0.2s;
@@ -25,9 +25,9 @@
     &.qg-expanded,
     &.qg-resizing {
         cursor: pointer;
-        background: white;
-        border-color: hsl(0,0%, 80%);
-        box-shadow: 1px 2px 5px hsl(0,0%,90%);
+        background-color: var(--qg-panel-background);
+        border-color: var(--qg-panel-border-color);
+        box-shadow: var(--qg-panel-shadow);
     }
 
     &.qg-highlighted {
@@ -122,7 +122,7 @@
 
     & .qg-subtree-handle-background {
         fill: hsl(0,0%,85%);
-        stroke: var(--xy-handle-border-color, var(--xy-handle-border-color-default));
+        stroke: var(--qg-panel-border-color);
         stroke-width: 1.5;
         transition: fill 0.2s;
     }
