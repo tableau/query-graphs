@@ -112,11 +112,6 @@
     visibility: hidden;
 }
 
-.qg-settings-button svg {
-    fill: currentColor;
-    stroke: none;
-}
-
 @supports (position-area: inline-end) {
     .qg-settings-popover {
         inset: auto;

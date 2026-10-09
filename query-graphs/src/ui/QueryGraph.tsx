@@ -27,7 +27,7 @@ export interface QueryGraphProps {
     additionalControls?: ReactNode;
 }
 
-interface QueryGraphInternalProps extends QueryGraphProps {
+interface QueryGraphInternalProps extends Omit<QueryGraphProps, "additionalControls"> {
     nodeIdMapping: ReadonlyMap<TreeNode, string>;
     treeParents: TreeParents;
 }
@@ -61,7 +61,7 @@ function FitGraphButton() {
     return (
         <IconButton label="Fit graph to view" onClick={() => void fitView()}>
             <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M9 4H4v5M15 4h5v5M20 15v5h-5M9 20H4v-5" />
+                <path d="M4 4h6v2H6v4H4zm10 0h6v6h-2V6h-4zm4 10h2v6h-6v-2h4zM4 14h2v4h4v2H4z" />
             </svg>
         </IconButton>
     );
@@ -94,7 +94,7 @@ function ExpandedNodesButton() {
 
     return (
         <IconButton label={label} onClick={onClick} disabled={nodeExpansionStates.length === 0}>
-            <svg className="qg-expanded-nodes-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
                 {anyNodeExpanded ? <path d="M5 3h14l-7 7zM12 14l7 7H5z" /> : <path d="M12 3l7 7H5zM5 14h14l-7 7z" />}
             </svg>
         </IconButton>
@@ -115,7 +115,6 @@ function QueryGraphInternal({
     treeDescription,
     children,
     animationSpeed = "medium",
-    additionalControls,
     nodeIdMapping,
     treeParents,
 }: QueryGraphInternalProps) {
@@ -148,7 +147,6 @@ function QueryGraphInternal({
             >
                 {...Array.isArray(children) ? children : [children]}
                 <MiniMap zoomable={true} pannable={true} nodeColor={minimapNodeColor} nodeComponent={QueryGraphMiniMapNode} />
-                <GraphToolbar>{additionalControls}</GraphToolbar>
             </ReactFlow>
         </AnimateGraphChangeContext.Provider>
     );
@@ -166,6 +164,7 @@ function createGraphState(treeDescription: TreeDescription) {
 }
 
 export function QueryGraph(props: QueryGraphProps) {
+    const {children, additionalControls, ...graphProps} = props;
     const {instanceId, graphIndex, graphStore} = useMemo(() => createGraphState(props.treeDescription), [props.treeDescription]);
 
     // This artificial key remounts React Flow when the tree changes, keeping
@@ -173,7 +172,14 @@ export function QueryGraph(props: QueryGraphProps) {
     return (
         <ReactFlowProvider key={instanceId}>
             <GraphRenderingStoreContext.Provider value={graphStore}>
-                <QueryGraphInternal {...props} nodeIdMapping={graphIndex.nodeIds} treeParents={graphIndex.treeTopology.parents} />
+                <QueryGraphInternal
+                    {...graphProps}
+                    nodeIdMapping={graphIndex.nodeIds}
+                    treeParents={graphIndex.treeTopology.parents}
+                >
+                    {children}
+                    <GraphToolbar>{additionalControls}</GraphToolbar>
+                </QueryGraphInternal>
             </GraphRenderingStoreContext.Provider>
         </ReactFlowProvider>
     );
