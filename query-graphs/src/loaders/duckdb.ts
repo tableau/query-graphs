@@ -8,12 +8,23 @@ use `operator_name` and add per-operator metrics plus a profiling envelope.
 
 */
 
-import type {Crosslink, IconName, TextDocument, TreeDescription, TreeNode} from "../tree-description";
+import type {Crosslink, IconName, PropertyEntry, TextDocument, TreeDescription, TreeNode} from "../tree-description";
 import {allChildren, visitTreeNodes} from "../tree-description";
 import type {DecoratedJsonTreeConfig} from "./decorated-json-tree";
 import {convertDecoratedJsonNode, createDecoratedJsonTreeState} from "./decorated-json-tree";
 import type {Json, JsonObject} from "./loader-utils";
-import {forceToString, hasOwnProperty, hasSubObject, isJsonObject, tryToNonNullString, tryToNumber} from "./loader-utils";
+import {
+    applyNumberFormats,
+    applyPropertyNumberFormats,
+    getNumericProperty,
+    getScalarProperty,
+    hasOwnProperty,
+    hasSubObject,
+    isJsonObject,
+    jsonToPropertyEntry,
+    tryToNonNullString,
+    tryToNumber,
+} from "./loader-utils";
 import {buildIdMap, colorRelativeNumber, resolveCrosslinks, setRelativeEdgeWidths} from "./tree-postprocessing";
 import type {JsonPlanLoader, PlanLoadContext} from "./types";
 
@@ -125,7 +136,7 @@ function applyOperatorTimings(root: TreeNode): void {
     visitTreeNodes(
         root,
         (node) => {
-            const timing = tryToNumber(node.properties?.get("operator_timing"));
+            const timing = getNumericProperty(node.properties, "operator_timing");
             if (timing !== undefined) {
                 timings.push({node, value: timing});
             }
@@ -138,12 +149,14 @@ function applyOperatorTimings(root: TreeNode): void {
 function convertDuckPlan(
     rawRoot: Json,
     context: PlanLoadContext,
-    metadata?: Map<string, string>,
+    metadata?: Map<string, PropertyEntry>,
     textDocuments?: TextDocument[],
 ): TreeDescription {
     const state = createDecoratedJsonTreeState();
     const root = convertDecoratedJsonNode(rawRoot, "DuckDB plan", state, duckDbConfig, context);
     applyOperatorTimings(root);
+    applyNumberFormats(root);
+    if (metadata !== undefined) applyPropertyNumberFormats(metadata);
     setRelativeEdgeWidths(state.edgeWidths);
     const crosslinkTargets = new Map<string, TreeNode>();
     for (const [id, node] of buildIdMap(root, "Table Index")) {
@@ -152,8 +165,8 @@ function convertDuckPlan(
     visitTreeNodes(
         root,
         (node) => {
-            const operatorType = node.properties?.get("operator_type");
-            const id = node.properties?.get("Delim Index");
+            const operatorType = getScalarProperty(node.properties, "operator_type");
+            const id = getScalarProperty(node.properties, "Delim Index");
             const isDelimJoin = operatorType?.endsWith("DELIM_JOIN") ?? node.name?.endsWith("delim_join") ?? false;
             if (isDelimJoin && id !== undefined) {
                 crosslinkTargets.set(crosslinkId("delim", id), node);
@@ -204,8 +217,8 @@ function getPlanStages(json: Json): [string, Json][] | undefined {
     return Object.entries(json).map(([name, plan]) => [name, isSingletonArray(plan) ? plan[0] : plan]);
 }
 
-function analyzeMetadata(json: JsonObject): Map<string, string> {
-    const metadata = new Map<string, string>();
+function analyzeMetadata(json: JsonObject): Map<string, PropertyEntry> {
+    const metadata = new Map<string, PropertyEntry>();
     for (const key of Object.keys(json)) {
         if (key === "children" || key === "query_name") {
             continue;
@@ -214,7 +227,7 @@ function analyzeMetadata(json: JsonObject): Map<string, string> {
         if (key === "extra_info" && isJsonObject(value) && Object.keys(value).length === 0) {
             continue;
         }
-        metadata.set(key, forceToString(value));
+        metadata.set(key, jsonToPropertyEntry(value));
     }
     return metadata;
 }

@@ -1,11 +1,12 @@
-import {lazy, Suspense, type ReactElement, useCallback, useMemo, useState} from "react";
+import {lazy, Suspense, useCallback, useMemo, useState} from "react";
 import {CollapsiblePanel} from "@tableau/query-graphs/lib/ui/CollapsiblePanel";
 import {CopyButton} from "@tableau/query-graphs/lib/ui/CopyButton";
 import {IconButton} from "@tableau/query-graphs/lib/ui/IconButton";
 import {PlanInsights} from "@tableau/query-graphs/lib/ui/PlanInsights";
 import {ScrollableArea} from "@tableau/query-graphs/lib/ui/ScrollableArea";
+import {PropertyList} from "@tableau/query-graphs/lib/ui/QueryNode";
 import {useGraphRenderingStore} from "@tableau/query-graphs/lib/ui/store";
-import type {SourceLocation, TextDocument, TreeNode} from "@tableau/query-graphs/lib/tree-description";
+import type {PropertyEntry, SourceLocation, TextDocument, TreeNode} from "@tableau/query-graphs/lib/tree-description";
 import type {CategoricalInsightDefinition} from "@tableau/query-graphs/lib/insights/categorical";
 import "./TreeLabel.css";
 
@@ -16,7 +17,7 @@ const DocumentPane = lazy(() =>
 export interface TreeLabelProps {
     title: string;
     setTitle?: (v: string) => void;
-    metadata?: Map<string, string>;
+    metadata?: Map<string, PropertyEntry>;
     metadataHighlighted?: boolean;
     textDocuments?: TextDocument[];
     insights?: {root: TreeNode; definitions: readonly CategoricalInsightDefinition[]};
@@ -92,15 +93,6 @@ function TextDocumentPanel({document}: {document: TextDocument}) {
 }
 
 export function TreeLabel({title, setTitle, metadata, metadataHighlighted, textDocuments, insights}: TreeLabelProps) {
-    const metadataChildren = [] as ReactElement[];
-    for (const [key, value] of (metadata || []).entries()) {
-        metadataChildren.push(
-            <div key={key}>
-                <span className="qg-prop-name">{key}:</span> <span className="qg-prop-value">{value}</span>
-            </div>,
-        );
-    }
-
     // React Flow recognizes these interaction guards on ancestors: `nowheel` lets
     // documents scroll without zooming the canvas, and `nopan` lets users select
     // text or operate controls without dragging the canvas.
@@ -116,10 +108,12 @@ export function TreeLabel({title, setTitle, metadata, metadataHighlighted, textD
             <div className="graph-sidebar-panels">
                 <div className="graph-sidebar-panel-stack">
                     {insights ? <PlanInsights root={insights.root} definitions={insights.definitions} /> : null}
-                    {metadataChildren.length > 0 ? (
+                    {metadata !== undefined && metadata.size > 0 ? (
                         <CollapsiblePanel title="Plan Metadata" highlighted={metadataHighlighted}>
                             <ScrollableArea>
-                                <div className="graph-metadata">{metadataChildren}</div>
+                                <div className="graph-metadata">
+                                    <PropertyList properties={metadata} />
+                                </div>
                             </ScrollableArea>
                         </CollapsiblePanel>
                     ) : null}
