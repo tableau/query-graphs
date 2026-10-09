@@ -27,7 +27,7 @@
   & .react-flow__edge-textbg {
     opacity: .7;
     fill: var(--qg-surface);
-    stroke: var(--qg-border);
+    stroke: var(--qg-edge-label-border);
   }
 
   & .react-flow__edge-text {
