@@ -5,6 +5,13 @@ body, html, .main-app-container, .app-root {
     width: 100%;
 }
 
+.qg-theme-switching,
+.qg-theme-switching *,
+.qg-theme-switching *::before,
+.qg-theme-switching *::after {
+    transition: none !important;
+}
+
 .span-link {
     color: var(--qg-accent);
     cursor: pointer;
