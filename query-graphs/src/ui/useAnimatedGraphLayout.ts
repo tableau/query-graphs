@@ -111,6 +111,40 @@ interface NodeResize {
     target?: Dimensions;
 }
 
+function measureElement(element: HTMLElement): Dimensions {
+    if (typeof getComputedStyle === "undefined") {
+        return {width: element.offsetWidth, height: element.offsetHeight};
+    }
+
+    const style = getComputedStyle(element);
+    const width = Number.parseFloat(style.width);
+    const height = Number.parseFloat(style.height);
+    if (!Number.isFinite(width) || !Number.isFinite(height)) {
+        return {width: element.offsetWidth, height: element.offsetHeight};
+    }
+
+    if (style.boxSizing === "border-box") return {width, height};
+
+    return {
+        width:
+            width +
+            Number.parseFloat(style.paddingLeft) +
+            Number.parseFloat(style.paddingRight) +
+            Number.parseFloat(style.borderLeftWidth) +
+            Number.parseFloat(style.borderRightWidth),
+        height:
+            height +
+            Number.parseFloat(style.paddingTop) +
+            Number.parseFloat(style.paddingBottom) +
+            Number.parseFloat(style.borderTopWidth) +
+            Number.parseFloat(style.borderBottomWidth),
+    };
+}
+
+function sameSize(left: Dimensions, right: Dimensions): boolean {
+    return Math.abs(left.width - right.width) < 0.01 && Math.abs(left.height - right.height) < 0.01;
+}
+
 /**
  * Measures every pending post-render target before freezing any sizing shell,
  * keeping all DOM reads ahead of writes. Returns the final outer dimensions
@@ -122,8 +156,8 @@ export function preparePendingNodeResizes(resizes: Map<string, NodeResize>): Map
         .map(([nodeId, resize]) => ({
             nodeId,
             resize,
-            nodeTarget: {width: resize.flowElement.offsetWidth, height: resize.flowElement.offsetHeight},
-            sizingTarget: {width: resize.sizingElement.offsetWidth, height: resize.sizingElement.offsetHeight},
+            nodeTarget: measureElement(resize.flowElement),
+            sizingTarget: measureElement(resize.sizingElement),
         }));
     const targets = new Map<string, Dimensions>();
     for (const {nodeId, resize, nodeTarget, sizingTarget} of measurements) {
@@ -132,6 +166,10 @@ export function preparePendingNodeResizes(resizes: Map<string, NodeResize>): Map
             continue;
         }
         targets.set(nodeId, nodeTarget);
+        if (sameSize(resize.start, sizingTarget)) {
+            resizes.delete(nodeId);
+            continue;
+        }
         resize.target = sizingTarget;
         resize.sizingElement.classList.add("qg-resizing");
         resize.sizingElement.style.width = `${resize.start.width}px`;
@@ -254,7 +292,7 @@ export function useAnimatedGraphLayout(
                 resizes.set(nodeId, {
                     flowElement,
                     sizingElement,
-                    start: {width: sizingElement.offsetWidth, height: sizingElement.offsetHeight},
+                    start: measureElement(sizingElement),
                 });
             }
             cancelLayoutFrame();
@@ -391,7 +429,7 @@ export function useAnimatedGraphLayout(
                 nodeId,
                 element: resize.sizingElement,
                 target: resize.target,
-                start: {width: resize.sizingElement.offsetWidth, height: resize.sizingElement.offsetHeight},
+                start: measureElement(resize.sizingElement),
             };
         });
         let previousProgress = 0;

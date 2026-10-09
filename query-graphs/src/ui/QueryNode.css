@@ -1,4 +1,5 @@
 .qg-graph-node {
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
     border: 1px solid transparent;
@@ -43,7 +44,6 @@
 }
 
 .qg-graph-node.qg-resizing {
-    box-sizing: border-box;
     overflow: hidden;
 }
 
