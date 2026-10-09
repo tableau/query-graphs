@@ -45,4 +45,6 @@
     --qg-danger: #ff8790;
     --qg-tooltip: #edf0f4;
     --qg-tooltip-text: #171a20;
+    --qg-icon-fill: var(--qg-text-muted);
+    --qg-icon-stroke: color-mix(in srgb, currentColor 60%, var(--qg-surface));
 }
