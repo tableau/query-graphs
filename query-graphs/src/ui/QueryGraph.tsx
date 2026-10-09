@@ -90,10 +90,7 @@ function FitGraphButton() {
     };
 
     return (
-        <IconButton
-            label={fittedView ? "Restore previous view" : "Fit graph to view"}
-            onClick={() => void onClick()}
-        >
+        <IconButton label={fittedView ? "Restore previous view" : "Fit graph to view"} onClick={() => void onClick()}>
             <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M4 4h6v2H6v4H4zm10 0h6v6h-2V6h-4zm4 10h2v6h-6v-2h4zM4 14h2v4h4v2H4z" />
             </svg>
