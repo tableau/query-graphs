@@ -9,6 +9,7 @@ and convert its existing hierarchy into a query tree.
 */
 
 import type {IconName, TreeNode} from "../tree-description";
+import {stringMapToProperties} from "./loader-utils";
 import type {ParsedXML} from "./xml";
 import type {PlanLoader} from "./types";
 
@@ -147,7 +148,7 @@ function convertXML(xml: ParsedXML): TreeNode {
     return {
         name,
         icon,
-        properties: properties,
+        properties: stringMapToProperties(properties),
         children: expandedChildren,
         collapsedChildren,
         expandedByDefault: !isAlwaysExpanded(xml) && expandedChildren.length === 0,

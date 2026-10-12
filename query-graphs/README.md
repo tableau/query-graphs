@@ -19,11 +19,13 @@ The library provides:
 `TreeDescription` (`src/tree-description.ts`) is the single abstraction that decouples "which database produced this plan" from "how it is drawn".
 Every loader outputs one; the renderer only ever consumes one.
 
-* `TreeDescription` — the whole graph: a `root` `TreeNode`, optional `metadata` (shown in the top-level label), an optional metadata highlight, optional text documents, and optional `crosslinks`.
+* `TreeDescription` — the whole graph: a `root` `TreeNode`, optional `metadata` (`PropertyEntry` rows like a node's `properties`, shown in the top-level label), an optional metadata highlight, optional text documents, and optional `crosslinks`.
 * `TextDocument` — a named text artifact associated with the graph, identified by a stable `id` and optionally tagged with its language.
 * `TreeNode` — one node. Notable fields:
   * `name`, `icon`, `iconColor`, `nodeColor` — what the node looks like.
-  * `properties` — a `Map` of key/value strings shown in the node's tooltip/detail panel.
+  * `properties` — a `Map` of `PropertyEntry` rows shown in the node's detail panel.
+    An entry's `value` is a string, a number, or a nested `Map` (an expandable group).
+    Numbers stay numbers and are only formatted when rendered, as chosen by the entry's `numberFormat` (`rounded`, `exact`, `memory-bytes`, `time-seconds`), which `applyNumberFormats` infers from words in the property name (rows, memory, time, ...); unset shows the raw number.
   * `children` vs `collapsedChildren` — see [The Collapse/Expand Model](#the-collapseexpand-model).
   * `edgeLabel`, `edgeWidth`, `edgeClass` — decorate the incoming edge (e.g. cardinality labels).
   * `sourceLocations` — optional half-open UTF-16 ranges linking the node to associated text documents.
@@ -48,7 +50,7 @@ Hyper additionally configures operator/expression classification, node rendering
 
 Shared post-processing helpers resolve crosslinks and scale edge widths. Hyper's pipeline visualization lives separately in `pipeline-coloring.ts`.
 
-Shared parsing/formatting helpers live in `loader-utils.ts` (`tryToString`, `forceToString`, `formatMetric`, `tryGetPropertyPath`, the `Json` type).
+Shared parsing/formatting helpers live in `loader-utils.ts` (`tryToString`, `jsonToPropertyEntry`, `getScalarProperty`/`getNumericProperty`, `applyNumberFormats`, `tryGetPropertyPath`, the `Json` type).
 
 The library intentionally exposes low-level loaders (`json`, `xml`) as generic fallbacks so that even an unrecognized plan renders as *something* rather than an error.
 
