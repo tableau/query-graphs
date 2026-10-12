@@ -4,7 +4,7 @@ import "@xyflow/react/dist/base.css";
 
 import type {TreeDescription, TreeNode} from "../tree-description";
 import type {MouseEvent, ReactNode} from "react";
-import {createContext, useContext, useMemo, useState} from "react";
+import {createContext, useContext, useMemo, useRef, useState} from "react";
 import cc from "classcat";
 import {QueryNode} from "./QueryNode";
 import type {QueryGraphNode} from "./QueryNode";
@@ -58,9 +58,10 @@ function preventNodeDoubleClickZoom(event: MouseEvent): void {
 
 const GraphAnimationSpeedContext = createContext<AnimationSpeed>("medium");
 
-interface FittedView {
+interface FitViewToggle {
     previous: Viewport;
-    fitted: Viewport;
+    fitted?: Viewport;
+    target: "fit" | "previous";
 }
 
 function sameViewport(left: Viewport, right: Viewport): boolean {
@@ -70,30 +71,65 @@ function sameViewport(left: Viewport, right: Viewport): boolean {
 function FitGraphButton() {
     const {fitView, getViewport, setViewport} = useReactFlow();
     const animationSpeed = useContext(GraphAnimationSpeedContext);
-    const [fittedView, setFittedView] = useState<FittedView>();
+    const [fitViewToggle, setFitViewToggle] = useState<FitViewToggle>();
+    const fitViewToggleRef = useRef<FitViewToggle | undefined>(undefined);
+    const viewportTransitionInProgressRef = useRef(false);
+    const viewportTransitionIdRef = useRef(0);
+    const updateFitViewToggle = (next: FitViewToggle | undefined) => {
+        fitViewToggleRef.current = next;
+        setFitViewToggle(next);
+    };
     useOnViewportChange({
         onChange(viewport) {
-            // The fit animation completes before `fittedView` is set. Any
-            // subsequent viewport change makes restoring the old view stale.
-            setFittedView((current) => (current && !sameViewport(current.fitted, viewport) ? undefined : current));
+            const current = fitViewToggleRef.current;
+            if (viewportTransitionInProgressRef.current) {
+                // Expose the restore action as soon as fitting visibly moves.
+                // A no-op fit never reaches this state, so its label stays put.
+                if (current?.target === "fit" && !current.fitted && !sameViewport(current.previous, viewport)) {
+                    updateFitViewToggle({...current, fitted: viewport});
+                }
+                return;
+            }
+            // Once a fit or restore has settled, any other viewport change
+            // invalidates the saved pair of views.
+            const expected = current?.target === "fit" ? current.fitted : current?.previous;
+            if (expected && !sameViewport(expected, viewport)) updateFitViewToggle(undefined);
         },
     });
 
     const onClick = async () => {
-        const duration = getGraphAnimationDuration(animationSpeed);
-        if (fittedView) {
-            setFittedView(undefined);
-            await setViewport(fittedView.previous, {duration, interpolate: "linear"});
-        } else {
-            const previous = getViewport();
-            if (await fitView({duration, interpolate: "linear"})) {
-                setFittedView({previous, fitted: getViewport()});
+        const current = fitViewToggleRef.current;
+        const transitionId = ++viewportTransitionIdRef.current;
+        viewportTransitionInProgressRef.current = true;
+        try {
+            const duration = getGraphAnimationDuration(animationSpeed);
+            if (current?.target === "fit") {
+                updateFitViewToggle({...current, target: "previous"});
+                await setViewport(current.previous, {duration, interpolate: "linear"});
+            } else {
+                // Only a new toggle cycle captures the current viewport. Every
+                // later click keeps returning to that same previous view.
+                const previous = current?.previous ?? getViewport();
+                updateFitViewToggle({previous, fitted: current?.fitted, target: "fit"});
+                const didFit = await fitView({duration, interpolate: "linear"});
+                if (transitionId !== viewportTransitionIdRef.current) return;
+                if (!didFit) {
+                    updateFitViewToggle(undefined);
+                    return;
+                }
+                const fitted = getViewport();
+                updateFitViewToggle(sameViewport(previous, fitted) ? undefined : {previous, fitted, target: "fit"});
             }
+        } finally {
+            if (transitionId === viewportTransitionIdRef.current) viewportTransitionInProgressRef.current = false;
         }
     };
 
     return (
-        <IconButton label={fittedView ? "Restore previous view" : "Fit graph to view"} onClick={() => void onClick()}>
+        <IconButton
+            label={fitViewToggle?.target === "fit" && fitViewToggle.fitted ? "Restore previous view" : "Fit graph to view"}
+            onClick={() => void onClick()}
+        >
             <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M4 4h6v2H6v4H4zm10 0h6v6h-2V6h-4zm4 10h2v6h-6v-2h4zM4 14h2v4h4v2H4z" />
             </svg>
