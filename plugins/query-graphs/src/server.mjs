@@ -6,32 +6,33 @@ import {McpServer} from "@modelcontextprotocol/server";
 import {StdioServerTransport} from "@modelcontextprotocol/server/stdio";
 import {registerAppResource, registerAppTool, RESOURCE_MIME_TYPE} from "@modelcontextprotocol/ext-apps/server";
 import {z} from "zod";
-import {MAX_CHUNK_BYTES, MAX_FILE_BYTES, RESOURCE_URI} from "./limits.mjs";
-import {SnapshotError, SnapshotStore} from "./snapshot-store.mjs";
+import {MAX_FILE_BYTES, MAX_MCP_MESSAGE_BYTES, RESOURCE_URI, RESPONSE_ENVELOPE_HEADROOM_BYTES} from "./limits.mjs";
 
 const DIST_DIR = path.dirname(fileURLToPath(import.meta.url));
 const VIEW_PATH = path.join(DIST_DIR, "view.html");
 const openOutputSchema = z.object({
     status: z.enum(["empty", "prepared"]),
     title: z.string(),
-    handle: z.string().nullable(),
     planBytes: z.number().int().nonnegative(),
     sqlBytes: z.number().int().nonnegative(),
     hasSql: z.boolean(),
     format: z.string().nullable(),
-    chunkBytes: z.number().int().positive(),
-});
-const chunkOutputSchema = z.object({
-    offset: z.number().int().nonnegative(),
-    length: z.number().int().nonnegative(),
-    totalBytes: z.number().int().nonnegative(),
-    base64: z.string(),
 });
 
 class OpenFileError extends Error {}
 
-function toolResult(message, data) {
-    return {content: [{type: "text", text: message}], structuredContent: data};
+function toolResult(message, metadata, privateData) {
+    const result = {
+        content: [{type: "text", text: message}],
+        structuredContent: metadata,
+        _meta: privateData,
+    };
+    if (Buffer.byteLength(JSON.stringify(result), "utf8") + RESPONSE_ENVELOPE_HEADROOM_BYTES > MAX_MCP_MESSAGE_BYTES) {
+        throw new OpenFileError(
+            "The plan and optional SQL exceed the Query Graphs 8 MiB response budget; paste or drop the plan into the viewer to load it directly.",
+        );
+    }
+    return result;
 }
 
 function toolError(error) {
@@ -40,7 +41,7 @@ function toolError(error) {
 }
 
 function normalizeOpenError(error) {
-    if (error instanceof OpenFileError || error instanceof SnapshotError) return error;
+    if (error instanceof OpenFileError) return error;
     if (error?.code === "ENOENT") return new Error("The requested plan or SQL file does not exist.");
     if (error?.code === "EACCES" || error?.code === "EPERM")
         return new Error("Permission was denied while opening a requested file.");
@@ -50,13 +51,14 @@ function normalizeOpenError(error) {
     return new Error("Could not read a requested file. See local server diagnostics for details.");
 }
 
-async function readSnapshot(filePath) {
+async function readBoundedText(filePath) {
     const file = await open(filePath, fsConstants.O_RDONLY | fsConstants.O_NONBLOCK);
     try {
         const stat = await file.stat();
         if (!stat.isFile()) throw new OpenFileError("A requested path does not name a regular file.");
         if (!Number.isSafeInteger(stat.size)) throw new OpenFileError("File size cannot be represented safely.");
-        if (stat.size > MAX_FILE_BYTES) throw new OpenFileError(`Each file must be at most ${MAX_FILE_BYTES} bytes.`);
+        if (stat.size > MAX_FILE_BYTES) throw new OpenFileError("A requested file exceeds the Query Graphs 8 MiB response budget.");
+
         const bytes = Buffer.alloc(stat.size);
         let offset = 0;
         while (offset < bytes.length) {
@@ -64,7 +66,14 @@ async function readSnapshot(filePath) {
             if (bytesRead === 0) throw new OpenFileError("A file changed while being read; reopen it to retry.");
             offset += bytesRead;
         }
-        return bytes;
+        if ((await file.stat()).size !== stat.size) throw new OpenFileError("A file changed while being read; reopen it to retry.");
+        let text;
+        try {
+            text = new TextDecoder("utf-8", {fatal: true}).decode(bytes);
+        } catch {
+            throw new OpenFileError("A requested plan or SQL file is not valid UTF-8 text.");
+        }
+        return {text, bytes: stat.size};
     } finally {
         await file.close();
     }
@@ -76,7 +85,7 @@ function displayTitle(requestedTitle, planPath) {
     return safeName || "Untitled";
 }
 
-export function createServer({snapshotStore = new SnapshotStore()} = {}) {
+export function createServer() {
     const server = new McpServer({name: "query-graphs", version: __QUERY_GRAPHS_VERSION__});
     const appMetadata = {
         ui: {csp: {resourceDomains: [], connectDomains: []}},
@@ -89,7 +98,7 @@ export function createServer({snapshotStore = new SnapshotStore()} = {}) {
         {
             title: "Open a query plan",
             description:
-                "Prepare a local query plan and optional SQL file for the interactive Query Graphs viewer. Omit path to open the empty viewer; file contents stay local and are transferred to the app in bounded chunks.",
+                "Open a local query plan and optional SQL file in the interactive viewer. The app receives the private file text in result metadata; no file contents are returned to the model.",
             inputSchema: z.object({
                 path: z.string().min(1).optional(),
                 sqlPath: z.string().min(1).optional(),
@@ -105,63 +114,29 @@ export function createServer({snapshotStore = new SnapshotStore()} = {}) {
                 if (sqlPath !== undefined && planInput === undefined) throw new OpenFileError("sqlPath requires a plan path.");
                 const title = displayTitle(requestedTitle, planInput);
                 if (planInput === undefined) {
-                    return toolResult("Opened an empty Query Graphs viewer. No plan has been parsed or rendered.", {
-                        status: "empty",
-                        title,
-                        handle: null,
-                        planBytes: 0,
-                        sqlBytes: 0,
-                        hasSql: false,
-                        format: format ?? null,
-                        chunkBytes: MAX_CHUNK_BYTES,
-                    });
+                    return toolResult(
+                        "Opened an empty Query Graphs viewer. No plan has been parsed or rendered.",
+                        {status: "empty", title, planBytes: 0, sqlBytes: 0, hasSql: false, format: format ?? null},
+                        {planText: null, sqlText: null},
+                    );
                 }
 
-                const planPath = path.resolve(planInput);
-                const planBytes = await readSnapshot(planPath);
-                const sqlBytes = sqlPath === undefined ? undefined : await readSnapshot(path.resolve(sqlPath));
-                const snapshot = snapshotStore.create(title, planBytes, sqlBytes);
+                const plan = await readBoundedText(path.resolve(planInput));
+                const sql = sqlPath === undefined ? undefined : await readBoundedText(path.resolve(sqlPath));
                 return toolResult(
-                    `Prepared ${title} for the Query Graphs viewer. The app will parse the plan; it has not yet been rendered.`,
+                    "Prepared a query plan for the viewer. It has not yet been parsed or rendered.",
                     {
                         status: "prepared",
-                        title: snapshot.title,
-                        handle: snapshot.handle,
-                        planBytes: snapshot.planBytes,
-                        sqlBytes: snapshot.sqlBytes,
-                        hasSql: sqlPath !== undefined,
+                        title,
+                        planBytes: plan.bytes,
+                        sqlBytes: sql?.bytes ?? 0,
+                        hasSql: sql !== undefined,
                         format: format ?? null,
-                        chunkBytes: MAX_CHUNK_BYTES,
                     },
+                    {planText: plan.text, sqlText: sql?.text ?? null},
                 );
             } catch (error) {
                 return toolError(normalizeOpenError(error));
-            }
-        },
-    );
-
-    registerAppTool(
-        server,
-        "read_plan_chunk",
-        {
-            title: "Read a query plan snapshot chunk",
-            description: "Read a bounded byte range from a plan or SQL snapshot already prepared for this app.",
-            inputSchema: z.object({
-                handle: z.string().min(1),
-                document: z.enum(["plan", "sql"]),
-                offset: z.number().int().min(0),
-                length: z.number().int().min(1).max(MAX_CHUNK_BYTES),
-            }),
-            outputSchema: chunkOutputSchema,
-            annotations: {readOnlyHint: true, openWorldHint: false},
-            _meta: {ui: {resourceUri: RESOURCE_URI, visibility: ["app"]}},
-        },
-        async ({handle, document, offset, length}) => {
-            try {
-                const chunk = snapshotStore.readChunk(handle, document, offset, length);
-                return toolResult(`Read ${chunk.length} bytes at offset ${chunk.offset}.`, chunk);
-            } catch (error) {
-                return toolError(error);
             }
         },
     );

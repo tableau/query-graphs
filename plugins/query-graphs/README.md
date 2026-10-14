@@ -14,14 +14,12 @@ The release tag named in `release.json` must exist before the wrapper can cold-s
 
 `open_query_plan` accepts an optional local `path`, optional `sqlPath`, optional loader `format`, and optional display `title`.
 Omit `path` to open the empty viewer, where a user can paste or drop a plan.
-The server reads explicit regular files into immutable snapshots, and the app retrieves each file in bounded chunks.
-Model-visible results contain display metadata and an opaque handle, never plan contents, SQL, or full local paths.
-`read_plan_chunk` is available only to the app UI.
+The server reads bounded regular files once and sends their text in result `_meta`, which the MCP App receives while the model-visible result contains only display metadata, byte counts, and status.
+The server retains no plan or SQL snapshot state between tool calls, and the tool never returns full local paths.
 When the Query Graphs theme setting is `System`, the viewer follows the host's light or dark theme; host display-mode changes also update the expand control without remounting the graph.
 
-Each file is limited to 64 MiB, the server retains at most 128 MiB across two snapshots, and an idle snapshot expires after 15 minutes.
-These limits bound memory and stale local data; least-recently-used eviction keeps the newest plans available when the cache is full.
-The 180 KiB chunk limit keeps base64 tool responses bounded while avoiding an excessive number of bridge calls for large plans.
+The plugin limits the complete serialized tool result to an 8 MiB budget, including JSON escaping, with 64 KiB reserved for the protocol envelope. This is a plugin policy, not a guarantee about every host's transport limit.
+An oversized file returns an error; paste or drop plan text directly into the viewer to load it without sending it through the tool result.
 
 ## Development
 

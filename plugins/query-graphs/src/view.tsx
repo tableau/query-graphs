@@ -1,5 +1,5 @@
 import {createRoot} from "react-dom/client";
-import {useCallback, useEffect, useRef, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {App} from "@modelcontextprotocol/ext-apps";
 import {loadPlanFromText} from "@tableau/query-graphs/lib/loaders";
 import type {LoadedPlan} from "@tableau/query-graphs/lib/loaders";
@@ -9,9 +9,7 @@ import {FileOpener, useLoadStateController} from "../../../standalone-app/src/Fi
 import type {FileOpenerData} from "../../../standalone-app/src/FileOpener";
 import {PlanView} from "../../../standalone-app/src/PlanView";
 import {ThemeContext, useResolvedThemeSetting} from "../../../standalone-app/src/theme";
-import {readDocumentText, resultData} from "./transfer.mjs";
 import {setupDisplayControls} from "./display.mjs";
-import {MAX_CHUNK_BYTES, MAX_FILE_BYTES} from "./limits.mjs";
 
 import "bootstrap/dist/css/bootstrap-reboot.min.css";
 import "../../../standalone-app/src/index.css";
@@ -44,18 +42,47 @@ function errorText(error: unknown): string {
     return error instanceof Error ? error.message : String(error);
 }
 
+function asRecord(value: unknown): Record<string, unknown> {
+    if (value === null || typeof value !== "object" || Array.isArray(value))
+        throw new Error("The open tool returned invalid data.");
+    return value as Record<string, unknown>;
+}
+
+function openToolData(result: unknown) {
+    const response = asRecord(result);
+    if (response.isError) {
+        const text = Array.isArray(response.content) ? response.content.find((item) => asRecord(item).type === "text") : undefined;
+        throw new Error((text && asRecord(text).text) || "The open tool failed.");
+    }
+    return {metadata: asRecord(response.structuredContent), privateData: asRecord(response._meta)};
+}
+
 function PluginApp() {
     const [hostTheme, setHostTheme] = useState<"light" | "dark">();
     const theme = useResolvedThemeSetting(hostTheme);
     useEffect(() => {
         pluginShell.dataset.theme = theme;
     }, [theme]);
-    const generation = useRef(0);
+
     const [loadedPlan, setLoadedPlan] = useState<LoadedPlan>();
     const [title, setTitle] = useState("Untitled");
     const [status, setStatus] = useState("Paste or drop a query plan, or open one with open_query_plan.");
     const [error, setError] = useState<string>();
     const loadStateController = useLoadStateController();
+    const {clearLoadState, setError: setLoadError, setProgress} = loadStateController;
+
+    const applyPlan = useCallback(
+        (text: string, nextTitle: string, format?: string | null, sql?: string | null) => {
+            setLoadedPlan(undefined);
+            const plan = loadPlanFromText(text, {format: format ?? undefined, sql: sql ?? undefined});
+            setLoadedPlan(plan);
+            setTitle(nextTitle);
+            setStatus(`Loaded ${plan.format} query plan (${nodeCount(plan)} nodes).`);
+            setError(undefined);
+            clearLoadState();
+        },
+        [clearLoadState],
+    );
 
     const validate = useCallback((text: string) => {
         try {
@@ -66,90 +93,64 @@ function PluginApp() {
         }
     }, []);
 
-    const openPickedData = useCallback(async (data: FileOpenerData) => {
-        const current = ++generation.current;
-        setError(undefined);
-        setStatus("Parsing query plan…");
-        try {
-            const plan = loadPlanFromText(data.content);
-            if (current !== generation.current) return;
-            setLoadedPlan(plan);
-            setTitle(data.fileName ?? "Untitled");
-            setStatus(`Loaded ${plan.format} query plan (${nodeCount(plan)} nodes).`);
-        } catch (cause) {
-            if (current === generation.current) setError(errorText(cause));
-            throw cause;
-        }
-    }, []);
-
-    useEffect(() => {
-        const handleToolResult = async (result: unknown) => {
-            const current = ++generation.current;
+    const openPickedData = useCallback(
+        async (data: FileOpenerData) => {
             setError(undefined);
-            setStatus("Preparing query plan…");
+            applyPlan(data.content, data.fileName ?? "Untitled");
+        },
+        [applyPlan],
+    );
+
+    const handleToolResult = useCallback(
+        (result: unknown) => {
+            setError(undefined);
+            setProgress("Parsing query plan…");
+            setStatus("Parsing query plan…");
             try {
-                const metadata = resultData(result) as {
-                    status?: unknown;
-                    title?: unknown;
-                    handle?: unknown;
-                    planBytes?: unknown;
-                    sqlBytes?: unknown;
-                    hasSql?: unknown;
-                    format?: unknown;
-                    chunkBytes?: unknown;
-                };
-                if (metadata.status === "empty") {
-                    if (current !== generation.current) return;
+                const {metadata, privateData} = openToolData(result);
+                if (metadata.status === "empty" && typeof metadata.title === "string") {
                     setLoadedPlan(undefined);
-                    setTitle(typeof metadata.title === "string" ? metadata.title : "Untitled");
+                    setTitle(metadata.title);
                     setStatus("Paste or drop a query plan, or open one with open_query_plan.");
+                    clearLoadState();
                     return;
                 }
-                if (metadata.status !== "prepared" || typeof metadata.handle !== "string" || typeof metadata.title !== "string") {
-                    throw new Error("The open tool returned invalid snapshot metadata.");
-                }
-                const {planBytes, sqlBytes, hasSql, format, chunkBytes} = metadata;
+                const {status, title, planBytes, sqlBytes, hasSql, format} = metadata;
+                const {planText, sqlText} = privateData;
                 if (
+                    status !== "prepared" ||
+                    typeof title !== "string" ||
                     !Number.isSafeInteger(planBytes) ||
                     (planBytes as number) < 0 ||
-                    (planBytes as number) > MAX_FILE_BYTES ||
                     !Number.isSafeInteger(sqlBytes) ||
                     (sqlBytes as number) < 0 ||
-                    (sqlBytes as number) > MAX_FILE_BYTES ||
                     typeof hasSql !== "boolean" ||
-                    (!hasSql && sqlBytes !== 0) ||
-                    typeof chunkBytes !== "number" ||
-                    chunkBytes < 1 ||
-                    chunkBytes > MAX_CHUNK_BYTES ||
-                    (format !== null && typeof format !== "string")
+                    (format !== null && typeof format !== "string") ||
+                    typeof planText !== "string" ||
+                    (hasSql ? typeof sqlText !== "string" : sqlText !== null)
                 ) {
-                    throw new Error("The open tool returned invalid file metadata.");
+                    throw new Error("The open tool returned invalid plan data.");
                 }
-                const [planText, sqlText] = await Promise.all([
-                    readDocumentText(app, metadata.handle, "plan", planBytes as number, chunkBytes),
-                    hasSql
-                        ? readDocumentText(app, metadata.handle, "sql", sqlBytes as number, chunkBytes)
-                        : Promise.resolve(undefined),
-                ]);
-                if (current !== generation.current) return;
-                const plan = loadPlanFromText(planText, {
-                    format: format ?? undefined,
-                    sql: sqlText,
-                });
-                if (current !== generation.current) return;
-                setLoadedPlan(plan);
-                setTitle(metadata.title);
-                setStatus(`Loaded ${plan.format} query plan (${nodeCount(plan)} nodes).`);
+                applyPlan(planText, title, format as string | null, sqlText as string | null);
             } catch (cause) {
-                if (current === generation.current) setError(errorText(cause));
+                const message = errorText(cause);
+                setLoadedPlan(undefined);
+                setError(message);
+                setLoadError(message);
             }
-        };
+        },
+        [applyPlan, clearLoadState, setLoadError, setProgress],
+    );
 
-        app.ontoolresult = (result) => void handleToolResult(result);
-        app.ontoolcancelled = () => {
-            generation.current += 1;
-            setError("Opening the query plan was cancelled.");
-        };
+    const handleToolCancelled = useCallback(() => {
+        setLoadedPlan(undefined);
+        setError("Opening the query plan was cancelled.");
+        setLoadError("Opening the query plan was cancelled.");
+    }, [setLoadError]);
+
+    useEffect(() => {
+        app.ontoolresult = handleToolResult;
+        app.ontoolcancelled = handleToolCancelled;
         const updateDisplayControls = app.onhostcontextchanged;
         app.onhostcontextchanged = (context) => {
             updateDisplayControls?.(context);
@@ -163,12 +164,11 @@ function PluginApp() {
             })
             .catch((cause: unknown) => setError(errorText(cause)));
         return () => {
-            generation.current += 1;
             app.ontoolresult = undefined;
             app.ontoolcancelled = undefined;
             app.onhostcontextchanged = undefined;
         };
-    }, []);
+    }, [handleToolCancelled, handleToolResult]);
 
     return (
         <div className="main-app-container qg-theme" data-theme={theme}>
