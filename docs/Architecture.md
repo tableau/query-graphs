@@ -5,7 +5,7 @@ This document gives the high-level picture; each module's `README.md` covers its
 
 ## Modules
 
-The repository contains four modules.
+The repository contains four modules and a local MCP App plugin.
 
 * [`query-graphs`](../query-graphs/README.md) — the core library.
   It parses the various plan formats into one internal tree model and renders that model with React and react-flow.
@@ -14,11 +14,12 @@ The repository contains four modules.
   It wraps the core library with everything the library itself does not provide: opening files, pasting, drag & drop, link sharing, and the offline/PWA behavior.
 * [`upload-server`](../upload-server/README.md) — an optional Node server that accepts an uploaded plan and hands back a shareable URL.
 * [`plan-dumper`](../plan-dumper/README.md) — Python scripts that regenerate the committed example plans by running `EXPLAIN` against Hyper, Postgres and DuckDB.
+* [`plugins/query-graphs`](../plugins/query-graphs/README.md) — a Git marketplace plugin that opens local plans in the shared browser viewer.
 
 `query-graphs` and `standalone-app` hold the core functionality.
 `upload-server` and `plan-dumper` are supporting tools.
 
-The project is a pnpm monorepo. Its three JavaScript modules are pnpm workspaces; `plan-dumper` is a standalone Python tool and is not part of the workspace.
+The project is a pnpm monorepo. Its JavaScript modules and plugin build are pnpm workspaces; `plan-dumper` is a standalone Python tool and is not part of the workspace.
 
 ## The "Plan Text to Graph" Pipeline
 
