@@ -1,0 +1,60 @@
+html,
+body,
+#root,
+.main-app-container {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.qg-plugin-shell {
+    width: 100%;
+    height: 100%;
+}
+
+.qg-plugin-status {
+    position: fixed;
+    z-index: 20;
+    top: 0.75rem;
+    right: 0.75rem;
+    max-width: min(32rem, calc(100vw - 1.5rem));
+    padding: 0.4rem 0.65rem;
+    border: 1px solid var(--qg-border);
+    border-radius: 0.4rem;
+    color: var(--qg-text);
+    background: var(--qg-surface);
+    font: 0.8125rem/1.35 system-ui, sans-serif;
+    pointer-events: none;
+}
+
+.qg-plugin-status.is-error {
+    color: var(--qg-danger);
+    background: var(--qg-danger-subtle);
+}
+
+#expand {
+    position: fixed;
+    z-index: 21;
+    top: 0.75rem;
+    left: 0.75rem;
+}
+
+#expand[hidden],
+#display-error[hidden] {
+    display: none;
+}
+
+#display-error {
+    position: fixed;
+    z-index: 21;
+    top: 3rem;
+    left: 0.75rem;
+    max-width: min(32rem, calc(100vw - 1.5rem));
+    padding: 0.4rem 0.65rem;
+    border: 1px solid var(--qg-danger);
+    border-radius: 0.4rem;
+    color: var(--qg-danger);
+    background: var(--qg-danger-subtle);
+    font: 0.8125rem/1.35 system-ui, sans-serif;
+}

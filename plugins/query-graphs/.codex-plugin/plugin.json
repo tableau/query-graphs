@@ -1,0 +1,14 @@
+{
+  "name": "query-graphs",
+  "version": "0.1.0",
+  "description": "Open local database query plans in the interactive Query Graphs viewer.",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Query Graphs",
+    "shortDescription": "Open and inspect a local query plan.",
+    "longDescription": "Open a local query plan and optional SQL source in the Query Graphs browser viewer.",
+    "developerName": "Tableau",
+    "category": "Productivity",
+    "defaultPrompt": "Use open_query_plan with a local plan path supplied by the user to inspect a query plan."
+  }
+}

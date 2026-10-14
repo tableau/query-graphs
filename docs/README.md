@@ -37,6 +37,7 @@ On a technical level:
 * [`standalone-app`](../standalone-app/README.md) — the shell around the core library: opening files, sharing, and the deployed web app.
 * [`upload-server`](../upload-server/README.md) — an optional server that turns an uploaded plan into a shareable link.
 * [`plan-dumper`](../plan-dumper/README.md) — scripts that regenerate the committed example plans, and how to verify plan-rendering changes end-to-end.
+* [`query-graphs` MCP App](../plugins/query-graphs/README.md) — marketplace installation, local development, and release preparation.
 
 ## Documentation Conventions
 
