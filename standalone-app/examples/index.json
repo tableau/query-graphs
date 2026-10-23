@@ -1,7 +1,7 @@
 {
   "engines": {
     "cedardb": {
-      "version": "PostgreSQL 16.3 compatible CedarDB v2026-09-16, compiled on 2026-09-16, x86_64 build",
+      "version": "PostgreSQL 16.3 compatible CedarDB v2026-10-22, compiled on 2026-10-22, x86_64 build",
       "queries": {
         "cte": {
           "analyze": {
@@ -105,6 +105,12 @@
             "sql": "cedardb/tpch/tpch-q14-analyze.sql"
           }
         },
+        "tpch/tpch-q15": {
+          "analyze": {
+            "plan": "cedardb/tpch/tpch-q15-analyze.plan.json",
+            "sql": "cedardb/tpch/tpch-q15-analyze.sql"
+          }
+        },
         "tpch/tpch-q16": {
           "analyze": {
             "plan": "cedardb/tpch/tpch-q16-analyze.plan.json",
@@ -130,6 +136,10 @@
           }
         },
         "tpch/tpch-q2": {
+          "analyze": {
+            "plan": "cedardb/tpch/tpch-q2-analyze.plan.json",
+            "sql": "cedardb/tpch/tpch-q2-analyze.sql"
+          },
           "simple": {
             "plan": "cedardb/tpch/tpch-q2.plan.json",
             "sql": "cedardb/tpch/tpch-q2.sql"
@@ -214,7 +224,7 @@
       }
     },
     "duckdb": {
-      "version": "v1.5.5",
+      "version": "v2.0.0",
       "queries": {
         "cte": {
           "analyze": {
@@ -1116,7 +1126,7 @@
       }
     },
     "umbra": {
-      "version": "PostgreSQL 18.1 compatible umbra v0.2-2931-gdd2374de2",
+      "version": "PostgreSQL 18.1 compatible umbra v0.2-3356-g92839196f2",
       "queries": {
         "cte": {
           "analyze": {

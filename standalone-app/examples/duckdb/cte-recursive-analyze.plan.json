@@ -1,143 +1,84 @@
 {
-    "total_bytes_written": 0,
-    "total_bytes_read": 0,
-    "system_peak_temp_dir_size": 0,
-    "system_peak_buffer_memory": 3713024,
-    "rows_returned": 0,
-    "wal_replay_entry_count": 0,
-    "result_set_size": 0,
-    "query_name": "EXPLAIN (ANALYZE, FORMAT JSON)\nWITH RECURSIVE x(i) AS (\n    SELECT 1\n    UNION ALL\n    SELECT i + 1 FROM x WHERE i < 10\n)\nSELECT * FROM x;",
-    "waiting_to_attach_latency": 0.0,
-    "attach_load_storage_latency": 0.0,
-    "blocked_thread_time": 0.0,
-    "cpu_time": 0.0031712710000000002,
-    "extra_info": {},
-    "total_memory_allocated": 2621440,
-    "cumulative_cardinality": 40,
-    "checkpoint_latency": 0.0,
-    "cumulative_rows_scanned": 0,
-    "write_to_wal_latency": 0.0,
-    "latency": 0.00365789,
-    "attach_replay_wal_latency": 0.0,
-    "commit_local_storage_latency": 0.0,
-    "children": [
+    "io": {
+        "total_bytes_read": 0,
+        "total_bytes_written": 0
+    },
+    "operator": [
         {
-            "system_peak_temp_dir_size": 0,
-            "system_peak_buffer_memory": 0,
-            "result_set_size": 0,
-            "operator_timing": 0.0000011,
-            "operator_type": "EXPLAIN_ANALYZE",
-            "cpu_time": 0.0031712710000000002,
             "extra_info": {},
-            "cumulative_cardinality": 40,
-            "cumulative_rows_scanned": 0,
-            "operator_cardinality": 0,
-            "operator_name": "EXPLAIN_ANALYZE",
-            "operator_rows_scanned": 0,
+            "intermediate_rows": 0,
+            "intermediate_size_bytes": 0,
+            "timing": 0.0,
+            "type": "RESULT_COLLECTOR",
             "children": [
                 {
-                    "system_peak_temp_dir_size": 0,
-                    "system_peak_buffer_memory": 0,
-                    "result_set_size": 40,
-                    "operator_timing": 0.0029980300000000005,
-                    "operator_type": "RECURSIVE_CTE",
-                    "cpu_time": 0.0031701710000000003,
-                    "extra_info": {
-                        "CTE Name": "x",
-                        "Table Index": "1",
-                        "Estimated Cardinality": "1001"
-                    },
-                    "cumulative_cardinality": 40,
-                    "cumulative_rows_scanned": 0,
-                    "operator_cardinality": 10,
-                    "operator_name": "REC_CTE",
-                    "operator_rows_scanned": 0,
+                    "extra_info": {},
+                    "intermediate_rows": 0,
+                    "intermediate_size_bytes": 0,
+                    "timing": 4.4700000000000007e-7,
+                    "type": "EXPLAIN_ANALYZE",
                     "children": [
                         {
-                            "system_peak_temp_dir_size": 0,
-                            "system_peak_buffer_memory": 0,
-                            "result_set_size": 4,
-                            "operator_timing": 7.46e-7,
-                            "operator_type": "PROJECTION",
-                            "cpu_time": 0.000001199,
                             "extra_info": {
-                                "Projections": "1",
-                                "Estimated Cardinality": "1"
+                                "CTE Name": "x",
+                                "Table Index": "1",
+                                "Estimated Cardinality": "1001"
                             },
-                            "cumulative_cardinality": 2,
-                            "cumulative_rows_scanned": 0,
-                            "operator_cardinality": 1,
-                            "operator_name": "PROJECTION",
-                            "operator_rows_scanned": 0,
+                            "intermediate_rows": 10,
+                            "intermediate_size_bytes": 40,
+                            "timing": 0.00013359999999999997,
+                            "type": "RECURSIVE_CTE",
                             "children": [
                                 {
-                                    "system_peak_temp_dir_size": 0,
-                                    "system_peak_buffer_memory": 0,
-                                    "result_set_size": 4,
-                                    "operator_timing": 4.53e-7,
-                                    "operator_type": "DUMMY_SCAN",
-                                    "cpu_time": 4.53e-7,
-                                    "extra_info": {},
-                                    "cumulative_cardinality": 1,
-                                    "cumulative_rows_scanned": 0,
-                                    "operator_cardinality": 1,
-                                    "operator_name": "DUMMY_SCAN",
-                                    "operator_rows_scanned": 0,
-                                    "children": []
-                                }
-                            ]
-                        },
-                        {
-                            "system_peak_temp_dir_size": 0,
-                            "system_peak_buffer_memory": 0,
-                            "result_set_size": 36,
-                            "operator_timing": 0.000034513999999999995,
-                            "operator_type": "PROJECTION",
-                            "cpu_time": 0.00017094200000000002,
-                            "extra_info": {
-                                "Projections": "(i + 1)",
-                                "Estimated Cardinality": "1"
-                            },
-                            "cumulative_cardinality": 28,
-                            "cumulative_rows_scanned": 0,
-                            "operator_cardinality": 9,
-                            "operator_name": "PROJECTION",
-                            "operator_rows_scanned": 0,
-                            "children": [
-                                {
-                                    "system_peak_temp_dir_size": 0,
-                                    "system_peak_buffer_memory": 0,
-                                    "result_set_size": 36,
-                                    "operator_timing": 0.000099973,
-                                    "operator_type": "FILTER",
-                                    "cpu_time": 0.00013642800000000002,
                                     "extra_info": {
-                                        "Expression": "(i < 10)",
+                                        "Projections": "1",
                                         "Estimated Cardinality": "1"
                                     },
-                                    "cumulative_cardinality": 19,
-                                    "cumulative_rows_scanned": 0,
-                                    "operator_cardinality": 9,
-                                    "operator_name": "FILTER",
-                                    "operator_rows_scanned": 0,
+                                    "intermediate_rows": 1,
+                                    "intermediate_size_bytes": 4,
+                                    "timing": 5.55e-7,
+                                    "type": "PROJECTION",
                                     "children": [
                                         {
-                                            "system_peak_temp_dir_size": 0,
-                                            "system_peak_buffer_memory": 0,
-                                            "result_set_size": 40,
-                                            "operator_timing": 0.000036455,
-                                            "operator_type": "RECURSIVE_CTE_SCAN",
-                                            "cpu_time": 0.000036455,
+                                            "extra_info": {},
+                                            "intermediate_rows": 1,
+                                            "intermediate_size_bytes": 4,
+                                            "timing": 2.97e-7,
+                                            "type": "DUMMY_SCAN"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "extra_info": {
+                                        "Projections": "(i + 1)",
+                                        "Estimated Cardinality": "1"
+                                    },
+                                    "intermediate_rows": 9,
+                                    "intermediate_size_bytes": 36,
+                                    "timing": 0.000013625,
+                                    "type": "PROJECTION",
+                                    "children": [
+                                        {
                                             "extra_info": {
-                                                "CTE Index": "1",
+                                                "Expression": "(i < 10)",
                                                 "Estimated Cardinality": "1"
                                             },
-                                            "cumulative_cardinality": 10,
-                                            "cumulative_rows_scanned": 0,
-                                            "operator_cardinality": 10,
-                                            "operator_name": "REC_CTE_SCAN",
-                                            "operator_rows_scanned": 0,
-                                            "children": []
+                                            "intermediate_rows": 9,
+                                            "intermediate_size_bytes": 36,
+                                            "timing": 0.000030521,
+                                            "type": "FILTER",
+                                            "children": [
+                                                {
+                                                    "extra_info": {
+                                                        "CTE Index": "1",
+                                                        "Estimated Cardinality": "1"
+                                                    },
+                                                    "intermediate_rows": 10,
+                                                    "intermediate_size_bytes": 40,
+                                                    "timing": 0.000003919000000000001,
+                                                    "type": "RECURSIVE_CTE_SCAN"
+                                                }
+                                            ]
                                         }
                                     ]
                                 }
@@ -147,5 +88,76 @@
                 }
             ]
         }
-    ]
+    ],
+    "optimizer": {
+        "aggregate_function_rewriter": 0.000003694,
+        "aggregate_reuse": 0.000001644,
+        "build_side_probe_side": 8.66e-7,
+        "column_lifetime": 0.000003423,
+        "common_aggregate": 4.03e-7,
+        "common_subexpressions": 0.000003011,
+        "common_subplan": 0.000028023,
+        "cte_filter_pusher": 5.61e-7,
+        "cte_inlining": 0.000002979,
+        "deliminator": 8.33e-7,
+        "duplicate_groups": 0.000001228,
+        "empty_result_pullup": 5.91e-7,
+        "expression_rewriter": 0.000034943,
+        "filter_pullup": 6.88e-7,
+        "filter_pushdown": 0.000012987,
+        "grouping_sets": 6.17e-7,
+        "in_clause": 7.66e-7,
+        "join_elimination": 0.00000232,
+        "join_filter_pushdown": 5.02e-7,
+        "join_order": 0.000036053,
+        "late_materialization": 5.87e-7,
+        "limit_pushdown": 3.43e-7,
+        "outer_join_simplification": 0.000002438,
+        "partial_aggregate_pushdown": 0.000001064,
+        "partitioned_execution": 3.33e-7,
+        "projection_placement": 0.000001745,
+        "projection_pullup": 0.000001649,
+        "redundant_order_keys": 5.03e-7,
+        "regex_range": 4.22e-7,
+        "reorder_filter": 6.26e-7,
+        "row_group_pruner": 3e-7,
+        "row_number_rewriter": 3.03e-7,
+        "sampling_pushdown": 2.3e-7,
+        "scalar_fn_pushdown": 2.63e-7,
+        "statistics_propagation": 0.000013409,
+        "top_n": 2.66e-7,
+        "top_n_window_elimination": 0.000001499,
+        "total_time": 0.000216179,
+        "type_pushdown": 3.09e-7,
+        "unnest_rewriter": 5.15e-7,
+        "unused_columns": 0.000008048,
+        "window_self_join": 3.58e-7
+    },
+    "physical_planner": {
+        "column_binding": 0.000002138,
+        "create_plan": 0.000013651,
+        "resolve_types": 2.53e-7,
+        "total_time": 0.000018438
+    },
+    "planner": {
+        "binding_time": 0.000114554,
+        "total_time": 0.000164358
+    },
+    "query": {
+        "cpu_time": 0.00018296399999999998,
+        "sql": "EXPLAIN (ANALYZE, FORMAT JSON)\nWITH RECURSIVE x(i) AS (\n    SELECT 1\n    UNION ALL\n    SELECT i + 1 FROM x WHERE i < 10\n)\nSELECT * FROM x;",
+        "total_intermediate_rows": 40,
+        "total_intermediate_size_bytes": 160,
+        "total_row_groups_scanned": 0,
+        "total_row_groups_to_scan": 0,
+        "total_rows_scanned": 0,
+        "total_time": 0.000685747
+    },
+    "system": {
+        "blocked_thread_time": 0.000034,
+        "peak_buffer_memory": 2677872,
+        "peak_streaming_buffer_size": 0,
+        "peak_temp_dir_size": 0,
+        "total_memory_allocated": 786432
+    }
 }

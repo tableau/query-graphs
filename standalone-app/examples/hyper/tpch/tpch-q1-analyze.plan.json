@@ -9,13 +9,13 @@
     "inputs": [{
       "operator": "sort",
       "operator-id": 2,
-      "sqlpos": [[722, 734]],
+      "sqlpos": [[705, 713]],
       "estimated-rows": 4,
       "criterion": [{"value": {"expression": "iu-ref", "iu": "GroupByKey"}, "descending": false, "null-first": false}, {"value": {"expression": "iu-ref", "iu": "GroupByKey2"}, "descending": false, "null-first": false}],
       "inputs": [{
         "operator": "group-by",
         "operator-id": 3,
-        "sqlpos": [[653, 704], [197, 212], [233, 253], [281, 320], [348, 401], [425, 440], [461, 481], [504, 519], [541, 549]],
+        "sqlpos": [[197, 200], [233, 236], [281, 284], [348, 351], [425, 428], [461, 464], [504, 507], [541, 546], [653, 661]],
         "estimated-rows": 4,
         "inputs": [{
           "operator": "scan",
@@ -33,10 +33,10 @@
           "selectivity": 0.993007,
           "statistics": {"column-count": 6, "output-rows": 568, "processed-rows": 572}
         }],
-        "key-expressions": [{"expression": {"value": {"expression": "iu-ref", "iu": "scan_returnfl"}}, "iu": ["GroupByKey", ["Char1"]]}, {"expression": {"value": {"expression": "iu-ref", "iu": "scan_linestat"}}, "iu": ["GroupByKey2", ["Char1"]]}],
+        "key-expressions": [{"expression": {"value": {"expression": "iu-ref", "sqlpos": [[670, 682]], "iu": "scan_returnfl"}}, "iu": ["GroupByKey", ["Char1"]]}, {"expression": {"value": {"expression": "iu-ref", "sqlpos": [[692, 704]], "iu": "scan_linestat"}}, "iu": ["GroupByKey2", ["Char1"]]}],
         "grouping-sets": [{"key-indices": [0, 1], "core-indices": [0, 1], "behavior": "regular"}],
         "empty-groups": false,
-        "agg-expressions": [{"value": {"expression": "iu-ref", "iu": "scan_quantity"}}, {"value": {"expression": "iu-ref", "iu": "scan_extended"}}, {"value": {"expression": "mul", "left": {"expression": "sub", "left": {"expression": "const", "value": {"type": ["Numeric", 1], "value": 1}}, "right": {"expression": "iu-ref", "iu": "scan_discount"}}, "right": {"expression": "iu-ref", "iu": "scan_extended"}}}, {"value": {"expression": "mul", "left": {"expression": "mul", "left": {"expression": "sub", "left": {"expression": "const", "value": {"type": ["Numeric", 1], "value": 1}}, "right": {"expression": "iu-ref", "iu": "scan_discount"}}, "right": {"expression": "iu-ref", "iu": "scan_extended"}}, "right": {"expression": "add", "left": {"expression": "iu-ref", "iu": "scan_l_tax"}, "right": {"expression": "const", "value": {"type": ["Numeric", 1], "value": 1}}}}}, {"value": {"expression": "iu-ref", "iu": "scan_discount"}}],
+        "agg-expressions": [{"value": {"expression": "iu-ref", "sqlpos": [[201, 211]], "iu": "scan_quantity"}}, {"value": {"expression": "iu-ref", "sqlpos": [[237, 252]], "iu": "scan_extended"}}, {"value": {"expression": "mul", "left": {"expression": "sub", "left": {"expression": "const", "value": {"type": ["Numeric", 1], "value": 1}}, "right": {"expression": "iu-ref", "sqlpos": [[308, 318]], "iu": "scan_discount"}}, "right": {"expression": "iu-ref", "sqlpos": [[285, 300]], "iu": "scan_extended"}}}, {"value": {"expression": "mul", "left": {"expression": "mul", "left": {"expression": "sub", "left": {"expression": "const", "value": {"type": ["Numeric", 1], "value": 1}}, "right": {"expression": "iu-ref", "sqlpos": [[375, 385]], "iu": "scan_discount"}}, "right": {"expression": "iu-ref", "sqlpos": [[352, 367]], "iu": "scan_extended"}}, "right": {"expression": "add", "left": {"expression": "iu-ref", "sqlpos": [[394, 399]], "iu": "scan_l_tax"}, "right": {"expression": "const", "value": {"type": ["Numeric", 1], "value": 1}}}}}, {"value": {"expression": "iu-ref", "sqlpos": [[508, 518]], "iu": "scan_discount"}}],
         "aggregates": [{"source": null, "operation": {"aggregate": "count"}, "iu": ["count", ["BigInt"]]}, {"source": 4, "operation": {"aggregate": "avg"}, "iu": ["avg3", ["Numeric", 16, 6]]}, {"source": 0, "operation": {"aggregate": "avg"}, "iu": ["avg", ["Numeric", 16, 6]]}, {"source": 3, "operation": {"aggregate": "sum"}, "iu": ["sum4", ["BigNumeric", 38, 6]]}, {"source": 1, "operation": {"aggregate": "avg"}, "iu": ["avg2", ["Numeric", 16, 6]]}, {"source": 1, "operation": {"aggregate": "sum"}, "iu": ["sum2", ["BigNumeric", 38, 2]]}, {"source": 2, "operation": {"aggregate": "sum"}, "iu": ["sum3", ["BigNumeric", 38, 4]]}, {"source": 0, "operation": {"aggregate": "sum"}, "iu": ["sum", ["BigNumeric", 38, 2]]}],
         "statistics": {"column-count": 10, "memory-bytes": 18552, "output-rows": 4}
       }],
@@ -45,8 +45,8 @@
     "statistics": {"error": null, "column-count": 0}
   },
   "pipelines": [
-    {"id": 0, "operators": [1, 2], "dependencies": [1], "statistics": {"cpu-cycles": 16274, "query-metrics": {"elapsed":8.415e-06,"memory-mb-seconds":4.207e-06,"instance-seconds":8.415e-06,"processed-rows":{"total":0,"native":0},"threads":{"thread-time":8.415e-06,"cpu-time":8.401e-06,"wait-time":0},"storage":{},"peak-transaction-memory-mb":0.750031}, "running": false}},
-    {"id": 1, "operators": [2, 3], "dependencies": [2], "statistics": {"cpu-cycles": 43825, "query-metrics": {"elapsed":2.1256e-05,"memory-mb-seconds":1.5942e-05,"instance-seconds":2.1256e-05,"processed-rows":{"total":0,"native":0},"threads":{"thread-time":2.1256e-05,"cpu-time":2.1334e-05,"wait-time":0},"storage":{},"peak-transaction-memory-mb":0.750031}, "running": false}},
-    {"id": 2, "operators": [3, 4], "dependencies": [], "statistics": {"cpu-cycles": 169210, "query-metrics": {"elapsed":6.569e-05,"memory-mb-seconds":3.2845e-05,"instance-seconds":6.569e-05,"processed-rows":{"total":572,"native":572},"threads":{"thread-time":6.569e-05,"cpu-time":6.5625e-05,"wait-time":0},"storage":{},"additional-entries":{"scan-stats":{"rows-matching-restrictions":568}},"peak-transaction-memory-mb":0.5}, "running": false}}
+    {"id": 0, "operators": [1, 2], "dependencies": [1], "statistics": {"cpu-cycles": 11212, "query-metrics": {"elapsed":5.933e-06,"memory-mb-seconds":2.966e-06,"instance-seconds":5.933e-06,"processed-rows":{"total":0,"native":0},"threads":{"thread-time":5.933e-06,"cpu-time":5.94e-06,"wait-time":0},"storage":{},"peak-transaction-memory-mb":0.750031}, "running": false}},
+    {"id": 1, "operators": [2, 3], "dependencies": [2], "statistics": {"cpu-cycles": 37842, "query-metrics": {"elapsed":1.634e-05,"memory-mb-seconds":1.2255e-05,"instance-seconds":1.634e-05,"processed-rows":{"total":0,"native":0},"threads":{"thread-time":1.634e-05,"cpu-time":1.6353e-05,"wait-time":0},"storage":{},"peak-transaction-memory-mb":0.750031}, "running": false}},
+    {"id": 2, "operators": [3, 4], "dependencies": [], "statistics": {"cpu-cycles": 82417, "query-metrics": {"elapsed":3.1834e-05,"memory-mb-seconds":1.5917e-05,"instance-seconds":3.1834e-05,"processed-rows":{"total":572,"native":572},"threads":{"thread-time":3.1834e-05,"cpu-time":3.1725e-05,"wait-time":0},"storage":{},"additional-entries":{"scan-stats":{"rows-matching-restrictions":568}},"peak-transaction-memory-mb":0.5}, "running": false}}
   ]
 }

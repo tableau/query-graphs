@@ -1,100 +1,67 @@
 {
-    "total_bytes_written": 0,
-    "total_bytes_read": 0,
-    "system_peak_temp_dir_size": 0,
-    "system_peak_buffer_memory": 138186752,
-    "rows_returned": 0,
-    "wal_replay_entry_count": 0,
-    "result_set_size": 0,
-    "query_name": "-- This query is derived from TPC-H query 6\n-- THE TPC SOFTWARE IS AVAILABLE WITHOUT CHARGE FROM TPC.\n\nEXPLAIN (ANALYZE, FORMAT JSON)\nselect\n        sum(l_extendedprice * l_discount) as revenue\nfrom\n        lineitem\nwhere\n        l_shipdate >= date '1994-01-01'\n        and l_shipdate < date '1995-01-01'\n        and l_discount between 0.06 - 0.01 and 0.06 + 0.01\n        and l_quantity < 24",
-    "waiting_to_attach_latency": 0.0,
-    "attach_load_storage_latency": 0.0,
-    "blocked_thread_time": 0.0,
-    "cpu_time": 0.00010143100000000001,
-    "extra_info": {},
-    "total_memory_allocated": 0,
-    "cumulative_cardinality": 41,
-    "checkpoint_latency": 0.0,
-    "cumulative_rows_scanned": 572,
-    "write_to_wal_latency": 0.0,
-    "latency": 0.001720235,
-    "attach_replay_wal_latency": 0.0,
-    "commit_local_storage_latency": 0.0,
-    "children": [
+    "io": {
+        "total_bytes_read": 0,
+        "total_bytes_written": 0
+    },
+    "operator": [
         {
-            "system_peak_temp_dir_size": 0,
-            "system_peak_buffer_memory": 0,
-            "result_set_size": 0,
-            "operator_timing": 2.43e-7,
-            "operator_type": "EXPLAIN_ANALYZE",
-            "cpu_time": 0.00010143100000000001,
             "extra_info": {},
-            "cumulative_cardinality": 41,
-            "cumulative_rows_scanned": 572,
-            "operator_cardinality": 0,
-            "operator_name": "EXPLAIN_ANALYZE",
-            "operator_rows_scanned": 0,
+            "intermediate_rows": 0,
+            "intermediate_size_bytes": 0,
+            "timing": 0.0,
+            "type": "RESULT_COLLECTOR",
             "children": [
                 {
-                    "system_peak_temp_dir_size": 0,
-                    "system_peak_buffer_memory": 0,
-                    "result_set_size": 16,
-                    "operator_timing": 0.000005806,
-                    "operator_type": "UNGROUPED_AGGREGATE",
-                    "cpu_time": 0.00010118800000000001,
-                    "extra_info": {
-                        "Aggregates": "sum_no_overflow(#0)"
-                    },
-                    "cumulative_cardinality": 41,
-                    "cumulative_rows_scanned": 572,
-                    "operator_cardinality": 1,
-                    "operator_name": "UNGROUPED_AGGREGATE",
-                    "operator_rows_scanned": 0,
+                    "extra_info": {},
+                    "intermediate_rows": 0,
+                    "intermediate_size_bytes": 0,
+                    "timing": 1.08e-7,
+                    "type": "EXPLAIN_ANALYZE",
                     "children": [
                         {
-                            "system_peak_temp_dir_size": 0,
-                            "system_peak_buffer_memory": 0,
-                            "result_set_size": 160,
-                            "operator_timing": 0.000005307,
-                            "operator_type": "PROJECTION",
-                            "cpu_time": 0.000095382,
                             "extra_info": {
-                                "Projections": "(l_extendedprice * l_discount)",
-                                "Estimated Cardinality": "114"
+                                "Aggregates": "sum_no_overflow(#0)",
+                                "Estimated Cardinality": "1"
                             },
-                            "cumulative_cardinality": 40,
-                            "cumulative_rows_scanned": 572,
-                            "operator_cardinality": 20,
-                            "operator_name": "PROJECTION",
-                            "operator_rows_scanned": 0,
+                            "intermediate_rows": 1,
+                            "intermediate_size_bytes": 16,
+                            "timing": 0.000002059,
+                            "type": "UNGROUPED_AGGREGATE",
                             "children": [
                                 {
-                                    "system_peak_temp_dir_size": 0,
-                                    "system_peak_buffer_memory": 0,
-                                    "result_set_size": 320,
-                                    "operator_timing": 0.00009007500000000001,
-                                    "operator_type": "TABLE_SCAN",
-                                    "cpu_time": 0.00009007500000000001,
                                     "extra_info": {
-                                        "Table": "\"temp\".main.lineitem",
-                                        "Type": "Sequential Scan",
-                                        "Projections": [
-                                            "l_discount",
-                                            "l_extendedprice"
-                                        ],
-                                        "Filters": [
-                                            "l_shipdate>='1994-01-01'::DATE AND l_shipdate<'1995-01-01'::DATE",
-                                            "l_discount>=0.05 AND l_discount<=0.07",
-                                            "l_quantity<24.00"
-                                        ],
+                                        "Projections": "(l_extendedprice * l_discount)",
                                         "Estimated Cardinality": "114"
                                     },
-                                    "cumulative_cardinality": 20,
-                                    "cumulative_rows_scanned": 572,
-                                    "operator_cardinality": 20,
-                                    "operator_name": "SEQ_SCAN",
-                                    "operator_rows_scanned": 572,
-                                    "children": []
+                                    "intermediate_rows": 20,
+                                    "intermediate_size_bytes": 160,
+                                    "timing": 0.000002572,
+                                    "type": "PROJECTION",
+                                    "children": [
+                                        {
+                                            "extra_info": {
+                                                "Table": "\"temp\".main.lineitem",
+                                                "Type": "Sequential Scan",
+                                                "Projections": [
+                                                    "l_discount",
+                                                    "l_extendedprice"
+                                                ],
+                                                "Filters": [
+                                                    "((l_shipdate >= '1994-01-01'::DATE) AND (l_shipdate < '1995-01-01'::DATE))",
+                                                    "((l_discount >= 0.05) AND (l_discount <= 0.07))",
+                                                    "(l_quantity < 24.00)"
+                                                ],
+                                                "Estimated Cardinality": "114"
+                                            },
+                                            "intermediate_rows": 20,
+                                            "intermediate_size_bytes": 320,
+                                            "row_groups_scanned": 1,
+                                            "rows_scanned": 572,
+                                            "timing": 0.000029387000000000002,
+                                            "total_row_groups_to_scan": 1,
+                                            "type": "TABLE_SCAN"
+                                        }
+                                    ]
                                 }
                             ]
                         }
@@ -102,5 +69,76 @@
                 }
             ]
         }
-    ]
+    ],
+    "optimizer": {
+        "aggregate_function_rewriter": 0.000005212,
+        "aggregate_reuse": 0.00000178,
+        "build_side_probe_side": 0.000001118,
+        "column_lifetime": 0.000002255,
+        "common_aggregate": 0.000001232,
+        "common_subexpressions": 0.000001646,
+        "common_subplan": 0.000008211,
+        "cte_filter_pusher": 4.27e-7,
+        "cte_inlining": 3.67e-7,
+        "deliminator": 6.37e-7,
+        "duplicate_groups": 0.00000158,
+        "empty_result_pullup": 2.9e-7,
+        "expression_rewriter": 0.000079103,
+        "filter_pullup": 7.04e-7,
+        "filter_pushdown": 0.000037361,
+        "grouping_sets": 6.19e-7,
+        "in_clause": 4.13e-7,
+        "join_elimination": 0.000001546,
+        "join_filter_pushdown": 4.81e-7,
+        "join_order": 0.000034506,
+        "late_materialization": 7.51e-7,
+        "limit_pushdown": 3.36e-7,
+        "outer_join_simplification": 0.000001863,
+        "partial_aggregate_pushdown": 0.000001049,
+        "partitioned_execution": 3.4e-7,
+        "projection_placement": 9.85e-7,
+        "projection_pullup": 9.37e-7,
+        "redundant_order_keys": 0.000003263,
+        "regex_range": 2.98e-7,
+        "reorder_filter": 5.12e-7,
+        "row_group_pruner": 2.59e-7,
+        "row_number_rewriter": 3.22e-7,
+        "sampling_pushdown": 2.28e-7,
+        "scalar_fn_pushdown": 1.9e-7,
+        "statistics_propagation": 0.000031767,
+        "top_n": 2.79e-7,
+        "top_n_window_elimination": 0.000001782,
+        "total_time": 0.000293221,
+        "type_pushdown": 3.38e-7,
+        "unnest_rewriter": 8.3e-7,
+        "unused_columns": 0.000015522,
+        "window_self_join": 4.41e-7
+    },
+    "physical_planner": {
+        "column_binding": 0.000001643,
+        "create_plan": 0.000008272,
+        "resolve_types": 3.27e-7,
+        "total_time": 0.000013651
+    },
+    "planner": {
+        "binding_time": 0.000198917,
+        "total_time": 0.000251751
+    },
+    "query": {
+        "cpu_time": 0.000034126000000000005,
+        "sql": "EXPLAIN (ANALYZE, FORMAT JSON)\nselect\n        sum(l_extendedprice * l_discount) as revenue\nfrom\n        lineitem\nwhere\n        l_shipdate >= date '1994-01-01'\n        and l_shipdate < date '1995-01-01'\n        and l_discount between 0.06 - 0.01 and 0.06 + 0.01\n        and l_quantity < 24",
+        "total_intermediate_rows": 41,
+        "total_intermediate_size_bytes": 496,
+        "total_row_groups_scanned": 1,
+        "total_row_groups_to_scan": 1,
+        "total_rows_scanned": 572,
+        "total_time": 0.000801319
+    },
+    "system": {
+        "blocked_thread_time": 0.0,
+        "peak_buffer_memory": 2246936,
+        "peak_streaming_buffer_size": 0,
+        "peak_temp_dir_size": 0,
+        "total_memory_allocated": 0
+    }
 }

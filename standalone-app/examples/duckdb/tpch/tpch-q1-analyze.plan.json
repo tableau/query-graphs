@@ -1,126 +1,62 @@
 {
-    "total_bytes_written": 0,
-    "total_bytes_read": 0,
-    "system_peak_temp_dir_size": 0,
-    "system_peak_buffer_memory": 149286368,
-    "rows_returned": 0,
-    "wal_replay_entry_count": 0,
-    "result_set_size": 0,
-    "query_name": "-- This query is derived from TPC-H query 1\n-- THE TPC SOFTWARE IS AVAILABLE WITHOUT CHARGE FROM TPC.\n\nEXPLAIN (ANALYZE, FORMAT JSON)\nselect\n        l_returnflag,\n        l_linestatus,\n        sum(l_quantity) as sum_qty,\n        sum(l_extendedprice) as sum_base_price,\n        sum(l_extendedprice * (1 - l_discount)) as sum_disc_price,\n        sum(l_extendedprice * (1 - l_discount) * (1 + l_tax)) as sum_charge,\n        avg(l_quantity) as avg_qty,\n        avg(l_extendedprice) as avg_price,\n        avg(l_discount) as avg_disc,\n        count(*) as count_order\nfrom\n        lineitem\nwhere\n        l_shipdate <= date '1998-12-01' - interval '90' day\ngroup by\n        l_returnflag,\n        l_linestatus\norder by\n        l_returnflag,\n        l_linestatus",
-    "waiting_to_attach_latency": 0.0,
-    "attach_load_storage_latency": 0.0,
-    "blocked_thread_time": 0.0,
-    "cpu_time": 0.000294434,
-    "extra_info": {},
-    "total_memory_allocated": 524288,
-    "cumulative_cardinality": 2292,
-    "checkpoint_latency": 0.0,
-    "cumulative_rows_scanned": 572,
-    "write_to_wal_latency": 0.0,
-    "latency": 0.003576673,
-    "attach_replay_wal_latency": 0.0,
-    "commit_local_storage_latency": 0.0,
-    "children": [
+    "io": {
+        "total_bytes_read": 0,
+        "total_bytes_written": 0
+    },
+    "operator": [
         {
-            "system_peak_temp_dir_size": 0,
-            "system_peak_buffer_memory": 0,
-            "result_set_size": 0,
-            "operator_timing": 2.79e-7,
-            "operator_type": "EXPLAIN_ANALYZE",
-            "cpu_time": 0.000294434,
             "extra_info": {},
-            "cumulative_cardinality": 2292,
-            "cumulative_rows_scanned": 572,
-            "operator_cardinality": 0,
-            "operator_name": "EXPLAIN_ANALYZE",
-            "operator_rows_scanned": 0,
+            "intermediate_rows": 0,
+            "intermediate_size_bytes": 0,
+            "timing": 0.0,
+            "type": "RESULT_COLLECTOR",
             "children": [
                 {
-                    "system_peak_temp_dir_size": 0,
-                    "system_peak_buffer_memory": 0,
-                    "result_set_size": 512,
-                    "operator_timing": 0.000002138,
-                    "operator_type": "PROJECTION",
-                    "cpu_time": 0.000294155,
-                    "extra_info": {
-                        "Projections": [
-                            "__internal_decompress_string(#0)",
-                            "__internal_decompress_string(#1)",
-                            "#2",
-                            "#3",
-                            "#4",
-                            "#5",
-                            "#6",
-                            "#7",
-                            "#8",
-                            "#9"
-                        ],
-                        "Estimated Cardinality": "0"
-                    },
-                    "cumulative_cardinality": 2292,
-                    "cumulative_rows_scanned": 572,
-                    "operator_cardinality": 4,
-                    "operator_name": "PROJECTION",
-                    "operator_rows_scanned": 0,
+                    "extra_info": {},
+                    "intermediate_rows": 0,
+                    "intermediate_size_bytes": 0,
+                    "timing": 1.56e-7,
+                    "type": "EXPLAIN_ANALYZE",
                     "children": [
                         {
-                            "system_peak_temp_dir_size": 0,
-                            "system_peak_buffer_memory": 0,
-                            "result_set_size": 392,
-                            "operator_timing": 0.00010571,
-                            "operator_type": "ORDER_BY",
-                            "cpu_time": 0.000292017,
                             "extra_info": {
-                                "Order By": [
-                                    "\"temp\".main.lineitem.l_returnflag ASC",
-                                    "\"temp\".main.lineitem.l_linestatus ASC"
-                                ]
+                                "Projections": [
+                                    "__internal_decompress_string(#0)",
+                                    "__internal_decompress_string(#1)",
+                                    "#2",
+                                    "#3",
+                                    "#4",
+                                    "#5",
+                                    "#6",
+                                    "#7",
+                                    "#8",
+                                    "#9"
+                                ],
+                                "Estimated Cardinality": "5"
                             },
-                            "cumulative_cardinality": 2288,
-                            "cumulative_rows_scanned": 572,
-                            "operator_cardinality": 4,
-                            "operator_name": "ORDER_BY",
-                            "operator_rows_scanned": 0,
+                            "intermediate_rows": 4,
+                            "intermediate_size_bytes": 512,
+                            "timing": 0.000001343,
+                            "type": "PROJECTION",
                             "children": [
                                 {
-                                    "system_peak_temp_dir_size": 0,
-                                    "system_peak_buffer_memory": 0,
-                                    "result_set_size": 392,
-                                    "operator_timing": 0.000001592,
-                                    "operator_type": "PROJECTION",
-                                    "cpu_time": 0.000186307,
                                     "extra_info": {
-                                        "Projections": [
-                                            "__internal_compress_string_utinyint(#0)",
-                                            "__internal_compress_string_utinyint(#1)",
-                                            "#2",
-                                            "#3",
-                                            "#4",
-                                            "#5",
-                                            "#6",
-                                            "#7",
-                                            "#8",
-                                            "#9"
+                                        "Order By": [
+                                            "l_returnflag ASC",
+                                            "l_linestatus ASC"
                                         ],
                                         "Estimated Cardinality": "5"
                                     },
-                                    "cumulative_cardinality": 2284,
-                                    "cumulative_rows_scanned": 572,
-                                    "operator_cardinality": 4,
-                                    "operator_name": "PROJECTION",
-                                    "operator_rows_scanned": 0,
+                                    "intermediate_rows": 4,
+                                    "intermediate_size_bytes": 392,
+                                    "timing": 0.00008445499999999999,
+                                    "type": "ORDER_BY",
                                     "children": [
                                         {
-                                            "system_peak_temp_dir_size": 0,
-                                            "system_peak_buffer_memory": 0,
-                                            "result_set_size": 512,
-                                            "operator_timing": 0.000003461,
-                                            "operator_type": "PROJECTION",
-                                            "cpu_time": 0.000184715,
                                             "extra_info": {
                                                 "Projections": [
-                                                    "__internal_decompress_string(#0)",
-                                                    "__internal_decompress_string(#1)",
+                                                    "__internal_compress_string_utinyint(#0)",
+                                                    "__internal_compress_string_utinyint(#1)",
                                                     "#2",
                                                     "#3",
                                                     "#4",
@@ -132,145 +68,157 @@
                                                 ],
                                                 "Estimated Cardinality": "5"
                                             },
-                                            "cumulative_cardinality": 2280,
-                                            "cumulative_rows_scanned": 572,
-                                            "operator_cardinality": 4,
-                                            "operator_name": "PROJECTION",
-                                            "operator_rows_scanned": 0,
+                                            "intermediate_rows": 4,
+                                            "intermediate_size_bytes": 392,
+                                            "timing": 0.000001604,
+                                            "type": "PROJECTION",
                                             "children": [
                                                 {
-                                                    "system_peak_temp_dir_size": 0,
-                                                    "system_peak_buffer_memory": 0,
-                                                    "result_set_size": 392,
-                                                    "operator_timing": 0.000035461,
-                                                    "operator_type": "PERFECT_HASH_GROUP_BY",
-                                                    "cpu_time": 0.000181254,
                                                     "extra_info": {
-                                                        "Groups": [
+                                                        "Projections": [
                                                             "#0",
-                                                            "#1"
+                                                            "#1",
+                                                            "#2",
+                                                            "#3",
+                                                            "#4",
+                                                            "#5",
+                                                            "\"/\"(CAST(#6 AS DOUBLE), CAST(#10 AS DOUBLE))",
+                                                            "\"/\"(CAST(#7 AS DOUBLE), CAST(#11 AS DOUBLE))",
+                                                            "\"/\"(CAST(#8 AS DOUBLE), CAST(#12 AS DOUBLE))",
+                                                            "#9"
                                                         ],
-                                                        "Aggregates": [
-                                                            "sum_no_overflow(#2)",
-                                                            "sum_no_overflow(#3)",
-                                                            "sum_no_overflow(#4)",
-                                                            "sum_no_overflow(#5)",
-                                                            "avg(#6)",
-                                                            "avg(#7)",
-                                                            "avg(#8)",
-                                                            "count_star()"
-                                                        ]
+                                                        "Estimated Cardinality": "5"
                                                     },
-                                                    "cumulative_cardinality": 2276,
-                                                    "cumulative_rows_scanned": 572,
-                                                    "operator_cardinality": 4,
-                                                    "operator_name": "PERFECT_HASH_GROUP_BY",
-                                                    "operator_rows_scanned": 0,
+                                                    "intermediate_rows": 4,
+                                                    "intermediate_size_bytes": 512,
+                                                    "timing": 0.000022328,
+                                                    "type": "PROJECTION",
                                                     "children": [
                                                         {
-                                                            "system_peak_temp_dir_size": 0,
-                                                            "system_peak_buffer_memory": 0,
-                                                            "result_set_size": 32944,
-                                                            "operator_timing": 0.000021096,
-                                                            "operator_type": "PROJECTION",
-                                                            "cpu_time": 0.000145793,
                                                             "extra_info": {
                                                                 "Projections": [
-                                                                    "l_returnflag",
-                                                                    "l_linestatus",
-                                                                    "l_quantity",
-                                                                    "l_extendedprice",
+                                                                    "__internal_decompress_string(#0)",
+                                                                    "__internal_decompress_string(#1)",
+                                                                    "#2",
+                                                                    "#3",
                                                                     "#4",
-                                                                    "(#4 * (1.00 + l_tax))",
-                                                                    "l_quantity",
-                                                                    "l_extendedprice",
-                                                                    "l_discount"
+                                                                    "#5",
+                                                                    "#2",
+                                                                    "#3",
+                                                                    "#6",
+                                                                    "#7",
+                                                                    "#7",
+                                                                    "#7",
+                                                                    "#7"
                                                                 ],
-                                                                "Estimated Cardinality": "114"
+                                                                "Estimated Cardinality": "5"
                                                             },
-                                                            "cumulative_cardinality": 2272,
-                                                            "cumulative_rows_scanned": 572,
-                                                            "operator_cardinality": 568,
-                                                            "operator_name": "PROJECTION",
-                                                            "operator_rows_scanned": 0,
+                                                            "intermediate_rows": 4,
+                                                            "intermediate_size_bytes": 704,
+                                                            "timing": 0.000002926,
+                                                            "type": "PROJECTION",
                                                             "children": [
                                                                 {
-                                                                    "system_peak_temp_dir_size": 0,
-                                                                    "system_peak_buffer_memory": 0,
-                                                                    "result_set_size": 23856,
-                                                                    "operator_timing": 0.000006784,
-                                                                    "operator_type": "PROJECTION",
-                                                                    "cpu_time": 0.000124697,
                                                                     "extra_info": {
-                                                                        "Projections": [
-                                                                            "__internal_compress_string_utinyint(#0)",
-                                                                            "__internal_compress_string_utinyint(#1)",
-                                                                            "#2",
-                                                                            "#3",
-                                                                            "#4",
-                                                                            "#5",
-                                                                            "#6"
+                                                                        "Groups": [
+                                                                            "#0",
+                                                                            "#1"
                                                                         ],
-                                                                        "Estimated Cardinality": "114"
+                                                                        "Aggregates": [
+                                                                            "sum_no_overflow(#2)",
+                                                                            "sum_no_overflow(#3)",
+                                                                            "sum_no_overflow(#4)",
+                                                                            "sum_no_overflow(#5)",
+                                                                            "sum_no_overflow(#6)",
+                                                                            "count_star()"
+                                                                        ],
+                                                                        "Estimated Cardinality": "5"
                                                                     },
-                                                                    "cumulative_cardinality": 1704,
-                                                                    "cumulative_rows_scanned": 572,
-                                                                    "operator_cardinality": 568,
-                                                                    "operator_name": "PROJECTION",
-                                                                    "operator_rows_scanned": 0,
+                                                                    "intermediate_rows": 4,
+                                                                    "intermediate_size_bytes": 360,
+                                                                    "timing": 0.00009196600000000001,
+                                                                    "type": "PERFECT_HASH_GROUP_BY",
                                                                     "children": [
                                                                         {
-                                                                            "system_peak_temp_dir_size": 0,
-                                                                            "system_peak_buffer_memory": 0,
-                                                                            "result_set_size": 40896,
-                                                                            "operator_timing": 0.000028087,
-                                                                            "operator_type": "PROJECTION",
-                                                                            "cpu_time": 0.00011791300000000001,
                                                                             "extra_info": {
                                                                                 "Projections": [
                                                                                     "l_returnflag",
                                                                                     "l_linestatus",
                                                                                     "l_quantity",
                                                                                     "l_extendedprice",
-                                                                                    "(l_extendedprice * (1.00 - l_discount))",
-                                                                                    "l_tax",
+                                                                                    "#4",
+                                                                                    "(#4 * (1.00 + l_tax))",
                                                                                     "l_discount"
                                                                                 ],
                                                                                 "Estimated Cardinality": "114"
                                                                             },
-                                                                            "cumulative_cardinality": 1136,
-                                                                            "cumulative_rows_scanned": 572,
-                                                                            "operator_cardinality": 568,
-                                                                            "operator_name": "PROJECTION",
-                                                                            "operator_rows_scanned": 0,
+                                                                            "intermediate_rows": 568,
+                                                                            "intermediate_size_bytes": 23856,
+                                                                            "timing": 0.000034114,
+                                                                            "type": "PROJECTION",
                                                                             "children": [
                                                                                 {
-                                                                                    "system_peak_temp_dir_size": 0,
-                                                                                    "system_peak_buffer_memory": 0,
-                                                                                    "result_set_size": 36352,
-                                                                                    "operator_timing": 0.000089826,
-                                                                                    "operator_type": "TABLE_SCAN",
-                                                                                    "cpu_time": 0.000089826,
                                                                                     "extra_info": {
-                                                                                        "Table": "\"temp\".main.lineitem",
-                                                                                        "Type": "Sequential Scan",
                                                                                         "Projections": [
-                                                                                            "l_returnflag",
-                                                                                            "l_linestatus",
-                                                                                            "l_quantity",
-                                                                                            "l_extendedprice",
-                                                                                            "l_discount",
-                                                                                            "l_tax"
+                                                                                            "__internal_compress_string_utinyint(#0)",
+                                                                                            "__internal_compress_string_utinyint(#1)",
+                                                                                            "#2",
+                                                                                            "#3",
+                                                                                            "#4",
+                                                                                            "#5",
+                                                                                            "#6"
                                                                                         ],
-                                                                                        "Filters": "(CAST(l_shipdate AS TIMESTAMP) <= '1998-09-02 00:00:00'::TIMESTAMP)",
                                                                                         "Estimated Cardinality": "114"
                                                                                     },
-                                                                                    "cumulative_cardinality": 568,
-                                                                                    "cumulative_rows_scanned": 572,
-                                                                                    "operator_cardinality": 568,
-                                                                                    "operator_name": "SEQ_SCAN",
-                                                                                    "operator_rows_scanned": 572,
-                                                                                    "children": []
+                                                                                    "intermediate_rows": 568,
+                                                                                    "intermediate_size_bytes": 23856,
+                                                                                    "timing": 0.000008151,
+                                                                                    "type": "PROJECTION",
+                                                                                    "children": [
+                                                                                        {
+                                                                                            "extra_info": {
+                                                                                                "Projections": [
+                                                                                                    "l_returnflag",
+                                                                                                    "l_linestatus",
+                                                                                                    "l_quantity",
+                                                                                                    "l_extendedprice",
+                                                                                                    "(l_extendedprice * (1.00 - l_discount))",
+                                                                                                    "l_tax",
+                                                                                                    "l_discount"
+                                                                                                ],
+                                                                                                "Estimated Cardinality": "114"
+                                                                                            },
+                                                                                            "intermediate_rows": 568,
+                                                                                            "intermediate_size_bytes": 40896,
+                                                                                            "timing": 0.000026018,
+                                                                                            "type": "PROJECTION",
+                                                                                            "children": [
+                                                                                                {
+                                                                                                    "extra_info": {
+                                                                                                        "Table": "\"temp\".main.lineitem",
+                                                                                                        "Type": "Sequential Scan",
+                                                                                                        "Projections": [
+                                                                                                            "l_returnflag",
+                                                                                                            "l_linestatus",
+                                                                                                            "l_quantity",
+                                                                                                            "l_extendedprice",
+                                                                                                            "l_discount",
+                                                                                                            "l_tax"
+                                                                                                        ],
+                                                                                                        "Filters": "(l_shipdate <= '1998-09-02'::DATE)",
+                                                                                                        "Estimated Cardinality": "114"
+                                                                                                    },
+                                                                                                    "intermediate_rows": 568,
+                                                                                                    "intermediate_size_bytes": 36352,
+                                                                                                    "row_groups_scanned": 1,
+                                                                                                    "rows_scanned": 572,
+                                                                                                    "timing": 0.000150209,
+                                                                                                    "total_row_groups_to_scan": 1,
+                                                                                                    "type": "TABLE_SCAN"
+                                                                                                }
+                                                                                            ]
+                                                                                        }
+                                                                                    ]
                                                                                 }
                                                                             ]
                                                                         }
@@ -290,5 +238,76 @@
                 }
             ]
         }
-    ]
+    ],
+    "optimizer": {
+        "aggregate_function_rewriter": 0.000188607,
+        "aggregate_reuse": 0.000011969,
+        "build_side_probe_side": 0.000005475,
+        "column_lifetime": 0.000035203,
+        "common_aggregate": 0.000017148,
+        "common_subexpressions": 0.000060822,
+        "common_subplan": 0.000018345,
+        "cte_filter_pusher": 7.39e-7,
+        "cte_inlining": 8.36e-7,
+        "deliminator": 0.00000126,
+        "duplicate_groups": 0.000026326,
+        "empty_result_pullup": 8.37e-7,
+        "expression_rewriter": 0.000167383,
+        "filter_pullup": 0.000001536,
+        "filter_pushdown": 0.000041498,
+        "grouping_sets": 0.000005509,
+        "in_clause": 0.000002561,
+        "join_elimination": 0.000014934,
+        "join_filter_pushdown": 0.00000547,
+        "join_order": 0.000174219,
+        "late_materialization": 0.000001424,
+        "limit_pushdown": 6.62e-7,
+        "outer_join_simplification": 0.00001391,
+        "partial_aggregate_pushdown": 0.000006142,
+        "partitioned_execution": 0.000001133,
+        "projection_placement": 0.000045246,
+        "projection_pullup": 0.000015954,
+        "redundant_order_keys": 0.000013362,
+        "regex_range": 5.96e-7,
+        "reorder_filter": 0.00000621,
+        "row_group_pruner": 6.1e-7,
+        "row_number_rewriter": 7.87e-7,
+        "sampling_pushdown": 5.41e-7,
+        "scalar_fn_pushdown": 7.84e-7,
+        "statistics_propagation": 0.00026691,
+        "top_n": 5.74e-7,
+        "top_n_window_elimination": 0.000003171,
+        "total_time": 0.001416443,
+        "type_pushdown": 0.000001023,
+        "unnest_rewriter": 0.000001116,
+        "unused_columns": 0.000118519,
+        "window_self_join": 0.000001073
+    },
+    "physical_planner": {
+        "column_binding": 0.000030988,
+        "create_plan": 0.000068506,
+        "resolve_types": 0.000002198,
+        "total_time": 0.000111656
+    },
+    "planner": {
+        "binding_time": 0.000988333,
+        "total_time": 0.001156561
+    },
+    "query": {
+        "cpu_time": 0.00042327,
+        "sql": "EXPLAIN (ANALYZE, FORMAT JSON)\nselect\n        l_returnflag,\n        l_linestatus,\n        sum(l_quantity) as sum_qty,\n        sum(l_extendedprice) as sum_base_price,\n        sum(l_extendedprice * (1 - l_discount)) as sum_disc_price,\n        sum(l_extendedprice * (1 - l_discount) * (1 + l_tax)) as sum_charge,\n        avg(l_quantity) as avg_qty,\n        avg(l_extendedprice) as avg_price,\n        avg(l_discount) as avg_disc,\n        count(*) as count_order\nfrom\n        lineitem\nwhere\n        l_shipdate <= date '1998-12-01' - interval '90' day\ngroup by\n        l_returnflag,\n        l_linestatus\norder by\n        l_returnflag,\n        l_linestatus",
+        "total_intermediate_rows": 2296,
+        "total_intermediate_size_bytes": 127832,
+        "total_row_groups_scanned": 1,
+        "total_row_groups_to_scan": 1,
+        "total_rows_scanned": 572,
+        "total_time": 0.004358751
+    },
+    "system": {
+        "blocked_thread_time": 0.0010689999999999999,
+        "peak_buffer_memory": 3677248,
+        "peak_streaming_buffer_size": 0,
+        "peak_temp_dir_size": 0,
+        "total_memory_allocated": 524288
+    }
 }

@@ -29,22 +29,24 @@
     "operatorId":4,"analyzePlanId":3,"analyzePlanCardinality":10,"analyzePlanCounters":{},
     "sourceLocation":{"startLine":5, "startColumn":23, "endLine":5, "endColumn":24},
     "iteration":1,
-    "output":[{"iu":"i"}]
+    "output":[{"iu":"i"}],
+    "recurring":false
    },
-   "condition":{"expression":"compare", "id":9, "sourceLocation":{"startLine":5, "startColumn":31, "endLine":5, "endColumn":37}, "left":{"expression":"iuref", "id":7, "sourceLocation":{"startLine":5, "startColumn":31, "endLine":5, "endColumn":32}, "iu":"i"}, "right":{"expression":"const", "id":8, "sourceLocation":{"startLine":5, "startColumn":35, "endLine":5, "endColumn":37}, "value":{"type":{"type":"integer"}, "value":9}}, "direction":"<=", "collate":""}
+   "condition":{"expression":"compare", "id":9, "sourceLocation":{"startLine":5, "startColumn":31, "endLine":5, "endColumn":37}, "left":{"expression":"iuref", "id":7, "sourceLocation":{"startLine":5, "startColumn":31, "endLine":5, "endColumn":32}, "iu":"i"}, "right":{"expression":"const", "id":8, "sourceLocation":{"startLine":5, "startColumn":35, "endLine":5, "endColumn":37}, "value":{"type":{"type":"integer", "precision":0, "scale":0, "nullable":false, "array":false}, "null":false, "value":9}}, "direction":"<=", "collate":""}
   },
-  "leftColumns":[{"expression":"const", "id":19, "value":{"type":{"type":"integer"}, "value":1}}],
-  "rightColumns":[{"expression":"add", "id":12, "sourceLocation":{"startLine":5, "startColumn":12, "endLine":5, "endColumn":17}, "left":{"expression":"iuref", "id":10, "sourceLocation":{"startLine":5, "startColumn":12, "endLine":5, "endColumn":13}, "iu":"i"}, "right":{"expression":"const", "id":11, "sourceLocation":{"startLine":5, "startColumn":16, "endLine":5, "endColumn":17}, "value":{"type":{"type":"integer"}, "value":1}}}],
+  "leftColumns":[{"expression":"const", "id":19, "value":{"type":{"type":"integer", "precision":0, "scale":0, "nullable":false, "array":false}, "null":false, "value":1}}],
+  "rightColumns":[{"expression":"add", "id":12, "sourceLocation":{"startLine":5, "startColumn":12, "endLine":5, "endColumn":17}, "left":{"expression":"iuref", "id":10, "sourceLocation":{"startLine":5, "startColumn":12, "endLine":5, "endColumn":13}, "iu":"i"}, "right":{"expression":"const", "id":11, "sourceLocation":{"startLine":5, "startColumn":16, "endLine":5, "endColumn":17}, "value":{"type":{"type":"integer", "precision":0, "scale":0, "nullable":false, "array":false}, "null":false, "value":1}}}],
   "key":[],
-  "unionAll":true
+  "unionAll":true,
+  "iterate":false
  },
- "ius":[{"iu":"v", "type":{"type":"integer"}}, {"iu":"i", "type":{"type":"integer"}}],
+ "ius":[{"iu":"v", "type":{"type":"integer", "precision":0, "scale":0, "nullable":false, "array":false}}, {"iu":"i", "type":{"type":"integer", "precision":0, "scale":0, "nullable":false, "array":false}}],
  "output":[{"name":"i", "iu":{"expression":"iuref", "id":18, "iu":"v"}}],
  "type":"select",
  "query":true,
  "analyzePlanPipelines":[
-  {"pipelineId":0,"start":17,"stop":20,"duration":3,"parallelism":"single-threaded","operators":[1],"counters":{}},
-  {"pipelineId":1,"start":52,"stop":54,"duration":2,"parallelism":"multi-threaded","operators":[2,3],"counters":{}},
-  {"pipelineId":2,"start":55,"stop":162,"duration":107,"parallelism":"multi-threaded","operators":[0],"counters":{}}
+  {"pipelineId":0,"start":3,"stop":6,"duration":3,"parallelism":"single-threaded","operators":[1],"counters":{}},
+  {"pipelineId":1,"start":22,"stop":23,"duration":1,"parallelism":"multi-threaded","operators":[2,3],"counters":{}},
+  {"pipelineId":2,"start":23,"stop":91,"duration":68,"parallelism":"multi-threaded","operators":[0],"counters":{}}
  ]
 }
