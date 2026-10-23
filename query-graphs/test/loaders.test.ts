@@ -199,6 +199,7 @@ test("JSON loaders advertise every property that can identify a linked node", ()
         "operator",
         "operator_name",
         "operator_type",
+        "type",
     ]);
 });
 

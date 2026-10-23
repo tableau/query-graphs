@@ -3,8 +3,9 @@
 DuckDB JSON Transformations
 ---------------------------
 
-DuckDB emits explicit `children` trees. Simple plans use `name`; analyzed plans
-use `operator_name` and add per-operator metrics plus a profiling envelope.
+DuckDB emits explicit `children` trees. Simple and optimizer-stage plans use
+`name`; analyzed plans use `type` and add per-operator metrics plus a profiling
+envelope.
 
 */
 
@@ -13,7 +14,15 @@ import {allChildren, visitTreeNodes} from "../tree-description";
 import type {DecoratedJsonTreeConfig} from "./decorated-json-tree";
 import {convertDecoratedJsonNode, createDecoratedJsonTreeState} from "./decorated-json-tree";
 import type {Json, JsonObject} from "./loader-utils";
-import {forceToString, hasOwnProperty, hasSubObject, isJsonObject, tryToNonNullString, tryToNumber} from "./loader-utils";
+import {
+    forceToString,
+    hasOwnProperty,
+    hasSubObject,
+    isJsonObject,
+    tryGetPropertyPath,
+    tryToNonNullString,
+    tryToNumber,
+} from "./loader-utils";
 import {buildIdMap, colorRelativeNumber, resolveCrosslinks, setRelativeEdgeWidths} from "./tree-postprocessing";
 import type {JsonPlanLoader, PlanLoadContext} from "./types";
 
@@ -30,6 +39,7 @@ function getOperatorType(rawNode: JsonObject): string {
         tryToNonNullString(rawNode["operator_name"]) ??
         tryToNonNullString(rawNode["name"]) ??
         tryToNonNullString(rawNode["operator_type"]) ??
+        tryToNonNullString(rawNode["type"]) ??
         "unknown";
     // DuckDB's built-in operator names are often emitted in CAPS_LOCK form.
     // Preserve mixed-case names because extensions may supply their own labels.
@@ -90,7 +100,7 @@ function getDisplayName(rawNode: JsonObject): string {
 }
 
 const duckDbConfig: DecoratedJsonTreeConfig = {
-    nodeTypeKeys: ["operator_name", "name", "operator_type"],
+    nodeTypeKeys: ["operator_name", "name", "operator_type", "type"],
     structuralChildKeys: ["children"],
     alwaysPropertyKeys: [],
     flattenPropertyObjectKeys: ["extra_info"],
@@ -116,7 +126,7 @@ const duckDbConfig: DecoratedJsonTreeConfig = {
         return tryToNumber(getExtraInfo(rawNode)?.["Estimated Cardinality"]);
     },
     getActualCardinality(rawNode) {
-        return tryToNumber(rawNode["operator_cardinality"]);
+        return tryToNumber(rawNode["intermediate_rows"]);
     },
 };
 
@@ -125,7 +135,7 @@ function applyOperatorTimings(root: TreeNode): void {
     visitTreeNodes(
         root,
         (node) => {
-            const timing = tryToNumber(node.properties?.get("operator_timing"));
+            const timing = tryToNumber(node.properties?.get("timing"));
             if (timing !== undefined) {
                 timings.push({node, value: timing});
             }
@@ -174,7 +184,8 @@ function isDuckNode(value: Json): value is JsonObject {
         isJsonObject(value) &&
         (typeof value["name"] === "string" ||
             typeof value["operator_name"] === "string" ||
-            typeof value["operator_type"] === "string") &&
+            typeof value["operator_type"] === "string" ||
+            typeof value["type"] === "string") &&
         Array.isArray(value["children"])
     );
 }
@@ -182,7 +193,7 @@ function isDuckNode(value: Json): value is JsonObject {
 function isRecognizableDuckNode(value: Json): value is JsonObject {
     return (
         isDuckNode(value) &&
-        (typeof value["operator_type"] === "string" || (typeof value["name"] === "string" && hasSubObject(value, "extra_info")))
+        (typeof value["type"] === "string" || (typeof value["name"] === "string" && hasSubObject(value, "extra_info")))
     );
 }
 
@@ -191,8 +202,15 @@ function isSingletonArray(json: Json): json is [Json] {
     return Array.isArray(json) && json.length === 1;
 }
 
-function hasAnalyzedEnvelope(json: Json): json is JsonObject & {children: [Json]} {
-    return isJsonObject(json) && typeof json["query_name"] === "string" && isSingletonArray(json["children"]);
+function hasAnalyzedEnvelope(json: Json): json is JsonObject {
+    const query = tryGetPropertyPath(json, ["query"]);
+    return (
+        isJsonObject(query) && typeof query["sql"] === "string" && isSingletonArray(tryGetPropertyPath(json, ["operator"]) ?? null)
+    );
+}
+
+function getAnalyzedRoot(json: Json): Json | undefined {
+    return hasAnalyzedEnvelope(json) && isSingletonArray(json["operator"]) ? json["operator"][0] : undefined;
 }
 
 const knownStageNames = ["logical_plan", "logical_opt", "physical_plan"];
@@ -207,7 +225,7 @@ function getPlanStages(json: Json): [string, Json][] | undefined {
 function analyzeMetadata(json: JsonObject): Map<string, string> {
     const metadata = new Map<string, string>();
     for (const key of Object.keys(json)) {
-        if (key === "children" || key === "query_name") {
+        if (key === "operator" || key === "query") {
             continue;
         }
         const value = json[key];
@@ -220,7 +238,7 @@ function analyzeMetadata(json: JsonObject): Map<string, string> {
 }
 
 function getQueryDocument(json: JsonObject): TextDocument[] | undefined {
-    const query = tryToNonNullString(json["query_name"]);
+    const query = tryToNonNullString(tryGetPropertyPath(json, ["query", "sql"]));
     return query === undefined ? undefined : [{id: "query", title: "Original SQL Query", text: query, language: "sql"}];
 }
 
@@ -244,11 +262,12 @@ function loadDuckDbPlan(json: Json, context: PlanLoadContext): TreeDescription {
 
     // ANALYZEd plans
     if (hasAnalyzedEnvelope(json)) {
-        let root = json["children"][0];
-        if (isDuckNode(root) && root["operator_type"] === "EXPLAIN_ANALYZE" && isSingletonArray(root["children"])) {
+        let root = getAnalyzedRoot(json);
+        while (root !== undefined && isDuckNode(root) && ["result_collector", "explain_analyze"].includes(getOperatorType(root))) {
+            if (!isSingletonArray(root["children"])) break;
             root = root["children"][0];
         }
-        return convertDuckPlan(root, context, analyzeMetadata(json), getQueryDocument(json));
+        return convertDuckPlan(root ?? json, context, analyzeMetadata(json), getQueryDocument(json));
     }
 
     // Normal plans
@@ -260,9 +279,10 @@ export const duckDbPlanLoader: JsonPlanLoader = {
     sourcePropertyKeys: new Set(duckDbConfig.nodeTypeKeys),
     matches(json) {
         const stages = getPlanStages(json);
+        const analyzedRoot = getAnalyzedRoot(json);
         return (
             (isSingletonArray(json) && isRecognizableDuckNode(json[0])) ||
-            (hasAnalyzedEnvelope(json) && isRecognizableDuckNode(json["children"][0])) ||
+            (analyzedRoot !== undefined && isRecognizableDuckNode(analyzedRoot)) ||
             stages !== undefined
         );
     },

@@ -102,9 +102,13 @@ class QueryFormattingTest(unittest.TestCase):
         compared = 0
         for plan_path in (examples / "duckdb").glob("**/*-analyze.plan.json"):
             plan = json.loads(plan_path.read_text())
-            if isinstance(plan, dict) and isinstance(plan.get("query_name"), str):
+            query = plan.get("query") if isinstance(plan, dict) else None
+            if isinstance(query, dict) and isinstance(query.get("sql"), str):
                 plan_key = plan_path.relative_to(examples).as_posix()
-                self.assertEqual(generated[sql_by_plan[plan_key]], plan["query_name"], plan_path)
+                generated_query = "\n".join(
+                    line for line in generated[sql_by_plan[plan_key]].splitlines() if not line.lstrip().startswith("--")
+                )
+                self.assertEqual(generated_query.strip(), query["sql"].strip(), plan_path)
                 compared += 1
         self.assertGreater(compared, 0)
 
