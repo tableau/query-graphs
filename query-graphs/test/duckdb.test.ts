@@ -46,7 +46,7 @@ test("DuckDB examples are recognized", () => {
 
 test("DuckDB analyzed plans preserve metrics, metadata, and CTE crosslinks", () => {
     const analyzedScan = loadFixture("duckdb/tablescan-analyze.plan.json").tree;
-    assert.equal(analyzedScan.root.name, '"temp".main.region (seq_scan)');
+    assert.equal(analyzedScan.root.name, '"temp".main.region (table_scan)');
     assert.equal(analyzedScan.root.properties?.get("Table"), '"temp".main.region');
     assert.equal(analyzedScan.root.edgeLabel, "5/5");
     assert.notEqual(analyzedScan.root.nodeColor, undefined);
@@ -65,13 +65,13 @@ test("DuckDB analyzed plans preserve metrics, metadata, and CTE crosslinks", () 
     const recursiveCte = loadFixture("duckdb/cte-recursive-analyze.plan.json").tree;
     assert.deepEqual(
         recursiveCte.crosslinks?.map(({source, target}) => [source.name, target.name]),
-        [["rec_cte_scan", "rec_cte"]],
+        [["recursive_cte_scan", "recursive_cte"]],
     );
 
     const actualOnly = treeNodes(loadFixture("duckdb/groupby-analyze.plan.json").tree.root).find(
         (node) => node.name === "perfect_hash_group_by",
     );
-    assert.equal(actualOnly?.edgeLabel, "3/?");
+    assert.equal(actualOnly?.edgeLabel, "3/3");
 });
 
 test("supplied SQL overrides DuckDB's embedded query", () => {
@@ -155,18 +155,26 @@ test("DuckDB scopes delimiter indexes to individual optimizer stages", () => {
 
 test("DuckDB resolves analyzed delimiter targets from operator types", () => {
     const tree = loadDuckDbPlan({
-        query_name: "select 1",
-        children: [
+        query: {sql: "select 1"},
+        operator: [
             {
-                operator_name: "LEFT_DELIM_JOIN",
-                operator_type: "LEFT_DELIM_JOIN",
-                extra_info: {"Delim Index": "1"},
+                type: "RESULT_COLLECTOR",
                 children: [
                     {
-                        operator_name: "DELIM_SCAN",
-                        operator_type: "DELIM_SCAN",
-                        extra_info: {"Delim Index": "1"},
-                        children: [],
+                        type: "EXPLAIN_ANALYZE",
+                        children: [
+                            {
+                                type: "LEFT_DELIM_JOIN",
+                                extra_info: {"Delim Index": "1"},
+                                children: [
+                                    {
+                                        type: "DELIM_SCAN",
+                                        extra_info: {"Delim Index": "1"},
+                                        children: [],
+                                    },
+                                ],
+                            },
+                        ],
                     },
                 ],
             },
@@ -224,7 +232,7 @@ test("the DuckDB loader degrades malformed child details", () => {
 
     const analyzedPath = path.join(examplesRoot, "duckdb/tablescan-analyze.plan.json");
     const malformedAnalyze = JSON.parse(readFileSync(analyzedPath, "utf8"));
-    malformedAnalyze.children[0].children[0] = 7;
+    malformedAnalyze.operator[0].children[0].children[0] = 7;
     const degradedAnalyze = loadPlanFromText(JSON.stringify(malformedAnalyze));
     assert.equal(degradedAnalyze.format, "duckdb");
     assert.equal(degradedAnalyze.tree.root.name, "7");
@@ -235,23 +243,23 @@ test("the DuckDB loader accepts forced plans and optional profile fields", () =>
     assert.equal(forced.tree.root.name, "seq_scan");
 
     const malformedExplainAnalyze = loadDuckDbPlan({
-        query_name: "select 1",
-        children: [{operator_type: "EXPLAIN_ANALYZE", children: []}],
+        query: {sql: "select 1"},
+        operator: [{type: "EXPLAIN_ANALYZE", children: []}],
     });
     assert.equal(malformedExplainAnalyze.root.name, "explain_analyze");
 
     const analyzedPath = path.join(examplesRoot, "duckdb/tablescan-analyze.plan.json");
     const malformedAnalyze = JSON.parse(readFileSync(analyzedPath, "utf8"));
-    delete malformedAnalyze.latency;
+    delete malformedAnalyze.query.total_time;
     const degradedAnalyze = loadPlanFromText(JSON.stringify(malformedAnalyze));
     assert.equal(degradedAnalyze.format, "duckdb");
-    assert.equal(degradedAnalyze.tree.root.name, '"temp".main.region (seq_scan)');
+    assert.equal(degradedAnalyze.tree.root.name, '"temp".main.region (table_scan)');
 
     const futureMetadata = loadPlanFromText(
         JSON.stringify({
-            query_name: "select 1",
+            query: {sql: "select 1"},
             future_metadata: {version: 1},
-            children: [{operator_name: "DUMMY_SCAN", operator_type: "DUMMY_SCAN", extra_info: {}, children: []}],
+            operator: [{type: "DUMMY_SCAN", extra_info: {}, children: []}],
         }),
     ).tree.metadata;
     assert.equal(futureMetadata?.get("future_metadata"), '{"version":1}');
@@ -259,20 +267,15 @@ test("the DuckDB loader accepts forced plans and optional profile fields", () =>
 
 test("DuckDB recognition does not claim generic child trees", () => {
     const minimalProfile = JSON.stringify({
-        query_name: "select 1",
-        children: [
-            {
-                operator_type: "EXPLAIN_ANALYZE",
-                children: [{operator_type: "DUMMY_SCAN", children: []}],
-            },
-        ],
+        query: {sql: "select 1"},
+        operator: [{type: "EXPLAIN_ANALYZE", children: [{type: "DUMMY_SCAN", children: []}]}],
     });
     const loadedProfile = loadPlanFromText(minimalProfile);
     assert.equal(loadedProfile.format, "duckdb");
     assert.equal(loadedProfile.tree.root.name, "dummy_scan");
     assert.equal(loadedProfile.tree.root.icon, "const-table-symbol");
 
-    const genericTree = '{"query_name":"My saved search","children":[{"name":"Alice","children":[]}]}';
+    const genericTree = '{"query":{"sql":"My saved search"},"operator":[{"name":"Alice","children":[]}]}';
     assert.equal(loadPlanFromText(genericTree).format, "json");
-    assert.equal(loadPlanFromText('{"query_name":"anything","children":[42]}').format, "json");
+    assert.equal(loadPlanFromText('{"query":{"sql":"anything"},"operator":[42]}').format, "json");
 });
