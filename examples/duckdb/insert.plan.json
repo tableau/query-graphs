@@ -1,6 +1,6 @@
 [
     {
-        "name": "INSERT",
+        "name": "BATCH_INSERT",
         "children": [
             {
                 "name": "PROJECTION",

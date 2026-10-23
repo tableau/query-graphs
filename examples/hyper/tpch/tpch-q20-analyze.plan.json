@@ -4,12 +4,12 @@
     "operator-id": 1,
     "estimated-rows": 1,
     "produces-rows": true,
-    "output": [{"expression": "iu-ref", "iu": ["scan_s_name", ["Char", 25]]}, {"expression": "iu-ref", "iu": ["scan_address", ["Varchar", 40]]}],
+    "output": [{"expression": "iu-ref", "sqlpos": [[154, 160]], "iu": ["scan_s_name", ["Char", 25]]}, {"expression": "iu-ref", "sqlpos": [[170, 179]], "iu": ["scan_address", ["Varchar", 40]]}],
     "output-names": ["s_name", "s_address"],
     "inputs": [{
       "operator": "sort",
       "operator-id": 2,
-      "sqlpos": [[1389, 1395]],
+      "sqlpos": [[1372, 1380]],
       "estimated-rows": 1,
       "criterion": [{"value": {"expression": "iu-ref", "iu": "scan_s_name"}, "descending": false, "null-first": false}],
       "inputs": [{
@@ -69,7 +69,7 @@
                 "attribute-count": 9,
                 "attributes": [{"col-id": 0, "name": "p_partkey", "type": ["Integer"], "iu": ["scan_partkey2", ["Integer"]]},{"col-id": 1, "name": "p_name", "type": ["Varchar", 55], "iu": ["scan_p_name", ["Varchar", 55]]}],
                 "debug-name": {"classification": "nonsensitive", "value": "part"},
-                "restrictions": [{"attribute": 1, "mode": "lambda", "expression": {"expression": "starts_with", "left": {"expression": "iu-ref", "iu": "scan_p_name"}, "right": {"expression": "const", "value": {"type": ["Varchar"], "value": "forest"}}}}],
+                "restrictions": [{"attribute": 1, "mode": "lambda", "expression": {"expression": "starts_with", "left": {"expression": "iu-ref", "sqlpos": [[670, 676]], "iu": "scan_p_name"}, "right": {"expression": "const", "value": {"type": ["Varchar"], "value": "forest"}}}}],
                 "selectivity": 0.00750469,
                 "statistics": {"column-count": 1, "output-rows": 4, "processed-rows": 533}
               }, {
@@ -89,18 +89,18 @@
                 "statistics": {"column-count": 3, "output-rows": 4, "processed-rows": 537}
               }],
               "early-probed-by": [9],
-              "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iu-ref", "iu": "scan_partkey"}, "right": {"expression": "iu-ref", "iu": "scan_partkey2"}},
-              "predicates": [{"left": {"expression": "iu-ref", "iu": "scan_partkey2"}, "right": {"expression": "iu-ref", "iu": "scan_partkey"}, "comparison": "="}],
+              "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iu-ref", "sqlpos": [[405, 415]], "iu": "scan_partkey"}, "right": {"expression": "iu-ref", "iu": "scan_partkey2"}},
+              "predicates": [{"left": {"expression": "iu-ref", "iu": "scan_partkey2"}, "right": {"expression": "iu-ref", "sqlpos": [[405, 415]], "iu": "scan_partkey"}, "comparison": "="}],
               "statistics": {"column-count": 3, "memory-bytes": 18552, "output-rows": 4}
             }, {
               "operator": "map",
               "operator-id": 10,
-              "sqlpos": [[841, 862]],
+              "sqlpos": [[794, 800]],
               "estimated-rows": 150,
               "inputs": [{
                 "operator": "group-by",
                 "operator-id": 11,
-                "sqlpos": [[847, 862]],
+                "sqlpos": [[847, 850]],
                 "estimated-rows": 150,
                 "inputs": [{
                   "operator": "scan",
@@ -123,7 +123,7 @@
                 "key-expressions": [{"expression": {"value": {"expression": "iu-ref", "iu": "scan_partkey3"}}, "iu": ["GroupByKey", ["Integer"]]}, {"expression": {"value": {"expression": "iu-ref", "iu": "scan_suppkey3"}}, "iu": ["GroupByKey2", ["Integer"]]}],
                 "grouping-sets": [{"key-indices": [0, 1], "core-indices": [0, 1], "behavior": "regular"}],
                 "empty-groups": true,
-                "agg-expressions": [{"value": {"expression": "iu-ref", "iu": "scan_quantity"}}],
+                "agg-expressions": [{"value": {"expression": "iu-ref", "sqlpos": [[851, 861]], "iu": "scan_quantity"}}],
                 "aggregates": [{"source": 0, "operation": {"aggregate": "sum"}, "iu": ["sum", ["BigNumeric", 38, 2, "nullable"]]}],
                 "statistics": {"column-count": 3, "memory-bytes": 18552, "output-rows": 2}
               }],
@@ -131,8 +131,8 @@
               "statistics": {"column-count": 3, "output-rows": 2}
             }],
             "early-probed-by": [12],
-            "condition": {"expression": "and", "arguments": [{"expression": "comparison", "mode": "is", "left": {"expression": "iu-ref", "iu": "scan_partkey"}, "right": {"expression": "iu-ref", "iu": "GroupByKey"}}, {"expression": "comparison", "mode": "is", "left": {"expression": "iu-ref", "iu": "scan_suppkey2"}, "right": {"expression": "iu-ref", "iu": "GroupByKey2"}}, {"expression": "comparison", "mode": ">", "left": {"expression": "iu-ref", "iu": "scan_availqty"}, "right": {"expression": "iu-ref", "iu": "map"}}]},
-            "predicates": [{"left": {"expression": "iu-ref", "iu": "scan_partkey"}, "right": {"expression": "iu-ref", "iu": "GroupByKey"}, "comparison": "is"}, {"left": {"expression": "iu-ref", "iu": "scan_suppkey2"}, "right": {"expression": "iu-ref", "iu": "GroupByKey2"}, "comparison": "is"}, {"left": {"expression": "iu-ref", "iu": "scan_availqty"}, "right": {"expression": "iu-ref", "iu": "map"}, "comparison": ">"}],
+            "condition": {"expression": "and", "arguments": [{"expression": "comparison", "mode": "is", "left": {"expression": "iu-ref", "iu": "scan_partkey"}, "right": {"expression": "iu-ref", "iu": "GroupByKey"}}, {"expression": "comparison", "mode": "is", "left": {"expression": "iu-ref", "iu": "scan_suppkey2"}, "right": {"expression": "iu-ref", "iu": "GroupByKey2"}}, {"expression": "comparison", "sqlpos": [[758, 759]], "mode": ">", "left": {"expression": "iu-ref", "sqlpos": [[746, 757]], "iu": "scan_availqty"}, "right": {"expression": "iu-ref", "iu": "map"}}]},
+            "predicates": [{"left": {"expression": "iu-ref", "iu": "scan_partkey"}, "right": {"expression": "iu-ref", "iu": "GroupByKey"}, "comparison": "is"}, {"left": {"expression": "iu-ref", "iu": "scan_suppkey2"}, "right": {"expression": "iu-ref", "iu": "GroupByKey2"}, "comparison": "is"}, {"left": {"expression": "iu-ref", "sqlpos": [[746, 757]], "iu": "scan_availqty"}, "right": {"expression": "iu-ref", "iu": "map"}, "comparison": ">"}],
             "statistics": {"column-count": 1, "memory-bytes": 18552, "output-rows": 1}
           }, {
             "operator": "scan",
@@ -151,13 +151,13 @@
             "statistics": {"column-count": 4, "output-rows": 1, "processed-rows": 518}
           }],
           "early-probed-by": [13],
-          "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iu-ref", "iu": "scan_suppkey"}, "right": {"expression": "iu-ref", "iu": "scan_suppkey2"}},
-          "predicates": [{"left": {"expression": "iu-ref", "iu": "scan_suppkey2"}, "right": {"expression": "iu-ref", "iu": "scan_suppkey"}, "comparison": "="}],
+          "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iu-ref", "sqlpos": [[232, 241]], "iu": "scan_suppkey"}, "right": {"expression": "iu-ref", "iu": "scan_suppkey2"}},
+          "predicates": [{"left": {"expression": "iu-ref", "iu": "scan_suppkey2"}, "right": {"expression": "iu-ref", "sqlpos": [[232, 241]], "iu": "scan_suppkey"}, "comparison": "="}],
           "statistics": {"column-count": 3, "memory-bytes": 18552, "output-rows": 1}
         }],
         "early-probed-by": [13],
-        "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iu-ref", "iu": "scan_nationke2"}, "right": {"expression": "iu-ref", "iu": "scan_nationke"}},
-        "predicates": [{"left": {"expression": "iu-ref", "iu": "scan_nationke"}, "right": {"expression": "iu-ref", "iu": "scan_nationke2"}, "comparison": "="}],
+        "condition": {"expression": "comparison", "sqlpos": [[1328, 1329]], "mode": "=", "left": {"expression": "iu-ref", "sqlpos": [[1316, 1327]], "iu": "scan_nationke2"}, "right": {"expression": "iu-ref", "sqlpos": [[1330, 1341]], "iu": "scan_nationke"}},
+        "predicates": [{"left": {"expression": "iu-ref", "sqlpos": [[1330, 1341]], "iu": "scan_nationke"}, "right": {"expression": "iu-ref", "sqlpos": [[1316, 1327]], "iu": "scan_nationke2"}, "comparison": "="}],
         "statistics": {"column-count": 2, "memory-bytes": 18552, "output-rows": 1}
       }],
       "statistics": {"column-count": 2, "memory-bytes": 262152, "output-rows": 1}
@@ -165,12 +165,12 @@
     "statistics": {"error": null, "column-count": 0}
   },
   "pipelines": [
-    {"id": 0, "operators": [1, 2], "dependencies": [1], "statistics": {"cpu-cycles": 3708, "query-metrics": {"elapsed":4.468e-06,"memory-mb-seconds":2.234e-06,"instance-seconds":4.468e-06,"processed-rows":{"total":0,"native":0},"threads":{"thread-time":4.468e-06,"cpu-time":4.449e-06,"wait-time":0},"storage":{},"peak-transaction-memory-mb":0.750031}, "running": false}},
-    {"id": 1, "operators": [2, 3, 5, 13], "dependencies": [2, 3], "statistics": {"cpu-cycles": 57050, "query-metrics": {"elapsed":2.2889e-05,"memory-mb-seconds":1.7167e-05,"instance-seconds":2.2889e-05,"processed-rows":{"total":518,"native":518},"threads":{"thread-time":2.2889e-05,"cpu-time":2.2979e-05,"wait-time":0},"storage":{},"additional-entries":{"scan-stats":{"rows-matching-restrictions":1}},"peak-transaction-memory-mb":0.750031}, "running": false}},
-    {"id": 2, "operators": [3, 4], "dependencies": [], "statistics": {"cpu-cycles": 24224, "query-metrics": {"elapsed":2.3979e-05,"memory-mb-seconds":1.1989e-05,"instance-seconds":2.3979e-05,"processed-rows":{"total":25,"native":25},"threads":{"thread-time":2.3979e-05,"cpu-time":2.3987e-05,"wait-time":0},"storage":{},"additional-entries":{"scan-stats":{"rows-matching-restrictions":1}},"peak-transaction-memory-mb":0.5}, "running": false}},
-    {"id": 3, "operators": [5, 6, 10, 11], "dependencies": [4, 6], "statistics": {"cpu-cycles": 8837, "query-metrics": {"elapsed":6.675e-06,"memory-mb-seconds":3.337e-06,"instance-seconds":6.675e-06,"processed-rows":{"total":0,"native":0},"threads":{"thread-time":6.675e-06,"cpu-time":6.682e-06,"wait-time":0},"storage":{},"peak-transaction-memory-mb":0.5}, "running": false}},
-    {"id": 4, "operators": [6, 7, 9], "dependencies": [5], "statistics": {"cpu-cycles": 27419, "query-metrics": {"elapsed":1.3228e-05,"memory-mb-seconds":6.614e-06,"instance-seconds":1.3228e-05,"processed-rows":{"total":537,"native":537},"threads":{"thread-time":1.3228e-05,"cpu-time":1.3251e-05,"wait-time":0},"storage":{},"additional-entries":{"scan-stats":{"rows-matching-restrictions":4}},"peak-transaction-memory-mb":0.5}, "running": false}},
-    {"id": 5, "operators": [7, 8], "dependencies": [], "statistics": {"cpu-cycles": 24461, "query-metrics": {"elapsed":1.2674e-05,"memory-mb-seconds":6.337e-06,"instance-seconds":1.2674e-05,"processed-rows":{"total":533,"native":533},"threads":{"thread-time":1.2674e-05,"cpu-time":1.2696e-05,"wait-time":0},"storage":{},"additional-entries":{"scan-stats":{"rows-matching-restrictions":4}},"peak-transaction-memory-mb":0.5}, "running": false}},
-    {"id": 6, "operators": [11, 12], "dependencies": [4], "statistics": {"cpu-cycles": 21222, "query-metrics": {"elapsed":1.0514e-05,"memory-mb-seconds":5.257e-06,"instance-seconds":1.0514e-05,"processed-rows":{"total":572,"native":572},"threads":{"thread-time":1.0514e-05,"cpu-time":1.0531e-05,"wait-time":0},"storage":{},"additional-entries":{"scan-stats":{"rows-matching-restrictions":150}},"peak-transaction-memory-mb":0.5}, "running": false}}
+    {"id": 0, "operators": [1, 2], "dependencies": [1], "statistics": {"cpu-cycles": 2081, "query-metrics": {"elapsed":2.408e-06,"memory-mb-seconds":1.204e-06,"instance-seconds":2.408e-06,"processed-rows":{"total":0,"native":0},"threads":{"thread-time":2.408e-06,"cpu-time":2.406e-06,"wait-time":0},"storage":{},"peak-transaction-memory-mb":0.750031}, "running": false}},
+    {"id": 1, "operators": [2, 3, 5, 13], "dependencies": [2, 3], "statistics": {"cpu-cycles": 12240, "query-metrics": {"elapsed":6.236e-06,"memory-mb-seconds":4.677e-06,"instance-seconds":6.236e-06,"processed-rows":{"total":518,"native":518},"threads":{"thread-time":6.236e-06,"cpu-time":6.254e-06,"wait-time":0},"storage":{},"additional-entries":{"scan-stats":{"rows-matching-restrictions":1}},"peak-transaction-memory-mb":0.750031}, "running": false}},
+    {"id": 2, "operators": [3, 4], "dependencies": [], "statistics": {"cpu-cycles": 15332, "query-metrics": {"elapsed":9.621e-06,"memory-mb-seconds":4.81e-06,"instance-seconds":9.621e-06,"processed-rows":{"total":25,"native":25},"threads":{"thread-time":9.621e-06,"cpu-time":9.589e-06,"wait-time":0},"storage":{},"additional-entries":{"scan-stats":{"rows-matching-restrictions":1}},"peak-transaction-memory-mb":0.5}, "running": false}},
+    {"id": 3, "operators": [5, 6, 10, 11], "dependencies": [4, 6], "statistics": {"cpu-cycles": 5246, "query-metrics": {"elapsed":3.642e-06,"memory-mb-seconds":1.821e-06,"instance-seconds":3.642e-06,"processed-rows":{"total":0,"native":0},"threads":{"thread-time":3.642e-06,"cpu-time":3.649e-06,"wait-time":0},"storage":{},"peak-transaction-memory-mb":0.5}, "running": false}},
+    {"id": 4, "operators": [6, 7, 9], "dependencies": [5], "statistics": {"cpu-cycles": 15668, "query-metrics": {"elapsed":7.383e-06,"memory-mb-seconds":3.691e-06,"instance-seconds":7.383e-06,"processed-rows":{"total":537,"native":537},"threads":{"thread-time":7.383e-06,"cpu-time":7.395e-06,"wait-time":0},"storage":{},"additional-entries":{"scan-stats":{"rows-matching-restrictions":4}},"peak-transaction-memory-mb":0.5}, "running": false}},
+    {"id": 5, "operators": [7, 8], "dependencies": [], "statistics": {"cpu-cycles": 14985, "query-metrics": {"elapsed":7.473e-06,"memory-mb-seconds":3.736e-06,"instance-seconds":7.473e-06,"processed-rows":{"total":533,"native":533},"threads":{"thread-time":7.473e-06,"cpu-time":7.495e-06,"wait-time":0},"storage":{},"additional-entries":{"scan-stats":{"rows-matching-restrictions":4}},"peak-transaction-memory-mb":0.5}, "running": false}},
+    {"id": 6, "operators": [11, 12], "dependencies": [4], "statistics": {"cpu-cycles": 14607, "query-metrics": {"elapsed":6.715e-06,"memory-mb-seconds":3.357e-06,"instance-seconds":6.715e-06,"processed-rows":{"total":572,"native":572},"threads":{"thread-time":6.715e-06,"cpu-time":6.722e-06,"wait-time":0},"storage":{},"additional-entries":{"scan-stats":{"rows-matching-restrictions":150}},"peak-transaction-memory-mb":0.5}, "running": false}}
   ]
 }

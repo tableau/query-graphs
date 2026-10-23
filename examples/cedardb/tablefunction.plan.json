@@ -1,31 +1,38 @@
 {
  "plan":{
-  "operator":"generateseries",
-  "physicalOperator":"generateseries",
+  "operator":"planroot",
+  "physicalOperator":"planroot",
   "cardinality":10,
   "operatorId":1,
   "input":{
-   "operator":"inlinetable",
-   "physicalOperator":"inlinetable",
-   "cardinality":1,
+   "operator":"generateseries",
+   "physicalOperator":"generateseries",
+   "cardinality":10,
    "operatorId":2,
-   "attributes":[],
-   "restrictions":[],
-   "residuals":[],
-   "count":1,
-   "values":[]
+   "input":{
+    "operator":"inlinetable",
+    "physicalOperator":"inlinetable",
+    "cardinality":1,
+    "operatorId":3,
+    "attributes":[],
+    "restrictions":[],
+    "residuals":[],
+    "count":1,
+    "values":[]
+   },
+   "iu":"generate_series",
+   "ordinality":"v",
+   "from":{"expression":"const", "value":{"type":{"type":"int32"}, "value":1}},
+   "to":{"expression":"const", "value":{"type":{"type":"int32"}, "value":10}},
+   "step":{"expression":"const", "value":{"type":{"type":"int32"}, "value":1}},
+   "reverse":{"expression":"const", "value":{"type":{"type":"bool"}, "value":false}}
   },
-  "iu":"generate_series",
-  "ordinality":"v",
-  "from":{"expression":"const", "value":{"type":{"type":"int32"}, "value":1}},
-  "to":{"expression":"const", "value":{"type":{"type":"int32"}, "value":10}},
-  "step":{"expression":"const", "value":{"type":{"type":"int32"}, "value":1}},
-  "reverse":{"expression":"const", "value":{"type":{"type":"bool"}, "value":false}}
+  "output":[{"name":"generate_series", "value":{"expression":"iuref", "iu":"generate_series"}}]
  },
  "ius":[{"iu":"generate_series", "outerNull":false, "type":{"type":"int32"}}, {"iu":"v", "outerNull":false, "type":{"type":"int64"}}],
- "output":[{"name":"generate_series", "iu":{"expression":"iuref", "iu":"generate_series"}}],
  "type":"select",
  "query":true,
  "hasParameters":false,
+ "queryOptimized":true,
  "permissions":{"planPermissions":[], "fileReaders":[], "fileWriters":[], "objectsToLock":[]}
 }
