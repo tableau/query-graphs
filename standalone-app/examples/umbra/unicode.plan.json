@@ -4,8 +4,8 @@
   "physicalOperator":"tablescan",
   "cardinality":5,
   "operatorId":1,
-  "sourceLocation":{"startLine":2, "startColumn":48, "endLine":2, "endColumn":54},
-  "attributes":[{"name":"r_regionkey", "iu":"r_regionkey"}, {"name":"r_name", "iu":"r_name"}, {"name":"r_comment", "iu":"r_comment"}],
+  "sourceLocation":{"startLine":2, "startColumn":43, "endLine":2, "endColumn":49},
+  "attributes":[{"name":"r_regionkey", "iu":"r_regionkey", "nullable":false}, {"name":"r_name", "iu":"r_name", "nullable":false}, {"name":"r_comment", "iu":"r_comment", "nullable":false}],
   "restrictions":[],
   "residuals":[],
   "tid":"tid",
@@ -16,8 +16,8 @@
   "tableSize":5,
   "tablename":"region"
  },
- "ius":[{"iu":"r_regionkey", "type":{"type":"integer"}, "sourceLocation":{"startLine":2, "startColumn":48, "endLine":2, "endColumn":54}}, {"iu":"r_name", "type":{"type":"char", "precision":25}, "sourceLocation":{"startLine":2, "startColumn":48, "endLine":2, "endColumn":54}}, {"iu":"r_comment", "type":{"type":"text", "precision":152}, "sourceLocation":{"startLine":2, "startColumn":48, "endLine":2, "endColumn":54}}, {"iu":"tid", "type":{"type":"bigint"}}, {"iu":"tableoid", "type":{"type":"integer"}}, {"iu":"rowstate", "type":{"type":"bigint"}}],
- "output":[{"name":"greeting", "iu":{"expression":"const", "id":5, "value":{"type":{"type":"text"}, "value":"Grüße 🌍"}}}, {"name":"r_name", "iu":{"expression":"iuref", "id":4, "iu":"r_name"}}],
+ "ius":[{"iu":"r_regionkey", "type":{"type":"integer", "precision":0, "scale":0, "nullable":false, "array":false}, "sourceLocation":{"startLine":2, "startColumn":43, "endLine":2, "endColumn":49}}, {"iu":"r_name", "type":{"type":"char", "precision":25, "scale":0, "nullable":false, "array":false}, "sourceLocation":{"startLine":2, "startColumn":43, "endLine":2, "endColumn":49}}, {"iu":"r_comment", "type":{"type":"text", "precision":152, "scale":0, "nullable":false, "array":false}, "sourceLocation":{"startLine":2, "startColumn":43, "endLine":2, "endColumn":49}}, {"iu":"tid", "type":{"type":"bigint", "precision":0, "scale":0, "nullable":false, "array":false}}, {"iu":"tableoid", "type":{"type":"integer", "precision":0, "scale":0, "nullable":false, "array":false}}, {"iu":"rowstate", "type":{"type":"bigint", "precision":0, "scale":0, "nullable":false, "array":false}}],
+ "output":[{"name":"greeting", "iu":{"expression":"const", "id":5, "value":{"type":{"type":"text", "precision":0, "scale":0, "nullable":false, "array":false}, "null":false, "value":"Grüße 🌍"}}}, {"name":"r_name", "iu":{"expression":"iuref", "id":4, "iu":"r_name"}}],
  "type":"select",
  "query":true
 }

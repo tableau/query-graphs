@@ -17,11 +17,11 @@
    "values":[]
   },
   "iu":"index",
-  "from":{"expression":"const", "id":1, "sourceLocation":{"startLine":2, "startColumn":31, "endLine":2, "endColumn":32}, "value":{"type":{"type":"integer"}, "value":1}},
-  "to":{"expression":"const", "id":2, "sourceLocation":{"startLine":2, "startColumn":33, "endLine":2, "endColumn":35}, "value":{"type":{"type":"integer"}, "value":10}},
-  "step":{"expression":"const", "id":3, "value":{"type":{"type":"integer"}, "value":1}}
+  "from":{"expression":"const", "id":1, "sourceLocation":{"startLine":2, "startColumn":31, "endLine":2, "endColumn":32}, "value":{"type":{"type":"integer", "precision":0, "scale":0, "nullable":false, "array":false}, "null":false, "value":1}},
+  "to":{"expression":"const", "id":2, "sourceLocation":{"startLine":2, "startColumn":33, "endLine":2, "endColumn":35}, "value":{"type":{"type":"integer", "precision":0, "scale":0, "nullable":false, "array":false}, "null":false, "value":10}},
+  "step":{"expression":"const", "id":3, "value":{"type":{"type":"integer", "precision":0, "scale":0, "nullable":false, "array":false}, "null":false, "value":1}}
  },
- "ius":[{"iu":"index", "type":{"type":"integer"}}],
+ "ius":[{"iu":"index", "type":{"type":"integer", "precision":0, "scale":0, "nullable":false, "array":false}}],
  "output":[{"name":"generate_series", "iu":{"expression":"iuref", "id":5, "iu":"index"}}],
  "type":"select",
  "query":true

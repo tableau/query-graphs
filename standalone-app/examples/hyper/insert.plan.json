@@ -10,6 +10,7 @@
       "operator": "insert",
       "operator-id": 2,
       "type": "native",
+      "sqlpos": [[26, 32]],
       "estimated-rows": 4000,
       "volatility": "volatile",
       "relation-id": 1,
@@ -19,7 +20,7 @@
       "inputs": [{
         "operator": "map",
         "operator-id": 3,
-        "sqlpos": [[48, 52]],
+        "sqlpos": [[41, 47]],
         "estimated-rows": 4000,
         "inputs": [{
           "operator": "join",
@@ -30,7 +31,7 @@
           "inputs": [{
             "operator": "table-construction",
             "operator-id": 5,
-            "sqlpos": [[75, 84]],
+            "sqlpos": [[75, 81]],
             "estimated-rows": 2,
             "output": [["table-construction", ["Integer"]]],
             "values": [[{"expression": "const", "value": {"type": ["Integer"], "value": 1}}], [{"expression": "const", "value": {"type": ["Integer"], "value": 2}}]],
@@ -53,7 +54,7 @@
           "predicates": [],
           "residual": {"expression": "const", "value": {"type": ["Bool"], "value": true}}
         }],
-        "values": [{"iu": ["map", ["Integer"]], "value": {"expression": "mul", "left": {"expression": "iu-ref", "iu": "scan_a1"}, "right": {"expression": "iu-ref", "iu": "table-construction"}}}, {"iu": ["map2", ["Integer"]], "value": {"expression": "mul", "left": {"expression": "iu-ref", "iu": "scan_b1"}, "right": {"expression": "iu-ref", "iu": "table-construction"}}}, {"iu": ["map3", ["Integer"]], "value": {"expression": "mul", "left": {"expression": "iu-ref", "iu": "scan_c1"}, "right": {"expression": "iu-ref", "iu": "table-construction"}}}]
+        "values": [{"iu": ["map", ["Integer"]], "value": {"expression": "mul", "left": {"expression": "iu-ref", "sqlpos": [[48, 50]], "iu": "scan_a1"}, "right": {"expression": "iu-ref", "sqlpos": [[51, 52]], "iu": "table-construction"}}}, {"iu": ["map2", ["Integer"]], "value": {"expression": "mul", "left": {"expression": "iu-ref", "sqlpos": [[54, 56]], "iu": "scan_b1"}, "right": {"expression": "iu-ref", "sqlpos": [[57, 58]], "iu": "table-construction"}}}, {"iu": ["map3", ["Integer"]], "value": {"expression": "mul", "left": {"expression": "iu-ref", "sqlpos": [[60, 62]], "iu": "scan_c1"}, "right": {"expression": "iu-ref", "sqlpos": [[63, 64]], "iu": "table-construction"}}}]
       }],
       "tid": ["tid", ["Numeric", 18]],
       "table-oid": ["tableOid", ["RegClass"]],

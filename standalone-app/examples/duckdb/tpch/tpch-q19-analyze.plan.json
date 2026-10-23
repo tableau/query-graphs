@@ -1,135 +1,68 @@
 {
-    "total_bytes_written": 0,
-    "total_bytes_read": 0,
-    "system_peak_temp_dir_size": 0,
-    "system_peak_buffer_memory": 138186752,
-    "rows_returned": 0,
-    "wal_replay_entry_count": 0,
-    "result_set_size": 0,
-    "query_name": "-- This query is derived from TPC-H query 19\n-- THE TPC SOFTWARE IS AVAILABLE WITHOUT CHARGE FROM TPC.\n\nEXPLAIN (ANALYZE, FORMAT JSON)\nselect\n        sum(l_extendedprice* (1 - l_discount)) as revenue\nfrom\n        lineitem,\n        part\nwhere\n        (\n                p_partkey = l_partkey\n                and p_brand = 'Brand#12'\n                and p_container in ('SM CASE', 'SM BOX', 'SM PACK', 'SM PKG')\n                and l_quantity >= 1 and l_quantity <= 1 + 10\n                and p_size between 1 and 5\n                and l_shipmode in ('AIR', 'AIR REG')\n                and l_shipinstruct = 'DELIVER IN PERSON'\n        )\n        or\n        (\n                p_partkey = l_partkey\n                and p_brand = 'Brand#23'\n                and p_container in ('MED BAG', 'MED BOX', 'MED PKG', 'MED PACK')\n                and l_quantity >= 10 and l_quantity <= 10 + 10\n                and p_size between 1 and 10\n                and l_shipmode in ('AIR', 'AIR REG')\n                and l_shipinstruct = 'DELIVER IN PERSON'\n        )\n        or\n        (\n                p_partkey = l_partkey\n                and p_brand = 'Brand#34'\n                and p_container in ('LG CASE', 'LG BOX', 'LG PACK', 'LG PKG')\n                and l_quantity >= 20 and l_quantity <= 20 + 10\n                and p_size between 1 and 15\n                and l_shipmode in ('AIR', 'AIR REG')\n                and l_shipinstruct = 'DELIVER IN PERSON'\n        )",
-    "waiting_to_attach_latency": 0.0,
-    "attach_load_storage_latency": 0.0,
-    "blocked_thread_time": 0.0,
-    "cpu_time": 0.00019524799999999997,
-    "extra_info": {},
-    "total_memory_allocated": 3407872,
-    "cumulative_cardinality": 710,
-    "checkpoint_latency": 0.0,
-    "cumulative_rows_scanned": 1105,
-    "write_to_wal_latency": 0.0,
-    "latency": 0.002584246,
-    "attach_replay_wal_latency": 0.0,
-    "commit_local_storage_latency": 0.0,
-    "children": [
+    "io": {
+        "total_bytes_read": 0,
+        "total_bytes_written": 0
+    },
+    "operator": [
         {
-            "system_peak_temp_dir_size": 0,
-            "system_peak_buffer_memory": 0,
-            "result_set_size": 0,
-            "operator_timing": 2.07e-7,
-            "operator_type": "EXPLAIN_ANALYZE",
-            "cpu_time": 0.00019524799999999997,
             "extra_info": {},
-            "cumulative_cardinality": 710,
-            "cumulative_rows_scanned": 1105,
-            "operator_cardinality": 0,
-            "operator_name": "EXPLAIN_ANALYZE",
-            "operator_rows_scanned": 0,
+            "intermediate_rows": 0,
+            "intermediate_size_bytes": 0,
+            "timing": 0.0,
+            "type": "RESULT_COLLECTOR",
             "children": [
                 {
-                    "system_peak_temp_dir_size": 0,
-                    "system_peak_buffer_memory": 0,
-                    "result_set_size": 16,
-                    "operator_timing": 0.000003212,
-                    "operator_type": "UNGROUPED_AGGREGATE",
-                    "cpu_time": 0.00019504099999999996,
-                    "extra_info": {
-                        "Aggregates": "sum(#0)"
-                    },
-                    "cumulative_cardinality": 710,
-                    "cumulative_rows_scanned": 1105,
-                    "operator_cardinality": 1,
-                    "operator_name": "UNGROUPED_AGGREGATE",
-                    "operator_rows_scanned": 0,
+                    "extra_info": {},
+                    "intermediate_rows": 0,
+                    "intermediate_size_bytes": 0,
+                    "timing": 1.47e-7,
+                    "type": "EXPLAIN_ANALYZE",
                     "children": [
                         {
-                            "system_peak_temp_dir_size": 0,
-                            "system_peak_buffer_memory": 0,
-                            "result_set_size": 8,
-                            "operator_timing": 0.000002054,
-                            "operator_type": "PROJECTION",
-                            "cpu_time": 0.00019182899999999997,
                             "extra_info": {
-                                "Projections": "(l_extendedprice * (1.00 - l_discount))",
-                                "Estimated Cardinality": "26"
+                                "Aggregates": "sum(#0)",
+                                "Estimated Cardinality": "1"
                             },
-                            "cumulative_cardinality": 709,
-                            "cumulative_rows_scanned": 1105,
-                            "operator_cardinality": 1,
-                            "operator_name": "PROJECTION",
-                            "operator_rows_scanned": 0,
+                            "intermediate_rows": 1,
+                            "intermediate_size_bytes": 16,
+                            "timing": 0.0000032500000000000002,
+                            "type": "UNGROUPED_AGGREGATE",
                             "children": [
                                 {
-                                    "system_peak_temp_dir_size": 0,
-                                    "system_peak_buffer_memory": 0,
-                                    "result_set_size": 16,
-                                    "operator_timing": 2.99e-7,
-                                    "operator_type": "PROJECTION",
-                                    "cpu_time": 0.00018977499999999996,
                                     "extra_info": {
-                                        "Projections": [
-                                            "#4",
-                                            "#5"
-                                        ],
-                                        "Estimated Cardinality": "26"
+                                        "Projections": "(l_extendedprice * (1.00 - l_discount))",
+                                        "Estimated Cardinality": "0"
                                     },
-                                    "cumulative_cardinality": 708,
-                                    "cumulative_rows_scanned": 1105,
-                                    "operator_cardinality": 1,
-                                    "operator_name": "PROJECTION",
-                                    "operator_rows_scanned": 0,
+                                    "intermediate_rows": 1,
+                                    "intermediate_size_bytes": 8,
+                                    "timing": 0.000005139,
+                                    "type": "PROJECTION",
                                     "children": [
                                         {
-                                            "system_peak_temp_dir_size": 0,
-                                            "system_peak_buffer_memory": 0,
-                                            "result_set_size": 60,
-                                            "operator_timing": 0.000023407,
-                                            "operator_type": "FILTER",
-                                            "cpu_time": 0.00018947599999999997,
                                             "extra_info": {
-                                                "Expression": "(((l_quantity <= 11.00) AND (p_size <= 5) AND (p_brand = 'Brand#12') AND ((p_container = 'SM CASE') OR (p_container = 'SM BOX') OR (p_container = 'SM PACK') OR (p_container = 'SM PKG'))) OR ((l_quantity >= 10.00) AND (l_quantity <= 20.00) AND (p_size <= 10) AND (p_brand = 'Brand#23') AND ((p_container = 'MED BAG') OR (p_container = 'MED BOX') OR (p_container = 'MED PKG') OR (p_container = 'MED PACK'))) OR ((l_quantity >= 20.00) AND (l_quantity <= 30.00) AND (p_size <= 15) AND (p_brand = 'Brand#34') AND ((p_container = 'LG CASE') OR (p_container = 'LG BOX') OR (p_container = 'LG PACK') OR (p_container = 'LG PKG'))))",
-                                                "Estimated Cardinality": "26"
+                                                "Join Type": "INNER",
+                                                "Conditions": [
+                                                    "p_partkey = l_partkey",
+                                                    "(((l_quantity <= 11.00) AND (p_size <= 5) AND (p_brand = 'Brand#12') AND (p_container IN ('SM CASE', 'SM BOX', 'SM PACK', 'SM PKG'))) OR ((l_quantity >= 10.00) AND (l_quantity <= 20.00) AND (p_size <= 10) AND (p_brand = 'Brand#23') AND (p_container IN ('MED BAG', 'MED BOX', 'MED PKG', 'MED PACK'))) OR ((l_quantity >= 20.00) AND (l_quantity <= 30.00) AND (p_size <= 15) AND (p_brand = 'Brand#34') AND (p_container IN ('LG CASE', 'LG BOX', 'LG PACK', 'LG PKG'))))"
+                                                ],
+                                                "Estimated Cardinality": "0"
                                             },
-                                            "cumulative_cardinality": 707,
-                                            "cumulative_rows_scanned": 1105,
-                                            "operator_cardinality": 1,
-                                            "operator_name": "FILTER",
-                                            "operator_rows_scanned": 0,
+                                            "intermediate_rows": 1,
+                                            "intermediate_size_bytes": 56,
+                                            "timing": 0.000105231,
+                                            "type": "HASH_JOIN",
                                             "children": [
                                                 {
-                                                    "system_peak_temp_dir_size": 0,
-                                                    "system_peak_buffer_memory": 0,
-                                                    "result_set_size": 1380,
-                                                    "operator_timing": 0.00007965899999999999,
-                                                    "operator_type": "HASH_JOIN",
-                                                    "cpu_time": 0.00016606899999999997,
                                                     "extra_info": {
-                                                        "Join Type": "INNER",
-                                                        "Conditions": "p_partkey = l_partkey",
-                                                        "Estimated Cardinality": "26"
+                                                        "Expression": "(((p_size <= 5) AND ((p_brand = 'Brand#12') AND ((p_container = 'SM CASE') OR (p_container = 'SM BOX') OR (p_container = 'SM PACK') OR (p_container = 'SM PKG')))) OR ((p_size <= 10) AND ((p_brand = 'Brand#23') AND ((p_container = 'MED BAG') OR (p_container = 'MED BOX') OR (p_container = 'MED PKG') OR (p_container = 'MED PACK')))) OR ((p_size <= 15) AND ((p_brand = 'Brand#34') AND ((p_container = 'LG CASE') OR (p_container = 'LG BOX') OR (p_container = 'LG PACK') OR (p_container = 'LG PKG')))))",
+                                                        "Estimated Cardinality": "21"
                                                     },
-                                                    "cumulative_cardinality": 706,
-                                                    "cumulative_rows_scanned": 1105,
-                                                    "operator_cardinality": 23,
-                                                    "operator_name": "HASH_JOIN",
-                                                    "operator_rows_scanned": 0,
+                                                    "intermediate_rows": 1,
+                                                    "intermediate_size_bytes": 40,
+                                                    "timing": 0.000026225,
+                                                    "type": "FILTER",
                                                     "children": [
                                                         {
-                                                            "system_peak_temp_dir_size": 0,
-                                                            "system_peak_buffer_memory": 0,
-                                                            "result_set_size": 19800,
-                                                            "operator_timing": 0.000025747,
-                                                            "operator_type": "TABLE_SCAN",
-                                                            "cpu_time": 0.000025747,
                                                             "extra_info": {
                                                                 "Table": "\"temp\".main.part",
                                                                 "Type": "Sequential Scan",
@@ -139,86 +72,73 @@
                                                                     "p_container",
                                                                     "p_size"
                                                                 ],
-                                                                "Estimated Cardinality": "533",
-                                                                "Dynamic Filters": "optional: p_partkey IN (1062, 2425, 17295, 28082, 37531, 40633, 44161, 56720, 61468, 69347, 80039, 85811, 91344, 108338, 119305, 126152, 129879, 138423, 146467, 146978, 154761, 174752, 188305) AND optional: p_partkey>=1062 AND optional: p_partkey<=188305"
-                                                            },
-                                                            "cumulative_cardinality": 495,
-                                                            "cumulative_rows_scanned": 533,
-                                                            "operator_cardinality": 495,
-                                                            "operator_name": "SEQ_SCAN",
-                                                            "operator_rows_scanned": 533,
-                                                            "children": []
-                                                        },
-                                                        {
-                                                            "system_peak_temp_dir_size": 0,
-                                                            "system_peak_buffer_memory": 0,
-                                                            "result_set_size": 644,
-                                                            "operator_timing": 4.87e-7,
-                                                            "operator_type": "PROJECTION",
-                                                            "cpu_time": 0.000060663,
-                                                            "extra_info": {
-                                                                "Projections": [
-                                                                    "#0",
-                                                                    "#1",
-                                                                    "#3",
-                                                                    "#4"
+                                                                "Filters": [
+                                                                    "(((p_brand = 'Brand#12') OR (p_brand = 'Brand#23')) OR (p_brand = 'Brand#34'))",
+                                                                    "(((p_container IN ('SM CASE', 'SM BOX', 'SM PACK', 'SM PKG')) OR (p_container IN ('MED BAG', 'MED BOX', 'MED PKG', 'MED PACK'))) OR (p_container IN ('LG CASE', 'LG BOX', 'LG PACK', 'LG PKG')))"
                                                                 ],
+                                                                "Dynamic Filters": "(optional: (p_partkey IN (1062, 2425, 28082, 44161, 56720, 61468, 69347, 91344, 126152, 138423, 174752, 188305)) AND optional: p_partkey IN PRF(l_partkey))",
+                                                                "Estimated Cardinality": "106"
+                                                            },
+                                                            "intermediate_rows": 4,
+                                                            "intermediate_size_bytes": 160,
+                                                            "row_groups_scanned": 1,
+                                                            "rows_scanned": 533,
+                                                            "timing": 0.000093063,
+                                                            "total_row_groups_to_scan": 1,
+                                                            "type": "TABLE_SCAN"
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "extra_info": {
+                                                        "Projections": [
+                                                            "#0",
+                                                            "#1",
+                                                            "#3",
+                                                            "#4"
+                                                        ],
+                                                        "Estimated Cardinality": "28"
+                                                    },
+                                                    "intermediate_rows": 12,
+                                                    "intermediate_size_bytes": 336,
+                                                    "timing": 6.82e-7,
+                                                    "type": "PROJECTION",
+                                                    "children": [
+                                                        {
+                                                            "extra_info": {
+                                                                "Expression": "((l_shipmode = 'AIR') OR (l_shipmode = 'AIR REG'))",
                                                                 "Estimated Cardinality": "28"
                                                             },
-                                                            "cumulative_cardinality": 188,
-                                                            "cumulative_rows_scanned": 572,
-                                                            "operator_cardinality": 23,
-                                                            "operator_name": "PROJECTION",
-                                                            "operator_rows_scanned": 0,
+                                                            "intermediate_rows": 12,
+                                                            "intermediate_size_bytes": 528,
+                                                            "timing": 0.000021561,
+                                                            "type": "FILTER",
                                                             "children": [
                                                                 {
-                                                                    "system_peak_temp_dir_size": 0,
-                                                                    "system_peak_buffer_memory": 0,
-                                                                    "result_set_size": 1012,
-                                                                    "operator_timing": 0.00002158,
-                                                                    "operator_type": "FILTER",
-                                                                    "cpu_time": 0.000060176,
                                                                     "extra_info": {
-                                                                        "Expression": "((l_shipmode = 'AIR') OR (l_shipmode = 'AIR REG'))",
-                                                                        "Estimated Cardinality": "28"
+                                                                        "Table": "\"temp\".main.lineitem",
+                                                                        "Type": "Sequential Scan",
+                                                                        "Projections": [
+                                                                            "l_partkey",
+                                                                            "l_quantity",
+                                                                            "l_shipmode",
+                                                                            "l_extendedprice",
+                                                                            "l_discount"
+                                                                        ],
+                                                                        "Filters": [
+                                                                            "((l_quantity <= 11.00) OR ((l_quantity >= 10.00) AND (l_quantity <= 20.00)) OR ((l_quantity >= 20.00) AND (l_quantity <= 30.00)))",
+                                                                            "optional: (l_shipmode IN ('AIR', 'AIR REG'))",
+                                                                            "(l_shipinstruct = 'DELIVER IN PERSON')"
+                                                                        ],
+                                                                        "Estimated Cardinality": "143"
                                                                     },
-                                                                    "cumulative_cardinality": 165,
-                                                                    "cumulative_rows_scanned": 572,
-                                                                    "operator_cardinality": 23,
-                                                                    "operator_name": "FILTER",
-                                                                    "operator_rows_scanned": 0,
-                                                                    "children": [
-                                                                        {
-                                                                            "system_peak_temp_dir_size": 0,
-                                                                            "system_peak_buffer_memory": 0,
-                                                                            "result_set_size": 6248,
-                                                                            "operator_timing": 0.000038596,
-                                                                            "operator_type": "TABLE_SCAN",
-                                                                            "cpu_time": 0.000038596,
-                                                                            "extra_info": {
-                                                                                "Table": "\"temp\".main.lineitem",
-                                                                                "Type": "Sequential Scan",
-                                                                                "Projections": [
-                                                                                    "l_partkey",
-                                                                                    "l_quantity",
-                                                                                    "l_shipmode",
-                                                                                    "l_extendedprice",
-                                                                                    "l_discount"
-                                                                                ],
-                                                                                "Filters": [
-                                                                                    "optional: l_shipmode IN ('AIR', 'AIR REG')",
-                                                                                    "l_shipinstruct='DELIVER IN PERSON'"
-                                                                                ],
-                                                                                "Estimated Cardinality": "143"
-                                                                            },
-                                                                            "cumulative_cardinality": 142,
-                                                                            "cumulative_rows_scanned": 572,
-                                                                            "operator_cardinality": 142,
-                                                                            "operator_name": "SEQ_SCAN",
-                                                                            "operator_rows_scanned": 572,
-                                                                            "children": []
-                                                                        }
-                                                                    ]
+                                                                    "intermediate_rows": 84,
+                                                                    "intermediate_size_bytes": 3696,
+                                                                    "row_groups_scanned": 1,
+                                                                    "rows_scanned": 572,
+                                                                    "timing": 0.000079404,
+                                                                    "total_row_groups_to_scan": 1,
+                                                                    "type": "TABLE_SCAN"
                                                                 }
                                                             ]
                                                         }
@@ -234,5 +154,76 @@
                 }
             ]
         }
-    ]
+    ],
+    "optimizer": {
+        "aggregate_function_rewriter": 0.000007032,
+        "aggregate_reuse": 0.000010166,
+        "build_side_probe_side": 0.000012613,
+        "column_lifetime": 0.000026643,
+        "common_aggregate": 0.000005432,
+        "common_subexpressions": 0.000010484,
+        "common_subplan": 0.000149469,
+        "cte_filter_pusher": 7.44e-7,
+        "cte_inlining": 7.53e-7,
+        "deliminator": 9.48e-7,
+        "duplicate_groups": 0.000017001,
+        "empty_result_pullup": 8.02e-7,
+        "expression_rewriter": 0.001821956,
+        "filter_pullup": 0.000001545,
+        "filter_pushdown": 0.000131332,
+        "grouping_sets": 0.000006924,
+        "in_clause": 0.000019054,
+        "join_elimination": 0.000006088,
+        "join_filter_pushdown": 0.000035022,
+        "join_order": 0.000260768,
+        "late_materialization": 0.000001106,
+        "limit_pushdown": 5.37e-7,
+        "outer_join_simplification": 0.000008062,
+        "partial_aggregate_pushdown": 0.000006988,
+        "partitioned_execution": 7.83e-7,
+        "projection_placement": 0.000002305,
+        "projection_pullup": 0.000004308,
+        "redundant_order_keys": 0.000006981,
+        "regex_range": 8.71e-7,
+        "reorder_filter": 0.000029182,
+        "row_group_pruner": 5.76e-7,
+        "row_number_rewriter": 8.94e-7,
+        "sampling_pushdown": 4.25e-7,
+        "scalar_fn_pushdown": 3.33e-7,
+        "statistics_propagation": 0.000186927,
+        "top_n": 4.21e-7,
+        "top_n_window_elimination": 0.000002364,
+        "total_time": 0.003005283,
+        "type_pushdown": 4.44e-7,
+        "unnest_rewriter": 9.88e-7,
+        "unused_columns": 0.000122391,
+        "window_self_join": 5.64e-7
+    },
+    "physical_planner": {
+        "column_binding": 0.000014885,
+        "create_plan": 0.000037075,
+        "resolve_types": 0.000001322,
+        "total_time": 0.000059322
+    },
+    "planner": {
+        "binding_time": 0.000535266,
+        "total_time": 0.000659996
+    },
+    "query": {
+        "cpu_time": 0.000334702,
+        "sql": "EXPLAIN (ANALYZE, FORMAT JSON)\nselect\n        sum(l_extendedprice* (1 - l_discount)) as revenue\nfrom\n        lineitem,\n        part\nwhere\n        (\n                p_partkey = l_partkey\n                and p_brand = 'Brand#12'\n                and p_container in ('SM CASE', 'SM BOX', 'SM PACK', 'SM PKG')\n                and l_quantity >= 1 and l_quantity <= 1 + 10\n                and p_size between 1 and 5\n                and l_shipmode in ('AIR', 'AIR REG')\n                and l_shipinstruct = 'DELIVER IN PERSON'\n        )\n        or\n        (\n                p_partkey = l_partkey\n                and p_brand = 'Brand#23'\n                and p_container in ('MED BAG', 'MED BOX', 'MED PKG', 'MED PACK')\n                and l_quantity >= 10 and l_quantity <= 10 + 10\n                and p_size between 1 and 10\n                and l_shipmode in ('AIR', 'AIR REG')\n                and l_shipinstruct = 'DELIVER IN PERSON'\n        )\n        or\n        (\n                p_partkey = l_partkey\n                and p_brand = 'Brand#34'\n                and p_container in ('LG CASE', 'LG BOX', 'LG PACK', 'LG PKG')\n                and l_quantity >= 20 and l_quantity <= 20 + 10\n                and p_size between 1 and 15\n                and l_shipmode in ('AIR', 'AIR REG')\n                and l_shipinstruct = 'DELIVER IN PERSON'\n        )",
+        "total_intermediate_rows": 116,
+        "total_intermediate_size_bytes": 4840,
+        "total_row_groups_scanned": 2,
+        "total_row_groups_to_scan": 2,
+        "total_rows_scanned": 1105,
+        "total_time": 0.005295239
+    },
+    "system": {
+        "blocked_thread_time": 0.000145,
+        "peak_buffer_memory": 5076960,
+        "peak_streaming_buffer_size": 0,
+        "peak_temp_dir_size": 0,
+        "total_memory_allocated": 2097152
+    }
 }

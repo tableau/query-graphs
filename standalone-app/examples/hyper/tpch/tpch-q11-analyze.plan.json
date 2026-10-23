@@ -9,7 +9,7 @@
     "inputs": [{
       "operator": "sort",
       "operator-id": 2,
-      "sqlpos": [[962, 974]],
+      "sqlpos": [[945, 953]],
       "estimated-rows": 10.74,
       "criterion": [{"value": {"expression": "iu-ref", "iu": "sum"}, "descending": true, "null-first": true}],
       "inputs": [{
@@ -22,12 +22,12 @@
         "inputs": [{
           "operator": "map",
           "operator-id": 4,
-          "sqlpos": [[531, 572]],
+          "sqlpos": [[492, 498]],
           "estimated-rows": 1,
           "inputs": [{
             "operator": "group-by",
             "operator-id": 5,
-            "sqlpos": [[531, 563]],
+            "sqlpos": [[531, 534]],
             "estimated-rows": 1,
             "inputs": [{
               "operator": "join",
@@ -75,8 +75,8 @@
                   "statistics": {"column-count": 2, "output-rows": 19, "processed-rows": 518}
                 }],
                 "early-probed-by": [9],
-                "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iu-ref", "iu": "scan_nationke2"}, "right": {"expression": "iu-ref", "iu": "scan_nationke"}},
-                "predicates": [{"left": {"expression": "iu-ref", "iu": "scan_nationke"}, "right": {"expression": "iu-ref", "iu": "scan_nationke2"}, "comparison": "="}],
+                "condition": {"expression": "comparison", "sqlpos": [[858, 859]], "mode": "=", "left": {"expression": "iu-ref", "sqlpos": [[846, 857]], "iu": "scan_nationke2"}, "right": {"expression": "iu-ref", "sqlpos": [[860, 871]], "iu": "scan_nationke"}},
+                "predicates": [{"left": {"expression": "iu-ref", "sqlpos": [[860, 871]], "iu": "scan_nationke"}, "right": {"expression": "iu-ref", "sqlpos": [[846, 857]], "iu": "scan_nationke2"}, "comparison": "="}],
                 "statistics": {"column-count": 1, "memory-bytes": 18552, "output-rows": 19}
               }, {
                 "operator": "scan",
@@ -95,13 +95,13 @@
                 "statistics": {"column-count": 3, "output-rows": 24, "processed-rows": 537}
               }],
               "early-probed-by": [10],
-              "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iu-ref", "iu": "scan_suppkey2"}, "right": {"expression": "iu-ref", "iu": "scan_suppkey"}},
-              "predicates": [{"left": {"expression": "iu-ref", "iu": "scan_suppkey"}, "right": {"expression": "iu-ref", "iu": "scan_suppkey2"}, "comparison": "="}],
+              "condition": {"expression": "comparison", "sqlpos": [[798, 799]], "mode": "=", "left": {"expression": "iu-ref", "sqlpos": [[787, 797]], "iu": "scan_suppkey2"}, "right": {"expression": "iu-ref", "sqlpos": [[800, 809]], "iu": "scan_suppkey"}},
+              "predicates": [{"left": {"expression": "iu-ref", "sqlpos": [[800, 809]], "iu": "scan_suppkey"}, "right": {"expression": "iu-ref", "sqlpos": [[787, 797]], "iu": "scan_suppkey2"}, "comparison": "="}],
               "statistics": {"column-count": 2, "memory-bytes": 18552, "output-rows": 21}
             }],
             "grouping-sets": [{"key-indices": [], "core-indices": null, "behavior": "static"}],
             "empty-groups": true,
-            "agg-expressions": [{"value": {"expression": "mul", "left": {"expression": "iu-ref", "iu": "scan_supplyco"}, "right": {"expression": "iu-ref", "iu": "scan_availqty"}}}],
+            "agg-expressions": [{"value": {"expression": "mul", "left": {"expression": "iu-ref", "sqlpos": [[535, 548]], "iu": "scan_supplyco"}, "right": {"expression": "iu-ref", "sqlpos": [[551, 562]], "iu": "scan_availqty"}}}],
             "aggregates": [{"source": 0, "operation": {"aggregate": "sum"}, "iu": ["sum2", ["BigNumeric", 38, 2, "nullable"]]}],
             "statistics": {"column-count": 1, "memory-bytes": 0, "output-rows": 1}
           }],
@@ -110,7 +110,7 @@
         }, {
           "operator": "group-by",
           "operator-id": 11,
-          "sqlpos": [[380, 407], [431, 463], [174, 206]],
+          "sqlpos": [[174, 177], [380, 388], [431, 434]],
           "estimated-rows": 21.48,
           "inputs": [{
             "operator": "join",
@@ -158,8 +158,8 @@
                 "statistics": {"column-count": 2, "output-rows": 19, "processed-rows": 518}
               }],
               "early-probed-by": [15],
-              "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iu-ref", "iu": "scan_nationke4"}, "right": {"expression": "iu-ref", "iu": "scan_nationke3"}},
-              "predicates": [{"left": {"expression": "iu-ref", "iu": "scan_nationke3"}, "right": {"expression": "iu-ref", "iu": "scan_nationke4"}, "comparison": "="}],
+              "condition": {"expression": "comparison", "sqlpos": [[335, 336]], "mode": "=", "left": {"expression": "iu-ref", "sqlpos": [[323, 334]], "iu": "scan_nationke4"}, "right": {"expression": "iu-ref", "sqlpos": [[337, 348]], "iu": "scan_nationke3"}},
+              "predicates": [{"left": {"expression": "iu-ref", "sqlpos": [[337, 348]], "iu": "scan_nationke3"}, "right": {"expression": "iu-ref", "sqlpos": [[323, 334]], "iu": "scan_nationke4"}, "comparison": "="}],
               "statistics": {"column-count": 1, "memory-bytes": 18552, "output-rows": 19}
             }, {
               "operator": "scan",
@@ -178,18 +178,18 @@
               "statistics": {"column-count": 4, "output-rows": 24, "processed-rows": 537}
             }],
             "early-probed-by": [16],
-            "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iu-ref", "iu": "scan_suppkey4"}, "right": {"expression": "iu-ref", "iu": "scan_suppkey3"}},
-            "predicates": [{"left": {"expression": "iu-ref", "iu": "scan_suppkey3"}, "right": {"expression": "iu-ref", "iu": "scan_suppkey4"}, "comparison": "="}],
+            "condition": {"expression": "comparison", "sqlpos": [[299, 300]], "mode": "=", "left": {"expression": "iu-ref", "sqlpos": [[288, 298]], "iu": "scan_suppkey4"}, "right": {"expression": "iu-ref", "sqlpos": [[301, 310]], "iu": "scan_suppkey3"}},
+            "predicates": [{"left": {"expression": "iu-ref", "sqlpos": [[301, 310]], "iu": "scan_suppkey3"}, "right": {"expression": "iu-ref", "sqlpos": [[288, 298]], "iu": "scan_suppkey4"}, "comparison": "="}],
             "statistics": {"column-count": 3, "memory-bytes": 18552, "output-rows": 21}
           }],
-          "key-expressions": [{"expression": {"value": {"expression": "iu-ref", "iu": "scan_partkey"}}, "iu": ["GroupByKey", ["Integer"]]}],
+          "key-expressions": [{"expression": {"value": {"expression": "iu-ref", "sqlpos": [[397, 407]], "iu": "scan_partkey"}}, "iu": ["GroupByKey", ["Integer"]]}],
           "grouping-sets": [{"key-indices": [0], "core-indices": [0], "behavior": "regular"}],
           "empty-groups": false,
-          "agg-expressions": [{"value": {"expression": "mul", "left": {"expression": "iu-ref", "iu": "scan_supplyco2"}, "right": {"expression": "iu-ref", "iu": "scan_availqty2"}}}],
+          "agg-expressions": [{"value": {"expression": "mul", "left": {"expression": "iu-ref", "sqlpos": [[435, 448]], "iu": "scan_supplyco2"}, "right": {"expression": "iu-ref", "sqlpos": [[451, 462]], "iu": "scan_availqty2"}}}],
           "aggregates": [{"source": 0, "operation": {"aggregate": "sum"}, "iu": ["sum", ["BigNumeric", 38, 2]]}],
           "statistics": {"column-count": 2, "memory-bytes": 18552, "output-rows": 21}
         }],
-        "condition": {"expression": "comparison", "mode": ">", "left": {"expression": "iu-ref", "iu": "sum"}, "right": {"expression": "iu-ref", "iu": "map"}},
+        "condition": {"expression": "comparison", "sqlpos": [[464, 465]], "mode": ">", "left": {"expression": "iu-ref", "iu": "sum"}, "right": {"expression": "iu-ref", "iu": "map"}},
         "predicates": [{"left": {"expression": "iu-ref", "iu": "map"}, "right": {"expression": "iu-ref", "iu": "sum"}, "comparison": "<"}],
         "statistics": {"column-count": 2, "memory-bytes": 18552, "output-rows": 21}
       }],
@@ -198,14 +198,14 @@
     "statistics": {"error": null, "column-count": 0}
   },
   "pipelines": [
-    {"id": 0, "operators": [1, 2], "dependencies": [1], "statistics": {"cpu-cycles": 7316, "query-metrics": {"elapsed":4.156e-06,"memory-mb-seconds":2.078e-06,"instance-seconds":4.156e-06,"processed-rows":{"total":0,"native":0},"threads":{"thread-time":4.156e-06,"cpu-time":4.151e-06,"wait-time":0},"storage":{},"peak-transaction-memory-mb":0.750031}, "running": false}},
-    {"id": 1, "operators": [2, 3, 11], "dependencies": [2, 6], "statistics": {"cpu-cycles": 9016, "query-metrics": {"elapsed":6.113e-06,"memory-mb-seconds":4.584e-06,"instance-seconds":6.113e-06,"processed-rows":{"total":0,"native":0},"threads":{"thread-time":6.113e-06,"cpu-time":6.126e-06,"wait-time":0},"storage":{},"peak-transaction-memory-mb":0.750031}, "running": false}},
-    {"id": 2, "operators": [3, 4, 5], "dependencies": [3], "statistics": {"cpu-cycles": 1021, "query-metrics": {"elapsed":2.418e-06,"memory-mb-seconds":1.209e-06,"instance-seconds":2.418e-06,"processed-rows":{"total":0,"native":0},"threads":{"thread-time":2.418e-06,"cpu-time":2.429e-06,"wait-time":0},"storage":{},"peak-transaction-memory-mb":0.5}, "running": false}},
-    {"id": 3, "operators": [5, 6, 10], "dependencies": [4], "statistics": {"cpu-cycles": 16829, "query-metrics": {"elapsed":7.117e-06,"memory-mb-seconds":3.558e-06,"instance-seconds":7.117e-06,"processed-rows":{"total":537,"native":537},"threads":{"thread-time":7.117e-06,"cpu-time":7.116e-06,"wait-time":0},"storage":{},"additional-entries":{"scan-stats":{"rows-matching-restrictions":24}},"peak-transaction-memory-mb":0.5}, "running": false}},
-    {"id": 4, "operators": [6, 7, 9], "dependencies": [5], "statistics": {"cpu-cycles": 12641, "query-metrics": {"elapsed":6.774e-06,"memory-mb-seconds":3.387e-06,"instance-seconds":6.774e-06,"processed-rows":{"total":518,"native":518},"threads":{"thread-time":6.774e-06,"cpu-time":6.789e-06,"wait-time":0},"storage":{},"additional-entries":{"scan-stats":{"rows-matching-restrictions":19}},"peak-transaction-memory-mb":0.5}, "running": false}},
-    {"id": 5, "operators": [7, 8], "dependencies": [], "statistics": {"cpu-cycles": 33296, "query-metrics": {"elapsed":1.6692e-05,"memory-mb-seconds":8.346e-06,"instance-seconds":1.6692e-05,"processed-rows":{"total":25,"native":25},"threads":{"thread-time":1.6692e-05,"cpu-time":1.6706e-05,"wait-time":0},"storage":{},"additional-entries":{"scan-stats":{"rows-matching-restrictions":1}},"peak-transaction-memory-mb":0.5}, "running": false}},
-    {"id": 6, "operators": [11, 12, 16], "dependencies": [7], "statistics": {"cpu-cycles": 14962, "query-metrics": {"elapsed":6.964e-06,"memory-mb-seconds":3.482e-06,"instance-seconds":6.964e-06,"processed-rows":{"total":537,"native":537},"threads":{"thread-time":6.964e-06,"cpu-time":6.971e-06,"wait-time":0},"storage":{},"additional-entries":{"scan-stats":{"rows-matching-restrictions":24}},"peak-transaction-memory-mb":0.5}, "running": false}},
-    {"id": 7, "operators": [12, 13, 15], "dependencies": [8], "statistics": {"cpu-cycles": 6224, "query-metrics": {"elapsed":4.487e-06,"memory-mb-seconds":2.243e-06,"instance-seconds":4.487e-06,"processed-rows":{"total":518,"native":518},"threads":{"thread-time":4.487e-06,"cpu-time":4.497e-06,"wait-time":0},"storage":{},"additional-entries":{"scan-stats":{"rows-matching-restrictions":19}},"peak-transaction-memory-mb":0.5}, "running": false}},
-    {"id": 8, "operators": [13, 14], "dependencies": [], "statistics": {"cpu-cycles": 3700, "query-metrics": {"elapsed":3.278e-06,"memory-mb-seconds":1.639e-06,"instance-seconds":3.278e-06,"processed-rows":{"total":25,"native":25},"threads":{"thread-time":3.278e-06,"cpu-time":3.294e-06,"wait-time":0},"storage":{},"additional-entries":{"scan-stats":{"rows-matching-restrictions":1}},"peak-transaction-memory-mb":0.5}, "running": false}}
+    {"id": 0, "operators": [1, 2], "dependencies": [1], "statistics": {"cpu-cycles": 6091, "query-metrics": {"elapsed":3.435e-06,"memory-mb-seconds":1.717e-06,"instance-seconds":3.435e-06,"processed-rows":{"total":0,"native":0},"threads":{"thread-time":3.435e-06,"cpu-time":3.44e-06,"wait-time":0},"storage":{},"peak-transaction-memory-mb":0.750031}, "running": false}},
+    {"id": 1, "operators": [2, 3, 11], "dependencies": [2, 6], "statistics": {"cpu-cycles": 8719, "query-metrics": {"elapsed":5.524e-06,"memory-mb-seconds":4.143e-06,"instance-seconds":5.524e-06,"processed-rows":{"total":0,"native":0},"threads":{"thread-time":5.524e-06,"cpu-time":5.531e-06,"wait-time":0},"storage":{},"peak-transaction-memory-mb":0.750031}, "running": false}},
+    {"id": 2, "operators": [3, 4, 5], "dependencies": [3], "statistics": {"cpu-cycles": 898, "query-metrics": {"elapsed":2.005e-06,"memory-mb-seconds":1.002e-06,"instance-seconds":2.005e-06,"processed-rows":{"total":0,"native":0},"threads":{"thread-time":2.005e-06,"cpu-time":2.071e-06,"wait-time":0},"storage":{},"peak-transaction-memory-mb":0.5}, "running": false}},
+    {"id": 3, "operators": [5, 6, 10], "dependencies": [4], "statistics": {"cpu-cycles": 16780, "query-metrics": {"elapsed":7.056e-06,"memory-mb-seconds":3.528e-06,"instance-seconds":7.056e-06,"processed-rows":{"total":537,"native":537},"threads":{"thread-time":7.056e-06,"cpu-time":7.06e-06,"wait-time":0},"storage":{},"additional-entries":{"scan-stats":{"rows-matching-restrictions":24}},"peak-transaction-memory-mb":0.5}, "running": false}},
+    {"id": 4, "operators": [6, 7, 9], "dependencies": [5], "statistics": {"cpu-cycles": 11115, "query-metrics": {"elapsed":6.05e-06,"memory-mb-seconds":3.025e-06,"instance-seconds":6.05e-06,"processed-rows":{"total":518,"native":518},"threads":{"thread-time":6.05e-06,"cpu-time":6.022e-06,"wait-time":0},"storage":{},"additional-entries":{"scan-stats":{"rows-matching-restrictions":19}},"peak-transaction-memory-mb":0.5}, "running": false}},
+    {"id": 5, "operators": [7, 8], "dependencies": [], "statistics": {"cpu-cycles": 14220, "query-metrics": {"elapsed":1.6649e-05,"memory-mb-seconds":8.324e-06,"instance-seconds":1.6649e-05,"processed-rows":{"total":25,"native":25},"threads":{"thread-time":1.6649e-05,"cpu-time":1.6692e-05,"wait-time":0},"storage":{},"additional-entries":{"scan-stats":{"rows-matching-restrictions":1}},"peak-transaction-memory-mb":0.5}, "running": false}},
+    {"id": 6, "operators": [11, 12, 16], "dependencies": [7], "statistics": {"cpu-cycles": 13729, "query-metrics": {"elapsed":6.465e-06,"memory-mb-seconds":3.232e-06,"instance-seconds":6.465e-06,"processed-rows":{"total":537,"native":537},"threads":{"thread-time":6.465e-06,"cpu-time":6.512e-06,"wait-time":0},"storage":{},"additional-entries":{"scan-stats":{"rows-matching-restrictions":24}},"peak-transaction-memory-mb":0.5}, "running": false}},
+    {"id": 7, "operators": [12, 13, 15], "dependencies": [8], "statistics": {"cpu-cycles": 6057, "query-metrics": {"elapsed":4.072e-06,"memory-mb-seconds":2.036e-06,"instance-seconds":4.072e-06,"processed-rows":{"total":518,"native":518},"threads":{"thread-time":4.072e-06,"cpu-time":4.1e-06,"wait-time":0},"storage":{},"additional-entries":{"scan-stats":{"rows-matching-restrictions":19}},"peak-transaction-memory-mb":0.5}, "running": false}},
+    {"id": 8, "operators": [13, 14], "dependencies": [], "statistics": {"cpu-cycles": 3784, "query-metrics": {"elapsed":3.142e-06,"memory-mb-seconds":1.571e-06,"instance-seconds":3.142e-06,"processed-rows":{"total":25,"native":25},"threads":{"thread-time":3.142e-06,"cpu-time":3.152e-06,"wait-time":0},"storage":{},"additional-entries":{"scan-stats":{"rows-matching-restrictions":1}},"peak-transaction-memory-mb":0.5}, "running": false}}
   ]
 }

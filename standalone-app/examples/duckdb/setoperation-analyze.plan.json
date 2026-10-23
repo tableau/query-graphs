@@ -1,329 +1,230 @@
 {
-    "total_bytes_written": 0,
-    "total_bytes_read": 0,
-    "system_peak_temp_dir_size": 0,
-    "system_peak_buffer_memory": 138186752,
-    "rows_returned": 0,
-    "wal_replay_entry_count": 0,
-    "result_set_size": 0,
-    "query_name": "EXPLAIN (ANALYZE, FORMAT JSON)\nSELECT l_orderkey, l_partkey FROM lineitem\nUNION ALL\nSELECT l_orderkey, l_suppkey FROM lineitem\nUNION ALL\n(\n   SELECT l_suppkey, l_partkey FROM lineitem\n   WHERE l_quantity < 25\n   INTERSECT ALL\n   SELECT l_suppkey, l_partkey FROM lineitem\n   WHERE l_quantity >= 25\n   EXCEPT ALL\n   SELECT l_suppkey, l_partkey FROM lineitem\n   WHERE l_quantity >= 25\n)",
-    "waiting_to_attach_latency": 0.0,
-    "attach_load_storage_latency": 0.0,
-    "blocked_thread_time": 0.18,
-    "cpu_time": 0.053618543,
-    "extra_info": {},
-    "total_memory_allocated": 100401152,
-    "cumulative_cardinality": 4052,
-    "checkpoint_latency": 0.0,
-    "cumulative_rows_scanned": 2860,
-    "write_to_wal_latency": 0.0,
-    "latency": 0.008875606,
-    "attach_replay_wal_latency": 0.0,
-    "commit_local_storage_latency": 0.0,
-    "children": [
+    "io": {
+        "total_bytes_read": 0,
+        "total_bytes_written": 0
+    },
+    "operator": [
         {
-            "system_peak_temp_dir_size": 0,
-            "system_peak_buffer_memory": 0,
-            "result_set_size": 0,
-            "operator_timing": 9.65e-7,
-            "operator_type": "EXPLAIN_ANALYZE",
-            "cpu_time": 0.053618543,
             "extra_info": {},
-            "cumulative_cardinality": 4052,
-            "cumulative_rows_scanned": 2860,
-            "operator_cardinality": 0,
-            "operator_name": "EXPLAIN_ANALYZE",
-            "operator_rows_scanned": 0,
+            "intermediate_rows": 0,
+            "intermediate_size_bytes": 0,
+            "timing": 0.0,
+            "type": "RESULT_COLLECTOR",
             "children": [
                 {
-                    "system_peak_temp_dir_size": 0,
-                    "system_peak_buffer_memory": 0,
-                    "result_set_size": 0,
-                    "operator_timing": 0.0,
-                    "operator_type": "UNION",
-                    "cpu_time": 0.053617578,
                     "extra_info": {},
-                    "cumulative_cardinality": 4052,
-                    "cumulative_rows_scanned": 2860,
-                    "operator_cardinality": 1144,
-                    "operator_name": "UNION",
-                    "operator_rows_scanned": 0,
+                    "intermediate_rows": 0,
+                    "intermediate_size_bytes": 0,
+                    "timing": 5.95e-7,
+                    "type": "EXPLAIN_ANALYZE",
                     "children": [
                         {
-                            "system_peak_temp_dir_size": 0,
-                            "system_peak_buffer_memory": 0,
-                            "result_set_size": 4576,
-                            "operator_timing": 0.000019923000000000002,
-                            "operator_type": "TABLE_SCAN",
-                            "cpu_time": 0.000019923000000000002,
-                            "extra_info": {
-                                "Table": "\"temp\".main.lineitem",
-                                "Type": "Sequential Scan",
-                                "Projections": [
-                                    "l_orderkey",
-                                    "l_partkey"
-                                ],
-                                "Estimated Cardinality": "572"
-                            },
-                            "cumulative_cardinality": 572,
-                            "cumulative_rows_scanned": 572,
-                            "operator_cardinality": 572,
-                            "operator_name": "SEQ_SCAN",
-                            "operator_rows_scanned": 572,
-                            "children": []
-                        },
-                        {
-                            "system_peak_temp_dir_size": 0,
-                            "system_peak_buffer_memory": 0,
-                            "result_set_size": 4576,
-                            "operator_timing": 0.000021658,
-                            "operator_type": "TABLE_SCAN",
-                            "cpu_time": 0.000021658,
-                            "extra_info": {
-                                "Table": "\"temp\".main.lineitem",
-                                "Type": "Sequential Scan",
-                                "Projections": [
-                                    "l_orderkey",
-                                    "l_suppkey"
-                                ],
-                                "Estimated Cardinality": "572"
-                            },
-                            "cumulative_cardinality": 572,
-                            "cumulative_rows_scanned": 572,
-                            "operator_cardinality": 572,
-                            "operator_name": "SEQ_SCAN",
-                            "operator_rows_scanned": 572,
-                            "children": []
-                        },
-                        {
-                            "system_peak_temp_dir_size": 0,
-                            "system_peak_buffer_memory": 0,
-                            "result_set_size": 0,
-                            "operator_timing": 0.0,
-                            "operator_type": "PROJECTION",
-                            "cpu_time": 0.053575997,
-                            "extra_info": {
-                                "Projections": [
-                                    "#0",
-                                    "#1"
-                                ],
-                                "Estimated Cardinality": "114"
-                            },
-                            "cumulative_cardinality": 1764,
-                            "cumulative_rows_scanned": 1716,
-                            "operator_cardinality": 0,
-                            "operator_name": "PROJECTION",
-                            "operator_rows_scanned": 0,
+                            "extra_info": {},
+                            "intermediate_rows": 0,
+                            "intermediate_size_bytes": 0,
+                            "timing": 0.0,
+                            "type": "UNION",
                             "children": [
                                 {
-                                    "system_peak_temp_dir_size": 0,
-                                    "system_peak_buffer_memory": 0,
-                                    "result_set_size": 0,
-                                    "operator_timing": 0.002273422,
-                                    "operator_type": "HASH_JOIN",
-                                    "cpu_time": 0.053575997,
                                     "extra_info": {
-                                        "Join Type": "ANTI",
-                                        "Conditions": [
-                                            "#0 IS NOT DISTINCT FROM #0",
-                                            "#1 IS NOT DISTINCT FROM #1",
-                                            "#2 IS NOT DISTINCT FROM #2"
+                                        "Table": "\"temp\".main.lineitem",
+                                        "Type": "Sequential Scan",
+                                        "Projections": [
+                                            "l_orderkey",
+                                            "l_partkey"
+                                        ],
+                                        "Estimated Cardinality": "572"
+                                    },
+                                    "intermediate_rows": 572,
+                                    "intermediate_size_bytes": 4576,
+                                    "row_groups_scanned": 1,
+                                    "rows_scanned": 572,
+                                    "timing": 0.000020361,
+                                    "total_row_groups_to_scan": 1,
+                                    "type": "TABLE_SCAN"
+                                },
+                                {
+                                    "extra_info": {
+                                        "Table": "\"temp\".main.lineitem",
+                                        "Type": "Sequential Scan",
+                                        "Projections": [
+                                            "l_orderkey",
+                                            "l_suppkey"
+                                        ],
+                                        "Estimated Cardinality": "572"
+                                    },
+                                    "intermediate_rows": 572,
+                                    "intermediate_size_bytes": 4576,
+                                    "row_groups_scanned": 1,
+                                    "rows_scanned": 572,
+                                    "timing": 0.00004316,
+                                    "total_row_groups_to_scan": 1,
+                                    "type": "TABLE_SCAN"
+                                },
+                                {
+                                    "extra_info": {
+                                        "Projections": [
+                                            "#0",
+                                            "#1"
                                         ],
                                         "Estimated Cardinality": "114"
                                     },
-                                    "cumulative_cardinality": 1764,
-                                    "cumulative_rows_scanned": 1716,
-                                    "operator_cardinality": 0,
-                                    "operator_name": "HASH_JOIN",
-                                    "operator_rows_scanned": 0,
+                                    "intermediate_rows": 0,
+                                    "intermediate_size_bytes": 0,
+                                    "timing": 0.0,
+                                    "type": "PROJECTION",
                                     "children": [
                                         {
-                                            "system_peak_temp_dir_size": 0,
-                                            "system_peak_buffer_memory": 0,
-                                            "result_set_size": 256,
-                                            "operator_timing": 0.001835818,
-                                            "operator_type": "WINDOW",
-                                            "cpu_time": 0.035827403,
                                             "extra_info": {
-                                                "Projections": "ROW_NUMBER() OVER (PARTITION BY #0, #1 ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING)"
+                                                "Join Type": "ANTI",
+                                                "Conditions": [
+                                                    "#0 IS NOT DISTINCT FROM #0",
+                                                    "#1 IS NOT DISTINCT FROM #1",
+                                                    "#2 IS NOT DISTINCT FROM #2"
+                                                ],
+                                                "Estimated Cardinality": "114"
                                             },
-                                            "cumulative_cardinality": 1192,
-                                            "cumulative_rows_scanned": 1144,
-                                            "operator_cardinality": 16,
-                                            "operator_name": "WINDOW",
-                                            "operator_rows_scanned": 0,
+                                            "intermediate_rows": 0,
+                                            "intermediate_size_bytes": 0,
+                                            "timing": 0.0030617780000000002,
+                                            "type": "HASH_JOIN",
                                             "children": [
                                                 {
-                                                    "system_peak_temp_dir_size": 0,
-                                                    "system_peak_buffer_memory": 0,
-                                                    "result_set_size": 128,
-                                                    "operator_timing": 0.0000032539999999999997,
-                                                    "operator_type": "PROJECTION",
-                                                    "cpu_time": 0.033991585,
                                                     "extra_info": {
-                                                        "Projections": [
-                                                            "#0",
-                                                            "#1"
-                                                        ],
+                                                        "Projections": "row_number() OVER (PARTITION BY #0, #1 ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING)",
                                                         "Estimated Cardinality": "114"
                                                     },
-                                                    "cumulative_cardinality": 1176,
-                                                    "cumulative_rows_scanned": 1144,
-                                                    "operator_cardinality": 16,
-                                                    "operator_name": "PROJECTION",
-                                                    "operator_rows_scanned": 0,
+                                                    "intermediate_rows": 16,
+                                                    "intermediate_size_bytes": 256,
+                                                    "timing": 0.0010451850000000001,
+                                                    "type": "WINDOW",
                                                     "children": [
                                                         {
-                                                            "system_peak_temp_dir_size": 0,
-                                                            "system_peak_buffer_memory": 0,
-                                                            "result_set_size": 256,
-                                                            "operator_timing": 0.0034685119999999996,
-                                                            "operator_type": "HASH_JOIN",
-                                                            "cpu_time": 0.033988331,
                                                             "extra_info": {
-                                                                "Join Type": "SEMI",
-                                                                "Conditions": [
-                                                                    "#0 IS NOT DISTINCT FROM #0",
-                                                                    "#1 IS NOT DISTINCT FROM #1",
-                                                                    "#2 IS NOT DISTINCT FROM #2"
+                                                                "Projections": [
+                                                                    "#0",
+                                                                    "#1"
                                                                 ],
                                                                 "Estimated Cardinality": "114"
                                                             },
-                                                            "cumulative_cardinality": 1160,
-                                                            "cumulative_rows_scanned": 1144,
-                                                            "operator_cardinality": 16,
-                                                            "operator_name": "HASH_JOIN",
-                                                            "operator_rows_scanned": 0,
+                                                            "intermediate_rows": 16,
+                                                            "intermediate_size_bytes": 128,
+                                                            "timing": 0.000004462000000000001,
+                                                            "type": "PROJECTION",
                                                             "children": [
                                                                 {
-                                                                    "system_peak_temp_dir_size": 0,
-                                                                    "system_peak_buffer_memory": 0,
-                                                                    "result_set_size": 4576,
-                                                                    "operator_timing": 0.014095522999999997,
-                                                                    "operator_type": "WINDOW",
-                                                                    "cpu_time": 0.014116917999999997,
                                                                     "extra_info": {
-                                                                        "Projections": "ROW_NUMBER() OVER (PARTITION BY #0, #1 ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING)"
+                                                                        "Join Type": "SEMI",
+                                                                        "Conditions": [
+                                                                            "#0 IS NOT DISTINCT FROM #0",
+                                                                            "#1 IS NOT DISTINCT FROM #1",
+                                                                            "#2 IS NOT DISTINCT FROM #2"
+                                                                        ],
+                                                                        "Estimated Cardinality": "114"
                                                                     },
-                                                                    "cumulative_cardinality": 572,
-                                                                    "cumulative_rows_scanned": 572,
-                                                                    "operator_cardinality": 286,
-                                                                    "operator_name": "WINDOW",
-                                                                    "operator_rows_scanned": 0,
+                                                                    "intermediate_rows": 16,
+                                                                    "intermediate_size_bytes": 256,
+                                                                    "timing": 0.004224951,
+                                                                    "type": "HASH_JOIN",
                                                                     "children": [
                                                                         {
-                                                                            "system_peak_temp_dir_size": 0,
-                                                                            "system_peak_buffer_memory": 0,
-                                                                            "result_set_size": 2288,
-                                                                            "operator_timing": 0.000021395,
-                                                                            "operator_type": "TABLE_SCAN",
-                                                                            "cpu_time": 0.000021395,
                                                                             "extra_info": {
-                                                                                "Table": "\"temp\".main.lineitem",
-                                                                                "Type": "Sequential Scan",
-                                                                                "Projections": [
-                                                                                    "l_suppkey",
-                                                                                    "l_partkey"
-                                                                                ],
-                                                                                "Filters": "l_quantity<25.00",
+                                                                                "Projections": "row_number() OVER (PARTITION BY #0, #1 ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING)",
                                                                                 "Estimated Cardinality": "114"
                                                                             },
-                                                                            "cumulative_cardinality": 286,
-                                                                            "cumulative_rows_scanned": 572,
-                                                                            "operator_cardinality": 286,
-                                                                            "operator_name": "SEQ_SCAN",
-                                                                            "operator_rows_scanned": 572,
-                                                                            "children": []
-                                                                        }
-                                                                    ]
-                                                                },
-                                                                {
-                                                                    "system_peak_temp_dir_size": 0,
-                                                                    "system_peak_buffer_memory": 0,
-                                                                    "result_set_size": 4576,
-                                                                    "operator_timing": 0.016389967000000002,
-                                                                    "operator_type": "WINDOW",
-                                                                    "cpu_time": 0.016402901,
-                                                                    "extra_info": {
-                                                                        "Projections": "ROW_NUMBER() OVER (PARTITION BY #0, #1 ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING)"
-                                                                    },
-                                                                    "cumulative_cardinality": 572,
-                                                                    "cumulative_rows_scanned": 572,
-                                                                    "operator_cardinality": 286,
-                                                                    "operator_name": "WINDOW",
-                                                                    "operator_rows_scanned": 0,
-                                                                    "children": [
+                                                                            "intermediate_rows": 286,
+                                                                            "intermediate_size_bytes": 4576,
+                                                                            "timing": 0.014421899000000002,
+                                                                            "type": "WINDOW",
+                                                                            "children": [
+                                                                                {
+                                                                                    "extra_info": {
+                                                                                        "Table": "\"temp\".main.lineitem",
+                                                                                        "Type": "Sequential Scan",
+                                                                                        "Projections": [
+                                                                                            "l_suppkey",
+                                                                                            "l_partkey"
+                                                                                        ],
+                                                                                        "Filters": "(l_quantity < 25.00)",
+                                                                                        "Estimated Cardinality": "114"
+                                                                                    },
+                                                                                    "intermediate_rows": 286,
+                                                                                    "intermediate_size_bytes": 2288,
+                                                                                    "row_groups_scanned": 1,
+                                                                                    "rows_scanned": 572,
+                                                                                    "timing": 0.00007980400000000001,
+                                                                                    "total_row_groups_to_scan": 1,
+                                                                                    "type": "TABLE_SCAN"
+                                                                                }
+                                                                            ]
+                                                                        },
                                                                         {
-                                                                            "system_peak_temp_dir_size": 0,
-                                                                            "system_peak_buffer_memory": 0,
-                                                                            "result_set_size": 2288,
-                                                                            "operator_timing": 0.000012934,
-                                                                            "operator_type": "TABLE_SCAN",
-                                                                            "cpu_time": 0.000012934,
                                                                             "extra_info": {
-                                                                                "Table": "\"temp\".main.lineitem",
-                                                                                "Type": "Sequential Scan",
-                                                                                "Projections": [
-                                                                                    "l_suppkey",
-                                                                                    "l_partkey"
-                                                                                ],
-                                                                                "Filters": "l_quantity>=25.00",
+                                                                                "Projections": "row_number() OVER (PARTITION BY #0, #1 ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING)",
                                                                                 "Estimated Cardinality": "114"
                                                                             },
-                                                                            "cumulative_cardinality": 286,
-                                                                            "cumulative_rows_scanned": 572,
-                                                                            "operator_cardinality": 286,
-                                                                            "operator_name": "SEQ_SCAN",
-                                                                            "operator_rows_scanned": 572,
-                                                                            "children": []
+                                                                            "intermediate_rows": 286,
+                                                                            "intermediate_size_bytes": 4576,
+                                                                            "timing": 0.019459293000000003,
+                                                                            "type": "WINDOW",
+                                                                            "children": [
+                                                                                {
+                                                                                    "extra_info": {
+                                                                                        "Table": "\"temp\".main.lineitem",
+                                                                                        "Type": "Sequential Scan",
+                                                                                        "Projections": [
+                                                                                            "l_suppkey",
+                                                                                            "l_partkey"
+                                                                                        ],
+                                                                                        "Filters": "(l_quantity >= 25.00)",
+                                                                                        "Estimated Cardinality": "114"
+                                                                                    },
+                                                                                    "intermediate_rows": 286,
+                                                                                    "intermediate_size_bytes": 2288,
+                                                                                    "row_groups_scanned": 1,
+                                                                                    "rows_scanned": 572,
+                                                                                    "timing": 0.00003926,
+                                                                                    "total_row_groups_to_scan": 1,
+                                                                                    "type": "TABLE_SCAN"
+                                                                                }
+                                                                            ]
                                                                         }
                                                                     ]
                                                                 }
                                                             ]
                                                         }
                                                     ]
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            "system_peak_temp_dir_size": 0,
-                                            "system_peak_buffer_memory": 0,
-                                            "result_set_size": 4576,
-                                            "operator_timing": 0.015427963000000001,
-                                            "operator_type": "WINDOW",
-                                            "cpu_time": 0.015475172,
-                                            "extra_info": {
-                                                "Projections": "ROW_NUMBER() OVER (PARTITION BY #0, #1 ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING)"
-                                            },
-                                            "cumulative_cardinality": 572,
-                                            "cumulative_rows_scanned": 572,
-                                            "operator_cardinality": 286,
-                                            "operator_name": "WINDOW",
-                                            "operator_rows_scanned": 0,
-                                            "children": [
+                                                },
                                                 {
-                                                    "system_peak_temp_dir_size": 0,
-                                                    "system_peak_buffer_memory": 0,
-                                                    "result_set_size": 2288,
-                                                    "operator_timing": 0.000047209,
-                                                    "operator_type": "TABLE_SCAN",
-                                                    "cpu_time": 0.000047209,
                                                     "extra_info": {
-                                                        "Table": "\"temp\".main.lineitem",
-                                                        "Type": "Sequential Scan",
-                                                        "Projections": [
-                                                            "l_suppkey",
-                                                            "l_partkey"
-                                                        ],
-                                                        "Filters": "l_quantity>=25.00",
+                                                        "Projections": "row_number() OVER (PARTITION BY #0, #1 ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING)",
                                                         "Estimated Cardinality": "114"
                                                     },
-                                                    "cumulative_cardinality": 286,
-                                                    "cumulative_rows_scanned": 572,
-                                                    "operator_cardinality": 286,
-                                                    "operator_name": "SEQ_SCAN",
-                                                    "operator_rows_scanned": 572,
-                                                    "children": []
+                                                    "intermediate_rows": 286,
+                                                    "intermediate_size_bytes": 4576,
+                                                    "timing": 0.012447436000000001,
+                                                    "type": "WINDOW",
+                                                    "children": [
+                                                        {
+                                                            "extra_info": {
+                                                                "Table": "\"temp\".main.lineitem",
+                                                                "Type": "Sequential Scan",
+                                                                "Projections": [
+                                                                    "l_suppkey",
+                                                                    "l_partkey"
+                                                                ],
+                                                                "Filters": "(l_quantity >= 25.00)",
+                                                                "Estimated Cardinality": "114"
+                                                            },
+                                                            "intermediate_rows": 286,
+                                                            "intermediate_size_bytes": 2288,
+                                                            "row_groups_scanned": 1,
+                                                            "rows_scanned": 572,
+                                                            "timing": 0.000089627,
+                                                            "total_row_groups_to_scan": 1,
+                                                            "type": "TABLE_SCAN"
+                                                        }
+                                                    ]
                                                 }
                                             ]
                                         }
@@ -335,5 +236,76 @@
                 }
             ]
         }
-    ]
+    ],
+    "optimizer": {
+        "aggregate_function_rewriter": 0.000012407,
+        "aggregate_reuse": 0.0000077,
+        "build_side_probe_side": 0.000005422,
+        "column_lifetime": 0.000013528,
+        "common_aggregate": 0.000001608,
+        "common_subexpressions": 0.000003339,
+        "common_subplan": 0.000248007,
+        "cte_filter_pusher": 0.000001523,
+        "cte_inlining": 0.000001843,
+        "deliminator": 0.000002118,
+        "duplicate_groups": 0.000009708,
+        "empty_result_pullup": 0.000001711,
+        "expression_rewriter": 0.000136289,
+        "filter_pullup": 0.000016118,
+        "filter_pushdown": 0.000085944,
+        "grouping_sets": 0.000002323,
+        "in_clause": 0.000002243,
+        "join_elimination": 0.000012902,
+        "join_filter_pushdown": 0.000001917,
+        "join_order": 0.000173824,
+        "late_materialization": 0.00000241,
+        "limit_pushdown": 0.00000149,
+        "outer_join_simplification": 0.000011657,
+        "partial_aggregate_pushdown": 0.000004524,
+        "partitioned_execution": 0.000001346,
+        "projection_placement": 0.000005682,
+        "projection_pullup": 0.000012574,
+        "redundant_order_keys": 0.00002269,
+        "regex_range": 0.00000143,
+        "reorder_filter": 0.000002267,
+        "row_group_pruner": 0.000001409,
+        "row_number_rewriter": 0.000001327,
+        "sampling_pushdown": 0.0000011,
+        "scalar_fn_pushdown": 8.75e-7,
+        "statistics_propagation": 0.000100122,
+        "top_n": 0.000001393,
+        "top_n_window_elimination": 0.000004787,
+        "total_time": 0.001124055,
+        "type_pushdown": 0.000001449,
+        "unnest_rewriter": 0.000002776,
+        "unused_columns": 0.000050923,
+        "window_self_join": 0.000001605
+    },
+    "physical_planner": {
+        "column_binding": 0.00001023,
+        "create_plan": 0.000102792,
+        "resolve_types": 0.000001535,
+        "total_time": 0.000128869
+    },
+    "planner": {
+        "binding_time": 0.000538497,
+        "total_time": 0.000756636
+    },
+    "query": {
+        "cpu_time": 0.054937811,
+        "sql": "EXPLAIN (ANALYZE, FORMAT JSON)\nSELECT l_orderkey, l_partkey FROM lineitem\nUNION ALL\nSELECT l_orderkey, l_suppkey FROM lineitem\nUNION ALL\n(\n   SELECT l_suppkey, l_partkey FROM lineitem\n   WHERE l_quantity < 25\n   INTERSECT ALL\n   SELECT l_suppkey, l_partkey FROM lineitem\n   WHERE l_quantity >= 25\n   EXCEPT ALL\n   SELECT l_suppkey, l_partkey FROM lineitem\n   WHERE l_quantity >= 25\n)",
+        "total_intermediate_rows": 2908,
+        "total_intermediate_size_bytes": 30384,
+        "total_row_groups_scanned": 5,
+        "total_row_groups_to_scan": 5,
+        "total_rows_scanned": 2860,
+        "total_time": 0.008495981
+    },
+    "system": {
+        "blocked_thread_time": 0.00209,
+        "peak_buffer_memory": 81329376,
+        "peak_streaming_buffer_size": 0,
+        "peak_temp_dir_size": 0,
+        "total_memory_allocated": 109314048
+    }
 }

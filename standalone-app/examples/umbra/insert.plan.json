@@ -10,7 +10,7 @@
    "physicalOperator":"inlinetable",
    "cardinality":0,
    "operatorId":2,
-   "attributes":[{"name":"column1", "iu":"column1"}, {"name":"a1", "iu":"a1"}, {"name":"b1", "iu":"b1"}, {"name":"c1", "iu":"c1"}],
+   "attributes":[{"name":"column1", "iu":"column1", "nullable":false}, {"name":"a1", "iu":"a1", "nullable":true}, {"name":"b1", "iu":"b1", "nullable":true}, {"name":"c1", "iu":"c1", "nullable":true}],
    "restrictions":[],
    "residuals":[],
    "count":0,
@@ -21,7 +21,7 @@
   "table":"t2",
   "tableObjectRef":{"type":"temporarytable", "id":1}
  },
- "ius":[{"iu":"a2", "type":{"type":"integer", "nullable":true}}, {"iu":"b2", "type":{"type":"integer", "nullable":true}}, {"iu":"c2", "type":{"type":"integer", "nullable":true}}, {"iu":"column1", "type":{"type":"integer"}, "sourceLocation":{"startLine":5, "startColumn":2, "endLine":5, "endColumn":11}}, {"iu":"a1", "type":{"type":"integer", "nullable":true}, "sourceLocation":{"startLine":4, "startColumn":6, "endLine":4, "endColumn":8}}, {"iu":"b1", "type":{"type":"integer", "nullable":true}, "sourceLocation":{"startLine":4, "startColumn":6, "endLine":4, "endColumn":8}}, {"iu":"c1", "type":{"type":"integer", "nullable":true}, "sourceLocation":{"startLine":4, "startColumn":6, "endLine":4, "endColumn":8}}],
+ "ius":[{"iu":"a2", "type":{"type":"integer", "precision":0, "scale":0, "nullable":true, "array":false}}, {"iu":"b2", "type":{"type":"integer", "precision":0, "scale":0, "nullable":true, "array":false}}, {"iu":"c2", "type":{"type":"integer", "precision":0, "scale":0, "nullable":true, "array":false}}, {"iu":"column1", "type":{"type":"integer", "precision":0, "scale":0, "nullable":false, "array":false}, "sourceLocation":{"startLine":5, "startColumn":2, "endLine":5, "endColumn":11}}, {"iu":"a1", "type":{"type":"integer", "precision":0, "scale":0, "nullable":true, "array":false}, "sourceLocation":{"startLine":4, "startColumn":6, "endLine":4, "endColumn":8}}, {"iu":"b1", "type":{"type":"integer", "precision":0, "scale":0, "nullable":true, "array":false}, "sourceLocation":{"startLine":4, "startColumn":6, "endLine":4, "endColumn":8}}, {"iu":"c1", "type":{"type":"integer", "precision":0, "scale":0, "nullable":true, "array":false}, "sourceLocation":{"startLine":4, "startColumn":6, "endLine":4, "endColumn":8}}],
  "output":[],
  "type":"insert",
  "query":false

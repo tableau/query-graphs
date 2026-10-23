@@ -4,7 +4,7 @@
     "operator-id": 1,
     "estimated-rows": 572,
     "produces-rows": true,
-    "output": [{"expression": "iu-ref", "iu": ["scan_orderkey", ["Integer"]]}, {"expression": "iu-ref", "iu": ["sum", ["BigNumeric", 38, 2, "nullable"]]}, {"expression": "iu-ref", "iu": ["avg", ["Numeric", 16, 6, "nullable"]]}],
+    "output": [{"expression": "iu-ref", "sqlpos": [[42, 52]], "iu": ["scan_orderkey", ["Integer"]]}, {"expression": "iu-ref", "iu": ["sum", ["BigNumeric", 38, 2, "nullable"]]}, {"expression": "iu-ref", "iu": ["avg", ["Numeric", 16, 6, "nullable"]]}],
     "output-names": ["l_orderkey", "sum", "avg"],
     "inputs": [{
       "operator": "window",
@@ -29,17 +29,17 @@
           "selectivity": 1,
           "statistics": {"column-count": 4, "output-rows": 572, "processed-rows": 572}
         }],
-        "window-infos": [{"operation": "aggregate", "aggregation": {"empty-groups": true, "agg-expressions": [{"value": {"expression": "iu-ref", "iu": "scan_quantity"}}], "aggregates": [{"source": 0, "operation": {"aggregate": "sum"}, "iu": ["sum", ["BigNumeric", 38, 2, "nullable"]]}]}, "partition-by": [], "frame-order-by": [{"value": {"expression": "iu-ref", "iu": "scan_orderkey"}, "descending": false, "null-first": false}], "rowsmode": false, "start-mode": "unbounded", "end-mode": "current_row", "exclude": "no_others"}],
+        "window-infos": [{"operation": "aggregate", "sqlpos": [58, 61], "aggregation": {"empty-groups": true, "agg-expressions": [{"value": {"expression": "iu-ref", "sqlpos": [[62, 72]], "iu": "scan_quantity"}}], "aggregates": [{"source": 0, "operation": {"aggregate": "sum"}, "iu": ["sum", ["BigNumeric", 38, 2, "nullable"]]}]}, "partition-by": [], "frame-order-by": [{"value": {"expression": "iu-ref", "sqlpos": [[89, 99]], "iu": "scan_orderkey"}, "descending": false, "null-first": false}], "rowsmode": false, "start-mode": "unbounded", "end-mode": "current_row", "exclude": "no_others"}],
         "statistics": {"column-count": 4, "memory-bytes": 13816, "output-rows": 572}
       }],
-      "window-infos": [{"operation": "aggregate", "aggregation": {"empty-groups": true, "agg-expressions": [{"value": {"expression": "iu-ref", "iu": "scan_extended"}}], "aggregates": [{"source": 0, "operation": {"aggregate": "avg"}, "iu": ["avg", ["Numeric", 16, 6, "nullable"]]}]}, "partition-by": [], "frame-order-by": [{"value": {"expression": "iu-ref", "iu": "scan_shipdate"}, "descending": false, "null-first": false}], "rowsmode": true, "start-mode": "value", "start-exp": {"expression": "const", "value": {"type": ["Integer"], "value": -1}}, "end-mode": "value", "end-exp": {"expression": "const", "value": {"type": ["Integer"], "value": 3}}, "exclude": "no_others"}],
+      "window-infos": [{"operation": "aggregate", "sqlpos": [106, 109], "aggregation": {"empty-groups": true, "agg-expressions": [{"value": {"expression": "iu-ref", "sqlpos": [[110, 125]], "iu": "scan_extended"}}], "aggregates": [{"source": 0, "operation": {"aggregate": "avg"}, "iu": ["avg", ["Numeric", 16, 6, "nullable"]]}]}, "partition-by": [], "frame-order-by": [{"value": {"expression": "iu-ref", "sqlpos": [[142, 152]], "iu": "scan_shipdate"}, "descending": false, "null-first": false}], "rowsmode": true, "start-mode": "value", "start-exp": {"expression": "const", "value": {"type": ["Integer"], "value": -1}}, "end-mode": "value", "end-exp": {"expression": "const", "value": {"type": ["Integer"], "value": 3}}, "exclude": "no_others"}],
       "statistics": {"column-count": 3, "memory-bytes": 18936, "output-rows": 572}
     }],
     "statistics": {"error": null, "column-count": 0}
   },
   "pipelines": [
-    {"id": 0, "operators": [1, 2], "dependencies": [1], "statistics": {"cpu-cycles": 2545170, "query-metrics": {"elapsed":0.000869308,"memory-mb-seconds":0.000434654,"instance-seconds":0.000869308,"processed-rows":{"total":0,"native":0},"threads":{"thread-time":0.000869308,"cpu-time":0.000860057,"wait-time":0},"storage":{},"peak-transaction-memory-mb":0.5}, "running": false}},
-    {"id": 1, "operators": [2, 3], "dependencies": [2], "statistics": {"cpu-cycles": 1306594, "query-metrics": {"elapsed":0.000571492,"memory-mb-seconds":0.000285746,"instance-seconds":0.000571492,"processed-rows":{"total":0,"native":0},"threads":{"thread-time":0.000571492,"cpu-time":0.000467443,"wait-time":0},"storage":{},"peak-transaction-memory-mb":0.5}, "running": false}},
-    {"id": 2, "operators": [3, 4], "dependencies": [], "statistics": {"cpu-cycles": 56818, "query-metrics": {"elapsed":5.3019e-05,"memory-mb-seconds":2.6509e-05,"instance-seconds":5.3019e-05,"processed-rows":{"total":572,"native":572},"threads":{"thread-time":5.3019e-05,"cpu-time":5.2978e-05,"wait-time":0},"storage":{},"additional-entries":{"scan-stats":{"rows-matching-restrictions":572}},"peak-transaction-memory-mb":0.5}, "running": false}}
+    {"id": 0, "operators": [1, 2], "dependencies": [1], "statistics": {"cpu-cycles": 877748, "query-metrics": {"elapsed":0.000298069,"memory-mb-seconds":0.000149034,"instance-seconds":0.000298069,"processed-rows":{"total":0,"native":0},"threads":{"thread-time":0.000298069,"cpu-time":0.00029036,"wait-time":0},"storage":{},"peak-transaction-memory-mb":0.5}, "running": false}},
+    {"id": 1, "operators": [2, 3], "dependencies": [2], "statistics": {"cpu-cycles": 819629, "query-metrics": {"elapsed":0.000327426,"memory-mb-seconds":0.000163713,"instance-seconds":0.000327426,"processed-rows":{"total":0,"native":0},"threads":{"thread-time":0.000327426,"cpu-time":0.000246984,"wait-time":0},"storage":{},"peak-transaction-memory-mb":0.5}, "running": false}},
+    {"id": 2, "operators": [3, 4], "dependencies": [], "statistics": {"cpu-cycles": 57475, "query-metrics": {"elapsed":5.8367e-05,"memory-mb-seconds":2.9183e-05,"instance-seconds":5.8367e-05,"processed-rows":{"total":572,"native":572},"threads":{"thread-time":5.8367e-05,"cpu-time":5.8413e-05,"wait-time":0},"storage":{},"additional-entries":{"scan-stats":{"rows-matching-restrictions":572}},"peak-transaction-memory-mb":0.5}, "running": false}}
   ]
 }

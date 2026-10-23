@@ -1,61 +1,112 @@
 {
-    "total_bytes_written": 0,
-    "total_bytes_read": 0,
-    "system_peak_temp_dir_size": 0,
-    "system_peak_buffer_memory": 138186752,
-    "rows_returned": 0,
-    "wal_replay_entry_count": 0,
-    "result_set_size": 0,
-    "query_name": "EXPLAIN (ANALYZE, FORMAT JSON)\nSELECT r_name FROM region;",
-    "waiting_to_attach_latency": 0.0,
-    "attach_load_storage_latency": 0.0,
-    "blocked_thread_time": 0.0,
-    "cpu_time": 0.000020941,
-    "extra_info": {},
-    "total_memory_allocated": 0,
-    "cumulative_cardinality": 5,
-    "checkpoint_latency": 0.0,
-    "cumulative_rows_scanned": 5,
-    "write_to_wal_latency": 0.0,
-    "latency": 0.000490404,
-    "attach_replay_wal_latency": 0.0,
-    "commit_local_storage_latency": 0.0,
-    "children": [
+    "io": {
+        "total_bytes_read": 0,
+        "total_bytes_written": 0
+    },
+    "operator": [
         {
-            "system_peak_temp_dir_size": 0,
-            "system_peak_buffer_memory": 0,
-            "result_set_size": 0,
-            "operator_timing": 4.1e-7,
-            "operator_type": "EXPLAIN_ANALYZE",
-            "cpu_time": 0.000020941,
             "extra_info": {},
-            "cumulative_cardinality": 5,
-            "cumulative_rows_scanned": 5,
-            "operator_cardinality": 0,
-            "operator_name": "EXPLAIN_ANALYZE",
-            "operator_rows_scanned": 0,
+            "intermediate_rows": 0,
+            "intermediate_size_bytes": 0,
+            "timing": 0.0,
+            "type": "RESULT_COLLECTOR",
             "children": [
                 {
-                    "system_peak_temp_dir_size": 0,
-                    "system_peak_buffer_memory": 0,
-                    "result_set_size": 80,
-                    "operator_timing": 0.000020531,
-                    "operator_type": "TABLE_SCAN",
-                    "cpu_time": 0.000020531,
-                    "extra_info": {
-                        "Table": "\"temp\".main.region",
-                        "Type": "Sequential Scan",
-                        "Projections": "r_name",
-                        "Estimated Cardinality": "5"
-                    },
-                    "cumulative_cardinality": 5,
-                    "cumulative_rows_scanned": 5,
-                    "operator_cardinality": 5,
-                    "operator_name": "SEQ_SCAN",
-                    "operator_rows_scanned": 5,
-                    "children": []
+                    "extra_info": {},
+                    "intermediate_rows": 0,
+                    "intermediate_size_bytes": 0,
+                    "timing": 2.84e-7,
+                    "type": "EXPLAIN_ANALYZE",
+                    "children": [
+                        {
+                            "extra_info": {
+                                "Table": "\"temp\".main.region",
+                                "Type": "Sequential Scan",
+                                "Projections": "r_name",
+                                "Estimated Cardinality": "5"
+                            },
+                            "intermediate_rows": 5,
+                            "intermediate_size_bytes": 80,
+                            "row_groups_scanned": 1,
+                            "rows_scanned": 5,
+                            "timing": 0.000011373000000000001,
+                            "total_row_groups_to_scan": 1,
+                            "type": "TABLE_SCAN"
+                        }
+                    ]
                 }
             ]
         }
-    ]
+    ],
+    "optimizer": {
+        "aggregate_function_rewriter": 0.000007655,
+        "aggregate_reuse": 0.000002078,
+        "build_side_probe_side": 0.000001863,
+        "column_lifetime": 0.000002644,
+        "common_aggregate": 6.8e-7,
+        "common_subexpressions": 0.000001029,
+        "common_subplan": 0.000017854,
+        "cte_filter_pusher": 6e-7,
+        "cte_inlining": 7.18e-7,
+        "deliminator": 0.000001288,
+        "duplicate_groups": 0.000001296,
+        "empty_result_pullup": 5.19e-7,
+        "expression_rewriter": 0.000006427,
+        "filter_pullup": 0.000001179,
+        "filter_pushdown": 0.000004864,
+        "grouping_sets": 5.1e-7,
+        "in_clause": 7.1e-7,
+        "join_elimination": 0.000001658,
+        "join_filter_pushdown": 5.74e-7,
+        "join_order": 0.000027138,
+        "late_materialization": 0.000001135,
+        "limit_pushdown": 5.05e-7,
+        "outer_join_simplification": 0.000002747,
+        "partial_aggregate_pushdown": 0.000001354,
+        "partitioned_execution": 5.68e-7,
+        "projection_placement": 0.000001569,
+        "projection_pullup": 0.000002349,
+        "redundant_order_keys": 0.000003485,
+        "regex_range": 5.66e-7,
+        "reorder_filter": 6.5e-7,
+        "row_group_pruner": 5.66e-7,
+        "row_number_rewriter": 6.35e-7,
+        "sampling_pushdown": 4.07e-7,
+        "scalar_fn_pushdown": 3.71e-7,
+        "statistics_propagation": 0.000006749,
+        "top_n": 4.31e-7,
+        "top_n_window_elimination": 0.000002873,
+        "total_time": 0.000211413,
+        "type_pushdown": 5.05e-7,
+        "unnest_rewriter": 8.59e-7,
+        "unused_columns": 0.000006697,
+        "window_self_join": 9.12e-7
+    },
+    "physical_planner": {
+        "column_binding": 0.000002387,
+        "create_plan": 0.000011297,
+        "resolve_types": 4.78e-7,
+        "total_time": 0.000020226
+    },
+    "planner": {
+        "binding_time": 0.000085463,
+        "total_time": 0.000178557
+    },
+    "query": {
+        "cpu_time": 0.000011657,
+        "sql": "EXPLAIN (ANALYZE, FORMAT JSON)\nSELECT r_name FROM region;",
+        "total_intermediate_rows": 5,
+        "total_intermediate_size_bytes": 80,
+        "total_row_groups_scanned": 1,
+        "total_row_groups_to_scan": 1,
+        "total_rows_scanned": 5,
+        "total_time": 0.000565284
+    },
+    "system": {
+        "blocked_thread_time": 0.000019,
+        "peak_buffer_memory": 2223184,
+        "peak_streaming_buffer_size": 0,
+        "peak_temp_dir_size": 0,
+        "total_memory_allocated": 0
+    }
 }

@@ -4,12 +4,12 @@
     "operator-id": 1,
     "estimated-rows": 1,
     "produces-rows": true,
-    "output": [{"expression": "iu-ref", "iu": ["scan_acctbal", ["Numeric", 12, 2]]}, {"expression": "iu-ref", "iu": ["scan_s_name", ["Char", 25]]}, {"expression": "iu-ref", "iu": ["scan_n_name", ["Char", 25]]}, {"expression": "iu-ref", "iu": ["scan_partkey", ["Integer"]]}, {"expression": "iu-ref", "iu": ["scan_p_mfgr", ["Char", 25]]}, {"expression": "iu-ref", "iu": ["scan_address", ["Varchar", 40]]}, {"expression": "iu-ref", "iu": ["scan_s_phone", ["Char", 15]]}, {"expression": "iu-ref", "iu": ["scan_comment", ["Varchar", 101]]}],
+    "output": [{"expression": "iu-ref", "sqlpos": [[144, 153]], "iu": ["scan_acctbal", ["Numeric", 12, 2]]}, {"expression": "iu-ref", "sqlpos": [[163, 169]], "iu": ["scan_s_name", ["Char", 25]]}, {"expression": "iu-ref", "sqlpos": [[179, 185]], "iu": ["scan_n_name", ["Char", 25]]}, {"expression": "iu-ref", "sqlpos": [[195, 204]], "iu": ["scan_partkey", ["Integer"]]}, {"expression": "iu-ref", "sqlpos": [[214, 220]], "iu": ["scan_p_mfgr", ["Char", 25]]}, {"expression": "iu-ref", "sqlpos": [[230, 239]], "iu": ["scan_address", ["Varchar", 40]]}, {"expression": "iu-ref", "sqlpos": [[249, 256]], "iu": ["scan_s_phone", ["Char", 15]]}, {"expression": "iu-ref", "sqlpos": [[266, 275]], "iu": ["scan_comment", ["Varchar", 101]]}],
     "output-names": ["s_acctbal", "s_name", "n_name", "p_partkey", "p_mfgr", "s_address", "s_phone", "s_comment"],
     "inputs": [{
       "operator": "sort",
       "operator-id": 2,
-      "sqlpos": [[1144, 1158], [1204, 1213]],
+      "sqlpos": [[1129, 1137], [1204, 1209]],
       "estimated-rows": 1,
       "criterion": [{"value": {"expression": "iu-ref", "iu": "scan_acctbal"}, "descending": true, "null-first": true}, {"value": {"expression": "iu-ref", "iu": "scan_n_name"}, "descending": false, "null-first": false}, {"value": {"expression": "iu-ref", "iu": "scan_s_name"}, "descending": false, "null-first": false}, {"value": {"expression": "iu-ref", "iu": "scan_partkey"}, "descending": false, "null-first": false}],
       "limit": 100,
@@ -74,12 +74,12 @@
                   "attribute-count": 9,
                   "attributes": [{"col-id": 0, "name": "p_partkey", "type": ["Integer"], "iu": ["scan_partkey", ["Integer"]]},{"col-id": 2, "name": "p_mfgr", "type": ["Char", 25], "iu": ["scan_p_mfgr", ["Char", 25]]},{"col-id": 4, "name": "p_type", "type": ["Varchar", 25], "iu": ["scan_p_type", ["Varchar", 25]]},{"col-id": 5, "name": "p_size", "type": ["Integer"], "iu": ["scan_p_size", ["Integer"]]}],
                   "debug-name": {"classification": "nonsensitive", "value": "part"},
-                  "restrictions": [{"attribute": 5, "mode": "=", "value": {"expression": "const", "value": {"type": ["Integer"], "value": 15}}}, {"attribute": 4, "mode": "lambda", "expression": {"expression": "ends_with", "left": {"expression": "iu-ref", "iu": "scan_p_type"}, "right": {"expression": "const", "value": {"type": ["Varchar"], "value": "BRASS"}}}}],
+                  "restrictions": [{"attribute": 5, "mode": "=", "value": {"expression": "const", "value": {"type": ["Integer"], "value": 15}}}, {"attribute": 4, "mode": "lambda", "expression": {"expression": "ends_with", "left": {"expression": "iu-ref", "sqlpos": [[470, 476]], "iu": "scan_p_type"}, "right": {"expression": "const", "value": {"type": ["Varchar"], "value": "BRASS"}}}}],
                   "selectivity": 0.011257
                 }, {
                   "operator": "group-by",
                   "operator-id": 10,
-                  "sqlpos": [[674, 692]],
+                  "sqlpos": [[674, 677]],
                   "estimated-rows": 107.4,
                   "inputs": [{
                     "operator": "join",
@@ -132,8 +132,8 @@
                           "selectivity": 1
                         }],
                         "early-probed-by": [15],
-                        "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iu-ref", "iu": "scan_regionke3"}, "right": {"expression": "iu-ref", "iu": "scan_regionke2"}},
-                        "predicates": [{"left": {"expression": "iu-ref", "iu": "scan_regionke2"}, "right": {"expression": "iu-ref", "iu": "scan_regionke3"}, "comparison": "="}]
+                        "condition": {"expression": "comparison", "sqlpos": [[1059, 1060]], "mode": "=", "left": {"expression": "iu-ref", "sqlpos": [[1047, 1058]], "iu": "scan_regionke3"}, "right": {"expression": "iu-ref", "sqlpos": [[1061, 1072]], "iu": "scan_regionke2"}},
+                        "predicates": [{"left": {"expression": "iu-ref", "sqlpos": [[1061, 1072]], "iu": "scan_regionke2"}, "right": {"expression": "iu-ref", "sqlpos": [[1047, 1058]], "iu": "scan_regionke3"}, "comparison": "="}]
                       }, {
                         "operator": "scan",
                         "operator-id": 16,
@@ -150,8 +150,8 @@
                         "selectivity": 1
                       }],
                       "early-probed-by": [16],
-                      "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iu-ref", "iu": "scan_nationke2"}, "right": {"expression": "iu-ref", "iu": "scan_nationke"}},
-                      "predicates": [{"left": {"expression": "iu-ref", "iu": "scan_nationke"}, "right": {"expression": "iu-ref", "iu": "scan_nationke2"}, "comparison": "="}]
+                      "condition": {"expression": "comparison", "sqlpos": [[1005, 1006]], "mode": "=", "left": {"expression": "iu-ref", "sqlpos": [[993, 1004]], "iu": "scan_nationke2"}, "right": {"expression": "iu-ref", "sqlpos": [[1007, 1018]], "iu": "scan_nationke"}},
+                      "predicates": [{"left": {"expression": "iu-ref", "sqlpos": [[1007, 1018]], "iu": "scan_nationke"}, "right": {"expression": "iu-ref", "sqlpos": [[993, 1004]], "iu": "scan_nationke2"}, "comparison": "="}]
                     }, {
                       "operator": "scan",
                       "operator-id": 17,
@@ -168,13 +168,13 @@
                       "selectivity": 1
                     }],
                     "early-probed-by": [17],
-                    "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iu-ref", "iu": "scan_suppkey"}, "right": {"expression": "iu-ref", "iu": "scan_suppkey2"}},
-                    "predicates": [{"left": {"expression": "iu-ref", "iu": "scan_suppkey"}, "right": {"expression": "iu-ref", "iu": "scan_suppkey2"}, "comparison": "="}]
+                    "condition": {"expression": "comparison", "sqlpos": [[952, 953]], "mode": "=", "left": {"expression": "iu-ref", "sqlpos": [[942, 951]], "iu": "scan_suppkey"}, "right": {"expression": "iu-ref", "sqlpos": [[954, 964]], "iu": "scan_suppkey2"}},
+                    "predicates": [{"left": {"expression": "iu-ref", "sqlpos": [[942, 951]], "iu": "scan_suppkey"}, "right": {"expression": "iu-ref", "sqlpos": [[954, 964]], "iu": "scan_suppkey2"}, "comparison": "="}]
                   }],
                   "key-expressions": [{"expression": {"value": {"expression": "iu-ref", "iu": "scan_partkey2"}}, "iu": ["GroupByKey", ["Integer"]]}],
                   "grouping-sets": [{"key-indices": [0], "core-indices": [0], "behavior": "regular"}],
                   "empty-groups": true,
-                  "agg-expressions": [{"value": {"expression": "iu-ref", "iu": "scan_supplyco"}}],
+                  "agg-expressions": [{"value": {"expression": "iu-ref", "sqlpos": [[678, 691]], "iu": "scan_supplyco"}}],
                   "aggregates": [{"source": 0, "operation": {"aggregate": "min"}, "iu": ["min", ["Numeric", 12, 2, "nullable"]]}]
                 }],
                 "early-probed-by": [17],
@@ -196,8 +196,8 @@
                 "selectivity": 1
               }],
               "early-probed-by": [18],
-              "condition": {"expression": "and", "arguments": [{"expression": "comparison", "mode": "=", "left": {"expression": "iu-ref", "iu": "scan_supplyco2"}, "right": {"expression": "iu-ref", "iu": "min"}}, {"expression": "comparison", "mode": "=", "left": {"expression": "iu-ref", "iu": "scan_partkey3"}, "right": {"expression": "iu-ref", "iu": "GroupByKey"}}, {"expression": "comparison", "mode": "=", "left": {"expression": "iu-ref", "iu": "scan_partkey"}, "right": {"expression": "iu-ref", "iu": "scan_partkey3"}}]},
-              "predicates": [{"left": {"expression": "iu-ref", "iu": "min"}, "right": {"expression": "iu-ref", "iu": "scan_supplyco2"}, "comparison": "="}, {"left": {"expression": "iu-ref", "iu": "GroupByKey"}, "right": {"expression": "iu-ref", "iu": "scan_partkey3"}, "comparison": "="}, {"left": {"expression": "iu-ref", "iu": "scan_partkey"}, "right": {"expression": "iu-ref", "iu": "scan_partkey3"}, "comparison": "="}]
+              "condition": {"expression": "and", "arguments": [{"expression": "comparison", "sqlpos": [[623, 624]], "mode": "=", "left": {"expression": "iu-ref", "sqlpos": [[609, 622]], "iu": "scan_supplyco2"}, "right": {"expression": "iu-ref", "iu": "min"}}, {"expression": "comparison", "mode": "=", "left": {"expression": "iu-ref", "iu": "GroupByKey"}, "right": {"expression": "iu-ref", "iu": "scan_partkey3"}}, {"expression": "comparison", "sqlpos": [[386, 387]], "mode": "=", "left": {"expression": "iu-ref", "sqlpos": [[376, 385]], "iu": "scan_partkey"}, "right": {"expression": "iu-ref", "sqlpos": [[388, 398]], "iu": "scan_partkey3"}}]},
+              "predicates": [{"left": {"expression": "iu-ref", "iu": "min"}, "right": {"expression": "iu-ref", "sqlpos": [[609, 622]], "iu": "scan_supplyco2"}, "comparison": "="}, {"left": {"expression": "iu-ref", "iu": "GroupByKey"}, "right": {"expression": "iu-ref", "iu": "scan_partkey3"}, "comparison": "="}, {"left": {"expression": "iu-ref", "sqlpos": [[376, 385]], "iu": "scan_partkey"}, "right": {"expression": "iu-ref", "sqlpos": [[388, 398]], "iu": "scan_partkey3"}, "comparison": "="}]
             }, {
               "operator": "scan",
               "operator-id": 19,
@@ -214,8 +214,8 @@
               "selectivity": 1
             }],
             "early-probed-by": [19],
-            "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iu-ref", "iu": "scan_suppkey4"}, "right": {"expression": "iu-ref", "iu": "scan_suppkey3"}},
-            "predicates": [{"left": {"expression": "iu-ref", "iu": "scan_suppkey3"}, "right": {"expression": "iu-ref", "iu": "scan_suppkey4"}, "comparison": "="}]
+            "condition": {"expression": "comparison", "sqlpos": [[421, 422]], "mode": "=", "left": {"expression": "iu-ref", "sqlpos": [[411, 420]], "iu": "scan_suppkey4"}, "right": {"expression": "iu-ref", "sqlpos": [[423, 433]], "iu": "scan_suppkey3"}},
+            "predicates": [{"left": {"expression": "iu-ref", "sqlpos": [[423, 433]], "iu": "scan_suppkey3"}, "right": {"expression": "iu-ref", "sqlpos": [[411, 420]], "iu": "scan_suppkey4"}, "comparison": "="}]
           }, {
             "operator": "scan",
             "operator-id": 20,
@@ -232,12 +232,12 @@
             "selectivity": 1
           }],
           "early-probed-by": [20],
-          "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iu-ref", "iu": "scan_nationke3"}, "right": {"expression": "iu-ref", "iu": "scan_nationke4"}},
-          "predicates": [{"left": {"expression": "iu-ref", "iu": "scan_nationke3"}, "right": {"expression": "iu-ref", "iu": "scan_nationke4"}, "comparison": "="}]
+          "condition": {"expression": "comparison", "sqlpos": [[515, 516]], "mode": "=", "left": {"expression": "iu-ref", "sqlpos": [[503, 514]], "iu": "scan_nationke3"}, "right": {"expression": "iu-ref", "sqlpos": [[517, 528]], "iu": "scan_nationke4"}},
+          "predicates": [{"left": {"expression": "iu-ref", "sqlpos": [[503, 514]], "iu": "scan_nationke3"}, "right": {"expression": "iu-ref", "sqlpos": [[517, 528]], "iu": "scan_nationke4"}, "comparison": "="}]
         }],
         "early-probed-by": [20],
-        "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iu-ref", "iu": "scan_regionke4"}, "right": {"expression": "iu-ref", "iu": "scan_regionke"}},
-        "predicates": [{"left": {"expression": "iu-ref", "iu": "scan_regionke"}, "right": {"expression": "iu-ref", "iu": "scan_regionke4"}, "comparison": "="}]
+        "condition": {"expression": "comparison", "sqlpos": [[553, 554]], "mode": "=", "left": {"expression": "iu-ref", "sqlpos": [[541, 552]], "iu": "scan_regionke4"}, "right": {"expression": "iu-ref", "sqlpos": [[555, 566]], "iu": "scan_regionke"}},
+        "predicates": [{"left": {"expression": "iu-ref", "sqlpos": [[555, 566]], "iu": "scan_regionke"}, "right": {"expression": "iu-ref", "sqlpos": [[541, 552]], "iu": "scan_regionke4"}, "comparison": "="}]
       }]
     }]
   },

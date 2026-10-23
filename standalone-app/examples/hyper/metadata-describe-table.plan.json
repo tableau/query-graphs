@@ -4,12 +4,12 @@
     "operator-id": 1,
     "estimated-rows": 1.36603,
     "produces-rows": true,
-    "output": [{"expression": "iu-ref", "iu": ["c.relcheck", ["SmallInt"]]}, {"expression": "iu-ref", "iu": ["c.relkind", ["Char1"]]}, {"expression": "iu-ref", "iu": ["c.relhasin", ["Bool"]]}, {"expression": "iu-ref", "iu": ["c.relhasru", ["Bool"]]}, {"expression": "iu-ref", "iu": ["c.relhastr", ["Bool"]]}, {"expression": "const", "value": {"type": ["Bool"], "value": false}}, {"expression": "iu-ref", "iu": ["c.reltable", ["Oid"]]}, {"expression": "iu-ref", "iu": ["map", ["Varchar"]]}, {"expression": "iu-ref", "iu": ["c.relpersi", ["Char1"]]}],
+    "output": [{"expression": "iu-ref", "sqlpos": [[35, 44]], "iu": ["c.relcheck", ["SmallInt"]]}, {"expression": "iu-ref", "sqlpos": [[48, 55]], "iu": ["c.relkind", ["Char1"]]}, {"expression": "iu-ref", "sqlpos": [[59, 70]], "iu": ["c.relhasin", ["Bool"]]}, {"expression": "iu-ref", "sqlpos": [[74, 85]], "iu": ["c.relhasru", ["Bool"]]}, {"expression": "iu-ref", "sqlpos": [[89, 103]], "iu": ["c.relhastr", ["Bool"]]}, {"expression": "const", "value": {"type": ["Bool"], "value": false}}, {"expression": "iu-ref", "sqlpos": [[139, 152]], "iu": ["c.reltable", ["Oid"]]}, {"expression": "iu-ref", "iu": ["map", ["Varchar"]]}, {"expression": "iu-ref", "sqlpos": [[263, 277]], "iu": ["c.relpersi", ["Char1"]]}],
     "output-names": ["relchecks", "relkind", "relhasindex", "relhasrules", "relhastriggers", "relispartition", "reltablespace", "case", "relpersistence"],
     "inputs": [{
       "operator": "map",
       "operator-id": 2,
-      "sqlpos": [[33, 44]],
+      "sqlpos": [[26, 32]],
       "estimated-rows": 1.36603,
       "inputs": [{
         "operator": "join",
@@ -46,10 +46,10 @@
           "id": 1259
         }],
         "early-probed-by": [5],
-        "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iu-ref", "iu": "c.reltoast"}, "right": {"expression": "iu-ref", "iu": "tc.oid"}},
-        "predicates": [{"left": {"expression": "iu-ref", "iu": "c.reltoast"}, "right": {"expression": "iu-ref", "iu": "tc.oid"}, "comparison": "="}]
+        "condition": {"expression": "comparison", "sqlpos": [[358, 359]], "mode": "=", "left": {"expression": "iu-ref", "sqlpos": [[344, 357]], "iu": "c.reltoast"}, "right": {"expression": "iu-ref", "sqlpos": [[363, 366]], "iu": "tc.oid"}},
+        "predicates": [{"left": {"expression": "iu-ref", "sqlpos": [[344, 357]], "iu": "c.reltoast"}, "right": {"expression": "iu-ref", "sqlpos": [[363, 366]], "iu": "tc.oid"}, "comparison": "="}]
       }],
-      "values": [{"iu": ["map", ["Varchar"]], "value": {"expression": "simple-case", "value": {"expression": "iu-ref", "iu": "c.reloftyp"}, "cases": [{"cases": [{"expression": "const", "value": {"type": ["Integer"], "value": 0}}], "value": {"expression": "const", "value": {"type": ["Varchar"], "value": ""}}}], "else": {"expression": "cast", "value": {"expression": "cast", "value": {"expression": "iu-ref", "iu": "c.reloftyp"}, "type": ["RegType"], "error-handling": "trap"}, "type": ["Varchar"], "error-handling": "trap"}}}]
+      "values": [{"iu": ["map", ["Varchar"]], "value": {"expression": "simple-case", "value": {"expression": "iu-ref", "sqlpos": [[173, 182]], "iu": "c.reloftyp"}, "cases": [{"cases": [{"expression": "const", "value": {"type": ["Integer"], "value": 0}}], "value": {"expression": "const", "value": {"type": ["Varchar"], "value": ""}}}], "else": {"expression": "cast", "value": {"expression": "cast", "value": {"expression": "iu-ref", "sqlpos": [[202, 211]], "iu": "c.reloftyp"}, "type": ["RegType"], "error-handling": "trap"}, "type": ["Varchar"], "error-handling": "trap"}}}]
     }]
   },
   "pipelines": [

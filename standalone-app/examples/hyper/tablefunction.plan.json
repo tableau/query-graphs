@@ -4,7 +4,7 @@
     "operator-id": 1,
     "estimated-rows": 10,
     "produces-rows": true,
-    "output": [{"expression": "iu-ref", "iu": ["generate_series", ["Integer"]]}],
+    "output": [{"expression": "iu-ref", "sqlpos": [[33, 34]], "iu": ["generate_series", ["Integer"]]}],
     "output-names": ["generate_series"],
     "inputs": [{
       "operator": "table-function",
