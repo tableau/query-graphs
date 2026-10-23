@@ -6,21 +6,21 @@ import {insightPresets} from "../src/insights/presets";
 
 test("scan type insight groups current Hyper scans across collapsed subtrees", () => {
     const scan = (type?: string): TreeNode => ({
-        properties: new Map([["operator", "scan"], ...(type === undefined ? [] : [["type", type]])]),
+        properties: new Map([["operator", {value: "scan"}], ...(type === undefined ? [] : [["type", {value: type}]])]),
     });
     const native = scan("native");
     const virtual = scan("virtual-table");
     const root: TreeNode = {
         properties: new Map([
-            ["operator", "join"],
-            ["type", "native"],
+            ["operator", {value: "join"}],
+            ["type", {value: "native"}],
         ]),
         children: [native],
         collapsedChildren: [
             {
                 properties: new Map([
-                    ["operator", "filter"],
-                    ["type", "native"],
+                    ["operator", {value: "filter"}],
+                    ["type", {value: "native"}],
                 ]),
             },
             virtual,

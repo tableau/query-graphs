@@ -21,15 +21,15 @@ test("scan-type rows and source highlights use the same semantic node selection"
     // Put one scan in the visible tree and one in a collapsed subtree to exercise both highlight projections.
     const native: TreeNode = {
         properties: new Map([
-            ["operator", "scan"],
-            ["type", "native"],
+            ["operator", {value: "scan"}],
+            ["type", {value: "native"}],
         ]),
         sourceLocations: [{documentId: "query", from: 0, to: 5}],
     };
     const virtual: TreeNode = {
         properties: new Map([
-            ["operator", "scan"],
-            ["type", "virtual-table"],
+            ["operator", {value: "scan"}],
+            ["type", {value: "virtual-table"}],
         ]),
         sourceLocations: [{documentId: "query", from: 10, to: 15}],
     };

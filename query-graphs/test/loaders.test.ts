@@ -187,7 +187,7 @@ test("JSON loaders retain identifying properties and source locations spanning s
         assert.deepEqual(matchingNode?.sourceLocations, [
             {documentId: "plan", from: keyFrom, to: valueFrom + example.token.length},
         ]);
-        assert.equal(matchingNode?.properties?.get(example.key), JSON.parse(example.token));
+        assert.equal(matchingNode?.properties?.get(example.key)?.value, JSON.parse(example.token));
     }
 });
 
