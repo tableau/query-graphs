@@ -1,0 +1,125 @@
+.qg-category-tree-insight + .qg-category-tree-insight {
+    border-top: 1px solid var(--qg-border);
+}
+
+.qg-category-tree-insight h3 {
+    margin: 0;
+    font-size: 1em;
+}
+
+.qg-category-tree-insight h3 > button {
+    display: grid;
+    grid-template-columns: 0.9em minmax(0, 1fr) auto;
+    align-items: center;
+    column-gap: 0.4em;
+    width: 100%;
+    padding: 0.2em 0.35em;
+    border: 0;
+    color: inherit;
+    background: transparent;
+    font: inherit;
+    font-weight: 600;
+    line-height: 1.25;
+    text-align: start;
+    cursor: pointer;
+
+    &:hover {
+        background: var(--qg-surface-hover);
+    }
+
+    &.qg-category-tree-section-highlighted {
+        background: var(--qg-accent-subtle);
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--qg-focus);
+        outline-offset: -2px;
+    }
+
+    & svg {
+        display: block;
+        width: 0.85em;
+        height: 0.85em;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.5;
+    }
+
+    & .qg-category-tree-section-open {
+        transform: rotate(90deg);
+    }
+}
+
+.qg-category-tree-section-count {
+    font-variant-numeric: tabular-nums;
+}
+
+.qg-category-tree-category-list {
+    & ul {
+        padding: 0;
+        margin: 0;
+        list-style: none;
+    }
+}
+
+.qg-category-tree-category {
+    display: grid;
+    grid-template-columns: 0.9em minmax(0, 1fr) auto;
+    align-items: start;
+    column-gap: 0.4em;
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+    line-height: 1.25;
+    cursor: default;
+
+    &:hover,
+    &.qg-category-tree-category-active {
+        background: var(--qg-accent-subtle);
+    }
+
+    & .qg-category-tree-category-label {
+        min-width: 0;
+        overflow-wrap: anywhere;
+        user-select: text;
+    }
+
+    & .qg-category-tree-category-count {
+        font-variant-numeric: tabular-nums;
+    }
+}
+
+.qg-category-tree-category-list [role="treeitem"]:focus {
+    outline: none;
+}
+
+.qg-category-tree-category-list [role="treeitem"]:focus-visible > .qg-category-tree-category {
+    outline: 2px solid var(--qg-focus);
+    outline-offset: -2px;
+}
+
+.qg-category-tree-category-list ul ul {
+    padding-left: 0.9em;
+}
+
+.qg-category-tree-disclosure,
+.qg-category-tree-disclosure-spacer {
+    width: 0.9em;
+}
+
+.qg-category-tree-disclosure {
+    margin-top: 0.18em;
+    color: inherit;
+
+    & svg {
+        display: block;
+        width: 0.85em;
+        height: 0.85em;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.5;
+    }
+
+    &[data-expanded] svg {
+        transform: rotate(90deg);
+    }
+}

@@ -16,20 +16,20 @@ registerHooks({
     },
 });
 
-test("scan-type rows and source highlights use the same semantic node selection", async () => {
+test("table-name rows and source highlights use the same semantic node selection", async () => {
     const {PlanInsights} = await import("../src/ui/PlanInsights");
     // Put one scan in the visible tree and one in a collapsed subtree to exercise both highlight projections.
     const native: TreeNode = {
         properties: new Map([
             ["operator", "scan"],
-            ["type", "native"],
+            ["debug-name", '{"value":"region"}'],
         ]),
         sourceLocations: [{documentId: "query", from: 0, to: 5}],
     };
     const virtual: TreeNode = {
         properties: new Map([
             ["operator", "scan"],
-            ["type", "virtual-table"],
+            ["table-name", "warehouse"],
         ]),
         sourceLocations: [{documentId: "query", from: 10, to: 15}],
     };
@@ -70,7 +70,10 @@ test("scan-type rows and source highlights use the same semantic node selection"
                 React.createElement(
                     GraphRenderingStoreContext.Provider,
                     {value: store},
-                    React.createElement(PlanInsights, {root: tree, definitions: insightPresets.hyper}),
+                    React.createElement(PlanInsights, {
+                        root: tree,
+                        definitions: insightPresets.hyper.insights.filter(({id}) => id === "table-names"),
+                    }),
                 ),
             ),
         );
@@ -80,16 +83,25 @@ test("scan-type rows and source highlights use the same semantic node selection"
         await React.act(async () => toggle.click());
         assert.equal(toggle.ariaExpanded, "true");
 
-        const rows = [...dom.window.document.querySelectorAll<HTMLElement>(".qg-insight-category")];
+        const treeRows = [...dom.window.document.querySelectorAll<HTMLElement>('[role="treeitem"]')];
+        assert.equal(treeRows[0].getAttribute("aria-label"), "region: 1");
+        assert.equal(dom.window.document.querySelector(".qg-category-tree-insight h3 button span")?.textContent, "Scanned Tables");
+        const rows = [...dom.window.document.querySelectorAll<HTMLElement>(".qg-category-tree-category")];
         assert.equal(rows.length, 2);
         assert.deepEqual(
-            rows.map((row) => row.querySelector(".qg-insight-category-label")?.textContent),
-            ["native", "virtual-table"],
+            rows.map((row) => row.querySelector(".qg-category-tree-category-label")?.textContent),
+            ["region", "warehouse"],
         );
+        await React.act(async () => treeRows[0].focus());
+        await React.act(async () =>
+            treeRows[0].dispatchEvent(new dom.window.KeyboardEvent("keydown", {key: "ArrowDown", bubbles: true})),
+        );
+        assert.equal(dom.window.document.activeElement, treeRows[1]);
+        await React.act(async () => treeRows[1].blur());
 
         // A linked source range activates its category even when the matching node is hidden below a collapsed root.
         await React.act(async () => store.getState().setActiveSourceLocations("query", virtual.sourceLocations!));
-        assert.ok(rows[1].classList.contains("qg-insight-category-active"));
+        assert.ok(rows[1].classList.contains("qg-category-tree-category-active"));
         assert.ok(dom.window.document.querySelector(".qg-panel-highlight-indicator-active"));
 
         // Pointer interaction with a category temporarily overrides the source-derived selection and restores it on exit.
@@ -100,11 +112,11 @@ test("scan-type rows and source highlights use the same semantic node selection"
 
         // Keyboard focus highlights the same nodes independently after the source-derived selection is cleared.
         await React.act(async () => store.getState().setActiveSourceLocations("query", []));
-        await React.act(async () => rows[0].focus());
+        await React.act(async () => rows[0].parentElement!.focus());
         assert.deepEqual(store.getState().highlightedNodeIds, new Set(["1"]));
         assert.deepEqual(store.getState().visibleHighlightedNodeIds, new Set(["1"]));
-        assert.ok(rows[0].classList.contains("qg-insight-category-active"));
-        await React.act(async () => rows[0].blur());
+        assert.ok(rows[0].classList.contains("qg-category-tree-category-active"));
+        await React.act(async () => rows[0].parentElement!.blur());
         assert.deepEqual(store.getState().highlightedNodeIds, new Set());
         assert.deepEqual(store.getState().visibleHighlightedNodeIds, new Set());
     } finally {

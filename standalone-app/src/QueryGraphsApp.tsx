@@ -158,7 +158,7 @@ export function QueryGraphsApp() {
                     metadata={tree.metadata}
                     metadataHighlighted={tree.metadataHighlighted}
                     textDocuments={tree.textDocuments}
-                    insights={insightPresets[format] ? {root: tree.root, definitions: insightPresets[format]} : undefined}
+                    insights={insightPresets[format] ? {root: tree.root, preset: insightPresets[format]} : undefined}
                 />
                 <SettingsPanel popoverId={settingsPopoverId} />
                 <GraphToolbar>

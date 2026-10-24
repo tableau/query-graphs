@@ -1,41 +1,101 @@
 import type {TreeNode} from "../tree-description";
 import {allChildren, visitTreeNodes} from "../tree-description";
 
-/** Describes a category list derived from a property on matching plan nodes. */
-export interface CategoricalInsightDefinition {
-    /** Stable identifier used to distinguish this insight from other definitions. */
-    id: string;
-    /** User-facing heading for the category list. */
-    title: string;
-    /** Equality predicate selecting the nodes included in the category list. */
-    where: {property: string; equals: string};
-    /** Property whose distinct values form the categories. */
-    groupBy: string;
+/** A node is selected when any configured property is present or equals its required value. */
+export interface CategoricalInsightPredicate {
+    property: string;
+    equals?: string;
 }
 
-/** One distinct property value and all matching plan nodes that have that value. */
+/** Candidate labels are checked in order; JSON paths address serialized property values. */
+export type CategoricalInsightValueSource = {property: string; jsonPath?: readonly string[]} | {nodeName: true};
+
+/** Each selected node follows exactly one path through the configured levels. */
+export interface CategoricalInsightLevel {
+    valueSourceAlternatives: readonly CategoricalInsightValueSource[];
+    fallbackValue: string;
+    next?: CategoricalInsightLevel;
+    nextByValue?: Readonly<Record<string, CategoricalInsightLevel>>;
+}
+
+/** A flat category list is a one-level categorical insight. */
+export interface CategoricalInsightDefinition {
+    id: string;
+    title: string;
+    /** Alternatives are ORed; omitting where selects every node. */
+    where?: readonly [CategoricalInsightPredicate, ...CategoricalInsightPredicate[]];
+    groupBy: CategoricalInsightLevel;
+}
+
 export interface CategoricalInsightCategory {
-    /** Property value displayed as the category label. */
     value: string;
-    /** Matching nodes included in the category count and highlight interaction. */
     nodes: readonly TreeNode[];
+    children: readonly CategoricalInsightCategory[];
+}
+
+interface CategoryBuilder {
+    nodes: TreeNode[];
+    children: Map<string, CategoryBuilder>;
+}
+
+function readValue(node: TreeNode, source: CategoricalInsightValueSource): string | undefined {
+    let value: unknown = "nodeName" in source ? node.name : node.properties?.get(source.property);
+    if ("jsonPath" in source && source.jsonPath && typeof value === "string") {
+        try {
+            value = JSON.parse(value);
+            for (const key of source.jsonPath) {
+                if (typeof value !== "object" || value === null || !(key in value)) return undefined;
+                value = (value as Record<string, unknown>)[key];
+            }
+        } catch {
+            return undefined;
+        }
+    }
+    return typeof value === "string" && value !== "" ? value : undefined;
+}
+
+function groupingPath(node: TreeNode, level: CategoricalInsightLevel): string[] {
+    const label =
+        level.valueSourceAlternatives.map((source) => readValue(node, source)).find((candidate) => candidate !== undefined) ??
+        level.fallbackValue;
+    const next = level.nextByValue && Object.hasOwn(level.nextByValue, label) ? level.nextByValue[label] : level.next;
+    return next ? [label, ...groupingPath(node, next)] : [label];
 }
 
 export function computeCategoricalInsight(root: TreeNode, definition: CategoricalInsightDefinition): CategoricalInsightCategory[] {
-    const groups = new Map<string, TreeNode[]>();
+    const groups = new Map<string, CategoryBuilder>();
+    const seen = new Set<TreeNode>();
+    // Count the complete plan tree, including nodes hidden by collapsed graph subtrees.
+    // Each node follows one category path, so every parent's count equals the sum of its children.
     visitTreeNodes(
         root,
         (node) => {
-            if (node.properties?.get(definition.where.property) !== definition.where.equals) return;
-            const value = node.properties?.get(definition.groupBy);
-            if (value === undefined || value === "") return;
-            const nodes = groups.get(value) ?? [];
-            nodes.push(node);
-            groups.set(value, nodes);
+            if (seen.has(node)) return;
+            seen.add(node);
+            if (
+                definition.where &&
+                !definition.where.some(({property, equals}) =>
+                    equals === undefined ? node.properties?.has(property) : node.properties?.get(property) === equals,
+                )
+            )
+                return;
+            let level = groups;
+            for (const value of groupingPath(node, definition.groupBy)) {
+                let category = level.get(value);
+                if (!category) {
+                    category = {nodes: [], children: new Map()};
+                    level.set(value, category);
+                }
+                category.nodes.push(node);
+                level = category.children;
+            }
         },
         allChildren,
     );
-    return [...groups]
-        .map(([value, nodes]) => ({value, nodes}))
-        .sort((a, b) => b.nodes.length - a.nodes.length || a.value.localeCompare(b.value));
+    // Keep the most frequent categories first, with stable alphabetical ordering for ties.
+    const finish = (level: Map<string, CategoryBuilder>): CategoricalInsightCategory[] =>
+        [...level]
+            .map(([value, {nodes, children}]) => ({value, nodes, children: finish(children)}))
+            .sort((a, b) => b.nodes.length - a.nodes.length || a.value.localeCompare(b.value));
+    return finish(groups);
 }
