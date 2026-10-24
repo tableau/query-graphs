@@ -1,0 +1,25 @@
+[
+    {
+        "name": "PROJECTION",
+        "children": [
+            {
+                "name": "DELETE",
+                "children": [
+                    {
+                        "name": "EMPTY_RESULT",
+                        "children": [],
+                        "extra_info": {}
+                    }
+                ],
+                "extra_info": {}
+            }
+        ],
+        "extra_info": {
+            "Projections": [
+                "a2",
+                "b2"
+            ],
+            "Estimated Cardinality": "0"
+        }
+    }
+]

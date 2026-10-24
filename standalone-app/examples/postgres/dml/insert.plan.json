@@ -1,0 +1,42 @@
+[
+  {
+    "Plan": {
+      "Node Type": "ModifyTable",
+      "Operation": "Insert",
+      "Parallel Aware": false,
+      "Async Capable": false,
+      "Relation Name": "t2",
+      "Schema": "pg_temp",
+      "Alias": "t2",
+      "Startup Cost": 0.0,
+      "Total Cost": 30.4,
+      "Plan Rows": 2040,
+      "Plan Width": 12,
+      "Output": [
+        "t2.a2",
+        "t2.b2",
+        "t2.c2"
+      ],
+      "Plans": [
+        {
+          "Node Type": "Seq Scan",
+          "Parent Relationship": "Outer",
+          "Parallel Aware": false,
+          "Async Capable": false,
+          "Relation Name": "t1",
+          "Schema": "pg_temp",
+          "Alias": "t1",
+          "Startup Cost": 0.0,
+          "Total Cost": 30.4,
+          "Plan Rows": 2040,
+          "Plan Width": 12,
+          "Output": [
+            "t1.a1",
+            "t1.b1",
+            "t1.c1"
+          ]
+        }
+      ]
+    }
+  }
+]

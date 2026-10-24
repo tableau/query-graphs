@@ -57,15 +57,15 @@
       }],
       "grouping-sets": [{"key-indices": [], "core-indices": null, "behavior": "static"}],
       "empty-groups": true,
-      "agg-expressions": [{"value": {"expression": "mul", "left": {"expression": "sub", "left": {"expression": "const", "value": {"type": ["Numeric", 1], "value": 1}}, "right": {"expression": "iu-ref", "sqlpos": [[180, 190]], "iu": "scan_discount"}}, "right": {"expression": "iu-ref", "sqlpos": [[158, 173]], "iu": "scan_extended"}}}],
+      "agg-expressions": [{"value": {"expression": "mul", "sqlpos": [[173, 174]], "left": {"expression": "sub", "sqlpos": [[178, 179]], "left": {"expression": "const", "value": {"type": ["Numeric", 1], "value": 1}}, "right": {"expression": "iu-ref", "sqlpos": [[180, 190]], "iu": "scan_discount"}}, "right": {"expression": "iu-ref", "sqlpos": [[158, 173]], "iu": "scan_extended"}}}],
       "aggregates": [{"source": 0, "operation": {"aggregate": "sum"}, "iu": ["sum", ["BigNumeric", 38, 4, "nullable"]]}],
       "statistics": {"column-count": 1, "memory-bytes": 0, "output-rows": 1}
     }],
     "statistics": {"error": null, "column-count": 0}
   },
   "pipelines": [
-    {"id": 0, "operators": [1, 2], "dependencies": [1], "statistics": {"cpu-cycles": 1865, "query-metrics": {"elapsed":1.947e-06,"memory-mb-seconds":9.73e-07,"instance-seconds":1.947e-06,"processed-rows":{"total":0,"native":0},"threads":{"thread-time":1.947e-06,"cpu-time":1.929e-06,"wait-time":0},"storage":{},"peak-transaction-memory-mb":0.5}, "running": false}},
-    {"id": 1, "operators": [2, 3, 5], "dependencies": [2], "statistics": {"cpu-cycles": 18591, "query-metrics": {"elapsed":7.845e-06,"memory-mb-seconds":3.922e-06,"instance-seconds":7.845e-06,"processed-rows":{"total":533,"native":533},"threads":{"thread-time":7.845e-06,"cpu-time":7.854e-06,"wait-time":0},"storage":{},"additional-entries":{"scan-stats":{"rows-matching-restrictions":27}},"peak-transaction-memory-mb":0.5}, "running": false}},
-    {"id": 2, "operators": [3, 4], "dependencies": [], "statistics": {"cpu-cycles": 33464, "query-metrics": {"elapsed":1.5894e-05,"memory-mb-seconds":7.947e-06,"instance-seconds":1.5894e-05,"processed-rows":{"total":572,"native":572},"threads":{"thread-time":1.5894e-05,"cpu-time":1.5881e-05,"wait-time":0},"storage":{},"additional-entries":{"scan-stats":{"rows-matching-restrictions":23}},"peak-transaction-memory-mb":0.5}, "running": false}}
+    {"id": 0, "operators": [1, 2], "dependencies": [1], "statistics": {"cpu-cycles": 2990, "query-metrics": {"elapsed":2.329e-06,"memory-mb-seconds":1.164e-06,"instance-seconds":2.329e-06,"processed-rows":{"total":0,"native":0},"threads":{"thread-time":2.329e-06,"cpu-time":2.32e-06,"wait-time":0},"storage":{},"peak-transaction-memory-mb":0.5}, "running": false}},
+    {"id": 1, "operators": [2, 3, 5], "dependencies": [2], "statistics": {"cpu-cycles": 18819, "query-metrics": {"elapsed":7.913e-06,"memory-mb-seconds":3.956e-06,"instance-seconds":7.913e-06,"processed-rows":{"total":533,"native":533},"threads":{"thread-time":7.913e-06,"cpu-time":7.933e-06,"wait-time":0},"storage":{},"additional-entries":{"scan-stats":{"rows-matching-restrictions":27}},"peak-transaction-memory-mb":0.5}, "running": false}},
+    {"id": 2, "operators": [3, 4], "dependencies": [], "statistics": {"cpu-cycles": 37942, "query-metrics": {"elapsed":1.7831e-05,"memory-mb-seconds":8.915e-06,"instance-seconds":1.7831e-05,"processed-rows":{"total":572,"native":572},"threads":{"thread-time":1.7831e-05,"cpu-time":1.7835e-05,"wait-time":0},"storage":{},"additional-entries":{"scan-stats":{"rows-matching-restrictions":23}},"peak-transaction-memory-mb":0.5}, "running": false}}
   ]
 }

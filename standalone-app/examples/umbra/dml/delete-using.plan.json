@@ -1,0 +1,28 @@
+{
+ "plan":{
+  "operator":"delete",
+  "physicalOperator":"delete",
+  "cardinality":0,
+  "operatorId":1,
+  "sourceLocation":{"startLine":1, "startColumn":31, "endLine":5, "endColumn":23},
+  "input":{
+   "operator":"inlinetable",
+   "physicalOperator":"inlinetable",
+   "cardinality":0,
+   "operatorId":2,
+   "attributes":[{"name":"a2", "iu":"a2", "nullable":false}, {"name":"b2", "iu":"b2", "nullable":true}, {"name":"tid", "iu":"tid", "nullable":false}],
+   "restrictions":[],
+   "residuals":[],
+   "count":0,
+   "values":[]
+  },
+  "tid":{"expression":"iuref", "id":4, "iu":"tid"},
+  "schema":"pg_temp",
+  "table":"t2",
+  "tableObjectRef":{"type":"temporarytable", "id":1}
+ },
+ "ius":[{"iu":"a2", "type":{"type":"integer", "precision":0, "scale":0, "nullable":false, "array":false}, "sourceLocation":{"startLine":2, "startColumn":13, "endLine":2, "endColumn":15}}, {"iu":"b2", "type":{"type":"integer", "precision":0, "scale":0, "nullable":true, "array":false}, "sourceLocation":{"startLine":2, "startColumn":13, "endLine":2, "endColumn":15}}, {"iu":"tid", "type":{"type":"bigint", "precision":0, "scale":0, "nullable":false, "array":false}}],
+ "output":[{"name":"a2", "iu":{"expression":"iuref", "id":7, "iu":"a2"}}, {"name":"b2", "iu":{"expression":"iuref", "id":8, "iu":"b2"}}],
+ "type":"delete",
+ "query":true
+}

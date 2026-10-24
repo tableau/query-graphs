@@ -59,6 +59,7 @@ test("DuckDB analyzed plans preserve metrics, metadata, and CTE crosslinks", () 
         [
             ["cte_scan", "cte"],
             ["cte_scan", "cte"],
+            ["cte_scan", "cte"],
         ],
     );
 

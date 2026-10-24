@@ -93,7 +93,7 @@
         "key-expressions": [{"expression": {"value": {"expression": "iu-ref", "sqlpos": [[539, 549]], "iu": "scan_orderkey2"}}, "iu": ["GroupByKey", ["Integer"]]}, {"expression": {"value": {"expression": "iu-ref", "sqlpos": [[559, 570]], "iu": "scan_orderdat"}}, "iu": ["GroupByKey2", ["Date"]]}, {"expression": {"value": {"expression": "iu-ref", "sqlpos": [[580, 594]], "iu": "scan_shipprio"}}, "iu": ["GroupByKey3", ["Integer"]]}],
         "grouping-sets": [{"key-indices": [0, 1, 2], "core-indices": [0, 1, 2], "behavior": "regular"}],
         "empty-groups": false,
-        "agg-expressions": [{"value": {"expression": "mul", "left": {"expression": "sub", "left": {"expression": "const", "value": {"type": ["Numeric", 1], "value": 1}}, "right": {"expression": "iu-ref", "sqlpos": [[200, 210]], "iu": "scan_discount"}}, "right": {"expression": "iu-ref", "sqlpos": [[177, 192]], "iu": "scan_extended"}}}],
+        "agg-expressions": [{"value": {"expression": "mul", "sqlpos": [[193, 194]], "left": {"expression": "sub", "sqlpos": [[198, 199]], "left": {"expression": "const", "value": {"type": ["Numeric", 1], "value": 1}}, "right": {"expression": "iu-ref", "sqlpos": [[200, 210]], "iu": "scan_discount"}}, "right": {"expression": "iu-ref", "sqlpos": [[177, 192]], "iu": "scan_extended"}}}],
         "aggregates": [{"source": 0, "operation": {"aggregate": "sum"}, "iu": ["sum", ["BigNumeric", 38, 4]]}],
         "statistics": {"column-count": 4, "memory-bytes": 18552, "output-rows": 3}
       }],

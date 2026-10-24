@@ -1,0 +1,118 @@
+[
+  {
+    "Plan": {
+      "Node Type": "ModifyTable",
+      "Operation": "Update",
+      "Parallel Aware": false,
+      "Async Capable": false,
+      "Relation Name": "t2",
+      "Schema": "pg_temp",
+      "Alias": "t2",
+      "Startup Cost": 285.08,
+      "Total Cost": 659.42,
+      "Plan Rows": 20808,
+      "Plan Width": 20,
+      "Output": [
+        "t2.a2",
+        "t2.b2"
+      ],
+      "Plans": [
+        {
+          "Node Type": "Merge Join",
+          "Parent Relationship": "Outer",
+          "Parallel Aware": false,
+          "Async Capable": false,
+          "Join Type": "Inner",
+          "Startup Cost": 285.08,
+          "Total Cost": 659.42,
+          "Plan Rows": 20808,
+          "Plan Width": 20,
+          "Output": [
+            "(t1.a1 + 1)",
+            "t1.b1",
+            "t2.ctid",
+            "t1.ctid"
+          ],
+          "Inner Unique": false,
+          "Merge Cond": "(t2.a2 = t1.a1)",
+          "Plans": [
+            {
+              "Node Type": "Sort",
+              "Parent Relationship": "Outer",
+              "Parallel Aware": false,
+              "Async Capable": false,
+              "Startup Cost": 142.54,
+              "Total Cost": 147.64,
+              "Plan Rows": 2040,
+              "Plan Width": 10,
+              "Output": [
+                "t2.ctid",
+                "t2.a2"
+              ],
+              "Sort Key": [
+                "t2.a2"
+              ],
+              "Plans": [
+                {
+                  "Node Type": "Seq Scan",
+                  "Parent Relationship": "Outer",
+                  "Parallel Aware": false,
+                  "Async Capable": false,
+                  "Relation Name": "t2",
+                  "Schema": "pg_temp",
+                  "Alias": "t2",
+                  "Startup Cost": 0.0,
+                  "Total Cost": 30.4,
+                  "Plan Rows": 2040,
+                  "Plan Width": 10,
+                  "Output": [
+                    "t2.ctid",
+                    "t2.a2"
+                  ]
+                }
+              ]
+            },
+            {
+              "Node Type": "Sort",
+              "Parent Relationship": "Inner",
+              "Parallel Aware": false,
+              "Async Capable": false,
+              "Startup Cost": 142.54,
+              "Total Cost": 147.64,
+              "Plan Rows": 2040,
+              "Plan Width": 14,
+              "Output": [
+                "t1.a1",
+                "t1.b1",
+                "t1.ctid"
+              ],
+              "Sort Key": [
+                "t1.a1"
+              ],
+              "Plans": [
+                {
+                  "Node Type": "Seq Scan",
+                  "Parent Relationship": "Outer",
+                  "Parallel Aware": false,
+                  "Async Capable": false,
+                  "Relation Name": "t1",
+                  "Schema": "pg_temp",
+                  "Alias": "t1",
+                  "Startup Cost": 0.0,
+                  "Total Cost": 30.4,
+                  "Plan Rows": 2040,
+                  "Plan Width": 14,
+                  "Output": [
+                    "t1.a1",
+                    "t1.b1",
+                    "t1.ctid"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

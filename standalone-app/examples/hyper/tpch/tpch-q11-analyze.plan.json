@@ -101,11 +101,11 @@
             }],
             "grouping-sets": [{"key-indices": [], "core-indices": null, "behavior": "static"}],
             "empty-groups": true,
-            "agg-expressions": [{"value": {"expression": "mul", "left": {"expression": "iu-ref", "sqlpos": [[535, 548]], "iu": "scan_supplyco"}, "right": {"expression": "iu-ref", "sqlpos": [[551, 562]], "iu": "scan_availqty"}}}],
+            "agg-expressions": [{"value": {"expression": "mul", "sqlpos": [[549, 550]], "left": {"expression": "iu-ref", "sqlpos": [[535, 548]], "iu": "scan_supplyco"}, "right": {"expression": "iu-ref", "sqlpos": [[551, 562]], "iu": "scan_availqty"}}}],
             "aggregates": [{"source": 0, "operation": {"aggregate": "sum"}, "iu": ["sum2", ["BigNumeric", 38, 2, "nullable"]]}],
             "statistics": {"column-count": 1, "memory-bytes": 0, "output-rows": 1}
           }],
-          "values": [{"iu": ["map", ["BigNumeric", 38, 6, "nullable"]], "value": {"expression": "mul", "left": {"expression": "iu-ref", "iu": "sum2"}, "right": {"expression": "const", "value": {"type": ["Numeric", 5, 4], "value": 1}}}}],
+          "values": [{"iu": ["map", ["BigNumeric", 38, 6, "nullable"]], "value": {"expression": "mul", "sqlpos": [[564, 565]], "left": {"expression": "iu-ref", "iu": "sum2"}, "right": {"expression": "const", "value": {"type": ["Numeric", 5, 4], "value": 1}}}}],
           "statistics": {"column-count": 1, "output-rows": 1}
         }, {
           "operator": "group-by",
@@ -185,7 +185,7 @@
           "key-expressions": [{"expression": {"value": {"expression": "iu-ref", "sqlpos": [[397, 407]], "iu": "scan_partkey"}}, "iu": ["GroupByKey", ["Integer"]]}],
           "grouping-sets": [{"key-indices": [0], "core-indices": [0], "behavior": "regular"}],
           "empty-groups": false,
-          "agg-expressions": [{"value": {"expression": "mul", "left": {"expression": "iu-ref", "sqlpos": [[435, 448]], "iu": "scan_supplyco2"}, "right": {"expression": "iu-ref", "sqlpos": [[451, 462]], "iu": "scan_availqty2"}}}],
+          "agg-expressions": [{"value": {"expression": "mul", "sqlpos": [[449, 450]], "left": {"expression": "iu-ref", "sqlpos": [[435, 448]], "iu": "scan_supplyco2"}, "right": {"expression": "iu-ref", "sqlpos": [[451, 462]], "iu": "scan_availqty2"}}}],
           "aggregates": [{"source": 0, "operation": {"aggregate": "sum"}, "iu": ["sum", ["BigNumeric", 38, 2]]}],
           "statistics": {"column-count": 2, "memory-bytes": 18552, "output-rows": 21}
         }],

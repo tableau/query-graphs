@@ -233,7 +233,7 @@
               "predicates": [{"left": {"expression": "iu-ref", "sqlpos": [[1205, 1216]], "iu": "scan_nationke3"}, "right": {"expression": "iu-ref", "sqlpos": [[1222, 1233]], "iu": "scan_nationke4"}, "comparison": "="}],
               "statistics": {"column-count": 4, "memory-bytes": 18552, "output-rows": 1}
             }],
-            "values": [{"iu": ["map2", ["Integer"]], "value": {"expression": "extract_year", "input": {"expression": "iu-ref", "sqlpos": [[372, 383]], "iu": "scan_orderdat"}}}, {"iu": ["map3", ["BigNumeric", 25, 4]], "value": {"expression": "mul", "left": {"expression": "sub", "left": {"expression": "const", "value": {"type": ["Numeric", 1], "value": 1}}, "right": {"expression": "iu-ref", "sqlpos": [[443, 453]], "iu": "scan_discount"}}, "right": {"expression": "iu-ref", "sqlpos": [[420, 435]], "iu": "scan_extended"}}}],
+            "values": [{"iu": ["map2", ["Integer"]], "value": {"expression": "extract_year", "input": {"expression": "iu-ref", "sqlpos": [[372, 383]], "iu": "scan_orderdat"}}}, {"iu": ["map3", ["BigNumeric", 25, 4]], "value": {"expression": "mul", "sqlpos": [[436, 437]], "left": {"expression": "sub", "sqlpos": [[441, 442]], "left": {"expression": "const", "value": {"type": ["Numeric", 1], "value": 1}}, "right": {"expression": "iu-ref", "sqlpos": [[443, 453]], "iu": "scan_discount"}}, "right": {"expression": "iu-ref", "sqlpos": [[420, 435]], "iu": "scan_extended"}}}],
             "statistics": {"column-count": 3, "output-rows": 1}
           }],
           "key-expressions": [{"expression": {"value": {"expression": "iu-ref", "sqlpos": [[1426, 1432]], "iu": "map2"}}, "iu": ["GroupByKey", ["Integer"]]}],
@@ -243,7 +243,7 @@
           "aggregates": [{"source": 1, "operation": {"aggregate": "sum"}, "iu": ["sum", ["BigNumeric", 38, 4]]}, {"source": 0, "operation": {"aggregate": "sum"}, "iu": ["sum2", ["BigNumeric", 38, 4]]}],
           "statistics": {"column-count": 3, "memory-bytes": 18552, "output-rows": 1}
         }],
-        "values": [{"iu": ["map", ["BigNumeric", 38, 6]], "value": {"expression": "div", "left": {"expression": "iu-ref", "iu": "sum2"}, "right": {"expression": "iu-ref", "iu": "sum"}}}],
+        "values": [{"iu": ["map", ["BigNumeric", 38, 6]], "value": {"expression": "div", "sqlpos": [[265, 266]], "left": {"expression": "iu-ref", "iu": "sum2"}, "right": {"expression": "iu-ref", "iu": "sum"}}}],
         "statistics": {"column-count": 2, "output-rows": 1}
       }],
       "statistics": {"column-count": 2, "memory-bytes": 262152, "output-rows": 1}

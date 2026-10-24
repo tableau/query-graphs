@@ -1,0 +1,43 @@
+{
+  "tree": {
+    "operator": "result-sink",
+    "operator-id": 1,
+    "estimated-rows": 2000,
+    "produces-rows": true,
+    "output": [{"expression": "iu-ref", "sqlpos": [[90, 92]], "iu": ["cast", ["Integer", "nullable"]]}, {"expression": "iu-ref", "sqlpos": [[94, 96]], "iu": ["cast2", ["Integer", "nullable"]]}, {"expression": "iu-ref", "sqlpos": [[98, 100]], "iu": ["cast3", ["Integer", "nullable"]]}],
+    "output-names": ["a2", "b2", "c2"],
+    "inputs": [{
+      "operator": "insert",
+      "operator-id": 2,
+      "type": "native",
+      "sqlpos": [[26, 32]],
+      "estimated-rows": 2000,
+      "volatility": "volatile",
+      "relation-id": 1,
+      "schema": {"type":"sessionschema"},
+      "output": [["cast", ["Integer", "nullable"]], ["cast2", ["Integer", "nullable"]], ["cast3", ["Integer", "nullable"]]],
+      "values": [{"expression": "cast", "value": {"expression": "iu-ref", "iu": ["scan_a1", ["Integer"]]}, "type": ["Integer", "nullable"], "error-handling": "trap"}, {"expression": "cast", "value": {"expression": "iu-ref", "iu": ["scan_b1", ["Integer"]]}, "type": ["Integer", "nullable"], "error-handling": "trap"}, {"expression": "cast", "value": {"expression": "iu-ref", "iu": ["scan_c1", ["Integer"]]}, "type": ["Integer", "nullable"], "error-handling": "trap"}],
+      "inputs": [{
+        "operator": "scan",
+        "operator-id": 3,
+        "type": "native",
+        "sqlpos": [[77, 79]],
+        "estimated-rows": 2000,
+        "volatility": "stable",
+        "relation-id": 0,
+        "schema": {"type":"sessionschema"},
+        "attribute-count": 3,
+        "attributes": [{"col-id": 0, "name": "a1", "type": ["Integer"], "iu": ["scan_a1", ["Integer"]]},{"col-id": 1, "name": "b1", "type": ["Integer"], "iu": ["scan_b1", ["Integer"]]},{"col-id": 2, "name": "c1", "type": ["Integer"], "iu": ["scan_c1", ["Integer"]]}],
+        "debug-name": {"classification": "nonsensitive", "value": "t1"},
+        "selectivity": 1
+      }],
+      "tid": ["tid", ["Numeric", 18]],
+      "table-oid": ["tableOid", ["RegClass"]],
+      "tuple-flags": ["tupleFlags", ["BigInt"]],
+      "bulk-insert": false
+    }]
+  },
+  "pipelines": [
+    {"id": 0, "operators": [1, 2, 3], "dependencies": []}
+  ]
+}

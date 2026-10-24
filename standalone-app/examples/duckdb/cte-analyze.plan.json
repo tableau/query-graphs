@@ -15,21 +15,21 @@
                     "extra_info": {},
                     "intermediate_rows": 0,
                     "intermediate_size_bytes": 0,
-                    "timing": 5.22e-7,
+                    "timing": 0.000001013,
                     "type": "EXPLAIN_ANALYZE",
                     "children": [
                         {
                             "extra_info": {
-                                "CTE Name": "cte",
-                                "Table Index": "0",
+                                "CTE Name": "grouped",
+                                "Table Index": "2",
                                 "Execution Mode": "MATERIALIZED",
                                 "Order Mode": "UNORDERED",
-                                "Materialized Consumers": "2",
-                                "Estimated Cardinality": "202"
+                                "Materialized Consumers": "3",
+                                "Estimated Cardinality": "90"
                             },
                             "intermediate_rows": 0,
                             "intermediate_size_bytes": 0,
-                            "timing": 0.000007435,
+                            "timing": 0.000021248,
                             "type": "CTE",
                             "children": [
                                 {
@@ -39,11 +39,11 @@
                                             "sum_no_overflow(#1)",
                                             "avg(#2)"
                                         ],
-                                        "Estimated Cardinality": "101"
+                                        "Estimated Cardinality": "68"
                                     },
                                     "intermediate_rows": 128,
                                     "intermediate_size_bytes": 3584,
-                                    "timing": 0.000287901,
+                                    "timing": 0.0007739600000000001,
                                     "type": "HASH_GROUP_BY",
                                     "children": [
                                         {
@@ -53,11 +53,11 @@
                                                     "l_quantity",
                                                     "l_extendedprice"
                                                 ],
-                                                "Estimated Cardinality": "572"
+                                                "Estimated Cardinality": "114"
                                             },
-                                            "intermediate_rows": 572,
-                                            "intermediate_size_bytes": 11440,
-                                            "timing": 6.07e-7,
+                                            "intermediate_rows": 560,
+                                            "intermediate_size_bytes": 11200,
+                                            "timing": 5.7e-7,
                                             "type": "PROJECTION",
                                             "children": [
                                                 {
@@ -69,13 +69,14 @@
                                                             "l_quantity",
                                                             "l_extendedprice"
                                                         ],
-                                                        "Estimated Cardinality": "572"
+                                                        "Filters": "(l_quantity > 1.00)",
+                                                        "Estimated Cardinality": "114"
                                                     },
-                                                    "intermediate_rows": 572,
-                                                    "intermediate_size_bytes": 11440,
+                                                    "intermediate_rows": 560,
+                                                    "intermediate_size_bytes": 11200,
                                                     "row_groups_scanned": 1,
                                                     "rows_scanned": 572,
-                                                    "timing": 0.000009926,
+                                                    "timing": 0.000136233,
                                                     "total_row_groups_to_scan": 1,
                                                     "type": "TABLE_SCAN"
                                                 }
@@ -84,30 +85,107 @@
                                     ]
                                 },
                                 {
-                                    "extra_info": {},
-                                    "intermediate_rows": 0,
-                                    "intermediate_size_bytes": 0,
-                                    "timing": 0.0,
-                                    "type": "UNION",
+                                    "extra_info": {
+                                        "Join Type": "INNER",
+                                        "Conditions": "l_orderkey = l_orderkey",
+                                        "Estimated Cardinality": "90"
+                                    },
+                                    "intermediate_rows": 250,
+                                    "intermediate_size_bytes": 7000,
+                                    "timing": 0.000625233,
+                                    "type": "HASH_JOIN",
                                     "children": [
                                         {
-                                            "extra_info": {
-                                                "CTE Index": "0",
-                                                "Estimated Cardinality": "101"
-                                            },
-                                            "intermediate_rows": 128,
-                                            "intermediate_size_bytes": 3584,
-                                            "timing": 0.000007189,
-                                            "type": "CTE_SCAN"
+                                            "extra_info": {},
+                                            "intermediate_rows": 0,
+                                            "intermediate_size_bytes": 0,
+                                            "timing": 0.0,
+                                            "type": "UNION",
+                                            "children": [
+                                                {
+                                                    "extra_info": {
+                                                        "Projections": [
+                                                            "#0",
+                                                            "#1"
+                                                        ],
+                                                        "Estimated Cardinality": "68"
+                                                    },
+                                                    "intermediate_rows": 125,
+                                                    "intermediate_size_bytes": 2500,
+                                                    "timing": 0.0000017899999999999998,
+                                                    "type": "PROJECTION",
+                                                    "children": [
+                                                        {
+                                                            "extra_info": {
+                                                                "Expression": "(quantity > 10.00)",
+                                                                "Estimated Cardinality": "68"
+                                                            },
+                                                            "intermediate_rows": 125,
+                                                            "intermediate_size_bytes": 3500,
+                                                            "timing": 0.000050687,
+                                                            "type": "FILTER",
+                                                            "children": [
+                                                                {
+                                                                    "extra_info": {
+                                                                        "CTE Index": "2",
+                                                                        "Estimated Cardinality": "68"
+                                                                    },
+                                                                    "intermediate_rows": 128,
+                                                                    "intermediate_size_bytes": 3584,
+                                                                    "timing": 0.000018405,
+                                                                    "type": "CTE_SCAN"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "extra_info": {
+                                                        "Projections": [
+                                                            "#0",
+                                                            "#1"
+                                                        ],
+                                                        "Estimated Cardinality": "68"
+                                                    },
+                                                    "intermediate_rows": 125,
+                                                    "intermediate_size_bytes": 2500,
+                                                    "timing": 0.0000017119999999999999,
+                                                    "type": "PROJECTION",
+                                                    "children": [
+                                                        {
+                                                            "extra_info": {
+                                                                "Expression": "(quantity > 10.00)",
+                                                                "Estimated Cardinality": "68"
+                                                            },
+                                                            "intermediate_rows": 125,
+                                                            "intermediate_size_bytes": 3500,
+                                                            "timing": 0.000053637,
+                                                            "type": "FILTER",
+                                                            "children": [
+                                                                {
+                                                                    "extra_info": {
+                                                                        "CTE Index": "2",
+                                                                        "Estimated Cardinality": "68"
+                                                                    },
+                                                                    "intermediate_rows": 128,
+                                                                    "intermediate_size_bytes": 3584,
+                                                                    "timing": 0.000013643,
+                                                                    "type": "CTE_SCAN"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                }
+                                            ]
                                         },
                                         {
                                             "extra_info": {
-                                                "CTE Index": "0",
-                                                "Estimated Cardinality": "101"
+                                                "CTE Index": "2",
+                                                "Estimated Cardinality": "68"
                                             },
                                             "intermediate_rows": 128,
                                             "intermediate_size_bytes": 3584,
-                                            "timing": 0.000002496,
+                                            "timing": 0.000022151000000000002,
                                             "type": "CTE_SCAN"
                                         }
                                     ]
@@ -120,74 +198,74 @@
         }
     ],
     "optimizer": {
-        "aggregate_function_rewriter": 0.000032817,
-        "aggregate_reuse": 0.000003286,
-        "build_side_probe_side": 0.00000159,
-        "column_lifetime": 0.000005026,
-        "common_aggregate": 0.000001325,
-        "common_subexpressions": 0.000001402,
-        "common_subplan": 0.000047249,
-        "cte_filter_pusher": 0.000005248,
-        "cte_inlining": 0.000001775,
-        "deliminator": 7.82e-7,
-        "duplicate_groups": 0.000004588,
-        "empty_result_pullup": 4.85e-7,
-        "expression_rewriter": 0.000011231,
-        "filter_pullup": 6.46e-7,
-        "filter_pushdown": 0.000006262,
-        "grouping_sets": 9.56e-7,
-        "in_clause": 7.49e-7,
-        "join_elimination": 0.000005031,
-        "join_filter_pushdown": 7.06e-7,
-        "join_order": 0.000042134,
-        "late_materialization": 6.13e-7,
-        "limit_pushdown": 6.25e-7,
-        "outer_join_simplification": 0.000004433,
-        "partial_aggregate_pushdown": 0.000001529,
-        "partitioned_execution": 5e-7,
-        "projection_placement": 0.000001765,
-        "projection_pullup": 0.000003269,
-        "redundant_order_keys": 0.000004444,
-        "regex_range": 3.8e-7,
-        "reorder_filter": 8.47e-7,
-        "row_group_pruner": 3.37e-7,
-        "row_number_rewriter": 3.68e-7,
-        "sampling_pushdown": 2.75e-7,
-        "scalar_fn_pushdown": 2.5e-7,
-        "statistics_propagation": 0.000057992,
-        "top_n": 3.2e-7,
-        "top_n_window_elimination": 0.000001617,
-        "total_time": 0.000319466,
-        "type_pushdown": 4.46e-7,
-        "unnest_rewriter": 0.000001055,
-        "unused_columns": 0.00001157,
-        "window_self_join": 4.5e-7
+        "aggregate_function_rewriter": 0.00003247,
+        "aggregate_reuse": 0.000006371,
+        "build_side_probe_side": 0.000011551,
+        "column_lifetime": 0.000014797,
+        "common_aggregate": 0.0000019,
+        "common_subexpressions": 0.000002325,
+        "common_subplan": 0.000071717,
+        "cte_filter_pusher": 0.000131645,
+        "cte_inlining": 0.00038482,
+        "deliminator": 0.000001445,
+        "duplicate_groups": 0.000010969,
+        "empty_result_pullup": 9.26e-7,
+        "expression_rewriter": 0.000164822,
+        "filter_pullup": 0.000002274,
+        "filter_pushdown": 0.000063592,
+        "grouping_sets": 0.000003003,
+        "in_clause": 0.000001887,
+        "join_elimination": 0.000006707,
+        "join_filter_pushdown": 0.000035832,
+        "join_order": 0.000217382,
+        "late_materialization": 8.49e-7,
+        "limit_pushdown": 5.5e-7,
+        "outer_join_simplification": 0.000007417,
+        "partial_aggregate_pushdown": 0.000003316,
+        "partitioned_execution": 8.54e-7,
+        "projection_placement": 0.00000282,
+        "projection_pullup": 0.000010441,
+        "redundant_order_keys": 0.000004782,
+        "regex_range": 7.71e-7,
+        "reorder_filter": 0.000001914,
+        "row_group_pruner": 4.71e-7,
+        "row_number_rewriter": 5.47e-7,
+        "sampling_pushdown": 4.17e-7,
+        "scalar_fn_pushdown": 3.99e-7,
+        "statistics_propagation": 0.000070724,
+        "top_n": 4.45e-7,
+        "top_n_window_elimination": 0.000001971,
+        "total_time": 0.001421804,
+        "type_pushdown": 5.95e-7,
+        "unnest_rewriter": 0.00000136,
+        "unused_columns": 0.000028045,
+        "window_self_join": 5.88e-7
     },
     "physical_planner": {
-        "column_binding": 0.000004281,
-        "create_plan": 0.000032899,
-        "resolve_types": 4.98e-7,
-        "total_time": 0.000042752
+        "column_binding": 0.000010223,
+        "create_plan": 0.000045664,
+        "resolve_types": 0.000001119,
+        "total_time": 0.000064114
     },
     "planner": {
-        "binding_time": 0.000187823,
-        "total_time": 0.000248199
+        "binding_time": 0.00055531,
+        "total_time": 0.000883103
     },
     "query": {
-        "cpu_time": 0.00031607600000000004,
-        "sql": "EXPLAIN (ANALYZE, FORMAT JSON)\nWITH cte AS (SELECT l_orderkey, SUM(l_quantity), AVG(l_extendedprice)\n   FROM lineitem\n   GROUP BY l_orderkey\n)\nSELECT * FROM cte UNION ALL SELECT * FROM cte",
-        "total_intermediate_rows": 1528,
-        "total_intermediate_size_bytes": 33632,
+        "cpu_time": 0.001720282,
+        "sql": "EXPLAIN (ANALYZE, FORMAT JSON)\nWITH base AS (\n    SELECT l_orderkey, l_partkey, l_quantity, l_extendedprice\n    FROM lineitem\n), filtered AS (\n    SELECT *\n    FROM base\n    WHERE l_quantity > 1\n), grouped AS (\n    SELECT l_orderkey, SUM(l_quantity) AS quantity, AVG(l_extendedprice) AS price\n    FROM filtered\n    GROUP BY l_orderkey\n), nested AS (\n    WITH nested_filtered AS (\n        SELECT l_orderkey, quantity\n        FROM grouped\n        WHERE quantity > 10\n    )\n    SELECT l_orderkey, quantity\n    FROM nested_filtered\n), reused AS (\n    SELECT l_orderkey, quantity FROM nested\n    UNION ALL\n    SELECT l_orderkey, quantity FROM nested\n)\nSELECT r.l_orderkey, r.quantity, g.price\nFROM reused r\nJOIN grouped g ON g.l_orderkey = r.l_orderkey",
+        "total_intermediate_rows": 2382,
+        "total_intermediate_size_bytes": 55736,
         "total_row_groups_scanned": 1,
         "total_row_groups_to_scan": 1,
         "total_rows_scanned": 572,
-        "total_time": 0.002949974
+        "total_time": 0.007403535
     },
     "system": {
-        "blocked_thread_time": 0.0015069999999999999,
-        "peak_buffer_memory": 7208048,
+        "blocked_thread_time": 0.00287,
+        "peak_buffer_memory": 9350192,
         "peak_streaming_buffer_size": 0,
         "peak_temp_dir_size": 0,
-        "total_memory_allocated": 8388608
+        "total_memory_allocated": 12582912
     }
 }

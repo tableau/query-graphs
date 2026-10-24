@@ -1,0 +1,38 @@
+[
+  {
+    "Plan": {
+      "Node Type": "ModifyTable",
+      "Operation": "Update",
+      "Parallel Aware": false,
+      "Async Capable": false,
+      "Relation Name": "t2",
+      "Schema": "pg_temp",
+      "Alias": "t2",
+      "Startup Cost": 0.0,
+      "Total Cost": 38.9,
+      "Plan Rows": 0,
+      "Plan Width": 0,
+      "Plans": [
+        {
+          "Node Type": "Seq Scan",
+          "Parent Relationship": "Outer",
+          "Parallel Aware": false,
+          "Async Capable": false,
+          "Relation Name": "t2",
+          "Schema": "pg_temp",
+          "Alias": "t2",
+          "Startup Cost": 0.0,
+          "Total Cost": 38.9,
+          "Plan Rows": 680,
+          "Plan Width": 14,
+          "Output": [
+            "(a2 + 1)",
+            "(b2 + 1)",
+            "ctid"
+          ],
+          "Filter": "(t2.a2 < 10)"
+        }
+      ]
+    }
+  }
+]
