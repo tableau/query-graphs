@@ -40,6 +40,8 @@ export interface DecoratedJsonTreeConfig {
     nodeTypeKeys: readonly string[];
     /** Show these structural children in the listed order and omit their redundant key wrapper. */
     structuralChildKeys: readonly string[];
+    /** Override the structural child order for a particular raw node. */
+    getStructuralChildOrder?(rawNode: JsonObject): readonly string[] | undefined;
     /** Keep these values in the tooltip even when they are objects or arrays. */
     alwaysPropertyKeys: readonly string[];
     /** Promote members of these nested objects to tooltip properties. */
@@ -65,6 +67,7 @@ export interface DecoratedJsonTreeConfig {
 function orderedKeys(rawNode: JsonObject, config: DecoratedJsonTreeConfig): string[] {
     // Enforce a format-specific order for structural children (for example,
     // "left" before "right") and display all remaining keys alphabetically.
+    const structuralChildKeys = config.getStructuralChildOrder?.(rawNode) ?? config.structuralChildKeys;
     return Object.getOwnPropertyNames(rawNode)
         .filter(
             (key) =>
@@ -72,8 +75,8 @@ function orderedKeys(rawNode: JsonObject, config: DecoratedJsonTreeConfig): stri
                 !(config.flattenPropertyObjectKeys?.includes(key) && isJsonObject(rawNode[key])),
         )
         .sort((left, right) => {
-            const leftIndex = config.structuralChildKeys.indexOf(left);
-            const rightIndex = config.structuralChildKeys.indexOf(right);
+            const leftIndex = structuralChildKeys.indexOf(left);
+            const rightIndex = structuralChildKeys.indexOf(right);
             if (leftIndex !== -1 || rightIndex !== -1) {
                 return (leftIndex === -1 ? Infinity : leftIndex) - (rightIndex === -1 ? Infinity : rightIndex);
             }
@@ -152,6 +155,7 @@ function convertDecoratedJsonValue(
     const expandedChildren: TreeNode[] = [];
     const collapsedChildren: TreeNode[] = [];
     const properties = new Map<string, string>();
+    const structuralChildKeys = config.getStructuralChildOrder?.(rawNode) ?? config.structuralChildKeys;
     // Classify semantic nodes before processing their fields so the identifying
     // property can also drive format-specific rendering and source links. It remains
     // in the properties map so generic insights can inspect it.
@@ -188,7 +192,7 @@ function convertDecoratedJsonValue(
         const collapse = config.shouldCollapseChild?.(rawNode, key, rawNode[key]) ?? false;
         const target = collapse ? collapsedChildren : expandedChildren;
         const converted = convertDecoratedJsonValue(rawNode[key], key, state, config, context);
-        appendChild(target, converted, key, config.structuralChildKeys.includes(key), collapse);
+        appendChild(target, converted, key, structuralChildKeys.includes(key), collapse);
     }
 
     // Determine format-specific rendering and the most meaningful available name.
