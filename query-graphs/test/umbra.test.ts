@@ -140,6 +140,37 @@ test("Umbra applies format-specific names and icons", () => {
     assert.equal(markJoin.root.children?.[0].icon, undefined);
 });
 
+test("Umbra and CedarDB render join build inputs on the left", () => {
+    const tree = loadUmbraPlan({
+        plan: {
+            operator: "join",
+            operatorId: 1,
+            physicalOperator: "hashjoin",
+            left: {operator: "tablescan", operatorId: 2, tablename: "probe"},
+            right: {operator: "tablescan", operatorId: 3, tablename: "build"},
+        },
+    });
+
+    assert.deepEqual(
+        tree.root.children?.[0].children?.map((node) => node.properties?.get("tablename")),
+        ["build", "probe"],
+    );
+
+    const ternaryTree = loadUmbraPlan({
+        plan: {
+            operator: "ternaryjoin",
+            operatorId: 4,
+            build0: {operator: "tablescan", operatorId: 5, tablename: "build0"},
+            build1: {operator: "tablescan", operatorId: 6, tablename: "build1"},
+            probe: {operator: "tablescan", operatorId: 7, tablename: "probe"},
+        },
+    });
+    assert.deepEqual(
+        ternaryTree.root.children?.[0].children?.map((node) => node.properties?.get("tablename")),
+        ["build0", "build1", "probe"],
+    );
+});
+
 // Source-location metadata remains inspectable but must not become auxiliary graph nodes of its own.
 test("Umbra keeps source locations in properties instead of graph subtrees", () => {
     const tree = loadUmbraPlan({

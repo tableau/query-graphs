@@ -58,11 +58,20 @@ const structuralChildKeys = [
     "pipelineBreaker",
 ];
 
+const joinStructuralChildKeys = ["build0", "build1", "right", "left", "probe"];
+
 type UmbraStatement = JsonObject & {plan: JsonObject};
 
 const umbraConfig: DecoratedJsonTreeConfig = {
     nodeTypeKeys: ["operator", "expression"],
     structuralChildKeys,
+    getStructuralChildOrder(rawNode) {
+        // Binary joins expose their physical inputs as logical `left` and
+        // `right` children. In Umbra/CedarDB, the right input is the build
+        // side and the left input is the probe side. Ternary joins name the
+        // roles explicitly, so keep build inputs before the probe input there.
+        return rawNode["operator"] === "join" ? joinStructuralChildKeys : undefined;
+    },
     alwaysPropertyKeys: ["analyzePlanCounters", "sourceLocation"],
     getRenderingConfig(nodeTypeKey, tag, rawNode) {
         if (nodeTypeKey === "operator" && tag === "join") {
