@@ -1,0 +1,158 @@
+{
+    "io": {
+        "total_bytes_read": 0,
+        "total_bytes_written": 0
+    },
+    "operator": [
+        {
+            "extra_info": {},
+            "intermediate_rows": 0,
+            "intermediate_size_bytes": 0,
+            "timing": 0.0,
+            "type": "RESULT_COLLECTOR",
+            "children": [
+                {
+                    "extra_info": {},
+                    "intermediate_rows": 0,
+                    "intermediate_size_bytes": 0,
+                    "timing": 0.0,
+                    "type": "EXPLAIN_ANALYZE",
+                    "children": [
+                        {
+                            "extra_info": {
+                                "Join Type": "SINGLE",
+                                "Conditions": "a1 IS NOT DISTINCT FROM a1",
+                                "Estimated Cardinality": "0"
+                            },
+                            "intermediate_rows": 0,
+                            "intermediate_size_bytes": 0,
+                            "timing": 0.00000184,
+                            "type": "HASH_JOIN",
+                            "children": [
+                                {
+                                    "extra_info": {
+                                        "Table": "\"temp\".main.t1",
+                                        "Type": "Sequential Scan",
+                                        "Projections": "a1",
+                                        "Estimated Cardinality": "0"
+                                    },
+                                    "intermediate_rows": 0,
+                                    "intermediate_size_bytes": 0,
+                                    "row_groups_scanned": 0,
+                                    "rows_scanned": 0,
+                                    "timing": 0.000004352,
+                                    "total_row_groups_to_scan": 0,
+                                    "type": "TABLE_SCAN"
+                                },
+                                {
+                                    "extra_info": {
+                                        "Projections": [
+                                            "b2",
+                                            "a1"
+                                        ],
+                                        "Estimated Cardinality": "0"
+                                    },
+                                    "intermediate_rows": 0,
+                                    "intermediate_size_bytes": 0,
+                                    "timing": 0.0,
+                                    "type": "PROJECTION",
+                                    "children": [
+                                        {
+                                            "extra_info": {
+                                                "Table": "\"temp\".main.t2",
+                                                "Type": "Sequential Scan",
+                                                "Projections": [
+                                                    "a2",
+                                                    "b2"
+                                                ],
+                                                "Estimated Cardinality": "0"
+                                            },
+                                            "intermediate_rows": 0,
+                                            "intermediate_size_bytes": 0,
+                                            "row_groups_scanned": 0,
+                                            "rows_scanned": 0,
+                                            "timing": 0.000002714,
+                                            "total_row_groups_to_scan": 0,
+                                            "type": "TABLE_SCAN"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "optimizer": {
+        "aggregate_function_rewriter": 0.000006677,
+        "aggregate_reuse": 0.000004419,
+        "build_side_probe_side": 0.000002819,
+        "column_lifetime": 0.000009216,
+        "common_aggregate": 0.000001096,
+        "common_subexpressions": 0.000001827,
+        "common_subplan": 0.000054917,
+        "cte_filter_pusher": 7.34e-7,
+        "cte_inlining": 7.71e-7,
+        "deliminator": 0.000017526,
+        "duplicate_groups": 0.000003161,
+        "empty_result_pullup": 8.73e-7,
+        "expression_rewriter": 0.000015492,
+        "filter_pullup": 0.000001442,
+        "filter_pushdown": 0.000259905,
+        "grouping_sets": 0.000001753,
+        "in_clause": 0.000001083,
+        "join_elimination": 0.000004155,
+        "join_filter_pushdown": 0.000001249,
+        "join_order": 0.000044955,
+        "late_materialization": 0.000001313,
+        "limit_pushdown": 5.4e-7,
+        "outer_join_simplification": 0.000004097,
+        "partial_aggregate_pushdown": 0.000002336,
+        "partitioned_execution": 5.87e-7,
+        "projection_placement": 0.000002353,
+        "projection_pullup": 0.000003577,
+        "redundant_order_keys": 0.000003087,
+        "regex_range": 5.83e-7,
+        "reorder_filter": 0.000001243,
+        "row_group_pruner": 5.61e-7,
+        "row_number_rewriter": 6.6e-7,
+        "sampling_pushdown": 4.2e-7,
+        "scalar_fn_pushdown": 4.06e-7,
+        "statistics_propagation": 0.000021433,
+        "top_n": 5.11e-7,
+        "top_n_window_elimination": 0.000003007,
+        "total_time": 0.000588199,
+        "type_pushdown": 7.4e-7,
+        "unnest_rewriter": 0.000001072,
+        "unused_columns": 0.000028469,
+        "window_self_join": 7.49e-7
+    },
+    "physical_planner": {
+        "column_binding": 0.000006338,
+        "create_plan": 0.000017816,
+        "resolve_types": 7.88e-7,
+        "total_time": 0.000030913
+    },
+    "planner": {
+        "binding_time": 0.000182051,
+        "total_time": 0.000314209
+    },
+    "query": {
+        "cpu_time": 0.000008906,
+        "sql": "EXPLAIN (ANALYZE, FORMAT JSON)\nSELECT t1.a1,\n       (SELECT t2.b2 FROM t2 WHERE t2.a2 = t1.a1) AS matching_b\nFROM t1",
+        "total_intermediate_rows": 0,
+        "total_intermediate_size_bytes": 0,
+        "total_row_groups_scanned": 0,
+        "total_row_groups_to_scan": 0,
+        "total_rows_scanned": 0,
+        "total_time": 0.001492035
+    },
+    "system": {
+        "blocked_thread_time": 0.00032,
+        "peak_buffer_memory": 2193168,
+        "peak_streaming_buffer_size": 0,
+        "peak_temp_dir_size": 0,
+        "total_memory_allocated": 0
+    }
+}

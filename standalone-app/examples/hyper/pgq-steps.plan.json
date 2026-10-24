@@ -1,0 +1,763 @@
+{"optimizersteps": [{
+  "name": "Initial",
+  "plan": {
+  "operator": "result-sink",
+  "operator-id": 1,
+  "produces-rows": true,
+  "output": [{"expression": "iu-ref", "sqlpos": [[754, 755]], "iu": ["name", ["Varchar"]]}, {"expression": "iu-ref", "sqlpos": [[754, 755]], "iu": ["supply_cost", ["Numeric", 12, 2]]}, {"expression": "iu-ref", "sqlpos": [[754, 755]], "iu": ["name2", ["Varchar"]]}],
+  "output-names": ["product_name", "supply_cost", "supplier_name"],
+  "inputs": [{
+    "operator": "filter",
+    "operator-id": 2,
+    "sqlpos": [[982, 987]],
+    "inputs": [{
+      "operator": "table-construction",
+      "operator-id": 3,
+      "output": [["name", ["Varchar"]], ["brand", ["Char", 10]], ["supply_cost", ["Numeric", 12, 2]], ["name2", ["Varchar"]], ["account_balance", ["Numeric", 12, 2]]],
+      "values": [[{"expression": "iu-ref", "iu": ["name3", ["Varchar"]]}, {"expression": "iu-ref", "iu": ["brand2", ["Char", 10]]}, {"expression": "iu-ref", "iu": ["supply_cost2", ["Numeric", 12, 2]]}, {"expression": "iu-ref", "iu": ["name4", ["Varchar"]]}, {"expression": "iu-ref", "iu": ["account_balance2", ["Numeric", 12, 2]]}]],
+      "inputs": [{
+        "operator": "map",
+        "operator-id": 4,
+        "inputs": [{
+          "operator": "filter",
+          "operator-id": 5,
+          "inputs": [{
+            "operator": "join",
+            "operator-id": 6,
+            "type": "inner",
+            "inputs": [{
+              "operator": "join",
+              "operator-id": 7,
+              "type": "inner",
+              "inputs": [{
+                "operator": "filter",
+                "operator-id": 8,
+                "sqlpos": [[812, 817]],
+                "inputs": [{
+                  "operator": "map",
+                  "operator-id": 9,
+                  "inputs": [{
+                    "operator": "explicit-scan",
+                    "operator-id": 10,
+                    "mapping": [{"source": {"expression": "iu-ref", "iu": ["scan_partkey", ["Integer"]]}, "target": ["scan_partkey2", ["Integer"]]}, {"source": {"expression": "iu-ref", "iu": ["scan_p_name", ["Varchar", 55]]}, "target": ["scan_p_name2", ["Varchar", 55]]}, {"source": {"expression": "iu-ref", "iu": ["scan_p_mfgr", ["Char", 25]]}, "target": ["scan_p_mfgr2", ["Char", 25]]}, {"source": {"expression": "iu-ref", "iu": ["scan_p_brand", ["Char", 10]]}, "target": ["scan_p_brand2", ["Char", 10]]}, {"source": {"expression": "iu-ref", "iu": ["scan_p_type", ["Varchar", 25]]}, "target": ["scan_p_type2", ["Varchar", 25]]}, {"source": {"expression": "iu-ref", "iu": ["scan_p_size", ["Integer"]]}, "target": ["scan_p_size2", ["Integer"]]}, {"source": {"expression": "iu-ref", "iu": ["scan_containe", ["Char", 10]]}, "target": ["scan_containe2", ["Char", 10]]}, {"source": {"expression": "iu-ref", "iu": ["scan_retailpr", ["Numeric", 12, 2]]}, "target": ["scan_retailpr2", ["Numeric", 12, 2]]}, {"source": {"expression": "iu-ref", "iu": ["scan_comment", ["Varchar", 23]]}, "target": ["scan_comment2", ["Varchar", 23]]}],
+                    "input": {
+                      "operator": "share",
+                      "operator-id": 11,
+                      "inputs": [{
+                        "operator": "scan",
+                        "operator-id": 12,
+                        "type": "native",
+                        "sqlpos": [[204, 208]],
+                        "volatility": "stable",
+                        "relation-id": 2,
+                        "schema": {"type":"sessionschema"},
+                        "attribute-count": 9,
+                        "attributes": [{"col-id": 0, "name": "p_partkey", "type": ["Integer"], "iu": ["scan_partkey", ["Integer"]]},{"col-id": 1, "name": "p_name", "type": ["Varchar", 55], "iu": ["scan_p_name", ["Varchar", 55]]},{"col-id": 2, "name": "p_mfgr", "type": ["Char", 25], "iu": ["scan_p_mfgr", ["Char", 25]]},{"col-id": 3, "name": "p_brand", "type": ["Char", 10], "iu": ["scan_p_brand", ["Char", 10]]},{"col-id": 4, "name": "p_type", "type": ["Varchar", 25], "iu": ["scan_p_type", ["Varchar", 25]]},{"col-id": 5, "name": "p_size", "type": ["Integer"], "iu": ["scan_p_size", ["Integer"]]},{"col-id": 6, "name": "p_container", "type": ["Char", 10], "iu": ["scan_containe", ["Char", 10]]},{"col-id": 7, "name": "p_retailprice", "type": ["Numeric", 12, 2], "iu": ["scan_retailpr", ["Numeric", 12, 2]]},{"col-id": 8, "name": "p_comment", "type": ["Varchar", 23], "iu": ["scan_comment", ["Varchar", 23]]}],
+                        "system-values": {"ctid": ["scan_tid", ["BigInt"]], "table-oid": ["scan_oid", ["RegClass"]], "tuple-flags": ["scan_flags", ["BigInt"]]},
+                        "debug-name": {"classification": "nonsensitive", "value": "part"},
+                        "selectivity": 1
+                      }],
+                      "strategy": "undecided"
+                    }
+                  }],
+                  "values": [{"iu": ["name5", ["Varchar"]], "value": {"expression": "cast", "value": {"expression": "iu-ref", "iu": "scan_p_name2"}, "type": ["Varchar"], "error-handling": "trap"}}, {"iu": ["brand3", ["Char", 10]], "value": {"expression": "iu-ref", "iu": "scan_p_brand2"}}]
+                }],
+                "condition": {"expression": "comparison", "sqlpos": [[832, 833]], "mode": "=", "left": {"expression": "iu-ref", "sqlpos": [[826, 831]], "iu": "brand3"}, "right": {"expression": "const", "value": {"type": ["Varchar"], "value": "Brand#11"}}}
+              }, {
+                "operator": "filter",
+                "operator-id": 13,
+                "sqlpos": [[875, 880]],
+                "inputs": [{
+                  "operator": "map",
+                  "operator-id": 14,
+                  "inputs": [{
+                    "operator": "explicit-scan",
+                    "operator-id": 15,
+                    "mapping": [{"source": {"expression": "iu-ref", "iu": ["scan_partkey3", ["Integer"]]}, "target": ["scan_partkey4", ["Integer"]]}, {"source": {"expression": "iu-ref", "iu": ["scan_suppkey", ["Integer"]]}, "target": ["scan_suppkey2", ["Integer"]]}, {"source": {"expression": "iu-ref", "iu": ["scan_availqty", ["Integer"]]}, "target": ["scan_availqty2", ["Integer"]]}, {"source": {"expression": "iu-ref", "iu": ["scan_supplyco", ["Numeric", 12, 2]]}, "target": ["scan_supplyco2", ["Numeric", 12, 2]]}, {"source": {"expression": "iu-ref", "iu": ["scan_comment3", ["Varchar", 199]]}, "target": ["scan_comment4", ["Varchar", 199]]}],
+                    "input": {
+                      "operator": "share",
+                      "operator-id": 16,
+                      "inputs": [{
+                        "operator": "scan",
+                        "operator-id": 17,
+                        "type": "native",
+                        "sqlpos": [[500, 508]],
+                        "volatility": "stable",
+                        "relation-id": 4,
+                        "schema": {"type":"sessionschema"},
+                        "attribute-count": 5,
+                        "attributes": [{"col-id": 0, "name": "ps_partkey", "type": ["Integer"], "iu": ["scan_partkey3", ["Integer"]]},{"col-id": 1, "name": "ps_suppkey", "type": ["Integer"], "iu": ["scan_suppkey", ["Integer"]]},{"col-id": 2, "name": "ps_availqty", "type": ["Integer"], "iu": ["scan_availqty", ["Integer"]]},{"col-id": 3, "name": "ps_supplycost", "type": ["Numeric", 12, 2], "iu": ["scan_supplyco", ["Numeric", 12, 2]]},{"col-id": 4, "name": "ps_comment", "type": ["Varchar", 199], "iu": ["scan_comment3", ["Varchar", 199]]}],
+                        "system-values": {"ctid": ["scan_tid2", ["BigInt"]], "table-oid": ["scan_oid2", ["RegClass"]], "tuple-flags": ["scan_flags2", ["BigInt"]]},
+                        "debug-name": {"classification": "nonsensitive", "value": "partsupp"},
+                        "selectivity": 1
+                      }],
+                      "strategy": "undecided"
+                    }
+                  }],
+                  "values": [{"iu": ["supply_cost3", ["Numeric", 12, 2]], "value": {"expression": "iu-ref", "iu": "scan_supplyco2"}}]
+                }],
+                "condition": {"expression": "comparison", "sqlpos": [[900, 901]], "mode": ">", "left": {"expression": "iu-ref", "sqlpos": [[888, 899]], "iu": "supply_cost3"}, "right": {"expression": "const", "value": {"type": ["Integer"], "value": 100}}}
+              }],
+              "condition": {"expression": "const", "value": {"type": ["Bool"], "value": true}},
+              "predicates": [],
+              "residual": {"expression": "const", "value": {"type": ["Bool"], "value": true}}
+            }, {
+              "operator": "filter",
+              "operator-id": 18,
+              "sqlpos": [[939, 944]],
+              "inputs": [{
+                "operator": "map",
+                "operator-id": 19,
+                "inputs": [{
+                  "operator": "explicit-scan",
+                  "operator-id": 20,
+                  "mapping": [{"source": {"expression": "iu-ref", "iu": ["scan_suppkey3", ["Integer"]]}, "target": ["scan_suppkey4", ["Integer"]]}, {"source": {"expression": "iu-ref", "iu": ["scan_s_name", ["Char", 25]]}, "target": ["scan_s_name2", ["Char", 25]]}, {"source": {"expression": "iu-ref", "iu": ["scan_address", ["Varchar", 40]]}, "target": ["scan_address2", ["Varchar", 40]]}, {"source": {"expression": "iu-ref", "iu": ["scan_nationke", ["Integer"]]}, "target": ["scan_nationke2", ["Integer"]]}, {"source": {"expression": "iu-ref", "iu": ["scan_s_phone", ["Char", 15]]}, "target": ["scan_s_phone2", ["Char", 15]]}, {"source": {"expression": "iu-ref", "iu": ["scan_acctbal", ["Numeric", 12, 2]]}, "target": ["scan_acctbal2", ["Numeric", 12, 2]]}, {"source": {"expression": "iu-ref", "iu": ["scan_comment5", ["Varchar", 101]]}, "target": ["scan_comment6", ["Varchar", 101]]}],
+                  "input": {
+                    "operator": "share",
+                    "operator-id": 21,
+                    "inputs": [{
+                      "operator": "scan",
+                      "operator-id": 22,
+                      "type": "native",
+                      "sqlpos": [[328, 336]],
+                      "volatility": "stable",
+                      "relation-id": 3,
+                      "schema": {"type":"sessionschema"},
+                      "attribute-count": 7,
+                      "attributes": [{"col-id": 0, "name": "s_suppkey", "type": ["Integer"], "iu": ["scan_suppkey3", ["Integer"]]},{"col-id": 1, "name": "s_name", "type": ["Char", 25], "iu": ["scan_s_name", ["Char", 25]]},{"col-id": 2, "name": "s_address", "type": ["Varchar", 40], "iu": ["scan_address", ["Varchar", 40]]},{"col-id": 3, "name": "s_nationkey", "type": ["Integer"], "iu": ["scan_nationke", ["Integer"]]},{"col-id": 4, "name": "s_phone", "type": ["Char", 15], "iu": ["scan_s_phone", ["Char", 15]]},{"col-id": 5, "name": "s_acctbal", "type": ["Numeric", 12, 2], "iu": ["scan_acctbal", ["Numeric", 12, 2]]},{"col-id": 6, "name": "s_comment", "type": ["Varchar", 101], "iu": ["scan_comment5", ["Varchar", 101]]}],
+                      "system-values": {"ctid": ["scan_tid3", ["BigInt"]], "table-oid": ["scan_oid3", ["RegClass"]], "tuple-flags": ["scan_flags3", ["BigInt"]]},
+                      "debug-name": {"classification": "nonsensitive", "value": "supplier"},
+                      "selectivity": 1
+                    }],
+                    "strategy": "undecided"
+                  }
+                }],
+                "values": [{"iu": ["name6", ["Varchar"]], "value": {"expression": "cast", "value": {"expression": "iu-ref", "iu": "scan_s_name2"}, "type": ["Varchar"], "error-handling": "trap"}}, {"iu": ["account_balance3", ["Numeric", 12, 2]], "value": {"expression": "iu-ref", "iu": "scan_acctbal2"}}]
+              }],
+              "condition": {"expression": "comparison", "sqlpos": [[968, 969]], "mode": ">", "left": {"expression": "iu-ref", "sqlpos": [[952, 967]], "iu": "account_balance3"}, "right": {"expression": "const", "value": {"type": ["Integer"], "value": 0}}}
+            }],
+            "condition": {"expression": "const", "value": {"type": ["Bool"], "value": true}},
+            "predicates": [],
+            "residual": {"expression": "const", "value": {"type": ["Bool"], "value": true}}
+          }],
+          "condition": {"expression": "and", "arguments": [{"expression": "comparison", "mode": "=", "left": {"expression": "iu-ref", "iu": "scan_partkey4"}, "right": {"expression": "iu-ref", "iu": "scan_partkey2"}}, {"expression": "comparison", "mode": "=", "left": {"expression": "iu-ref", "iu": "scan_suppkey2"}, "right": {"expression": "iu-ref", "iu": "scan_suppkey4"}}]}
+        }],
+        "values": [{"iu": ["name3", ["Varchar"]], "value": {"expression": "cast", "value": {"expression": "iu-ref", "iu": "scan_p_name2"}, "type": ["Varchar"], "error-handling": "trap"}}, {"iu": ["brand2", ["Char", 10]], "value": {"expression": "iu-ref", "iu": "scan_p_brand2"}}, {"iu": ["supply_cost2", ["Numeric", 12, 2]], "value": {"expression": "iu-ref", "iu": "scan_supplyco2"}}, {"iu": ["name4", ["Varchar"]], "value": {"expression": "cast", "value": {"expression": "iu-ref", "iu": "scan_s_name2"}, "type": ["Varchar"], "error-handling": "trap"}}, {"iu": ["account_balance2", ["Numeric", 12, 2]], "value": {"expression": "iu-ref", "iu": "scan_acctbal2"}}]
+      }]
+    }],
+    "condition": {"expression": "like", "sqlpos": [[1001, 1005]], "arguments": [{"expression": "iu-ref", "sqlpos": [[996, 1000]], "iu": "name"}, {"expression": "const", "value": {"type": ["Varchar"], "value": "%blue%"}}, {"expression": "const", "value": {"type": ["Varchar"], "value": "\\"}}]}
+  }]
+}
+}, {
+  "name": "Unnesting",
+  "plan": {
+  "operator": "result-sink",
+  "operator-id": 1,
+  "produces-rows": true,
+  "output": [{"expression": "iu-ref", "sqlpos": [[754, 755]], "iu": ["name", ["Varchar"]]}, {"expression": "iu-ref", "sqlpos": [[754, 755]], "iu": ["supply_cost", ["Numeric", 12, 2]]}, {"expression": "iu-ref", "sqlpos": [[754, 755]], "iu": ["name2", ["Varchar"]]}],
+  "output-names": ["product_name", "supply_cost", "supplier_name"],
+  "inputs": [{
+    "operator": "filter",
+    "operator-id": 2,
+    "sqlpos": [[982, 987]],
+    "inputs": [{
+      "operator": "map",
+      "operator-id": 3,
+      "inputs": [{
+        "operator": "filter",
+        "operator-id": 4,
+        "inputs": [{
+          "operator": "join",
+          "operator-id": 5,
+          "type": "inner",
+          "inputs": [{
+            "operator": "join",
+            "operator-id": 6,
+            "type": "inner",
+            "inputs": [{
+              "operator": "filter",
+              "operator-id": 7,
+              "sqlpos": [[812, 817]],
+              "inputs": [{
+                "operator": "scan",
+                "operator-id": 8,
+                "type": "native",
+                "sqlpos": [[204, 208]],
+                "estimated-rows": 533,
+                "volatility": "stable",
+                "relation-id": 2,
+                "schema": {"type":"sessionschema"},
+                "attribute-count": 9,
+                "attributes": [{"col-id": 0, "name": "p_partkey", "type": ["Integer"], "iu": ["scan_partkey", ["Integer"]]},{"col-id": 1, "name": "p_name", "type": ["Varchar", 55], "iu": ["scan_p_name", ["Varchar", 55]]},{"col-id": 3, "name": "p_brand", "type": ["Char", 10], "iu": ["scan_p_brand", ["Char", 10]]}],
+                "debug-name": {"classification": "nonsensitive", "value": "part"},
+                "selectivity": 1
+              }],
+              "condition": {"expression": "comparison", "sqlpos": [[832, 833]], "mode": "=", "left": {"expression": "iu-ref", "sqlpos": [[826, 831]], "iu": "scan_p_brand"}, "right": {"expression": "const", "value": {"type": ["Varchar"], "value": "Brand#11"}}}
+            }, {
+              "operator": "filter",
+              "operator-id": 9,
+              "sqlpos": [[875, 880]],
+              "inputs": [{
+                "operator": "scan",
+                "operator-id": 10,
+                "type": "native",
+                "sqlpos": [[500, 508]],
+                "estimated-rows": 537,
+                "volatility": "stable",
+                "relation-id": 4,
+                "schema": {"type":"sessionschema"},
+                "attribute-count": 5,
+                "attributes": [{"col-id": 0, "name": "ps_partkey", "type": ["Integer"], "iu": ["scan_partkey2", ["Integer"]]},{"col-id": 1, "name": "ps_suppkey", "type": ["Integer"], "iu": ["scan_suppkey", ["Integer"]]},{"col-id": 3, "name": "ps_supplycost", "type": ["Numeric", 12, 2], "iu": ["scan_supplyco", ["Numeric", 12, 2]]}],
+                "debug-name": {"classification": "nonsensitive", "value": "partsupp"},
+                "selectivity": 1
+              }],
+              "condition": {"expression": "comparison", "sqlpos": [[900, 901]], "mode": ">", "left": {"expression": "iu-ref", "sqlpos": [[888, 899]], "iu": "scan_supplyco"}, "right": {"expression": "const", "value": {"type": ["Integer"], "value": 100}}}
+            }],
+            "condition": {"expression": "const", "value": {"type": ["Bool"], "value": true}},
+            "predicates": [],
+            "residual": {"expression": "const", "value": {"type": ["Bool"], "value": true}}
+          }, {
+            "operator": "filter",
+            "operator-id": 11,
+            "sqlpos": [[939, 944]],
+            "inputs": [{
+              "operator": "scan",
+              "operator-id": 12,
+              "type": "native",
+              "sqlpos": [[328, 336]],
+              "estimated-rows": 518,
+              "volatility": "stable",
+              "relation-id": 3,
+              "schema": {"type":"sessionschema"},
+              "attribute-count": 7,
+              "attributes": [{"col-id": 0, "name": "s_suppkey", "type": ["Integer"], "iu": ["scan_suppkey2", ["Integer"]]},{"col-id": 1, "name": "s_name", "type": ["Char", 25], "iu": ["scan_s_name", ["Char", 25]]},{"col-id": 5, "name": "s_acctbal", "type": ["Numeric", 12, 2], "iu": ["scan_acctbal", ["Numeric", 12, 2]]}],
+              "debug-name": {"classification": "nonsensitive", "value": "supplier"},
+              "selectivity": 1
+            }],
+            "condition": {"expression": "comparison", "sqlpos": [[968, 969]], "mode": ">", "left": {"expression": "iu-ref", "sqlpos": [[952, 967]], "iu": "scan_acctbal"}, "right": {"expression": "const", "value": {"type": ["Integer"], "value": 0}}}
+          }],
+          "condition": {"expression": "const", "value": {"type": ["Bool"], "value": true}},
+          "predicates": [],
+          "residual": {"expression": "const", "value": {"type": ["Bool"], "value": true}}
+        }],
+        "condition": {"expression": "and", "arguments": [{"expression": "comparison", "mode": "=", "left": {"expression": "iu-ref", "iu": "scan_partkey2"}, "right": {"expression": "iu-ref", "iu": "scan_partkey"}}, {"expression": "comparison", "mode": "=", "left": {"expression": "iu-ref", "iu": "scan_suppkey"}, "right": {"expression": "iu-ref", "iu": "scan_suppkey2"}}]}
+      }],
+      "values": [{"iu": ["name", ["Varchar"]], "value": {"expression": "cast", "value": {"expression": "iu-ref", "iu": "scan_p_name"}, "type": ["Varchar"], "error-handling": "trap"}}, {"iu": ["supply_cost", ["Numeric", 12, 2]], "value": {"expression": "iu-ref", "iu": "scan_supplyco"}}, {"iu": ["name2", ["Varchar"]], "value": {"expression": "cast", "value": {"expression": "iu-ref", "iu": "scan_s_name"}, "type": ["Varchar"], "error-handling": "trap"}}]
+    }],
+    "condition": {"expression": "like", "sqlpos": [[1001, 1005]], "arguments": [{"expression": "iu-ref", "sqlpos": [[996, 1000]], "iu": "name"}, {"expression": "const", "value": {"type": ["Varchar"], "value": "%blue%"}}, {"expression": "const", "value": {"type": ["Varchar"], "value": "\\"}}]}
+  }]
+}
+}, {
+  "name": "PredicatePushdown",
+  "plan": {
+  "operator": "result-sink",
+  "operator-id": 1,
+  "produces-rows": true,
+  "output": [{"expression": "cast", "value": {"expression": "iu-ref", "iu": ["scan_p_name", ["Varchar", 55]]}, "type": ["Varchar"], "error-handling": "trap"}, {"expression": "iu-ref", "sqlpos": [[754, 755]], "iu": ["scan_supplyco", ["Numeric", 12, 2]]}, {"expression": "cast", "value": {"expression": "iu-ref", "iu": ["scan_s_name", ["Char", 25]]}, "type": ["Varchar"], "error-handling": "trap"}],
+  "output-names": ["product_name", "supply_cost", "supplier_name"],
+  "inputs": [{
+    "operator": "join",
+    "operator-id": 2,
+    "type": "inner",
+    "inputs": [{
+      "operator": "join",
+      "operator-id": 3,
+      "type": "inner",
+      "inputs": [{
+        "operator": "scan",
+        "operator-id": 4,
+        "type": "native",
+        "sqlpos": [[328, 336]],
+        "volatility": "stable",
+        "relation-id": 3,
+        "schema": {"type":"sessionschema"},
+        "attribute-count": 7,
+        "attributes": [{"col-id": 0, "name": "s_suppkey", "type": ["Integer"], "iu": ["scan_suppkey", ["Integer"]]},{"col-id": 1, "name": "s_name", "type": ["Char", 25], "iu": ["scan_s_name", ["Char", 25]]},{"col-id": 5, "name": "s_acctbal", "type": ["Numeric", 12, 2], "iu": ["scan_acctbal", ["Numeric", 12, 2]]}],
+        "debug-name": {"classification": "nonsensitive", "value": "supplier"},
+        "residual": [{"expression": "comparison", "sqlpos": [[968, 969]], "mode": ">", "left": {"expression": "iu-ref", "sqlpos": [[952, 967]], "iu": "scan_acctbal"}, "right": {"expression": "const", "value": {"type": ["Numeric", 12, 2], "value": 0}}}],
+        "selectivity": 0.5
+      }, {
+        "operator": "scan",
+        "operator-id": 5,
+        "type": "native",
+        "sqlpos": [[500, 508]],
+        "volatility": "stable",
+        "relation-id": 4,
+        "schema": {"type":"sessionschema"},
+        "attribute-count": 5,
+        "attributes": [{"col-id": 0, "name": "ps_partkey", "type": ["Integer"], "iu": ["scan_partkey", ["Integer"]]},{"col-id": 1, "name": "ps_suppkey", "type": ["Integer"], "iu": ["scan_suppkey2", ["Integer"]]},{"col-id": 3, "name": "ps_supplycost", "type": ["Numeric", 12, 2], "iu": ["scan_supplyco", ["Numeric", 12, 2]]}],
+        "debug-name": {"classification": "nonsensitive", "value": "partsupp"},
+        "residual": [{"expression": "comparison", "sqlpos": [[900, 901]], "mode": ">", "left": {"expression": "iu-ref", "sqlpos": [[888, 899]], "iu": "scan_supplyco"}, "right": {"expression": "const", "value": {"type": ["Numeric", 12, 2], "value": 10000}}}],
+        "selectivity": 0.5
+      }],
+      "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iu-ref", "iu": "scan_suppkey2"}, "right": {"expression": "iu-ref", "iu": "scan_suppkey"}},
+      "predicates": [{"left": {"expression": "iu-ref", "iu": "scan_suppkey"}, "right": {"expression": "iu-ref", "iu": "scan_suppkey2"}, "comparison": "="}]
+    }, {
+      "operator": "scan",
+      "operator-id": 6,
+      "type": "native",
+      "sqlpos": [[204, 208]],
+      "volatility": "stable",
+      "relation-id": 2,
+      "schema": {"type":"sessionschema"},
+      "attribute-count": 9,
+      "attributes": [{"col-id": 0, "name": "p_partkey", "type": ["Integer"], "iu": ["scan_partkey2", ["Integer"]]},{"col-id": 1, "name": "p_name", "type": ["Varchar", 55], "iu": ["scan_p_name", ["Varchar", 55]]},{"col-id": 3, "name": "p_brand", "type": ["Char", 10], "iu": ["scan_p_brand", ["Char", 10]]}],
+      "debug-name": {"classification": "nonsensitive", "value": "part"},
+      "residual": [{"expression": "contains", "left": {"expression": "cast", "value": {"expression": "iu-ref", "iu": "scan_p_name"}, "type": ["Varchar"], "error-handling": "trap"}, "right": {"expression": "const", "value": {"type": ["Varchar"], "value": "blue"}}}, {"expression": "comparison", "sqlpos": [[832, 833]], "mode": "=", "left": {"expression": "iu-ref", "sqlpos": [[826, 831]], "iu": "scan_p_brand"}, "right": {"expression": "const", "value": {"type": ["Char", 10], "value": "Brand#11"}}}],
+      "selectivity": 0.022
+    }],
+    "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iu-ref", "iu": "scan_partkey"}, "right": {"expression": "iu-ref", "iu": "scan_partkey2"}},
+    "predicates": [{"left": {"expression": "iu-ref", "iu": "scan_partkey"}, "right": {"expression": "iu-ref", "iu": "scan_partkey2"}, "comparison": "="}]
+  }]
+}
+}, {
+  "name": "Reordering",
+  "plan": {
+  "operator": "result-sink",
+  "operator-id": 1,
+  "produces-rows": true,
+  "output": [{"expression": "cast", "value": {"expression": "iu-ref", "iu": ["scan_p_name", ["Varchar", 55]]}, "type": ["Varchar"], "error-handling": "trap"}, {"expression": "iu-ref", "sqlpos": [[754, 755]], "iu": ["scan_supplyco", ["Numeric", 12, 2]]}, {"expression": "cast", "value": {"expression": "iu-ref", "iu": ["scan_s_name", ["Char", 25]]}, "type": ["Varchar"], "error-handling": "trap"}],
+  "output-names": ["product_name", "supply_cost", "supplier_name"],
+  "inputs": [{
+    "operator": "join",
+    "operator-id": 2,
+    "type": "inner",
+    "estimated-rows": 3.8826,
+    "inputs": [{
+      "operator": "join",
+      "operator-id": 3,
+      "type": "inner",
+      "estimated-rows": 4,
+      "inputs": [{
+        "operator": "scan",
+        "operator-id": 4,
+        "type": "native",
+        "sqlpos": [[204, 208]],
+        "estimated-rows": 4,
+        "volatility": "stable",
+        "relation-id": 2,
+        "schema": {"type":"sessionschema"},
+        "attribute-count": 9,
+        "attributes": [{"col-id": 0, "name": "p_partkey", "type": ["Integer"], "iu": ["scan_partkey", ["Integer"]]},{"col-id": 1, "name": "p_name", "type": ["Varchar", 55], "iu": ["scan_p_name", ["Varchar", 55]]},{"col-id": 3, "name": "p_brand", "type": ["Char", 10], "iu": ["scan_p_brand", ["Char", 10]]}],
+        "debug-name": {"classification": "nonsensitive", "value": "part"},
+        "restrictions": [{"attribute": 3, "mode": "=", "value": {"expression": "const", "value": {"type": ["Char", 10], "value": "Brand#11"}}}, {"attribute": 1, "mode": "lambda", "expression": {"expression": "contains", "left": {"expression": "cast", "value": {"expression": "iu-ref", "iu": "scan_p_name"}, "type": ["Varchar"], "error-handling": "trap"}, "right": {"expression": "const", "value": {"type": ["Varchar"], "value": "blue"}}}}],
+        "selectivity": 0.00750469
+      }, {
+        "operator": "scan",
+        "operator-id": 5,
+        "type": "native",
+        "sqlpos": [[500, 508]],
+        "estimated-rows": 477,
+        "volatility": "stable",
+        "relation-id": 4,
+        "schema": {"type":"sessionschema"},
+        "attribute-count": 5,
+        "attributes": [{"col-id": 0, "name": "ps_partkey", "type": ["Integer"], "iu": ["scan_partkey2", ["Integer"]]},{"col-id": 1, "name": "ps_suppkey", "type": ["Integer"], "iu": ["scan_suppkey", ["Integer"]]},{"col-id": 3, "name": "ps_supplycost", "type": ["Numeric", 12, 2], "iu": ["scan_supplyco", ["Numeric", 12, 2]]}],
+        "debug-name": {"classification": "nonsensitive", "value": "partsupp"},
+        "restrictions": [{"attribute": 3, "mode": ">", "value": {"expression": "const", "value": {"type": ["Numeric", 12, 2], "value": 10000}}}],
+        "selectivity": 0.888268
+      }],
+      "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iu-ref", "iu": "scan_partkey2"}, "right": {"expression": "iu-ref", "iu": "scan_partkey"}},
+      "predicates": [{"left": {"expression": "iu-ref", "iu": "scan_partkey"}, "right": {"expression": "iu-ref", "iu": "scan_partkey2"}, "comparison": "="}]
+    }, {
+      "operator": "scan",
+      "operator-id": 6,
+      "type": "native",
+      "sqlpos": [[328, 336]],
+      "estimated-rows": 463,
+      "volatility": "stable",
+      "relation-id": 3,
+      "schema": {"type":"sessionschema"},
+      "attribute-count": 7,
+      "attributes": [{"col-id": 0, "name": "s_suppkey", "type": ["Integer"], "iu": ["scan_suppkey2", ["Integer"]]},{"col-id": 1, "name": "s_name", "type": ["Char", 25], "iu": ["scan_s_name", ["Char", 25]]},{"col-id": 5, "name": "s_acctbal", "type": ["Numeric", 12, 2], "iu": ["scan_acctbal", ["Numeric", 12, 2]]}],
+      "debug-name": {"classification": "nonsensitive", "value": "supplier"},
+      "restrictions": [{"attribute": 5, "mode": ">", "value": {"expression": "const", "value": {"type": ["Numeric", 12, 2], "value": 0}}}],
+      "selectivity": 0.893822
+    }],
+    "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iu-ref", "iu": "scan_suppkey"}, "right": {"expression": "iu-ref", "iu": "scan_suppkey2"}},
+    "predicates": [{"left": {"expression": "iu-ref", "iu": "scan_suppkey"}, "right": {"expression": "iu-ref", "iu": "scan_suppkey2"}, "comparison": "="}]
+  }]
+}
+}, {
+  "name": "ChoosePhysical",
+  "plan": {
+  "operator": "result-sink",
+  "operator-id": 1,
+  "produces-rows": true,
+  "output": [{"expression": "cast", "value": {"expression": "iu-ref", "iu": ["scan_p_name", ["Varchar", 55]]}, "type": ["Varchar"], "error-handling": "trap"}, {"expression": "iu-ref", "sqlpos": [[754, 755]], "iu": ["scan_supplyco", ["Numeric", 12, 2]]}, {"expression": "cast", "value": {"expression": "iu-ref", "iu": ["scan_s_name", ["Char", 25]]}, "type": ["Varchar"], "error-handling": "trap"}],
+  "output-names": ["product_name", "supply_cost", "supplier_name"],
+  "inputs": [{
+    "operator": "join",
+    "operator-id": 2,
+    "type": "inner",
+    "estimated-rows": 3.8826,
+    "method": "hash",
+    "compute-left-bounds": [0],
+    "inputs": [{
+      "operator": "join",
+      "operator-id": 3,
+      "type": "inner",
+      "estimated-rows": 4,
+      "method": "hash",
+      "compute-left-bounds": [0],
+      "inputs": [{
+        "operator": "scan",
+        "operator-id": 4,
+        "type": "native",
+        "sqlpos": [[204, 208]],
+        "estimated-rows": 4,
+        "volatility": "stable",
+        "relation-id": 2,
+        "schema": {"type":"sessionschema"},
+        "attribute-count": 9,
+        "attributes": [{"col-id": 0, "name": "p_partkey", "type": ["Integer"], "iu": ["scan_partkey", ["Integer"]]},{"col-id": 1, "name": "p_name", "type": ["Varchar", 55], "iu": ["scan_p_name", ["Varchar", 55]]},{"col-id": 3, "name": "p_brand", "type": ["Char", 10], "iu": ["scan_p_brand", ["Char", 10]]}],
+        "debug-name": {"classification": "nonsensitive", "value": "part"},
+        "restrictions": [{"attribute": 3, "mode": "=", "value": {"expression": "const", "value": {"type": ["Char", 10], "value": "Brand#11"}}}, {"attribute": 1, "mode": "lambda", "expression": {"expression": "contains", "left": {"expression": "cast", "value": {"expression": "iu-ref", "iu": "scan_p_name"}, "type": ["Varchar"], "error-handling": "trap"}, "right": {"expression": "const", "value": {"type": ["Varchar"], "value": "blue"}}}}],
+        "selectivity": 0.00750469
+      }, {
+        "operator": "scan",
+        "operator-id": 5,
+        "type": "native",
+        "sqlpos": [[500, 508]],
+        "estimated-rows": 477,
+        "volatility": "stable",
+        "relation-id": 4,
+        "schema": {"type":"sessionschema"},
+        "attribute-count": 5,
+        "attributes": [{"col-id": 0, "name": "ps_partkey", "type": ["Integer"], "iu": ["scan_partkey2", ["Integer"]]},{"col-id": 1, "name": "ps_suppkey", "type": ["Integer"], "iu": ["scan_suppkey", ["Integer"]]},{"col-id": 3, "name": "ps_supplycost", "type": ["Numeric", 12, 2], "iu": ["scan_supplyco", ["Numeric", 12, 2]]}],
+        "debug-name": {"classification": "nonsensitive", "value": "partsupp"},
+        "restrictions": [{"attribute": 3, "mode": ">", "value": {"expression": "const", "value": {"type": ["Numeric", 12, 2], "value": 10000}}}],
+        "early-probes": [{"builder-id": 3, "attributes": [0], "num-equality-predicates": 1, "selectivities": [0.00750469], "type": "hash-probe", "pass-on-nulls": false}],
+        "selectivity": 0.888268
+      }],
+      "early-probed-by": [5],
+      "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iu-ref", "iu": "scan_partkey2"}, "right": {"expression": "iu-ref", "iu": "scan_partkey"}},
+      "predicates": [{"left": {"expression": "iu-ref", "iu": "scan_partkey"}, "right": {"expression": "iu-ref", "iu": "scan_partkey2"}, "comparison": "="}]
+    }, {
+      "operator": "scan",
+      "operator-id": 6,
+      "type": "native",
+      "sqlpos": [[328, 336]],
+      "estimated-rows": 463,
+      "volatility": "stable",
+      "relation-id": 3,
+      "schema": {"type":"sessionschema"},
+      "attribute-count": 7,
+      "attributes": [{"col-id": 0, "name": "s_suppkey", "type": ["Integer"], "iu": ["scan_suppkey2", ["Integer"]]},{"col-id": 1, "name": "s_name", "type": ["Char", 25], "iu": ["scan_s_name", ["Char", 25]]},{"col-id": 5, "name": "s_acctbal", "type": ["Numeric", 12, 2], "iu": ["scan_acctbal", ["Numeric", 12, 2]]}],
+      "debug-name": {"classification": "nonsensitive", "value": "supplier"},
+      "restrictions": [{"attribute": 5, "mode": ">", "value": {"expression": "const", "value": {"type": ["Numeric", 12, 2], "value": 0}}}],
+      "early-probes": [{"builder-id": 2, "attributes": [0], "num-equality-predicates": 1, "selectivities": [0.00772201], "type": "hash-probe", "pass-on-nulls": false}],
+      "selectivity": 0.893822
+    }],
+    "early-probed-by": [6],
+    "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iu-ref", "iu": "scan_suppkey"}, "right": {"expression": "iu-ref", "iu": "scan_suppkey2"}},
+    "predicates": [{"left": {"expression": "iu-ref", "iu": "scan_suppkey"}, "right": {"expression": "iu-ref", "iu": "scan_suppkey2"}, "comparison": "="}]
+  }]
+}
+}, {
+  "name": "ChooseAccessPath",
+  "plan": {
+  "operator": "result-sink",
+  "operator-id": 1,
+  "produces-rows": true,
+  "output": [{"expression": "cast", "value": {"expression": "iu-ref", "iu": ["scan_p_name", ["Varchar", 55]]}, "type": ["Varchar"], "error-handling": "trap"}, {"expression": "iu-ref", "sqlpos": [[754, 755]], "iu": ["scan_supplyco", ["Numeric", 12, 2]]}, {"expression": "cast", "value": {"expression": "iu-ref", "iu": ["scan_s_name", ["Char", 25]]}, "type": ["Varchar"], "error-handling": "trap"}],
+  "output-names": ["product_name", "supply_cost", "supplier_name"],
+  "inputs": [{
+    "operator": "join",
+    "operator-id": 2,
+    "type": "inner",
+    "estimated-rows": 3.8826,
+    "method": "hash",
+    "compute-left-bounds": [0],
+    "inputs": [{
+      "operator": "join",
+      "operator-id": 3,
+      "type": "inner",
+      "estimated-rows": 4,
+      "method": "hash",
+      "compute-left-bounds": [0],
+      "inputs": [{
+        "operator": "scan",
+        "operator-id": 4,
+        "type": "native",
+        "sqlpos": [[204, 208]],
+        "estimated-rows": 4,
+        "volatility": "stable",
+        "relation-id": 2,
+        "schema": {"type":"sessionschema"},
+        "attribute-count": 9,
+        "attributes": [{"col-id": 0, "name": "p_partkey", "type": ["Integer"], "iu": ["scan_partkey", ["Integer"]]},{"col-id": 1, "name": "p_name", "type": ["Varchar", 55], "iu": ["scan_p_name", ["Varchar", 55]]},{"col-id": 3, "name": "p_brand", "type": ["Char", 10], "iu": ["scan_p_brand", ["Char", 10]]}],
+        "debug-name": {"classification": "nonsensitive", "value": "part"},
+        "restrictions": [{"attribute": 3, "mode": "=", "value": {"expression": "const", "value": {"type": ["Char", 10], "value": "Brand#11"}}}, {"attribute": 1, "mode": "lambda", "expression": {"expression": "contains", "left": {"expression": "cast", "value": {"expression": "iu-ref", "iu": "scan_p_name"}, "type": ["Varchar"], "error-handling": "trap"}, "right": {"expression": "const", "value": {"type": ["Varchar"], "value": "blue"}}}}],
+        "selectivity": 0.00750469
+      }, {
+        "operator": "scan",
+        "operator-id": 5,
+        "type": "native",
+        "sqlpos": [[500, 508]],
+        "estimated-rows": 477,
+        "volatility": "stable",
+        "relation-id": 4,
+        "schema": {"type":"sessionschema"},
+        "attribute-count": 5,
+        "attributes": [{"col-id": 0, "name": "ps_partkey", "type": ["Integer"], "iu": ["scan_partkey2", ["Integer"]]},{"col-id": 1, "name": "ps_suppkey", "type": ["Integer"], "iu": ["scan_suppkey", ["Integer"]]},{"col-id": 3, "name": "ps_supplycost", "type": ["Numeric", 12, 2], "iu": ["scan_supplyco", ["Numeric", 12, 2]]}],
+        "debug-name": {"classification": "nonsensitive", "value": "partsupp"},
+        "restrictions": [{"attribute": 3, "mode": ">", "value": {"expression": "const", "value": {"type": ["Numeric", 12, 2], "value": 10000}}}],
+        "early-probes": [{"builder-id": 3, "attributes": [0], "num-equality-predicates": 1, "selectivities": [0.00750469], "type": "hash-probe", "pass-on-nulls": false}],
+        "selectivity": 0.888268
+      }],
+      "early-probed-by": [5],
+      "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iu-ref", "iu": "scan_partkey2"}, "right": {"expression": "iu-ref", "iu": "scan_partkey"}},
+      "predicates": [{"left": {"expression": "iu-ref", "iu": "scan_partkey"}, "right": {"expression": "iu-ref", "iu": "scan_partkey2"}, "comparison": "="}]
+    }, {
+      "operator": "scan",
+      "operator-id": 6,
+      "type": "native",
+      "sqlpos": [[328, 336]],
+      "estimated-rows": 463,
+      "volatility": "stable",
+      "relation-id": 3,
+      "schema": {"type":"sessionschema"},
+      "attribute-count": 7,
+      "attributes": [{"col-id": 0, "name": "s_suppkey", "type": ["Integer"], "iu": ["scan_suppkey2", ["Integer"]]},{"col-id": 1, "name": "s_name", "type": ["Char", 25], "iu": ["scan_s_name", ["Char", 25]]},{"col-id": 5, "name": "s_acctbal", "type": ["Numeric", 12, 2], "iu": ["scan_acctbal", ["Numeric", 12, 2]]}],
+      "debug-name": {"classification": "nonsensitive", "value": "supplier"},
+      "restrictions": [{"attribute": 5, "mode": ">", "value": {"expression": "const", "value": {"type": ["Numeric", 12, 2], "value": 0}}}],
+      "early-probes": [{"builder-id": 2, "attributes": [0], "num-equality-predicates": 1, "selectivities": [0.00772201], "type": "hash-probe", "pass-on-nulls": false}],
+      "selectivity": 0.893822
+    }],
+    "early-probed-by": [6],
+    "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iu-ref", "iu": "scan_suppkey"}, "right": {"expression": "iu-ref", "iu": "scan_suppkey2"}},
+    "predicates": [{"left": {"expression": "iu-ref", "iu": "scan_suppkey"}, "right": {"expression": "iu-ref", "iu": "scan_suppkey2"}, "comparison": "="}]
+  }]
+}
+}, {
+  "name": "Deduplication",
+  "plan": {
+  "operator": "result-sink",
+  "operator-id": 1,
+  "produces-rows": true,
+  "output": [{"expression": "cast", "value": {"expression": "iu-ref", "iu": ["scan_p_name", ["Varchar", 55]]}, "type": ["Varchar"], "error-handling": "trap"}, {"expression": "iu-ref", "sqlpos": [[754, 755]], "iu": ["scan_supplyco", ["Numeric", 12, 2]]}, {"expression": "cast", "value": {"expression": "iu-ref", "iu": ["scan_s_name", ["Char", 25]]}, "type": ["Varchar"], "error-handling": "trap"}],
+  "output-names": ["product_name", "supply_cost", "supplier_name"],
+  "inputs": [{
+    "operator": "join",
+    "operator-id": 2,
+    "type": "inner",
+    "estimated-rows": 3.8826,
+    "method": "hash",
+    "compute-left-bounds": [0],
+    "inputs": [{
+      "operator": "join",
+      "operator-id": 3,
+      "type": "inner",
+      "estimated-rows": 4,
+      "method": "hash",
+      "compute-left-bounds": [0],
+      "inputs": [{
+        "operator": "scan",
+        "operator-id": 4,
+        "type": "native",
+        "sqlpos": [[204, 208]],
+        "estimated-rows": 4,
+        "volatility": "stable",
+        "relation-id": 2,
+        "schema": {"type":"sessionschema"},
+        "attribute-count": 9,
+        "attributes": [{"col-id": 0, "name": "p_partkey", "type": ["Integer"], "iu": ["scan_partkey", ["Integer"]]},{"col-id": 1, "name": "p_name", "type": ["Varchar", 55], "iu": ["scan_p_name", ["Varchar", 55]]},{"col-id": 3, "name": "p_brand", "type": ["Char", 10], "iu": ["scan_p_brand", ["Char", 10]]}],
+        "debug-name": {"classification": "nonsensitive", "value": "part"},
+        "restrictions": [{"attribute": 3, "mode": "=", "value": {"expression": "const", "value": {"type": ["Char", 10], "value": "Brand#11"}}}, {"attribute": 1, "mode": "lambda", "expression": {"expression": "contains", "left": {"expression": "cast", "value": {"expression": "iu-ref", "iu": "scan_p_name"}, "type": ["Varchar"], "error-handling": "trap"}, "right": {"expression": "const", "value": {"type": ["Varchar"], "value": "blue"}}}}],
+        "selectivity": 0.00750469
+      }, {
+        "operator": "scan",
+        "operator-id": 5,
+        "type": "native",
+        "sqlpos": [[500, 508]],
+        "estimated-rows": 477,
+        "volatility": "stable",
+        "relation-id": 4,
+        "schema": {"type":"sessionschema"},
+        "attribute-count": 5,
+        "attributes": [{"col-id": 0, "name": "ps_partkey", "type": ["Integer"], "iu": ["scan_partkey2", ["Integer"]]},{"col-id": 1, "name": "ps_suppkey", "type": ["Integer"], "iu": ["scan_suppkey", ["Integer"]]},{"col-id": 3, "name": "ps_supplycost", "type": ["Numeric", 12, 2], "iu": ["scan_supplyco", ["Numeric", 12, 2]]}],
+        "debug-name": {"classification": "nonsensitive", "value": "partsupp"},
+        "restrictions": [{"attribute": 3, "mode": ">", "value": {"expression": "const", "value": {"type": ["Numeric", 12, 2], "value": 10000}}}],
+        "early-probes": [{"builder-id": 3, "attributes": [0], "num-equality-predicates": 1, "selectivities": [0.00750469], "type": "hash-probe", "pass-on-nulls": false}],
+        "selectivity": 0.888268
+      }],
+      "early-probed-by": [5],
+      "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iu-ref", "iu": "scan_partkey2"}, "right": {"expression": "iu-ref", "iu": "scan_partkey"}},
+      "predicates": [{"left": {"expression": "iu-ref", "iu": "scan_partkey"}, "right": {"expression": "iu-ref", "iu": "scan_partkey2"}, "comparison": "="}]
+    }, {
+      "operator": "scan",
+      "operator-id": 6,
+      "type": "native",
+      "sqlpos": [[328, 336]],
+      "estimated-rows": 463,
+      "volatility": "stable",
+      "relation-id": 3,
+      "schema": {"type":"sessionschema"},
+      "attribute-count": 7,
+      "attributes": [{"col-id": 0, "name": "s_suppkey", "type": ["Integer"], "iu": ["scan_suppkey2", ["Integer"]]},{"col-id": 1, "name": "s_name", "type": ["Char", 25], "iu": ["scan_s_name", ["Char", 25]]},{"col-id": 5, "name": "s_acctbal", "type": ["Numeric", 12, 2], "iu": ["scan_acctbal", ["Numeric", 12, 2]]}],
+      "debug-name": {"classification": "nonsensitive", "value": "supplier"},
+      "restrictions": [{"attribute": 5, "mode": ">", "value": {"expression": "const", "value": {"type": ["Numeric", 12, 2], "value": 0}}}],
+      "early-probes": [{"builder-id": 2, "attributes": [0], "num-equality-predicates": 1, "selectivities": [0.00772201], "type": "hash-probe", "pass-on-nulls": false}],
+      "selectivity": 0.893822
+    }],
+    "early-probed-by": [6],
+    "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iu-ref", "iu": "scan_suppkey"}, "right": {"expression": "iu-ref", "iu": "scan_suppkey2"}},
+    "predicates": [{"left": {"expression": "iu-ref", "iu": "scan_suppkey"}, "right": {"expression": "iu-ref", "iu": "scan_suppkey2"}, "comparison": "="}]
+  }]
+}
+}, {
+  "name": "CachingAndBatching",
+  "plan": {
+  "operator": "result-sink",
+  "operator-id": 1,
+  "estimated-rows": 3.8826,
+  "produces-rows": true,
+  "output": [{"expression": "cast", "value": {"expression": "iu-ref", "iu": ["scan_p_name", ["Varchar", 55]]}, "type": ["Varchar"], "error-handling": "trap"}, {"expression": "iu-ref", "sqlpos": [[754, 755]], "iu": ["scan_supplyco", ["Numeric", 12, 2]]}, {"expression": "cast", "value": {"expression": "iu-ref", "iu": ["scan_s_name", ["Char", 25]]}, "type": ["Varchar"], "error-handling": "trap"}],
+  "output-names": ["product_name", "supply_cost", "supplier_name"],
+  "inputs": [{
+    "operator": "join",
+    "operator-id": 2,
+    "type": "inner",
+    "estimated-rows": 3.8826,
+    "method": "hash",
+    "compute-left-bounds": [0],
+    "inputs": [{
+      "operator": "join",
+      "operator-id": 3,
+      "type": "inner",
+      "estimated-rows": 4,
+      "method": "hash",
+      "compute-left-bounds": [0],
+      "inputs": [{
+        "operator": "scan",
+        "operator-id": 4,
+        "type": "native",
+        "sqlpos": [[204, 208]],
+        "estimated-rows": 4,
+        "volatility": "stable",
+        "relation-id": 2,
+        "schema": {"type":"sessionschema"},
+        "attribute-count": 9,
+        "attributes": [{"col-id": 0, "name": "p_partkey", "type": ["Integer"], "iu": ["scan_partkey", ["Integer"]]},{"col-id": 1, "name": "p_name", "type": ["Varchar", 55], "iu": ["scan_p_name", ["Varchar", 55]]},{"col-id": 3, "name": "p_brand", "type": ["Char", 10], "iu": ["scan_p_brand", ["Char", 10]]}],
+        "debug-name": {"classification": "nonsensitive", "value": "part"},
+        "restrictions": [{"attribute": 3, "mode": "=", "value": {"expression": "const", "value": {"type": ["Char", 10], "value": "Brand#11"}}}, {"attribute": 1, "mode": "lambda", "expression": {"expression": "contains", "left": {"expression": "cast", "value": {"expression": "iu-ref", "iu": "scan_p_name"}, "type": ["Varchar"], "error-handling": "trap"}, "right": {"expression": "const", "value": {"type": ["Varchar"], "value": "blue"}}}}],
+        "selectivity": 0.00750469
+      }, {
+        "operator": "scan",
+        "operator-id": 5,
+        "type": "native",
+        "sqlpos": [[500, 508]],
+        "estimated-rows": 477,
+        "volatility": "stable",
+        "relation-id": 4,
+        "schema": {"type":"sessionschema"},
+        "attribute-count": 5,
+        "attributes": [{"col-id": 0, "name": "ps_partkey", "type": ["Integer"], "iu": ["scan_partkey2", ["Integer"]]},{"col-id": 1, "name": "ps_suppkey", "type": ["Integer"], "iu": ["scan_suppkey", ["Integer"]]},{"col-id": 3, "name": "ps_supplycost", "type": ["Numeric", 12, 2], "iu": ["scan_supplyco", ["Numeric", 12, 2]]}],
+        "debug-name": {"classification": "nonsensitive", "value": "partsupp"},
+        "restrictions": [{"attribute": 3, "mode": ">", "value": {"expression": "const", "value": {"type": ["Numeric", 12, 2], "value": 10000}}}],
+        "early-probes": [{"builder-id": 3, "attributes": [0], "num-equality-predicates": 1, "selectivities": [0.00750469], "type": "hash-probe", "pass-on-nulls": false}],
+        "selectivity": 0.888268
+      }],
+      "early-probed-by": [5],
+      "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iu-ref", "iu": "scan_partkey2"}, "right": {"expression": "iu-ref", "iu": "scan_partkey"}},
+      "predicates": [{"left": {"expression": "iu-ref", "iu": "scan_partkey"}, "right": {"expression": "iu-ref", "iu": "scan_partkey2"}, "comparison": "="}]
+    }, {
+      "operator": "scan",
+      "operator-id": 6,
+      "type": "native",
+      "sqlpos": [[328, 336]],
+      "estimated-rows": 463,
+      "volatility": "stable",
+      "relation-id": 3,
+      "schema": {"type":"sessionschema"},
+      "attribute-count": 7,
+      "attributes": [{"col-id": 0, "name": "s_suppkey", "type": ["Integer"], "iu": ["scan_suppkey2", ["Integer"]]},{"col-id": 1, "name": "s_name", "type": ["Char", 25], "iu": ["scan_s_name", ["Char", 25]]},{"col-id": 5, "name": "s_acctbal", "type": ["Numeric", 12, 2], "iu": ["scan_acctbal", ["Numeric", 12, 2]]}],
+      "debug-name": {"classification": "nonsensitive", "value": "supplier"},
+      "restrictions": [{"attribute": 5, "mode": ">", "value": {"expression": "const", "value": {"type": ["Numeric", 12, 2], "value": 0}}}],
+      "early-probes": [{"builder-id": 2, "attributes": [0], "num-equality-predicates": 1, "selectivities": [0.00772201], "type": "hash-probe", "pass-on-nulls": false}],
+      "selectivity": 0.893822
+    }],
+    "early-probed-by": [6],
+    "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iu-ref", "iu": "scan_suppkey"}, "right": {"expression": "iu-ref", "iu": "scan_suppkey2"}},
+    "predicates": [{"left": {"expression": "iu-ref", "iu": "scan_suppkey"}, "right": {"expression": "iu-ref", "iu": "scan_suppkey2"}, "comparison": "="}]
+  }]
+}
+}, {
+  "name": "Final",
+  "plan": {
+  "operator": "result-sink",
+  "operator-id": 1,
+  "estimated-rows": 3.8826,
+  "produces-rows": true,
+  "output": [{"expression": "cast", "value": {"expression": "iu-ref", "iu": ["scan_p_name", ["Varchar", 55]]}, "type": ["Varchar"], "error-handling": "trap"}, {"expression": "iu-ref", "sqlpos": [[754, 755]], "iu": ["scan_supplyco", ["Numeric", 12, 2]]}, {"expression": "cast", "value": {"expression": "iu-ref", "iu": ["scan_s_name", ["Char", 25]]}, "type": ["Varchar"], "error-handling": "trap"}],
+  "output-names": ["product_name", "supply_cost", "supplier_name"],
+  "inputs": [{
+    "operator": "join",
+    "operator-id": 2,
+    "type": "inner",
+    "estimated-rows": 3.8826,
+    "method": "hash",
+    "compute-left-bounds": [0],
+    "inputs": [{
+      "operator": "join",
+      "operator-id": 3,
+      "type": "inner",
+      "estimated-rows": 4,
+      "method": "hash",
+      "compute-left-bounds": [0],
+      "inputs": [{
+        "operator": "scan",
+        "operator-id": 4,
+        "type": "native",
+        "sqlpos": [[204, 208]],
+        "estimated-rows": 4,
+        "volatility": "stable",
+        "relation-id": 2,
+        "schema": {"type":"sessionschema"},
+        "attribute-count": 9,
+        "attributes": [{"col-id": 0, "name": "p_partkey", "type": ["Integer"], "iu": ["scan_partkey", ["Integer"]]},{"col-id": 1, "name": "p_name", "type": ["Varchar", 55], "iu": ["scan_p_name", ["Varchar", 55]]},{"col-id": 3, "name": "p_brand", "type": ["Char", 10], "iu": ["scan_p_brand", ["Char", 10]]}],
+        "debug-name": {"classification": "nonsensitive", "value": "part"},
+        "restrictions": [{"attribute": 3, "mode": "=", "value": {"expression": "const", "value": {"type": ["Char", 10], "value": "Brand#11"}}}, {"attribute": 1, "mode": "lambda", "expression": {"expression": "contains", "left": {"expression": "cast", "value": {"expression": "iu-ref", "iu": "scan_p_name"}, "type": ["Varchar"], "error-handling": "trap"}, "right": {"expression": "const", "value": {"type": ["Varchar"], "value": "blue"}}}}],
+        "selectivity": 0.00750469
+      }, {
+        "operator": "scan",
+        "operator-id": 5,
+        "type": "native",
+        "sqlpos": [[500, 508]],
+        "estimated-rows": 477,
+        "volatility": "stable",
+        "relation-id": 4,
+        "schema": {"type":"sessionschema"},
+        "attribute-count": 5,
+        "attributes": [{"col-id": 0, "name": "ps_partkey", "type": ["Integer"], "iu": ["scan_partkey2", ["Integer"]]},{"col-id": 1, "name": "ps_suppkey", "type": ["Integer"], "iu": ["scan_suppkey", ["Integer"]]},{"col-id": 3, "name": "ps_supplycost", "type": ["Numeric", 12, 2], "iu": ["scan_supplyco", ["Numeric", 12, 2]]}],
+        "debug-name": {"classification": "nonsensitive", "value": "partsupp"},
+        "restrictions": [{"attribute": 3, "mode": ">", "value": {"expression": "const", "value": {"type": ["Numeric", 12, 2], "value": 10000}}}],
+        "early-probes": [{"builder-id": 3, "attributes": [0], "num-equality-predicates": 1, "selectivities": [0.00750469], "type": "hash-probe", "pass-on-nulls": false}],
+        "selectivity": 0.888268
+      }],
+      "early-probed-by": [5],
+      "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iu-ref", "iu": "scan_partkey2"}, "right": {"expression": "iu-ref", "iu": "scan_partkey"}},
+      "predicates": [{"left": {"expression": "iu-ref", "iu": "scan_partkey"}, "right": {"expression": "iu-ref", "iu": "scan_partkey2"}, "comparison": "="}]
+    }, {
+      "operator": "scan",
+      "operator-id": 6,
+      "type": "native",
+      "sqlpos": [[328, 336]],
+      "estimated-rows": 463,
+      "volatility": "stable",
+      "relation-id": 3,
+      "schema": {"type":"sessionschema"},
+      "attribute-count": 7,
+      "attributes": [{"col-id": 0, "name": "s_suppkey", "type": ["Integer"], "iu": ["scan_suppkey2", ["Integer"]]},{"col-id": 1, "name": "s_name", "type": ["Char", 25], "iu": ["scan_s_name", ["Char", 25]]},{"col-id": 5, "name": "s_acctbal", "type": ["Numeric", 12, 2], "iu": ["scan_acctbal", ["Numeric", 12, 2]]}],
+      "debug-name": {"classification": "nonsensitive", "value": "supplier"},
+      "restrictions": [{"attribute": 5, "mode": ">", "value": {"expression": "const", "value": {"type": ["Numeric", 12, 2], "value": 0}}}],
+      "early-probes": [{"builder-id": 2, "attributes": [0], "num-equality-predicates": 1, "selectivities": [0.00772201], "type": "hash-probe", "pass-on-nulls": false}],
+      "selectivity": 0.893822
+    }],
+    "early-probed-by": [6],
+    "condition": {"expression": "comparison", "mode": "=", "left": {"expression": "iu-ref", "iu": "scan_suppkey"}, "right": {"expression": "iu-ref", "iu": "scan_suppkey2"}},
+    "predicates": [{"left": {"expression": "iu-ref", "iu": "scan_suppkey"}, "right": {"expression": "iu-ref", "iu": "scan_suppkey2"}, "comparison": "="}]
+  }]
+}
+}]}

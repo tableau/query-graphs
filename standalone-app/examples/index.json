@@ -15,16 +15,40 @@
             "sql": "cedardb/cte-recursive-analyze.sql"
           }
         },
+        "dml/delete": {
+          "simple": {
+            "plan": "cedardb/dml/delete.plan.json",
+            "sql": "cedardb/dml/delete.sql"
+          }
+        },
+        "dml/delete-using": {
+          "simple": {
+            "plan": "cedardb/dml/delete-using.plan.json",
+            "sql": "cedardb/dml/delete-using.sql"
+          }
+        },
+        "dml/insert": {
+          "simple": {
+            "plan": "cedardb/dml/insert.plan.json",
+            "sql": "cedardb/dml/insert.sql"
+          }
+        },
+        "dml/update": {
+          "simple": {
+            "plan": "cedardb/dml/update.plan.json",
+            "sql": "cedardb/dml/update.sql"
+          }
+        },
+        "dml/update-from": {
+          "simple": {
+            "plan": "cedardb/dml/update-from.plan.json",
+            "sql": "cedardb/dml/update-from.sql"
+          }
+        },
         "groupby": {
           "analyze": {
             "plan": "cedardb/groupby-analyze.plan.json",
             "sql": "cedardb/groupby-analyze.sql"
-          }
-        },
-        "insert": {
-          "simple": {
-            "plan": "cedardb/insert.plan.json",
-            "sql": "cedardb/insert.sql"
           }
         },
         "magicunnesting": {
@@ -49,6 +73,18 @@
           "analyze": {
             "plan": "cedardb/setoperation-analyze.plan.json",
             "sql": "cedardb/setoperation-analyze.sql"
+          }
+        },
+        "subquery": {
+          "analyze": {
+            "plan": "cedardb/subquery-analyze.plan.json",
+            "sql": "cedardb/subquery-analyze.sql"
+          }
+        },
+        "subquery-correlated": {
+          "analyze": {
+            "plan": "cedardb/subquery-correlated-analyze.plan.json",
+            "sql": "cedardb/subquery-correlated-analyze.sql"
           }
         },
         "tableconstruction": {
@@ -238,16 +274,40 @@
             "sql": "duckdb/cte-recursive-analyze.sql"
           }
         },
+        "dml/delete": {
+          "simple": {
+            "plan": "duckdb/dml/delete.plan.json",
+            "sql": "duckdb/dml/delete.sql"
+          }
+        },
+        "dml/delete-using": {
+          "simple": {
+            "plan": "duckdb/dml/delete-using.plan.json",
+            "sql": "duckdb/dml/delete-using.sql"
+          }
+        },
+        "dml/insert": {
+          "simple": {
+            "plan": "duckdb/dml/insert.plan.json",
+            "sql": "duckdb/dml/insert.sql"
+          }
+        },
+        "dml/update": {
+          "simple": {
+            "plan": "duckdb/dml/update.plan.json",
+            "sql": "duckdb/dml/update.sql"
+          }
+        },
+        "dml/update-from": {
+          "simple": {
+            "plan": "duckdb/dml/update-from.plan.json",
+            "sql": "duckdb/dml/update-from.sql"
+          }
+        },
         "groupby": {
           "analyze": {
             "plan": "duckdb/groupby-analyze.plan.json",
             "sql": "duckdb/groupby-analyze.sql"
-          }
-        },
-        "insert": {
-          "simple": {
-            "plan": "duckdb/insert.plan.json",
-            "sql": "duckdb/insert.sql"
           }
         },
         "magicunnesting": {
@@ -268,6 +328,18 @@
             "sql": "duckdb/setoperation-analyze.sql"
           }
         },
+        "subquery": {
+          "analyze": {
+            "plan": "duckdb/subquery-analyze.plan.json",
+            "sql": "duckdb/subquery-analyze.sql"
+          }
+        },
+        "subquery-correlated": {
+          "analyze": {
+            "plan": "duckdb/subquery-correlated-analyze.plan.json",
+            "sql": "duckdb/subquery-correlated-analyze.sql"
+          }
+        },
         "tableconstruction": {
           "simple": {
             "plan": "duckdb/tableconstruction.plan.json",
@@ -278,6 +350,12 @@
           "simple": {
             "plan": "duckdb/tablefunction.plan.json",
             "sql": "duckdb/tablefunction.sql"
+          }
+        },
+        "tablesample": {
+          "analyze": {
+            "plan": "duckdb/tablesample-analyze.plan.json",
+            "sql": "duckdb/tablesample-analyze.sql"
           }
         },
         "tablescan": {
@@ -461,6 +539,36 @@
             "sql": "hyper/cte-recursive-analyze.sql"
           }
         },
+        "dml/delete": {
+          "simple": {
+            "plan": "hyper/dml/delete.plan.json",
+            "sql": "hyper/dml/delete.sql"
+          }
+        },
+        "dml/delete-using": {
+          "simple": {
+            "plan": "hyper/dml/delete-using.plan.json",
+            "sql": "hyper/dml/delete-using.sql"
+          }
+        },
+        "dml/insert": {
+          "simple": {
+            "plan": "hyper/dml/insert.plan.json",
+            "sql": "hyper/dml/insert.sql"
+          }
+        },
+        "dml/update": {
+          "simple": {
+            "plan": "hyper/dml/update.plan.json",
+            "sql": "hyper/dml/update.sql"
+          }
+        },
+        "dml/update-from": {
+          "simple": {
+            "plan": "hyper/dml/update-from.plan.json",
+            "sql": "hyper/dml/update-from.sql"
+          }
+        },
         "forkshare": {
           "analyze-sql": {
             "plan": "hyper/forkshare-analyze-sql.plan.json",
@@ -471,12 +579,6 @@
           "analyze": {
             "plan": "hyper/groupby-analyze.plan.json",
             "sql": "hyper/groupby-analyze.sql"
-          }
-        },
-        "insert": {
-          "simple": {
-            "plan": "hyper/insert.plan.json",
-            "sql": "hyper/insert.sql"
           }
         },
         "magicunnesting": {
@@ -507,10 +609,42 @@
             "sql": "hyper/metadata-describe-table.sql"
           }
         },
+        "pgq": {
+          "simple": {
+            "plan": "hyper/pgq.plan.json",
+            "sql": "hyper/pgq.sql"
+          },
+          "steps": {
+            "plan": "hyper/pgq-steps.plan.json",
+            "sql": "hyper/pgq-steps.sql"
+          }
+        },
+        "pgq-path": {
+          "simple": {
+            "plan": "hyper/pgq-path.plan.json",
+            "sql": "hyper/pgq-path.sql"
+          },
+          "steps": {
+            "plan": "hyper/pgq-path-steps.plan.json",
+            "sql": "hyper/pgq-path-steps.sql"
+          }
+        },
         "setoperation": {
           "analyze": {
             "plan": "hyper/setoperation-analyze.plan.json",
             "sql": "hyper/setoperation-analyze.sql"
+          }
+        },
+        "subquery": {
+          "analyze": {
+            "plan": "hyper/subquery-analyze.plan.json",
+            "sql": "hyper/subquery-analyze.sql"
+          }
+        },
+        "subquery-correlated": {
+          "analyze": {
+            "plan": "hyper/subquery-correlated-analyze.plan.json",
+            "sql": "hyper/subquery-correlated-analyze.sql"
           }
         },
         "tableconstruction": {
@@ -523,6 +657,12 @@
           "simple": {
             "plan": "hyper/tablefunction.plan.json",
             "sql": "hyper/tablefunction.sql"
+          }
+        },
+        "tablesample": {
+          "analyze": {
+            "plan": "hyper/tablesample-analyze.plan.json",
+            "sql": "hyper/tablesample-analyze.sql"
           }
         },
         "tablescan": {
@@ -685,12 +825,6 @@
           "simple": {
             "plan": "hyper/unicode.plan.json",
             "sql": "hyper/unicode.sql"
-          }
-        },
-        "unionall": {
-          "analyze-sql": {
-            "plan": "hyper/unionall-analyze-sql.plan.json",
-            "sql": "hyper/unionall-analyze-sql.sql"
           }
         },
         "window": {
@@ -907,7 +1041,7 @@
       }
     },
     "postgres": {
-      "version": "PostgreSQL 17.11 (Debian 17.11-1.pgdg13+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
+      "version": "PostgreSQL 17.11 (Ubuntu 17.11-1.pgdg22.04+2) on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0, 64-bit",
       "queries": {
         "cte": {
           "analyze": {
@@ -921,16 +1055,40 @@
             "sql": "postgres/cte-recursive-analyze.sql"
           }
         },
+        "dml/delete": {
+          "simple": {
+            "plan": "postgres/dml/delete.plan.json",
+            "sql": "postgres/dml/delete.sql"
+          }
+        },
+        "dml/delete-using": {
+          "simple": {
+            "plan": "postgres/dml/delete-using.plan.json",
+            "sql": "postgres/dml/delete-using.sql"
+          }
+        },
+        "dml/insert": {
+          "simple": {
+            "plan": "postgres/dml/insert.plan.json",
+            "sql": "postgres/dml/insert.sql"
+          }
+        },
+        "dml/update": {
+          "simple": {
+            "plan": "postgres/dml/update.plan.json",
+            "sql": "postgres/dml/update.sql"
+          }
+        },
+        "dml/update-from": {
+          "simple": {
+            "plan": "postgres/dml/update-from.plan.json",
+            "sql": "postgres/dml/update-from.sql"
+          }
+        },
         "groupby": {
           "analyze": {
             "plan": "postgres/groupby-analyze.plan.json",
             "sql": "postgres/groupby-analyze.sql"
-          }
-        },
-        "insert": {
-          "simple": {
-            "plan": "postgres/insert.plan.json",
-            "sql": "postgres/insert.sql"
           }
         },
         "magicunnesting": {
@@ -957,6 +1115,18 @@
             "sql": "postgres/setoperation-analyze.sql"
           }
         },
+        "subquery": {
+          "analyze": {
+            "plan": "postgres/subquery-analyze.plan.json",
+            "sql": "postgres/subquery-analyze.sql"
+          }
+        },
+        "subquery-correlated": {
+          "analyze": {
+            "plan": "postgres/subquery-correlated-analyze.plan.json",
+            "sql": "postgres/subquery-correlated-analyze.sql"
+          }
+        },
         "tableconstruction": {
           "simple": {
             "plan": "postgres/tableconstruction.plan.json",
@@ -967,6 +1137,12 @@
           "simple": {
             "plan": "postgres/tablefunction.plan.json",
             "sql": "postgres/tablefunction.sql"
+          }
+        },
+        "tablesample": {
+          "analyze": {
+            "plan": "postgres/tablesample-analyze.plan.json",
+            "sql": "postgres/tablesample-analyze.sql"
           }
         },
         "tablescan": {
@@ -1140,16 +1316,40 @@
             "sql": "umbra/cte-recursive-analyze.sql"
           }
         },
+        "dml/delete": {
+          "simple": {
+            "plan": "umbra/dml/delete.plan.json",
+            "sql": "umbra/dml/delete.sql"
+          }
+        },
+        "dml/delete-using": {
+          "simple": {
+            "plan": "umbra/dml/delete-using.plan.json",
+            "sql": "umbra/dml/delete-using.sql"
+          }
+        },
+        "dml/insert": {
+          "simple": {
+            "plan": "umbra/dml/insert.plan.json",
+            "sql": "umbra/dml/insert.sql"
+          }
+        },
+        "dml/update": {
+          "simple": {
+            "plan": "umbra/dml/update.plan.json",
+            "sql": "umbra/dml/update.sql"
+          }
+        },
+        "dml/update-from": {
+          "simple": {
+            "plan": "umbra/dml/update-from.plan.json",
+            "sql": "umbra/dml/update-from.sql"
+          }
+        },
         "groupby": {
           "analyze": {
             "plan": "umbra/groupby-analyze.plan.json",
             "sql": "umbra/groupby-analyze.sql"
-          }
-        },
-        "insert": {
-          "simple": {
-            "plan": "umbra/insert.plan.json",
-            "sql": "umbra/insert.sql"
           }
         },
         "magicunnesting": {
@@ -1168,6 +1368,18 @@
           "analyze": {
             "plan": "umbra/setoperation-analyze.plan.json",
             "sql": "umbra/setoperation-analyze.sql"
+          }
+        },
+        "subquery": {
+          "analyze": {
+            "plan": "umbra/subquery-analyze.plan.json",
+            "sql": "umbra/subquery-analyze.sql"
+          }
+        },
+        "subquery-correlated": {
+          "analyze": {
+            "plan": "umbra/subquery-correlated-analyze.plan.json",
+            "sql": "umbra/subquery-correlated-analyze.sql"
           }
         },
         "tableconstruction": {

@@ -1,0 +1,54 @@
+{
+  "tree": {
+    "operator": "result-sink",
+    "operator-id": 1,
+    "estimated-rows": 2000,
+    "produces-rows": true,
+    "output": [{"expression": "iu-ref", "sqlpos": [[189, 191]], "iu": ["scan_a1", ["Integer"]]}, {"expression": "iu-ref", "iu": ["scan_b2", ["Integer", "nullable"]]}],
+    "output-names": ["a1", "matching_b"],
+    "inputs": [{
+      "operator": "join",
+      "operator-id": 2,
+      "type": "left-single",
+      "estimated-rows": 2000,
+      "method": "hash",
+      "inputs": [{
+        "operator": "scan",
+        "operator-id": 3,
+        "type": "native",
+        "sqlpos": [[262, 264]],
+        "estimated-rows": 2000,
+        "volatility": "stable",
+        "relation-id": 0,
+        "schema": {"type":"sessionschema"},
+        "attribute-count": 3,
+        "attributes": [{"col-id": 0, "name": "a1", "type": ["Integer"], "iu": ["scan_a1", ["Integer"]]}],
+        "debug-name": {"classification": "nonsensitive", "value": "t1"},
+        "selectivity": 1,
+        "statistics": {"column-count": 1, "output-rows": 0, "processed-rows": 0}
+      }, {
+        "operator": "scan",
+        "operator-id": 4,
+        "type": "native",
+        "sqlpos": [[219, 221]],
+        "estimated-rows": 2000,
+        "volatility": "stable",
+        "relation-id": 1,
+        "schema": {"type":"sessionschema"},
+        "attribute-count": 3,
+        "attributes": [{"col-id": 0, "name": "a2", "type": ["Integer"], "iu": ["scan_a2", ["Integer", "nullable"]]},{"col-id": 1, "name": "b2", "type": ["Integer"], "iu": ["scan_b2", ["Integer", "nullable"]]}],
+        "debug-name": {"classification": "nonsensitive", "value": "t2"},
+        "selectivity": 1,
+        "statistics": {"column-count": 2, "output-rows": 0, "processed-rows": 0}
+      }],
+      "condition": {"expression": "comparison", "sqlpos": [[234, 235]], "mode": "=", "left": {"expression": "iu-ref", "sqlpos": [[231, 233]], "iu": "scan_a2"}, "right": {"expression": "iu-ref", "sqlpos": [[239, 241]], "iu": "scan_a1"}},
+      "predicates": [{"left": {"expression": "iu-ref", "sqlpos": [[239, 241]], "iu": "scan_a1"}, "right": {"expression": "iu-ref", "sqlpos": [[231, 233]], "iu": "scan_a2"}, "comparison": "="}],
+      "statistics": {"column-count": 2, "memory-bytes": 2056, "output-rows": 0}
+    }],
+    "statistics": {"error": null, "column-count": 0}
+  },
+  "pipelines": [
+    {"id": 0, "operators": [1, 2, 4], "dependencies": [1], "statistics": {"cpu-cycles": 344, "query-metrics": {"elapsed":3.587e-06,"memory-mb-seconds":1.793e-06,"instance-seconds":3.587e-06,"processed-rows":{"total":0,"native":0},"threads":{"thread-time":3.587e-06,"cpu-time":3.523e-06,"wait-time":0},"storage":{},"peak-transaction-memory-mb":0.5}, "running": false}},
+    {"id": 1, "operators": [2, 3], "dependencies": [], "statistics": {"cpu-cycles": 738, "query-metrics": {"elapsed":5.349e-06,"memory-mb-seconds":2.674e-06,"instance-seconds":5.349e-06,"processed-rows":{"total":0,"native":0},"threads":{"thread-time":5.349e-06,"cpu-time":5.306e-06,"wait-time":0},"storage":{},"peak-transaction-memory-mb":0.5}, "running": false}}
+  ]
+}

@@ -1,0 +1,34 @@
+{
+ "plan":{
+  "operator":"delete",
+  "physicalOperator":"delete",
+  "cardinality":1,
+  "operatorId":1,
+  "sourceLocation":{"startLine":1, "startColumn":31, "endLine":4, "endColumn":17},
+  "input":{
+   "operator":"tablescan",
+   "physicalOperator":"tablescan",
+   "cardinality":1,
+   "operatorId":2,
+   "sourceLocation":{"startLine":2, "startColumn":13, "endLine":2, "endColumn":15},
+   "attributes":[{"name":"a2", "iu":"a2", "nullable":true}, {"name":"b2", "iu":"b2", "nullable":true}, {"name":"c2", "iu":"c2", "nullable":true}],
+   "restrictions":[{"attribute":0, "mode":"<=", "value":{"expression":"const", "id":2, "sourceLocation":{"startLine":3, "startColumn":12, "endLine":3, "endColumn":14}, "value":{"type":{"type":"integer", "precision":0, "scale":0, "nullable":false, "array":false}, "null":false, "value":9}}, "estimatedSelectivity":-1, "direction":0, "collate":""}],
+   "residuals":[],
+   "tid":"tid",
+   "tableoid":"tableoid",
+   "rowstate":"rowstate",
+   "schema":"pg_temp",
+   "table":{"type":"temporarytable", "id":1},
+   "tableSize":1,
+   "tablename":"t2"
+  },
+  "tid":{"expression":"iuref", "id":4, "iu":"tid"},
+  "schema":"pg_temp",
+  "table":"t2",
+  "tableObjectRef":{"type":"temporarytable", "id":1}
+ },
+ "ius":[{"iu":"a2", "type":{"type":"integer", "precision":0, "scale":0, "nullable":false, "array":false}, "sourceLocation":{"startLine":2, "startColumn":13, "endLine":2, "endColumn":15}}, {"iu":"b2", "type":{"type":"integer", "precision":0, "scale":0, "nullable":true, "array":false}, "sourceLocation":{"startLine":2, "startColumn":13, "endLine":2, "endColumn":15}}, {"iu":"c2", "type":{"type":"integer", "precision":0, "scale":0, "nullable":true, "array":false}, "sourceLocation":{"startLine":2, "startColumn":13, "endLine":2, "endColumn":15}}, {"iu":"tid", "type":{"type":"bigint", "precision":0, "scale":0, "nullable":false, "array":false}}, {"iu":"tableoid", "type":{"type":"integer", "precision":0, "scale":0, "nullable":false, "array":false}}, {"iu":"rowstate", "type":{"type":"bigint", "precision":0, "scale":0, "nullable":false, "array":false}}],
+ "output":[{"name":"a2", "iu":{"expression":"iuref", "id":7, "iu":"a2"}}, {"name":"b2", "iu":{"expression":"iuref", "id":8, "iu":"b2"}}],
+ "type":"delete",
+ "query":true
+}

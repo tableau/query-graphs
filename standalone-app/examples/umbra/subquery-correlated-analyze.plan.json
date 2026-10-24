@@ -1,0 +1,20 @@
+{
+ "plan":{
+  "operator":"inlinetable",
+  "physicalOperator":"inlinetable",
+  "cardinality":0,
+  "operatorId":1,"analyzePlanId":0,"analyzePlanCardinality":0,"analyzePlanCounters":{},
+  "attributes":[{"name":"b2", "iu":"b2", "nullable":true}, {"name":"a1", "iu":"a1", "nullable":true}],
+  "restrictions":[],
+  "residuals":[],
+  "count":0,
+  "values":[]
+ },
+ "ius":[{"iu":"b2", "type":{"type":"integer", "precision":0, "scale":0, "nullable":true, "array":false}, "sourceLocation":{"startLine":5, "startColumn":27, "endLine":5, "endColumn":29}}, {"iu":"a1", "type":{"type":"integer", "precision":0, "scale":0, "nullable":true, "array":false}, "sourceLocation":{"startLine":6, "startColumn":6, "endLine":6, "endColumn":8}}],
+ "output":[{"name":"a1", "iu":{"expression":"iuref", "id":8, "iu":"a1"}}, {"name":"matching_b", "iu":{"expression":"iuref", "id":9, "iu":"b2"}}],
+ "type":"select",
+ "query":true,
+ "analyzePlanPipelines":[
+  {"pipelineId":0,"start":0,"stop":2,"duration":2,"parallelism":"single-threaded","operators":[0],"counters":{}}
+ ]
+}

@@ -1,0 +1,193 @@
+{
+    "io": {
+        "total_bytes_read": 0,
+        "total_bytes_written": 0
+    },
+    "operator": [
+        {
+            "extra_info": {},
+            "intermediate_rows": 0,
+            "intermediate_size_bytes": 0,
+            "timing": 0.0,
+            "type": "RESULT_COLLECTOR",
+            "children": [
+                {
+                    "extra_info": {},
+                    "intermediate_rows": 0,
+                    "intermediate_size_bytes": 0,
+                    "timing": 0.0,
+                    "type": "EXPLAIN_ANALYZE",
+                    "children": [
+                        {
+                            "extra_info": {
+                                "Projections": [
+                                    "a1",
+                                    "matching_b"
+                                ],
+                                "Estimated Cardinality": "1"
+                            },
+                            "intermediate_rows": 0,
+                            "intermediate_size_bytes": 0,
+                            "timing": 0.0,
+                            "type": "PROJECTION",
+                            "children": [
+                                {
+                                    "extra_info": {},
+                                    "intermediate_rows": 0,
+                                    "intermediate_size_bytes": 0,
+                                    "timing": 0.000001467,
+                                    "type": "CROSS_PRODUCT",
+                                    "children": [
+                                        {
+                                            "extra_info": {
+                                                "Projections": [
+                                                    "CASE  WHEN ((#1 > 1)) THEN (\"error\"('More than one row returned by a subquery used as an expression - scalar subqueries can only return a single row.",
+                                                    "Use \"SET scalar_subquery_error_on_multiple_rows=false\" to revert to previous behavior of returning a random row.')) ELSE #0 END"
+                                                ],
+                                                "Estimated Cardinality": "1"
+                                            },
+                                            "intermediate_rows": 1,
+                                            "intermediate_size_bytes": 260,
+                                            "timing": 0.000533324,
+                                            "type": "PROJECTION",
+                                            "children": [
+                                                {
+                                                    "extra_info": {
+                                                        "Aggregates": [
+                                                            "\"first\"(#0)",
+                                                            "count_star()"
+                                                        ],
+                                                        "Estimated Cardinality": "1"
+                                                    },
+                                                    "intermediate_rows": 1,
+                                                    "intermediate_size_bytes": 268,
+                                                    "timing": 0.000006337,
+                                                    "type": "UNGROUPED_AGGREGATE",
+                                                    "children": [
+                                                        {
+                                                            "extra_info": {
+                                                                "Projections": "#0",
+                                                                "Estimated Cardinality": "0"
+                                                            },
+                                                            "intermediate_rows": 0,
+                                                            "intermediate_size_bytes": 0,
+                                                            "timing": 0.0,
+                                                            "type": "PROJECTION",
+                                                            "children": [
+                                                                {
+                                                                    "extra_info": {
+                                                                        "Table": "\"temp\".main.t2",
+                                                                        "Type": "Sequential Scan",
+                                                                        "Projections": "b2",
+                                                                        "Estimated Cardinality": "0"
+                                                                    },
+                                                                    "intermediate_rows": 0,
+                                                                    "intermediate_size_bytes": 0,
+                                                                    "row_groups_scanned": 0,
+                                                                    "rows_scanned": 0,
+                                                                    "timing": 0.000004166,
+                                                                    "total_row_groups_to_scan": 0,
+                                                                    "type": "TABLE_SCAN"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "extra_info": {
+                                                "Table": "\"temp\".main.t1",
+                                                "Type": "Sequential Scan",
+                                                "Projections": "a1",
+                                                "Estimated Cardinality": "0"
+                                            },
+                                            "intermediate_rows": 0,
+                                            "intermediate_size_bytes": 0,
+                                            "row_groups_scanned": 0,
+                                            "rows_scanned": 0,
+                                            "timing": 0.000002757,
+                                            "total_row_groups_to_scan": 0,
+                                            "type": "TABLE_SCAN"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "optimizer": {
+        "aggregate_function_rewriter": 0.000010182,
+        "aggregate_reuse": 0.000005007,
+        "build_side_probe_side": 0.000006577,
+        "column_lifetime": 0.000007283,
+        "common_aggregate": 0.000002449,
+        "common_subexpressions": 0.000007927,
+        "common_subplan": 0.000062558,
+        "cte_filter_pusher": 7.17e-7,
+        "cte_inlining": 7.31e-7,
+        "deliminator": 0.000001283,
+        "duplicate_groups": 0.00000383,
+        "empty_result_pullup": 6.84e-7,
+        "expression_rewriter": 0.00005142,
+        "filter_pullup": 0.000001338,
+        "filter_pushdown": 0.000014044,
+        "grouping_sets": 0.000001525,
+        "in_clause": 0.000001521,
+        "join_elimination": 0.000005977,
+        "join_filter_pushdown": 0.000001378,
+        "join_order": 0.000104457,
+        "late_materialization": 0.000001159,
+        "limit_pushdown": 5.59e-7,
+        "outer_join_simplification": 0.000005718,
+        "partial_aggregate_pushdown": 0.00000297,
+        "partitioned_execution": 8.32e-7,
+        "projection_placement": 0.000002877,
+        "projection_pullup": 0.000010644,
+        "redundant_order_keys": 0.000002178,
+        "regex_range": 6.27e-7,
+        "reorder_filter": 0.000001479,
+        "row_group_pruner": 6.37e-7,
+        "row_number_rewriter": 6.43e-7,
+        "sampling_pushdown": 5.03e-7,
+        "scalar_fn_pushdown": 4.25e-7,
+        "statistics_propagation": 0.000019986,
+        "top_n": 6.21e-7,
+        "top_n_window_elimination": 0.000002927,
+        "total_time": 0.000458255,
+        "type_pushdown": 7.29e-7,
+        "unnest_rewriter": 0.000001134,
+        "unused_columns": 0.0000127,
+        "window_self_join": 7.42e-7
+    },
+    "physical_planner": {
+        "column_binding": 0.000005416,
+        "create_plan": 0.00001817,
+        "resolve_types": 5.93e-7,
+        "total_time": 0.00003043
+    },
+    "planner": {
+        "binding_time": 0.000642249,
+        "total_time": 0.00074245
+    },
+    "query": {
+        "cpu_time": 0.000548051,
+        "sql": "EXPLAIN (ANALYZE, FORMAT JSON)\nSELECT t1.a1,\n       (SELECT t2.b2 FROM t2) AS matching_b\nFROM t1",
+        "total_intermediate_rows": 2,
+        "total_intermediate_size_bytes": 528,
+        "total_row_groups_scanned": 0,
+        "total_row_groups_to_scan": 0,
+        "total_rows_scanned": 0,
+        "total_time": 0.002123287
+    },
+    "system": {
+        "blocked_thread_time": 0.00009900000000000001,
+        "peak_buffer_memory": 2455312,
+        "peak_streaming_buffer_size": 0,
+        "peak_temp_dir_size": 0,
+        "total_memory_allocated": 262144
+    }
+}

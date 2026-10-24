@@ -27,47 +27,11 @@
                             "children": [
                                 {
                                     "extra_info": {
-                                        "Table": "\"temp\".main.lineitem",
-                                        "Type": "Sequential Scan",
                                         "Projections": [
-                                            "l_orderkey",
-                                            "l_partkey"
+                                            "operation",
+                                            "value"
                                         ],
-                                        "Estimated Cardinality": "572"
-                                    },
-                                    "intermediate_rows": 572,
-                                    "intermediate_size_bytes": 4576,
-                                    "row_groups_scanned": 1,
-                                    "rows_scanned": 572,
-                                    "timing": 0.000020361,
-                                    "total_row_groups_to_scan": 1,
-                                    "type": "TABLE_SCAN"
-                                },
-                                {
-                                    "extra_info": {
-                                        "Table": "\"temp\".main.lineitem",
-                                        "Type": "Sequential Scan",
-                                        "Projections": [
-                                            "l_orderkey",
-                                            "l_suppkey"
-                                        ],
-                                        "Estimated Cardinality": "572"
-                                    },
-                                    "intermediate_rows": 572,
-                                    "intermediate_size_bytes": 4576,
-                                    "row_groups_scanned": 1,
-                                    "rows_scanned": 572,
-                                    "timing": 0.00004316,
-                                    "total_row_groups_to_scan": 1,
-                                    "type": "TABLE_SCAN"
-                                },
-                                {
-                                    "extra_info": {
-                                        "Projections": [
-                                            "#0",
-                                            "#1"
-                                        ],
-                                        "Estimated Cardinality": "114"
+                                        "Estimated Cardinality": "0"
                                     },
                                     "intermediate_rows": 0,
                                     "intermediate_size_bytes": 0,
@@ -76,116 +40,303 @@
                                     "children": [
                                         {
                                             "extra_info": {
-                                                "Join Type": "ANTI",
-                                                "Conditions": [
-                                                    "#0 IS NOT DISTINCT FROM #0",
-                                                    "#1 IS NOT DISTINCT FROM #1",
-                                                    "#2 IS NOT DISTINCT FROM #2"
-                                                ],
-                                                "Estimated Cardinality": "114"
+                                                "Groups": "#0",
+                                                "Aggregates": "",
+                                                "Estimated Cardinality": "0"
                                             },
                                             "intermediate_rows": 0,
                                             "intermediate_size_bytes": 0,
-                                            "timing": 0.0030617780000000002,
-                                            "type": "HASH_JOIN",
+                                            "timing": 0.000001373,
+                                            "type": "HASH_GROUP_BY",
                                             "children": [
                                                 {
                                                     "extra_info": {
-                                                        "Projections": "row_number() OVER (PARTITION BY #0, #1 ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING)",
-                                                        "Estimated Cardinality": "114"
+                                                        "Projections": "value",
+                                                        "Estimated Cardinality": "0"
                                                     },
-                                                    "intermediate_rows": 16,
-                                                    "intermediate_size_bytes": 256,
-                                                    "timing": 0.0010451850000000001,
-                                                    "type": "WINDOW",
+                                                    "intermediate_rows": 0,
+                                                    "intermediate_size_bytes": 0,
+                                                    "timing": 0.0,
+                                                    "type": "PROJECTION",
+                                                    "children": [
+                                                        {
+                                                            "extra_info": {},
+                                                            "intermediate_rows": 0,
+                                                            "intermediate_size_bytes": 0,
+                                                            "timing": 0.0,
+                                                            "type": "UNION",
+                                                            "children": [
+                                                                {
+                                                                    "extra_info": {},
+                                                                    "intermediate_rows": 0,
+                                                                    "intermediate_size_bytes": 0,
+                                                                    "timing": 0.000005972,
+                                                                    "type": "EMPTY_RESULT"
+                                                                },
+                                                                {
+                                                                    "extra_info": {},
+                                                                    "intermediate_rows": 0,
+                                                                    "intermediate_size_bytes": 0,
+                                                                    "timing": 9.87e-7,
+                                                                    "type": "EMPTY_RESULT"
+                                                                },
+                                                                {
+                                                                    "extra_info": {},
+                                                                    "intermediate_rows": 0,
+                                                                    "intermediate_size_bytes": 0,
+                                                                    "timing": 9.93e-7,
+                                                                    "type": "EMPTY_RESULT"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "extra_info": {
+                                        "Projections": [
+                                            "'union-all'",
+                                            "value"
+                                        ],
+                                        "Estimated Cardinality": "0"
+                                    },
+                                    "intermediate_rows": 0,
+                                    "intermediate_size_bytes": 0,
+                                    "timing": 0.0,
+                                    "type": "PROJECTION",
+                                    "children": [
+                                        {
+                                            "extra_info": {},
+                                            "intermediate_rows": 0,
+                                            "intermediate_size_bytes": 0,
+                                            "timing": 0.0,
+                                            "type": "UNION",
+                                            "children": [
+                                                {
+                                                    "extra_info": {},
+                                                    "intermediate_rows": 0,
+                                                    "intermediate_size_bytes": 0,
+                                                    "timing": 0.000001009,
+                                                    "type": "EMPTY_RESULT"
+                                                },
+                                                {
+                                                    "extra_info": {},
+                                                    "intermediate_rows": 0,
+                                                    "intermediate_size_bytes": 0,
+                                                    "timing": 8.97e-7,
+                                                    "type": "EMPTY_RESULT"
+                                                },
+                                                {
+                                                    "extra_info": {},
+                                                    "intermediate_rows": 0,
+                                                    "intermediate_size_bytes": 0,
+                                                    "timing": 9.36e-7,
+                                                    "type": "EMPTY_RESULT"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "extra_info": {
+                                        "Projections": [
+                                            "'intersect'",
+                                            "value"
+                                        ],
+                                        "Estimated Cardinality": "0"
+                                    },
+                                    "intermediate_rows": 0,
+                                    "intermediate_size_bytes": 0,
+                                    "timing": 0.0,
+                                    "type": "PROJECTION",
+                                    "children": [
+                                        {
+                                            "extra_info": {
+                                                "Projections": "CAST(#0 AS INTEGER)",
+                                                "Estimated Cardinality": "0"
+                                            },
+                                            "intermediate_rows": 0,
+                                            "intermediate_size_bytes": 0,
+                                            "timing": 0.0,
+                                            "type": "PROJECTION",
+                                            "children": [
+                                                {
+                                                    "extra_info": {
+                                                        "Groups": "#0",
+                                                        "Aggregates": "",
+                                                        "Estimated Cardinality": "0"
+                                                    },
+                                                    "intermediate_rows": 0,
+                                                    "intermediate_size_bytes": 0,
+                                                    "timing": 0.000001693,
+                                                    "type": "HASH_GROUP_BY",
                                                     "children": [
                                                         {
                                                             "extra_info": {
-                                                                "Projections": [
-                                                                    "#0",
-                                                                    "#1"
-                                                                ],
-                                                                "Estimated Cardinality": "114"
+                                                                "Projections": "value",
+                                                                "Estimated Cardinality": "0"
                                                             },
-                                                            "intermediate_rows": 16,
-                                                            "intermediate_size_bytes": 128,
-                                                            "timing": 0.000004462000000000001,
+                                                            "intermediate_rows": 0,
+                                                            "intermediate_size_bytes": 0,
+                                                            "timing": 0.0,
                                                             "type": "PROJECTION",
                                                             "children": [
                                                                 {
                                                                     "extra_info": {
-                                                                        "Join Type": "SEMI",
-                                                                        "Conditions": [
-                                                                            "#0 IS NOT DISTINCT FROM #0",
-                                                                            "#1 IS NOT DISTINCT FROM #1",
-                                                                            "#2 IS NOT DISTINCT FROM #2"
-                                                                        ],
-                                                                        "Estimated Cardinality": "114"
+                                                                        "Projections": "CAST(#0 AS TINYINT)",
+                                                                        "Estimated Cardinality": "0"
                                                                     },
-                                                                    "intermediate_rows": 16,
-                                                                    "intermediate_size_bytes": 256,
-                                                                    "timing": 0.004224951,
-                                                                    "type": "HASH_JOIN",
+                                                                    "intermediate_rows": 0,
+                                                                    "intermediate_size_bytes": 0,
+                                                                    "timing": 0.0,
+                                                                    "type": "PROJECTION",
                                                                     "children": [
                                                                         {
                                                                             "extra_info": {
-                                                                                "Projections": "row_number() OVER (PARTITION BY #0, #1 ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING)",
-                                                                                "Estimated Cardinality": "114"
+                                                                                "Groups": "#0",
+                                                                                "Aggregates": "",
+                                                                                "Estimated Cardinality": "0"
                                                                             },
-                                                                            "intermediate_rows": 286,
-                                                                            "intermediate_size_bytes": 4576,
-                                                                            "timing": 0.014421899000000002,
-                                                                            "type": "WINDOW",
+                                                                            "intermediate_rows": 0,
+                                                                            "intermediate_size_bytes": 0,
+                                                                            "timing": 0.000001692,
+                                                                            "type": "HASH_GROUP_BY",
                                                                             "children": [
                                                                                 {
                                                                                     "extra_info": {
-                                                                                        "Table": "\"temp\".main.lineitem",
-                                                                                        "Type": "Sequential Scan",
-                                                                                        "Projections": [
-                                                                                            "l_suppkey",
-                                                                                            "l_partkey"
-                                                                                        ],
-                                                                                        "Filters": "(l_quantity < 25.00)",
-                                                                                        "Estimated Cardinality": "114"
+                                                                                        "Join Type": "SEMI",
+                                                                                        "Conditions": "#0 IS NOT DISTINCT FROM #0",
+                                                                                        "Estimated Cardinality": "0"
                                                                                     },
-                                                                                    "intermediate_rows": 286,
-                                                                                    "intermediate_size_bytes": 2288,
-                                                                                    "row_groups_scanned": 1,
-                                                                                    "rows_scanned": 572,
-                                                                                    "timing": 0.00007980400000000001,
-                                                                                    "total_row_groups_to_scan": 1,
-                                                                                    "type": "TABLE_SCAN"
-                                                                                }
-                                                                            ]
-                                                                        },
-                                                                        {
-                                                                            "extra_info": {
-                                                                                "Projections": "row_number() OVER (PARTITION BY #0, #1 ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING)",
-                                                                                "Estimated Cardinality": "114"
-                                                                            },
-                                                                            "intermediate_rows": 286,
-                                                                            "intermediate_size_bytes": 4576,
-                                                                            "timing": 0.019459293000000003,
-                                                                            "type": "WINDOW",
-                                                                            "children": [
-                                                                                {
-                                                                                    "extra_info": {
-                                                                                        "Table": "\"temp\".main.lineitem",
-                                                                                        "Type": "Sequential Scan",
-                                                                                        "Projections": [
-                                                                                            "l_suppkey",
-                                                                                            "l_partkey"
-                                                                                        ],
-                                                                                        "Filters": "(l_quantity >= 25.00)",
-                                                                                        "Estimated Cardinality": "114"
-                                                                                    },
-                                                                                    "intermediate_rows": 286,
-                                                                                    "intermediate_size_bytes": 2288,
-                                                                                    "row_groups_scanned": 1,
-                                                                                    "rows_scanned": 572,
-                                                                                    "timing": 0.00003926,
-                                                                                    "total_row_groups_to_scan": 1,
-                                                                                    "type": "TABLE_SCAN"
+                                                                                    "intermediate_rows": 0,
+                                                                                    "intermediate_size_bytes": 0,
+                                                                                    "timing": 0.0000021,
+                                                                                    "type": "HASH_JOIN",
+                                                                                    "children": [
+                                                                                        {
+                                                                                            "extra_info": {
+                                                                                                "Projections": "CAST(#0 AS INTEGER)",
+                                                                                                "Estimated Cardinality": "0"
+                                                                                            },
+                                                                                            "intermediate_rows": 0,
+                                                                                            "intermediate_size_bytes": 0,
+                                                                                            "timing": 0.0,
+                                                                                            "type": "PROJECTION",
+                                                                                            "children": [
+                                                                                                {
+                                                                                                    "extra_info": {
+                                                                                                        "Groups": "#0",
+                                                                                                        "Aggregates": "",
+                                                                                                        "Estimated Cardinality": "0"
+                                                                                                    },
+                                                                                                    "intermediate_rows": 0,
+                                                                                                    "intermediate_size_bytes": 0,
+                                                                                                    "timing": 0.000001525,
+                                                                                                    "type": "HASH_GROUP_BY",
+                                                                                                    "children": [
+                                                                                                        {
+                                                                                                            "extra_info": {
+                                                                                                                "Projections": "value",
+                                                                                                                "Estimated Cardinality": "0"
+                                                                                                            },
+                                                                                                            "intermediate_rows": 0,
+                                                                                                            "intermediate_size_bytes": 0,
+                                                                                                            "timing": 0.0,
+                                                                                                            "type": "PROJECTION",
+                                                                                                            "children": [
+                                                                                                                {
+                                                                                                                    "extra_info": {
+                                                                                                                        "Projections": "CAST(#0 AS TINYINT)",
+                                                                                                                        "Estimated Cardinality": "0"
+                                                                                                                    },
+                                                                                                                    "intermediate_rows": 0,
+                                                                                                                    "intermediate_size_bytes": 0,
+                                                                                                                    "timing": 0.0,
+                                                                                                                    "type": "PROJECTION",
+                                                                                                                    "children": [
+                                                                                                                        {
+                                                                                                                            "extra_info": {
+                                                                                                                                "Groups": "#0",
+                                                                                                                                "Aggregates": "",
+                                                                                                                                "Estimated Cardinality": "0"
+                                                                                                                            },
+                                                                                                                            "intermediate_rows": 0,
+                                                                                                                            "intermediate_size_bytes": 0,
+                                                                                                                            "timing": 0.000001614,
+                                                                                                                            "type": "HASH_GROUP_BY",
+                                                                                                                            "children": [
+                                                                                                                                {
+                                                                                                                                    "extra_info": {
+                                                                                                                                        "Join Type": "SEMI",
+                                                                                                                                        "Conditions": "#0 IS NOT DISTINCT FROM #0",
+                                                                                                                                        "Estimated Cardinality": "0"
+                                                                                                                                    },
+                                                                                                                                    "intermediate_rows": 0,
+                                                                                                                                    "intermediate_size_bytes": 0,
+                                                                                                                                    "timing": 0.000002344,
+                                                                                                                                    "type": "HASH_JOIN",
+                                                                                                                                    "children": [
+                                                                                                                                        {
+                                                                                                                                            "extra_info": {
+                                                                                                                                                "Table": "\"temp\".main.t1",
+                                                                                                                                                "Type": "Sequential Scan",
+                                                                                                                                                "Projections": "a1",
+                                                                                                                                                "Estimated Cardinality": "0"
+                                                                                                                                            },
+                                                                                                                                            "intermediate_rows": 0,
+                                                                                                                                            "intermediate_size_bytes": 0,
+                                                                                                                                            "row_groups_scanned": 0,
+                                                                                                                                            "rows_scanned": 0,
+                                                                                                                                            "timing": 0.000003785,
+                                                                                                                                            "total_row_groups_to_scan": 0,
+                                                                                                                                            "type": "TABLE_SCAN"
+                                                                                                                                        },
+                                                                                                                                        {
+                                                                                                                                            "extra_info": {
+                                                                                                                                                "Table": "\"temp\".main.t1",
+                                                                                                                                                "Type": "Sequential Scan",
+                                                                                                                                                "Projections": "b1",
+                                                                                                                                                "Estimated Cardinality": "0"
+                                                                                                                                            },
+                                                                                                                                            "intermediate_rows": 0,
+                                                                                                                                            "intermediate_size_bytes": 0,
+                                                                                                                                            "row_groups_scanned": 0,
+                                                                                                                                            "rows_scanned": 0,
+                                                                                                                                            "timing": 0.000003801,
+                                                                                                                                            "total_row_groups_to_scan": 0,
+                                                                                                                                            "type": "TABLE_SCAN"
+                                                                                                                                        }
+                                                                                                                                    ]
+                                                                                                                                }
+                                                                                                                            ]
+                                                                                                                        }
+                                                                                                                    ]
+                                                                                                                }
+                                                                                                            ]
+                                                                                                        }
+                                                                                                    ]
+                                                                                                }
+                                                                                            ]
+                                                                                        },
+                                                                                        {
+                                                                                            "extra_info": {
+                                                                                                "Table": "\"temp\".main.t1",
+                                                                                                "Type": "Sequential Scan",
+                                                                                                "Projections": "c1",
+                                                                                                "Estimated Cardinality": "0"
+                                                                                            },
+                                                                                            "intermediate_rows": 0,
+                                                                                            "intermediate_size_bytes": 0,
+                                                                                            "row_groups_scanned": 0,
+                                                                                            "rows_scanned": 0,
+                                                                                            "timing": 0.000005105,
+                                                                                            "total_row_groups_to_scan": 0,
+                                                                                            "type": "TABLE_SCAN"
+                                                                                        }
+                                                                                    ]
                                                                                 }
                                                                             ]
                                                                         }
@@ -194,35 +345,542 @@
                                                             ]
                                                         }
                                                     ]
-                                                },
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "extra_info": {
+                                        "Projections": [
+                                            "'intersect-all'",
+                                            "value"
+                                        ],
+                                        "Estimated Cardinality": "0"
+                                    },
+                                    "intermediate_rows": 0,
+                                    "intermediate_size_bytes": 0,
+                                    "timing": 0.0,
+                                    "type": "PROJECTION",
+                                    "children": [
+                                        {
+                                            "extra_info": {
+                                                "Projections": "#0",
+                                                "Estimated Cardinality": "0"
+                                            },
+                                            "intermediate_rows": 0,
+                                            "intermediate_size_bytes": 0,
+                                            "timing": 0.0,
+                                            "type": "PROJECTION",
+                                            "children": [
                                                 {
                                                     "extra_info": {
-                                                        "Projections": "row_number() OVER (PARTITION BY #0, #1 ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING)",
-                                                        "Estimated Cardinality": "114"
+                                                        "Join Type": "SEMI",
+                                                        "Conditions": [
+                                                            "#0 IS NOT DISTINCT FROM #0",
+                                                            "#1 IS NOT DISTINCT FROM #1"
+                                                        ],
+                                                        "Estimated Cardinality": "0"
                                                     },
-                                                    "intermediate_rows": 286,
-                                                    "intermediate_size_bytes": 4576,
-                                                    "timing": 0.012447436000000001,
-                                                    "type": "WINDOW",
+                                                    "intermediate_rows": 0,
+                                                    "intermediate_size_bytes": 0,
+                                                    "timing": 0.000002278,
+                                                    "type": "HASH_JOIN",
                                                     "children": [
                                                         {
                                                             "extra_info": {
-                                                                "Table": "\"temp\".main.lineitem",
-                                                                "Type": "Sequential Scan",
-                                                                "Projections": [
-                                                                    "l_suppkey",
-                                                                    "l_partkey"
-                                                                ],
-                                                                "Filters": "(l_quantity >= 25.00)",
-                                                                "Estimated Cardinality": "114"
+                                                                "Projections": "row_number() OVER (PARTITION BY #0 ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING)",
+                                                                "Estimated Cardinality": "0"
                                                             },
-                                                            "intermediate_rows": 286,
-                                                            "intermediate_size_bytes": 2288,
-                                                            "row_groups_scanned": 1,
-                                                            "rows_scanned": 572,
-                                                            "timing": 0.000089627,
-                                                            "total_row_groups_to_scan": 1,
-                                                            "type": "TABLE_SCAN"
+                                                            "intermediate_rows": 0,
+                                                            "intermediate_size_bytes": 0,
+                                                            "timing": 7.19e-7,
+                                                            "type": "WINDOW",
+                                                            "children": [
+                                                                {
+                                                                    "extra_info": {
+                                                                        "Projections": "#0",
+                                                                        "Estimated Cardinality": "0"
+                                                                    },
+                                                                    "intermediate_rows": 0,
+                                                                    "intermediate_size_bytes": 0,
+                                                                    "timing": 0.0,
+                                                                    "type": "PROJECTION",
+                                                                    "children": [
+                                                                        {
+                                                                            "extra_info": {
+                                                                                "Join Type": "SEMI",
+                                                                                "Conditions": [
+                                                                                    "#0 IS NOT DISTINCT FROM #0",
+                                                                                    "#1 IS NOT DISTINCT FROM #1"
+                                                                                ],
+                                                                                "Estimated Cardinality": "0"
+                                                                            },
+                                                                            "intermediate_rows": 0,
+                                                                            "intermediate_size_bytes": 0,
+                                                                            "timing": 0.000002538,
+                                                                            "type": "HASH_JOIN",
+                                                                            "children": [
+                                                                                {
+                                                                                    "extra_info": {
+                                                                                        "Projections": "row_number() OVER (PARTITION BY #0 ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING)",
+                                                                                        "Estimated Cardinality": "0"
+                                                                                    },
+                                                                                    "intermediate_rows": 0,
+                                                                                    "intermediate_size_bytes": 0,
+                                                                                    "timing": 4.08e-7,
+                                                                                    "type": "WINDOW",
+                                                                                    "children": [
+                                                                                        {
+                                                                                            "extra_info": {
+                                                                                                "Table": "\"temp\".main.t1",
+                                                                                                "Type": "Sequential Scan",
+                                                                                                "Projections": "a1",
+                                                                                                "Estimated Cardinality": "0"
+                                                                                            },
+                                                                                            "intermediate_rows": 0,
+                                                                                            "intermediate_size_bytes": 0,
+                                                                                            "row_groups_scanned": 0,
+                                                                                            "rows_scanned": 0,
+                                                                                            "timing": 0.000003994,
+                                                                                            "total_row_groups_to_scan": 0,
+                                                                                            "type": "TABLE_SCAN"
+                                                                                        }
+                                                                                    ]
+                                                                                },
+                                                                                {
+                                                                                    "extra_info": {
+                                                                                        "Projections": "row_number() OVER (PARTITION BY #0 ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING)",
+                                                                                        "Estimated Cardinality": "0"
+                                                                                    },
+                                                                                    "intermediate_rows": 0,
+                                                                                    "intermediate_size_bytes": 0,
+                                                                                    "timing": 6.91e-7,
+                                                                                    "type": "WINDOW",
+                                                                                    "children": [
+                                                                                        {
+                                                                                            "extra_info": {
+                                                                                                "Table": "\"temp\".main.t1",
+                                                                                                "Type": "Sequential Scan",
+                                                                                                "Projections": "b1",
+                                                                                                "Estimated Cardinality": "0"
+                                                                                            },
+                                                                                            "intermediate_rows": 0,
+                                                                                            "intermediate_size_bytes": 0,
+                                                                                            "row_groups_scanned": 0,
+                                                                                            "rows_scanned": 0,
+                                                                                            "timing": 0.000003747,
+                                                                                            "total_row_groups_to_scan": 0,
+                                                                                            "type": "TABLE_SCAN"
+                                                                                        }
+                                                                                    ]
+                                                                                }
+                                                                            ]
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            ]
+                                                        },
+                                                        {
+                                                            "extra_info": {
+                                                                "Projections": "row_number() OVER (PARTITION BY #0 ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING)",
+                                                                "Estimated Cardinality": "0"
+                                                            },
+                                                            "intermediate_rows": 0,
+                                                            "intermediate_size_bytes": 0,
+                                                            "timing": 7.73e-7,
+                                                            "type": "WINDOW",
+                                                            "children": [
+                                                                {
+                                                                    "extra_info": {
+                                                                        "Table": "\"temp\".main.t1",
+                                                                        "Type": "Sequential Scan",
+                                                                        "Projections": "c1",
+                                                                        "Estimated Cardinality": "0"
+                                                                    },
+                                                                    "intermediate_rows": 0,
+                                                                    "intermediate_size_bytes": 0,
+                                                                    "row_groups_scanned": 0,
+                                                                    "rows_scanned": 0,
+                                                                    "timing": 0.000008747,
+                                                                    "total_row_groups_to_scan": 0,
+                                                                    "type": "TABLE_SCAN"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "extra_info": {
+                                        "Projections": [
+                                            "'except'",
+                                            "value"
+                                        ],
+                                        "Estimated Cardinality": "0"
+                                    },
+                                    "intermediate_rows": 0,
+                                    "intermediate_size_bytes": 0,
+                                    "timing": 0.0,
+                                    "type": "PROJECTION",
+                                    "children": [
+                                        {
+                                            "extra_info": {
+                                                "Projections": "CAST(#0 AS INTEGER)",
+                                                "Estimated Cardinality": "0"
+                                            },
+                                            "intermediate_rows": 0,
+                                            "intermediate_size_bytes": 0,
+                                            "timing": 0.0,
+                                            "type": "PROJECTION",
+                                            "children": [
+                                                {
+                                                    "extra_info": {
+                                                        "Groups": "#0",
+                                                        "Aggregates": "",
+                                                        "Estimated Cardinality": "0"
+                                                    },
+                                                    "intermediate_rows": 0,
+                                                    "intermediate_size_bytes": 0,
+                                                    "timing": 6.45e-7,
+                                                    "type": "HASH_GROUP_BY",
+                                                    "children": [
+                                                        {
+                                                            "extra_info": {
+                                                                "Projections": "value",
+                                                                "Estimated Cardinality": "0"
+                                                            },
+                                                            "intermediate_rows": 0,
+                                                            "intermediate_size_bytes": 0,
+                                                            "timing": 0.0,
+                                                            "type": "PROJECTION",
+                                                            "children": [
+                                                                {
+                                                                    "extra_info": {
+                                                                        "Projections": "CAST(#0 AS TINYINT)",
+                                                                        "Estimated Cardinality": "0"
+                                                                    },
+                                                                    "intermediate_rows": 0,
+                                                                    "intermediate_size_bytes": 0,
+                                                                    "timing": 0.0,
+                                                                    "type": "PROJECTION",
+                                                                    "children": [
+                                                                        {
+                                                                            "extra_info": {
+                                                                                "Groups": "#0",
+                                                                                "Aggregates": "",
+                                                                                "Estimated Cardinality": "0"
+                                                                            },
+                                                                            "intermediate_rows": 0,
+                                                                            "intermediate_size_bytes": 0,
+                                                                            "timing": 6.33e-7,
+                                                                            "type": "HASH_GROUP_BY",
+                                                                            "children": [
+                                                                                {
+                                                                                    "extra_info": {
+                                                                                        "Join Type": "ANTI",
+                                                                                        "Conditions": "#0 IS NOT DISTINCT FROM #0",
+                                                                                        "Estimated Cardinality": "0"
+                                                                                    },
+                                                                                    "intermediate_rows": 0,
+                                                                                    "intermediate_size_bytes": 0,
+                                                                                    "timing": 0.000002486,
+                                                                                    "type": "HASH_JOIN",
+                                                                                    "children": [
+                                                                                        {
+                                                                                            "extra_info": {
+                                                                                                "Projections": "CAST(#0 AS INTEGER)",
+                                                                                                "Estimated Cardinality": "0"
+                                                                                            },
+                                                                                            "intermediate_rows": 0,
+                                                                                            "intermediate_size_bytes": 0,
+                                                                                            "timing": 0.0,
+                                                                                            "type": "PROJECTION",
+                                                                                            "children": [
+                                                                                                {
+                                                                                                    "extra_info": {
+                                                                                                        "Groups": "#0",
+                                                                                                        "Aggregates": "",
+                                                                                                        "Estimated Cardinality": "0"
+                                                                                                    },
+                                                                                                    "intermediate_rows": 0,
+                                                                                                    "intermediate_size_bytes": 0,
+                                                                                                    "timing": 2.2e-7,
+                                                                                                    "type": "HASH_GROUP_BY",
+                                                                                                    "children": [
+                                                                                                        {
+                                                                                                            "extra_info": {
+                                                                                                                "Projections": "value",
+                                                                                                                "Estimated Cardinality": "0"
+                                                                                                            },
+                                                                                                            "intermediate_rows": 0,
+                                                                                                            "intermediate_size_bytes": 0,
+                                                                                                            "timing": 0.0,
+                                                                                                            "type": "PROJECTION",
+                                                                                                            "children": [
+                                                                                                                {
+                                                                                                                    "extra_info": {
+                                                                                                                        "Projections": "CAST(#0 AS TINYINT)",
+                                                                                                                        "Estimated Cardinality": "0"
+                                                                                                                    },
+                                                                                                                    "intermediate_rows": 0,
+                                                                                                                    "intermediate_size_bytes": 0,
+                                                                                                                    "timing": 0.0,
+                                                                                                                    "type": "PROJECTION",
+                                                                                                                    "children": [
+                                                                                                                        {
+                                                                                                                            "extra_info": {
+                                                                                                                                "Groups": "#0",
+                                                                                                                                "Aggregates": "",
+                                                                                                                                "Estimated Cardinality": "0"
+                                                                                                                            },
+                                                                                                                            "intermediate_rows": 0,
+                                                                                                                            "intermediate_size_bytes": 0,
+                                                                                                                            "timing": 7.63e-7,
+                                                                                                                            "type": "HASH_GROUP_BY",
+                                                                                                                            "children": [
+                                                                                                                                {
+                                                                                                                                    "extra_info": {
+                                                                                                                                        "Join Type": "ANTI",
+                                                                                                                                        "Conditions": "#0 IS NOT DISTINCT FROM #0",
+                                                                                                                                        "Estimated Cardinality": "0"
+                                                                                                                                    },
+                                                                                                                                    "intermediate_rows": 0,
+                                                                                                                                    "intermediate_size_bytes": 0,
+                                                                                                                                    "timing": 0.000002727,
+                                                                                                                                    "type": "HASH_JOIN",
+                                                                                                                                    "children": [
+                                                                                                                                        {
+                                                                                                                                            "extra_info": {
+                                                                                                                                                "Table": "\"temp\".main.t1",
+                                                                                                                                                "Type": "Sequential Scan",
+                                                                                                                                                "Projections": "a1",
+                                                                                                                                                "Estimated Cardinality": "0"
+                                                                                                                                            },
+                                                                                                                                            "intermediate_rows": 0,
+                                                                                                                                            "intermediate_size_bytes": 0,
+                                                                                                                                            "row_groups_scanned": 0,
+                                                                                                                                            "rows_scanned": 0,
+                                                                                                                                            "timing": 0.000001814,
+                                                                                                                                            "total_row_groups_to_scan": 0,
+                                                                                                                                            "type": "TABLE_SCAN"
+                                                                                                                                        },
+                                                                                                                                        {
+                                                                                                                                            "extra_info": {
+                                                                                                                                                "Table": "\"temp\".main.t1",
+                                                                                                                                                "Type": "Sequential Scan",
+                                                                                                                                                "Projections": "b1",
+                                                                                                                                                "Estimated Cardinality": "0"
+                                                                                                                                            },
+                                                                                                                                            "intermediate_rows": 0,
+                                                                                                                                            "intermediate_size_bytes": 0,
+                                                                                                                                            "row_groups_scanned": 0,
+                                                                                                                                            "rows_scanned": 0,
+                                                                                                                                            "timing": 0.000003858,
+                                                                                                                                            "total_row_groups_to_scan": 0,
+                                                                                                                                            "type": "TABLE_SCAN"
+                                                                                                                                        }
+                                                                                                                                    ]
+                                                                                                                                }
+                                                                                                                            ]
+                                                                                                                        }
+                                                                                                                    ]
+                                                                                                                }
+                                                                                                            ]
+                                                                                                        }
+                                                                                                    ]
+                                                                                                }
+                                                                                            ]
+                                                                                        },
+                                                                                        {
+                                                                                            "extra_info": {
+                                                                                                "Table": "\"temp\".main.t1",
+                                                                                                "Type": "Sequential Scan",
+                                                                                                "Projections": "c1",
+                                                                                                "Estimated Cardinality": "0"
+                                                                                            },
+                                                                                            "intermediate_rows": 0,
+                                                                                            "intermediate_size_bytes": 0,
+                                                                                            "row_groups_scanned": 0,
+                                                                                            "rows_scanned": 0,
+                                                                                            "timing": 0.000004366,
+                                                                                            "total_row_groups_to_scan": 0,
+                                                                                            "type": "TABLE_SCAN"
+                                                                                        }
+                                                                                    ]
+                                                                                }
+                                                                            ]
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "extra_info": {
+                                        "Projections": [
+                                            "'except-all'",
+                                            "value"
+                                        ],
+                                        "Estimated Cardinality": "0"
+                                    },
+                                    "intermediate_rows": 0,
+                                    "intermediate_size_bytes": 0,
+                                    "timing": 0.0,
+                                    "type": "PROJECTION",
+                                    "children": [
+                                        {
+                                            "extra_info": {
+                                                "Projections": "#0",
+                                                "Estimated Cardinality": "0"
+                                            },
+                                            "intermediate_rows": 0,
+                                            "intermediate_size_bytes": 0,
+                                            "timing": 0.0,
+                                            "type": "PROJECTION",
+                                            "children": [
+                                                {
+                                                    "extra_info": {
+                                                        "Join Type": "ANTI",
+                                                        "Conditions": [
+                                                            "#0 IS NOT DISTINCT FROM #0",
+                                                            "#1 IS NOT DISTINCT FROM #1"
+                                                        ],
+                                                        "Estimated Cardinality": "0"
+                                                    },
+                                                    "intermediate_rows": 0,
+                                                    "intermediate_size_bytes": 0,
+                                                    "timing": 0.0000028099999999999998,
+                                                    "type": "HASH_JOIN",
+                                                    "children": [
+                                                        {
+                                                            "extra_info": {
+                                                                "Projections": "row_number() OVER (PARTITION BY #0 ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING)",
+                                                                "Estimated Cardinality": "0"
+                                                            },
+                                                            "intermediate_rows": 0,
+                                                            "intermediate_size_bytes": 0,
+                                                            "timing": 4.29e-7,
+                                                            "type": "WINDOW",
+                                                            "children": [
+                                                                {
+                                                                    "extra_info": {
+                                                                        "Projections": "#0",
+                                                                        "Estimated Cardinality": "0"
+                                                                    },
+                                                                    "intermediate_rows": 0,
+                                                                    "intermediate_size_bytes": 0,
+                                                                    "timing": 0.0,
+                                                                    "type": "PROJECTION",
+                                                                    "children": [
+                                                                        {
+                                                                            "extra_info": {
+                                                                                "Join Type": "ANTI",
+                                                                                "Conditions": [
+                                                                                    "#0 IS NOT DISTINCT FROM #0",
+                                                                                    "#1 IS NOT DISTINCT FROM #1"
+                                                                                ],
+                                                                                "Estimated Cardinality": "0"
+                                                                            },
+                                                                            "intermediate_rows": 0,
+                                                                            "intermediate_size_bytes": 0,
+                                                                            "timing": 0.00000243,
+                                                                            "type": "HASH_JOIN",
+                                                                            "children": [
+                                                                                {
+                                                                                    "extra_info": {
+                                                                                        "Projections": "row_number() OVER (PARTITION BY #0 ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING)",
+                                                                                        "Estimated Cardinality": "0"
+                                                                                    },
+                                                                                    "intermediate_rows": 0,
+                                                                                    "intermediate_size_bytes": 0,
+                                                                                    "timing": 4.31e-7,
+                                                                                    "type": "WINDOW",
+                                                                                    "children": [
+                                                                                        {
+                                                                                            "extra_info": {
+                                                                                                "Table": "\"temp\".main.t1",
+                                                                                                "Type": "Sequential Scan",
+                                                                                                "Projections": "a1",
+                                                                                                "Estimated Cardinality": "0"
+                                                                                            },
+                                                                                            "intermediate_rows": 0,
+                                                                                            "intermediate_size_bytes": 0,
+                                                                                            "row_groups_scanned": 0,
+                                                                                            "rows_scanned": 0,
+                                                                                            "timing": 0.000002269,
+                                                                                            "total_row_groups_to_scan": 0,
+                                                                                            "type": "TABLE_SCAN"
+                                                                                        }
+                                                                                    ]
+                                                                                },
+                                                                                {
+                                                                                    "extra_info": {
+                                                                                        "Projections": "row_number() OVER (PARTITION BY #0 ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING)",
+                                                                                        "Estimated Cardinality": "0"
+                                                                                    },
+                                                                                    "intermediate_rows": 0,
+                                                                                    "intermediate_size_bytes": 0,
+                                                                                    "timing": 6.64e-7,
+                                                                                    "type": "WINDOW",
+                                                                                    "children": [
+                                                                                        {
+                                                                                            "extra_info": {
+                                                                                                "Table": "\"temp\".main.t1",
+                                                                                                "Type": "Sequential Scan",
+                                                                                                "Projections": "b1",
+                                                                                                "Estimated Cardinality": "0"
+                                                                                            },
+                                                                                            "intermediate_rows": 0,
+                                                                                            "intermediate_size_bytes": 0,
+                                                                                            "row_groups_scanned": 0,
+                                                                                            "rows_scanned": 0,
+                                                                                            "timing": 0.000004646,
+                                                                                            "total_row_groups_to_scan": 0,
+                                                                                            "type": "TABLE_SCAN"
+                                                                                        }
+                                                                                    ]
+                                                                                }
+                                                                            ]
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            ]
+                                                        },
+                                                        {
+                                                            "extra_info": {
+                                                                "Projections": "row_number() OVER (PARTITION BY #0 ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING)",
+                                                                "Estimated Cardinality": "0"
+                                                            },
+                                                            "intermediate_rows": 0,
+                                                            "intermediate_size_bytes": 0,
+                                                            "timing": 4.23e-7,
+                                                            "type": "WINDOW",
+                                                            "children": [
+                                                                {
+                                                                    "extra_info": {
+                                                                        "Table": "\"temp\".main.t1",
+                                                                        "Type": "Sequential Scan",
+                                                                        "Projections": "c1",
+                                                                        "Estimated Cardinality": "0"
+                                                                    },
+                                                                    "intermediate_rows": 0,
+                                                                    "intermediate_size_bytes": 0,
+                                                                    "row_groups_scanned": 0,
+                                                                    "rows_scanned": 0,
+                                                                    "timing": 0.000003846,
+                                                                    "total_row_groups_to_scan": 0,
+                                                                    "type": "TABLE_SCAN"
+                                                                }
+                                                            ]
                                                         }
                                                     ]
                                                 }
@@ -238,74 +896,74 @@
         }
     ],
     "optimizer": {
-        "aggregate_function_rewriter": 0.000012407,
-        "aggregate_reuse": 0.0000077,
-        "build_side_probe_side": 0.000005422,
-        "column_lifetime": 0.000013528,
-        "common_aggregate": 0.000001608,
-        "common_subexpressions": 0.000003339,
-        "common_subplan": 0.000248007,
-        "cte_filter_pusher": 0.000001523,
-        "cte_inlining": 0.000001843,
-        "deliminator": 0.000002118,
-        "duplicate_groups": 0.000009708,
-        "empty_result_pullup": 0.000001711,
-        "expression_rewriter": 0.000136289,
-        "filter_pullup": 0.000016118,
-        "filter_pushdown": 0.000085944,
-        "grouping_sets": 0.000002323,
-        "in_clause": 0.000002243,
-        "join_elimination": 0.000012902,
-        "join_filter_pushdown": 0.000001917,
-        "join_order": 0.000173824,
-        "late_materialization": 0.00000241,
-        "limit_pushdown": 0.00000149,
-        "outer_join_simplification": 0.000011657,
-        "partial_aggregate_pushdown": 0.000004524,
-        "partitioned_execution": 0.000001346,
-        "projection_placement": 0.000005682,
-        "projection_pullup": 0.000012574,
-        "redundant_order_keys": 0.00002269,
-        "regex_range": 0.00000143,
-        "reorder_filter": 0.000002267,
-        "row_group_pruner": 0.000001409,
-        "row_number_rewriter": 0.000001327,
-        "sampling_pushdown": 0.0000011,
-        "scalar_fn_pushdown": 8.75e-7,
-        "statistics_propagation": 0.000100122,
-        "top_n": 0.000001393,
-        "top_n_window_elimination": 0.000004787,
-        "total_time": 0.001124055,
-        "type_pushdown": 0.000001449,
-        "unnest_rewriter": 0.000002776,
-        "unused_columns": 0.000050923,
-        "window_self_join": 0.000001605
+        "aggregate_function_rewriter": 0.000018094,
+        "aggregate_reuse": 0.000022579,
+        "build_side_probe_side": 0.000012667,
+        "column_lifetime": 0.000043453,
+        "common_aggregate": 0.000003994,
+        "common_subexpressions": 0.000009286,
+        "common_subplan": 0.000479968,
+        "cte_filter_pusher": 0.000002681,
+        "cte_inlining": 0.000004935,
+        "deliminator": 0.0000035,
+        "duplicate_groups": 0.000029578,
+        "empty_result_pullup": 0.000004406,
+        "expression_rewriter": 0.00028113,
+        "filter_pullup": 0.000007087,
+        "filter_pushdown": 0.000157733,
+        "grouping_sets": 0.000006594,
+        "in_clause": 0.000005895,
+        "join_elimination": 0.00012067,
+        "join_filter_pushdown": 0.000008032,
+        "join_order": 0.000352961,
+        "late_materialization": 0.000004379,
+        "limit_pushdown": 0.000004129,
+        "outer_join_simplification": 0.000028796,
+        "partial_aggregate_pushdown": 0.000014347,
+        "partitioned_execution": 0.000004416,
+        "projection_placement": 0.000036684,
+        "projection_pullup": 0.000061843,
+        "redundant_order_keys": 0.000019087,
+        "regex_range": 0.000003142,
+        "reorder_filter": 0.000008391,
+        "row_group_pruner": 0.000003493,
+        "row_number_rewriter": 0.000003551,
+        "sampling_pushdown": 0.000002979,
+        "scalar_fn_pushdown": 0.000002872,
+        "statistics_propagation": 0.000311093,
+        "top_n": 0.000003188,
+        "top_n_window_elimination": 0.000008018,
+        "total_time": 0.002380342,
+        "type_pushdown": 0.000004611,
+        "unnest_rewriter": 0.000006173,
+        "unused_columns": 0.000075345,
+        "window_self_join": 0.000003039
     },
     "physical_planner": {
-        "column_binding": 0.00001023,
-        "create_plan": 0.000102792,
-        "resolve_types": 0.000001535,
-        "total_time": 0.000128869
+        "column_binding": 0.000028188,
+        "create_plan": 0.000245644,
+        "resolve_types": 0.000004792,
+        "total_time": 0.000307961
     },
     "planner": {
-        "binding_time": 0.000538497,
-        "total_time": 0.000756636
+        "binding_time": 0.001082552,
+        "total_time": 0.001502325
     },
     "query": {
-        "cpu_time": 0.054937811,
-        "sql": "EXPLAIN (ANALYZE, FORMAT JSON)\nSELECT l_orderkey, l_partkey FROM lineitem\nUNION ALL\nSELECT l_orderkey, l_suppkey FROM lineitem\nUNION ALL\n(\n   SELECT l_suppkey, l_partkey FROM lineitem\n   WHERE l_quantity < 25\n   INTERSECT ALL\n   SELECT l_suppkey, l_partkey FROM lineitem\n   WHERE l_quantity >= 25\n   EXCEPT ALL\n   SELECT l_suppkey, l_partkey FROM lineitem\n   WHERE l_quantity >= 25\n)",
-        "total_intermediate_rows": 2908,
-        "total_intermediate_size_bytes": 30384,
-        "total_row_groups_scanned": 5,
-        "total_row_groups_to_scan": 5,
-        "total_rows_scanned": 2860,
-        "total_time": 0.008495981
+        "cpu_time": 0.00009518100000000002,
+        "sql": "EXPLAIN (ANALYZE, FORMAT JSON)\nSELECT 'union' AS operation, value\nFROM (\n    SELECT a1 AS value FROM t1 WHERE a1 < 10\n    UNION\n    SELECT b1 FROM t1 WHERE b1 < 10\n    UNION\n    SELECT c1 FROM t1 WHERE c1 < 10\n) u\nUNION ALL\nSELECT 'union-all', value\nFROM (\n    SELECT a1 AS value FROM t1 WHERE a1 >= 10\n    UNION ALL\n    SELECT b1 FROM t1 WHERE b1 >= 10\n    UNION ALL\n    SELECT c1 FROM t1 WHERE c1 >= 10\n) ua\nUNION ALL\nSELECT 'intersect', value\nFROM (\n    SELECT a1 AS value FROM t1\n    INTERSECT\n    SELECT b1 FROM t1\n    INTERSECT\n    SELECT c1 FROM t1\n) i\nUNION ALL\nSELECT 'intersect-all', value\nFROM (\n    SELECT a1 AS value FROM t1\n    INTERSECT ALL\n    SELECT b1 FROM t1\n    INTERSECT ALL\n    SELECT c1 FROM t1\n) ia\nUNION ALL\nSELECT 'except', value\nFROM (\n    SELECT a1 AS value FROM t1\n    EXCEPT\n    SELECT b1 FROM t1\n    EXCEPT\n    SELECT c1 FROM t1\n) e\nUNION ALL\nSELECT 'except-all', value\nFROM (\n    SELECT a1 AS value FROM t1\n    EXCEPT ALL\n    SELECT b1 FROM t1\n    EXCEPT ALL\n    SELECT c1 FROM t1\n) ea",
+        "total_intermediate_rows": 0,
+        "total_intermediate_size_bytes": 0,
+        "total_row_groups_scanned": 0,
+        "total_row_groups_to_scan": 0,
+        "total_rows_scanned": 0,
+        "total_time": 0.006569997
     },
     "system": {
-        "blocked_thread_time": 0.00209,
-        "peak_buffer_memory": 81329376,
+        "blocked_thread_time": 0.0006929999999999999,
+        "peak_buffer_memory": 2340624,
         "peak_streaming_buffer_size": 0,
         "peak_temp_dir_size": 0,
-        "total_memory_allocated": 109314048
+        "total_memory_allocated": 0
     }
 }

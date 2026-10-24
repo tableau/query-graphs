@@ -1,0 +1,70 @@
+[
+    {
+        "name": "PROJECTION",
+        "children": [
+            {
+                "name": "UPDATE",
+                "children": [
+                    {
+                        "name": "PROJECTION",
+                        "children": [
+                            {
+                                "name": "HASH_JOIN",
+                                "children": [
+                                    {
+                                        "name": "SEQ_SCAN",
+                                        "children": [],
+                                        "extra_info": {
+                                            "Table": "\"temp\".main.t2",
+                                            "Type": "Sequential Scan",
+                                            "Projections": [
+                                                "a2",
+                                                "c2"
+                                            ],
+                                            "Estimated Cardinality": "0"
+                                        }
+                                    },
+                                    {
+                                        "name": "SEQ_SCAN",
+                                        "children": [],
+                                        "extra_info": {
+                                            "Table": "\"temp\".main.t1",
+                                            "Type": "Sequential Scan",
+                                            "Projections": [
+                                                "a1",
+                                                "b1"
+                                            ],
+                                            "Estimated Cardinality": "0"
+                                        }
+                                    }
+                                ],
+                                "extra_info": {
+                                    "Join Type": "INNER",
+                                    "Conditions": "a2 = a1",
+                                    "Estimated Cardinality": "1"
+                                }
+                            }
+                        ],
+                        "extra_info": {
+                            "Projections": [
+                                "(a1 + 1)",
+                                "b1",
+                                "#1",
+                                "rowid"
+                            ],
+                            "Estimated Cardinality": "1"
+                        }
+                    }
+                ],
+                "extra_info": {}
+            }
+        ],
+        "extra_info": {
+            "Projections": [
+                "a2",
+                "b2"
+            ],
+            "Estimated Cardinality": "1"
+        }
+    }
+]

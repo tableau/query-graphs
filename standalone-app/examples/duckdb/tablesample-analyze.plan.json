@@ -1,0 +1,117 @@
+{
+    "io": {
+        "total_bytes_read": 0,
+        "total_bytes_written": 0
+    },
+    "operator": [
+        {
+            "extra_info": {},
+            "intermediate_rows": 0,
+            "intermediate_size_bytes": 0,
+            "timing": 0.0,
+            "type": "RESULT_COLLECTOR",
+            "children": [
+                {
+                    "extra_info": {},
+                    "intermediate_rows": 0,
+                    "intermediate_size_bytes": 0,
+                    "timing": 0.0,
+                    "type": "EXPLAIN_ANALYZE",
+                    "children": [
+                        {
+                            "extra_info": {
+                                "Table": "\"temp\".main.t1",
+                                "Type": "Sequential Scan",
+                                "Projections": [
+                                    "a1",
+                                    "b1",
+                                    "c1"
+                                ],
+                                "Sample Method": "System: 50 rows",
+                                "Estimated Cardinality": "0"
+                            },
+                            "intermediate_rows": 0,
+                            "intermediate_size_bytes": 0,
+                            "row_groups_scanned": 0,
+                            "rows_scanned": 0,
+                            "timing": 0.000002051,
+                            "total_row_groups_to_scan": 0,
+                            "type": "TABLE_SCAN"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "optimizer": {
+        "aggregate_function_rewriter": 0.000005354,
+        "aggregate_reuse": 0.00000224,
+        "build_side_probe_side": 0.000001823,
+        "column_lifetime": 0.000002531,
+        "common_aggregate": 4.37e-7,
+        "common_subexpressions": 8.96e-7,
+        "common_subplan": 0.000012333,
+        "cte_filter_pusher": 4.75e-7,
+        "cte_inlining": 4.49e-7,
+        "deliminator": 8.47e-7,
+        "duplicate_groups": 0.000001332,
+        "empty_result_pullup": 4.67e-7,
+        "expression_rewriter": 0.000006879,
+        "filter_pullup": 7.95e-7,
+        "filter_pushdown": 0.000004188,
+        "grouping_sets": 4.69e-7,
+        "in_clause": 5.71e-7,
+        "join_elimination": 0.000001436,
+        "join_filter_pushdown": 5.02e-7,
+        "join_order": 0.000003582,
+        "late_materialization": 8.6e-7,
+        "limit_pushdown": 3.05e-7,
+        "outer_join_simplification": 0.000002953,
+        "partial_aggregate_pushdown": 0.00000119,
+        "partitioned_execution": 7.03e-7,
+        "projection_placement": 0.000001444,
+        "projection_pullup": 0.000002278,
+        "redundant_order_keys": 0.000001881,
+        "regex_range": 4.35e-7,
+        "reorder_filter": 4.93e-7,
+        "row_group_pruner": 3.47e-7,
+        "row_number_rewriter": 4.29e-7,
+        "sampling_pushdown": 0.000002172,
+        "scalar_fn_pushdown": 2.63e-7,
+        "statistics_propagation": 0.000007644,
+        "top_n": 6.55e-7,
+        "top_n_window_elimination": 0.000002071,
+        "total_time": 0.000149313,
+        "type_pushdown": 3.64e-7,
+        "unnest_rewriter": 7.03e-7,
+        "unused_columns": 0.000007122,
+        "window_self_join": 4.6e-7
+    },
+    "physical_planner": {
+        "column_binding": 0.000002226,
+        "create_plan": 0.000007892,
+        "resolve_types": 3.83e-7,
+        "total_time": 0.000014492
+    },
+    "planner": {
+        "binding_time": 0.000057725,
+        "total_time": 0.00012032
+    },
+    "query": {
+        "cpu_time": 0.000002051,
+        "sql": "EXPLAIN (ANALYZE, FORMAT JSON)\nSELECT a1, b1, c1\nFROM t1 TABLESAMPLE SYSTEM (50)\nREPEATABLE (1)",
+        "total_intermediate_rows": 0,
+        "total_intermediate_size_bytes": 0,
+        "total_row_groups_scanned": 0,
+        "total_row_groups_to_scan": 0,
+        "total_rows_scanned": 0,
+        "total_time": 0.000390412
+    },
+    "system": {
+        "blocked_thread_time": 0.0,
+        "peak_buffer_memory": 2160400,
+        "peak_streaming_buffer_size": 0,
+        "peak_temp_dir_size": 0,
+        "total_memory_allocated": 0
+    }
+}

@@ -4,7 +4,7 @@
     "operator-id": 1,
     "estimated-rows": 518,
     "produces-rows": true,
-    "output": [{"expression": "iu-ref", "sqlpos": [[42, 43]], "iu": ["scan_suppkey", ["Integer"]]}, {"expression": "iu-ref", "sqlpos": [[42, 43]], "iu": ["scan_s_name", ["Char", 25]]}, {"expression": "iu-ref", "sqlpos": [[42, 43]], "iu": ["scan_address", ["Varchar", 40]]}, {"expression": "iu-ref", "sqlpos": [[42, 43]], "iu": ["scan_nationke", ["Integer"]]}, {"expression": "iu-ref", "sqlpos": [[42, 43]], "iu": ["scan_s_phone", ["Char", 15]]}, {"expression": "iu-ref", "sqlpos": [[42, 43]], "iu": ["scan_acctbal", ["Numeric", 12, 2]]}, {"expression": "iu-ref", "sqlpos": [[42, 43]], "iu": ["scan_comment", ["Varchar", 101]]}, {"expression": "iu-ref", "iu": ["joinMarker", ["Bool"]]}],
+    "output": [{"expression": "iu-ref", "sqlpos": [[42, 43]], "iu": ["scan_suppkey", ["Integer"]]}, {"expression": "iu-ref", "sqlpos": [[42, 43]], "iu": ["scan_s_name", ["Char", 25]]}, {"expression": "iu-ref", "sqlpos": [[42, 43]], "iu": ["scan_address", ["Varchar", 40]]}, {"expression": "iu-ref", "sqlpos": [[42, 43]], "iu": ["scan_nationke", ["Integer"]]}, {"expression": "iu-ref", "sqlpos": [[42, 43]], "iu": ["scan_s_phone", ["Char", 15]]}, {"expression": "iu-ref", "sqlpos": [[42, 43]], "iu": ["scan_acctbal", ["Numeric", 12, 2]]}, {"expression": "iu-ref", "sqlpos": [[42, 43]], "iu": ["scan_comment", ["Varchar", 101]]}, {"expression": "iu-ref", "sqlpos": [[45, 51]], "iu": ["joinMarker", ["Bool"]]}],
     "output-names": ["s_suppkey", "s_name", "s_address", "s_nationkey", "s_phone", "s_acctbal", "s_comment", "2"],
     "inputs": [{
       "operator": "join",

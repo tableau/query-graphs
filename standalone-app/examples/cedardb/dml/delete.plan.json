@@ -1,0 +1,40 @@
+{
+ "plan":{
+  "operator":"planroot",
+  "physicalOperator":"planroot",
+  "cardinality":1,
+  "operatorId":1,
+  "input":{
+   "operator":"delete",
+   "physicalOperator":"delete",
+   "cardinality":1,
+   "operatorId":2,
+   "input":{
+    "operator":"tablescan",
+    "physicalOperator":"tablescan",
+    "cardinality":1,
+    "operatorId":3,
+    "attributes":[{"name":"a2", "iu":"a2", "column":0}, {"name":"b2", "iu":"b2", "column":1}, {"name":"c2", "iu":"c2", "column":2}],
+    "restrictions":[{"attribute":0, "mode":"<=", "value":{"expression":"const", "value":{"type":{"type":"int32"}, "value":9}}, "estimatedSelectivity":0, "collate":""}],
+    "residuals":[],
+    "tid":"tid",
+    "tableoid":"tableoid",
+    "rowstate":"rowstate",
+    "table":{"type":"table", "id":1},
+    "tableSize":1,
+    "tablename":"t2"
+   },
+   "tid":{"expression":"iuref", "iu":"tid"},
+   "tableObjectRef":{"type":"table", "id":1},
+   "hasReturningClause":true,
+   "indexesToDeferConstraintsOn":[]
+  },
+  "output":[{"name":"a2", "value":{"expression":"iuref", "iu":"a2"}}, {"name":"b2", "value":{"expression":"iuref", "iu":"b2"}}]
+ },
+ "ius":[{"iu":"a2", "outerNull":false, "type":{"type":"int32"}}, {"iu":"b2", "outerNull":false, "type":{"type":"int32", "nullable":true}}, {"iu":"c2", "outerNull":false, "type":{"type":"int32", "nullable":true}}, {"iu":"tid", "outerNull":false, "type":{"type":"int64"}}, {"iu":"tableoid", "outerNull":false, "type":{"type":"int32"}}, {"iu":"rowstate", "outerNull":false, "type":{"type":"int64"}}],
+ "type":"delete",
+ "query":true,
+ "hasParameters":false,
+ "queryOptimized":true,
+ "permissions":{"planPermissions":[{"object":{"type":"table", "id":1}, "role":10, "permissions":{"value":10, "grantMask":0}}, {"object":{"type":"schema", "id":3}, "role":10, "permissions":{"value":256, "grantMask":0}}], "fileReaders":[], "fileWriters":[], "objectsToLock":[]}
+}

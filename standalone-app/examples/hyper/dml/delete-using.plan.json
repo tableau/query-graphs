@@ -1,0 +1,68 @@
+{
+  "tree": {
+    "operator": "result-sink",
+    "operator-id": 1,
+    "estimated-rows": 2000,
+    "produces-rows": true,
+    "output": [{"expression": "iu-ref", "sqlpos": [[83, 85]], "iu": ["scan_a2", ["Integer"]]}, {"expression": "iu-ref", "sqlpos": [[90, 92]], "iu": ["scan_b2", ["Integer"]]}],
+    "output-names": ["a2", "b2"],
+    "inputs": [{
+      "operator": "delete",
+      "operator-id": 2,
+      "sqlpos": [[26, 32]],
+      "estimated-rows": 2000,
+      "volatility": "volatile",
+      "relation-id": 1,
+      "schema": {"type":"sessionschema"},
+      "from": "t2",
+      "tid": {"expression": "iu-ref", "iu": ["scan_tid", ["BigInt"]]},
+      "inputs": [{
+        "operator": "join",
+        "operator-id": 3,
+        "type": "right-semi",
+        "estimated-rows": 2000,
+        "method": "hash",
+        "compute-left-bounds": [0],
+        "filter-join-iu": "scan_a2",
+        "inputs": [{
+          "operator": "scan",
+          "operator-id": 4,
+          "type": "native",
+          "sqlpos": [[47, 49]],
+          "estimated-rows": 2000,
+          "volatility": "stable",
+          "relation-id": 0,
+          "schema": {"type":"sessionschema"},
+          "might-scan-domain": true,
+          "attribute-count": 3,
+          "attributes": [{"col-id": 0, "name": "a1", "type": ["Integer"], "iu": ["scan_a1", ["Integer"]]}],
+          "debug-name": {"classification": "nonsensitive", "value": "t1"},
+          "selectivity": 1
+        }, {
+          "operator": "scan",
+          "operator-id": 5,
+          "type": "native",
+          "sqlpos": [[38, 40]],
+          "estimated-rows": 2000,
+          "volatility": "stable",
+          "relation-id": 1,
+          "schema": {"type":"sessionschema"},
+          "attribute-count": 3,
+          "attributes": [{"col-id": 0, "name": "a2", "type": ["Integer"], "iu": ["scan_a2", ["Integer"]]},{"col-id": 1, "name": "b2", "type": ["Integer"], "iu": ["scan_b2", ["Integer"]]}],
+          "system-values": {"ctid": ["scan_tid", ["BigInt"]]},
+          "debug-name": {"classification": "nonsensitive", "value": "t2"},
+          "early-probes": [{"builder-id": 3, "attributes": [0], "num-equality-predicates": 1, "selectivities": [1], "type": "exact-probe", "pass-on-nulls": false}],
+          "selectivity": 1
+        }],
+        "early-probed-by": [5],
+        "condition": {"expression": "comparison", "sqlpos": [[62, 63]], "mode": "=", "left": {"expression": "iu-ref", "sqlpos": [[59, 61]], "iu": "scan_a2"}, "right": {"expression": "iu-ref", "sqlpos": [[67, 69]], "iu": "scan_a1"}},
+        "predicates": [{"left": {"expression": "iu-ref", "sqlpos": [[67, 69]], "iu": "scan_a1"}, "right": {"expression": "iu-ref", "sqlpos": [[59, 61]], "iu": "scan_a2"}, "comparison": "="}]
+      }]
+    }]
+  },
+  "pipelines": [
+    {"id": 0, "operators": [1, 2], "dependencies": [1]},
+    {"id": 1, "operators": [2, 3, 5], "dependencies": [2]},
+    {"id": 2, "operators": [3, 4], "dependencies": []}
+  ]
+}

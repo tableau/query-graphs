@@ -1,0 +1,34 @@
+{
+ "plan":{
+  "operator":"insert",
+  "physicalOperator":"insert",
+  "cardinality":1,
+  "operatorId":1,
+  "sourceLocation":{"startLine":1, "startColumn":31, "endLine":5, "endColumn":21},
+  "input":{
+   "operator":"tablescan",
+   "physicalOperator":"tablescan",
+   "cardinality":1,
+   "operatorId":2,
+   "sourceLocation":{"startLine":4, "startColumn":6, "endLine":4, "endColumn":8},
+   "attributes":[{"name":"a1", "iu":"a1", "nullable":true}, {"name":"b1", "iu":"b1", "nullable":true}, {"name":"c1", "iu":"c1", "nullable":true}],
+   "restrictions":[],
+   "residuals":[],
+   "tid":"tid",
+   "tableoid":"tableoid",
+   "rowstate":"rowstate",
+   "schema":"pg_temp",
+   "table":{"type":"temporarytable", "id":0},
+   "tableSize":1,
+   "tablename":"t1"
+  },
+  "values":[{"value":{"expression":"iuref", "id":4, "iu":"a1"}, "iu":"a2"}, {"value":{"expression":"iuref", "id":5, "iu":"b1"}, "iu":"b2"}, {"value":{"expression":"iuref", "id":6, "iu":"c1"}, "iu":"c2"}],
+  "schema":"pg_temp",
+  "table":"t2",
+  "tableObjectRef":{"type":"temporarytable", "id":1}
+ },
+ "ius":[{"iu":"a2", "type":{"type":"integer", "precision":0, "scale":0, "nullable":true, "array":false}, "sourceLocation":{"startLine":5, "startColumn":11, "endLine":5, "endColumn":13}}, {"iu":"b2", "type":{"type":"integer", "precision":0, "scale":0, "nullable":true, "array":false}, "sourceLocation":{"startLine":5, "startColumn":15, "endLine":5, "endColumn":17}}, {"iu":"c2", "type":{"type":"integer", "precision":0, "scale":0, "nullable":true, "array":false}, "sourceLocation":{"startLine":5, "startColumn":19, "endLine":5, "endColumn":21}}, {"iu":"a1", "type":{"type":"integer", "precision":0, "scale":0, "nullable":true, "array":false}, "sourceLocation":{"startLine":4, "startColumn":6, "endLine":4, "endColumn":8}}, {"iu":"b1", "type":{"type":"integer", "precision":0, "scale":0, "nullable":true, "array":false}, "sourceLocation":{"startLine":4, "startColumn":6, "endLine":4, "endColumn":8}}, {"iu":"c1", "type":{"type":"integer", "precision":0, "scale":0, "nullable":true, "array":false}, "sourceLocation":{"startLine":4, "startColumn":6, "endLine":4, "endColumn":8}}, {"iu":"tid", "type":{"type":"bigint", "precision":0, "scale":0, "nullable":false, "array":false}}, {"iu":"tableoid", "type":{"type":"integer", "precision":0, "scale":0, "nullable":false, "array":false}}, {"iu":"rowstate", "type":{"type":"bigint", "precision":0, "scale":0, "nullable":false, "array":false}}],
+ "output":[{"name":"a2", "iu":{"expression":"iuref", "id":10, "iu":"a2"}}, {"name":"b2", "iu":{"expression":"iuref", "id":11, "iu":"b2"}}, {"name":"c2", "iu":{"expression":"iuref", "id":12, "iu":"c2"}}],
+ "type":"insert",
+ "query":true
+}

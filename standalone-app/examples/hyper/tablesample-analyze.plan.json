@@ -1,0 +1,29 @@
+{
+  "tree": {
+    "operator": "result-sink",
+    "operator-id": 1,
+    "estimated-rows": 0,
+    "produces-rows": true,
+    "output": [{"expression": "iu-ref", "sqlpos": [[42, 44]], "iu": ["tablesample_a1", ["Integer"]]}, {"expression": "iu-ref", "sqlpos": [[46, 48]], "iu": ["tablesample_b1", ["Integer"]]}, {"expression": "iu-ref", "sqlpos": [[50, 52]], "iu": ["tablesample_c1", ["Integer"]]}],
+    "output-names": ["a1", "b1", "c1"],
+    "inputs": [{
+      "operator": "table-sample",
+      "operator-id": 2,
+      "sqlpos": [[61, 72]],
+      "estimated-rows": 0,
+      "volatility": "stable",
+      "relation-id": {"id": 0, "path": {"type":"sessionschema"}},
+      "sampling-method": "system",
+      "requested-sample-size": {"unit": "relative", "value": 0.5, "minValue": 0, "maxValue": 18446744073709551615},
+      "seed": 1,
+      "attribute-count": 3,
+      "attributes": [{"col-id": 0, "name": "a1", "type": ["Integer"], "iu": ["tablesample_a1", ["Integer"]]},{"col-id": 1, "name": "b1", "type": ["Integer"], "iu": ["tablesample_b1", ["Integer"]]},{"col-id": 2, "name": "c1", "type": ["Integer"], "iu": ["tablesample_c1", ["Integer"]]}],
+      "system-values": {"ctid": ["tablesample_tid", ["BigInt"]], "table-oid": ["tablesample_oid", ["RegClass"]], "tuple-flags": ["tablesample_flags", ["BigInt"]]},
+      "statistics": {"column-count": 3, "output-rows": 0}
+    }],
+    "statistics": {"error": null, "column-count": 0}
+  },
+  "pipelines": [
+    {"id": 0, "operators": [1, 2], "dependencies": [], "statistics": {"cpu-cycles": 2761329, "query-metrics": {"elapsed":0.000922655,"memory-mb-seconds":0.000461327,"instance-seconds":0.000922655,"processed-rows":{"total":0,"native":0},"threads":{"thread-time":0.000922655,"cpu-time":0.000922764,"wait-time":0},"storage":{},"peak-transaction-memory-mb":0.5}, "running": false}}
+  ]
+}
