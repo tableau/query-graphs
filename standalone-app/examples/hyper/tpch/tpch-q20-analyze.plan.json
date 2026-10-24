@@ -120,19 +120,19 @@
                   "selectivity": 0.262238,
                   "statistics": {"column-count": 3, "output-rows": 2, "processed-rows": 572}
                 }],
-                "key-expressions": [{"expression": {"value": {"expression": "iu-ref", "iu": "scan_suppkey3"}}, "iu": ["GroupByKey", ["Integer"]]}, {"expression": {"value": {"expression": "iu-ref", "iu": "scan_partkey3"}}, "iu": ["GroupByKey2", ["Integer"]]}],
+                "key-expressions": [{"expression": {"value": {"expression": "iu-ref", "iu": "scan_partkey3"}}, "iu": ["GroupByKey", ["Integer"]]}, {"expression": {"value": {"expression": "iu-ref", "iu": "scan_suppkey3"}}, "iu": ["GroupByKey2", ["Integer"]]}],
                 "grouping-sets": [{"key-indices": [0, 1], "core-indices": [0, 1], "behavior": "regular"}],
                 "empty-groups": true,
                 "agg-expressions": [{"value": {"expression": "iu-ref", "sqlpos": [[851, 861]], "iu": "scan_quantity"}}],
                 "aggregates": [{"source": 0, "operation": {"aggregate": "sum"}, "iu": ["sum", ["BigNumeric", 38, 2, "nullable"]]}],
                 "statistics": {"column-count": 3, "memory-bytes": 18552, "output-rows": 2}
               }],
-              "values": [{"iu": ["map", ["BigNumeric", 38, 3, "nullable"]], "value": {"expression": "mul", "sqlpos": [[845, 846]], "left": {"expression": "iu-ref", "iu": "sum"}, "right": {"expression": "const", "value": {"type": ["Numeric", 2, 1], "value": 5}}}}],
+              "values": [{"iu": ["map", ["BigNumeric", 38, 3, "nullable"]], "value": {"expression": "mul", "left": {"expression": "iu-ref", "iu": "sum"}, "right": {"expression": "const", "value": {"type": ["Numeric", 2, 1], "value": 5}}}}],
               "statistics": {"column-count": 3, "output-rows": 2}
             }],
             "early-probed-by": [12],
-            "condition": {"expression": "and", "arguments": [{"expression": "comparison", "mode": "is", "left": {"expression": "iu-ref", "iu": "scan_partkey"}, "right": {"expression": "iu-ref", "iu": "GroupByKey2"}}, {"expression": "comparison", "mode": "is", "left": {"expression": "iu-ref", "iu": "scan_suppkey2"}, "right": {"expression": "iu-ref", "iu": "GroupByKey"}}, {"expression": "comparison", "sqlpos": [[758, 759]], "mode": ">", "left": {"expression": "iu-ref", "sqlpos": [[746, 757]], "iu": "scan_availqty"}, "right": {"expression": "iu-ref", "iu": "map"}}]},
-            "predicates": [{"left": {"expression": "iu-ref", "iu": "scan_partkey"}, "right": {"expression": "iu-ref", "iu": "GroupByKey2"}, "comparison": "is"}, {"left": {"expression": "iu-ref", "iu": "scan_suppkey2"}, "right": {"expression": "iu-ref", "iu": "GroupByKey"}, "comparison": "is"}, {"left": {"expression": "iu-ref", "sqlpos": [[746, 757]], "iu": "scan_availqty"}, "right": {"expression": "iu-ref", "iu": "map"}, "comparison": ">"}],
+            "condition": {"expression": "and", "arguments": [{"expression": "comparison", "mode": "is", "left": {"expression": "iu-ref", "iu": "scan_partkey"}, "right": {"expression": "iu-ref", "iu": "GroupByKey"}}, {"expression": "comparison", "mode": "is", "left": {"expression": "iu-ref", "iu": "scan_suppkey2"}, "right": {"expression": "iu-ref", "iu": "GroupByKey2"}}, {"expression": "comparison", "sqlpos": [[758, 759]], "mode": ">", "left": {"expression": "iu-ref", "sqlpos": [[746, 757]], "iu": "scan_availqty"}, "right": {"expression": "iu-ref", "iu": "map"}}]},
+            "predicates": [{"left": {"expression": "iu-ref", "iu": "scan_partkey"}, "right": {"expression": "iu-ref", "iu": "GroupByKey"}, "comparison": "is"}, {"left": {"expression": "iu-ref", "iu": "scan_suppkey2"}, "right": {"expression": "iu-ref", "iu": "GroupByKey2"}, "comparison": "is"}, {"left": {"expression": "iu-ref", "sqlpos": [[746, 757]], "iu": "scan_availqty"}, "right": {"expression": "iu-ref", "iu": "map"}, "comparison": ">"}],
             "statistics": {"column-count": 1, "memory-bytes": 18552, "output-rows": 1}
           }, {
             "operator": "scan",

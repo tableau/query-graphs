@@ -29,14 +29,14 @@
       }],
       "grouping-sets": [{"key-indices": [], "core-indices": null, "behavior": "static"}],
       "empty-groups": true,
-      "agg-expressions": [{"value": {"expression": "mul", "sqlpos": [[173, 174]], "left": {"expression": "iu-ref", "sqlpos": [[157, 172]], "iu": "scan_extended"}, "right": {"expression": "iu-ref", "sqlpos": [[175, 185]], "iu": "scan_discount"}}}],
+      "agg-expressions": [{"value": {"expression": "mul", "left": {"expression": "iu-ref", "sqlpos": [[157, 172]], "iu": "scan_extended"}, "right": {"expression": "iu-ref", "sqlpos": [[175, 185]], "iu": "scan_discount"}}}],
       "aggregates": [{"source": 0, "operation": {"aggregate": "sum"}, "iu": ["sum", ["BigNumeric", 38, 4, "nullable"]]}],
       "statistics": {"column-count": 1, "memory-bytes": 0, "output-rows": 1}
     }],
     "statistics": {"error": null, "column-count": 0}
   },
   "pipelines": [
-    {"id": 0, "operators": [1, 2], "dependencies": [1], "statistics": {"cpu-cycles": 5288, "query-metrics": {"elapsed":6.256e-06,"memory-mb-seconds":3.128e-06,"instance-seconds":6.256e-06,"processed-rows":{"total":0,"native":0},"threads":{"thread-time":6.256e-06,"cpu-time":6.264e-06,"wait-time":0},"storage":{},"peak-transaction-memory-mb":0.5}, "running": false}},
-    {"id": 1, "operators": [2, 3], "dependencies": [], "statistics": {"cpu-cycles": 44075, "query-metrics": {"elapsed":2.158e-05,"memory-mb-seconds":1.079e-05,"instance-seconds":2.158e-05,"processed-rows":{"total":572,"native":572},"threads":{"thread-time":2.158e-05,"cpu-time":2.1534e-05,"wait-time":0},"storage":{},"additional-entries":{"scan-stats":{"rows-matching-restrictions":20}},"peak-transaction-memory-mb":0.5}, "running": false}}
+    {"id": 0, "operators": [1, 2], "dependencies": [1], "statistics": {"cpu-cycles": 2181, "query-metrics": {"elapsed":2.078e-06,"memory-mb-seconds":1.039e-06,"instance-seconds":2.078e-06,"processed-rows":{"total":0,"native":0},"threads":{"thread-time":2.078e-06,"cpu-time":2.076e-06,"wait-time":0},"storage":{},"peak-transaction-memory-mb":0.5}, "running": false}},
+    {"id": 1, "operators": [2, 3], "dependencies": [], "statistics": {"cpu-cycles": 28601, "query-metrics": {"elapsed":1.2125e-05,"memory-mb-seconds":6.062e-06,"instance-seconds":1.2125e-05,"processed-rows":{"total":572,"native":572},"threads":{"thread-time":1.2125e-05,"cpu-time":1.209e-05,"wait-time":0},"storage":{},"additional-entries":{"scan-stats":{"rows-matching-restrictions":20}},"peak-transaction-memory-mb":0.5}, "running": false}}
   ]
 }

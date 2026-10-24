@@ -60,7 +60,7 @@
                 "key-expressions": [{"expression": {"value": {"expression": "iu-ref", "sqlpos": [[359, 368]], "iu": "scan_suppkey2"}}, "iu": ["GroupByKey", ["Integer"]]}],
                 "grouping-sets": [{"key-indices": [0], "core-indices": [0], "behavior": "regular"}],
                 "empty-groups": false,
-                "agg-expressions": [{"value": {"expression": "mul", "sqlpos": [[215, 216]], "left": {"expression": "sub", "sqlpos": [[220, 221]], "left": {"expression": "const", "value": {"type": ["Numeric", 1], "value": 1}}, "right": {"expression": "iu-ref", "sqlpos": [[222, 232]], "iu": "scan_discount"}}, "right": {"expression": "iu-ref", "sqlpos": [[199, 214]], "iu": "scan_extended"}}}],
+                "agg-expressions": [{"value": {"expression": "mul", "left": {"expression": "sub", "left": {"expression": "const", "value": {"type": ["Numeric", 1], "value": 1}}, "right": {"expression": "iu-ref", "sqlpos": [[222, 232]], "iu": "scan_discount"}}, "right": {"expression": "iu-ref", "sqlpos": [[199, 214]], "iu": "scan_extended"}}}],
                 "aggregates": [{"source": 0, "operation": {"aggregate": "sum"}, "iu": ["sum2", ["BigNumeric", 38, 4]]}],
                 "statistics": {"column-count": 2, "memory-bytes": 18552, "output-rows": 0}
               },
