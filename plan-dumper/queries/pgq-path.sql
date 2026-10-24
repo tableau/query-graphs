@@ -4,7 +4,7 @@
 --- relational lowering and does not need runtime measurements.
 --- MODES: simple, steps
 
--- Exercise a questioned edge and ONE ROW PER STEP on the TPC-H part/supplier
+-- Exercise an optional edge and ONE ROW PER STEP on the TPC-H part/supplier
 -- relationship. The optional edge also gives the sqlpos implementation a
 -- concrete absent-edge branch to annotate.
 WITH pg AS PROPERTY GRAPH (
