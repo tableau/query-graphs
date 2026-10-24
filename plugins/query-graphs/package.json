@@ -1,0 +1,32 @@
+{
+  "name": "@tableau/query-graphs-plugin",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "build": "node ./scripts/build.mjs",
+    "prepare-release": "pnpm --filter @tableau/query-graphs build && node ./scripts/prepare-release.mjs",
+    "verify-release": "node ./scripts/verify-release.mjs",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/ext-apps": "2.0.3",
+    "@modelcontextprotocol/server": "2.0.0",
+    "@tableau/query-graphs": "workspace:^",
+    "bootstrap": "^5.3.3",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "zod": "4.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "@types/node": "^24.13.3",
+    "esbuild": "0.28.2",
+    "typescript": "^6.0.3"
+  }
+}

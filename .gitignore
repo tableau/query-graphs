@@ -14,10 +14,12 @@ node_modules
 *.tgz
 *.bundle.*
 *.egg-info/
+target/
 tsconfig.tsbuildinfo
 jupyterlab-extension/lib
 query-graphs/lib
 standalone-app/dist
+plugins/query-graphs/dist
 standalone-app/ts-build
 standalone-server/webroot/*.min.js
 standalone-server/webroot/*.min.js.map

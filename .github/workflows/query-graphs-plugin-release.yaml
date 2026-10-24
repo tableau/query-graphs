@@ -1,0 +1,44 @@
+name: Release Query Graphs plugin
+
+on:
+  push:
+    tags: ["plugin-v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: "pnpm"
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm -r build
+
+      - name: Typecheck and test plugin
+        run: |
+          pnpm --filter @tableau/query-graphs-plugin typecheck
+          pnpm --filter @tableau/query-graphs-plugin test
+
+      - name: Verify release pin and tag
+        run: pnpm --filter @tableau/query-graphs-plugin verify-release "$GITHUB_REF_NAME"
+
+      - name: Publish GitHub Release asset
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: >-
+          gh release create "$GITHUB_REF_NAME"
+          "plugins/query-graphs/dist/query-graphs-plugin.json"
+          --title "Query Graphs plugin $GITHUB_REF_NAME"
+          --notes "Self-contained Query Graphs MCP App runtime."

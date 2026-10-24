@@ -26,7 +26,7 @@ Then open [localhost:8080](http://localhost:8080).
 The `standalone-app` imports the core library from `@tableau/query-graphs/lib/…`, i.e. from the library's **compiled** output in `query-graphs/lib/`, not from its TypeScript sources.
 `pnpm --filter @tableau/query-graphs build` runs `tsc` and copies the CSS into `lib/`.
 
-`pnpm -r build` builds every module in dependency order, so it already builds `query-graphs` before `standalone-app` — you don't need to sequence them by hand.
+`pnpm -r build` builds workspace dependencies before their consumers, so the core library finishes before the standalone app and plugin use its compiled output.
 
 The practical consequence: **changes inside `query-graphs/src` are not visible to the app until you rebuild the library.**
 When editing the core library, re-run its `build` script (or a `tsc --build --watch`) so the app picks up your changes.
@@ -55,6 +55,9 @@ If an intentional loader change affects the expected results, update them with `
 ## Continuous Integration and Deployment
 
 CI is defined in [`.github/workflows/ci.yaml`](../.github/workflows/ci.yaml) and runs on every push and pull request.
-It installs dependencies, runs `lint-test` and `test`, then builds every module with `pnpm -r build` (which builds `query-graphs` before `standalone-app`).
+It installs dependencies, runs `lint-test` and `test`, then builds every module with `pnpm -r build`.
 
 On pushes to `main`, the same workflow deploys `standalone-app/dist/` to GitHub Pages, which serves [tableau.github.io/query-graphs](https://tableau.github.io/query-graphs/).
+
+The local MCP App release flow is documented in the [plugin README](../plugins/query-graphs/README.md).
+Its `plugin-v*` tag workflow publishes the verified, pinned runtime as one GitHub Release asset; marketplace installation does not install or compile project dependencies.

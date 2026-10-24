@@ -28,7 +28,7 @@ export default [
     },
     reactHooks.configs.flat.recommended,
     {
-        files: ["**/*.ts", "**/*.tsx", "**/*.js"],
+        files: ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.mjs"],
         languageOptions: {
             globals: {
                 ...globals.node,
@@ -55,7 +55,15 @@ export default [
         },
     },
     {
-        files: ["**/*.js"],
+        files: ["plugins/query-graphs/src/server.mjs"],
+        languageOptions: {
+            globals: {
+                __QUERY_GRAPHS_VERSION__: "readonly",
+            },
+        },
+    },
+    {
+        files: ["**/*.js", "**/*.mjs"],
 
         rules: {
             "@typescript-eslint/no-require-imports": 0,

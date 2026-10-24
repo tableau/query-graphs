@@ -29,6 +29,12 @@ jobs:
       - name: Build
         run: pnpm -r build
 
+      - name: Typecheck plugin
+        run: pnpm --filter @tableau/query-graphs-plugin typecheck
+
+      - name: Verify plugin release pin
+        run: pnpm --filter @tableau/query-graphs-plugin verify-release
+
       - name: Deploy
         if: github.ref == 'refs/heads/main'
         uses: peaceiris/actions-gh-pages@v4

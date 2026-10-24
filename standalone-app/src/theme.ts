@@ -11,7 +11,7 @@ export function useTheme(): ResolvedTheme {
 
 const darkThemeQuery = "(prefers-color-scheme: dark)";
 
-export function useResolvedThemeSetting(): ResolvedTheme {
+export function useResolvedThemeSetting(systemThemeFallback?: ResolvedTheme): ResolvedTheme {
     const theme = useSettings((settings) => settings.values.theme);
     const systemTheme = useSyncExternalStore(
         (onStoreChange) => {
@@ -22,5 +22,5 @@ export function useResolvedThemeSetting(): ResolvedTheme {
         () => (window.matchMedia(darkThemeQuery).matches ? "dark" : "light"),
         () => "light" as const,
     );
-    return theme === "system" ? systemTheme : theme;
+    return theme === "system" ? (systemThemeFallback ?? systemTheme) : theme;
 }

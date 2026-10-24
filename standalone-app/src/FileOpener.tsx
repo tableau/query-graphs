@@ -5,9 +5,6 @@ import "./FileOpener.css";
 import {assert} from "./assert";
 import classcat from "classcat";
 
-declare const BUILD_COMMIT_HASH: string;
-declare const BUILD_TIMESTAMP: string;
-
 export interface FileOpenerData {
     content: string;
     fileName?: string;
@@ -135,9 +132,10 @@ interface FileOpenerProps {
     validate: (content: string) => string | undefined;
     /// Controller for displaying progress/completion
     loadStateController: LoadStateController;
+    buildInfo?: {commitHash: string; timestamp: string};
 }
 
-export function FileOpener({setData, validate, loadStateController}: FileOpenerProps) {
+export function FileOpener({setData, validate, loadStateController, buildInfo}: FileOpenerProps) {
     const {loadState, clearLoadState, tryAndDisplayErrors, setError} = loadStateController;
     const {dragging, onDragOver, onDragLeave} = useFileDrop();
     const [planString, setPlanString] = useState<string>("");
@@ -266,9 +264,11 @@ export function FileOpener({setData, validate, loadStateController}: FileOpenerP
                         <div className="github-link">
                             Open-sourced on <a href="https://github.com/tableau/query-graphs">Github</a>
                         </div>
-                        <div className="build-info">
-                            Commit {BUILD_COMMIT_HASH.substring(0, 12)} · {BUILD_TIMESTAMP}
-                        </div>
+                        {buildInfo ? (
+                            <div className="build-info">
+                                Commit {buildInfo.commitHash.substring(0, 12)} · {buildInfo.timestamp}
+                            </div>
+                        ) : null}
                     </div>
                 </div>
                 {dragOverlay}

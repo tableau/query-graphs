@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "query-graphs": {
+      "command": "node",
+      "args": ["./launcher.mjs"],
+      "cwd": ".",
+      "enabled": true,
+      "startup_timeout_sec": 120
+    }
+  }
+}

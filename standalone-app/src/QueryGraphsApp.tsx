@@ -1,22 +1,17 @@
-import {useCallback, useEffect, useId, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {useBrowserUrl, useUrlParam} from "./browserUrlHooks";
 import type {FileOpenerData} from "./FileOpener";
 import {FileOpener, useLoadStateController} from "./FileOpener";
 import {loadPlanFromText} from "@tableau/query-graphs/lib/loaders";
 import type {LoadedPlan} from "@tableau/query-graphs/lib/loaders";
-import {insightPresets} from "@tableau/query-graphs/lib/insights/presets";
-import {GraphToolbar, QueryGraph} from "@tableau/query-graphs/lib/ui/QueryGraph";
 import {tryCreateLocalStorageUrl, isLocalStorageURL, loadLocalStorageURL} from "./LocalStorageUrl";
 import {assert} from "./assert";
-import {TreeLabel} from "./TreeLabel";
-import {SettingsButton, SettingsPanel} from "./SettingsPanel";
-import {useSettings} from "./settings";
-import {useTheme} from "./theme";
+import {PlanView} from "./PlanView";
+
+declare const BUILD_COMMIT_HASH: string;
+declare const BUILD_TIMESTAMP: string;
 
 export function QueryGraphsApp() {
-    const settingsPopoverId = useId();
-    const animationSpeed = useSettings((settings) => settings.values.animationSpeed);
-    const theme = useTheme();
     const loadStateController = useLoadStateController();
     const {setProgress, clearLoadState, tryAndDisplayErrors} = loadStateController;
     const [loadedPlan, setLoadedPlan] = useState<LoadedPlan | undefined>(undefined);
@@ -147,24 +142,15 @@ export function QueryGraphsApp() {
     }, []);
 
     if (!loadedPlan) {
-        return <FileOpener setData={openPickedData} loadStateController={loadStateController} validate={validate} />;
-    } else {
-        const {tree, format} = loadedPlan;
         return (
-            <QueryGraph treeDescription={tree} animationSpeed={animationSpeed} theme={theme}>
-                <TreeLabel
-                    title={treeTitle ?? ""}
-                    setTitle={setTreeTitle}
-                    metadata={tree.metadata}
-                    metadataHighlighted={tree.metadataHighlighted}
-                    textDocuments={tree.textDocuments}
-                    insights={insightPresets[format] ? {root: tree.root, definitions: insightPresets[format]} : undefined}
-                />
-                <SettingsPanel popoverId={settingsPopoverId} />
-                <GraphToolbar>
-                    <SettingsButton popoverId={settingsPopoverId} />
-                </GraphToolbar>
-            </QueryGraph>
+            <FileOpener
+                setData={openPickedData}
+                loadStateController={loadStateController}
+                validate={validate}
+                buildInfo={{commitHash: BUILD_COMMIT_HASH, timestamp: BUILD_TIMESTAMP}}
+            />
         );
+    } else {
+        return <PlanView loadedPlan={loadedPlan} title={treeTitle ?? ""} setTitle={setTreeTitle} />;
     }
 }

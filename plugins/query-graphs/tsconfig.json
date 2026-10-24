@@ -1,0 +1,14 @@
+{
+    "$schema": "http://json.schemastore.org/tsconfig",
+    "extends": "../../tsconfigbase.json",
+    "compilerOptions": {
+        "rootDir": "../..",
+        "noEmit": true,
+        "incremental": false,
+        "skipLibCheck": true,
+        "jsx": "react-jsx",
+        "esModuleInterop": true,
+        "types": ["node"]
+    },
+    "include": ["src/view.tsx", "src/**/*.d.mts", "src/version.d.ts", "../../standalone-app/src/css.d.ts"]
+}

@@ -8,8 +8,8 @@
     "scripts": {
         "lint": "eslint . --fix",
         "lint-test": "eslint .",
-        "pretest": "pnpm --filter @tableau/query-graphs build",
-        "test": "node --import=tsx --test --test-isolation=none \"query-graphs/test/*.test.ts\" \"standalone-app/test/*.test.ts\"",
+        "pretest": "pnpm --filter @tableau/query-graphs build && pnpm --filter @tableau/query-graphs-plugin build",
+        "test": "node --import=tsx --test --test-isolation=none \"query-graphs/test/*.test.ts\" \"standalone-app/test/*.test.ts\" && pnpm --filter @tableau/query-graphs-plugin test",
         "pretest:update": "pnpm --filter @tableau/query-graphs build",
         "test:update": "node --import=tsx --test --test-isolation=none --test-update-snapshots \"query-graphs/test/*.test.ts\" \"standalone-app/test/*.test.ts\""
     },
