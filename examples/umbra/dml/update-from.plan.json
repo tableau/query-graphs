@@ -1,0 +1,27 @@
+{
+ "plan":{
+  "operator":"update",
+  "physicalOperator":"update",
+  "cardinality":0,
+  "operatorId":1,
+  "sourceLocation":{"startLine":1, "startColumn":31, "endLine":7, "endColumn":23},
+  "input":{
+   "operator":"inlinetable",
+   "physicalOperator":"inlinetable",
+   "cardinality":0,
+   "operatorId":2,
+   "attributes":[{"name":"a1", "iu":"a1", "nullable":false}, {"name":"b1", "iu":"b1", "nullable":true}, {"name":"a2", "iu":"a2", "nullable":false}, {"name":"b2", "iu":"b2", "nullable":true}, {"name":"tid", "iu":"tid", "nullable":false}],
+   "restrictions":[],
+   "residuals":[],
+   "count":0,
+   "values":[]
+  },
+  "tupleId":{"expression":"iuref", "id":8, "iu":"tid"},
+  "values":[{"column":0, "iu":"v", "value":{"expression":"add", "id":6, "sourceLocation":{"startLine":3, "startColumn":10, "endLine":3, "endColumn":19}, "left":{"expression":"iuref", "id":4, "sourceLocation":{"startLine":3, "startColumn":10, "endLine":3, "endColumn":15}, "iu":"a1"}, "right":{"expression":"const", "id":5, "sourceLocation":{"startLine":3, "startColumn":18, "endLine":3, "endColumn":19}, "value":{"type":{"type":"integer", "precision":0, "scale":0, "nullable":false, "array":false}, "null":false, "value":1}}}}, {"column":1, "iu":"v7", "value":{"expression":"iuref", "id":7, "sourceLocation":{"startLine":4, "startColumn":10, "endLine":4, "endColumn":15}, "iu":"b1"}}],
+  "tableObjectRef":{"type":"temporarytable", "id":1}
+ },
+ "ius":[{"iu":"v", "type":{"type":"integer", "precision":0, "scale":0, "nullable":true, "array":false}}, {"iu":"v7", "type":{"type":"integer", "precision":0, "scale":0, "nullable":true, "array":false}}, {"iu":"a1", "type":{"type":"integer", "precision":0, "scale":0, "nullable":false, "array":false}, "sourceLocation":{"startLine":5, "startColumn":6, "endLine":5, "endColumn":8}}, {"iu":"b1", "type":{"type":"integer", "precision":0, "scale":0, "nullable":true, "array":false}, "sourceLocation":{"startLine":5, "startColumn":6, "endLine":5, "endColumn":8}}, {"iu":"a2", "type":{"type":"integer", "precision":0, "scale":0, "nullable":false, "array":false}, "sourceLocation":{"startLine":2, "startColumn":8, "endLine":2, "endColumn":10}}, {"iu":"b2", "type":{"type":"integer", "precision":0, "scale":0, "nullable":true, "array":false}, "sourceLocation":{"startLine":2, "startColumn":8, "endLine":2, "endColumn":10}}, {"iu":"tid", "type":{"type":"bigint", "precision":0, "scale":0, "nullable":false, "array":false}}],
+ "output":[{"name":"a2", "iu":{"expression":"iuref", "id":11, "iu":"a2"}}, {"name":"b2", "iu":{"expression":"iuref", "id":12, "iu":"b2"}}],
+ "type":"update",
+ "query":true
+}

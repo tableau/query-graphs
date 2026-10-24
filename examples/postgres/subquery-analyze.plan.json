@@ -1,0 +1,50 @@
+[
+  {
+    "Plan": {
+      "Node Type": "Seq Scan",
+      "Parallel Aware": false,
+      "Async Capable": false,
+      "Relation Name": "t1",
+      "Schema": "pg_temp",
+      "Alias": "t1",
+      "Startup Cost": 30.4,
+      "Total Cost": 60.8,
+      "Plan Rows": 2040,
+      "Plan Width": 8,
+      "Actual Startup Time": 0.001,
+      "Actual Total Time": 0.001,
+      "Actual Rows": 0,
+      "Actual Loops": 1,
+      "Output": [
+        "t1.a1",
+        "(InitPlan 1).col1"
+      ],
+      "Plans": [
+        {
+          "Node Type": "Seq Scan",
+          "Parent Relationship": "InitPlan",
+          "Subplan Name": "InitPlan 1",
+          "Parallel Aware": false,
+          "Async Capable": false,
+          "Relation Name": "t2",
+          "Schema": "pg_temp",
+          "Alias": "t2",
+          "Startup Cost": 0.0,
+          "Total Cost": 30.4,
+          "Plan Rows": 2040,
+          "Plan Width": 4,
+          "Actual Startup Time": 0.0,
+          "Actual Total Time": 0.0,
+          "Actual Rows": 0,
+          "Actual Loops": 0,
+          "Output": [
+            "t2.b2"
+          ]
+        }
+      ]
+    },
+    "Planning Time": 0.012,
+    "Triggers": [],
+    "Execution Time": 0.004
+  }
+]

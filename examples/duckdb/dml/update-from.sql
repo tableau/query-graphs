@@ -1,0 +1,7 @@
+EXPLAIN (FORMAT JSON)
+UPDATE t2
+SET a2 = t1.a1 + 1,
+    b2 = t1.b1
+FROM t1
+WHERE t2.a2 = t1.a1
+RETURNING t2.a2, t2.b2

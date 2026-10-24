@@ -1,0 +1,54 @@
+{
+ "plan":{
+  "operator":"planroot",
+  "physicalOperator":"planroot",
+  "cardinality":1,
+  "operatorId":1,
+  "input":{
+   "operator":"join",
+   "physicalOperator":"bnljoin",
+   "cardinality":1,
+   "operatorId":2,"analyzePlanId":0,"analyzePlanCardinality":0,
+   "left":{
+    "operator":"tablescan",
+    "physicalOperator":"tablescan",
+    "cardinality":1,
+    "operatorId":3,"analyzePlanId":1,"analyzePlanCardinality":0,
+    "attributes":[{"name":"a1", "iu":"a1", "column":0}, {"name":"b1", "iu":"b1", "column":1}, {"name":"c1", "iu":"c1", "column":2}],
+    "restrictions":[],
+    "residuals":[],
+    "tid":"tid",
+    "tableoid":"tableoid",
+    "rowstate":"rowstate",
+    "table":{"type":"table", "id":0},
+    "tableSize":1,
+    "tablename":"t1"
+   },
+   "right":{
+    "operator":"tablescan",
+    "physicalOperator":"tablescan",
+    "cardinality":1,
+    "operatorId":4,"analyzePlanId":2,"analyzePlanCardinality":0,
+    "attributes":[{"name":"a2", "iu":"a2", "column":0}, {"name":"b2", "iu":"b2", "column":1}, {"name":"c2", "iu":"c2", "column":2}],
+    "restrictions":[],
+    "residuals":[],
+    "tid":"tid10",
+    "tableoid":"tableoid11",
+    "rowstate":"rowstate12",
+    "table":{"type":"table", "id":1},
+    "tableSize":1,
+    "tablename":"t2"
+   },
+   "condition":{"expression":"const", "value":{"type":{"type":"bool"}, "value":true}},
+   "type":"leftsingle"
+  },
+  "output":[{"name":"a1", "value":{"expression":"iuref", "iu":"a1"}}, {"name":"matching_b", "value":{"expression":"iuref", "iu":"b2"}}]
+ },
+ "ius":[{"iu":"a1", "outerNull":false, "type":{"type":"int32", "nullable":true}}, {"iu":"b1", "outerNull":false, "type":{"type":"int32", "nullable":true}}, {"iu":"c1", "outerNull":false, "type":{"type":"int32", "nullable":true}}, {"iu":"tid", "outerNull":false, "type":{"type":"int64"}}, {"iu":"tableoid", "outerNull":false, "type":{"type":"int32"}}, {"iu":"rowstate", "outerNull":false, "type":{"type":"int64"}}, {"iu":"a2", "outerNull":false, "type":{"type":"int32", "nullable":true}}, {"iu":"b2", "outerNull":false, "type":{"type":"int32", "nullable":true}}, {"iu":"c2", "outerNull":false, "type":{"type":"int32", "nullable":true}}, {"iu":"tid10", "outerNull":false, "type":{"type":"int64"}}, {"iu":"tableoid11", "outerNull":false, "type":{"type":"int32"}}, {"iu":"rowstate12", "outerNull":false, "type":{"type":"int64"}}],
+ "type":"select",
+ "query":true,
+ "hasParameters":false,
+ "queryOptimized":true,
+ "permissions":{"planPermissions":[{"object":{"type":"table", "id":0}, "role":10, "permissions":{"value":2, "grantMask":0}}, {"object":{"type":"schema", "id":3}, "role":10, "permissions":{"value":256, "grantMask":0}}, {"object":{"type":"table", "id":1}, "role":10, "permissions":{"value":2, "grantMask":0}}], "fileReaders":[], "fileWriters":[], "objectsToLock":[]},
+ "analyzePlanPipelines":[{"start":13,"stop":30,"duration":17,"parallelism":"multi-threaded","operators":[0,2]},{"start":5,"stop":9,"duration":4,"parallelism":"single-threaded","operators":[0,1]}]
+}

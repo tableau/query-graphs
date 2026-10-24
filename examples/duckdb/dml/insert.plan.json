@@ -1,0 +1,22 @@
+[
+    {
+        "name": "INSERT",
+        "children": [
+            {
+                "name": "SEQ_SCAN",
+                "children": [],
+                "extra_info": {
+                    "Table": "\"temp\".main.t1",
+                    "Type": "Sequential Scan",
+                    "Projections": [
+                        "a1",
+                        "b1",
+                        "c1"
+                    ],
+                    "Estimated Cardinality": "0"
+                }
+            }
+        ],
+        "extra_info": {}
+    }
+]

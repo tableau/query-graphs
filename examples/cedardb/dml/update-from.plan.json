@@ -1,0 +1,72 @@
+{
+ "plan":{
+  "operator":"planroot",
+  "physicalOperator":"planroot",
+  "cardinality":1,
+  "operatorId":1,
+  "input":{
+   "operator":"update",
+   "physicalOperator":"update",
+   "cardinality":1,
+   "operatorId":2,
+   "input":{
+    "operator":"map",
+    "physicalOperator":"map",
+    "cardinality":1,
+    "operatorId":3,
+    "input":{
+     "operator":"join",
+     "physicalOperator":"hashjoin",
+     "cardinality":1,
+     "operatorId":4,
+     "left":{
+      "operator":"tablescan",
+      "physicalOperator":"tablescan",
+      "cardinality":1,
+      "operatorId":5,
+      "attributes":[{"name":"a1", "iu":"a1", "column":0}, {"name":"b1", "iu":"b1", "column":1}, {"name":"c1", "iu":"c1", "column":2}],
+      "restrictions":[{"attribute":0, "mode":"isnotnull", "estimatedSelectivity":0, "collate":""}],
+      "residuals":[],
+      "tid":"tid",
+      "tableoid":"tableoid",
+      "rowstate":"rowstate",
+      "table":{"type":"table", "id":0},
+      "tableSize":1,
+      "tablename":"t1"
+     },
+     "right":{
+      "operator":"tablescan",
+      "physicalOperator":"tablescan",
+      "cardinality":1,
+      "operatorId":6,
+      "attributes":[{"name":"a2", "iu":"a2", "column":0}, {"name":"b2", "iu":"b2", "column":1}, {"name":"c2", "iu":"c2", "column":2}],
+      "restrictions":[{"attribute":0, "mode":"isnotnull", "estimatedSelectivity":0, "collate":""}, {"attribute":0, "mode":"joinfilter", "value":{"expression":"const", "value":{"type":{"type":"bool"}, "value":false}}, "upper":{"expression":"const", "value":{"type":{"type":"bool"}, "value":false}}, "op":4, "estimatedSelectivity":0.05, "collate":""}],
+      "residuals":[],
+      "tid":"tid10",
+      "tableoid":"tableoid11",
+      "rowstate":"rowstate12",
+      "table":{"type":"table", "id":1},
+      "tableSize":1,
+      "tablename":"t2"
+     },
+     "condition":{"expression":"compare", "left":{"expression":"iuref", "iu":"a2"}, "right":{"expression":"iuref", "iu":"a1"}, "direction":"=", "collate":""},
+     "type":"rightsingleinner",
+     "filter":true
+    },
+    "values":[{"iu":"v", "exp":{"expression":"add", "left":{"expression":"iuref", "iu":"a1"}, "right":{"expression":"const", "value":{"type":{"type":"int32"}, "value":1}}}}]
+   },
+   "tupleId":{"expression":"iuref", "iu":"tid10"},
+   "updatedValues":[{"logicalColumn":{"id":0}, "physicalColumns":[{"id":0}], "expr":{"expression":"iuref", "iu":"v"}}, {"logicalColumn":{"id":1}, "physicalColumns":[{"id":1}], "expr":{"expression":"iuref", "iu":"b1"}}],
+   "tableObjectRef":{"type":"table", "id":1},
+   "hasReturningClause":true,
+   "upsertTid":0
+  },
+  "output":[{"name":"a2", "value":{"expression":"iuref", "iu":"v"}}, {"name":"b2", "value":{"expression":"iuref", "iu":"b1"}}]
+ },
+ "ius":[{"iu":"a2", "outerNull":false, "type":{"type":"int32"}}, {"iu":"b2", "outerNull":false, "type":{"type":"int32", "nullable":true}}, {"iu":"c2", "outerNull":false, "type":{"type":"int32", "nullable":true}}, {"iu":"tid10", "outerNull":false, "type":{"type":"int64"}}, {"iu":"tableoid11", "outerNull":false, "type":{"type":"int32"}}, {"iu":"rowstate12", "outerNull":false, "type":{"type":"int64"}}, {"iu":"a1", "outerNull":false, "type":{"type":"int32"}}, {"iu":"b1", "outerNull":false, "type":{"type":"int32", "nullable":true}}, {"iu":"c1", "outerNull":false, "type":{"type":"int32", "nullable":true}}, {"iu":"tid", "outerNull":false, "type":{"type":"int64"}}, {"iu":"tableoid", "outerNull":false, "type":{"type":"int32"}}, {"iu":"rowstate", "outerNull":false, "type":{"type":"int64"}}, {"iu":"v", "outerNull":false, "type":{"type":"int32"}}],
+ "type":"update",
+ "query":true,
+ "hasParameters":false,
+ "queryOptimized":true,
+ "permissions":{"planPermissions":[{"object":{"type":"table", "id":1}, "role":10, "permissions":{"value":6, "grantMask":0}}, {"object":{"type":"schema", "id":3}, "role":10, "permissions":{"value":256, "grantMask":0}}, {"object":{"type":"table", "id":0}, "role":10, "permissions":{"value":2, "grantMask":0}}], "fileReaders":[], "fileWriters":[], "objectsToLock":[]}
+}

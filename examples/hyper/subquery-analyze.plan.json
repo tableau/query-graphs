@@ -1,0 +1,62 @@
+{
+  "tree": {
+    "operator": "result-sink",
+    "operator-id": 1,
+    "estimated-rows": 2000,
+    "produces-rows": true,
+    "output": [{"expression": "iu-ref", "sqlpos": [[232, 234]], "iu": ["scan_a1", ["Integer"]]}, {"expression": "iu-ref", "iu": ["scan_b2", ["Integer", "nullable"]]}],
+    "output-names": ["a1", "matching_b"],
+    "inputs": [{
+      "operator": "join",
+      "operator-id": 2,
+      "type": "right-outer",
+      "estimated-rows": 2000,
+      "method": "hash",
+      "single-match": true,
+      "inputs": [{
+        "operator": "assert-single",
+        "operator-id": 3,
+        "estimated-rows": 1,
+        "inputs": [{
+          "operator": "scan",
+          "operator-id": 4,
+          "type": "native",
+          "sqlpos": [[262, 264]],
+          "estimated-rows": 2000,
+          "volatility": "stable",
+          "relation-id": 1,
+          "schema": {"type":"sessionschema"},
+          "attribute-count": 3,
+          "attributes": [{"col-id": 1, "name": "b2", "type": ["Integer"], "iu": ["scan_b2", ["Integer", "nullable"]]}],
+          "debug-name": {"classification": "nonsensitive", "value": "t2"},
+          "selectivity": 1,
+          "statistics": {"column-count": 1, "output-rows": 0, "processed-rows": 0}
+        }],
+        "statistics": {"column-count": 1, "output-rows": 0}
+      }, {
+        "operator": "scan",
+        "operator-id": 5,
+        "type": "native",
+        "sqlpos": [[285, 287]],
+        "estimated-rows": 2000,
+        "volatility": "stable",
+        "relation-id": 0,
+        "schema": {"type":"sessionschema"},
+        "attribute-count": 3,
+        "attributes": [{"col-id": 0, "name": "a1", "type": ["Integer"], "iu": ["scan_a1", ["Integer"]]}],
+        "debug-name": {"classification": "nonsensitive", "value": "t1"},
+        "selectivity": 1,
+        "statistics": {"column-count": 1, "output-rows": 0, "processed-rows": 0}
+      }],
+      "condition": {"expression": "const", "value": {"type": ["Bool"], "value": true}},
+      "predicates": [],
+      "residual": {"expression": "const", "value": {"type": ["Bool"], "value": true}},
+      "statistics": {"column-count": 2, "memory-bytes": 2048, "output-rows": 0}
+    }],
+    "statistics": {"error": null, "column-count": 0}
+  },
+  "pipelines": [
+    {"id": 0, "operators": [1, 2, 5], "dependencies": [1], "statistics": {"cpu-cycles": 293, "query-metrics": {"elapsed":1.605e-06,"memory-mb-seconds":8.02e-07,"instance-seconds":1.605e-06,"processed-rows":{"total":0,"native":0},"threads":{"thread-time":1.605e-06,"cpu-time":1.625e-06,"wait-time":0},"storage":{},"peak-transaction-memory-mb":0.5}, "running": false}},
+    {"id": 1, "operators": [2, 3, 4], "dependencies": [], "statistics": {"cpu-cycles": 740, "query-metrics": {"elapsed":4.283e-06,"memory-mb-seconds":2.141e-06,"instance-seconds":4.283e-06,"processed-rows":{"total":0,"native":0},"threads":{"thread-time":4.283e-06,"cpu-time":4.258e-06,"wait-time":0},"storage":{},"peak-transaction-memory-mb":0.5}, "running": false}}
+  ]
+}

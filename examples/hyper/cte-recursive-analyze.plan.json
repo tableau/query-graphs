@@ -45,7 +45,7 @@
           "condition": {"expression": "comparison", "sqlpos": [[119, 120]], "mode": "<", "left": {"expression": "iu-ref", "sqlpos": [[117, 118]], "iu": "map_increment"}, "right": {"expression": "const", "value": {"type": ["Integer"], "value": 10}}},
           "statistics": {"column-count": 1, "output-rows": 9}
         }],
-        "values": [{"iu": ["map3", ["Integer"]], "value": {"expression": "add", "left": {"expression": "iu-ref", "sqlpos": [[98, 99]], "iu": "map_increment"}, "right": {"expression": "const", "value": {"type": ["Integer"], "value": 1}}}}],
+        "values": [{"iu": ["map3", ["Integer"]], "value": {"expression": "add", "sqlpos": [[100, 101]], "left": {"expression": "iu-ref", "sqlpos": [[98, 99]], "iu": "map_increment"}, "right": {"expression": "const", "value": {"type": ["Integer"], "value": 1}}}}],
         "statistics": {"column-count": 1, "output-rows": 9}
       }],
       "collates": [null],

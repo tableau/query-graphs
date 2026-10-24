@@ -2,37 +2,30 @@
  "plan":{
   "operator":"planroot",
   "physicalOperator":"planroot",
-  "cardinality":243,
+  "cardinality":111,
   "operatorId":1,
   "input":{
-   "operator":"setoperation",
-   "physicalOperator":"unionall",
-   "cardinality":243,
-   "operatorId":2,"analyzePlanId":0,"analyzePlanCardinality":256,
-   "arguments":[{"input":{
+   "operator":"join",
+   "physicalOperator":"hashjoin",
+   "cardinality":111,
+   "operatorId":2,"analyzePlanId":0,"analyzePlanCardinality":250,
+   "left":{
     "operator":"pipelinebreakerscan",
     "physicalOperator":"groupbyscan",
     "cardinality":122,
     "operatorId":3,"analyzePlanId":1,"analyzePlanCardinality":128,
-    "scannedOperator":4,
-    "output":[{"originalIU":"l_orderkey", "iu":"l_orderkey2"}, {"originalIU":"sum(l_quantity)", "iu":"sum"}, {"originalIU":"avg(l_extendedprice)", "iu":"avg"}]
-   }, "columns":[{"expression":"iuref", "iu":"l_orderkey2"}, {"expression":"iuref", "iu":"sum"}, {"expression":"iuref", "iu":"avg"}]}, {"input":{
-    "operator":"pipelinebreakerscan",
-    "physicalOperator":"groupbyscan",
-    "cardinality":122,
-    "operatorId":5,"analyzePlanId":2,"analyzePlanCardinality":128,
     "pipelineBreaker":{
      "operator":"groupby",
      "physicalOperator":"groupby",
      "cardinality":122,
-     "operatorId":4,"analyzePlanId":3,"analyzePlanCardinality":128,
+     "operatorId":4,"analyzePlanId":2,"analyzePlanCardinality":128,
      "input":{
       "operator":"tablescan",
       "physicalOperator":"tablescan",
-      "cardinality":572,
-      "operatorId":6,"analyzePlanId":4,"analyzePlanCardinality":572,
-      "attributes":[{"name":"l_orderkey", "iu":"l_orderkey7", "column":0}, {"name":"l_partkey", "iu":"l_partkey", "column":1}, {"name":"l_suppkey", "iu":"l_suppkey", "column":2}, {"name":"l_linenumber", "iu":"l_linenumber", "column":3}, {"name":"l_quantity", "iu":"l_quantity", "column":4}, {"name":"l_extendedprice", "iu":"l_extendedprice", "column":5}, {"name":"l_discount", "iu":"l_discount", "column":6}, {"name":"l_tax", "iu":"l_tax", "column":7}, {"name":"l_returnflag", "iu":"l_returnflag", "column":8}, {"name":"l_linestatus", "iu":"l_linestatus", "column":9}, {"name":"l_shipdate", "iu":"l_shipdate", "column":10}, {"name":"l_commitdate", "iu":"l_commitdate", "column":11}, {"name":"l_receiptdate", "iu":"l_receiptdate", "column":12}, {"name":"l_shipinstruct", "iu":"l_shipinstruct", "column":13}, {"name":"l_shipmode", "iu":"l_shipmode", "column":14}, {"name":"l_comment", "iu":"l_comment", "column":15}],
-      "restrictions":[],
+      "cardinality":560,
+      "operatorId":5,"analyzePlanId":3,"analyzePlanCardinality":560,
+      "attributes":[{"name":"l_orderkey", "iu":"l_orderkey", "column":0}, {"name":"l_partkey", "iu":"l_partkey", "column":1}, {"name":"l_suppkey", "iu":"l_suppkey", "column":2}, {"name":"l_linenumber", "iu":"l_linenumber", "column":3}, {"name":"l_quantity", "iu":"l_quantity", "column":4}, {"name":"l_extendedprice", "iu":"l_extendedprice", "column":5}, {"name":"l_discount", "iu":"l_discount", "column":6}, {"name":"l_tax", "iu":"l_tax", "column":7}, {"name":"l_returnflag", "iu":"l_returnflag", "column":8}, {"name":"l_linestatus", "iu":"l_linestatus", "column":9}, {"name":"l_shipdate", "iu":"l_shipdate", "column":10}, {"name":"l_commitdate", "iu":"l_commitdate", "column":11}, {"name":"l_receiptdate", "iu":"l_receiptdate", "column":12}, {"name":"l_shipinstruct", "iu":"l_shipinstruct", "column":13}, {"name":"l_shipmode", "iu":"l_shipmode", "column":14}, {"name":"l_comment", "iu":"l_comment", "column":15}],
+      "restrictions":[{"attribute":4, "mode":">=", "value":{"expression":"const", "value":{"type":{"type":"numeric", "precision":12, "scale":2}, "value":101}}, "estimatedSelectivity":0.9790209790209791, "collate":""}],
       "residuals":[],
       "tid":"tid",
       "tableoid":"tableoid",
@@ -41,8 +34,8 @@
       "tableSize":572,
       "tablename":"lineitem"
      },
-     "values":[{"expression":"iuref", "iu":"l_orderkey7"}, {"expression":"iuref", "iu":"l_quantity"}, {"expression":"iuref", "iu":"l_extendedprice"}],
-     "key":[{"arg":0, "iu":"l_orderkey", "collate":""}],
+     "values":[{"expression":"iuref", "iu":"l_orderkey"}, {"expression":"iuref", "iu":"l_quantity"}, {"expression":"iuref", "iu":"l_extendedprice"}],
+     "key":[{"arg":0, "iu":"l_orderkey20", "collate":""}],
      "groupingmode":"regular",
      "aggregates":[{"op":"sum", "arg":1, "collate":"", "iu":"sum(l_quantity)"}, {"op":"avg", "arg":2, "collate":"", "iu":"avg(l_extendedprice)"}],
      "orders":[],
@@ -51,18 +44,62 @@
      "hasminspoolinglimit":true
     },
     "scannedOperator":4,
-    "output":[{"originalIU":"l_orderkey", "iu":"l_orderkey26"}, {"originalIU":"sum(l_quantity)", "iu":"sum27"}, {"originalIU":"avg(l_extendedprice)", "iu":"avg28"}]
-   }, "columns":[{"expression":"iuref", "iu":"l_orderkey26"}, {"expression":"iuref", "iu":"sum27"}, {"expression":"iuref", "iu":"avg28"}]}],
-   "columns":[{"iu":"l_orderkey29", "collate":""}, {"iu":"sum30", "collate":""}, {"iu":"avg31", "collate":""}],
-   "operation":"unionall"
+    "output":[{"originalIU":"l_orderkey20", "iu":"l_orderkey23"}, {"originalIU":"avg(l_extendedprice)", "iu":"price"}]
+   },
+   "right":{
+    "operator":"setoperation",
+    "physicalOperator":"unionall",
+    "cardinality":222,
+    "operatorId":6,"analyzePlanId":4,"analyzePlanCardinality":250,
+    "arguments":[{"input":{
+     "operator":"pipelinebreakerscan",
+     "physicalOperator":"tempscan",
+     "cardinality":111,
+     "operatorId":7,"analyzePlanId":5,"analyzePlanCardinality":125,
+     "scannedOperator":8,
+     "output":[{"originalIU":"l_orderkey2", "iu":"l_orderkey26"}, {"originalIU":"quantity", "iu":"quantity28"}]
+    }, "columns":[{"expression":"iuref", "iu":"l_orderkey26"}, {"expression":"iuref", "iu":"quantity28"}]}, {"input":{
+     "operator":"pipelinebreakerscan",
+     "physicalOperator":"tempscan",
+     "cardinality":111,
+     "operatorId":9,"analyzePlanId":6,"analyzePlanCardinality":125,
+     "pipelineBreaker":{
+      "operator":"temp",
+      "physicalOperator":"temp",
+      "cardinality":111,
+      "operatorId":8,"analyzePlanId":7,"analyzePlanCardinality":125,
+      "input":{
+       "operator":"select",
+       "physicalOperator":"select",
+       "cardinality":111,
+       "operatorId":10,"analyzePlanId":8,"analyzePlanCardinality":125,
+       "input":{
+        "operator":"pipelinebreakerscan",
+        "physicalOperator":"groupbyscan",
+        "cardinality":122,
+        "operatorId":11,"analyzePlanId":9,"analyzePlanCardinality":128,
+        "scannedOperator":4,
+        "output":[{"originalIU":"l_orderkey20", "iu":"l_orderkey2"}, {"originalIU":"sum(l_quantity)", "iu":"quantity"}]
+       },
+       "condition":{"expression":"compare", "left":{"expression":"iuref", "iu":"quantity"}, "right":{"expression":"const", "value":{"type":{"type":"numeric", "precision":18, "scale":2}, "value":1001}}, "direction":">=", "collate":""}
+      }
+     },
+     "scannedOperator":8,
+     "output":[{"originalIU":"l_orderkey2", "iu":"l_orderkey29"}, {"originalIU":"quantity", "iu":"quantity30"}]
+    }, "columns":[{"expression":"iuref", "iu":"l_orderkey29"}, {"expression":"iuref", "iu":"quantity30"}]}],
+    "columns":[{"iu":"l_orderkey31", "collate":""}, {"iu":"quantity32", "collate":""}],
+    "operation":"unionall"
+   },
+   "condition":{"expression":"compare", "left":{"expression":"iuref", "iu":"l_orderkey23"}, "right":{"expression":"iuref", "iu":"l_orderkey31"}, "direction":"=", "collate":""},
+   "type":"inner"
   },
-  "output":[{"name":"l_orderkey", "value":{"expression":"iuref", "iu":"l_orderkey29"}}, {"name":"sum", "value":{"expression":"iuref", "iu":"sum30"}}, {"name":"avg", "value":{"expression":"iuref", "iu":"avg31"}}]
+  "output":[{"name":"l_orderkey", "value":{"expression":"iuref", "iu":"l_orderkey31"}}, {"name":"quantity", "value":{"expression":"iuref", "iu":"quantity32"}}, {"name":"price", "value":{"expression":"iuref", "iu":"price"}}]
  },
- "ius":[{"iu":"l_orderkey7", "outerNull":false, "type":{"type":"int32"}}, {"iu":"l_partkey", "outerNull":false, "type":{"type":"int32"}}, {"iu":"l_suppkey", "outerNull":false, "type":{"type":"int32"}}, {"iu":"l_linenumber", "outerNull":false, "type":{"type":"int32"}}, {"iu":"l_quantity", "outerNull":false, "type":{"type":"numeric", "precision":12, "scale":2}}, {"iu":"l_extendedprice", "outerNull":false, "type":{"type":"numeric", "precision":12, "scale":2}}, {"iu":"l_discount", "outerNull":false, "type":{"type":"numeric", "precision":12, "scale":2}}, {"iu":"l_tax", "outerNull":false, "type":{"type":"numeric", "precision":12, "scale":2}}, {"iu":"l_returnflag", "outerNull":false, "type":{"type":"char1"}}, {"iu":"l_linestatus", "outerNull":false, "type":{"type":"char1"}}, {"iu":"l_shipdate", "outerNull":false, "type":{"type":"date"}}, {"iu":"l_commitdate", "outerNull":false, "type":{"type":"date"}}, {"iu":"l_receiptdate", "outerNull":false, "type":{"type":"date"}}, {"iu":"l_shipinstruct", "outerNull":false, "type":{"type":"char", "precision":25}}, {"iu":"l_shipmode", "outerNull":false, "type":{"type":"char", "precision":10}}, {"iu":"l_comment", "outerNull":false, "type":{"type":"text", "precision":44}}, {"iu":"tid", "outerNull":false, "type":{"type":"int64"}}, {"iu":"tableoid", "outerNull":false, "type":{"type":"int32"}}, {"iu":"rowstate", "outerNull":false, "type":{"type":"int64"}}, {"iu":"l_orderkey", "outerNull":false, "type":{"type":"int32"}}, {"iu":"sum(l_quantity)", "outerNull":false, "type":{"type":"numeric", "precision":18, "scale":2}}, {"iu":"avg(l_extendedprice)", "outerNull":false, "type":{"type":"bignumeric", "precision":31, "scale":21}}, {"iu":"l_orderkey2", "outerNull":false, "type":{"type":"int32"}}, {"iu":"sum", "outerNull":false, "type":{"type":"numeric", "precision":18, "scale":2}}, {"iu":"avg", "outerNull":false, "type":{"type":"bignumeric", "precision":31, "scale":21}}, {"iu":"l_orderkey26", "outerNull":false, "type":{"type":"int32"}}, {"iu":"sum27", "outerNull":false, "type":{"type":"numeric", "precision":18, "scale":2}}, {"iu":"avg28", "outerNull":false, "type":{"type":"bignumeric", "precision":31, "scale":21}}, {"iu":"l_orderkey29", "outerNull":false, "type":{"type":"int32"}}, {"iu":"sum30", "outerNull":false, "type":{"type":"numeric", "precision":18, "scale":2}}, {"iu":"avg31", "outerNull":false, "type":{"type":"bignumeric", "precision":31, "scale":21}}],
+ "ius":[{"iu":"l_orderkey", "outerNull":false, "type":{"type":"int32"}}, {"iu":"l_partkey", "outerNull":false, "type":{"type":"int32"}}, {"iu":"l_suppkey", "outerNull":false, "type":{"type":"int32"}}, {"iu":"l_linenumber", "outerNull":false, "type":{"type":"int32"}}, {"iu":"l_quantity", "outerNull":false, "type":{"type":"numeric", "precision":12, "scale":2}}, {"iu":"l_extendedprice", "outerNull":false, "type":{"type":"numeric", "precision":12, "scale":2}}, {"iu":"l_discount", "outerNull":false, "type":{"type":"numeric", "precision":12, "scale":2}}, {"iu":"l_tax", "outerNull":false, "type":{"type":"numeric", "precision":12, "scale":2}}, {"iu":"l_returnflag", "outerNull":false, "type":{"type":"char1"}}, {"iu":"l_linestatus", "outerNull":false, "type":{"type":"char1"}}, {"iu":"l_shipdate", "outerNull":false, "type":{"type":"date"}}, {"iu":"l_commitdate", "outerNull":false, "type":{"type":"date"}}, {"iu":"l_receiptdate", "outerNull":false, "type":{"type":"date"}}, {"iu":"l_shipinstruct", "outerNull":false, "type":{"type":"char", "precision":25}}, {"iu":"l_shipmode", "outerNull":false, "type":{"type":"char", "precision":10}}, {"iu":"l_comment", "outerNull":false, "type":{"type":"text", "precision":44}}, {"iu":"tid", "outerNull":false, "type":{"type":"int64"}}, {"iu":"tableoid", "outerNull":false, "type":{"type":"int32"}}, {"iu":"rowstate", "outerNull":false, "type":{"type":"int64"}}, {"iu":"l_orderkey20", "outerNull":false, "type":{"type":"int32"}}, {"iu":"sum(l_quantity)", "outerNull":false, "type":{"type":"numeric", "precision":18, "scale":2}}, {"iu":"avg(l_extendedprice)", "outerNull":false, "type":{"type":"bignumeric", "precision":31, "scale":21}}, {"iu":"l_orderkey2", "outerNull":false, "type":{"type":"int32"}}, {"iu":"quantity", "outerNull":false, "type":{"type":"numeric", "precision":18, "scale":2}}, {"iu":"l_orderkey26", "outerNull":false, "type":{"type":"int32"}}, {"iu":"quantity28", "outerNull":false, "type":{"type":"numeric", "precision":18, "scale":2}}, {"iu":"l_orderkey29", "outerNull":false, "type":{"type":"int32"}}, {"iu":"quantity30", "outerNull":false, "type":{"type":"numeric", "precision":18, "scale":2}}, {"iu":"l_orderkey31", "outerNull":false, "type":{"type":"int32"}}, {"iu":"quantity32", "outerNull":false, "type":{"type":"numeric", "precision":18, "scale":2}}, {"iu":"l_orderkey23", "outerNull":false, "type":{"type":"int32"}}, {"iu":"price", "outerNull":false, "type":{"type":"bignumeric", "precision":31, "scale":21}}],
  "type":"select",
  "query":true,
  "hasParameters":false,
  "queryOptimized":true,
  "permissions":{"planPermissions":[{"object":{"type":"table", "id":7}, "role":10, "permissions":{"value":2, "grantMask":0}}, {"object":{"type":"schema", "id":3}, "role":10, "permissions":{"value":256, "grantMask":0}}], "fileReaders":[], "fileWriters":[], "objectsToLock":[]},
- "analyzePlanPipelines":[{"start":1414,"stop":1505,"duration":91,"parallelism":"multi-threaded","operators":[0,1]},{"start":1505,"stop":1567,"duration":62,"parallelism":"multi-threaded","operators":[0,2]},{"start":49,"stop":1080,"duration":1031,"parallelism":"multi-threaded","operators":[3,4]}]
+ "analyzePlanPipelines":[{"start":1103,"stop":1141,"duration":38,"parallelism":"multi-threaded","operators":[7,8,9]},{"start":1144,"stop":1185,"duration":41,"parallelism":"multi-threaded","operators":[0,1]},{"start":35,"stop":957,"duration":922,"parallelism":"multi-threaded","operators":[2,3]},{"start":1201,"stop":1217,"duration":16,"parallelism":"multi-threaded","operators":[0,4,5]},{"start":1217,"stop":1224,"duration":7,"parallelism":"multi-threaded","operators":[0,4,6]}]
 }

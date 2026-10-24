@@ -1,0 +1,40 @@
+[
+  {
+    "Plan": {
+      "Node Type": "ModifyTable",
+      "Operation": "Delete",
+      "Parallel Aware": false,
+      "Async Capable": false,
+      "Relation Name": "t2",
+      "Schema": "pg_temp",
+      "Alias": "t2",
+      "Startup Cost": 0.0,
+      "Total Cost": 35.5,
+      "Plan Rows": 680,
+      "Plan Width": 6,
+      "Output": [
+        "a2",
+        "b2"
+      ],
+      "Plans": [
+        {
+          "Node Type": "Seq Scan",
+          "Parent Relationship": "Outer",
+          "Parallel Aware": false,
+          "Async Capable": false,
+          "Relation Name": "t2",
+          "Schema": "pg_temp",
+          "Alias": "t2",
+          "Startup Cost": 0.0,
+          "Total Cost": 35.5,
+          "Plan Rows": 680,
+          "Plan Width": 6,
+          "Output": [
+            "ctid"
+          ],
+          "Filter": "(t2.a2 < 10)"
+        }
+      ]
+    }
+  }
+]
