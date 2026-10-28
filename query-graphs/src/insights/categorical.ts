@@ -37,11 +37,6 @@ export interface CategoricalInsightCategory {
     children: readonly CategoricalInsightCategory[];
 }
 
-interface CategoryBuilder {
-    nodes: TreeNode[];
-    children: Map<string, CategoryBuilder>;
-}
-
 function readValue(node: TreeNode, source: PropertyPath): string | undefined {
     const value = accessPropertyPath(node, source);
     return typeof value === "string" && value !== "" ? value : undefined;
@@ -56,6 +51,11 @@ function groupingPath(node: TreeNode, level: CategoricalInsightLevel): string[] 
 }
 
 export function computeCategoricalInsight(root: TreeNode, definition: CategoricalInsightDefinition): CategoricalInsightCategory[] {
+    interface CategoryBuilder {
+        nodes: TreeNode[];
+        children: Map<string, CategoryBuilder>;
+    }
+
     const groups = new Map<string, CategoryBuilder>();
     const seen = new Set<TreeNode>();
     // Count the complete plan tree, including nodes hidden by collapsed graph subtrees.
