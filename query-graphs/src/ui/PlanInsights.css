@@ -8,10 +8,9 @@
 }
 
 .qg-plan-insight h3 > button {
-    display: grid;
-    grid-template-columns: 0.9em minmax(0, 1fr) auto;
+    display: flex;
     align-items: center;
-    column-gap: 0.4em;
+    gap: 0.4em;
     width: 100%;
     padding: 0.2em 0.35em;
     border: 0;
@@ -34,6 +33,7 @@
 
     & svg {
         display: block;
+        flex: 0 0 0.9em;
         width: 0.85em;
         height: 0.85em;
         fill: none;
@@ -46,6 +46,12 @@
     }
 }
 
+.qg-plan-insight-title {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
 .qg-plan-insight-count {
+    flex: none;
     font-variant-numeric: tabular-nums;
 }

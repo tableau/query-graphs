@@ -53,7 +53,7 @@ function InsightSection({title, count, children}: {title: string; count: number;
                     <svg viewBox="0 0 16 16" aria-hidden="true" className={open ? "qg-plan-insight-open" : ""}>
                         <path d="M5.5 3.5 10.5 8l-5 4.5" />
                     </svg>
-                    <span>{title}</span>
+                    <span className="qg-plan-insight-title">{title}</span>
                     <span className="qg-plan-insight-count">{count}</span>
                 </button>
             </h3>

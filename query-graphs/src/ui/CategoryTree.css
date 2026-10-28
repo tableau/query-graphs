@@ -11,10 +11,9 @@
 }
 
 .qg-category-tree-category {
-    display: grid;
-    grid-template-columns: 0.9em minmax(0, 1fr) auto;
+    display: flex;
     align-items: start;
-    column-gap: 0.4em;
+    gap: 0.4em;
     padding: 0.1em 0.35em;
     border-radius: 4px;
     line-height: 1.25;
@@ -26,12 +25,14 @@
     }
 
     & .qg-category-tree-category-label {
+        flex: 1 1 auto;
         min-width: 0;
         overflow-wrap: anywhere;
         user-select: text;
     }
 
     & .qg-category-tree-category-count {
+        flex: none;
         font-variant-numeric: tabular-nums;
     }
 }
@@ -51,6 +52,7 @@
 
 .qg-category-tree-disclosure,
 .qg-category-tree-disclosure-spacer {
+    flex: 0 0 0.9em;
     width: 0.9em;
 }
 
