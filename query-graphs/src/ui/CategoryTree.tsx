@@ -31,7 +31,7 @@ function visibleRows(current: HTMLElement): HTMLElement[] {
     return tree ? [...tree.querySelectorAll<HTMLElement>('[role="treeitem"]')] : [];
 }
 
-function CategoryRow({
+function CategoryTreeElement({
     category,
     interaction,
     initialTabStop = false,
@@ -135,7 +135,9 @@ function CategoryRow({
             {children.length > 0 ? (
                 <ul role="group" hidden={!open}>
                     {open
-                        ? children.map((child) => <CategoryRow key={child.value} category={child} interaction={interaction} />)
+                        ? children.map((child) => (
+                              <CategoryTreeElement key={child.value} category={child} interaction={interaction} />
+                          ))
                         : null}
                 </ul>
             ) : null}
@@ -223,7 +225,12 @@ export function CategoryTree({
     return (
         <ul role="tree" aria-label={title} className="qg-category-tree">
             {categories.map((category, index) => (
-                <CategoryRow key={category.value} category={category} interaction={interaction} initialTabStop={index === 0} />
+                <CategoryTreeElement
+                    key={category.value}
+                    category={category}
+                    interaction={interaction}
+                    initialTabStop={index === 0}
+                />
             ))}
         </ul>
     );
