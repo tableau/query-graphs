@@ -43,7 +43,6 @@ export const insightPresets: Readonly<Record<string, readonly CategoricalInsight
                         next: hyperTableCategorization,
                     },
                     join: {valueSourceAlternatives: [["type"]], fallbackValue: "Unknown type"},
-                    insert: {valueSourceAlternatives: [["type"]], fallbackValue: "Unknown type"},
                 },
             },
         },
