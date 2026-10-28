@@ -1,7 +1,7 @@
 import type {TreeNode} from "../tree-description";
 import {allChildren, visitTreeNodes} from "../tree-description";
 import type {Predicate, PropertyPath} from "./property-query";
-import {evaluatePredicate, readPropertyPath} from "./property-query";
+import {accessPropertyPath, evaluatePredicate} from "./property-query";
 
 /** Each selected node follows exactly one path through the configured levels. */
 export interface CategoricalInsightLevel {
@@ -43,7 +43,7 @@ interface CategoryBuilder {
 }
 
 function readValue(node: TreeNode, source: PropertyPath): string | undefined {
-    const value = readPropertyPath(node, source);
+    const value = accessPropertyPath(node, source);
     return typeof value === "string" && value !== "" ? value : undefined;
 }
 

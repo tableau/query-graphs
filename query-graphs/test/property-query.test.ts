@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import type {TreeNode} from "../src/tree-description";
-import {evaluatePredicate, readPropertyPath, type Predicate} from "../src/insights/property-query";
+import {accessPropertyPath, evaluatePredicate, type Predicate} from "../src/insights/property-query";
 
 test("property paths read plain properties and nested serialized values", () => {
     const node: TreeNode = {
@@ -10,11 +10,11 @@ test("property paths read plain properties and nested serialized values", () => 
             ["empty", ""],
         ]),
     };
-    assert.equal(readPropertyPath(node, ["debug-name"]), '{"value":"region","rank":3}');
-    assert.equal(readPropertyPath(node, ["debug-name", "value"]), "region");
-    assert.equal(readPropertyPath(node, ["debug-name", "rank"]), 3);
-    assert.equal(readPropertyPath(node, ["debug-name", "missing"]), undefined);
-    assert.equal(readPropertyPath(node, ["empty", "value"]), undefined);
+    assert.equal(accessPropertyPath(node, ["debug-name"]), '{"value":"region","rank":3}');
+    assert.equal(accessPropertyPath(node, ["debug-name", "value"]), "region");
+    assert.equal(accessPropertyPath(node, ["debug-name", "rank"]), 3);
+    assert.equal(accessPropertyPath(node, ["debug-name", "missing"]), undefined);
+    assert.equal(accessPropertyPath(node, ["empty", "value"]), undefined);
 });
 
 test("composed predicates select nodes by presence and nested values", () => {

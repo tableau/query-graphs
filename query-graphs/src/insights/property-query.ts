@@ -1,4 +1,6 @@
 import type {TreeNode} from "../tree-description";
+import type {Json} from "../loaders/loader-utils";
+import {isJsonObject} from "../loaders/loader-utils";
 
 /** A property name followed by optional keys within its serialized JSON value. */
 export type PropertyPath = readonly [string, ...string[]];
@@ -11,16 +13,16 @@ export type Predicate =
     | {op: "all"; operands: readonly Predicate[]}
     | {op: "not"; operand: Predicate};
 
-/** Read a path from the loader's property bag, decoding JSON only for nested keys. */
-export function readPropertyPath(node: TreeNode, [property, ...keys]: PropertyPath): unknown {
-    let value: unknown = node.properties?.get(property);
+/** Read a path from the node's property bag, decoding JSON for nested keys. */
+export function accessPropertyPath(node: TreeNode, [property, ...keys]: PropertyPath): Json | undefined {
+    let value: Json | undefined = node.properties?.get(property);
     if (keys.length === 0) return value;
     if (typeof value !== "string") return undefined;
     try {
-        value = JSON.parse(value);
+        value = JSON.parse(value) as Json;
         for (const key of keys) {
-            if (typeof value !== "object" || value === null || !Object.hasOwn(value, key)) return undefined;
-            value = (value as Record<string, unknown>)[key];
+            if (!isJsonObject(value) || !Object.hasOwn(value, key)) return undefined;
+            value = value[key];
         }
         return value;
     } catch {
@@ -32,9 +34,9 @@ export function readPropertyPath(node: TreeNode, [property, ...keys]: PropertyPa
 export function evaluatePredicate(node: TreeNode, predicate: Predicate): boolean {
     switch (predicate.op) {
         case "exists":
-            return readPropertyPath(node, predicate.path) !== undefined;
+            return accessPropertyPath(node, predicate.path) !== undefined;
         case "equals":
-            return readPropertyPath(node, predicate.path) === predicate.value;
+            return accessPropertyPath(node, predicate.path) === predicate.value;
         case "any":
             return predicate.operands.some((operand) => evaluatePredicate(node, operand));
         case "all":
