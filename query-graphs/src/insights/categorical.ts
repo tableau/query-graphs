@@ -21,8 +21,8 @@ export interface CategoricalInsightDefinition {
     id: string;
     /** User-facing heading for the category list. */
     title: string;
-    /** Predicate selecting nodes included in this insight; omitted means every node. */
-    where?: Predicate;
+    /** Predicate selecting nodes included in this insight. */
+    where: Predicate;
     /** Category levels through which each selected node is grouped. */
     groupBy: CategoricalInsightLevel;
 }
@@ -65,7 +65,7 @@ export function computeCategoricalInsight(root: TreeNode, definition: Categorica
         (node) => {
             if (seen.has(node)) return;
             seen.add(node);
-            if (definition.where && !evaluatePredicate(node, definition.where)) return;
+            if (!evaluatePredicate(node, definition.where)) return;
             let level = groups;
             for (const value of groupingPath(node, definition.groupBy)) {
                 let category = level.get(value);
