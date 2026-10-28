@@ -15,6 +15,8 @@ test("property paths read plain properties and nested serialized values", () => 
     assert.equal(accessPropertyPath(node, ["debug-name", "rank"]), 3);
     assert.equal(accessPropertyPath(node, ["debug-name", "missing"]), undefined);
     assert.equal(accessPropertyPath(node, ["empty", "value"]), undefined);
+    assert.equal(accessPropertyPath({properties: new Map([["broken", "{not json"]])}, ["broken", "value"]), undefined);
+    assert.equal(accessPropertyPath(node, ["missing"]), undefined);
 });
 
 test("composed predicates select nodes by presence and nested values", () => {
@@ -42,4 +44,6 @@ test("composed predicates select nodes by presence and nested values", () => {
     };
     assert.equal(evaluatePredicate(node, predicate), true);
     assert.equal(evaluatePredicate({properties: new Map([["operator", "join"]])}, predicate), false);
+    assert.equal(evaluatePredicate(node, {op: "all", operands: []}), true);
+    assert.equal(evaluatePredicate(node, {op: "any", operands: []}), false);
 });
