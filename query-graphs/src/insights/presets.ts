@@ -1,17 +1,18 @@
 import type {CategoricalInsightDefinition, CategoricalInsightLevel} from "./categorical";
 
 const hyperTableCategorization: CategoricalInsightLevel = {
-    valueSourceAlternatives: [["table-name"], ["debug-name", "value"], ["debug-name"], ["name"]],
+    // External scans carry table-name; native scans carry debug-name.value.
+    valueSourceAlternatives: [["table-name"], ["debug-name", "value"]],
     fallbackValue: "Unknown table",
 };
 
 const umbraTableCategorization: CategoricalInsightLevel = {
-    valueSourceAlternatives: [["tablename"], ["name"]],
+    valueSourceAlternatives: [["tablename"]],
     fallbackValue: "Unknown table",
 };
 
 const postgresTableCategorization: CategoricalInsightLevel = {
-    valueSourceAlternatives: [["Relation Name"], ["Alias"]],
+    valueSourceAlternatives: [["Relation Name"]],
     fallbackValue: "Unknown table",
 };
 
