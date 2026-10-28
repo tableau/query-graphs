@@ -54,14 +54,11 @@ export function computeCategoricalInsight(root: TreeNode, definition: Categorica
     }
 
     const groups = new Map<string, CategoryBuilder>();
-    const seen = new Set<TreeNode>();
     // Count the complete plan tree, including nodes hidden by collapsed graph subtrees.
     // Each node follows one category path, so every parent's count equals the sum of its children.
     visitTreeNodes(
         root,
         (node) => {
-            if (seen.has(node)) return;
-            seen.add(node);
             if (!evaluatePredicate(node, definition.where)) return;
             let level = groups;
             for (const value of groupingPath(node, definition.groupBy)) {

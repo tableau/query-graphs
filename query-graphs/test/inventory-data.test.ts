@@ -21,11 +21,12 @@ function assertAdditive(categories: readonly CategoricalInsightCategory[]) {
 
 test("Hyper inventory includes hidden occurrences, missing values, and unfamiliar tags with additive counts", () => {
     const native = node({operator: "scan", type: "native", "debug-name": '{"value":"t1"}'});
+    const hiddenNative = node({operator: "scan", type: "native", "debug-name": '{"value":"t1"}'});
     const root: TreeNode = {
         ...node({operator: "join", type: "inner"}),
         children: [native, node({operator: "scan", type: "native", "debug-name": '{"value":"t2"}'})],
         collapsedChildren: [
-            native,
+            hiddenNative,
             node({operator: "scan"}),
             node({operator: "future-operator"}),
             node({operator: "union-all"}),
@@ -39,7 +40,7 @@ test("Hyper inventory includes hidden occurrences, missing values, and unfamilia
     );
     assert.equal(
         groups.reduce((sum, category) => sum + category.nodes.length, 0),
-        8,
+        9,
     );
     assert.deepEqual(
         groups.map((category) => category.value),
