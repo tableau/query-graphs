@@ -83,7 +83,7 @@ test("inventory rows and source highlights use the same semantic node selection"
         await React.act(async () => toggle.click());
         assert.equal(toggle.ariaExpanded, "true");
 
-        const sections = [...dom.window.document.querySelectorAll<HTMLElement>(".qg-category-tree-insight")];
+        const sections = [...dom.window.document.querySelectorAll<HTMLElement>(".qg-plan-insight")];
         assert.deepEqual(
             sections.map((section) => section.querySelector("h3 button span")?.textContent),
             ["Scanned Tables", "Operators", "Expressions"],
@@ -108,8 +108,8 @@ test("inventory rows and source highlights use the same semantic node selection"
         const expressionHeader = expressionSection.querySelector<HTMLButtonElement>("h3 button")!;
         await React.act(async () => expressionHeader.click());
         assert.equal(expressionHeader.ariaExpanded, "false");
-        assert.ok(expressionSection.querySelector<HTMLElement>(".qg-category-tree-category-list")?.hidden);
-        assert.ok(!operatorSection.querySelector<HTMLElement>(".qg-category-tree-category-list")?.hidden);
+        assert.ok(expressionSection.querySelector<HTMLElement>(".qg-plan-insight-content")?.hidden);
+        assert.ok(!operatorSection.querySelector<HTMLElement>(".qg-plan-insight-content")?.hidden);
         await React.act(async () => expressionHeader.click());
         assert.equal(expressionHeader.ariaExpanded, "true");
 
@@ -139,7 +139,7 @@ test("inventory rows and source highlights use the same semantic node selection"
         assert.ok(dom.window.document.querySelector(".qg-panel-highlight-indicator-active"));
         const operatorHeader = operatorSection.querySelector<HTMLButtonElement>("h3 button")!;
         await React.act(async () => operatorHeader.click());
-        assert.ok(operatorHeader.classList.contains("qg-category-tree-section-highlighted"));
+        assert.ok(operatorHeader.classList.contains("qg-plan-insight-highlighted"));
         await React.act(async () => operatorHeader.click());
 
         const nativeVisual = nativeRow.querySelector<HTMLElement>(".qg-category-tree-category")!;

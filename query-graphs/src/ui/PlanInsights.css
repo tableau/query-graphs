@@ -1,0 +1,55 @@
+.qg-plan-insight + .qg-plan-insight {
+    border-top: 1px solid var(--qg-border);
+}
+
+.qg-plan-insight h3 {
+    margin: 0;
+    font-size: 1em;
+}
+
+.qg-plan-insight h3 > button {
+    display: grid;
+    grid-template-columns: 0.9em minmax(0, 1fr) auto;
+    align-items: center;
+    column-gap: 0.4em;
+    width: 100%;
+    padding: 0.2em 0.35em;
+    border: 0;
+    color: inherit;
+    background: transparent;
+    font: inherit;
+    font-weight: 600;
+    line-height: 1.25;
+    text-align: start;
+    cursor: pointer;
+
+    &:hover {
+        background: var(--qg-surface-hover);
+    }
+
+    &.qg-plan-insight-highlighted {
+        background: var(--qg-accent-subtle);
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--qg-focus);
+        outline-offset: -2px;
+    }
+
+    & svg {
+        display: block;
+        width: 0.85em;
+        height: 0.85em;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.5;
+    }
+
+    & .qg-plan-insight-open {
+        transform: rotate(90deg);
+    }
+}
+
+.qg-plan-insight-count {
+    font-variant-numeric: tabular-nums;
+}

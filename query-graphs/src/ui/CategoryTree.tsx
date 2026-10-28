@@ -1,17 +1,7 @@
-import {useId, useMemo, useRef, useState, type KeyboardEvent} from "react";
-import type {TreeNode} from "../tree-description";
-import type {CategoricalInsightCategory, CategoricalInsightDefinition} from "../insights/categorical";
-import {computeCategoricalInsight} from "../insights/categorical";
-import {CollapsiblePanel} from "./CollapsiblePanel";
-import {ScrollableArea} from "./ScrollableArea";
+import {useMemo, useRef, useState, type KeyboardEvent} from "react";
+import type {CategoricalInsightCategory} from "../insights/categorical";
 import {useGraphRenderingStore} from "./store";
 import "./CategoryTree.css";
-
-interface CategoricalInsightPanelProps {
-    root: TreeNode;
-    definitions: readonly CategoricalInsightDefinition[];
-    title: string;
-}
 
 interface CategoryTreeCategory {
     value: string;
@@ -169,12 +159,27 @@ function CategoryRow({
     );
 }
 
-interface InsightSectionData {
-    definition: CategoricalInsightDefinition;
-    categories: readonly CategoryTreeCategory[];
-}
-
-function CategoryTree({categories, title}: {categories: readonly CategoryTreeCategory[]; title: string}) {
+export function CategoryTree({
+    categories: inputCategories,
+    title,
+}: {
+    categories: readonly CategoricalInsightCategory[];
+    title: string;
+}) {
+    const getNodeId = useGraphRenderingStore((state) => state.getNodeId);
+    const categories = useMemo(() => {
+        const convert = ({value, nodes, children}: CategoricalInsightCategory): CategoryTreeCategory => ({
+            value,
+            nodeIds: new Set(
+                nodes.flatMap((node) => {
+                    const id = getNodeId(node);
+                    return id === undefined ? [] : [id];
+                }),
+            ),
+            children: children.map(convert),
+        });
+        return inputCategories.map(convert);
+    }, [getNodeId, inputCategories]);
     // Start with only the first category level visible.
     // Keep descendant paths when a parent closes so reopening restores their expansion.
     // This tree stays mounted while its insight section is closed for the same reason.
@@ -225,7 +230,7 @@ function CategoryTree({categories, title}: {categories: readonly CategoryTreeCat
         },
     };
     return (
-        <ul role="tree" aria-label={title}>
+        <ul role="tree" aria-label={title} className="qg-category-tree">
             {categories.map((category, index) => (
                 <CategoryRow
                     key={category.value}
@@ -236,82 +241,5 @@ function CategoryTree({categories, title}: {categories: readonly CategoryTreeCat
                 />
             ))}
         </ul>
-    );
-}
-
-function InsightSection({definition, categories, highlighted}: InsightSectionData & {highlighted: boolean}) {
-    // Section headers are outside their trees; only category rows participate in tree navigation.
-    // Sections start open and collapse independently without unmounting their trees.
-    const [open, setOpen] = useState(true);
-    const contentId = useId();
-    const count = categories.reduce((sum, category) => sum + category.nodeIds.size, 0);
-    return (
-        <section className="qg-category-tree-insight" aria-label={definition.title}>
-            <h3>
-                <button
-                    type="button"
-                    aria-expanded={open}
-                    aria-controls={contentId}
-                    className={!open && highlighted ? "qg-category-tree-section-highlighted" : undefined}
-                    onClick={() => setOpen(!open)}
-                >
-                    <svg viewBox="0 0 16 16" aria-hidden="true" className={open ? "qg-category-tree-section-open" : ""}>
-                        <path d="M5.5 3.5 10.5 8l-5 4.5" />
-                    </svg>
-                    <span>{definition.title}</span>
-                    <span className="qg-category-tree-section-count">{count}</span>
-                </button>
-            </h3>
-            <div id={contentId} hidden={!open} className="qg-category-tree-category-list">
-                <CategoryTree categories={categories} title={definition.title} />
-            </div>
-        </section>
-    );
-}
-
-export function CategoricalInsightPanel({root, definitions, title}: CategoricalInsightPanelProps) {
-    const getNodeId = useGraphRenderingStore((state) => state.getNodeId);
-    const highlightedNodeIds = useGraphRenderingStore((state) => state.highlightedNodeIds);
-    const [open, setOpen] = useState(false);
-    const sections = useMemo(() => {
-        const convert = ({value, nodes, children}: CategoricalInsightCategory): CategoryTreeCategory => ({
-            value,
-            nodeIds: new Set(
-                nodes.flatMap((node) => {
-                    const id = getNodeId(node);
-                    return id === undefined ? [] : [id];
-                }),
-            ),
-            children: children.map(convert),
-        });
-        return definitions.flatMap((definition) => {
-            const categories = computeCategoricalInsight(root, definition).map(convert);
-            return categories.length ? [{definition, categories}] : [];
-        });
-    }, [definitions, getNodeId, root]);
-    if (sections.length === 0) return null;
-
-    const active = sections.some(({categories}) =>
-        categories.some(({nodeIds}) => [...nodeIds].some((id) => highlightedNodeIds.has(id))),
-    );
-    return (
-        <CollapsiblePanel
-            title={title}
-            className="qg-insights-panel"
-            containsHighlightedContent={active}
-            open={open}
-            onOpenChange={setOpen}
-        >
-            <ScrollableArea>
-                {sections.map(({definition, categories}) => (
-                    <InsightSection
-                        key={definition.id}
-                        definition={definition}
-                        categories={categories}
-                        highlighted={categories.some(({nodeIds}) => [...nodeIds].some((id) => highlightedNodeIds.has(id)))}
-                    />
-                ))}
-            </ScrollableArea>
-        </CollapsiblePanel>
     );
 }

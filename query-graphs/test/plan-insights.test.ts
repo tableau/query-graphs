@@ -85,7 +85,7 @@ test("table-name rows and source highlights use the same semantic node selection
 
         const treeRows = [...dom.window.document.querySelectorAll<HTMLElement>('[role="treeitem"]')];
         assert.equal(treeRows[0].getAttribute("aria-label"), "region: 1");
-        assert.equal(dom.window.document.querySelector(".qg-category-tree-insight h3 button span")?.textContent, "Scanned Tables");
+        assert.equal(dom.window.document.querySelector(".qg-plan-insight h3 button span")?.textContent, "Scanned Tables");
         const rows = [...dom.window.document.querySelectorAll<HTMLElement>(".qg-category-tree-category")];
         assert.equal(rows.length, 2);
         assert.deepEqual(
