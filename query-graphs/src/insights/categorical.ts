@@ -1,35 +1,39 @@
 import type {TreeNode} from "../tree-description";
 import {allChildren, visitTreeNodes} from "../tree-description";
-
-/** A node is selected when any configured property is present or equals its required value. */
-export interface CategoricalInsightPredicate {
-    property: string;
-    equals?: string;
-}
-
-/** Candidate labels are checked in order; JSON paths address serialized property values. */
-export type CategoricalInsightValueSource = {property: string; jsonPath?: readonly string[]} | {nodeName: true};
+import type {Predicate, PropertyPath} from "./predicate";
+import {evaluatePredicate, readPropertyPath} from "./predicate";
 
 /** Each selected node follows exactly one path through the configured levels. */
 export interface CategoricalInsightLevel {
-    valueSourceAlternatives: readonly CategoricalInsightValueSource[];
+    /** Property paths checked in order for a nonempty category label. */
+    valueSourceAlternatives: readonly PropertyPath[];
+    /** Label used when no value source yields a category label. */
     fallbackValue: string;
+    /** Default grouping level below this one. */
     next?: CategoricalInsightLevel;
+    /** Grouping levels for specific labels, overriding next. */
     nextByValue?: Readonly<Record<string, CategoricalInsightLevel>>;
 }
 
-/** A flat category list is a one-level categorical insight. */
+/** Describes a category list derived from matching plan nodes. A flat list has one grouping level. */
 export interface CategoricalInsightDefinition {
+    /** Stable identifier used to distinguish this insight from other definitions. */
     id: string;
+    /** User-facing heading for the category list. */
     title: string;
-    /** Alternatives are ORed; omitting where selects every node. */
-    where?: readonly [CategoricalInsightPredicate, ...CategoricalInsightPredicate[]];
+    /** Predicate selecting nodes included in this insight; omitted means every node. */
+    where?: Predicate;
+    /** Category levels through which each selected node is grouped. */
     groupBy: CategoricalInsightLevel;
 }
 
+/** One distinct category value and all plan nodes grouped under it. */
 export interface CategoricalInsightCategory {
+    /** Value displayed as the category label. */
     value: string;
+    /** Matching nodes included in the category count and highlight interaction. */
     nodes: readonly TreeNode[];
+    /** Subcategories partitioning these same matching nodes, if configured. */
     children: readonly CategoricalInsightCategory[];
 }
 
@@ -38,19 +42,8 @@ interface CategoryBuilder {
     children: Map<string, CategoryBuilder>;
 }
 
-function readValue(node: TreeNode, source: CategoricalInsightValueSource): string | undefined {
-    let value: unknown = "nodeName" in source ? node.name : node.properties?.get(source.property);
-    if ("jsonPath" in source && source.jsonPath && typeof value === "string") {
-        try {
-            value = JSON.parse(value);
-            for (const key of source.jsonPath) {
-                if (typeof value !== "object" || value === null || !(key in value)) return undefined;
-                value = (value as Record<string, unknown>)[key];
-            }
-        } catch {
-            return undefined;
-        }
-    }
+function readValue(node: TreeNode, source: PropertyPath): string | undefined {
+    const value = readPropertyPath(node, source);
     return typeof value === "string" && value !== "" ? value : undefined;
 }
 
@@ -72,13 +65,7 @@ export function computeCategoricalInsight(root: TreeNode, definition: Categorica
         (node) => {
             if (seen.has(node)) return;
             seen.add(node);
-            if (
-                definition.where &&
-                !definition.where.some(({property, equals}) =>
-                    equals === undefined ? node.properties?.has(property) : node.properties?.get(property) === equals,
-                )
-            )
-                return;
+            if (definition.where && !evaluatePredicate(node, definition.where)) return;
             let level = groups;
             for (const value of groupingPath(node, definition.groupBy)) {
                 let category = level.get(value);

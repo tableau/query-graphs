@@ -139,9 +139,9 @@ For example, the scanned tables list is configured as:
 {
     id: "table-names",
     title: "Scanned Tables",
-    where: [{property: "operator", equals: "scan"}],
+    where: {op: "equals", path: ["operator"], value: "scan"},
     groupBy: {
-        valueSourceAlternatives: [{property: "table-name"}, {property: "debug-name", jsonPath: ["value"]}],
+        valueSourceAlternatives: [["table-name"], ["debug-name", "value"]],
         fallbackValue: "Unknown table",
     },
 }

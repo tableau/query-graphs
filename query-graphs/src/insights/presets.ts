@@ -1,27 +1,22 @@
 import type {CategoricalInsightDefinition, CategoricalInsightLevel} from "./categorical";
 
 const hyperTableCategorization: CategoricalInsightLevel = {
-    valueSourceAlternatives: [
-        {property: "table-name"},
-        {property: "debug-name", jsonPath: ["value"]},
-        {property: "debug-name"},
-        {property: "name"},
-    ],
+    valueSourceAlternatives: [["table-name"], ["debug-name", "value"], ["debug-name"], ["name"]],
     fallbackValue: "Unknown table",
 };
 
 const umbraTableCategorization: CategoricalInsightLevel = {
-    valueSourceAlternatives: [{property: "tablename"}, {property: "name"}],
+    valueSourceAlternatives: [["tablename"], ["name"]],
     fallbackValue: "Unknown table",
 };
 
 const postgresTableCategorization: CategoricalInsightLevel = {
-    valueSourceAlternatives: [{property: "Relation Name"}, {property: "Alias"}],
+    valueSourceAlternatives: [["Relation Name"], ["Alias"]],
     fallbackValue: "Unknown table",
 };
 
 const duckdbTableCategorization: CategoricalInsightLevel = {
-    valueSourceAlternatives: [{property: "Table"}, {property: "File"}],
+    valueSourceAlternatives: [["Table"], ["File"]],
     fallbackValue: "Unknown table",
 };
 
@@ -30,35 +25,35 @@ export const insightPresets: Readonly<Record<string, readonly CategoricalInsight
         {
             id: "table-names",
             title: "Scanned Tables",
-            where: [{property: "operator", equals: "scan"}],
+            where: {op: "equals", path: ["operator"], value: "scan"},
             groupBy: hyperTableCategorization,
         },
         {
             id: "operators",
             title: "Operators",
-            where: [{property: "operator"}],
+            where: {op: "exists", path: ["operator"]},
             groupBy: {
-                valueSourceAlternatives: [{property: "operator"}],
+                valueSourceAlternatives: [["operator"]],
                 fallbackValue: "Unknown operator",
                 nextByValue: {
                     scan: {
-                        valueSourceAlternatives: [{property: "type"}],
+                        valueSourceAlternatives: [["type"]],
                         fallbackValue: "Unknown storage",
                         next: hyperTableCategorization,
                     },
-                    join: {valueSourceAlternatives: [{property: "type"}], fallbackValue: "Unknown type"},
-                    insert: {valueSourceAlternatives: [{property: "type"}], fallbackValue: "Unknown type"},
+                    join: {valueSourceAlternatives: [["type"]], fallbackValue: "Unknown type"},
+                    insert: {valueSourceAlternatives: [["type"]], fallbackValue: "Unknown type"},
                 },
             },
         },
         {
             id: "expressions",
             title: "Expressions",
-            where: [{property: "expression"}],
+            where: {op: "exists", path: ["expression"]},
             groupBy: {
-                valueSourceAlternatives: [{property: "expression"}],
+                valueSourceAlternatives: [["expression"]],
                 fallbackValue: "Unknown expression",
-                nextByValue: {comparison: {valueSourceAlternatives: [{property: "mode"}], fallbackValue: "Unknown comparison"}},
+                nextByValue: {comparison: {valueSourceAlternatives: [["mode"]], fallbackValue: "Unknown comparison"}},
             },
         },
     ],
@@ -66,18 +61,18 @@ export const insightPresets: Readonly<Record<string, readonly CategoricalInsight
         {
             id: "table-names",
             title: "Scanned Tables",
-            where: [{property: "operator", equals: "tablescan"}],
+            where: {op: "equals", path: ["operator"], value: "tablescan"},
             groupBy: umbraTableCategorization,
         },
         {
             id: "operators",
             title: "Operators",
-            where: [{property: "operator"}],
+            where: {op: "exists", path: ["operator"]},
             groupBy: {
-                valueSourceAlternatives: [{property: "operator"}],
+                valueSourceAlternatives: [["operator"]],
                 fallbackValue: "Unknown operator",
                 nextByValue: {
-                    join: {valueSourceAlternatives: [{property: "type"}], fallbackValue: "Unknown type"},
+                    join: {valueSourceAlternatives: [["type"]], fallbackValue: "Unknown type"},
                     tablescan: umbraTableCategorization,
                 },
             },
@@ -85,32 +80,35 @@ export const insightPresets: Readonly<Record<string, readonly CategoricalInsight
         {
             id: "expressions",
             title: "Expressions",
-            where: [{property: "expression"}],
-            groupBy: {valueSourceAlternatives: [{property: "expression"}], fallbackValue: "Unknown expression"},
+            where: {op: "exists", path: ["expression"]},
+            groupBy: {valueSourceAlternatives: [["expression"]], fallbackValue: "Unknown expression"},
         },
     ],
     postgres: [
         {
             id: "table-names",
             title: "Scanned Tables",
-            where: [
-                {property: "Node Type", equals: "Seq Scan"},
-                {property: "Node Type", equals: "Index Scan"},
-                {property: "Node Type", equals: "Index Only Scan"},
-                {property: "Node Type", equals: "Bitmap Heap Scan"},
-                {property: "Node Type", equals: "Tid Scan"},
-                {property: "Node Type", equals: "Tid Range Scan"},
-                {property: "Node Type", equals: "Sample Scan"},
-                {property: "Node Type", equals: "Foreign Scan"},
-            ],
+            where: {
+                op: "any",
+                operands: [
+                    {op: "equals", path: ["Node Type"], value: "Seq Scan"},
+                    {op: "equals", path: ["Node Type"], value: "Index Scan"},
+                    {op: "equals", path: ["Node Type"], value: "Index Only Scan"},
+                    {op: "equals", path: ["Node Type"], value: "Bitmap Heap Scan"},
+                    {op: "equals", path: ["Node Type"], value: "Tid Scan"},
+                    {op: "equals", path: ["Node Type"], value: "Tid Range Scan"},
+                    {op: "equals", path: ["Node Type"], value: "Sample Scan"},
+                    {op: "equals", path: ["Node Type"], value: "Foreign Scan"},
+                ],
+            },
             groupBy: postgresTableCategorization,
         },
         {
             id: "operators",
             title: "Operators",
-            where: [{property: "Node Type"}],
+            where: {op: "exists", path: ["Node Type"]},
             groupBy: {
-                valueSourceAlternatives: [{property: "Node Type"}],
+                valueSourceAlternatives: [["Node Type"]],
                 fallbackValue: "Unknown operator",
                 nextByValue: {
                     "Seq Scan": postgresTableCategorization,
@@ -129,27 +127,37 @@ export const insightPresets: Readonly<Record<string, readonly CategoricalInsight
         {
             id: "table-names",
             title: "Scanned Tables",
-            where: [
-                {property: "operator_type", equals: "TABLE_SCAN"},
-                {property: "operator_name", equals: "SEQ_SCAN"},
-                {property: "operator_name", equals: "TABLE_SCAN"},
-                {property: "operator_name", equals: "INDEX_SCAN"},
-                {property: "operator_name", equals: "PARQUET_SCAN"},
-                {property: "operator_name", equals: "CSV_SCAN"},
-                {property: "name", equals: "SEQ_SCAN"},
-                {property: "name", equals: "TABLE_SCAN"},
-                {property: "name", equals: "INDEX_SCAN"},
-                {property: "name", equals: "PARQUET_SCAN"},
-                {property: "name", equals: "CSV_SCAN"},
-            ],
+            where: {
+                op: "any",
+                operands: [
+                    {op: "equals", path: ["operator_type"], value: "TABLE_SCAN"},
+                    {op: "equals", path: ["operator_name"], value: "SEQ_SCAN"},
+                    {op: "equals", path: ["operator_name"], value: "TABLE_SCAN"},
+                    {op: "equals", path: ["operator_name"], value: "INDEX_SCAN"},
+                    {op: "equals", path: ["operator_name"], value: "PARQUET_SCAN"},
+                    {op: "equals", path: ["operator_name"], value: "CSV_SCAN"},
+                    {op: "equals", path: ["name"], value: "SEQ_SCAN"},
+                    {op: "equals", path: ["name"], value: "TABLE_SCAN"},
+                    {op: "equals", path: ["name"], value: "INDEX_SCAN"},
+                    {op: "equals", path: ["name"], value: "PARQUET_SCAN"},
+                    {op: "equals", path: ["name"], value: "CSV_SCAN"},
+                ],
+            },
             groupBy: duckdbTableCategorization,
         },
         {
             id: "operators",
             title: "Operators",
-            where: [{property: "operator_name"}, {property: "name"}, {property: "operator_type"}],
+            where: {
+                op: "any",
+                operands: [
+                    {op: "exists", path: ["operator_name"]},
+                    {op: "exists", path: ["name"]},
+                    {op: "exists", path: ["operator_type"]},
+                ],
+            },
             groupBy: {
-                valueSourceAlternatives: [{property: "operator_name"}, {property: "name"}, {property: "operator_type"}],
+                valueSourceAlternatives: [["operator_name"], ["name"], ["operator_type"]],
                 fallbackValue: "Unknown operator",
                 nextByValue: {
                     SEQ_SCAN: duckdbTableCategorization,
