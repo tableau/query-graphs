@@ -47,6 +47,33 @@ for (const [format, file, scanType, tableName] of examples) {
     });
 }
 
+for (const engine of ["umbra", "cedardb"]) {
+    test(`${engine} inventory groups set operations and comparisons by subtype`, () => {
+        const dom = new JSDOM();
+        const previousParser = Object.getOwnPropertyDescriptor(globalThis, "DOMParser");
+        Object.defineProperty(globalThis, "DOMParser", {configurable: true, value: dom.window.DOMParser});
+        try {
+            const loadExample = (file: string) =>
+                loadPlanFromText(readFileSync(new URL(`../../standalone-app/examples/${engine}/${file}`, import.meta.url), "utf8"));
+            const setOperations = computeCategoricalInsight(
+                loadExample("setoperation-analyze.plan.json").tree.root,
+                insightPresets.umbra.find(({id}) => id === "operators")!,
+            ).find(({value}) => value === "setoperation");
+            assert.ok(setOperations?.children.some(({value}) => value === "unionall"));
+
+            const comparisons = computeCategoricalInsight(
+                loadExample("magicunnesting-analyze.plan.json").tree.root,
+                insightPresets.umbra.find(({id}) => id === "expressions")!,
+            ).find(({value}) => value === "compare");
+            assert.ok(comparisons?.children.some(({value}) => value === "="));
+        } finally {
+            if (previousParser) Object.defineProperty(globalThis, "DOMParser", previousParser);
+            else Reflect.deleteProperty(globalThis, "DOMParser");
+            dom.window.close();
+        }
+    });
+}
+
 test("additional Postgres and DuckDB scan variants drill down to table names", () => {
     for (const [format, properties, scanType] of [
         [

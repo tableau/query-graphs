@@ -73,6 +73,7 @@ export const insightPresets: Readonly<Record<string, readonly CategoricalInsight
                 fallbackValue: "Unknown operator",
                 nextByValue: {
                     join: {valueSourceAlternatives: [["type"]], fallbackValue: "Unknown type"},
+                    setoperation: {valueSourceAlternatives: [["operation"]], fallbackValue: "Unknown operation"},
                     tablescan: umbraTableCategorization,
                 },
             },
@@ -81,7 +82,11 @@ export const insightPresets: Readonly<Record<string, readonly CategoricalInsight
             id: "expressions",
             title: "Expressions",
             where: {op: "exists", path: ["expression"]},
-            groupBy: {valueSourceAlternatives: [["expression"]], fallbackValue: "Unknown expression"},
+            groupBy: {
+                valueSourceAlternatives: [["expression"]],
+                fallbackValue: "Unknown expression",
+                nextByValue: {compare: {valueSourceAlternatives: [["direction"]], fallbackValue: "Unknown direction"}},
+            },
         },
     ],
     postgres: [
