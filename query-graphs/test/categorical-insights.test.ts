@@ -35,7 +35,7 @@ test("table name insight groups Hyper scans across collapsed subtrees with name 
     assert.deepEqual(
         computeCategoricalInsight(
             root,
-            insightPresets.hyper.insights.find(({id}) => id === "table-names")!,
+            insightPresets.hyper.find(({id}) => id === "table-names")!,
         ),
         [
             {value: "region", nodes: [native, root.collapsedChildren?.[2]], children: []},

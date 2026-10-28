@@ -19,7 +19,7 @@ export interface TreeLabelProps {
     metadata?: Map<string, string>;
     metadataHighlighted?: boolean;
     textDocuments?: TextDocument[];
-    insights?: {root: TreeNode; preset: {insights: readonly CategoricalInsightDefinition[]}};
+    insights?: {root: TreeNode; definitions: readonly CategoricalInsightDefinition[]};
 }
 
 function LoadingDocument({title}: {title: string}) {
@@ -115,9 +115,7 @@ export function TreeLabel({title, setTitle, metadata, metadataHighlighted, textD
             />
             <div className="graph-sidebar-panels">
                 <div className="graph-sidebar-panel-stack">
-                    {insights?.preset.insights.length ? (
-                        <PlanInsights root={insights.root} definitions={insights.preset.insights} />
-                    ) : null}
+                    {insights?.definitions.length ? <PlanInsights root={insights.root} definitions={insights.definitions} /> : null}
                     {metadataChildren.length > 0 ? (
                         <CollapsiblePanel title="Plan Metadata" highlighted={metadataHighlighted}>
                             <ScrollableArea>

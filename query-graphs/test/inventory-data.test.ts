@@ -35,7 +35,7 @@ test("Hyper inventory includes hidden occurrences, missing values, and unfamilia
     };
     const groups = computeCategoricalInsight(
         root,
-        insightPresets.hyper.insights.find(({id}) => id === "operators")!,
+        insightPresets.hyper.find(({id}) => id === "operators")!,
     );
     assert.equal(
         groups.reduce((sum, category) => sum + category.nodes.length, 0),
@@ -70,7 +70,7 @@ test("Hyper expressions group comparisons by mode without expanding IU reference
     };
     const groups = computeCategoricalInsight(
         root,
-        insightPresets.hyper.insights.find(({id}) => id === "expressions")!,
+        insightPresets.hyper.find(({id}) => id === "expressions")!,
     );
     assertAdditive(groups);
     assert.equal(groups.find((category) => category.value === "iu-ref")?.children.length, 0);
@@ -85,7 +85,7 @@ test("Hyper external scans use the schema table-name ahead of debug names", () =
     const scan = node({operator: "scan", type: "iceberg", "table-name": "public.orders", "debug-name": '{"value":"debug alias"}'});
     const groups = computeCategoricalInsight(
         scan,
-        insightPresets.hyper.insights.find(({id}) => id === "operators")!,
+        insightPresets.hyper.find(({id}) => id === "operators")!,
     );
     assert.equal(groups[0].children[0].children[0].value, "public.orders");
     assertAdditive(groups);
@@ -94,7 +94,7 @@ test("Hyper external scans use the schema table-name ahead of debug names", () =
 test("unfamiliar operator tags remain visible even when they match object method names", () => {
     const groups = computeCategoricalInsight(
         node({operator: "toString"}),
-        insightPresets.hyper.insights.find(({id}) => id === "operators")!,
+        insightPresets.hyper.find(({id}) => id === "operators")!,
     );
     assert.equal(groups[0].value, "toString");
     assert.equal(groups[0].children.length, 0);

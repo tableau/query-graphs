@@ -73,7 +73,7 @@ test("inventory rows and source highlights use the same semantic node selection"
                 React.createElement(
                     GraphRenderingStoreContext.Provider,
                     {value: store},
-                    React.createElement(PlanInsights, {root: tree, definitions: insightPresets.hyper.insights}),
+                    React.createElement(PlanInsights, {root: tree, definitions: insightPresets.hyper}),
                 ),
             ),
         );

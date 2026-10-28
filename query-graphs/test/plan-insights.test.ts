@@ -72,7 +72,7 @@ test("table-name rows and source highlights use the same semantic node selection
                     {value: store},
                     React.createElement(PlanInsights, {
                         root: tree,
-                        definitions: insightPresets.hyper.insights.filter(({id}) => id === "table-names"),
+                        definitions: insightPresets.hyper.filter(({id}) => id === "table-names"),
                     }),
                 ),
             ),

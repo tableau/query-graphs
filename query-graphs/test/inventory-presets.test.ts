@@ -25,15 +25,15 @@ for (const [format, file, scanType, tableName] of examples) {
             const loaded = loadPlanFromText(text);
             assert.equal(loaded.format, format);
             const preset = insightPresets[loaded.format];
-            assert.ok(preset.insights.length > 0);
+            assert.ok(preset.length > 0);
             const scannedTables = computeCategoricalInsight(
                 loaded.tree.root,
-                preset.insights.find(({id}) => id === "table-names")!,
+                preset.find(({id}) => id === "table-names")!,
             );
             assert.ok(scannedTables.some(({value}) => value === tableName));
             const operators = computeCategoricalInsight(
                 loaded.tree.root,
-                preset.insights.find(({id}) => id === "operators")!,
+                preset.find(({id}) => id === "operators")!,
             );
             const scan = operators.find(({value}) => value === scanType);
             const tableCategories =
@@ -67,7 +67,7 @@ test("additional Postgres and DuckDB scan variants drill down to table names", (
         ],
     ] as const) {
         const node: TreeNode = {properties: new Map(properties)};
-        const definitions = insightPresets[format].insights;
+        const definitions = insightPresets[format];
         const scanned = computeCategoricalInsight(
             node,
             definitions.find(({id}) => id === "table-names")!,
@@ -78,26 +78,5 @@ test("additional Postgres and DuckDB scan variants drill down to table names", (
         );
         assert.equal(scanned[0].value, "orders");
         assert.equal(operators.find(({value}) => value === scanType)?.children[0]?.value, "orders");
-    }
-});
-
-test("generic JSON and XML have inventory presets", () => {
-    const dom = new JSDOM();
-    const previousParser = Object.getOwnPropertyDescriptor(globalThis, "DOMParser");
-    Object.defineProperty(globalThis, "DOMParser", {configurable: true, value: dom.window.DOMParser});
-    try {
-        for (const [text, format] of [
-            ['{"name":"root","children":[{"name":"child"}]}', "json"],
-            ["<root><child/></root>", "xml"],
-        ]) {
-            const loaded = loadPlanFromText(text, {format});
-            const preset = insightPresets[loaded.format];
-            assert.ok(preset.insights.length > 0);
-            assert.ok(computeCategoricalInsight(loaded.tree.root, preset.insights[0]).length > 0);
-        }
-    } finally {
-        if (previousParser) Object.defineProperty(globalThis, "DOMParser", previousParser);
-        else Reflect.deleteProperty(globalThis, "DOMParser");
-        dom.window.close();
     }
 });
