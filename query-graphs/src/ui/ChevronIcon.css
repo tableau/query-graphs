@@ -1,6 +1,6 @@
 .qg-chevron-icon {
     display: block;
-    flex: 0 0 auto;
+    flex: 0 0 0.9em;
     width: 0.85em;
     height: 0.85em;
     fill: none;
@@ -10,6 +10,13 @@
     stroke-linejoin: round;
     transform-origin: center;
     transition: transform 0.12s ease;
+
+    &.qg-chevron-icon-regular {
+        flex-basis: 1em;
+        width: 1em;
+        height: 1em;
+        stroke-width: 1.75;
+    }
 
     &[data-expanded] {
         transform: rotate(90deg);

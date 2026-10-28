@@ -30,10 +30,6 @@
             outline-offset: -2px;
         }
 
-        & .qg-chevron-icon {
-            flex: 0 0 0.9em;
-        }
-
         & .qg-plan-insight-title {
             flex: 1 1 auto;
             min-width: 0;

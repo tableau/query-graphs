@@ -42,12 +42,6 @@
             outline: 2px solid var(--qg-focus);
             outline-offset: 1px;
         }
-
-        & .qg-chevron-icon {
-            width: 1em;
-            height: 1em;
-            stroke-width: 1.75;
-        }
     }
 
     /* Use red to distinguish panels that need attention. */

@@ -76,7 +76,7 @@ export function CollapsiblePanel({
                 onPointerEnter={mountContent}
                 onFocus={mountContent}
             >
-                <ChevronIcon expanded={expanded} />
+                <ChevronIcon expanded={expanded} size="regular" />
                 <span className="qg-collapsible-panel-title">
                     {title}
                     <span
