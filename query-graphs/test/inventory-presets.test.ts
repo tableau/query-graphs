@@ -12,7 +12,7 @@ const examples = [
     ["umbra", "umbra/tablescan-analyze.plan.json", "tablescan", "region"],
     ["umbra", "cedardb/tablescan-analyze.plan.json", "tablescan", "region"],
     ["postgres", "postgres/tablescan-analyze.plan.json", "Seq Scan", "region"],
-    ["duckdb", "duckdb/tablescan-analyze.plan.json", "SEQ_SCAN", '"temp".main.region'],
+    ["duckdb", "duckdb/tablescan-analyze.plan.json", "TABLE_SCAN", '"temp".main.region'],
 ] as const;
 
 for (const [format, file, scanType, tableName] of examples) {
