@@ -1,7 +1,7 @@
 import type {TreeNode} from "../tree-description";
 import {allChildren, visitTreeNodes} from "../tree-description";
-import type {Predicate, PropertyPath} from "./predicate";
-import {evaluatePredicate, readPropertyPath} from "./predicate";
+import type {Predicate, PropertyPath} from "./property-query";
+import {evaluatePredicate, readPropertyPath} from "./property-query";
 
 /** Each selected node follows exactly one path through the configured levels. */
 export interface CategoricalInsightLevel {
