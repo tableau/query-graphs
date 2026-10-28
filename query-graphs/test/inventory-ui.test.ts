@@ -207,6 +207,30 @@ test("inventory rows and source highlights use the same semantic node selection"
         await key(typeAheadRows[0], "p");
         await key(typeAheadRows[0], "p");
         assert.equal(dom.window.document.activeElement, typeAheadRows[0]);
+
+        const renderNestedTree = async () =>
+            React.act(async () =>
+                root.render(
+                    React.createElement(
+                        GraphRenderingStoreContext.Provider,
+                        {value: store},
+                        React.createElement(CategoryTree, {
+                            title: "Expansion reset",
+                            categories: [
+                                {value: "parent", nodes: [native], children: [{value: "child", nodes: [native], children: []}]},
+                            ],
+                        }),
+                    ),
+                ),
+            );
+        await renderNestedTree();
+        let parentRow = dom.window.document.querySelector<HTMLElement>('[role="treeitem"]')!;
+        await key(parentRow, "ArrowRight");
+        assert.equal(parentRow.getAttribute("aria-expanded"), "true");
+        await renderNestedTree();
+        parentRow = dom.window.document.querySelector<HTMLElement>('[role="treeitem"]')!;
+        assert.equal(parentRow.getAttribute("aria-expanded"), "false");
+        assert.equal(parentRow.tabIndex, 0);
     } finally {
         await React.act(async () => root.unmount());
         dom.window.close();

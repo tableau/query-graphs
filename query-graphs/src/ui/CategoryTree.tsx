@@ -1,4 +1,4 @@
-import {useMemo, useRef, useState, type KeyboardEvent} from "react";
+import {useEffect, useMemo, useRef, useState, type KeyboardEvent} from "react";
 import cc from "classcat";
 import type {CategoricalInsightCategory} from "../insights/categorical";
 import {ChevronIcon} from "./ChevronIcon";
@@ -15,10 +15,10 @@ interface CategoryTreeInteraction {
     hovered?: CategoryTreeCategory;
     focused?: CategoryTreeCategory;
     tabStop?: CategoryTreeCategory;
-    expandedPaths: ReadonlySet<string>;
+    expandedCategories: ReadonlySet<CategoryTreeCategory>;
     onHover: (category?: CategoryTreeCategory) => void;
     onFocus: (category?: CategoryTreeCategory) => void;
-    onToggle: (path: string) => void;
+    onToggle: (category: CategoryTreeCategory) => void;
     onTypeAhead: (key: string, current: HTMLElement) => void;
 }
 
@@ -34,19 +34,16 @@ function visibleRows(current: HTMLElement): HTMLElement[] {
 function CategoryRow({
     category,
     interaction,
-    path,
     initialTabStop = false,
 }: {
     category: CategoryTreeCategory;
     interaction: CategoryTreeInteraction;
-    path: readonly string[];
     initialTabStop?: boolean;
 }) {
     const {value, nodeIds, children} = category;
     const highlightedNodeIds = useGraphRenderingStore((state) => state.highlightedNodeIds);
-    const pathKey = JSON.stringify(path);
-    const open = interaction.expandedPaths.has(pathKey);
-    const toggle = () => interaction.onToggle(pathKey);
+    const open = interaction.expandedCategories.has(category);
+    const toggle = () => interaction.onToggle(category);
     // A category covers all nodes in its descendant categories. Highlight only the
     // deepest displayed match when a graph node or source range drives the highlight.
     const selectedCategory =
@@ -138,14 +135,7 @@ function CategoryRow({
             {children.length > 0 ? (
                 <ul role="group" hidden={!open}>
                     {open
-                        ? children.map((child) => (
-                              <CategoryRow
-                                  key={child.value}
-                                  category={child}
-                                  interaction={interaction}
-                                  path={[...path, child.value]}
-                              />
-                          ))
+                        ? children.map((child) => <CategoryRow key={child.value} category={child} interaction={interaction} />)
                         : null}
                 </ul>
             ) : null}
@@ -175,9 +165,9 @@ export function CategoryTree({
         return inputCategories.map(convert);
     }, [getNodeId, inputCategories]);
     // Start with only the first category level visible.
-    // Keep descendant paths when a parent closes so reopening restores their expansion.
+    // Keep descendant categories when a parent closes so reopening restores their expansion.
     // This tree stays mounted while its insight section is closed for the same reason.
-    const [expandedPaths, setExpandedPaths] = useState<ReadonlySet<string>>(() => new Set());
+    const [expandedCategories, setExpandedCategories] = useState<ReadonlySet<CategoryTreeCategory>>(() => new Set());
     const [hovered, setHovered] = useState<CategoryTreeCategory>();
     const [focused, setFocused] = useState<CategoryTreeCategory>();
     // One tab stop per tree; Tab returns to the last focused row.
@@ -185,11 +175,21 @@ export function CategoryTree({
     const typeAhead = useRef({prefix: "", time: 0});
     const setHoveredNodeIds = useGraphRenderingStore((state) => state.setHoveredNodeIds);
     const setFocusedNodeIds = useGraphRenderingStore((state) => state.setFocusedNodeIds);
+    const previousCategories = useRef(categories);
+    useEffect(() => {
+        if (previousCategories.current === categories) return;
+        previousCategories.current = categories;
+        setExpandedCategories(new Set());
+        setHovered(undefined);
+        setFocused(undefined);
+        setTabStop(undefined);
+        typeAhead.current = {prefix: "", time: 0};
+    }, [categories]);
     const interaction: CategoryTreeInteraction = {
         hovered,
         focused,
         tabStop,
-        expandedPaths,
+        expandedCategories,
         onHover(category) {
             setHovered(category);
             setHoveredNodeIds(category?.nodeIds);
@@ -199,11 +199,11 @@ export function CategoryTree({
             if (category) setTabStop(category);
             setFocusedNodeIds(category?.nodeIds);
         },
-        onToggle(path) {
-            setExpandedPaths((previous) => {
+        onToggle(category) {
+            setExpandedCategories((previous) => {
                 const next = new Set(previous);
-                if (next.has(path)) next.delete(path);
-                else next.add(path);
+                if (next.has(category)) next.delete(category);
+                else next.add(category);
                 return next;
             });
         },
@@ -223,13 +223,7 @@ export function CategoryTree({
     return (
         <ul role="tree" aria-label={title} className="qg-category-tree">
             {categories.map((category, index) => (
-                <CategoryRow
-                    key={category.value}
-                    category={category}
-                    interaction={interaction}
-                    path={[category.value]}
-                    initialTabStop={index === 0}
-                />
+                <CategoryRow key={category.value} category={category} interaction={interaction} initialTabStop={index === 0} />
             ))}
         </ul>
     );
