@@ -183,6 +183,30 @@ test("inventory rows and source highlights use the same semantic node selection"
         assert.deepEqual(activeLabels(), ["native"]);
         await key(scanRow, "ArrowLeft");
         assert.deepEqual(activeLabels(), ["scan"]);
+
+        const {CategoryTree} = await import("../src/ui/CategoryTree");
+        await React.act(async () =>
+            root.render(
+                React.createElement(
+                    GraphRenderingStoreContext.Provider,
+                    {value: store},
+                    React.createElement(CategoryTree, {
+                        title: "Type-ahead",
+                        categories: ["part", "nation", "partsupp"].map((value) => ({value, nodes: [native], children: []})),
+                    }),
+                ),
+            ),
+        );
+        const typeAheadRows = [...dom.window.document.querySelectorAll<HTMLElement>('[role="treeitem"]')];
+        await React.act(async () => typeAheadRows[0].focus());
+        for (const character of "part") {
+            await key(dom.window.document.activeElement as HTMLElement, character);
+            assert.equal(dom.window.document.activeElement, typeAheadRows[0]);
+        }
+        await new Promise((resolve) => setTimeout(resolve, 710));
+        await key(typeAheadRows[0], "p");
+        await key(typeAheadRows[0], "p");
+        assert.equal(dom.window.document.activeElement, typeAheadRows[0]);
     } finally {
         await React.act(async () => root.unmount());
         dom.window.close();

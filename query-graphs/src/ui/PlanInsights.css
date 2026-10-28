@@ -1,57 +1,51 @@
-.qg-plan-insight + .qg-plan-insight {
-    border-top: 1px solid var(--qg-border);
-}
+.qg-plan-insight {
+    margin-block-start: 0.5em;
 
-.qg-plan-insight h3 {
-    margin: 0;
-    font-size: 1em;
-}
-
-.qg-plan-insight h3 > button {
-    display: flex;
-    align-items: center;
-    gap: 0.4em;
-    width: 100%;
-    padding: 0.2em 0.35em;
-    border: 0;
-    color: inherit;
-    background: transparent;
-    font: inherit;
-    font-weight: 600;
-    line-height: 1.25;
-    text-align: start;
-    cursor: pointer;
-
-    &:hover {
-        background: var(--qg-surface-hover);
+    & > h3 {
+        margin: 0;
+        font-size: 1em;
     }
 
-    &:focus-visible {
-        outline: 2px solid var(--qg-focus);
-        outline-offset: -2px;
+    & .qg-plan-insight-toggle {
+        display: flex;
+        align-items: center;
+        gap: 0.4em;
+        width: 100%;
+        padding: 0.2em 0.35em;
+        border: 0;
+        color: inherit;
+        background: transparent;
+        font: inherit;
+        font-weight: 600;
+        line-height: 1.25;
+        text-align: start;
+        cursor: pointer;
+
+        &:hover {
+            background: var(--qg-surface-hover);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--qg-focus);
+            outline-offset: -2px;
+        }
+
+        & .qg-chevron-icon {
+            flex: 0 0 0.9em;
+        }
+
+        & .qg-plan-insight-title {
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+
+        & .qg-plan-insight-count {
+            flex: none;
+            font-variant-numeric: tabular-nums;
+        }
     }
 
-    & svg {
-        display: block;
-        flex: 0 0 0.9em;
-        width: 0.85em;
-        height: 0.85em;
-        fill: none;
-        stroke: currentColor;
-        stroke-width: 1.5;
+    &:last-child {
+        margin-block-end: 0.5em;
     }
-
-    & .qg-plan-insight-open {
-        transform: rotate(90deg);
-    }
-}
-
-.qg-plan-insight-title {
-    flex: 1 1 auto;
-    min-width: 0;
-}
-
-.qg-plan-insight-count {
-    flex: none;
-    font-variant-numeric: tabular-nums;
 }

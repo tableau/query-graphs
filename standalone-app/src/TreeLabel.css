@@ -53,11 +53,13 @@
     padding: var(--graph-sidebar-paint-gutter);
 }
 
+.graph-metadata {
+    margin: 0.75em;
+}
+
 /* Document panels */
 .graph-text-document-panel > .qg-collapsible-panel-content {
-    /* The editor supplies the panel body, so it should meet the panel border directly. */
-    padding: 0;
-
+    /* The panel border also frames the editor. */
     & .cm-editor {
         border: 0;
     }

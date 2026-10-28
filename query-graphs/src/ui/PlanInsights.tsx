@@ -3,6 +3,7 @@ import type {TreeNode} from "../tree-description";
 import type {CategoricalInsightDefinition} from "../insights/categorical";
 import {computeCategoricalInsight} from "../insights/categorical";
 import {CategoryTree} from "./CategoryTree";
+import {ChevronIcon} from "./ChevronIcon";
 import {CollapsiblePanel} from "./CollapsiblePanel";
 import {ScrollableArea} from "./ScrollableArea";
 import "./PlanInsights.css";
@@ -49,10 +50,14 @@ function InsightSection({title, count, children}: {title: string; count: number;
     return (
         <section className="qg-plan-insight" aria-label={title}>
             <h3>
-                <button type="button" aria-expanded={open} aria-controls={contentId} onClick={() => setOpen(!open)}>
-                    <svg viewBox="0 0 16 16" aria-hidden="true" className={open ? "qg-plan-insight-open" : ""}>
-                        <path d="M5.5 3.5 10.5 8l-5 4.5" />
-                    </svg>
+                <button
+                    type="button"
+                    className="qg-plan-insight-toggle"
+                    aria-expanded={open}
+                    aria-controls={contentId}
+                    onClick={() => setOpen(!open)}
+                >
+                    <ChevronIcon expanded={open} />
                     <span className="qg-plan-insight-title">{title}</span>
                     <span className="qg-plan-insight-count">{count}</span>
                 </button>

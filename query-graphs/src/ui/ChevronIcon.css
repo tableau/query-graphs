@@ -1,0 +1,23 @@
+.qg-chevron-icon {
+    display: block;
+    flex: 0 0 auto;
+    width: 0.85em;
+    height: 0.85em;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transform-origin: center;
+    transition: transform 0.12s ease;
+
+    &[data-expanded] {
+        transform: rotate(90deg);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .qg-chevron-icon {
+        transition: none;
+    }
+}

@@ -1,5 +1,6 @@
 import {useMemo, useRef, useState, type KeyboardEvent} from "react";
 import type {CategoricalInsightCategory} from "../insights/categorical";
+import {ChevronIcon} from "./ChevronIcon";
 import {useGraphRenderingStore} from "./store";
 import "./CategoryTree.css";
 
@@ -128,10 +129,8 @@ function CategoryRow({
                 }}
             >
                 {children.length > 0 ? (
-                    <span className="qg-category-tree-disclosure" aria-hidden="true" data-expanded={open ? "" : undefined}>
-                        <svg viewBox="0 0 16 16" aria-hidden="true">
-                            <path d="M5.5 3.5 10.5 8l-5 4.5" />
-                        </svg>
+                    <span className="qg-category-tree-disclosure" aria-hidden="true">
+                        <ChevronIcon expanded={open} />
                     </span>
                 ) : (
                     <span className="qg-category-tree-disclosure-spacer" />
@@ -220,13 +219,10 @@ export function CategoryTree({
             typeAhead.current = {prefix, time: now};
             const rows = visibleRows(current);
             const index = rows.indexOf(current);
-            const candidates = [...rows.slice(index + 1), ...rows.slice(0, index + 1)];
-            let next = candidates.find((row) => row.dataset.label?.toLocaleLowerCase().startsWith(prefix));
-            if (!next && prefix.length > 1 && [...prefix].every((character) => character === key.toLocaleLowerCase())) {
-                typeAhead.current.prefix = key.toLocaleLowerCase();
-                next = candidates.find((row) => row.dataset.label?.toLocaleLowerCase().startsWith(typeAhead.current.prefix));
-            }
-            next?.focus();
+            // Keep the current row when its label matches, including on the first keystroke.
+            const candidates = [...rows.slice(index), ...rows.slice(0, index)];
+            const next = candidates.find((row) => row.dataset.label?.toLocaleLowerCase().startsWith(prefix));
+            if (next !== current) next?.focus();
         },
     };
     return (

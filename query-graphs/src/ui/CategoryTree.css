@@ -7,6 +7,7 @@
         padding: 0;
         margin: 0;
         list-style: none;
+        padding-inline-start: 0.9em;
     }
 }
 
@@ -37,19 +38,6 @@
     }
 }
 
-.qg-category-tree [role="treeitem"]:focus {
-    outline: none;
-}
-
-.qg-category-tree [role="treeitem"]:focus-visible > .qg-category-tree-category {
-    outline: 2px solid var(--qg-focus);
-    outline-offset: -2px;
-}
-
-.qg-category-tree ul {
-    padding-left: 0.9em;
-}
-
 .qg-category-tree-disclosure,
 .qg-category-tree-disclosure-spacer {
     flex: 0 0 0.9em;
@@ -59,17 +47,16 @@
 .qg-category-tree-disclosure {
     margin-top: 0.18em;
     color: inherit;
+}
 
-    & svg {
-        display: block;
-        width: 0.85em;
-        height: 0.85em;
-        fill: none;
-        stroke: currentColor;
-        stroke-width: 1.5;
+.qg-category-tree [role="treeitem"] {
+    &:focus {
+        outline: none;
     }
 
-    &[data-expanded] svg {
-        transform: rotate(90deg);
+    /* A tree item contains its descendants; draw focus around its visible row only. */
+    &:focus-visible > .qg-category-tree-category {
+        outline: 2px solid var(--qg-focus);
+        outline-offset: -2px;
     }
 }
