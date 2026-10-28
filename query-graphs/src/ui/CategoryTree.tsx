@@ -1,4 +1,5 @@
 import {useMemo, useRef, useState, type KeyboardEvent} from "react";
+import cc from "classcat";
 import type {CategoricalInsightCategory} from "../insights/categorical";
 import {ChevronIcon} from "./ChevronIcon";
 import {useGraphRenderingStore} from "./store";
@@ -118,7 +119,7 @@ function CategoryRow({
             }}
         >
             <div
-                className={`qg-category-tree-category${active ? " qg-category-tree-category-active" : ""}`}
+                className={cc(["qg-category-tree-category", {"qg-category-tree-category-active": active}])}
                 onMouseEnter={() => interaction.onHover(category)}
                 onMouseLeave={() => interaction.onHover(undefined)}
                 onClick={(event) => {
@@ -128,13 +129,7 @@ function CategoryRow({
                     if (children.length) toggle();
                 }}
             >
-                {children.length > 0 ? (
-                    <span className="qg-category-tree-disclosure" aria-hidden="true">
-                        <ChevronIcon expanded={open} />
-                    </span>
-                ) : (
-                    <span className="qg-category-tree-disclosure-spacer" />
-                )}
+                <span className="qg-category-tree-disclosure">{children.length > 0 ? <ChevronIcon expanded={open} /> : null}</span>
                 <span className="qg-category-tree-category-label" title={value}>
                     {value}
                 </span>

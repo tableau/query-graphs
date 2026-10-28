@@ -38,13 +38,9 @@
     }
 }
 
-.qg-category-tree-disclosure,
-.qg-category-tree-disclosure-spacer {
+.qg-category-tree-disclosure {
     flex: 0 0 0.9em;
     width: 0.9em;
-}
-
-.qg-category-tree-disclosure {
     margin-top: 0.18em;
     color: inherit;
 }
