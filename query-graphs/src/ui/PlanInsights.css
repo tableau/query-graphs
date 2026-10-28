@@ -27,10 +27,6 @@
         background: var(--qg-surface-hover);
     }
 
-    &.qg-plan-insight-highlighted {
-        background: var(--qg-accent-subtle);
-    }
-
     &:focus-visible {
         outline: 2px solid var(--qg-focus);
         outline-offset: -2px;

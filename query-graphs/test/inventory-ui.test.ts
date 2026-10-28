@@ -136,10 +136,9 @@ test("inventory rows and source highlights use the same semantic node selection"
             );
         await React.act(async () => store.getState().setActiveSourceLocations("query", virtual.sourceLocations!));
         assert.deepEqual(activeLabels(), ["virtual-table"]);
-        assert.ok(dom.window.document.querySelector(".qg-panel-highlight-indicator-active"));
+        assert.ok(!dom.window.document.querySelector(".qg-panel-highlight-indicator-active"));
         const operatorHeader = operatorSection.querySelector<HTMLButtonElement>("h3 button")!;
         await React.act(async () => operatorHeader.click());
-        assert.ok(operatorHeader.classList.contains("qg-plan-insight-highlighted"));
         await React.act(async () => operatorHeader.click());
 
         const nativeVisual = nativeRow.querySelector<HTMLElement>(".qg-category-tree-category")!;
