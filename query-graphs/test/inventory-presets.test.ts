@@ -13,6 +13,7 @@ const examples = [
     ["umbra", "cedardb/tablescan-analyze.plan.json", "tablescan", "region"],
     ["postgres", "postgres/tablescan-analyze.plan.json", "Seq Scan", "region"],
     ["duckdb", "duckdb/tablescan-analyze.plan.json", "TABLE_SCAN", '"temp".main.region'],
+    ["duckdb", "duckdb/unicode.plan.json", "SEQ_SCAN", '"temp".main.region'],
 ] as const;
 
 for (const [format, file, scanType, tableName] of examples) {
@@ -87,10 +88,10 @@ test("additional Postgres and DuckDB scan variants drill down to table names", (
         [
             "duckdb",
             [
-                ["operator_name", "PARQUET_SCAN"],
+                ["name", "SEQ_SCAN"],
                 ["Table", "orders"],
             ],
-            "PARQUET_SCAN",
+            "SEQ_SCAN",
         ],
     ] as const) {
         const node: TreeNode = {properties: new Map(properties)};
