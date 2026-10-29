@@ -69,6 +69,7 @@ function getOperatorDisplayName(operatorType: string, rawNode: JsonObject): stri
 
 const postgresConfig: DecoratedJsonTreeConfig = {
     nodeTypeKeys: ["Node Type"],
+    // Postgres reports times in milliseconds, so only row counts are formatted.
     acceptedNumberFormats: ["rounded"],
     structuralChildKeys: ["Plan", "Plans"],
     alwaysPropertyKeys: [],

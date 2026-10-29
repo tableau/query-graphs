@@ -1,16 +1,19 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import {formatNumber, inferNumberFormat} from "../src/number-formats";
+import {formatBytes, formatCount, formatExact, formatNumber, formatSeconds, inferNumberFormat} from "../src/number-formats";
 import {getNumericProperty, getScalarProperty} from "../src/tree-description";
 import {toPropertyEntry} from "../src/loaders/loader-utils";
 
 test("infers number formats from scalar property names", () => {
+    assert.equal(inferNumberFormat("output-rows"), "rounded");
     assert.equal(inferNumberFormat("Plan Rows"), "rounded");
     assert.equal(inferNumberFormat("actualCycles"), "rounded");
     assert.equal(inferNumberFormat("PeakMemory"), "memory-bytes");
     assert.equal(inferNumberFormat("totalBytes"), "memory-bytes");
     assert.equal(inferNumberFormat("ExecutionTime"), "time-seconds");
+    assert.equal(inferNumberFormat("cpu_time"), "time-seconds");
     assert.equal(inferNumberFormat("wall-clock"), "time-seconds");
+    assert.equal(inferNumberFormat("min-rows"), "rounded");
 });
 
 test("does not reinterpret numbers whose names already state another unit", () => {
@@ -42,7 +45,10 @@ test("formats deferred scalar numbers", () => {
         [-1234, "-1.2K"],
         [-999_950, "-1M"],
     ];
-    for (const [value, expected] of roundedCounts) assert.equal(formatNumber(value, "rounded"), expected, String(value));
+    for (const [value, expected] of roundedCounts) {
+        assert.equal(formatCount(value), expected, String(value));
+        assert.equal(formatNumber(value, "rounded"), expected, String(value));
+    }
 
     for (const [value, expected] of [
         [512, "512 B"],
@@ -53,6 +59,7 @@ test("formats deferred scalar numbers", () => {
         [-1536, "-1.5 KiB"],
         [-1_048_575, "-1.0 MiB"],
     ] as [number, string][]) {
+        assert.equal(formatBytes(value), expected, String(value));
         assert.equal(formatNumber(value, "memory-bytes"), expected, String(value));
     }
 
@@ -70,9 +77,12 @@ test("formats deferred scalar numbers", () => {
         [-0.9996, "-1s"],
         [-59.96, "-1min"],
     ] as [number, string][]) {
+        assert.equal(formatSeconds(value), expected, String(value));
         assert.equal(formatNumber(value, "time-seconds"), expected, String(value));
     }
 
+    assert.equal(formatExact(1_234_567), "1,234,567");
+    assert.equal(formatExact(0.4761234), "0.4761234");
     assert.equal(formatNumber(1_234.5, "exact"), "1,234.5");
     assert.equal(formatNumber(1250, undefined), "1250");
 });

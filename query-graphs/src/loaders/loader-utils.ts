@@ -63,6 +63,8 @@ export function forceToString(d: unknown): string {
     return str;
 }
 
+// Preserve finite input numbers for downstream computation. A loader may opt into
+// name-based display formatting only for units its plan format reports reliably.
 export function toPropertyEntry(value: unknown, key?: string, acceptedFormats?: readonly NumberFormat[]): PropertyEntry {
     const scalarValue = typeof value === "number" && !Number.isFinite(value) ? String(value) : value;
     const scalar = typeof scalarValue === "number" ? scalarValue : forceToString(scalarValue);

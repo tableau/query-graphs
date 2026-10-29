@@ -19,7 +19,7 @@ The library provides:
 `TreeDescription` (`src/tree-description.ts`) is the single abstraction that decouples "which database produced this plan" from "how it is drawn".
 Every loader outputs one; the renderer only ever consumes one.
 
-* `TreeDescription` — the whole graph: a `root` `TreeNode`, optional `metadata` (shown in the top-level label), an optional metadata highlight, optional text documents, and optional `crosslinks`.
+* `TreeDescription` — the whole graph: a `root` `TreeNode`, optional `metadata` (the same scalar property entries as node `properties`, shown in the top-level label), an optional metadata highlight, optional text documents, and optional `crosslinks`.
 * `TextDocument` — a named text artifact associated with the graph, identified by a stable `id` and optionally tagged with its language.
 * `TreeNode` — one node. Notable fields:
   * `name`, `icon`, `iconColor`, `nodeColor` — what the node looks like.
@@ -48,7 +48,8 @@ Hyper additionally configures operator/expression classification, node rendering
 
 Shared post-processing helpers resolve crosslinks and scale edge widths. Hyper's pipeline visualization lives separately in `pipeline-coloring.ts`.
 
-Shared parsing/formatting helpers live in `loader-utils.ts` (`tryToString`, `forceToString`, `formatMetric`, `tryGetPropertyPath`, the `Json` type).
+Shared loader parsing and conversion helpers live in `loader-utils.ts` (`tryToString`, `forceToString`, `toPropertyEntry`, `tryGetPropertyPath`, the `Json` type).
+Numeric display formats and their rendering helpers live outside the loaders in `number-formats.ts`.
 
 The library intentionally exposes low-level loaders (`json`, `xml`) as generic fallbacks so that even an unrecognized plan renders as *something* rather than an error.
 

@@ -14,16 +14,21 @@ export type IconName =
     | "virtual-table-symbol"
     | "const-table-symbol";
 
+// One scalar property shown in a node's or plan's detail panel.
 export interface PropertyEntry {
+    // Numbers remain numeric until rendering so insights and other consumers retain the raw value.
     value: string | number;
+    // How to render a numeric value. Unset means as-is, without rounding or separators.
     numberFormat?: NumberFormat;
 }
 
+// Read a scalar property as text, preserving compatibility with consumers that identify nodes by strings.
 export function getScalarProperty(properties: Map<string, PropertyEntry> | undefined, key: string): string | undefined {
     const value = properties?.get(key)?.value;
     return typeof value === "string" ? value : typeof value === "number" ? value.toString() : undefined;
 }
 
+// Read a property only when its stored value is a finite number.
 export function getNumericProperty(properties: Map<string, PropertyEntry> | undefined, key: string): number | undefined {
     const value = properties?.get(key)?.value;
     return typeof value === "number" && Number.isFinite(value) ? value : undefined;

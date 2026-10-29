@@ -154,6 +154,24 @@ test("Hyper optimizer steps preserve additional envelope fields", () => {
     assert.equal(loaded.tree.root.children?.[0].children?.[0].name, "scan");
 });
 
+test("Hyper preserves flat numeric values and defers their display formatting", () => {
+    const root = loadPlanFromText(
+        JSON.stringify({
+            operator: "scan",
+            operatorId: 123456,
+            "output-rows": 2345678901,
+            "memory-bytes": 1536,
+            "execution-time": 0.0209,
+        }),
+        {format: "hyper"},
+    ).tree.root;
+
+    assert.deepEqual(root.properties?.get("operatorId"), {value: 123456});
+    assert.deepEqual(root.properties?.get("output-rows"), {value: 2345678901, numberFormat: "rounded"});
+    assert.deepEqual(root.properties?.get("memory-bytes"), {value: 1536, numberFormat: "memory-bytes"});
+    assert.deepEqual(root.properties?.get("execution-time"), {value: 0.0209, numberFormat: "time-seconds"});
+});
+
 // Hyper positions are UTF-8 byte offsets, so preceding multibyte characters must not shift the UTF-16 editor ranges.
 test("Hyper nodes link both SQL and JSON source ranges", () => {
     const sql = "EXPLAIN SELECT 'é😀', value FROM table";
