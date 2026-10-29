@@ -30,6 +30,7 @@ test("categorical aggregation counts collapsed occurrences once and partitions e
     const root: TreeNode = {children: [scan1, join], collapsedChildren: [scan2, scan3, node({other: "ignored"})]};
     const groups = computeCategoricalInsight(root, definition);
 
+    // The predicate excludes the unrelated node; collapsed scans still contribute to the scan count.
     assert.deepEqual(
         groups.map(({value, nodes}) => [value, nodes.length]),
         [
@@ -37,6 +38,7 @@ test("categorical aggregation counts collapsed occurrences once and partitions e
             ["join", 1],
         ],
     );
+    // Scans use nextByValue instead of the default subtype level. The first usable table source wins.
     assert.deepEqual(
         groups[0].children.map(({value, nodes}) => [value, nodes.length]),
         [
@@ -45,10 +47,12 @@ test("categorical aggregation counts collapsed occurrences once and partitions e
         ],
     );
     assert.deepEqual(groups[0].children[0].nodes, [scan1, scan2]);
+    // Other kinds continue through the default subtype level.
     assert.deepEqual(
         groups[1].children.map(({value, nodes}) => [value, nodes.length]),
         [["inner", 1]],
     );
+    // Every selected occurrence belongs to exactly one child at each configured level.
     for (const group of groups)
         assert.equal(
             group.nodes.length,
@@ -63,6 +67,7 @@ test("flat definitions end at the first level and sort equal counts alphabetical
         where: {op: "exists", path: ["other"]},
     };
     const root: TreeNode = {children: [node({kind: "z", other: "1"}), node({kind: "a", other: "1"}), node({other: "1"})]};
+    // A one-level definition has no child categories, and equal-sized groups use alphabetical order.
     assert.deepEqual(
         computeCategoricalInsight(root, flat).map(({value, children}) => [value, children.length]),
         [

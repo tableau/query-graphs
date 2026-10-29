@@ -16,6 +16,7 @@ const examples = [
     ["duckdb", "duckdb/unicode.plan.json", "SEQ_SCAN", '"temp".main.region'],
 ] as const;
 
+// These real plans guard the loader-to-preset boundary for each supported engine and scan spelling.
 for (const [format, file, scanType, tableName] of examples) {
     test(`${file} has a configured inventory`, () => {
         const dom = new JSDOM();
@@ -24,6 +25,7 @@ for (const [format, file, scanType, tableName] of examples) {
         try {
             const text = readFileSync(new URL(`../../standalone-app/examples/${file}`, import.meta.url), "utf8");
             const loaded = loadPlanFromText(text);
+            // Recognition must select the preset whose property paths match the loaded plan.
             assert.equal(loaded.format, format);
             const preset = insightPresets[loaded.format];
             assert.ok(preset.length > 0);
@@ -31,6 +33,7 @@ for (const [format, file, scanType, tableName] of examples) {
                 loaded.tree.root,
                 preset.find(({id}) => id === "table-names")!,
             );
+            // The flat scanned-tables insight and the operator drilldown must agree on the table name.
             assert.ok(scannedTables.some(({value}) => value === tableName));
             const operators = computeCategoricalInsight(
                 loaded.tree.root,
@@ -39,6 +42,7 @@ for (const [format, file, scanType, tableName] of examples) {
             const scan = operators.find(({value}) => value === scanType);
             const tableCategories =
                 format === "hyper" ? scan?.children.find(({value}) => value === "native")?.children : scan?.children;
+            // Hyper has a storage-type level between scan and table; the other engines go directly to tables.
             assert.ok(tableCategories?.some(({value}) => value === tableName));
         } finally {
             if (previousParser) Object.defineProperty(globalThis, "DOMParser", previousParser);
@@ -60,12 +64,14 @@ for (const engine of ["umbra", "cedardb"]) {
                 loadExample("setoperation-analyze.plan.json").tree.root,
                 insightPresets.umbra.find(({id}) => id === "operators")!,
             ).find(({value}) => value === "setoperation");
+            // Both engines use the Umbra preset and keep operation semantics as the second level.
             assert.ok(setOperations?.children.some(({value}) => value === "unionall"));
 
             const comparisons = computeCategoricalInsight(
                 loadExample("magicunnesting-analyze.plan.json").tree.root,
                 insightPresets.umbra.find(({id}) => id === "expressions")!,
             ).find(({value}) => value === "compare");
+            // Comparison expressions likewise drill into their comparison operator.
             assert.ok(comparisons?.children.some(({value}) => value === "="));
         } finally {
             if (previousParser) Object.defineProperty(globalThis, "DOMParser", previousParser);
@@ -76,6 +82,7 @@ for (const engine of ["umbra", "cedardb"]) {
 }
 
 test("additional Postgres and DuckDB scan variants drill down to table names", () => {
+    // Exercise scan spellings absent from the shared example plans without adding full fixtures.
     for (const [format, properties, scanType] of [
         [
             "postgres",
@@ -104,6 +111,7 @@ test("additional Postgres and DuckDB scan variants drill down to table names", (
             node,
             definitions.find(({id}) => id === "operators")!,
         );
+        // The same relation appears in the flat insight and beneath its engine-specific scan type.
         assert.equal(scanned[0].value, "orders");
         assert.equal(operators.find(({value}) => value === scanType)?.children[0]?.value, "orders");
     }
@@ -112,6 +120,7 @@ test("additional Postgres and DuckDB scan variants drill down to table names", (
 const node = (properties: Record<string, string>): TreeNode => ({properties: new Map(Object.entries(properties))});
 
 function assertAdditive(categories: readonly CategoricalInsightCategory[]) {
+    // Every deeper level partitions the same occurrences as its parent, rather than recounting nodes.
     for (const category of categories) {
         if (category.children.length) {
             assert.equal(
@@ -143,6 +152,7 @@ test("Hyper inventory includes hidden occurrences, missing values, and unfamilia
         root,
         insightPresets.hyper.find(({id}) => id === "operators")!,
     );
+    // Visible and collapsed occurrences count equally, including new operator tags unknown to this preset.
     assert.equal(
         groups.reduce((sum, category) => sum + category.nodes.length, 0),
         9,
@@ -152,6 +162,7 @@ test("Hyper inventory includes hidden occurrences, missing values, and unfamilia
         ["scan", "join", "future-operator", "intersect-all", "union-all"],
     );
     const scans = groups[0];
+    // Only scan operators drill into storage type, then table name; missing fields use explicit fallbacks.
     assert.deepEqual(
         scans.children.map((category) => category.value),
         ["native", "Unknown storage"],
@@ -179,6 +190,7 @@ test("Hyper expressions group comparisons by mode without expanding IU reference
         insightPresets.hyper.find(({id}) => id === "expressions")!,
     );
     assertAdditive(groups);
+    // IU names and result types are intentionally not inventory levels in this version.
     assert.equal(groups.find((category) => category.value === "iu-ref")?.children.length, 0);
     assert.equal(groups.find((category) => category.value === "future-expression")?.children.length, 0);
     assert.deepEqual(
@@ -193,6 +205,7 @@ test("Hyper external scans use the schema table-name ahead of debug names", () =
         scan,
         insightPresets.hyper.find(({id}) => id === "operators")!,
     );
+    // The external scan's schema table-name takes precedence over its debug alias.
     assert.equal(groups[0].children[0].children[0].value, "public.orders");
     assertAdditive(groups);
 });
@@ -202,6 +215,7 @@ test("unfamiliar operator tags remain visible even when they match object method
         node({operator: "toString"}),
         insightPresets.hyper.find(({id}) => id === "operators")!,
     );
+    // The label is data, so a name inherited from Object.prototype must remain a category.
     assert.equal(groups[0].value, "toString");
     assert.equal(groups[0].children.length, 0);
 });
@@ -234,6 +248,8 @@ test("table name insight groups Hyper scans across collapsed subtrees with name 
         ],
     };
 
+    // Non-scans are excluded; repeated names combine across collapsed and visible subtrees.
+    // For external scans, table-name wins over debug-name, and unnamed scans keep a fallback row.
     assert.deepEqual(
         computeCategoricalInsight(
             root,

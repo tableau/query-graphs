@@ -41,6 +41,7 @@ test("an uncontrolled panel exposes and toggles its disclosure state", async () 
         assert.ok(toggle);
         assert.ok(content);
 
+        // The header exposes title and highlight status even while the body is closed.
         // The collapsed body remains mounted and is associated with the disclosure button.
         assert.ok(panel.classList.contains("custom-panel"));
         assert.ok(panel.classList.contains("qg-highlighted"));
@@ -83,6 +84,7 @@ test("a controlled panel reports changes without changing itself", async () => {
         assert.equal(toggle.ariaExpanded, "false");
         assert.ok(content.hidden);
 
+        // New props, rather than clicks, move a controlled panel between open and closed states.
         await fixture.render({open: true});
         assert.equal(toggle.ariaExpanded, "true");
         assert.equal(content.hidden, false);

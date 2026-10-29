@@ -26,17 +26,21 @@ test("tree keyboard navigation follows visible rows and reserves Enter", async (
             category("sibling", node),
         ]);
         const [parent, sibling] = rows(fixture.document);
+        // Only the first visible row participates in the page's Tab order initially.
         assert.equal(parent.tabIndex, 0);
         assert.equal(sibling.tabIndex, -1);
         await React.act(async () => parent.focus());
+        // Enter is reserved for future row actions; Right and Space control disclosure.
         await fixture.key(parent, "Enter");
         assert.equal(parent.getAttribute("aria-expanded"), "false");
         await fixture.key(parent, "ArrowRight");
+        // Expansion inserts children into the visible navigation order.
         assert.deepEqual(
             rows(fixture.document).map((row) => row.dataset.label),
             ["parent", "first", "second", "sibling"],
         );
         const [, first, second] = rows(fixture.document);
+        // Right enters an open group; vertical arrows move through its visible rows.
         await fixture.key(parent, "ArrowRight");
         assert.equal(fixture.document.activeElement, first);
         await fixture.key(first, "ArrowDown");
@@ -45,12 +49,14 @@ test("tree keyboard navigation follows visible rows and reserves Enter", async (
         assert.equal(fixture.document.activeElement, first);
         await fixture.key(first, "ArrowLeft");
         assert.equal(fixture.document.activeElement, parent);
+        // Home and End target the first and last visible rows in this tree.
         await fixture.key(parent, "End");
         assert.equal(fixture.document.activeElement, sibling);
         await fixture.key(sibling, "Home");
         assert.equal(fixture.document.activeElement, parent);
         await fixture.key(parent, " ");
         assert.equal(parent.getAttribute("aria-expanded"), "false");
+        // Closing hides descendants and still leaves exactly one tab stop.
         assert.deepEqual(
             rows(fixture.document).map((row) => row.dataset.label),
             ["parent", "sibling"],
@@ -71,11 +77,13 @@ test("closing and reopening restores descendants, while new categories reset exp
         await fixture.key(parent, "ArrowRight");
         const child = rows(fixture.document)[1];
         await fixture.key(child, "ArrowRight");
+        // Both expansion choices are active before closing the ancestor.
         assert.deepEqual(
             rows(fixture.document).map((row) => row.dataset.label),
             ["parent", "child", "grandchild"],
         );
         await fixture.key(parent, "ArrowLeft");
+        // A closed ancestor hides its descendants without discarding their expansion choices.
         assert.deepEqual(
             rows(fixture.document).map((row) => row.dataset.label),
             ["parent"],
@@ -85,6 +93,7 @@ test("closing and reopening restores descendants, while new categories reset exp
             rows(fixture.document).map((row) => row.dataset.label),
             ["parent", "child", "grandchild"],
         );
+        // Recomputed category objects represent a new result and reset tree interaction state.
         await renderTree(fixture, makeCategories());
         parent = rows(fixture.document)[0];
         assert.equal(parent.getAttribute("aria-expanded"), "false");
@@ -101,8 +110,10 @@ test("typeahead keeps a matching prefix and does not cycle on repeated letters",
         await renderTree(fixture, [category("nation", node), category("part", node), category("partsupp", node)]);
         const [nation, part] = rows(fixture.document);
         await React.act(async () => nation.focus());
+        // The first letter finds a matching visible row from the current position.
         await fixture.key(nation, "p");
         assert.equal(fixture.document.activeElement, part);
+        // Extending a prefix that still matches the focused row must not jump to partsupp.
         for (const letter of "art") {
             await fixture.key(part, letter);
             assert.equal(fixture.document.activeElement, part);
@@ -110,6 +121,7 @@ test("typeahead keeps a matching prefix and does not cycle on repeated letters",
         await renderTree(fixture, [category("part", node), category("partsupp", node)]);
         const first = rows(fixture.document)[0];
         await React.act(async () => first.focus());
+        // Repeating a letter does not cycle between matches.
         await fixture.key(first, "p");
         await fixture.key(first, "p");
         assert.equal(fixture.document.activeElement, first);
@@ -145,11 +157,13 @@ test("source, pointer, and focus select only the deepest displayed category", as
         ];
         await renderTree(fixture, categories);
         const scan = rows(fixture.document)[0];
+        // Source selection picks the deepest category currently displayed for the hidden node.
         await React.act(async () => store.getState().setActiveSourceLocations("query", virtual.sourceLocations!));
         assert.deepEqual(active(), ["scan"]);
         await fixture.key(scan, "ArrowRight");
         assert.deepEqual(active(), ["virtual"]);
         const nativeRow = rows(fixture.document)[1];
+        // Pointer interaction overrides the source selection, then restores it on exit.
         await React.act(async () =>
             nativeRow
                 .querySelector<HTMLElement>(".qg-category-tree-category")!
@@ -165,11 +179,13 @@ test("source, pointer, and focus select only the deepest displayed category", as
         assert.deepEqual(active(), ["virtual"]);
         await React.act(async () => store.getState().setActiveSourceLocations("query", []));
         await React.act(async () => nativeRow.focus());
+        // Focus selects the exact row even when its child covers the same node IDs.
         assert.deepEqual(active(), ["native"]);
         await fixture.key(nativeRow, "ArrowRight");
         assert.deepEqual(active(), ["native"]);
         await React.act(async () => nativeRow.blur());
         await React.act(async () => store.getState().setHoveredNodeIds(new Set(["1"])));
+        // Graph hover follows the deepest open level, then falls back as levels close.
         assert.deepEqual(active(), ["orders"]);
         await fixture.key(nativeRow, "ArrowLeft");
         assert.deepEqual(active(), ["native"]);

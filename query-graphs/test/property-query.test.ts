@@ -10,9 +10,11 @@ test("property paths read plain properties and nested serialized values", () => 
             ["empty", ""],
         ]),
     };
+    // A one-segment path returns the stored string; longer paths decode its JSON value.
     assert.equal(accessPropertyPath(node, ["debug-name"]), '{"value":"region","rank":3}');
     assert.equal(accessPropertyPath(node, ["debug-name", "value"]), "region");
     assert.equal(accessPropertyPath(node, ["debug-name", "rank"]), 3);
+    // Missing keys, non-object values, and malformed JSON yield no category value.
     assert.equal(accessPropertyPath(node, ["debug-name", "missing"]), undefined);
     assert.equal(accessPropertyPath(node, ["empty", "value"]), undefined);
     assert.equal(accessPropertyPath({properties: new Map([["broken", "{not json"]])}, ["broken", "value"]), undefined);
@@ -42,8 +44,10 @@ test("composed predicates select nodes by presence and nested values", () => {
             {op: "not", operand: {op: "exists", path: ["missing"]}},
         ],
     };
+    // An empty string still satisfies exists; all/any/not compose with nested JSON equality.
     assert.equal(evaluatePredicate(node, predicate), true);
     assert.equal(evaluatePredicate({properties: new Map([["operator", "join"]])}, predicate), false);
+    // Empty conjunctions and disjunctions retain their usual Boolean identities.
     assert.equal(evaluatePredicate(node, {op: "all", operands: []}), true);
     assert.equal(evaluatePredicate(node, {op: "any", operands: []}), false);
 });

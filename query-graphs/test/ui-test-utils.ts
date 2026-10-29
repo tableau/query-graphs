@@ -19,6 +19,7 @@ export function testGraphStore(
     parents: ReadonlyMap<string, string> = new Map(),
     collapsedSubtreeRootIds: ReadonlySet<string> = new Set(),
 ): GraphRenderingStore {
+    // Assign predictable IDs so interaction tests can assert exact highlighted node sets.
     const nodeIds = new Map(nodes.map((node, index): [TreeNode, string] => [node, String(index)]));
     return createGraphRenderingStore({
         graphIndex: {
@@ -30,6 +31,7 @@ export function testGraphStore(
 }
 
 export function createUiFixture(store?: GraphRenderingStore) {
+    // Preserve process-wide browser globals because the test runner shares one process across files.
     const dom = new JSDOM("<main></main>", {pretendToBeVisual: true});
     const globalNames = ["window", "document", "Node", "HTMLElement", "Event"] as const;
     const previousGlobals = new Map(globalNames.map((name) => [name, Object.getOwnPropertyDescriptor(globalThis, name)]));
