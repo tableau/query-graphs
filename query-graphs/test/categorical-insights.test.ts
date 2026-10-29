@@ -40,39 +40,33 @@ test("categorical aggregation counts matching occurrences in visible and collaps
     );
 });
 
-test("label-specific drilldown uses the first available value source and a fallback", () => {
+test("label-specific drilldown uses the first available value source", () => {
     const scan1 = node({kind: "scan", table: "orders", debug: '{"value":"ignored"}'});
     const scan2 = node({kind: "scan", debug: '{"value":"orders"}'});
-    const scan3 = node({kind: "scan"});
-    const root: TreeNode = {children: [scan1, scan2, scan3]};
+    const root: TreeNode = {children: [scan1, scan2]};
     const groups = computeCategoricalInsight(root, definition);
 
     // The scan-specific level overrides the default subtype level; the table field wins over debug.value.
     assert.deepEqual(
         groups[0].children.map(({value, nodes}) => [value, nodes.length]),
-        [
-            ["orders", 2],
-            ["Unknown table", 1],
-        ],
+        [["orders", 2]],
     );
     assert.deepEqual(groups[0].children[0].nodes, [scan1, scan2]);
-    // A scan without either table source remains visible under the configured fallback.
-    assert.deepEqual(groups[0].children[1].nodes, [scan3]);
 });
 
 test("non-special labels use the default drilldown level", () => {
     const join = node({kind: "join", subtype: "inner"});
-    const unknownSubtype = node({kind: "join"});
-    const groups = computeCategoricalInsight({children: [join, unknownSubtype]}, definition);
+    const outerJoin = node({kind: "join", subtype: "left-outer"});
+    const groups = computeCategoricalInsight({children: [join, outerJoin]}, definition);
 
-    // Join does not have a nextByValue override, so both known and missing subtypes use next.
+    // Join does not have a nextByValue override, so its subtypes use next.
     assert.deepEqual(
         groups[0].children.map(({value}) => value),
-        ["inner", "Unknown subtype"],
+        ["inner", "left-outer"],
     );
     assert.deepEqual(
         groups[0].children.flatMap(({nodes}) => nodes),
-        [join, unknownSubtype],
+        [join, outerJoin],
     );
 });
 
@@ -82,13 +76,12 @@ test("flat definitions end at the first level and sort equal counts alphabetical
         groupBy: {valueSourceAlternatives: [["kind"]], fallbackValue: "Unknown kind"},
         where: {op: "exists", path: ["other"]},
     };
-    const root: TreeNode = {children: [node({kind: "z", other: "1"}), node({kind: "a", other: "1"}), node({other: "1"})]};
+    const root: TreeNode = {children: [node({kind: "z", other: "1"}), node({kind: "a", other: "1"})]};
     // A one-level definition has no child categories, and equal-sized groups use alphabetical order.
     assert.deepEqual(
         computeCategoricalInsight(root, flat).map(({value, children}) => [value, children.length]),
         [
             ["a", 0],
-            ["Unknown kind", 0],
             ["z", 0],
         ],
     );

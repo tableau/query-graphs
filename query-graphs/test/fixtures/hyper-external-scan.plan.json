@@ -1,0 +1,6 @@
+{
+  "operator": "scan",
+  "type": "iceberg",
+  "table-name": "public.orders",
+  "debug-name": {"value": "debug alias"}
+}

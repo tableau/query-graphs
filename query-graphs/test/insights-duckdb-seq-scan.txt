@@ -1,0 +1,7 @@
+Scanned Tables: 1
+  - "temp".main.region: 1
+
+Operators: 2
+  - PROJECTION: 1
+  - SEQ_SCAN: 1
+    - "temp".main.region: 1
