@@ -31,16 +31,23 @@ export function testGraphStore(
 }
 
 export function createUiFixture(store?: GraphRenderingStore) {
-    // Preserve process-wide browser globals because the test runner shares one process across files.
+    // Give each component test its own document and React root.
     const dom = new JSDOM("<main></main>", {pretendToBeVisual: true});
+
+    // React's DOM event handling uses browser globals. Save their descriptors because
+    // the test runner shares one process and cleanup must restore the previous environment.
     const globalNames = ["window", "document", "Node", "HTMLElement", "Event"] as const;
     const previousGlobals = new Map(globalNames.map((name) => [name, Object.getOwnPropertyDescriptor(globalThis, name)]));
     for (const name of globalNames)
         Object.defineProperty(globalThis, name, {configurable: true, writable: true, value: dom.window[name]});
+
+    // React.act needs its test-environment flag; React is also exposed for components
+    // that expect the global JSX runtime. Restore both along with the DOM globals.
     const previousActEnvironment = Object.getOwnPropertyDescriptor(globalThis, "IS_REACT_ACT_ENVIRONMENT");
     const previousReact = Object.getOwnPropertyDescriptor(globalThis, "React");
     Object.defineProperty(globalThis, "IS_REACT_ACT_ENVIRONMENT", {configurable: true, writable: true, value: true});
     Object.defineProperty(globalThis, "React", {configurable: true, writable: true, value: React});
+
     const root = createRoot(dom.window.document.querySelector("main")!);
 
     return {
