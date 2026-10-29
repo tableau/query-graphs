@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import test from "node:test";
-import {JSDOM} from "jsdom";
 import type {TreeNode} from "../src/tree-description";
 import {computeCategoricalInsight, type CategoricalInsightCategory} from "../src/insights/categorical";
 import {insightPresets} from "../src/insights/presets";
@@ -19,65 +18,47 @@ const examples = [
 // These real plans guard the loader-to-preset boundary for each supported engine and scan spelling.
 for (const [format, file, scanType, tableName] of examples) {
     test(`${file} has a configured inventory`, () => {
-        const dom = new JSDOM();
-        const previousParser = Object.getOwnPropertyDescriptor(globalThis, "DOMParser");
-        Object.defineProperty(globalThis, "DOMParser", {configurable: true, value: dom.window.DOMParser});
-        try {
-            const text = readFileSync(new URL(`../../standalone-app/examples/${file}`, import.meta.url), "utf8");
-            const loaded = loadPlanFromText(text);
-            // Recognition must select the preset whose property paths match the loaded plan.
-            assert.equal(loaded.format, format);
-            const preset = insightPresets[loaded.format];
-            assert.ok(preset.length > 0);
-            const scannedTables = computeCategoricalInsight(
-                loaded.tree.root,
-                preset.find(({id}) => id === "table-names")!,
-            );
-            // The flat scanned-tables insight and the operator drilldown must agree on the table name.
-            assert.ok(scannedTables.some(({value}) => value === tableName));
-            const operators = computeCategoricalInsight(
-                loaded.tree.root,
-                preset.find(({id}) => id === "operators")!,
-            );
-            const scan = operators.find(({value}) => value === scanType);
-            const tableCategories =
-                format === "hyper" ? scan?.children.find(({value}) => value === "native")?.children : scan?.children;
-            // Hyper has a storage-type level between scan and table; the other engines go directly to tables.
-            assert.ok(tableCategories?.some(({value}) => value === tableName));
-        } finally {
-            if (previousParser) Object.defineProperty(globalThis, "DOMParser", previousParser);
-            else Reflect.deleteProperty(globalThis, "DOMParser");
-            dom.window.close();
-        }
+        const text = readFileSync(new URL(`../../standalone-app/examples/${file}`, import.meta.url), "utf8");
+        const loaded = loadPlanFromText(text);
+        // Recognition must select the preset whose property paths match the loaded plan.
+        assert.equal(loaded.format, format);
+        const preset = insightPresets[loaded.format];
+        assert.ok(preset.length > 0);
+        const scannedTables = computeCategoricalInsight(
+            loaded.tree.root,
+            preset.find(({id}) => id === "table-names")!,
+        );
+        // The flat scanned-tables insight and the operator drilldown must agree on the table name.
+        assert.ok(scannedTables.some(({value}) => value === tableName));
+        const operators = computeCategoricalInsight(
+            loaded.tree.root,
+            preset.find(({id}) => id === "operators")!,
+        );
+        const scan = operators.find(({value}) => value === scanType);
+        const tableCategories =
+            format === "hyper" ? scan?.children.find(({value}) => value === "native")?.children : scan?.children;
+        // Hyper has a storage-type level between scan and table; the other engines go directly to tables.
+        assert.ok(tableCategories?.some(({value}) => value === tableName));
     });
 }
 
 for (const engine of ["umbra", "cedardb"]) {
     test(`${engine} inventory groups set operations and comparisons by subtype`, () => {
-        const dom = new JSDOM();
-        const previousParser = Object.getOwnPropertyDescriptor(globalThis, "DOMParser");
-        Object.defineProperty(globalThis, "DOMParser", {configurable: true, value: dom.window.DOMParser});
-        try {
-            const loadExample = (file: string) =>
-                loadPlanFromText(readFileSync(new URL(`../../standalone-app/examples/${engine}/${file}`, import.meta.url), "utf8"));
-            const setOperations = computeCategoricalInsight(
-                loadExample("setoperation-analyze.plan.json").tree.root,
-                insightPresets.umbra.find(({id}) => id === "operators")!,
-            ).find(({value}) => value === "setoperation");
-            // Both engines use the Umbra preset and keep operation semantics as the second level.
-            assert.ok(setOperations?.children.some(({value}) => value === "unionall"));
+        const loadExample = (file: string) =>
+            loadPlanFromText(readFileSync(new URL(`../../standalone-app/examples/${engine}/${file}`, import.meta.url), "utf8"));
+        const setOperations = computeCategoricalInsight(
+            loadExample("setoperation-analyze.plan.json").tree.root,
+            insightPresets.umbra.find(({id}) => id === "operators")!,
+        ).find(({value}) => value === "setoperation");
+        // Both engines use the Umbra preset and keep operation semantics as the second level.
+        assert.ok(setOperations?.children.some(({value}) => value === "unionall"));
 
-            const comparisons = computeCategoricalInsight(
-                loadExample("magicunnesting-analyze.plan.json").tree.root,
-                insightPresets.umbra.find(({id}) => id === "expressions")!,
-            ).find(({value}) => value === "compare");
-            // Comparison expressions likewise drill into their comparison operator.
-            assert.ok(comparisons?.children.some(({value}) => value === "="));
-        } finally {
-            if (previousParser) Object.defineProperty(globalThis, "DOMParser", previousParser);
-            else Reflect.deleteProperty(globalThis, "DOMParser");
-            dom.window.close();
-        }
+        const comparisons = computeCategoricalInsight(
+            loadExample("magicunnesting-analyze.plan.json").tree.root,
+            insightPresets.umbra.find(({id}) => id === "expressions")!,
+        ).find(({value}) => value === "compare");
+        // Comparison expressions likewise drill into their comparison operator.
+        assert.ok(comparisons?.children.some(({value}) => value === "="));
     });
 }
 
