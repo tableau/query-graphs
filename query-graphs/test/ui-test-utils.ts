@@ -29,7 +29,7 @@ export function testGraphStore(
     });
 }
 
-export function createUiFixture(store: GraphRenderingStore) {
+export function createUiFixture(store?: GraphRenderingStore) {
     const dom = new JSDOM("<main></main>", {pretendToBeVisual: true});
     const globalNames = ["window", "document", "Node", "HTMLElement", "Event"] as const;
     const previousGlobals = new Map(globalNames.map((name) => [name, Object.getOwnPropertyDescriptor(globalThis, name)]));
@@ -46,7 +46,7 @@ export function createUiFixture(store: GraphRenderingStore) {
         store,
         async render(element: React.ReactNode) {
             await React.act(async () =>
-                root.render(React.createElement(GraphRenderingStoreContext.Provider, {value: store}, element)),
+                root.render(store ? React.createElement(GraphRenderingStoreContext.Provider, {value: store}, element) : element),
             );
         },
         async key(row: HTMLElement, key: string) {
