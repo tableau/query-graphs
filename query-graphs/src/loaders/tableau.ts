@@ -8,7 +8,7 @@ and convert its existing hierarchy into a query tree.
 
 */
 
-import type {IconName, TreeNode} from "../tree-description";
+import type {IconName, PropertyEntry, TreeNode} from "../tree-description";
 import type {ParsedXML} from "./xml";
 import type {PlanLoader} from "./types";
 
@@ -42,16 +42,16 @@ interface NodeRenderingDescription {
     icon?: IconName;
 }
 
-function extractProperty(properties: Map<string, string>, key: string) {
-    const value = properties.get(key);
+function extractProperty(properties: Map<string, PropertyEntry>, key: string) {
+    const value = properties.get(key)?.value.toString();
     properties.delete(key);
     return value;
 }
 
-function getNodeRenderingConfig(tag: string, properties: Map<string, string>): NodeRenderingDescription {
+function getNodeRenderingConfig(tag: string, properties: Map<string, PropertyEntry>): NodeRenderingDescription {
     switch (tag) {
         case "join": {
-            const joinType = properties.get("join");
+            const joinType = properties.get("join")?.value.toString();
             const joinIcons = {
                 inner: "inner-join-symbol",
                 outer: "full-join-symbol",
@@ -64,20 +64,20 @@ function getNodeRenderingConfig(tag: string, properties: Map<string, string>): N
         case "aggregate":
             return {displayName: tag, icon: "groupby-symbol"};
         case "relation":
-            return {displayName: properties.get("name") ?? tag, icon: "table-symbol"};
+            return {displayName: properties.get("name")?.value.toString() ?? tag, icon: "table-symbol"};
         case "tuples":
-            return {displayName: properties.get("alias") ?? tag, icon: "table-symbol"};
+            return {displayName: properties.get("alias")?.value.toString() ?? tag, icon: "table-symbol"};
         case "select":
             return {displayName: tag, icon: "filter-symbol"};
         case "runquery":
             return {displayName: tag, icon: "run-query-symbol"};
         case "fed-op": {
-            const clazz = properties.get("class");
+            const clazz = properties.get("class")?.value.toString();
             switch (clazz) {
                 case "createtemptable":
                 case "createtemptablefromquery":
                 case "createtemptablefromtuples":
-                    return {displayName: properties.get("table") ?? clazz, icon: "temp-table-symbol"};
+                    return {displayName: properties.get("table")?.value.toString() ?? clazz, icon: "temp-table-symbol"};
                 case "runquery":
                     return {displayName: tag, icon: "run-query-symbol"};
             }
@@ -90,9 +90,9 @@ function getNodeRenderingConfig(tag: string, properties: Map<string, string>): N
         case "funcallExp":
             return {displayName: extractProperty(properties, "function") ?? tag};
         case "literal":
-            return {displayName: properties.get("datatype") + ":" + properties.get("value")};
+            return {displayName: properties.get("datatype")?.value + ":" + properties.get("value")?.value};
         case "referenceExp":
-            return {displayName: "ref:" + properties.get("ref")};
+            return {displayName: "ref:" + properties.get("ref")?.value};
         case "condition":
             return {displayName: extractProperty(properties, "op") ?? tag};
         case "binding":
@@ -113,18 +113,18 @@ function convertXML(xml: ParsedXML): TreeNode {
     let tag = xml.tag;
 
     // The properties
-    const properties = new Map<string, string>();
+    const properties = new Map<string, PropertyEntry>();
     const text: string | undefined = xml.text?.trim();
-    if (text) properties.set("~text", text);
+    if (text) properties.set("~text", {value: text});
     if (xml.attrs) {
         for (const key of Object.keys(xml.attrs)) {
-            properties.set(key, xml.attrs[key]);
+            properties.set(key, {value: xml.attrs[key]});
         }
     }
 
     // Normalize the representation of logical operators
-    const operatorType = normalizeLogicalOperator(tag, properties.get("class"));
-    const exprType = normalizeLogicalExpression(tag, properties.get("class"));
+    const operatorType = normalizeLogicalOperator(tag, properties.get("class")?.value.toString());
+    const exprType = normalizeLogicalExpression(tag, properties.get("class")?.value.toString());
     if (operatorType) {
         properties.delete("class");
         tag = operatorType;

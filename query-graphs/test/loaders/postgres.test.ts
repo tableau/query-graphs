@@ -74,8 +74,8 @@ test("Postgres computes relative execution time", () => {
     }).tree;
     const scan = tree.root.children?.[0];
 
-    assert.equal(scan?.properties?.get("~Relative Time"), "4.000");
-    assert.equal(scan?.properties?.get("~Relative Time Ratio"), "0.800");
+    assert.deepEqual(scan?.properties?.get("~Relative Time"), {value: "4.000"});
+    assert.deepEqual(scan?.properties?.get("~Relative Time Ratio"), {value: "0.800"});
     assert.notEqual(scan?.nodeColor, undefined);
 });
 

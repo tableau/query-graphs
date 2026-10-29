@@ -1,9 +1,10 @@
-import type {ReactElement, MouseEvent} from "react";
+import type {MouseEvent} from "react";
 import {memo, useCallback} from "react";
 import type {Node, NodeProps} from "@xyflow/react";
 import {Handle, Position} from "@xyflow/react";
 import cc from "classcat";
 import type {TreeNode} from "../tree-description";
+import {PropertyList} from "./PropertyList";
 import {NodeIcon} from "./NodeIcon";
 import "./PanelSurface.css";
 import "./QueryNode.css";
@@ -49,14 +50,7 @@ function QueryNode({data, id}: NodeProps<QueryGraphNode>) {
         [animateGraphChange, toggleSubtree, hasSubtree, id],
     );
 
-    const children = [] as ReactElement[];
-    for (const [key, value] of (data.properties || []).entries()) {
-        children.push(
-            <div key={key}>
-                <span className="qg-prop-name">{key}:</span> <span className="qg-prop-value">{value}</span>
-            </div>,
-        );
-    }
+    const children = <PropertyList properties={data.properties} />;
 
     const nodeClassName = cc([
         "qg-graph-node",

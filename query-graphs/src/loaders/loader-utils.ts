@@ -1,3 +1,6 @@
+import type {PropertyEntry} from "../tree-description";
+import {numberFormatForProperty, type NumberFormat} from "../number-formats";
+
 // Stricter type for JSON data
 type JsonPrimitive = string | number | boolean | null;
 export type Json = JsonPrimitive | JsonObject | JsonArray;
@@ -60,6 +63,14 @@ export function forceToString(d: unknown): string {
     return str;
 }
 
+export function toPropertyEntry(value: unknown, key?: string, acceptedFormats?: readonly NumberFormat[]): PropertyEntry {
+    const scalarValue = typeof value === "number" && !Number.isFinite(value) ? String(value) : value;
+    const scalar = typeof scalarValue === "number" ? scalarValue : forceToString(scalarValue);
+    const numberFormat =
+        typeof scalar === "number" && key !== undefined ? numberFormatForProperty(key, acceptedFormats) : undefined;
+    return numberFormat === undefined ? {value: scalar} : {value: scalar, numberFormat};
+}
+
 export function tryToNumber(value: unknown): number | undefined {
     if (typeof value === "number") {
         return Number.isFinite(value) ? value : undefined;
@@ -69,15 +80,4 @@ export function tryToNumber(value: unknown): number | undefined {
         return Number.isFinite(parsed) ? parsed : undefined;
     }
     return undefined;
-}
-
-// Format a number using metric suffixes
-export function formatMetric(x: number): string {
-    const sizes = ["", "k", "M", "G", "T", "P", "E", "Z", "Y"];
-    let idx = 0;
-    while (x > 1000 && idx < sizes.length - 1) {
-        x /= 1000;
-        ++idx;
-    }
-    return x.toFixed(0) + sizes[idx];
 }

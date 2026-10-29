@@ -11,7 +11,7 @@ test("Hyper examples are recognized", () => {
 
 test("Hyper error examples highlight their metadata", () => {
     const tree = loadFixture("hyper/tpch-q11-error-analyze.plan.json").tree;
-    assert.equal(tree.metadata?.get("Error"), "division by zero");
+    assert.equal(tree.metadata?.get("Error")?.value, "division by zero");
     assert.equal(tree.metadataHighlighted, true);
 });
 
@@ -37,9 +37,9 @@ test("Hyper applies rendering, ordering, metrics, and crosslinks", () => {
     const details = tree.root.collapsedChildren?.[0];
 
     assert.equal(tree.root.name, "left-outer");
-    assert.equal(tree.root.properties?.get("operator"), "join");
-    assert.equal(left?.properties?.get("operator"), "scan");
-    assert.equal(left?.properties?.get("type"), "virtual-table");
+    assert.equal(tree.root.properties?.get("operator")?.value, "join");
+    assert.equal(left?.properties?.get("operator")?.value, "scan");
+    assert.equal(left?.properties?.get("type")?.value, "virtual-table");
     assert.equal(tree.root.icon, "left-join-symbol");
     assert.equal(tree.root.nodeColor, "light-dark(hsl(309 84% 72.000%), hsl(309 45% 36.000%))");
     assert.equal(tree.root.edgeLabel, "100/1");
@@ -116,13 +116,16 @@ test("Hyper applies pipeline-level runtime statistics to the pipeline driver", (
     ).tree;
     const sort = failedPlan.root.children?.[0];
     const scan = sort?.children?.[0];
-    assert.equal(failedPlan.metadata?.get("Error"), "query failed");
+    assert.equal(failedPlan.metadata?.get("Error")?.value, "query failed");
     assert.equal(failedPlan.metadataHighlighted, true);
     assert.equal(
-        sort?.properties?.get("pipeline-stats"),
+        sort?.properties?.get("pipeline-stats")?.value,
         '{"cpu-cycles":100,"query-metrics":{"wall-clock":0.25,"custom":7},"running":true}',
     );
-    assert.equal(scan?.properties?.get("pipeline-stats"), '{"cpu-cycles":25,"query-metrics":{"wall-clock":0.1},"running":false}');
+    assert.equal(
+        scan?.properties?.get("pipeline-stats")?.value,
+        '{"cpu-cycles":25,"query-metrics":{"wall-clock":0.1},"running":false}',
+    );
     assert.equal(failedPlan.metadata?.has("Pipeline statistics"), false);
     assert.equal(failedPlan.root.iconColor, "var(--qg-danger)");
     assert.equal(sort?.iconColor, "var(--qg-danger)");
@@ -146,8 +149,8 @@ test("Hyper optimizer steps preserve additional envelope fields", () => {
     );
 
     assert.equal(loaded.format, "hyper");
-    assert.equal(loaded.tree.root.properties?.get("version"), "2");
-    assert.equal(loaded.tree.root.children?.[0].properties?.get("cost"), "42");
+    assert.equal(loaded.tree.root.properties?.get("version")?.value, 2);
+    assert.equal(loaded.tree.root.children?.[0].properties?.get("cost")?.value, 42);
     assert.equal(loaded.tree.root.children?.[0].children?.[0].name, "scan");
 });
 

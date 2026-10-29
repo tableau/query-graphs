@@ -1,3 +1,5 @@
+import type {NumberFormat} from "./number-formats";
+
 export type IconName =
     | "run-query-symbol"
     | "filter-symbol"
@@ -11,6 +13,21 @@ export type IconName =
     | "temp-table-symbol"
     | "virtual-table-symbol"
     | "const-table-symbol";
+
+export interface PropertyEntry {
+    value: string | number;
+    numberFormat?: NumberFormat;
+}
+
+export function getScalarProperty(properties: Map<string, PropertyEntry> | undefined, key: string): string | undefined {
+    const value = properties?.get(key)?.value;
+    return typeof value === "string" ? value : typeof value === "number" ? value.toString() : undefined;
+}
+
+export function getNumericProperty(properties: Map<string, PropertyEntry> | undefined, key: string): number | undefined {
+    const value = properties?.get(key)?.value;
+    return typeof value === "number" && Number.isFinite(value) ? value : undefined;
+}
 
 // Must be a `type` instead of the usual `interface`.
 // xyflow's `Node<NodeData>` requires NodeData to satisfy `Record<string, unknown>` and
@@ -26,8 +43,8 @@ export type TreeNode = {
     icon?: IconName;
     // The color for the icon
     iconColor?: string;
-    // Rendered in the tooltip
-    properties?: Map<string, string>;
+    // Rendered in the detail panel
+    properties?: Map<string, PropertyEntry>;
     // Ranges in associated text documents represented by this node
     sourceLocations?: SourceLocation[];
 
@@ -88,7 +105,7 @@ export interface TreeDescription {
     /// The tree root
     root: TreeNode;
     /// Metadata about the graph; displayed in the top-level tree label
-    metadata?: Map<string, string>;
+    metadata?: Map<string, PropertyEntry>;
     /// Whether the metadata panel should be visually highlighted
     metadataHighlighted?: boolean;
     /// Additional links between indirectly related nodes
