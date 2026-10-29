@@ -17,6 +17,50 @@ async function renderTree(fixture: ReturnType<typeof createUiFixture>, categorie
     await fixture.render(React.createElement(CategoryTree, {title: "Example", categories}));
 }
 
+test("tree renders nested labels and occurrence counts at each level", async () => {
+    const first: TreeNode = {};
+    const second: TreeNode = {};
+    const fixture = createUiFixture(testGraphStore([first, second]));
+    try {
+        await renderTree(fixture, [
+            {
+                value: "scan",
+                nodes: [first, second],
+                children: [category("native", first, [category("orders", first)]), category("external", second)],
+            },
+        ]);
+        const tree = fixture.document.querySelector<HTMLElement>('[role="tree"]')!;
+        const scan = tree.querySelector<HTMLElement>(':scope > [role="treeitem"]')!;
+        // The root starts collapsed and announces the count of all descendant occurrences.
+        assert.equal(tree.getAttribute("aria-label"), "Example");
+        assert.equal(scan.getAttribute("aria-label"), "scan: 2");
+        assert.equal(scan.getAttribute("aria-expanded"), "false");
+        assert.deepEqual(
+            rows(fixture.document).map((row) => row.dataset.label),
+            ["scan"],
+        );
+
+        await fixture.key(scan, "ArrowRight");
+        const children = [...scan.querySelectorAll<HTMLElement>(':scope > [role="group"] > [role="treeitem"]')];
+        // The next level is nested under the parent, with counts for its own occurrences.
+        assert.deepEqual(
+            children.map((row) => [row.dataset.label, row.getAttribute("aria-label")]),
+            [
+                ["native", "native: 1"],
+                ["external", "external: 1"],
+            ],
+        );
+        await fixture.key(children[0], "ArrowRight");
+        // A third level remains under native and has its own leaf count.
+        assert.equal(
+            children[0].querySelector(':scope > [role="group"] > [role="treeitem"]')?.getAttribute("aria-label"),
+            "orders: 1",
+        );
+    } finally {
+        await fixture.cleanup();
+    }
+});
+
 test("tree keyboard navigation follows visible rows and reserves Enter", async () => {
     const node: TreeNode = {};
     const fixture = createUiFixture(testGraphStore([node]));
