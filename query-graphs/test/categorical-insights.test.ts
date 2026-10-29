@@ -22,23 +22,32 @@ const definition: CategoricalInsightDefinition = {
 
 const node = (properties: Record<string, string>): TreeNode => ({properties: new Map(Object.entries(properties))});
 
-test("categorical aggregation counts collapsed occurrences once and partitions each level", () => {
+test("categorical aggregation counts matching occurrences in visible and collapsed subtrees", () => {
+    const visible = node({kind: "scan", table: "orders"});
+    const collapsed = node({kind: "scan", table: "orders"});
+    const root: TreeNode = {children: [visible], collapsedChildren: [collapsed, node({other: "ignored"})]};
+    const groups = computeCategoricalInsight(root, definition);
+
+    // Hidden nodes count exactly once; nodes rejected by where do not appear in any category.
+    assert.deepEqual(
+        groups.map(({value, nodes}) => [value, nodes]),
+        [["scan", [visible, collapsed]]],
+    );
+    // A deeper level partitions the same occurrences as its parent.
+    assert.deepEqual(
+        groups[0].children.map(({value, nodes}) => [value, nodes]),
+        [["orders", [visible, collapsed]]],
+    );
+});
+
+test("label-specific drilldown uses the first available value source and a fallback", () => {
     const scan1 = node({kind: "scan", table: "orders", debug: '{"value":"ignored"}'});
     const scan2 = node({kind: "scan", debug: '{"value":"orders"}'});
     const scan3 = node({kind: "scan"});
-    const join = node({kind: "join", subtype: "inner"});
-    const root: TreeNode = {children: [scan1, join], collapsedChildren: [scan2, scan3, node({other: "ignored"})]};
+    const root: TreeNode = {children: [scan1, scan2, scan3]};
     const groups = computeCategoricalInsight(root, definition);
 
-    // The predicate excludes the unrelated node; collapsed scans still contribute to the scan count.
-    assert.deepEqual(
-        groups.map(({value, nodes}) => [value, nodes.length]),
-        [
-            ["scan", 3],
-            ["join", 1],
-        ],
-    );
-    // Scans use nextByValue instead of the default subtype level. The first usable table source wins.
+    // The scan-specific level overrides the default subtype level; the table field wins over debug.value.
     assert.deepEqual(
         groups[0].children.map(({value, nodes}) => [value, nodes.length]),
         [
@@ -47,17 +56,24 @@ test("categorical aggregation counts collapsed occurrences once and partitions e
         ],
     );
     assert.deepEqual(groups[0].children[0].nodes, [scan1, scan2]);
-    // Other kinds continue through the default subtype level.
+    // A scan without either table source remains visible under the configured fallback.
+    assert.deepEqual(groups[0].children[1].nodes, [scan3]);
+});
+
+test("non-special labels use the default drilldown level", () => {
+    const join = node({kind: "join", subtype: "inner"});
+    const unknownSubtype = node({kind: "join"});
+    const groups = computeCategoricalInsight({children: [join, unknownSubtype]}, definition);
+
+    // Join does not have a nextByValue override, so both known and missing subtypes use next.
     assert.deepEqual(
-        groups[1].children.map(({value, nodes}) => [value, nodes.length]),
-        [["inner", 1]],
+        groups[0].children.map(({value}) => value),
+        ["inner", "Unknown subtype"],
     );
-    // Every selected occurrence belongs to exactly one child at each configured level.
-    for (const group of groups)
-        assert.equal(
-            group.nodes.length,
-            group.children.reduce((count, child) => count + child.nodes.length, 0),
-        );
+    assert.deepEqual(
+        groups[0].children.flatMap(({nodes}) => nodes),
+        [join, unknownSubtype],
+    );
 });
 
 test("flat definitions end at the first level and sort equal counts alphabetically", () => {
