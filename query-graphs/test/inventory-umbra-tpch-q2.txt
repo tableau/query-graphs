@@ -1,0 +1,28 @@
+Scanned Tables: 5
+  - partsupp: 2
+  - supplier: 2
+  - part: 1
+
+Operators: 14
+  - tablescan: 5
+    - partsupp: 2
+    - supplier: 2
+    - part: 1
+  - earlyexecution: 3
+  - join: 2
+    - inner: 2
+  - groupby: 1
+  - map: 1
+  - sort: 1
+  - ternaryjoin: 1
+
+Expressions: 68
+  - iuref: 36
+  - const: 21
+  - compare: 5
+    - =: 5
+  - in: 2
+  - and: 1
+  - cast: 1
+  - like: 1
+  - simplecase: 1

@@ -1,0 +1,20 @@
+Scanned Tables: 5
+  - "temp".main.nation: 1
+  - "temp".main.part: 1
+  - "temp".main.partsupp: 1
+  - "temp".main.region: 1
+  - "temp".main.supplier: 1
+
+Operators: 19
+  - HASH_JOIN: 5
+  - TABLE_SCAN: 5
+    - "temp".main.nation: 1
+    - "temp".main.part: 1
+    - "temp".main.partsupp: 1
+    - "temp".main.region: 1
+    - "temp".main.supplier: 1
+  - PROJECTION: 4
+  - CTE_SCAN: 2
+  - CTE: 1
+  - HASH_GROUP_BY: 1
+  - TOP_N: 1

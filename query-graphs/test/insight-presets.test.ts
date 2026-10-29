@@ -2,43 +2,49 @@ import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import test from "node:test";
 import type {TreeNode} from "../src/tree-description";
-import {computeCategoricalInsight, type CategoricalInsightCategory} from "../src/insights/categorical";
+import {
+    computeCategoricalInsight,
+    type CategoricalInsightCategory,
+    type CategoricalInsightDefinition,
+} from "../src/insights/categorical";
 import {insightPresets} from "../src/insights/presets";
 import {loadPlanFromText} from "../src/loaders";
 
-const examples = [
-    ["hyper", "hyper/tablescan-analyze.plan.json", "scan", "region"],
-    ["umbra", "umbra/tablescan-analyze.plan.json", "tablescan", "region"],
-    ["umbra", "cedardb/tablescan-analyze.plan.json", "tablescan", "region"],
-    ["postgres", "postgres/tablescan-analyze.plan.json", "Seq Scan", "region"],
-    ["duckdb", "duckdb/tablescan-analyze.plan.json", "TABLE_SCAN", '"temp".main.region'],
-    ["duckdb", "duckdb/unicode.plan.json", "SEQ_SCAN", '"temp".main.region'],
-] as const;
+function dumpInventory(root: TreeNode, definitions: readonly CategoricalInsightDefinition[]): string {
+    const lines = definitions.flatMap((definition) => {
+        const categories = computeCategoricalInsight(root, definition);
+        const count = categories.reduce((sum, category) => sum + category.nodes.length, 0);
+        const rows = (items: readonly CategoricalInsightCategory[], depth: number): string[] =>
+            items.flatMap((category) => [
+                `${"  ".repeat(depth)}- ${category.value}: ${category.nodes.length}`,
+                ...rows(category.children, depth + 1),
+            ]);
+        return [`${definition.title}: ${count}`, ...rows(categories, 1), ""];
+    });
+    return lines.join("\n");
+}
 
-// These real plans guard the loader-to-preset boundary for each supported engine and scan spelling.
-for (const [format, file, scanType, tableName] of examples) {
-    test(`${file} has a configured inventory`, () => {
-        const text = readFileSync(new URL(`../../standalone-app/examples/${file}`, import.meta.url), "utf8");
+// A representative analyzed plan covers every configured insight, category order, depth, and count for each engine.
+for (const [engine, format] of [
+    ["hyper", "hyper"],
+    ["umbra", "umbra"],
+    ["cedardb", "umbra"],
+    ["postgres", "postgres"],
+    ["duckdb", "duckdb"],
+] as const) {
+    test(`${engine} TPC-H Q2 inventory matches its golden file`, () => {
+        const text = readFileSync(
+            new URL(`../../standalone-app/examples/${engine}/tpch/tpch-q2-analyze.plan.json`, import.meta.url),
+            "utf8",
+        );
         const loaded = loadPlanFromText(text);
-        // Recognition must select the preset whose property paths match the loaded plan.
+        // CedarDB plans use Umbra's loader and inventory definition.
         assert.equal(loaded.format, format);
-        const preset = insightPresets[loaded.format];
-        assert.ok(preset.length > 0);
-        const scannedTables = computeCategoricalInsight(
-            loaded.tree.root,
-            preset.find(({id}) => id === "table-names")!,
+        // Compare all configured insights, including every nested value and count, with a readable baseline.
+        assert.equal(
+            dumpInventory(loaded.tree.root, insightPresets[format]),
+            readFileSync(new URL(`./inventory-${engine}-tpch-q2.txt`, import.meta.url), "utf8"),
         );
-        // The flat scanned-tables insight and the operator drilldown must agree on the table name.
-        assert.ok(scannedTables.some(({value}) => value === tableName));
-        const operators = computeCategoricalInsight(
-            loaded.tree.root,
-            preset.find(({id}) => id === "operators")!,
-        );
-        const scan = operators.find(({value}) => value === scanType);
-        const tableCategories =
-            format === "hyper" ? scan?.children.find(({value}) => value === "native")?.children : scan?.children;
-        // Hyper has a storage-type level between scan and table; the other engines go directly to tables.
-        assert.ok(tableCategories?.some(({value}) => value === tableName));
     });
 }
 

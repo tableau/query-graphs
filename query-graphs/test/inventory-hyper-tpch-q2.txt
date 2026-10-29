@@ -1,0 +1,28 @@
+Scanned Tables: 9
+  - nation: 2
+  - partsupp: 2
+  - region: 2
+  - supplier: 2
+  - part: 1
+
+Operators: 20
+  - scan: 9
+    - native: 9
+      - nation: 2
+      - partsupp: 2
+      - region: 2
+      - supplier: 2
+      - part: 1
+  - join: 8
+    - inner: 8
+  - group-by: 1
+  - result-sink: 1
+  - sort: 1
+
+Expressions: 71
+  - iu-ref: 55
+  - comparison: 10
+    - =: 10
+  - const: 4
+  - and: 1
+  - ends_with: 1
