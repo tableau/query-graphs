@@ -53,7 +53,7 @@ for (const {name, plan, format} of examples) {
         // Compare every configured insight, including category order, nesting, and occurrence counts.
         assert.equal(
             dumpInsights(loaded.tree.root, insightPresets[format]),
-            readFileSync(new URL(`./insights-${name}.txt`, import.meta.url), "utf8"),
+            readFileSync(new URL(`./insights/${name}.txt`, import.meta.url), "utf8"),
         );
     });
 }
