@@ -8,9 +8,9 @@ import {
     resolveTransitionAnchors,
     sameLayoutTarget,
     staticLayout,
-} from "../src/ui/animated-layout";
-import type {GraphLayout, TransitionAnchors} from "../src/ui/animated-layout";
-import type {QueryGraphNode} from "../src/ui/QueryNode";
+} from "../../src/ui/animated-layout";
+import type {GraphLayout, TransitionAnchors} from "../../src/ui/animated-layout";
+import type {QueryGraphNode} from "../../src/ui/QueryNode";
 
 const parentAnchors = new Map([["child", {nodeId: "parent", offset: {x: 0, y: 30}}]]);
 

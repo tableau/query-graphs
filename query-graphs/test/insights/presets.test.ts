@@ -1,14 +1,14 @@
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import test from "node:test";
-import type {TreeNode} from "../src/tree-description";
+import type {TreeNode} from "../../src/tree-description";
 import {
     computeCategoricalInsight,
     type CategoricalInsightCategory,
     type CategoricalInsightDefinition,
-} from "../src/insights/categorical";
-import {insightPresets} from "../src/insights/presets";
-import {loadPlanFromText} from "../src/loaders";
+} from "../../src/insights/categorical";
+import {insightPresets} from "../../src/insights/presets";
+import {loadPlanFromText} from "../../src/loaders";
 
 function dumpInsights(root: TreeNode, definitions: readonly CategoricalInsightDefinition[]): string {
     const lines = definitions.flatMap((definition) => {
@@ -47,13 +47,13 @@ const examples = [
 
 for (const {name, plan, format} of examples) {
     test(`${name} insights match their golden file`, () => {
-        const text = readFileSync(new URL(`../../${plan}`, import.meta.url), "utf8");
+        const text = readFileSync(new URL(`../../../${plan}`, import.meta.url), "utf8");
         const loaded = loadPlanFromText(text);
         assert.equal(loaded.format, format);
         // Compare every configured insight, including category order, nesting, and occurrence counts.
         assert.equal(
             dumpInsights(loaded.tree.root, insightPresets[format]),
-            readFileSync(new URL(`./insights/${name}.txt`, import.meta.url), "utf8"),
+            readFileSync(new URL(`./presets/${name}.txt`, import.meta.url), "utf8"),
         );
     });
 }

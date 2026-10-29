@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import type {TreeNode} from "../src/tree-description";
-import {createStructuralNodeVisibility, findClosestVisibleAncestors, indexTreeTopology} from "../src/ui/tree-topology";
+import type {TreeNode} from "../../src/tree-description";
+import {createStructuralNodeVisibility, findClosestVisibleAncestors, indexTreeTopology} from "../../src/ui/tree-topology";
 
 class CountingParents extends Map<string, string> {
     readonly lookups = new Map<string, number>();

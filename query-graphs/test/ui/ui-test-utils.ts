@@ -2,9 +2,9 @@ import {registerHooks} from "node:module";
 import * as React from "react";
 import {createRoot} from "react-dom/client";
 import {JSDOM} from "jsdom";
-import type {TreeNode} from "../src/tree-description";
-import {createSourceLinkIndex} from "../src/ui/source-link-index";
-import {createGraphRenderingStore, GraphRenderingStoreContext, type GraphRenderingStore} from "../src/ui/store";
+import type {TreeNode} from "../../src/tree-description";
+import {createSourceLinkIndex} from "../../src/ui/source-link-index";
+import {createGraphRenderingStore, GraphRenderingStoreContext, type GraphRenderingStore} from "../../src/ui/store";
 
 // UI modules import stylesheets, which Node cannot load directly.
 registerHooks({

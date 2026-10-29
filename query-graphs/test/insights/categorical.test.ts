@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import type {TreeNode} from "../src/tree-description";
-import {computeCategoricalInsight, type CategoricalInsightDefinition} from "../src/insights/categorical";
+import type {TreeNode} from "../../src/tree-description";
+import {computeCategoricalInsight, type CategoricalInsightDefinition} from "../../src/insights/categorical";
 
 const definition: CategoricalInsightDefinition = {
     id: "example",

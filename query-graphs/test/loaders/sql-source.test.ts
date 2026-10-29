@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import {createSqlSourceLocator} from "../src/loaders";
+import {createSqlSourceLocator} from "../../src/loaders/sql-source";
 
 // Hyper counts raw UTF-8 bytes while the editor consumes UTF-16 offsets after newline normalization.
 test("SQL source locations map UTF-8 byte offsets to normalized UTF-16 offsets", () => {

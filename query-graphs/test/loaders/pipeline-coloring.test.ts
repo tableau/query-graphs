@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import {assignPipelineColors} from "../src/loaders/pipeline-coloring";
-import type {TreeNode} from "../src/tree-description";
+import {assignPipelineColors} from "../../src/loaders/pipeline-coloring";
+import type {TreeNode} from "../../src/tree-description";
 
 test("pipeline colors follow normalized memberships across boundaries", () => {
     const scan: TreeNode = {name: "scan"};

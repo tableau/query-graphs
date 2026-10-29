@@ -11,9 +11,9 @@ import {
     loadPlanFromText,
     UnknownPlanFormatError,
     xmlPlanLoaders,
-} from "../src/loaders";
-import type {TreeDescription, TreeNode} from "../src/tree-description";
-import {allChildren, visitTreeNodes} from "../src/tree-description";
+} from "../../src/loaders";
+import type {TreeDescription, TreeNode} from "../../src/tree-description";
+import {allChildren, visitTreeNodes} from "../../src/tree-description";
 import {examplesRoot, fixturePaths} from "./loader-test-utils";
 
 const loaderFormats = [...jsonPlanLoaders, ...xmlPlanLoaders].map((loader) => loader.format);

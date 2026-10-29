@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import * as React from "react";
-import type {TreeNode} from "../src/tree-description";
-import type {CategoricalInsightCategory} from "../src/insights/categorical";
+import type {TreeNode} from "../../src/tree-description";
+import type {CategoricalInsightCategory} from "../../src/insights/categorical";
 import {createUiFixture, testGraphStore} from "./ui-test-utils";
 
 const category = (value: string, node: TreeNode, children: CategoricalInsightCategory[] = []): CategoricalInsightCategory => ({
@@ -13,7 +13,7 @@ const category = (value: string, node: TreeNode, children: CategoricalInsightCat
 const rows = (document: Document) => [...document.querySelectorAll<HTMLElement>('[role="treeitem"]')];
 
 async function renderTree(fixture: ReturnType<typeof createUiFixture>, categories: CategoricalInsightCategory[]) {
-    const {CategoryTree} = await import("../src/ui/CategoryTree");
+    const {CategoryTree} = await import("../../src/ui/CategoryTree");
     await fixture.render(React.createElement(CategoryTree, {title: "Example", categories}));
 }
 

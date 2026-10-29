@@ -49,6 +49,7 @@ Run `pnpm run lint` from the repository root to fix issues automatically, or `pn
 ## Testing
 
 Run `pnpm test` from the repository root.
+TypeScript tests live in each module's `test/` directory, mirroring the paths and filename capitalization under `src/` with a `.test.ts` suffix (for example, `src/ui/CategoryTree.tsx` → `test/ui/CategoryTree.test.ts`).
 The loader regression suite tries every example plan with every loader and verifies the output of each successful conversion.
 If an intentional loader change affects the expected results, update them with `pnpm test:update` and review the resulting diff.
 
