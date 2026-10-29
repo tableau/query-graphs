@@ -1,5 +1,6 @@
 import {useEffect, useId, useState, type ReactNode} from "react";
 import cc from "classcat";
+import {ChevronIcon} from "./ChevronIcon";
 import "./PanelSurface.css";
 import "./CollapsiblePanel.css";
 
@@ -75,9 +76,7 @@ export function CollapsiblePanel({
                 onPointerEnter={mountContent}
                 onFocus={mountContent}
             >
-                <svg className="qg-collapsible-panel-chevron" viewBox="0 0 16 16" aria-hidden="true">
-                    <path d="M5.5 3.5 10.5 8l-5 4.5" />
-                </svg>
+                <ChevronIcon expanded={expanded} size="regular" />
                 <span className="qg-collapsible-panel-title">
                     {title}
                     <span

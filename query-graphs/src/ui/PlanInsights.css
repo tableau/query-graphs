@@ -1,42 +1,47 @@
-.qg-insight-category-list {
-    & h3 {
-        margin: 0 0 0.5em;
-        font-size: 0.9em;
-    }
+.qg-plan-insight {
+    margin-block-start: 0.5em;
 
-    & ul {
-        padding: 0;
+    & > h3 {
         margin: 0;
-        list-style: none;
-    }
-}
-
-.qg-insight-category {
-    display: flex;
-    gap: 0.7em;
-    padding: 0.3em 0.4em;
-    border-radius: 4px;
-    cursor: default;
-
-    &:hover,
-    &:focus-visible,
-    &.qg-insight-category-active {
-        background: var(--qg-accent-subtle);
+        font-size: 1em;
     }
 
-    &:focus-visible {
-        outline: 2px solid var(--qg-focus);
+    & .qg-plan-insight-toggle {
+        display: flex;
+        align-items: center;
+        gap: 0.4em;
+        width: 100%;
+        padding: 0.2em 0.35em;
+        border: 0;
+        color: inherit;
+        background: transparent;
+        font: inherit;
+        font-weight: 600;
+        line-height: 1.25;
+        text-align: start;
+        cursor: pointer;
+
+        &:hover {
+            background: var(--qg-surface-hover);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--qg-focus);
+            outline-offset: -2px;
+        }
+
+        & .qg-plan-insight-title {
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+
+        & .qg-plan-insight-count {
+            flex: none;
+            font-variant-numeric: tabular-nums;
+        }
     }
 
-    & .qg-insight-category-label {
-        min-width: 0;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    & .qg-insight-category-count {
-        margin-left: auto;
-        font-variant-numeric: tabular-nums;
+    &:last-child {
+        margin-block-end: 0.5em;
     }
 }

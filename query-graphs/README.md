@@ -120,31 +120,44 @@ The design includes the following types of insights:
 
 * **Top-K lists** rank nodes by a metric (for example, "top operators by CPU cycles", "top operators by rows produced", or "top scans by rows processed").
 * **Node groups** highlight all nodes that match a predicate (for example, "unselective scans" or "operators with misestimated cardinalities").
-* **Category lists** partition matching nodes by the distinct values of one property (for example, "scan type: native, iceberg, parquet" or "join type: inner, left-outer, full-outer").
+* **Category lists/trees** partition matching nodes by configured values (for example, "table name: region, orders" or "join type: inner, left-outer, full-outer").
+  Also supports nested sub-categories, rendered as a tree-view.
 
 Insights are rendered in a "Plan Insights" panel.
+Each "Insight" is rendered as an independently collapsible section.
 Hovering or focusing an insight entry highlights every matching graph node and its linked SQL and JSON ranges;
 hovering a graph node or linked source range highlights the corresponding insight entries.
 Insights reuse this transient linked-highlight mechanism rather than assigning persistent colors to nodes.
 A node can therefore participate in several insight definitions without creating conflicting color assignments.
 
-Insight definitions are config-driven and live outside the loaders.
+Insights are config-driven and live outside the loaders.
 They operate on the property bags of tree nodes produced by the loaders.
 Each definition selects nodes and describes how to summarize them.
-For example, the scan-type category list is configured as:
+For example, the scanned tables list is configured as:
 
 ```ts
 {
-    id: "scan-types",
-    title: "Scan types",
-    where: {property: "operator", equals: "scan"},
-    groupBy: "type",
+    id: "table-names",
+    title: "Scanned Tables",
+    where: {op: "equals", path: ["operator"], value: "scan"},
+    groupBy: {
+        valueSourceAlternatives: [["table-name"], ["debug-name", "value"]],
+        fallbackValue: "Unknown table",
+    },
 }
 ```
 
 For now, the definitions are hard-coded in `query-graphs/src/insights/presets.ts`.
 The standalone app selects definitions using the detected plan format.
 A future UI could allow users to configure their own insights directly.
+
+The available insights differ by database and not all insights can be provided for each of them.
+In general, the following insights turned out to be useful:
+* Scanned tables: a list of all tables scanned by the query, grouped by table name.
+* Operator list: a list of all operator types used in the query (joins, tablescans, ...)
+* Expression list: a list of all expression types used in the query (LIKE, regexp_extract, ...)
+
+If the plan format allows it, further grouping into parent/sub-categories is useful (e.g., a `join` group consisting of sub-categories like `inner`, `left-outer`, etc.)
 
 ## Tech Debt
 

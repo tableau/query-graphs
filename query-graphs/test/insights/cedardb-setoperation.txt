@@ -1,0 +1,18 @@
+Scanned Tables: 18
+  - t1: 18
+
+Operators: 26
+  - tablescan: 18
+    - t1: 18
+  - setoperation: 7
+    - unionall: 2
+    - except: 1
+    - exceptall: 1
+    - intersect: 1
+    - intersectall: 1
+    - union: 1
+  - planroot: 1
+
+Expressions: 38
+  - iuref: 26
+  - const: 12

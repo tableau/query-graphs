@@ -1,0 +1,29 @@
+Scanned Tables: 10
+  - supplier: 3
+  - nation: 2
+  - partsupp: 2
+  - region: 2
+  - part: 1
+
+Operators: 22
+  - tablescan: 10
+    - supplier: 3
+    - nation: 2
+    - partsupp: 2
+    - region: 2
+    - part: 1
+  - join: 8
+    - inner: 8
+  - groupby: 1
+  - latematerialization: 1
+  - planroot: 1
+  - sort: 1
+
+Expressions: 55
+  - iuref: 34
+  - compare: 9
+    - =: 9
+  - const: 9
+  - and: 1
+  - cast: 1
+  - like: 1

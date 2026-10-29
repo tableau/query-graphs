@@ -1,122 +1,87 @@
 import assert from "node:assert/strict";
-import {registerHooks} from "node:module";
 import test from "node:test";
 import * as React from "react";
-import {createRoot} from "react-dom/client";
-import {JSDOM} from "jsdom";
 import type {TreeNode} from "../src/tree-description";
 import {insightPresets} from "../src/insights/presets";
-import {createSourceLinkIndex} from "../src/ui/source-link-index";
-import {createGraphRenderingStore, GraphRenderingStoreContext} from "../src/ui/store";
+import {createUiFixture, testGraphStore} from "./ui-test-utils";
 
-registerHooks({
-    load(url, context, nextLoad) {
-        if (url.endsWith(".css")) return {format: "module", source: "", shortCircuit: true};
-        return nextLoad(url, context);
-    },
-});
-
-test("scan-type rows and source highlights use the same semantic node selection", async () => {
+test("plan insights render ordered, independent sections with counts", async () => {
     const {PlanInsights} = await import("../src/ui/PlanInsights");
-    // Put one scan in the visible tree and one in a collapsed subtree to exercise both highlight projections.
-    const native: TreeNode = {
+    const scan: TreeNode = {
         properties: new Map([
             ["operator", "scan"],
             ["type", "native"],
+            ["table-name", "orders"],
         ]),
-        sourceLocations: [{documentId: "query", from: 0, to: 5}],
     };
-    const virtual: TreeNode = {
-        properties: new Map([
-            ["operator", "scan"],
-            ["type", "virtual-table"],
-        ]),
-        sourceLocations: [{documentId: "query", from: 10, to: 15}],
-    };
-    const tree: TreeNode = {children: [native], collapsedChildren: [virtual]};
-    const nodeIds = new Map<TreeNode, string>([
-        [tree, "0"],
-        [native, "1"],
-        [virtual, "2"],
-    ]);
-    const store = createGraphRenderingStore({
-        graphIndex: {
-            nodeIds,
-            treeTopology: {
-                parents: new Map([
-                    ["1", "0"],
-                    ["2", "0"],
-                ]),
-                collapsedSubtreeRootIds: new Set(["2"]),
-            },
-            sourceLinks: createSourceLinkIndex(nodeIds),
-        },
-    });
-
-    const dom = new JSDOM("<main></main>", {pretendToBeVisual: true});
-    const globalNames = ["window", "document", "Node", "HTMLElement", "Event"] as const;
-    const previousGlobals = new Map(globalNames.map((name) => [name, Object.getOwnPropertyDescriptor(globalThis, name)]));
-    for (const name of globalNames)
-        Object.defineProperty(globalThis, name, {configurable: true, writable: true, value: dom.window[name]});
-    const previousActEnvironment = Object.getOwnPropertyDescriptor(globalThis, "IS_REACT_ACT_ENVIRONMENT");
-    const previousReact = Object.getOwnPropertyDescriptor(globalThis, "React");
-    Object.defineProperty(globalThis, "IS_REACT_ACT_ENVIRONMENT", {configurable: true, writable: true, value: true});
-    Object.defineProperty(globalThis, "React", {configurable: true, writable: true, value: React});
-    const root = createRoot(dom.window.document.querySelector("main")!);
-
+    const reference: TreeNode = {properties: new Map([["expression", "reference"]])};
+    const root: TreeNode = {children: [scan, reference]};
+    const fixture = createUiFixture(testGraphStore([root, scan, reference]));
     try {
-        await React.act(async () =>
-            root.render(
-                React.createElement(
-                    GraphRenderingStoreContext.Provider,
-                    {value: store},
-                    React.createElement(PlanInsights, {root: tree, definitions: insightPresets.hyper}),
-                ),
-            ),
-        );
-        const toggle = dom.window.document.querySelector<HTMLButtonElement>(".qg-collapsible-panel-toggle");
-        assert.ok(toggle);
-        assert.equal(toggle.ariaExpanded, "false");
-        await React.act(async () => toggle.click());
-        assert.equal(toggle.ariaExpanded, "true");
-
-        const rows = [...dom.window.document.querySelectorAll<HTMLElement>(".qg-insight-category")];
-        assert.equal(rows.length, 2);
+        await fixture.render(React.createElement(PlanInsights, {root, definitions: insightPresets.hyper}));
+        const panel = fixture.document.querySelector<HTMLElement>(".qg-collapsible-panel")!;
+        const panelToggle = panel.querySelector<HTMLButtonElement>(".qg-collapsible-panel-toggle")!;
+        // The shared panel begins closed, while its three nonempty insights retain preset order.
+        assert.equal(panelToggle.ariaExpanded, "false");
+        await React.act(async () => panelToggle.click());
+        const sections = [...panel.querySelectorAll<HTMLElement>(".qg-plan-insight")];
         assert.deepEqual(
-            rows.map((row) => row.querySelector(".qg-insight-category-label")?.textContent),
-            ["native", "virtual-table"],
+            sections.map((section) => section.querySelector(".qg-plan-insight-title")?.textContent),
+            ["Scanned Tables", "Operators", "Expressions"],
         );
-
-        // A linked source range activates its category even when the matching node is hidden below a collapsed root.
-        await React.act(async () => store.getState().setActiveSourceLocations("query", virtual.sourceLocations!));
-        assert.ok(rows[1].classList.contains("qg-insight-category-active"));
-        assert.ok(dom.window.document.querySelector(".qg-panel-highlight-indicator-active"));
-
-        // Pointer interaction with a category temporarily overrides the source-derived selection and restores it on exit.
-        await React.act(async () => rows[0].dispatchEvent(new dom.window.MouseEvent("mouseover", {bubbles: true})));
-        assert.deepEqual(store.getState().highlightedNodeIds, new Set(["1"]));
-        await React.act(async () => rows[0].dispatchEvent(new dom.window.MouseEvent("mouseout", {bubbles: true})));
-        assert.deepEqual(store.getState().highlightedNodeIds, new Set(["2"]));
-
-        // Keyboard focus highlights the same nodes independently after the source-derived selection is cleared.
-        await React.act(async () => store.getState().setActiveSourceLocations("query", []));
-        await React.act(async () => rows[0].focus());
-        assert.deepEqual(store.getState().highlightedNodeIds, new Set(["1"]));
-        assert.deepEqual(store.getState().visibleHighlightedNodeIds, new Set(["1"]));
-        assert.ok(rows[0].classList.contains("qg-insight-category-active"));
-        await React.act(async () => rows[0].blur());
-        assert.deepEqual(store.getState().highlightedNodeIds, new Set());
-        assert.deepEqual(store.getState().visibleHighlightedNodeIds, new Set());
+        assert.deepEqual(
+            sections.map((section) => section.querySelector(".qg-plan-insight-count")?.textContent),
+            ["1", "1", "1"],
+        );
+        // Each insight has its own accessible tree; the insight title is not an extra tree row.
+        assert.deepEqual(
+            [...panel.querySelectorAll<HTMLElement>('[role="tree"]')].map((tree) => tree.getAttribute("aria-label")),
+            ["Scanned Tables", "Operators", "Expressions"],
+        );
+        assert.deepEqual(
+            [...sections[1].querySelectorAll<HTMLElement>('[role="treeitem"]')].map((row) => row.dataset.label),
+            ["scan"],
+        );
+        const scanRow = sections[1].querySelector<HTMLElement>('[role="treeitem"]')!;
+        // Closing a section keeps its tree mounted and preserves nested expansion choices.
+        await fixture.key(scanRow, "ArrowRight");
+        const nativeRow = sections[1].querySelectorAll<HTMLElement>('[role="treeitem"]')[1];
+        await fixture.key(nativeRow, "ArrowRight");
+        const operatorToggle = sections[1].querySelector<HTMLButtonElement>("h3 button")!;
+        await React.act(async () => operatorToggle.click());
+        await React.act(async () => operatorToggle.click());
+        assert.deepEqual(
+            [...sections[1].querySelectorAll<HTMLElement>('[role="treeitem"]')].map((row) => row.dataset.label),
+            ["scan", "native", "orders"],
+        );
+        const expressionToggle = sections[2].querySelector<HTMLButtonElement>("h3 button")!;
+        // Sections disclose independently, so hiding expressions leaves operators visible.
+        await React.act(async () => expressionToggle.click());
+        assert.equal(expressionToggle.ariaExpanded, "false");
+        assert.equal(sections[2].querySelector<HTMLElement>(".qg-plan-insight-content")?.hidden, true);
+        assert.equal(sections[1].querySelector<HTMLElement>(".qg-plan-insight-content")?.hidden, false);
+        await React.act(async () => expressionToggle.click());
+        assert.equal(sections[2].querySelector<HTMLElement>(".qg-plan-insight-content")?.hidden, false);
     } finally {
-        await React.act(async () => root.unmount());
-        dom.window.close();
-        if (previousActEnvironment === undefined) Reflect.deleteProperty(globalThis, "IS_REACT_ACT_ENVIRONMENT");
-        else Object.defineProperty(globalThis, "IS_REACT_ACT_ENVIRONMENT", previousActEnvironment);
-        if (previousReact === undefined) Reflect.deleteProperty(globalThis, "React");
-        else Object.defineProperty(globalThis, "React", previousReact);
-        for (const [name, descriptor] of previousGlobals) {
-            if (descriptor === undefined) Reflect.deleteProperty(globalThis, name);
-            else Object.defineProperty(globalThis, name, descriptor);
-        }
+        await fixture.cleanup();
+    }
+});
+
+test("plan insights omit empty sections and the panel when nothing matches", async () => {
+    const {PlanInsights} = await import("../src/ui/PlanInsights");
+    const root: TreeNode = {properties: new Map([["operator", "scan"]])};
+    const fixture = createUiFixture(testGraphStore([root]));
+    try {
+        await fixture.render(React.createElement(PlanInsights, {root, definitions: insightPresets.hyper}));
+        // An absent expression category omits only that section.
+        assert.deepEqual(
+            [...fixture.document.querySelectorAll(".qg-plan-insight-title")].map((element) => element.textContent),
+            ["Scanned Tables", "Operators"],
+        );
+        await fixture.render(React.createElement(PlanInsights, {root: {}, definitions: insightPresets.hyper}));
+        // With no matching categories there is no empty Plan Insights panel.
+        assert.equal(fixture.document.querySelector(".qg-collapsible-panel"), null);
+    } finally {
+        await fixture.cleanup();
     }
 });

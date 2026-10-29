@@ -1,0 +1,58 @@
+.qg-category-tree {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+
+    & ul {
+        padding: 0;
+        margin: 0;
+        list-style: none;
+        padding-inline-start: 0.9em;
+    }
+}
+
+.qg-category-tree-category {
+    display: flex;
+    align-items: start;
+    gap: 0.4em;
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+    line-height: 1.25;
+    cursor: default;
+
+    &:hover,
+    &.qg-category-tree-category-active {
+        background: var(--qg-accent-subtle);
+    }
+
+    & .qg-category-tree-category-label {
+        flex: 1 1 auto;
+        min-width: 0;
+        overflow-wrap: anywhere;
+        user-select: text;
+    }
+
+    & .qg-category-tree-category-count {
+        flex: none;
+        font-variant-numeric: tabular-nums;
+    }
+}
+
+.qg-category-tree-disclosure {
+    flex: 0 0 0.9em;
+    width: 0.9em;
+    margin-top: 0.18em;
+    color: inherit;
+}
+
+.qg-category-tree [role="treeitem"] {
+    &:focus {
+        outline: none;
+    }
+
+    /* A tree item contains its descendants; draw focus around its visible row only. */
+    &:focus-visible > .qg-category-tree-category {
+        outline: 2px solid var(--qg-focus);
+        outline-offset: -2px;
+    }
+}

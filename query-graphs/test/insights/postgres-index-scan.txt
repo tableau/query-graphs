@@ -1,0 +1,6 @@
+Scanned Tables: 1
+  - pg_class: 1
+
+Operators: 1
+  - Index Scan: 1
+    - pg_class: 1

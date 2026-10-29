@@ -1,0 +1,20 @@
+Scanned Tables: 9
+  - nation: 2
+  - partsupp: 2
+  - region: 2
+  - supplier: 2
+  - part: 1
+
+Operators: 25
+  - Seq Scan: 9
+    - nation: 2
+    - partsupp: 2
+    - region: 2
+    - supplier: 2
+    - part: 1
+  - Hash: 6
+  - Hash Join: 6
+  - Aggregate: 1
+  - Limit: 1
+  - Nested Loop: 1
+  - Sort: 1

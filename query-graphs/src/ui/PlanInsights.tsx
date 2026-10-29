@@ -1,10 +1,11 @@
-import {useMemo, useState} from "react";
+import {useId, useMemo, useState, type ReactNode} from "react";
 import type {TreeNode} from "../tree-description";
 import type {CategoricalInsightDefinition} from "../insights/categorical";
 import {computeCategoricalInsight} from "../insights/categorical";
+import {CategoryTree} from "./CategoryTree";
+import {ChevronIcon} from "./ChevronIcon";
 import {CollapsiblePanel} from "./CollapsiblePanel";
 import {ScrollableArea} from "./ScrollableArea";
-import {useGraphRenderingStore} from "./store";
 import "./PlanInsights.css";
 
 interface PlanInsightsProps {
@@ -12,77 +13,58 @@ interface PlanInsightsProps {
     definitions: readonly CategoricalInsightDefinition[];
 }
 
-function CategoryRow({value, nodeIds, active}: {value: string; nodeIds: ReadonlySet<string>; active: boolean}) {
-    const setHoveredNodeIds = useGraphRenderingStore((state) => state.setHoveredNodeIds);
-    const setFocusedNodeIds = useGraphRenderingStore((state) => state.setFocusedNodeIds);
-
-    return (
-        <li
-            className={`qg-insight-category${active ? " qg-insight-category-active" : ""}`}
-            tabIndex={0}
-            aria-label={`${value}: ${nodeIds.size}`}
-            onMouseEnter={() => setHoveredNodeIds(nodeIds)}
-            onMouseLeave={() => setHoveredNodeIds(undefined)}
-            onFocus={() => setFocusedNodeIds(nodeIds)}
-            onBlur={() => setFocusedNodeIds(undefined)}
-        >
-            <span className="qg-insight-category-label">{value}</span>
-            <span className="qg-insight-category-count">{nodeIds.size}</span>
-        </li>
-    );
-}
-
 export function PlanInsights({root, definitions}: PlanInsightsProps) {
-    const getNodeId = useGraphRenderingStore((state) => state.getNodeId);
-    const highlightedNodeIds = useGraphRenderingStore((state) => state.highlightedNodeIds);
     const [open, setOpen] = useState(false);
-    const categoryLists = useMemo(
+    const sections = useMemo(
         () =>
-            definitions.map((definition) => ({
-                definition,
-                categories: computeCategoricalInsight(root, definition).map(({value, nodes}) => ({
-                    value,
-                    nodeIds: new Set(
-                        nodes.flatMap((node) => {
-                            const id = getNodeId(node);
-                            return id === undefined ? [] : [id];
-                        }),
-                    ),
-                })),
-            })),
-        [definitions, getNodeId, root],
-    ).filter(({categories}) => categories.length > 0);
-    // If there are no insights, don't render this panel at all.
-    if (categoryLists.length === 0) return null;
-
-    const active = categoryLists.some(({categories}) =>
-        categories.some(({nodeIds}) => [...nodeIds].some((id) => highlightedNodeIds.has(id))),
+            definitions.flatMap((definition) => {
+                const categories = computeCategoricalInsight(root, definition);
+                return categories.length ? [{definition, categories}] : [];
+            }),
+        [definitions, root],
     );
+    if (sections.length === 0) return null;
+
     return (
-        <CollapsiblePanel
-            title="Plan Insights"
-            className="qg-insights-panel"
-            containsHighlightedContent={active}
-            open={open}
-            onOpenChange={setOpen}
-        >
+        <CollapsiblePanel title="Plan Insights" className="qg-insights-panel" open={open} onOpenChange={setOpen}>
             <ScrollableArea>
-                {categoryLists.map(({definition, categories}) => (
-                    <section key={definition.id} className="qg-insight-category-list" aria-label={definition.title}>
-                        <h3>{definition.title}</h3>
-                        <ul>
-                            {categories.map(({value, nodeIds}) => (
-                                <CategoryRow
-                                    key={value}
-                                    value={value}
-                                    nodeIds={nodeIds}
-                                    active={[...nodeIds].some((id) => highlightedNodeIds.has(id))}
-                                />
-                            ))}
-                        </ul>
-                    </section>
+                {sections.map(({definition, categories}) => (
+                    <InsightSection
+                        key={definition.id}
+                        title={definition.title}
+                        count={categories.reduce((sum, category) => sum + category.nodes.length, 0)}
+                    >
+                        <CategoryTree categories={categories} title={definition.title} />
+                    </InsightSection>
                 ))}
             </ScrollableArea>
         </CollapsiblePanel>
+    );
+}
+
+function InsightSection({title, count, children}: {title: string; count: number; children: ReactNode}) {
+    // Section headers are outside the insight content, so each renderer owns its own navigation.
+    // Sections start open and collapse independently without unmounting their content.
+    const [open, setOpen] = useState(true);
+    const contentId = useId();
+    return (
+        <section className="qg-plan-insight" aria-label={title}>
+            <h3>
+                <button
+                    type="button"
+                    className="qg-plan-insight-toggle"
+                    aria-expanded={open}
+                    aria-controls={contentId}
+                    onClick={() => setOpen(!open)}
+                >
+                    <ChevronIcon expanded={open} />
+                    <span className="qg-plan-insight-title">{title}</span>
+                    <span className="qg-plan-insight-count">{count}</span>
+                </button>
+            </h3>
+            <div id={contentId} hidden={!open} className="qg-plan-insight-content">
+                {children}
+            </div>
+        </section>
     );
 }
