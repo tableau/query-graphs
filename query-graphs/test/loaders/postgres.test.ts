@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import {loadPlanFromText} from "../src/loaders";
+import {loadPlanFromText} from "../../src/loaders";
 import {fixturePathsFor, loadFixture} from "./loader-test-utils";
 
 test("Postgres examples are recognized", () => {

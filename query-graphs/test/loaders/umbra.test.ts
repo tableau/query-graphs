@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import {loadPlanFromText} from "../src/loaders";
-import {umbraPlanLoader} from "../src/loaders/umbra";
-import {allChildren, visitTreeNodes, type TreeNode} from "../src/tree-description";
+import {loadPlanFromText} from "../../src/loaders";
+import {umbraPlanLoader} from "../../src/loaders/umbra";
+import {allChildren, visitTreeNodes, type TreeNode} from "../../src/tree-description";
 import {fixturePathsFor, loadFixture} from "./loader-test-utils";
 
 function treeNodes(root: TreeNode): TreeNode[] {

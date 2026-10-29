@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import {applyMeasuredDimensions, preparePendingNodeResizes} from "../src/ui/useAnimatedGraphLayout";
+import {applyMeasuredDimensions, preparePendingNodeResizes} from "../../src/ui/useAnimatedGraphLayout";
 
 const computedStyles = new WeakMap<HTMLElement, CSSStyleDeclaration>();
 

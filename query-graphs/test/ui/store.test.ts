@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import type {TreeNode} from "../src/tree-description";
-import {createSourceLinkIndex} from "../src/ui/source-link-index";
-import {createGraphRenderingStore} from "../src/ui/store";
+import type {TreeNode} from "../../src/tree-description";
+import {createSourceLinkIndex} from "../../src/ui/source-link-index";
+import {createGraphRenderingStore} from "../../src/ui/store";
 
 function graphStore(
     nodes: TreeNode[],

@@ -2,10 +2,10 @@ import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import path from "node:path";
 import test from "node:test";
-import {loadPlanFromText} from "../src/loaders";
-import {duckDbPlanLoader} from "../src/loaders/duckdb";
-import type {TreeNode} from "../src/tree-description";
-import {allChildren, visitTreeNodes} from "../src/tree-description";
+import {loadPlanFromText} from "../../src/loaders";
+import {duckDbPlanLoader} from "../../src/loaders/duckdb";
+import type {TreeNode} from "../../src/tree-description";
+import {allChildren, visitTreeNodes} from "../../src/tree-description";
 import {examplesRoot, fixturePathsFor, loadFixture} from "./loader-test-utils";
 
 function treeNodes(root: TreeNode): TreeNode[] {

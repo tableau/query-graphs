@@ -1,12 +1,12 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import * as React from "react";
-import type {TreeNode} from "../src/tree-description";
-import {insightPresets} from "../src/insights/presets";
+import type {TreeNode} from "../../src/tree-description";
+import {insightPresets} from "../../src/insights/presets";
 import {createUiFixture, testGraphStore} from "./ui-test-utils";
 
 test("plan insights render ordered, independent sections with counts", async () => {
-    const {PlanInsights} = await import("../src/ui/PlanInsights");
+    const {PlanInsights} = await import("../../src/ui/PlanInsights");
     const scan: TreeNode = {
         properties: new Map([
             ["operator", "scan"],
@@ -68,7 +68,7 @@ test("plan insights render ordered, independent sections with counts", async () 
 });
 
 test("plan insights omit empty sections and the panel when nothing matches", async () => {
-    const {PlanInsights} = await import("../src/ui/PlanInsights");
+    const {PlanInsights} = await import("../../src/ui/PlanInsights");
     const root: TreeNode = {properties: new Map([["operator", "scan"]])};
     const fixture = createUiFixture(testGraphStore([root]));
     try {

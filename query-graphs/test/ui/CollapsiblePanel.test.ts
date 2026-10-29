@@ -1,13 +1,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import * as React from "react";
-import type {CollapsiblePanelProps} from "../src/ui/CollapsiblePanel";
+import type {CollapsiblePanelProps} from "../../src/ui/CollapsiblePanel";
 import {createUiFixture} from "./ui-test-utils";
 
 const controllednessError = "CollapsiblePanel must not switch between controlled and uncontrolled state.";
 
 async function createFixture() {
-    const {CollapsiblePanel} = await import("../src/ui/CollapsiblePanel");
+    const {CollapsiblePanel} = await import("../../src/ui/CollapsiblePanel");
     const ui = createUiFixture();
     const requestedStates: boolean[] = [];
     return {

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import {getGraphAnimationDuration, graphAnimationProgress} from "../src/ui/animation-timing";
+import {getGraphAnimationDuration, graphAnimationProgress} from "../../src/ui/animation-timing";
 
 test("the selected animation speed resolves to its duration unless motion is disabled", () => {
     const previousWindow = Object.getOwnPropertyDescriptor(globalThis, "window");

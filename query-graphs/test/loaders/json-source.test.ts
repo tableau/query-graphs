@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import {parsePositionedJson} from "../src/loaders/json-source";
-import type {JsonObject} from "../src/loaders/loader-utils";
+import {parsePositionedJson} from "../../src/loaders/json-source";
+import type {JsonObject} from "../../src/loaders/loader-utils";
 
 test("positioned JSON parsing preserves JSON semantics and UTF-16 source offsets", () => {
     const text = '{\r\n  "emoji": "😀",\r\n  "__proto__": {"value": 1}\r\n}';

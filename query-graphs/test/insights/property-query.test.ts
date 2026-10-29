@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import type {TreeNode} from "../src/tree-description";
-import {accessPropertyPath, evaluatePredicate, type Predicate} from "../src/insights/property-query";
+import type {TreeNode} from "../../src/tree-description";
+import {accessPropertyPath, evaluatePredicate, type Predicate} from "../../src/insights/property-query";
 
 test("property paths read plain properties and nested serialized values", () => {
     const node: TreeNode = {
