@@ -28,15 +28,17 @@ test("flat definitions end at the first level and sort equal counts alphabetical
         groupBy: {valueSourceAlternatives: [["kind"]], fallbackValue: "Unknown kind"},
         where: {op: "exists", path: ["other"]},
     };
-    const root: TreeNode = {children: [node({kind: "z", other: "1"}), node({kind: "a", other: "1"})]};
-    // A one-level definition has no child categories, and equal-sized groups use alphabetical order.
-    assert.deepEqual(
-        computeCategoricalInsight(root, flat).map(({value, children}) => [value, children.length]),
-        [
-            ["a", 0],
-            ["z", 0],
-        ],
-    );
+    const firstZ = node({kind: "z", other: "1"});
+    const firstA = node({kind: "a", other: "1"});
+    const secondZ = node({kind: "z", other: "2"});
+    const secondA = node({kind: "a", other: "2"});
+    const root: TreeNode = {children: [firstZ, firstA, secondZ, secondA, node({kind: "excluded"})]};
+    // Each matching node contributes to one flat category; there is no second level.
+    // Equal non-zero counts sort alphabetically even though z occurs first in the plan.
+    assert.deepEqual(computeCategoricalInsight(root, flat), [
+        {value: "a", nodes: [firstA, secondA], children: []},
+        {value: "z", nodes: [firstZ, secondZ], children: []},
+    ]);
 });
 
 test("categorical aggregation counts matching occurrences in visible and collapsed subtrees", () => {
