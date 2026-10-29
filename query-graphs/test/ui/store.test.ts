@@ -20,8 +20,8 @@ function graphStore(
 }
 
 test("expanded node state includes every expandable node and updates in bulk", () => {
-    const first: TreeNode = {properties: new Map([["First", "value"]])};
-    const second: TreeNode = {properties: new Map([["Second", "value"]])};
+    const first: TreeNode = {properties: new Map([["First", {value: "value"}]])};
+    const second: TreeNode = {properties: new Map([["Second", {value: "value"}]])};
     const noProperties: TreeNode = {};
     const store = graphStore([first, second, noProperties]);
 

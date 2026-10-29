@@ -47,7 +47,7 @@ test("DuckDB examples are recognized", () => {
 test("DuckDB analyzed plans preserve metrics, metadata, and CTE crosslinks", () => {
     const analyzedScan = loadFixture("duckdb/tablescan-analyze.plan.json").tree;
     assert.equal(analyzedScan.root.name, '"temp".main.region (table_scan)');
-    assert.equal(analyzedScan.root.properties?.get("Table"), '"temp".main.region');
+    assert.equal(analyzedScan.root.properties?.get("Table")?.value, '"temp".main.region');
     assert.equal(analyzedScan.root.edgeLabel, "5/5");
     assert.notEqual(analyzedScan.root.nodeColor, undefined);
     assert.equal(analyzedScan.metadata?.has("query_name"), false);
@@ -260,10 +260,14 @@ test("the DuckDB loader accepts forced plans and optional profile fields", () =>
         JSON.stringify({
             query: {sql: "select 1"},
             future_metadata: {version: 1},
+            total_rows: 1234,
+            peak_memory: 1_048_576,
             operator: [{type: "DUMMY_SCAN", extra_info: {}, children: []}],
         }),
     ).tree.metadata;
-    assert.equal(futureMetadata?.get("future_metadata"), '{"version":1}');
+    assert.equal(futureMetadata?.get("future_metadata")?.value, '{"version":1}');
+    assert.deepEqual(futureMetadata?.get("total_rows"), {value: 1234, numberFormat: "rounded"});
+    assert.deepEqual(futureMetadata?.get("peak_memory"), {value: 1_048_576, numberFormat: "memory-bytes"});
 });
 
 test("DuckDB recognition does not claim generic child trees", () => {

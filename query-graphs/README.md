@@ -19,11 +19,11 @@ The library provides:
 `TreeDescription` (`src/tree-description.ts`) is the single abstraction that decouples "which database produced this plan" from "how it is drawn".
 Every loader outputs one; the renderer only ever consumes one.
 
-* `TreeDescription` — the whole graph: a `root` `TreeNode`, optional `metadata` (shown in the top-level label), an optional metadata highlight, optional text documents, and optional `crosslinks`.
+* `TreeDescription` — the whole graph: a `root` `TreeNode`, optional `metadata` (the same scalar property entries as node `properties`, shown in the top-level label), an optional metadata highlight, optional text documents, and optional `crosslinks`.
 * `TextDocument` — a named text artifact associated with the graph, identified by a stable `id` and optionally tagged with its language.
 * `TreeNode` — one node. Notable fields:
   * `name`, `icon`, `iconColor`, `nodeColor` — what the node looks like.
-  * `properties` — a `Map` of key/value strings shown in the node's tooltip/detail panel.
+  * `properties` — a `Map` of scalar property entries shown in the node's detail panel. Each entry has a `value` (`string` or `number`) and can specify a `numberFormat` for deferred numeric display formatting.
   * `children` vs `collapsedChildren` — see [The Collapse/Expand Model](#the-collapseexpand-model).
   * `edgeLabel`, `edgeWidth`, `edgeClass` — decorate the incoming edge (e.g. cardinality labels).
   * `sourceLocations` — optional half-open UTF-16 ranges linking the node to associated text documents.
@@ -36,8 +36,8 @@ Two helpers walk the tree: `visitTreeNodes` (recursive traversal) and `allChildr
 
 Each loader converts a source format into a `TreeDescription`; see [Plan Formats and Loaders](../docs/PlanFormatsAndLoaders.md) for the format list, dispatch order, how to add a new one, and [how to keep a loader permissive](../docs/PlanFormatsAndLoaders.md#writing-a-permissive-loader) on unfamiliar input.
 
-The DuckDB, Hyper, Umbra/CedarDB, and Postgres loaders share an **adaptive conversion heuristic**: a scalar value (string/number/boolean) becomes a tooltip `property`, while a nested object or array becomes a child `TreeNode`.
-This keeps simple attributes compact in the tooltip while still exposing structure as the tree.
+The DuckDB, Hyper, Umbra/CedarDB, and Postgres loaders share an **adaptive conversion heuristic**: a scalar value (string/number/boolean) becomes a detail-panel `property`, while a nested object or array becomes a child `TreeNode`.
+This keeps simple attributes compact in the detail panel while still exposing structure as the tree.
 `decorated-json-tree.ts` implements this as a configurable JSON-tree conversion.
 The generic JSON loader uses it without semantic node types or collapsed children.
 Hyper additionally configures operator/expression classification, node rendering, child ordering, collapsing, metric extraction, and crosslinks:
@@ -48,7 +48,8 @@ Hyper additionally configures operator/expression classification, node rendering
 
 Shared post-processing helpers resolve crosslinks and scale edge widths. Hyper's pipeline visualization lives separately in `pipeline-coloring.ts`.
 
-Shared parsing/formatting helpers live in `loader-utils.ts` (`tryToString`, `forceToString`, `formatMetric`, `tryGetPropertyPath`, the `Json` type).
+Shared loader parsing and conversion helpers live in `loader-utils.ts` (`tryToString`, `forceToString`, `toPropertyEntry`, `tryGetPropertyPath`, the `Json` type).
+Numeric display formats and their rendering helpers live outside the loaders in `number-formats.ts`.
 
 The library intentionally exposes low-level loaders (`json`, `xml`) as generic fallbacks so that even an unrecognized plan renders as *something* rather than an error.
 
@@ -84,7 +85,7 @@ The initial state is expressed entirely through `TreeDescription`:
 
 * A node's `children` are always laid out; its `collapsedChildren` are hidden until the subtree is expanded.
 * `expandedByDefault` seeds the initial state — loaders set it so that, for example, operator sub-trees start collapsed while expression sub-trees start open.
-* `properties` are hidden in the tooltip/detail panel and only shown when the node itself is expanded.
+* `properties` are hidden in the detail panel and only shown when the node itself is expanded.
 
 The loaders decide what goes where; the renderer and store just react to those decisions.
 

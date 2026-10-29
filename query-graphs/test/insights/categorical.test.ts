@@ -20,7 +20,9 @@ const definition: CategoricalInsightDefinition = {
     },
 };
 
-const node = (properties: Record<string, string>): TreeNode => ({properties: new Map(Object.entries(properties))});
+const node = (properties: Record<string, string>): TreeNode => ({
+    properties: new Map(Object.entries(properties).map(([key, value]) => [key, {value}])),
+});
 
 test("flat definitions end at the first level and sort equal counts alphabetically", () => {
     const flat: CategoricalInsightDefinition = {

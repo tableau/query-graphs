@@ -65,6 +65,8 @@ test("Postgres decorates cardinalities and CTE crosslinks", () => {
 
     assert.equal(aggregate?.edgeLabel, "100/1");
     assert.equal(aggregate?.edgeClass, "qg-label-highlighted");
+    assert.deepEqual(aggregate?.properties?.get("Plan Rows"), {value: 1, numberFormat: "rounded"});
+    assert.deepEqual(aggregate?.properties?.get("Actual Rows"), {value: 100, numberFormat: "rounded"});
     assert.deepEqual(tree.crosslinks, [{source: cteScan, target: aggregate}]);
 });
 
@@ -74,8 +76,10 @@ test("Postgres computes relative execution time", () => {
     }).tree;
     const scan = tree.root.children?.[0];
 
-    assert.equal(scan?.properties?.get("~Relative Time"), "4.000");
-    assert.equal(scan?.properties?.get("~Relative Time Ratio"), "0.800");
+    assert.deepEqual(scan?.properties?.get("~Relative Time"), {value: "4.000"});
+    assert.deepEqual(scan?.properties?.get("~Relative Time Ratio"), {value: "0.800"});
+    // Postgres reports this field in milliseconds, so it retains its raw value without a seconds format.
+    assert.deepEqual(scan?.properties?.get("Actual Total Time"), {value: 4});
     assert.notEqual(scan?.nodeColor, undefined);
 });
 

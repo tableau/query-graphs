@@ -5,11 +5,11 @@ XML Loader
 
 Map the XML tree directly to a D3 tree, without any modifications.
 Elements are displayed as tree nodes and the attributes are shown
-in the tooltips.
+in the detail panel.
 
 */
 
-import type {TreeNode} from "../tree-description";
+import type {PropertyEntry, TreeNode} from "../tree-description";
 import type {PlanLoader} from "./types";
 
 export interface ParsedXML {
@@ -64,11 +64,11 @@ function domNodeToXML(element: Element): ParsedXML {
 function convertXML(xml: ParsedXML): TreeNode {
     const tag = xml.tag;
     const text: string | undefined = xml.text;
-    const properties = new Map<string, string>();
-    if (text) properties.set("~text", text);
+    const properties = new Map<string, PropertyEntry>();
+    if (text) properties.set("~text", {value: text});
     if (xml.attrs) {
         for (const key of Object.keys(xml.attrs)) {
-            properties.set(key, xml.attrs[key]);
+            properties.set(key, {value: xml.attrs[key]});
         }
     }
     const children = [] as TreeNode[];
