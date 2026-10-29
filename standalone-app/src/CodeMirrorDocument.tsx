@@ -4,7 +4,16 @@ import {bracketMatching, defaultHighlightStyle, foldGutter, foldKeymap, syntaxHi
 import {openSearchPanel, searchKeymap} from "@codemirror/search";
 import {Compartment, EditorState, type Extension} from "@codemirror/state";
 import {color as oneDarkColor, oneDark} from "@codemirror/theme-one-dark";
-import {EditorView, drawSelection, highlightSpecialChars, keymap, lineNumbers, scrollPastEnd} from "@codemirror/view";
+import {
+    EditorView,
+    drawSelection,
+    highlightActiveLine,
+    highlightActiveLineGutter,
+    highlightSpecialChars,
+    keymap,
+    lineNumbers,
+    scrollPastEnd,
+} from "@codemirror/view";
 import {emacs} from "@replit/codemirror-emacs";
 import {vim} from "@replit/codemirror-vim";
 import type {SourceLocation, TextDocument} from "@tableau/query-graphs/lib/tree-description";
@@ -177,6 +186,8 @@ export function CodeMirrorDocument({
                     syntaxHighlighting(defaultHighlightStyle, {fallback: true}),
                     themeConfiguration.of(themeExtensionRef.current),
                     lineNumbers(),
+                    highlightActiveLine(),
+                    highlightActiveLineGutter(),
                     highlightSpecialChars(),
                     drawSelection(),
                     scrollPastEnd(),
