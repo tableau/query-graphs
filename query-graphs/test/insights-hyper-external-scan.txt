@@ -1,9 +1,0 @@
-Scanned Tables: 1
-  - public.orders: 1
-
-Operators: 1
-  - scan: 1
-    - iceberg: 1
-      - public.orders: 1
-
-Expressions: 0

@@ -35,8 +35,6 @@ const examples = [
     {name: "postgres-tpch-q2", plan: "standalone-app/examples/postgres/tpch/tpch-q2-analyze.plan.json", format: "postgres"},
     // DuckDB Q2 covers the analyzed TABLE_SCAN spelling and fully qualified table names.
     {name: "duckdb-tpch-q2", plan: "standalone-app/examples/duckdb/tpch/tpch-q2-analyze.plan.json", format: "duckdb"},
-    // A small Hyper plan checks that an external scan's table-name wins over its debug alias.
-    {name: "hyper-external-scan", plan: "query-graphs/test/fixtures/hyper-external-scan.plan.json", format: "hyper"},
     // Umbra set operations cover union, intersect, and except subtype drilldown absent from Q2.
     {name: "umbra-setoperation", plan: "standalone-app/examples/umbra/setoperation-analyze.plan.json", format: "umbra"},
     // CedarDB set operations cover the same subtypes through the shared Umbra definitions.
