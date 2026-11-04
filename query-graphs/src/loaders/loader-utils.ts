@@ -66,8 +66,7 @@ export function forceToString(d: unknown): string {
 // Preserve source values and units for downstream computation; scaling is only for rendering.
 // Objects and arrays remain serialized JSON strings until nested properties are supported.
 export function toPropertyEntry(value: unknown, numberFormat: NumberFormat = "exact"): PropertyEntry {
-    const scalarValue = typeof value === "number" && !Number.isFinite(value) ? String(value) : value;
-    const scalar = typeof scalarValue === "number" ? scalarValue : forceToString(scalarValue);
+    const scalar = typeof value === "number" ? value : forceToString(value);
     return typeof scalar === "number" ? {value: scalar, numberFormat} : {value: scalar};
 }
 

@@ -244,7 +244,6 @@ function analyzeMetadata(json: JsonObject): Map<string, PropertyEntry> {
         if (key === "extra_info" && isJsonObject(value) && Object.keys(value).length === 0) {
             continue;
         }
-        // Metric groups are nested objects; only operator fields use the operator format dictionary.
         metadata.set(key, toPropertyEntry(value));
     }
     return metadata;

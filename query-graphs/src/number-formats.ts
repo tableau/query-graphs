@@ -14,6 +14,7 @@ export type NumberFormat =
     | "time-microseconds";
 
 export function formatNumber(value: number, format: NumberFormat): string {
+    if (!Number.isFinite(value)) return String(value);
     switch (format) {
         case "exact":
             return formatExact(value);
