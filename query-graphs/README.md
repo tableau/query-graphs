@@ -48,7 +48,7 @@ Hyper additionally configures operator/expression classification, node rendering
 
 Shared post-processing helpers resolve crosslinks and scale edge widths. Hyper's pipeline visualization lives separately in `pipeline-coloring.ts`.
 
-Shared loader parsing and conversion helpers live in `loader-utils.ts` (`tryToString`, `forceToString`, `toPropertyEntry`, `tryGetPropertyPath`, the `Json` type).
+Shared loader parsing and conversion helpers live in `loader-utils.ts` (`tryToString`, `toPropertyEntry`, `tryGetPropertyPath`, the `Json` type).
 
 The library intentionally exposes low-level loaders (`json`, `xml`) as generic fallbacks so that even an unrecognized plan renders as *something* rather than an error.
 

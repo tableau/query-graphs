@@ -54,20 +54,11 @@ export function tryToNonNullString(value: unknown): string | undefined {
     return value === undefined || value === null ? undefined : tryToString(value);
 }
 
-// Convert to string. Returns the JSON serialization if not supported.
-export function forceToString(d: unknown): string {
-    let str = tryToString(d);
-    if (str === undefined) {
-        str = JSON.stringify(d);
-    }
-    return str;
-}
-
 // Preserve source values and units for downstream computation; scaling is only for rendering.
 // Objects and arrays remain serialized JSON strings until nested properties are supported.
 export function toPropertyEntry(value: unknown, numberFormat: NumberFormat = "exact"): PropertyEntry {
-    const scalar = typeof value === "number" ? value : forceToString(value);
-    return typeof scalar === "number" ? {value: scalar, numberFormat} : {value: scalar};
+    if (typeof value === "number") return {value, numberFormat};
+    return {value: tryToString(value) ?? JSON.stringify(value)};
 }
 
 export function tryToNumber(value: unknown): number | undefined {

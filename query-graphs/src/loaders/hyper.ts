@@ -15,7 +15,7 @@ known.
 import type {Crosslink, PropertyEntry, TreeDescription, TreeNode} from "../tree-description";
 import {allChildren, visitTreeNodes} from "../tree-description";
 import type {Json, JsonObject} from "./loader-utils";
-import {forceToString, hasOwnProperty, isJsonObject, toPropertyEntry, tryGetPropertyPath, tryToString} from "./loader-utils";
+import {hasOwnProperty, isJsonObject, toPropertyEntry, tryGetPropertyPath, tryToString} from "./loader-utils";
 import type {DecoratedJsonTreeConfig, NodeRenderingConfig} from "./decorated-json-tree";
 import {convertDecoratedJsonNode, createDecoratedJsonTreeState} from "./decorated-json-tree";
 import type {ExecutionPipeline} from "./pipeline-coloring";
@@ -249,7 +249,7 @@ function applyPipelineStatistics(pipelines: HyperPipeline[], metadata: Map<strin
     for (const pipeline of pipelines) {
         if (pipeline.driver !== undefined && pipeline.statistics !== undefined) {
             const properties = pipeline.driver.properties ?? new Map<string, PropertyEntry>();
-            properties.set("pipeline-stats", {value: forceToString(pipeline.statistics)});
+            properties.set("pipeline-stats", toPropertyEntry(pipeline.statistics));
             pipeline.driver.properties = properties;
             const value = tryGetPropertyPath(pipeline.statistics, ["cpu-cycles"]);
             if (typeof value === "number") {
@@ -269,7 +269,7 @@ function convertHyperPlan(node: Json, context: PlanLoadContext, pipelines?: Json
     const state = createDecoratedJsonTreeState();
     const errorMessage = tryGetPropertyPath(node, ["statistics", "error", "message", "original"]);
     if (errorMessage) {
-        state.metadata.set("Error", {value: forceToString(errorMessage)});
+        state.metadata.set("Error", toPropertyEntry(errorMessage));
     }
 
     const root = convertDecoratedJsonNode(node, "result", state, hyperConfig, context);
