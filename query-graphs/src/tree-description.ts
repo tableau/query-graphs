@@ -18,7 +18,7 @@ export type IconName =
 export interface PropertyEntry {
     // Numbers remain numeric until rendering so insights and other consumers retain the raw value.
     value: string | number;
-    // How to render a numeric value. Unset means as-is, without rounding or separators.
+    // How to render a numeric value, including its source unit. Defaults to exact formatting with separators.
     numberFormat?: NumberFormat;
 }
 

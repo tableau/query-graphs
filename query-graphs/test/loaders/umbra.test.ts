@@ -38,6 +38,45 @@ test("Umbra decorates cardinalities, pipelines, and recursive crosslinks", () =>
     assert.ok(treeNodes(analyzedScan.root).some((node) => node.name === "analyzePlanPipelines"));
 });
 
+test("Umbra and CedarDB preserve counts and microsecond pipeline timing values", () => {
+    const tree = loadUmbraPlan({
+        plan: {
+            operator: "inlinetable",
+            operatorId: 1234,
+            cardinality: 2345,
+            analyzePlanCardinality: 3456,
+            tableSize: 4567,
+            count: 5678,
+        },
+        analyzePlanPipelines: [
+            {start: 100, stop: 21000, duration: 20900, operators: [0]},
+            {svmean: 20900, svmin: 20000, svmax: 22000, svmedian: 21000, svsdev: 1000, svoperators: [0]},
+        ],
+    });
+    const plan = treeNodes(tree.root).find((node) => node.properties?.has("operatorId"));
+    for (const [key, value] of [
+        ["cardinality", 2345],
+        ["analyzePlanCardinality", 3456],
+        ["tableSize", 4567],
+        ["count", 5678],
+    ] as const) {
+        assert.deepEqual(plan?.properties?.get(key), {value, numberFormat: "count"});
+    }
+    assert.deepEqual(plan?.properties?.get("operatorId"), {value: 1234, numberFormat: "exact"});
+    for (const key of ["start", "stop", "duration", "svmean", "svmin", "svmax", "svmedian", "svsdev"]) {
+        const entry = treeNodes(tree.root)
+            .map((node) => node.properties?.get(key))
+            .find(Boolean);
+        assert.equal(entry?.numberFormat, "time-microseconds", key);
+    }
+    assert.equal(
+        treeNodes(tree.root)
+            .find((node) => node.properties?.has("duration"))
+            ?.properties?.get("duration")?.value,
+        20900,
+    );
+});
+
 test("Umbra keeps operator and pipeline identifier namespaces separate", () => {
     const tree = loadUmbraPlan({
         plan: {

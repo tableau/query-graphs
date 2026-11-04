@@ -1,29 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import {formatBytes, formatCount, formatExact, formatNumber, formatSeconds, inferNumberFormat} from "../src/number-formats";
+import {formatBytes, formatCount, formatExact, formatNumber, formatSeconds} from "../src/number-formats";
 import {getNumericProperty, getScalarProperty, getStringProperty} from "../src/tree-description";
 import {toPropertyEntry} from "../src/loaders/loader-utils";
-
-test("infers number formats from scalar property names", () => {
-    assert.equal(inferNumberFormat("output-rows"), "count");
-    assert.equal(inferNumberFormat("Plan Rows"), "count");
-    assert.equal(inferNumberFormat("actualCycles"), "count");
-    assert.equal(inferNumberFormat("PeakMemory"), "memory-bytes");
-    assert.equal(inferNumberFormat("totalBytes"), "memory-bytes");
-    assert.equal(inferNumberFormat("ExecutionTime"), "time-seconds");
-    assert.equal(inferNumberFormat("cpu_time"), "time-seconds");
-    assert.equal(inferNumberFormat("wall-clock"), "time-seconds");
-    assert.equal(inferNumberFormat("min-rows"), "count");
-});
-
-test("does not reinterpret numbers whose names already state another unit", () => {
-    for (const name of ["total_time_ms", "elapsedUs", "cache_ns", "memory_mb", "bufferKb", "peakGiB"]) {
-        assert.equal(inferNumberFormat(name), undefined, name);
-    }
-    for (const name of ["workerId", "joinCode", "ratio", "rowCount"]) {
-        assert.equal(inferNumberFormat(name), undefined, name);
-    }
-});
 
 test("formats deferred scalar numbers", () => {
     const roundedCounts: [number, string][] = [
@@ -84,7 +63,12 @@ test("formats deferred scalar numbers", () => {
     assert.equal(formatExact(1_234_567), "1,234,567");
     assert.equal(formatExact(0.4761234), "0.4761234");
     assert.equal(formatNumber(1_234.5, "exact"), "1,234.5");
-    assert.equal(formatNumber(1250, undefined), "1250");
+    assert.equal(formatNumber(1250, "exact"), "1,250");
+    assert.equal(formatExact(1e-25), "0.0000000000000000000000001");
+    assert.equal(formatExact(Number.MIN_VALUE).endsWith("5"), true);
+    assert.equal(formatNumber(1536, "memory-kilobytes"), "1.5 MiB");
+    assert.equal(formatNumber(20.9, "time-milliseconds"), "20.9ms");
+    assert.equal(formatNumber(20_900, "time-microseconds"), "20.9ms");
 });
 
 test("scalar accessors only return stored scalar values", () => {
@@ -102,12 +86,14 @@ test("scalar accessors only return stored scalar values", () => {
 });
 
 test("non-finite numbers are preserved as strings and receive no number format", () => {
-    assert.deepEqual(toPropertyEntry(Number.POSITIVE_INFINITY, "totalRows"), {value: "Infinity"});
-    assert.deepEqual(toPropertyEntry(Number.NaN, "peakMemory"), {value: "NaN"});
-    assert.deepEqual(toPropertyEntry(42, "id"), {value: 42});
+    assert.deepEqual(toPropertyEntry(Number.POSITIVE_INFINITY, "count"), {value: "Infinity"});
+    assert.deepEqual(toPropertyEntry(Number.NaN, "memory-bytes"), {value: "NaN"});
+    assert.deepEqual(toPropertyEntry(42), {value: 42, numberFormat: "exact"});
 });
 
-test("number inference is enabled only for formats accepted by the loader", () => {
-    assert.deepEqual(toPropertyEntry(1234, "totalRows"), {value: 1234});
-    assert.deepEqual(toPropertyEntry(1234, "totalRows", ["count"]), {value: 1234, numberFormat: "count"});
+test("numeric conversion defaults to exact and preserves source values for explicit formats", () => {
+    assert.deepEqual(toPropertyEntry(1234), {value: 1234, numberFormat: "exact"});
+    assert.deepEqual(toPropertyEntry(1234, "count"), {value: 1234, numberFormat: "count"});
+    assert.deepEqual(toPropertyEntry(20.9, "time-milliseconds"), {value: 20.9, numberFormat: "time-milliseconds"});
+    assert.deepEqual(toPropertyEntry("1234", "count"), {value: "1234"});
 });

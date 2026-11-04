@@ -126,7 +126,14 @@ function containsOperator(value: Json): boolean {
 
 const hyperConfig: DecoratedJsonTreeConfig = {
     nodeTypeKeys: ["operator", "expression"],
-    acceptedNumberFormats: ["count", "exact", "memory-bytes", "time-seconds"],
+    numberFormats: new Map([
+        ["estimated-rows", "count"],
+        ["output-rows", "count"],
+        ["processed-rows", "count"],
+        ["cpu-cycles", "count"],
+        ["memory-bytes", "memory-bytes"],
+        ["execution-time", "time-seconds"],
+    ]),
     structuralChildKeys: ["inputs", "input", "left", "right", "value", "value-for-comparison"],
     alwaysPropertyKeys: ["debug-name", "statistics", "sqlpos"],
     getRenderingConfig(nodeType, nodeTag, rawNode) {
@@ -283,7 +290,7 @@ function extraProperties(object: JsonObject, excludedKeys: readonly string[]): M
     const entries = Object.keys(object)
         .filter((key) => !excludedKeys.includes(key))
         .sort()
-        .map((key) => [key, toPropertyEntry(object[key], key, hyperConfig.acceptedNumberFormats)] as const);
+        .map((key) => [key, toPropertyEntry(object[key], hyperConfig.numberFormats?.get(key))] as const);
     return entries.length === 0 ? undefined : new Map(entries);
 }
 

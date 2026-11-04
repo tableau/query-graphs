@@ -4,7 +4,7 @@ import {formatNumber} from "../number-formats";
 import "./PropertyList.css";
 
 function formatPropertyValue(property: PropertyEntry): string {
-    return typeof property.value === "number" ? formatNumber(property.value, property.numberFormat) : String(property.value);
+    return typeof property.value === "number" ? formatNumber(property.value, property.numberFormat ?? "exact") : property.value;
 }
 
 export function PropertyList({properties}: {properties?: Map<string, PropertyEntry>}): ReactElement[] {

@@ -19,7 +19,7 @@ test("property values are formatted only while rendering", async () => {
         await fixture.render(React.createElement(PropertyList, {properties}));
         assert.deepEqual(
             [...fixture.document.querySelectorAll(".qg-prop-value")].map((element) => element.textContent),
-            ["scan", "5M", "5000000", "5,000,000", "1.5 KiB", "20.9ms"],
+            ["scan", "5M", "5,000,000", "5,000,000", "1.5 KiB", "20.9ms"],
         );
         assert.equal(properties.get("rows")?.value, 5_000_000);
     } finally {

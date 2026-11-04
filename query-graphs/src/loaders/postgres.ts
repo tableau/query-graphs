@@ -69,8 +69,31 @@ function getOperatorDisplayName(operatorType: string, rawNode: JsonObject): stri
 
 const postgresConfig: DecoratedJsonTreeConfig = {
     nodeTypeKeys: ["Node Type"],
-    // Postgres reports times in milliseconds, so only row counts are formatted.
-    acceptedNumberFormats: ["count"],
+    // Keep PostgreSQL's source values: times are milliseconds and memory sizes are 1024-byte kB.
+    numberFormats: new Map([
+        ["Plan Rows", "count"],
+        ["Actual Rows", "count"],
+        ["Actual Loops", "count"],
+        ["Rows Removed by Filter", "count"],
+        ["Rows Removed by Join Filter", "count"],
+        ["Rows Removed by Index Recheck", "count"],
+        ["Actual Startup Time", "time-milliseconds"],
+        ["Actual Total Time", "time-milliseconds"],
+        ["Planning Time", "time-milliseconds"],
+        ["Execution Time", "time-milliseconds"],
+        ["I/O Read Time", "time-milliseconds"],
+        ["I/O Write Time", "time-milliseconds"],
+        ["Shared I/O Read Time", "time-milliseconds"],
+        ["Shared I/O Write Time", "time-milliseconds"],
+        ["Local I/O Read Time", "time-milliseconds"],
+        ["Local I/O Write Time", "time-milliseconds"],
+        ["Temp I/O Read Time", "time-milliseconds"],
+        ["Temp I/O Write Time", "time-milliseconds"],
+        ["Peak Memory Usage", "memory-kilobytes"],
+        ["Sort Space Used", "memory-kilobytes"],
+        ["Disk Usage", "memory-kilobytes"],
+        ["Plan Width", "memory-bytes"],
+    ]),
     structuralChildKeys: ["Plan", "Plans"],
     alwaysPropertyKeys: [],
     getRenderingConfig(_nodeTypeKey, operatorType, rawNode) {

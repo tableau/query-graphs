@@ -50,6 +50,8 @@ Shared post-processing helpers resolve crosslinks and scale edge widths. Hyper's
 
 Shared loader parsing and conversion helpers live in `loader-utils.ts` (`tryToString`, `forceToString`, `toPropertyEntry`, `tryGetPropertyPath`, the `Json` type).
 Numeric display formats and their rendering helpers live outside the loaders in `number-formats.ts`.
+Loaders select formats from explicit property-name dictionaries; unknown numeric properties use exact formatting with thousand separators.
+Source values retain their original units, including PostgreSQL milliseconds and 1024-byte kB and Umbra/CedarDB microseconds; only the renderer scales them.
 
 The library intentionally exposes low-level loaders (`json`, `xml`) as generic fallbacks so that even an unrecognized plan renders as *something* rather than an error.
 

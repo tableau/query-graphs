@@ -78,9 +78,40 @@ test("Postgres computes relative execution time", () => {
 
     assert.deepEqual(scan?.properties?.get("~Relative Time"), {value: "4.000"});
     assert.deepEqual(scan?.properties?.get("~Relative Time Ratio"), {value: "0.800"});
-    // Postgres reports this field in milliseconds, so it retains its raw value without a seconds format.
-    assert.deepEqual(scan?.properties?.get("Actual Total Time"), {value: 4});
+    // Keep source milliseconds for relative-time calculations; scale only for display.
+    assert.deepEqual(scan?.properties?.get("Actual Total Time"), {value: 4, numberFormat: "time-milliseconds"});
     assert.notEqual(scan?.nodeColor, undefined);
+});
+
+test("Postgres preserves source units for memory, time, width, and costs", () => {
+    const tree = loadPlanFromText(
+        JSON.stringify({
+            Plan: {
+                "Node Type": "Sort",
+                "Peak Memory Usage": 1536,
+                "Sort Space Used": 2048,
+                "Disk Usage": 4096,
+                "Plan Width": 80,
+                "Actual Startup Time": 0.2,
+                "Total Cost": 1234.5,
+            },
+            "Planning Time": 2.5,
+            "Execution Time": 20.9,
+        }),
+        {format: "postgres"},
+    ).tree;
+    const properties = tree.root.children?.[0].properties;
+    for (const [key, value] of [
+        ["Peak Memory Usage", 1536],
+        ["Sort Space Used", 2048],
+        ["Disk Usage", 4096],
+    ] as const) {
+        assert.deepEqual(properties?.get(key), {value, numberFormat: "memory-kilobytes"});
+    }
+    assert.deepEqual(properties?.get("Plan Width"), {value: 80, numberFormat: "memory-bytes"});
+    assert.deepEqual(properties?.get("Actual Startup Time"), {value: 0.2, numberFormat: "time-milliseconds"});
+    assert.deepEqual(properties?.get("Total Cost"), {value: 1234.5, numberFormat: "exact"});
+    assert.deepEqual(tree.root.properties?.get("Planning Time"), {value: 2.5, numberFormat: "time-milliseconds"});
 });
 
 test("Postgres keeps semantic rendering when execution metrics are incomplete", () => {

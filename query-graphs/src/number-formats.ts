@@ -6,10 +6,14 @@ export type NumberFormat =
     | "exact"
     // As a memory unit ("KiB", "MiB", ...). The value is measured in bytes.
     | "memory-bytes"
+    // PostgreSQL reports memory in kB, meaning 1024 bytes.
+    | "memory-kilobytes"
     // As a time unit ("850µs", "12ms", "3.5s", "2.1min"). The value is measured in seconds.
-    | "time-seconds";
+    | "time-seconds"
+    | "time-milliseconds"
+    | "time-microseconds";
 
-export function formatNumber(value: number, format: NumberFormat | undefined): string {
+export function formatNumber(value: number, format: NumberFormat): string {
     switch (format) {
         case "count":
             return formatCount(value);
@@ -17,10 +21,14 @@ export function formatNumber(value: number, format: NumberFormat | undefined): s
             return formatExact(value);
         case "memory-bytes":
             return formatBytes(value);
+        case "memory-kilobytes":
+            return formatBytes(value * 1024);
         case "time-seconds":
             return formatSeconds(value);
-        case undefined:
-            return value.toString();
+        case "time-milliseconds":
+            return formatSeconds(value / 1000);
+        case "time-microseconds":
+            return formatSeconds(value / 1_000_000);
     }
 }
 
@@ -83,30 +91,5 @@ export function formatSeconds(seconds: number): string {
 
 // Format a number exactly, with thousand separators and every fraction digit.
 export function formatExact(value: number): string {
-    return value.toLocaleString("en-US", {maximumFractionDigits: 20});
-}
-
-const otherUnits = ["ns", "us", "ms", "kb", "mb", "gb", "kib", "mib", "gib"];
-
-function splitPropertyNameWords(name: string): string[] {
-    return name.split(/[^a-zA-Z]+|(?<=[a-z])(?=[A-Z])/).map((word) => word.toLowerCase());
-}
-
-// Infer a number's display format from the words of its property name.
-// Names that already state another unit (`memory-mb`, `total_time_ms`) and
-// names such as identifiers, codes, and ratios receive no inferred format.
-export function inferNumberFormat(propertyName: string): NumberFormat | undefined {
-    const words = splitPropertyNameWords(propertyName);
-    if (otherUnits.some((unit) => words.includes(unit))) return undefined;
-    const wordSet = new Set(words);
-    if (wordSet.has("rows") || wordSet.has("cycles")) return "count";
-    if (wordSet.has("memory") || wordSet.has("bytes")) return "memory-bytes";
-    if (wordSet.has("time") || wordSet.has("elapsed") || wordSet.has("clock") || wordSet.has("seconds")) return "time-seconds";
-    return undefined;
-}
-
-// Infer a format only when the loader confirms that its source unit matches.
-export function numberFormatForProperty(name: string, accepted?: readonly NumberFormat[]): NumberFormat | undefined {
-    const inferred = inferNumberFormat(name);
-    return inferred !== undefined && accepted?.includes(inferred) ? inferred : undefined;
+    return value.toLocaleString("en-US", {maximumSignificantDigits: 21});
 }

@@ -41,8 +41,8 @@ export function createDecoratedJsonTreeState(): DecoratedJsonTreeState {
 export interface DecoratedJsonTreeConfig {
     /** Object keys whose scalar values identify a semantic node type, in precedence order. */
     nodeTypeKeys: readonly string[];
-    /** Numeric display formats whose source units match this plan format. */
-    acceptedNumberFormats?: readonly NumberFormat[];
+    /** Known numeric properties and their source-unit-aware display formats. Others use exact formatting. */
+    numberFormats?: ReadonlyMap<string, NumberFormat>;
     /** Show these structural children in the listed order and omit their redundant key wrapper. */
     structuralChildKeys: readonly string[];
     /** Keep these values in the detail panel even when they are objects or arrays. */
@@ -165,7 +165,7 @@ function convertDecoratedJsonValue(
     // Some complex values are more useful in the detail panel than as subtrees.
     for (const key of config.alwaysPropertyKeys) {
         if (hasOwnProperty(rawNode, key)) {
-            properties.set(key, toPropertyEntry(rawNode[key], key, config.acceptedNumberFormats));
+            properties.set(key, toPropertyEntry(rawNode[key], config.numberFormats?.get(key)));
         }
     }
 
@@ -176,7 +176,7 @@ function convertDecoratedJsonValue(
             continue;
         }
         for (const propertyKey of Object.keys(propertyObject).sort()) {
-            properties.set(propertyKey, toPropertyEntry(propertyObject[propertyKey], propertyKey, config.acceptedNumberFormats));
+            properties.set(propertyKey, toPropertyEntry(propertyObject[propertyKey], config.numberFormats?.get(propertyKey)));
         }
     }
 
@@ -185,7 +185,7 @@ function convertDecoratedJsonValue(
     for (const key of orderedKeys(rawNode, config)) {
         const value = tryToString(rawNode[key]);
         if (value !== undefined) {
-            properties.set(key, toPropertyEntry(rawNode[key], key, config.acceptedNumberFormats));
+            properties.set(key, toPropertyEntry(rawNode[key], config.numberFormats?.get(key)));
             continue;
         }
 

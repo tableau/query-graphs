@@ -1,5 +1,5 @@
 import type {PropertyEntry} from "../tree-description";
-import {numberFormatForProperty, type NumberFormat} from "../number-formats";
+import type {NumberFormat} from "../number-formats";
 
 // Stricter type for JSON data
 type JsonPrimitive = string | number | boolean | null;
@@ -63,14 +63,11 @@ export function forceToString(d: unknown): string {
     return str;
 }
 
-// Preserve finite input numbers for downstream computation. A loader may opt into
-// name-based display formatting only for units its plan format reports reliably.
-export function toPropertyEntry(value: unknown, key?: string, acceptedFormats?: readonly NumberFormat[]): PropertyEntry {
+// Preserve source values and units for downstream computation; scaling is only for rendering.
+export function toPropertyEntry(value: unknown, numberFormat: NumberFormat = "exact"): PropertyEntry {
     const scalarValue = typeof value === "number" && !Number.isFinite(value) ? String(value) : value;
     const scalar = typeof scalarValue === "number" ? scalarValue : forceToString(scalarValue);
-    const numberFormat =
-        typeof scalar === "number" && key !== undefined ? numberFormatForProperty(key, acceptedFormats) : undefined;
-    return numberFormat === undefined ? {value: scalar} : {value: scalar, numberFormat};
+    return typeof scalar === "number" ? {value: scalar, numberFormat} : {value: scalar};
 }
 
 export function tryToNumber(value: unknown): number | undefined {

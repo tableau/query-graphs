@@ -266,8 +266,37 @@ test("the DuckDB loader accepts forced plans and optional profile fields", () =>
         }),
     ).tree.metadata;
     assert.equal(futureMetadata?.get("future_metadata")?.value, '{"version":1}');
-    assert.deepEqual(futureMetadata?.get("total_rows"), {value: 1234, numberFormat: "count"});
-    assert.deepEqual(futureMetadata?.get("peak_memory"), {value: 1_048_576, numberFormat: "memory-bytes"});
+    assert.deepEqual(futureMetadata?.get("total_rows"), {value: 1234, numberFormat: "exact"});
+    assert.deepEqual(futureMetadata?.get("peak_memory"), {value: 1_048_576, numberFormat: "exact"});
+});
+
+test("DuckDB 2.0 flat metrics retain values and use their documented units", () => {
+    const root = loadDuckDbPlan({
+        type: "TABLE_SCAN",
+        children: [],
+        intermediate_rows: 1234,
+        intermediate_size_bytes: 1536,
+        rows_scanned: 2345,
+        row_groups_scanned: 123,
+        total_row_groups_to_scan: 456,
+        timing: 0.0209,
+        cpu_time: 0.0418,
+        future_time: 99,
+        constructor: 7,
+    }).root;
+    for (const [key, value] of [
+        ["intermediate_rows", 1234],
+        ["rows_scanned", 2345],
+        ["row_groups_scanned", 123],
+        ["total_row_groups_to_scan", 456],
+    ] as const) {
+        assert.deepEqual(root.properties?.get(key), {value, numberFormat: "count"});
+    }
+    assert.deepEqual(root.properties?.get("intermediate_size_bytes"), {value: 1536, numberFormat: "memory-bytes"});
+    assert.deepEqual(root.properties?.get("timing"), {value: 0.0209, numberFormat: "time-seconds"});
+    assert.deepEqual(root.properties?.get("cpu_time"), {value: 0.0418, numberFormat: "time-seconds"});
+    assert.deepEqual(root.properties?.get("future_time"), {value: 99, numberFormat: "exact"});
+    assert.deepEqual(root.properties?.get("constructor"), {value: 7, numberFormat: "exact"});
 });
 
 test("DuckDB recognition does not claim generic child trees", () => {
