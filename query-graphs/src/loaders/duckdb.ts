@@ -9,19 +9,20 @@ envelope.
 
 */
 
-import type {Crosslink, IconName, TextDocument, TreeDescription, TreeNode} from "../tree-description";
+import type {Crosslink, IconName, PropertyEntry, TextDocument, TreeDescription, TreeNode} from "../tree-description";
 import {allChildren, visitTreeNodes} from "../tree-description";
+import {getNumericProperty, getScalarProperty} from "../tree-description";
 import type {DecoratedJsonTreeConfig} from "./decorated-json-tree";
 import {convertDecoratedJsonNode, createDecoratedJsonTreeState} from "./decorated-json-tree";
 import type {Json, JsonObject} from "./loader-utils";
 import {
-    forceToString,
     hasOwnProperty,
     hasSubObject,
     isJsonObject,
     tryGetPropertyPath,
     tryToNonNullString,
     tryToNumber,
+    toPropertyEntry,
 } from "./loader-utils";
 import {buildIdMap, colorRelativeNumber, resolveCrosslinks, setRelativeEdgeWidths} from "./tree-postprocessing";
 import type {JsonPlanLoader, PlanLoadContext} from "./types";
@@ -104,6 +105,17 @@ const duckDbConfig: DecoratedJsonTreeConfig = {
     structuralChildKeys: ["children"],
     alwaysPropertyKeys: [],
     flattenPropertyObjectKeys: ["extra_info"],
+    // https://duckdb.org/docs/2.0/dev/metrics#operator-metrics
+    // DuckDB 2.0 operator metrics; query/system/io groups remain serialized properties.
+    numberFormats: new Map([
+        ["intermediate_rows", "count"],
+        ["intermediate_size_bytes", "memory-bytes"],
+        ["rows_scanned", "count"],
+        ["row_groups_scanned", "count"],
+        ["total_row_groups_to_scan", "count"],
+        ["timing", "time-seconds"],
+        ["cpu_time", "time-seconds"],
+    ]),
     getRenderingConfig(_nodeTypeKey, _tag, rawNode) {
         return {icon: getIcon(rawNode)};
     },
@@ -135,7 +147,7 @@ function applyOperatorTimings(root: TreeNode): void {
     visitTreeNodes(
         root,
         (node) => {
-            const timing = tryToNumber(node.properties?.get("timing"));
+            const timing = getNumericProperty(node.properties, "timing");
             if (timing !== undefined) {
                 timings.push({node, value: timing});
             }
@@ -148,7 +160,7 @@ function applyOperatorTimings(root: TreeNode): void {
 function convertDuckPlan(
     rawRoot: Json,
     context: PlanLoadContext,
-    metadata?: Map<string, string>,
+    metadata?: Map<string, PropertyEntry>,
     textDocuments?: TextDocument[],
 ): TreeDescription {
     const state = createDecoratedJsonTreeState();
@@ -162,8 +174,8 @@ function convertDuckPlan(
     visitTreeNodes(
         root,
         (node) => {
-            const operatorType = node.properties?.get("operator_type");
-            const id = node.properties?.get("Delim Index");
+            const operatorType = getScalarProperty(node.properties, "operator_type");
+            const id = getScalarProperty(node.properties, "Delim Index");
             const isDelimJoin = operatorType?.endsWith("DELIM_JOIN") ?? node.name?.endsWith("delim_join") ?? false;
             if (isDelimJoin && id !== undefined) {
                 crosslinkTargets.set(crosslinkId("delim", id), node);
@@ -222,8 +234,8 @@ function getPlanStages(json: Json): [string, Json][] | undefined {
     return Object.entries(json).map(([name, plan]) => [name, isSingletonArray(plan) ? plan[0] : plan]);
 }
 
-function analyzeMetadata(json: JsonObject): Map<string, string> {
-    const metadata = new Map<string, string>();
+function analyzeMetadata(json: JsonObject): Map<string, PropertyEntry> {
+    const metadata = new Map<string, PropertyEntry>();
     for (const key of Object.keys(json)) {
         if (key === "operator" || key === "query") {
             continue;
@@ -232,7 +244,7 @@ function analyzeMetadata(json: JsonObject): Map<string, string> {
         if (key === "extra_info" && isJsonObject(value) && Object.keys(value).length === 0) {
             continue;
         }
-        metadata.set(key, forceToString(value));
+        metadata.set(key, toPropertyEntry(value));
     }
     return metadata;
 }

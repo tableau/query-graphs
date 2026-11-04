@@ -1,3 +1,6 @@
+import type {PropertyEntry} from "../tree-description";
+import type {NumberFormat} from "../number-formats";
+
 // Stricter type for JSON data
 type JsonPrimitive = string | number | boolean | null;
 export type Json = JsonPrimitive | JsonObject | JsonArray;
@@ -51,13 +54,11 @@ export function tryToNonNullString(value: unknown): string | undefined {
     return value === undefined || value === null ? undefined : tryToString(value);
 }
 
-// Convert to string. Returns the JSON serialization if not supported.
-export function forceToString(d: unknown): string {
-    let str = tryToString(d);
-    if (str === undefined) {
-        str = JSON.stringify(d);
-    }
-    return str;
+// Preserve source values and units for downstream computation; scaling is only for rendering.
+// Objects and arrays remain serialized JSON strings until nested properties are supported.
+export function toPropertyEntry(value: unknown, numberFormat: NumberFormat = "exact"): PropertyEntry {
+    if (typeof value === "number") return {value, numberFormat};
+    return {value: tryToString(value) ?? JSON.stringify(value)};
 }
 
 export function tryToNumber(value: unknown): number | undefined {
@@ -69,15 +70,4 @@ export function tryToNumber(value: unknown): number | undefined {
         return Number.isFinite(parsed) ? parsed : undefined;
     }
     return undefined;
-}
-
-// Format a number using metric suffixes
-export function formatMetric(x: number): string {
-    const sizes = ["", "k", "M", "G", "T", "P", "E", "Z", "Y"];
-    let idx = 0;
-    while (x > 1000 && idx < sizes.length - 1) {
-        x /= 1000;
-        ++idx;
-    }
-    return x.toFixed(0) + sizes[idx];
 }

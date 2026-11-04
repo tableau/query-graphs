@@ -12,10 +12,10 @@ known.
 
 */
 
-import type {Crosslink, TreeDescription, TreeNode} from "../tree-description";
+import type {Crosslink, PropertyEntry, TreeDescription, TreeNode} from "../tree-description";
 import {allChildren, visitTreeNodes} from "../tree-description";
 import type {Json, JsonObject} from "./loader-utils";
-import {forceToString, hasOwnProperty, isJsonObject, tryGetPropertyPath, tryToString} from "./loader-utils";
+import {hasOwnProperty, isJsonObject, toPropertyEntry, tryGetPropertyPath, tryToString} from "./loader-utils";
 import type {DecoratedJsonTreeConfig, NodeRenderingConfig} from "./decorated-json-tree";
 import {convertDecoratedJsonNode, createDecoratedJsonTreeState} from "./decorated-json-tree";
 import type {ExecutionPipeline} from "./pipeline-coloring";
@@ -128,6 +128,14 @@ const hyperConfig: DecoratedJsonTreeConfig = {
     nodeTypeKeys: ["operator", "expression"],
     structuralChildKeys: ["inputs", "input", "left", "right", "value", "value-for-comparison"],
     alwaysPropertyKeys: ["debug-name", "statistics", "sqlpos"],
+    numberFormats: new Map([
+        ["estimated-rows", "count"],
+        ["output-rows", "count"],
+        ["processed-rows", "count"],
+        ["cpu-cycles", "count"],
+        ["memory-bytes", "memory-bytes"],
+        ["execution-time", "time-seconds"],
+    ]),
     getRenderingConfig(nodeType, nodeTag, rawNode) {
         const prefix = nodeType === "operator" ? "op" : "exp";
         const configKey = legacyNodeTags[`${prefix}:${nodeTag}`] ?? `${prefix}:${nodeTag}`;
@@ -185,8 +193,8 @@ function applyLegacyOperatorStatistics(root: TreeNode): void {
     visitTreeNodes(
         root,
         (node) => {
-            const statistics = node.properties?.get("statistics");
-            if (statistics === undefined) return;
+            const statistics = node.properties?.get("statistics")?.value;
+            if (typeof statistics !== "string") return;
             try {
                 const value = tryGetPropertyPath(JSON.parse(statistics) as Json, ["cpu-cycles"]);
                 if (typeof value === "number") {
@@ -236,12 +244,12 @@ function parsePipelines(pipelinesJson: Json, operatorsById: Map<string, TreeNode
     return pipelines;
 }
 
-function applyPipelineStatistics(pipelines: HyperPipeline[], metadata: Map<string, string>): void {
+function applyPipelineStatistics(pipelines: HyperPipeline[], metadata: Map<string, PropertyEntry>): void {
     const cpuCycles: {node: TreeNode; value: number}[] = [];
     for (const pipeline of pipelines) {
         if (pipeline.driver !== undefined && pipeline.statistics !== undefined) {
-            const properties = pipeline.driver.properties ?? new Map<string, string>();
-            properties.set("pipeline-stats", forceToString(pipeline.statistics));
+            const properties = pipeline.driver.properties ?? new Map<string, PropertyEntry>();
+            properties.set("pipeline-stats", toPropertyEntry(pipeline.statistics));
             pipeline.driver.properties = properties;
             const value = tryGetPropertyPath(pipeline.statistics, ["cpu-cycles"]);
             if (typeof value === "number") {
@@ -261,7 +269,7 @@ function convertHyperPlan(node: Json, context: PlanLoadContext, pipelines?: Json
     const state = createDecoratedJsonTreeState();
     const errorMessage = tryGetPropertyPath(node, ["statistics", "error", "message", "original"]);
     if (errorMessage) {
-        state.metadata.set("Error", forceToString(errorMessage));
+        state.metadata.set("Error", toPropertyEntry(errorMessage));
     }
 
     const root = convertDecoratedJsonNode(node, "result", state, hyperConfig, context);
@@ -278,11 +286,11 @@ function convertHyperPlan(node: Json, context: PlanLoadContext, pipelines?: Json
     return {root, crosslinks, metadata: state.metadata, metadataHighlighted: state.metadata.has("Error") || undefined};
 }
 
-function extraProperties(object: JsonObject, excludedKeys: readonly string[]): Map<string, string> | undefined {
+function extraProperties(object: JsonObject, excludedKeys: readonly string[]): Map<string, PropertyEntry> | undefined {
     const entries = Object.keys(object)
         .filter((key) => !excludedKeys.includes(key))
         .sort()
-        .map((key) => [key, forceToString(object[key])] as const);
+        .map((key) => [key, toPropertyEntry(object[key], hyperConfig.numberFormats?.get(key))] as const);
     return entries.length === 0 ? undefined : new Map(entries);
 }
 
@@ -303,7 +311,7 @@ function convertOptimizerSteps(node: Json, context: PlanLoadContext): TreeDescri
 
     const crosslinks: Crosslink[] = [];
     const children: TreeNode[] = [];
-    const metadata = new Map<string, string>();
+    const metadata = new Map<string, PropertyEntry>();
     let metadataHighlighted = false;
     for (const step of steps) {
         if (typeof step !== "object" || Array.isArray(step) || step === null) return undefined;
@@ -322,7 +330,7 @@ function convertOptimizerSteps(node: Json, context: PlanLoadContext): TreeDescri
         crosslinks.push(...(newCrosslinks ?? []));
         metadataHighlighted ||= childMetadataHighlighted ?? false;
         children.push({name, properties: extraProperties(step, ["name", "plan"]), children: [childRoot]});
-        for (const property of newProperties ?? new Map<string, string>()) {
+        for (const property of newProperties ?? new Map<string, PropertyEntry>()) {
             metadata.set(property[0], property[1]);
         }
     }

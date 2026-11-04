@@ -20,7 +20,9 @@ const definition: CategoricalInsightDefinition = {
     },
 };
 
-const node = (properties: Record<string, string>): TreeNode => ({properties: new Map(Object.entries(properties))});
+const node = (properties: Record<string, string>): TreeNode => ({
+    properties: new Map(Object.entries(properties).map(([key, value]) => [key, {value}])),
+});
 
 test("flat definitions end at the first level and sort equal counts alphabetically", () => {
     const flat: CategoricalInsightDefinition = {
@@ -87,4 +89,36 @@ test("non-special labels use the default drilldown level", () => {
         groups[0].children.flatMap(({nodes}) => nodes),
         [join, outerJoin],
     );
+});
+
+test("category sources skip nonstrings before trying alternatives or the fallback", () => {
+    const flat: CategoricalInsightDefinition = {
+        ...definition,
+        groupBy: {
+            valueSourceAlternatives: [["candidate", "value"], ["table"]],
+            fallbackValue: "Unknown table",
+        },
+    };
+    for (const value of [42, true, null, {table: "orders"}, ["orders"]]) {
+        const alternative = node({kind: "scan", candidate: JSON.stringify({value}), table: "orders"});
+        const fallback = node({kind: "scan", candidate: JSON.stringify({value})});
+        const groups = computeCategoricalInsight({children: [alternative, fallback]}, flat);
+        assert.deepEqual(groups, [
+            {value: "orders", nodes: [alternative], children: []},
+            {value: "Unknown table", nodes: [fallback], children: []},
+        ]);
+    }
+    const numeric: TreeNode = {
+        properties: new Map([
+            ["kind", {value: "scan"}],
+            ["candidate", {value: 42}],
+        ]),
+    };
+    const numericText = node({kind: "scan", candidate: '{"value":"42"}'});
+    const emptyString = node({kind: "scan", candidate: '{"value":""}'});
+    assert.deepEqual(computeCategoricalInsight({children: [numeric, numericText, emptyString]}, flat), [
+        {value: "", nodes: [emptyString], children: []},
+        {value: "42", nodes: [numericText], children: []},
+        {value: "Unknown table", nodes: [numeric], children: []},
+    ]);
 });

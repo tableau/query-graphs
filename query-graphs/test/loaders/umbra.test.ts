@@ -31,11 +31,48 @@ test("Umbra decorates cardinalities, pipelines, and recursive crosslinks", () =>
     const analyzedScan = loadFixture("umbra/tablescan-analyze.plan.json").tree;
     const plan = analyzedScan.root.children?.[0];
     assert.equal(analyzedScan.root.name, "select");
-    assert.equal(analyzedScan.root.properties?.get("query"), "true");
+    assert.equal(analyzedScan.root.properties?.get("query")?.value, "true");
     assert.equal(plan?.name, "region");
     assert.notEqual(plan?.iconColor, undefined);
     assert.equal(plan?.edgeLabel, "5/5");
     assert.ok(treeNodes(analyzedScan.root).some((node) => node.name === "analyzePlanPipelines"));
+});
+
+test("Umbra / CedarDB preserves flat numeric values and defers their display formatting", () => {
+    const root = loadPlanFromText(
+        JSON.stringify({
+            plan: {
+                operator: "inlinetable",
+                operatorId: 123456,
+                cardinality: 2345678901,
+                analyzePlanCardinality: 3456,
+                tableSize: 4567,
+                count: 5678,
+            },
+            analyzePlanPipelines: [
+                {start: 100, stop: 21000, duration: 20900, operators: [0]},
+                {svmean: 20900, svmin: 20000, svmax: 22000, svmedian: 21000, svsdev: 1000, svoperators: [0]},
+            ],
+        }),
+        {format: "umbra"},
+    ).tree.root;
+    const plan = root.children?.[0];
+    const umbraPipeline = treeNodes(root).find((node) => node.properties?.has("duration"));
+    const cedarPipeline = treeNodes(root).find((node) => node.properties?.has("svmean"));
+
+    assert.deepEqual(plan?.properties?.get("operatorId"), {value: 123456, numberFormat: "exact"});
+    assert.deepEqual(plan?.properties?.get("cardinality"), {value: 2345678901, numberFormat: "count"});
+    assert.deepEqual(plan?.properties?.get("analyzePlanCardinality"), {value: 3456, numberFormat: "count"});
+    assert.deepEqual(plan?.properties?.get("tableSize"), {value: 4567, numberFormat: "count"});
+    assert.deepEqual(plan?.properties?.get("count"), {value: 5678, numberFormat: "count"});
+    assert.deepEqual(umbraPipeline?.properties?.get("start"), {value: 100, numberFormat: "exact"});
+    assert.deepEqual(umbraPipeline?.properties?.get("stop"), {value: 21000, numberFormat: "exact"});
+    assert.deepEqual(umbraPipeline?.properties?.get("duration"), {value: 20900, numberFormat: "time-microseconds"});
+    assert.deepEqual(cedarPipeline?.properties?.get("svmean"), {value: 20900, numberFormat: "time-microseconds"});
+    assert.deepEqual(cedarPipeline?.properties?.get("svmin"), {value: 20000, numberFormat: "time-microseconds"});
+    assert.deepEqual(cedarPipeline?.properties?.get("svmax"), {value: 22000, numberFormat: "time-microseconds"});
+    assert.deepEqual(cedarPipeline?.properties?.get("svmedian"), {value: 21000, numberFormat: "time-microseconds"});
+    assert.deepEqual(cedarPipeline?.properties?.get("svsdev"), {value: 1000, numberFormat: "time-microseconds"});
 });
 
 test("Umbra keeps operator and pipeline identifier namespaces separate", () => {
@@ -162,13 +199,13 @@ test("Umbra keeps source locations in properties instead of graph subtrees", () 
         ],
     });
     const nodes = treeNodes(tree.root);
-    const operator = nodes.find((node) => node.properties?.get("operatorId") === "1");
-    const expression = nodes.find((node) => node.properties?.get("id") === "2");
-    const iu = nodes.find((node) => node.properties?.get("iu") === "value");
+    const operator = nodes.find((node) => node.properties?.get("operatorId")?.value === 1);
+    const expression = nodes.find((node) => node.properties?.get("id")?.value === 2);
+    const iu = nodes.find((node) => node.properties?.get("iu")?.value === "value");
 
-    assert.equal(operator?.properties?.get("sourceLocation"), '{"startLine":1,"startColumn":2,"endLine":1,"endColumn":7}');
-    assert.equal(expression?.properties?.get("sourceLocation"), '{"startLine":1,"startColumn":8,"endLine":1,"endColumn":9}');
-    assert.equal(iu?.properties?.get("sourceLocation"), '{"startLine":1,"startColumn":10,"endLine":1,"endColumn":15}');
+    assert.equal(operator?.properties?.get("sourceLocation")?.value, '{"startLine":1,"startColumn":2,"endLine":1,"endColumn":7}');
+    assert.equal(expression?.properties?.get("sourceLocation")?.value, '{"startLine":1,"startColumn":8,"endLine":1,"endColumn":9}');
+    assert.equal(iu?.properties?.get("sourceLocation")?.value, '{"startLine":1,"startColumn":10,"endLine":1,"endColumn":15}');
     assert.ok(!treeNodes(tree.root).some((node) => node.name === "sourceLocation"));
 });
 
@@ -189,7 +226,7 @@ test("Umbra nodes link both SQL and JSON source ranges", () => {
     const keyFrom = planText.indexOf('"operator"');
     const valueFrom = planText.indexOf('"tablescan"');
 
-    const operator = treeNodes(loaded.tree.root).find((node) => node.properties?.get("operatorId") === "1");
+    const operator = treeNodes(loaded.tree.root).find((node) => node.properties?.get("operatorId")?.value === 1);
     assert.deepEqual(operator?.sourceLocations, [
         {documentId: "query", from: 46, to: 56},
         {documentId: "plan", from: keyFrom, to: valueFrom + '"tablescan"'.length},

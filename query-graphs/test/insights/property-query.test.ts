@@ -6,8 +6,8 @@ import {accessPropertyPath, evaluatePredicate, type Predicate} from "../../src/i
 test("property paths read plain properties and nested serialized values", () => {
     const node: TreeNode = {
         properties: new Map([
-            ["debug-name", '{"value":"region","rank":3}'],
-            ["empty", ""],
+            ["debug-name", {value: '{"value":"region","rank":3}'}],
+            ["empty", {value: ""}],
         ]),
     };
     // A one-segment path returns the stored string; longer paths decode its JSON value.
@@ -17,16 +17,16 @@ test("property paths read plain properties and nested serialized values", () => 
     // Missing keys, non-object values, and malformed JSON yield no category value.
     assert.equal(accessPropertyPath(node, ["debug-name", "missing"]), undefined);
     assert.equal(accessPropertyPath(node, ["empty", "value"]), undefined);
-    assert.equal(accessPropertyPath({properties: new Map([["broken", "{not json"]])}, ["broken", "value"]), undefined);
+    assert.equal(accessPropertyPath({properties: new Map([["broken", {value: "{not json"}]])}, ["broken", "value"]), undefined);
     assert.equal(accessPropertyPath(node, ["missing"]), undefined);
 });
 
 test("composed predicates select nodes by presence and nested values", () => {
     const node: TreeNode = {
         properties: new Map([
-            ["operator", "scan"],
-            ["metadata", '{"rank":3}'],
-            ["empty", ""],
+            ["operator", {value: "scan"}],
+            ["metadata", {value: '{"rank":3}'}],
+            ["empty", {value: ""}],
         ]),
     };
     const predicate: Predicate = {
@@ -46,7 +46,7 @@ test("composed predicates select nodes by presence and nested values", () => {
     };
     // An empty string still satisfies exists; all/any/not compose with nested JSON equality.
     assert.equal(evaluatePredicate(node, predicate), true);
-    assert.equal(evaluatePredicate({properties: new Map([["operator", "join"]])}, predicate), false);
+    assert.equal(evaluatePredicate({properties: new Map([["operator", {value: "join"}]])}, predicate), false);
     // Empty conjunctions and disjunctions retain their usual Boolean identities.
     assert.equal(evaluatePredicate(node, {op: "all", operands: []}), true);
     assert.equal(evaluatePredicate(node, {op: "any", operands: []}), false);

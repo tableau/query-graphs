@@ -1,12 +1,11 @@
 import type {TreeNode} from "../tree-description";
 import {allChildren, visitTreeNodes} from "../tree-description";
-import {forceToString} from "../loaders/loader-utils";
 import type {Predicate, PropertyPath} from "./property-query";
 import {accessPropertyPath, evaluatePredicate} from "./property-query";
 
 /** Each selected node follows exactly one path through the configured levels. */
 export interface CategoricalInsightLevel {
-    /** Property paths checked in order for a category label. */
+    /** Property paths checked in order for a string category value; nonstrings are skipped. */
     valueSourceAlternatives: readonly PropertyPath[];
     /** Label used when no value source yields a category label. */
     fallbackValue: string;
@@ -41,8 +40,8 @@ export interface CategoricalInsightCategory {
 function groupingPath(node: TreeNode, level: CategoricalInsightLevel): string[] {
     const value = level.valueSourceAlternatives
         .map((source) => accessPropertyPath(node, source))
-        .find((candidate) => candidate !== undefined);
-    const label = value === undefined ? level.fallbackValue : forceToString(value);
+        .find((candidate) => typeof candidate === "string");
+    const label = value ?? level.fallbackValue;
     const next = level.nextByValue && Object.hasOwn(level.nextByValue, label) ? level.nextByValue[label] : level.next;
     return next ? [label, ...groupingPath(node, next)] : [label];
 }

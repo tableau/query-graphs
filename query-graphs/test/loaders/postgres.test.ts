@@ -65,6 +65,8 @@ test("Postgres decorates cardinalities and CTE crosslinks", () => {
 
     assert.equal(aggregate?.edgeLabel, "100/1");
     assert.equal(aggregate?.edgeClass, "qg-label-highlighted");
+    assert.deepEqual(aggregate?.properties?.get("Plan Rows"), {value: 1, numberFormat: "count"});
+    assert.deepEqual(aggregate?.properties?.get("Actual Rows"), {value: 100, numberFormat: "count"});
     assert.deepEqual(tree.crosslinks, [{source: cteScan, target: aggregate}]);
 });
 
@@ -74,9 +76,42 @@ test("Postgres computes relative execution time", () => {
     }).tree;
     const scan = tree.root.children?.[0];
 
-    assert.equal(scan?.properties?.get("~Relative Time"), "4.000");
-    assert.equal(scan?.properties?.get("~Relative Time Ratio"), "0.800");
+    assert.deepEqual(scan?.properties?.get("~Relative Time"), {value: "4.000"});
+    assert.deepEqual(scan?.properties?.get("~Relative Time Ratio"), {value: "0.800"});
     assert.notEqual(scan?.nodeColor, undefined);
+});
+
+test("Postgres preserves numeric values and uses proper number formats", () => {
+    const root = loadPlanFromText(
+        JSON.stringify({
+            Plan: {
+                "Node Type": "Sort",
+                "Plan Rows": 2345678901,
+                "Peak Memory Usage": 1536,
+                "Sort Space Used": 2048,
+                "Disk Usage": 4096,
+                "Plan Width": 80,
+                "Actual Startup Time": 0.2,
+                "Actual Total Time": 20.9,
+                "Total Cost": 1234.5,
+            },
+            "Planning Time": 2.5,
+            "Execution Time": 20.9,
+        }),
+        {format: "postgres"},
+    ).tree.root;
+    const plan = root.children?.[0];
+
+    assert.deepEqual(plan?.properties?.get("Plan Rows"), {value: 2345678901, numberFormat: "count"});
+    assert.deepEqual(plan?.properties?.get("Peak Memory Usage"), {value: 1536, numberFormat: "memory-kilobytes"});
+    assert.deepEqual(plan?.properties?.get("Sort Space Used"), {value: 2048, numberFormat: "memory-kilobytes"});
+    assert.deepEqual(plan?.properties?.get("Disk Usage"), {value: 4096, numberFormat: "memory-kilobytes"});
+    assert.deepEqual(plan?.properties?.get("Plan Width"), {value: 80, numberFormat: "memory-bytes"});
+    assert.deepEqual(plan?.properties?.get("Actual Startup Time"), {value: 0.2, numberFormat: "time-milliseconds"});
+    assert.deepEqual(plan?.properties?.get("Actual Total Time"), {value: 20.9, numberFormat: "time-milliseconds"});
+    assert.deepEqual(plan?.properties?.get("Total Cost"), {value: 1234.5, numberFormat: "exact"});
+    assert.deepEqual(root.properties?.get("Planning Time"), {value: 2.5, numberFormat: "time-milliseconds"});
+    assert.deepEqual(root.properties?.get("Execution Time"), {value: 20.9, numberFormat: "time-milliseconds"});
 });
 
 test("Postgres keeps semantic rendering when execution metrics are incomplete", () => {
@@ -116,8 +151,8 @@ test("edge labels and tooltips read actual before estimated", () => {
     const join = tree.root.children?.[0] ?? tree.root;
     const scan = join.children?.[0];
 
-    assert.equal(join.edgeLabel, "1M/980");
+    assert.equal(join.edgeLabel, "1.2M/980");
     assert.equal(join.edgeTooltip, "Actual rows: 1,234,567\nEstimated rows: 980");
-    assert.equal(scan?.edgeLabel, "3k");
+    assert.equal(scan?.edgeLabel, "2.5K");
     assert.equal(scan?.edgeTooltip, "Estimated rows: 2,500");
 });

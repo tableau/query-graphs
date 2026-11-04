@@ -9,12 +9,12 @@ test("plan insights render ordered, independent sections with counts", async () 
     const {PlanInsights} = await import("../../src/ui/PlanInsights");
     const scan: TreeNode = {
         properties: new Map([
-            ["operator", "scan"],
-            ["type", "native"],
-            ["table-name", "orders"],
+            ["operator", {value: "scan"}],
+            ["type", {value: "native"}],
+            ["table-name", {value: "orders"}],
         ]),
     };
-    const reference: TreeNode = {properties: new Map([["expression", "reference"]])};
+    const reference: TreeNode = {properties: new Map([["expression", {value: "reference"}]])};
     const root: TreeNode = {children: [scan, reference]};
     const fixture = createUiFixture(testGraphStore([root, scan, reference]));
     try {
@@ -69,7 +69,7 @@ test("plan insights render ordered, independent sections with counts", async () 
 
 test("plan insights omit empty sections and the panel when nothing matches", async () => {
     const {PlanInsights} = await import("../../src/ui/PlanInsights");
-    const root: TreeNode = {properties: new Map([["operator", "scan"]])};
+    const root: TreeNode = {properties: new Map([["operator", {value: "scan"}]])};
     const fixture = createUiFixture(testGraphStore([root]));
     try {
         await fixture.render(React.createElement(PlanInsights, {root, definitions: insightPresets.hyper}));

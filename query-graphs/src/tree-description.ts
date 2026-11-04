@@ -1,3 +1,5 @@
+import type {NumberFormat} from "./number-formats";
+
 export type IconName =
     | "run-query-symbol"
     | "filter-symbol"
@@ -11,6 +13,14 @@ export type IconName =
     | "temp-table-symbol"
     | "virtual-table-symbol"
     | "const-table-symbol";
+
+// One scalar property shown in a node's or plan's detail panel.
+export interface PropertyEntry {
+    // Numbers remain numeric until rendering so insights and other consumers retain the raw value.
+    value: string | number;
+    // How to render a numeric value, including its source unit. Defaults to exact formatting with separators.
+    numberFormat?: NumberFormat;
+}
 
 // Must be a `type` instead of the usual `interface`.
 // xyflow's `Node<NodeData>` requires NodeData to satisfy `Record<string, unknown>` and
@@ -26,8 +36,8 @@ export type TreeNode = {
     icon?: IconName;
     // The color for the icon
     iconColor?: string;
-    // Rendered in the tooltip
-    properties?: Map<string, string>;
+    // Rendered in the detail panel
+    properties?: Map<string, PropertyEntry>;
     // Ranges in associated text documents represented by this node
     sourceLocations?: SourceLocation[];
 
@@ -80,21 +90,39 @@ export interface SourceLocation {
     to: number;
 }
 
-export function compareSourceLocations(left: SourceLocation, right: SourceLocation): number {
-    return left.from - right.from || left.to - right.to;
-}
-
 export interface TreeDescription {
     /// The tree root
     root: TreeNode;
     /// Metadata about the graph; displayed in the top-level tree label
-    metadata?: Map<string, string>;
+    metadata?: Map<string, PropertyEntry>;
     /// Whether the metadata panel should be visually highlighted
     metadataHighlighted?: boolean;
     /// Additional links between indirectly related nodes
     crosslinks?: Crosslink[];
     /// Text documents associated with the graph
     textDocuments?: TextDocument[];
+}
+
+export function compareSourceLocations(left: SourceLocation, right: SourceLocation): number {
+    return left.from - right.from || left.to - right.to;
+}
+
+// Read a scalar property as text, preserving compatibility with consumers that identify nodes by strings.
+export function getScalarProperty(properties: Map<string, PropertyEntry> | undefined, key: string): string | undefined {
+    const value = properties?.get(key)?.value;
+    return typeof value === "string" ? value : typeof value === "number" ? value.toString() : undefined;
+}
+
+// Read a property only when its stored value is a string.
+export function getStringProperty(properties: Map<string, PropertyEntry> | undefined, key: string): string | undefined {
+    const value = properties?.get(key)?.value;
+    return typeof value === "string" ? value : undefined;
+}
+
+// Read a property only when its stored value is a finite number.
+export function getNumericProperty(properties: Map<string, PropertyEntry> | undefined, key: string): number | undefined {
+    const value = properties?.get(key)?.value;
+    return typeof value === "number" && Number.isFinite(value) ? value : undefined;
 }
 
 // A recursive helper function for walking through all nodes

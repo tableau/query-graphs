@@ -15,7 +15,7 @@ export type Predicate =
 
 /** Read a path from the node's property bag, decoding JSON for nested keys. */
 export function accessPropertyPath(node: TreeNode, [property, ...keys]: PropertyPath): Json | undefined {
-    let value: Json | undefined = node.properties?.get(property);
+    let value: Json | undefined = node.properties?.get(property)?.value;
     if (keys.length === 0) return value;
     if (typeof value !== "string") return undefined;
     try {

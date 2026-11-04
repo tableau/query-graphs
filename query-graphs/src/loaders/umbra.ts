@@ -64,6 +64,21 @@ const umbraConfig: DecoratedJsonTreeConfig = {
     nodeTypeKeys: ["operator", "expression"],
     structuralChildKeys,
     alwaysPropertyKeys: ["analyzePlanCounters", "sourceLocation"],
+    numberFormats: new Map([
+        // Shared by Umbra and CedarDB: estimated/actual cardinalities and table/inline-table row counts.
+        ["cardinality", "count"],
+        ["analyzePlanCardinality", "count"],
+        ["tableSize", "count"],
+        ["count", "count"],
+        // Umbra: pipeline duration in microseconds. Start/stop offsets keep exact formatting.
+        ["duration", "time-microseconds"],
+        // CedarDB: pipeline timing summaries (mean/min/max/median/standard deviation), in microseconds.
+        ["svmean", "time-microseconds"],
+        ["svmin", "time-microseconds"],
+        ["svmax", "time-microseconds"],
+        ["svmedian", "time-microseconds"],
+        ["svsdev", "time-microseconds"],
+    ]),
     getRenderingConfig(nodeTypeKey, tag, rawNode) {
         if (nodeTypeKey === "operator" && tag === "join") {
             return {displayNameKey: "type", icon: joinIcons[tryToString(rawNode["type"]) ?? ""]};
