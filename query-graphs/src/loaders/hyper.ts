@@ -126,6 +126,8 @@ function containsOperator(value: Json): boolean {
 
 const hyperConfig: DecoratedJsonTreeConfig = {
     nodeTypeKeys: ["operator", "expression"],
+    structuralChildKeys: ["inputs", "input", "left", "right", "value", "value-for-comparison"],
+    alwaysPropertyKeys: ["debug-name", "statistics", "sqlpos"],
     numberFormats: new Map([
         ["estimated-rows", "count"],
         ["output-rows", "count"],
@@ -134,8 +136,6 @@ const hyperConfig: DecoratedJsonTreeConfig = {
         ["memory-bytes", "memory-bytes"],
         ["execution-time", "time-seconds"],
     ]),
-    structuralChildKeys: ["inputs", "input", "left", "right", "value", "value-for-comparison"],
-    alwaysPropertyKeys: ["debug-name", "statistics", "sqlpos"],
     getRenderingConfig(nodeType, nodeTag, rawNode) {
         const prefix = nodeType === "operator" ? "op" : "exp";
         const configKey = legacyNodeTags[`${prefix}:${nodeTag}`] ?? `${prefix}:${nodeTag}`;

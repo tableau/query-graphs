@@ -107,16 +107,16 @@ export function compareSourceLocations(left: SourceLocation, right: SourceLocati
     return left.from - right.from || left.to - right.to;
 }
 
-// Read a property only when its stored value is a string.
-export function getStringProperty(properties: Map<string, PropertyEntry> | undefined, key: string): string | undefined {
-    const value = properties?.get(key)?.value;
-    return typeof value === "string" ? value : undefined;
-}
-
 // Read a scalar property as text, preserving compatibility with consumers that identify nodes by strings.
 export function getScalarProperty(properties: Map<string, PropertyEntry> | undefined, key: string): string | undefined {
     const value = properties?.get(key)?.value;
     return typeof value === "string" ? value : typeof value === "number" ? value.toString() : undefined;
+}
+
+// Read a property only when its stored value is a string.
+export function getStringProperty(properties: Map<string, PropertyEntry> | undefined, key: string): string | undefined {
+    const value = properties?.get(key)?.value;
+    return typeof value === "string" ? value : undefined;
 }
 
 // Read a property only when its stored value is a finite number.

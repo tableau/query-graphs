@@ -41,14 +41,14 @@ export function createDecoratedJsonTreeState(): DecoratedJsonTreeState {
 export interface DecoratedJsonTreeConfig {
     /** Object keys whose scalar values identify a semantic node type, in precedence order. */
     nodeTypeKeys: readonly string[];
-    /** Known numeric properties and their source-unit-aware display formats. Others use exact formatting. */
-    numberFormats?: ReadonlyMap<string, NumberFormat>;
     /** Show these structural children in the listed order and omit their redundant key wrapper. */
     structuralChildKeys: readonly string[];
     /** Keep these values in the detail panel even when they are objects or arrays. */
     alwaysPropertyKeys: readonly string[];
     /** Promote members of these nested objects to detail-panel properties. */
     flattenPropertyObjectKeys?: readonly string[];
+    /** Known numeric properties and their source-unit-aware display formats. Others use exact formatting. */
+    numberFormats?: ReadonlyMap<string, NumberFormat>;
     /** Choose presentation details for an object recognized by one of `nodeTypeKeys`. */
     getRenderingConfig(nodeTypeKey: string, tag: string, rawNode: JsonObject): NodeRenderingConfig;
     /** Override the usual property, tag, or parent-key-derived display name. */

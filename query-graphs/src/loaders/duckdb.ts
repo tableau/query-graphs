@@ -102,6 +102,10 @@ function getDisplayName(rawNode: JsonObject): string {
 
 const duckDbConfig: DecoratedJsonTreeConfig = {
     nodeTypeKeys: ["operator_name", "name", "operator_type", "type"],
+    structuralChildKeys: ["children"],
+    alwaysPropertyKeys: [],
+    flattenPropertyObjectKeys: ["extra_info"],
+    // https://duckdb.org/docs/2.0/dev/metrics#operator-metrics
     // DuckDB 2.0 operator metrics; query/system/io groups remain serialized properties.
     numberFormats: new Map([
         ["intermediate_rows", "count"],
@@ -112,9 +116,6 @@ const duckDbConfig: DecoratedJsonTreeConfig = {
         ["timing", "time-seconds"],
         ["cpu_time", "time-seconds"],
     ]),
-    structuralChildKeys: ["children"],
-    alwaysPropertyKeys: [],
-    flattenPropertyObjectKeys: ["extra_info"],
     getRenderingConfig(_nodeTypeKey, _tag, rawNode) {
         return {icon: getIcon(rawNode)};
     },
@@ -243,7 +244,8 @@ function analyzeMetadata(json: JsonObject): Map<string, PropertyEntry> {
         if (key === "extra_info" && isJsonObject(value) && Object.keys(value).length === 0) {
             continue;
         }
-        metadata.set(key, toPropertyEntry(value, duckDbConfig.numberFormats?.get(key)));
+        // Metric groups are nested objects; only operator fields use the operator format dictionary.
+        metadata.set(key, toPropertyEntry(value));
     }
     return metadata;
 }

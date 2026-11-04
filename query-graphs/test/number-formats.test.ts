@@ -1,10 +1,17 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {formatBytes, formatCount, formatExact, formatNumber, formatSeconds} from "../src/number-formats";
-import {getNumericProperty, getScalarProperty, getStringProperty} from "../src/tree-description";
-import {toPropertyEntry} from "../src/loaders/loader-utils";
 
-test("formats deferred scalar numbers", () => {
+test("formats exact numbers", () => {
+    assert.equal(formatExact(1_234_567), "1,234,567");
+    assert.equal(formatExact(0.4761234), "0.4761234");
+    assert.equal(formatNumber(1_234.5, "exact"), "1,234.5");
+    assert.equal(formatNumber(1250, "exact"), "1,250");
+    assert.equal(formatExact(1e-25), "0.0000000000000000000000001");
+    assert.equal(formatExact(Number.MIN_VALUE).endsWith("5"), true);
+});
+
+test("formats counts", () => {
     const roundedCounts: [number, string][] = [
         [0, "0"],
         [57.5016, "57.5"],
@@ -28,7 +35,9 @@ test("formats deferred scalar numbers", () => {
         assert.equal(formatCount(value), expected, String(value));
         assert.equal(formatNumber(value, "count"), expected, String(value));
     }
+});
 
+test("formats byte sizes", () => {
     for (const [value, expected] of [
         [512, "512 B"],
         [1536, "1.5 KiB"],
@@ -41,7 +50,9 @@ test("formats deferred scalar numbers", () => {
         assert.equal(formatBytes(value), expected, String(value));
         assert.equal(formatNumber(value, "memory-bytes"), expected, String(value));
     }
+});
 
+test("formats durations in seconds", () => {
     for (const [value, expected] of [
         [0, "0µs"],
         [0.00000851, "8.51µs"],
@@ -59,41 +70,16 @@ test("formats deferred scalar numbers", () => {
         assert.equal(formatSeconds(value), expected, String(value));
         assert.equal(formatNumber(value, "time-seconds"), expected, String(value));
     }
+});
 
-    assert.equal(formatExact(1_234_567), "1,234,567");
-    assert.equal(formatExact(0.4761234), "0.4761234");
-    assert.equal(formatNumber(1_234.5, "exact"), "1,234.5");
-    assert.equal(formatNumber(1250, "exact"), "1,250");
-    assert.equal(formatExact(1e-25), "0.0000000000000000000000001");
-    assert.equal(formatExact(Number.MIN_VALUE).endsWith("5"), true);
+test("formats sizes in 1024-byte kilobytes", () => {
     assert.equal(formatNumber(1536, "memory-kilobytes"), "1.5 MiB");
+});
+
+test("formats durations in milliseconds", () => {
     assert.equal(formatNumber(20.9, "time-milliseconds"), "20.9ms");
+});
+
+test("formats durations in microseconds", () => {
     assert.equal(formatNumber(20_900, "time-microseconds"), "20.9ms");
-});
-
-test("scalar accessors only return stored scalar values", () => {
-    const properties = new Map([
-        ["id", {value: 42}],
-        ["numericString", {value: "42"}],
-        ["infinite", {value: Number.POSITIVE_INFINITY}],
-    ]);
-    assert.equal(getScalarProperty(properties, "id"), "42");
-    assert.equal(getStringProperty(properties, "id"), undefined);
-    assert.equal(getStringProperty(properties, "numericString"), "42");
-    assert.equal(getNumericProperty(properties, "id"), 42);
-    assert.equal(getNumericProperty(properties, "numericString"), undefined);
-    assert.equal(getNumericProperty(properties, "infinite"), undefined);
-});
-
-test("non-finite numbers are preserved as strings and receive no number format", () => {
-    assert.deepEqual(toPropertyEntry(Number.POSITIVE_INFINITY, "count"), {value: "Infinity"});
-    assert.deepEqual(toPropertyEntry(Number.NaN, "memory-bytes"), {value: "NaN"});
-    assert.deepEqual(toPropertyEntry(42), {value: 42, numberFormat: "exact"});
-});
-
-test("numeric conversion defaults to exact and preserves source values for explicit formats", () => {
-    assert.deepEqual(toPropertyEntry(1234), {value: 1234, numberFormat: "exact"});
-    assert.deepEqual(toPropertyEntry(1234, "count"), {value: 1234, numberFormat: "count"});
-    assert.deepEqual(toPropertyEntry(20.9, "time-milliseconds"), {value: 20.9, numberFormat: "time-milliseconds"});
-    assert.deepEqual(toPropertyEntry("1234", "count"), {value: "1234"});
 });

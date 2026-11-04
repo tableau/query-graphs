@@ -69,6 +69,10 @@ function getOperatorDisplayName(operatorType: string, rawNode: JsonObject): stri
 
 const postgresConfig: DecoratedJsonTreeConfig = {
     nodeTypeKeys: ["Node Type"],
+    structuralChildKeys: ["Plan", "Plans"],
+    alwaysPropertyKeys: [],
+    // https://www.postgresql.org/docs/current/using-explain.html
+    // https://www.postgresql.org/docs/current/sql-explain.html
     // Keep PostgreSQL's source values: times are milliseconds and memory sizes are 1024-byte kB.
     numberFormats: new Map([
         ["Plan Rows", "count"],
@@ -94,8 +98,6 @@ const postgresConfig: DecoratedJsonTreeConfig = {
         ["Disk Usage", "memory-kilobytes"],
         ["Plan Width", "memory-bytes"],
     ]),
-    structuralChildKeys: ["Plan", "Plans"],
-    alwaysPropertyKeys: [],
     getRenderingConfig(_nodeTypeKey, operatorType, rawNode) {
         return {icon: getOperatorIcon(operatorType, rawNode)};
     },

@@ -1,9 +1,9 @@
 // How a numeric property is presented to the user.
 export type NumberFormat =
-    // As an approximate number, using "K" (thousand), "M" (million), "B" (billion), etc. suffixes.
-    | "count"
     // As an exact number with thousand separators. Use this for values that must never be rounded, such as identifiers.
     | "exact"
+    // As an approximate number, using "K" (thousand), "M" (million), "B" (billion), etc. suffixes.
+    | "count"
     // As a memory unit ("KiB", "MiB", ...). The value is measured in bytes.
     | "memory-bytes"
     // PostgreSQL reports memory in kB, meaning 1024 bytes.
@@ -15,10 +15,10 @@ export type NumberFormat =
 
 export function formatNumber(value: number, format: NumberFormat): string {
     switch (format) {
-        case "count":
-            return formatCount(value);
         case "exact":
             return formatExact(value);
+        case "count":
+            return formatCount(value);
         case "memory-bytes":
             return formatBytes(value);
         case "memory-kilobytes":
@@ -30,6 +30,11 @@ export function formatNumber(value: number, format: NumberFormat): string {
         case "time-microseconds":
             return formatSeconds(value / 1_000_000);
     }
+}
+
+// Format a number exactly, with thousand separators and every fraction digit.
+export function formatExact(value: number): string {
+    return value.toLocaleString("en-US", {maximumSignificantDigits: 21});
 }
 
 // Format a count using count suffixes (K/M/B/T for thousand, million,
@@ -87,9 +92,4 @@ export function formatSeconds(seconds: number): string {
         index++;
     }
     return `${rounded}${units[index][0]}`;
-}
-
-// Format a number exactly, with thousand separators and every fraction digit.
-export function formatExact(value: number): string {
-    return value.toLocaleString("en-US", {maximumSignificantDigits: 21});
 }

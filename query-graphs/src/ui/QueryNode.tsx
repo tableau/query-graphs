@@ -50,7 +50,7 @@ function QueryNode({data, id}: NodeProps<QueryGraphNode>) {
         [animateGraphChange, toggleSubtree, hasSubtree, id],
     );
 
-    const children = <PropertyList properties={data.properties} />;
+    const propertyList = <PropertyList properties={data.properties} />;
 
     const nodeClassName = cc([
         "qg-graph-node",
@@ -99,7 +99,7 @@ function QueryNode({data, id}: NodeProps<QueryGraphNode>) {
                     </div>
                 </div>
                 <div className="qg-graph-node-body-wrapper nowheel">
-                    <ScrollableArea className="qg-graph-node-body">{children}</ScrollableArea>
+                    <ScrollableArea className="qg-graph-node-body">{propertyList}</ScrollableArea>
                 </div>
                 {colorBar(data.barsBelow, "below")}
             </div>

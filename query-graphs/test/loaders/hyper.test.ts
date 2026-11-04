@@ -154,7 +154,7 @@ test("Hyper optimizer steps preserve additional envelope fields", () => {
     assert.equal(loaded.tree.root.children?.[0].children?.[0].name, "scan");
 });
 
-test("Hyper preserves flat numeric values and defers their display formatting", () => {
+test("Hyper preserves numeric values and uses proper number formats", () => {
     const root = loadPlanFromText(
         JSON.stringify({
             operator: "scan",

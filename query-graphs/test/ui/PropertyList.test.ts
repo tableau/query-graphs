@@ -4,7 +4,7 @@ import * as React from "react";
 import type {PropertyEntry} from "../../src/tree-description";
 import {createUiFixture} from "./ui-test-utils";
 
-test("property values are formatted only while rendering", async () => {
+test("property values are formatted during rendering", async () => {
     const {PropertyList} = await import("../../src/ui/PropertyList");
     const fixture = createUiFixture();
     const properties = new Map<string, PropertyEntry>([
