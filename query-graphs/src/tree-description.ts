@@ -22,18 +22,6 @@ export interface PropertyEntry {
     numberFormat?: NumberFormat;
 }
 
-// Read a scalar property as text, preserving compatibility with consumers that identify nodes by strings.
-export function getScalarProperty(properties: Map<string, PropertyEntry> | undefined, key: string): string | undefined {
-    const value = properties?.get(key)?.value;
-    return typeof value === "string" ? value : typeof value === "number" ? value.toString() : undefined;
-}
-
-// Read a property only when its stored value is a finite number.
-export function getNumericProperty(properties: Map<string, PropertyEntry> | undefined, key: string): number | undefined {
-    const value = properties?.get(key)?.value;
-    return typeof value === "number" && Number.isFinite(value) ? value : undefined;
-}
-
 // Must be a `type` instead of the usual `interface`.
 // xyflow's `Node<NodeData>` requires NodeData to satisfy `Record<string, unknown>` and
 // TypeScript only infers that implicit index signature for type aliases, not interfaces.
@@ -102,10 +90,6 @@ export interface SourceLocation {
     to: number;
 }
 
-export function compareSourceLocations(left: SourceLocation, right: SourceLocation): number {
-    return left.from - right.from || left.to - right.to;
-}
-
 export interface TreeDescription {
     /// The tree root
     root: TreeNode;
@@ -117,6 +101,28 @@ export interface TreeDescription {
     crosslinks?: Crosslink[];
     /// Text documents associated with the graph
     textDocuments?: TextDocument[];
+}
+
+export function compareSourceLocations(left: SourceLocation, right: SourceLocation): number {
+    return left.from - right.from || left.to - right.to;
+}
+
+// Read a property only when its stored value is a string.
+export function getStringProperty(properties: Map<string, PropertyEntry> | undefined, key: string): string | undefined {
+    const value = properties?.get(key)?.value;
+    return typeof value === "string" ? value : undefined;
+}
+
+// Read a scalar property as text, preserving compatibility with consumers that identify nodes by strings.
+export function getScalarProperty(properties: Map<string, PropertyEntry> | undefined, key: string): string | undefined {
+    const value = properties?.get(key)?.value;
+    return typeof value === "string" ? value : typeof value === "number" ? value.toString() : undefined;
+}
+
+// Read a property only when its stored value is a finite number.
+export function getNumericProperty(properties: Map<string, PropertyEntry> | undefined, key: string): number | undefined {
+    const value = properties?.get(key)?.value;
+    return typeof value === "number" && Number.isFinite(value) ? value : undefined;
 }
 
 // A recursive helper function for walking through all nodes

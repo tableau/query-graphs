@@ -9,7 +9,7 @@ test("property values are formatted only while rendering", async () => {
     const fixture = createUiFixture();
     const properties = new Map<string, PropertyEntry>([
         ["name", {value: "scan"}],
-        ["rows", {value: 5_000_000, numberFormat: "rounded"}],
+        ["rows", {value: 5_000_000, numberFormat: "count"}],
         ["id", {value: 5_000_000}],
         ["exact", {value: 5_000_000, numberFormat: "exact"}],
         ["memory", {value: 1536, numberFormat: "memory-bytes"}],

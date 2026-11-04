@@ -1,7 +1,7 @@
 // How a numeric property is presented to the user.
 export type NumberFormat =
     // As an approximate number, using "K" (thousand), "M" (million), "B" (billion), etc. suffixes.
-    | "rounded"
+    | "count"
     // As an exact number with thousand separators. Use this for values that must never be rounded, such as identifiers.
     | "exact"
     // As a memory unit ("KiB", "MiB", ...). The value is measured in bytes.
@@ -11,7 +11,7 @@ export type NumberFormat =
 
 export function formatNumber(value: number, format: NumberFormat | undefined): string {
     switch (format) {
-        case "rounded":
+        case "count":
             return formatCount(value);
         case "exact":
             return formatExact(value);
@@ -22,17 +22,6 @@ export function formatNumber(value: number, format: NumberFormat | undefined): s
         case undefined:
             return value.toString();
     }
-}
-
-// Format a number using metric suffixes.
-export function formatMetric(value: number): string {
-    const sizes = ["", "k", "M", "G", "T", "P", "E", "Z", "Y"];
-    let index = 0;
-    while (value > 1000 && index < sizes.length - 1) {
-        value /= 1000;
-        index++;
-    }
-    return value.toFixed(0) + sizes[index];
 }
 
 // Format a count using count suffixes (K/M/B/T for thousand, million,
@@ -99,18 +88,18 @@ export function formatExact(value: number): string {
 
 const otherUnits = ["ns", "us", "ms", "kb", "mb", "gb", "kib", "mib", "gib"];
 
-function nameWords(name: string): string[] {
+function splitPropertyNameWords(name: string): string[] {
     return name.split(/[^a-zA-Z]+|(?<=[a-z])(?=[A-Z])/).map((word) => word.toLowerCase());
 }
 
 // Infer a number's display format from the words of its property name.
 // Names that already state another unit (`memory-mb`, `total_time_ms`) and
 // names such as identifiers, codes, and ratios receive no inferred format.
-export function inferNumberFormat(name: string): NumberFormat | undefined {
-    const words = nameWords(name);
+export function inferNumberFormat(propertyName: string): NumberFormat | undefined {
+    const words = splitPropertyNameWords(propertyName);
     if (otherUnits.some((unit) => words.includes(unit))) return undefined;
     const wordSet = new Set(words);
-    if (wordSet.has("rows") || wordSet.has("cycles")) return "rounded";
+    if (wordSet.has("rows") || wordSet.has("cycles")) return "count";
     if (wordSet.has("memory") || wordSet.has("bytes")) return "memory-bytes";
     if (wordSet.has("time") || wordSet.has("elapsed") || wordSet.has("clock") || wordSet.has("seconds")) return "time-seconds";
     return undefined;

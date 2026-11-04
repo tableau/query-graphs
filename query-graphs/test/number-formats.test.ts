@@ -1,19 +1,19 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {formatBytes, formatCount, formatExact, formatNumber, formatSeconds, inferNumberFormat} from "../src/number-formats";
-import {getNumericProperty, getScalarProperty} from "../src/tree-description";
+import {getNumericProperty, getScalarProperty, getStringProperty} from "../src/tree-description";
 import {toPropertyEntry} from "../src/loaders/loader-utils";
 
 test("infers number formats from scalar property names", () => {
-    assert.equal(inferNumberFormat("output-rows"), "rounded");
-    assert.equal(inferNumberFormat("Plan Rows"), "rounded");
-    assert.equal(inferNumberFormat("actualCycles"), "rounded");
+    assert.equal(inferNumberFormat("output-rows"), "count");
+    assert.equal(inferNumberFormat("Plan Rows"), "count");
+    assert.equal(inferNumberFormat("actualCycles"), "count");
     assert.equal(inferNumberFormat("PeakMemory"), "memory-bytes");
     assert.equal(inferNumberFormat("totalBytes"), "memory-bytes");
     assert.equal(inferNumberFormat("ExecutionTime"), "time-seconds");
     assert.equal(inferNumberFormat("cpu_time"), "time-seconds");
     assert.equal(inferNumberFormat("wall-clock"), "time-seconds");
-    assert.equal(inferNumberFormat("min-rows"), "rounded");
+    assert.equal(inferNumberFormat("min-rows"), "count");
 });
 
 test("does not reinterpret numbers whose names already state another unit", () => {
@@ -47,7 +47,7 @@ test("formats deferred scalar numbers", () => {
     ];
     for (const [value, expected] of roundedCounts) {
         assert.equal(formatCount(value), expected, String(value));
-        assert.equal(formatNumber(value, "rounded"), expected, String(value));
+        assert.equal(formatNumber(value, "count"), expected, String(value));
     }
 
     for (const [value, expected] of [
@@ -94,6 +94,8 @@ test("scalar accessors only return stored scalar values", () => {
         ["infinite", {value: Number.POSITIVE_INFINITY}],
     ]);
     assert.equal(getScalarProperty(properties, "id"), "42");
+    assert.equal(getStringProperty(properties, "id"), undefined);
+    assert.equal(getStringProperty(properties, "numericString"), "42");
     assert.equal(getNumericProperty(properties, "id"), 42);
     assert.equal(getNumericProperty(properties, "numericString"), undefined);
     assert.equal(getNumericProperty(properties, "infinite"), undefined);
@@ -107,5 +109,5 @@ test("non-finite numbers are preserved as strings and receive no number format",
 
 test("number inference is enabled only for formats accepted by the loader", () => {
     assert.deepEqual(toPropertyEntry(1234, "totalRows"), {value: 1234});
-    assert.deepEqual(toPropertyEntry(1234, "totalRows", ["rounded"]), {value: 1234, numberFormat: "rounded"});
+    assert.deepEqual(toPropertyEntry(1234, "totalRows", ["count"]), {value: 1234, numberFormat: "count"});
 });

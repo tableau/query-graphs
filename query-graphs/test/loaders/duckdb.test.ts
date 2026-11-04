@@ -266,7 +266,7 @@ test("the DuckDB loader accepts forced plans and optional profile fields", () =>
         }),
     ).tree.metadata;
     assert.equal(futureMetadata?.get("future_metadata")?.value, '{"version":1}');
-    assert.deepEqual(futureMetadata?.get("total_rows"), {value: 1234, numberFormat: "rounded"});
+    assert.deepEqual(futureMetadata?.get("total_rows"), {value: 1234, numberFormat: "count"});
     assert.deepEqual(futureMetadata?.get("peak_memory"), {value: 1_048_576, numberFormat: "memory-bytes"});
 });
 

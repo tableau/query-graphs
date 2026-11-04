@@ -102,7 +102,7 @@ function getDisplayName(rawNode: JsonObject): string {
 
 const duckDbConfig: DecoratedJsonTreeConfig = {
     nodeTypeKeys: ["operator_name", "name", "operator_type", "type"],
-    acceptedNumberFormats: ["rounded", "exact", "memory-bytes", "time-seconds"],
+    acceptedNumberFormats: ["count", "exact", "memory-bytes", "time-seconds"],
     structuralChildKeys: ["children"],
     alwaysPropertyKeys: [],
     flattenPropertyObjectKeys: ["extra_info"],

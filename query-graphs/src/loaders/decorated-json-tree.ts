@@ -12,7 +12,7 @@
 
 import type {IconName, PropertyEntry, SourceLocation, TreeNode} from "../tree-description";
 import {getScalarProperty} from "../tree-description";
-import {formatMetric} from "../number-formats";
+import {formatCount} from "../number-formats";
 import type {NumberFormat} from "../number-formats";
 import type {Json, JsonObject} from "./loader-utils";
 import {hasOwnProperty, isJsonObject, toPropertyEntry, tryToNonNullString, tryToString} from "./loader-utils";
@@ -232,10 +232,10 @@ function convertDecoratedJsonValue(
         state.edgeWidths.push({node: convertedNode, width: cardinality});
         convertedNode.edgeLabel =
             actualCardinality === undefined
-                ? formatMetric(cardinality)
+                ? formatCount(cardinality)
                 : estimatedCardinality === undefined
-                  ? `${formatMetric(actualCardinality)}/?`
-                  : `${formatMetric(actualCardinality)}/${formatMetric(estimatedCardinality)}`;
+                  ? `${formatCount(actualCardinality)}/?`
+                  : `${formatCount(actualCardinality)}/${formatCount(estimatedCardinality)}`;
         const exactCardinality = (value: number) => value.toLocaleString("en-US", {maximumFractionDigits: 3});
         convertedNode.edgeTooltip =
             actualCardinality === undefined

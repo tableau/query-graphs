@@ -65,8 +65,8 @@ test("Postgres decorates cardinalities and CTE crosslinks", () => {
 
     assert.equal(aggregate?.edgeLabel, "100/1");
     assert.equal(aggregate?.edgeClass, "qg-label-highlighted");
-    assert.deepEqual(aggregate?.properties?.get("Plan Rows"), {value: 1, numberFormat: "rounded"});
-    assert.deepEqual(aggregate?.properties?.get("Actual Rows"), {value: 100, numberFormat: "rounded"});
+    assert.deepEqual(aggregate?.properties?.get("Plan Rows"), {value: 1, numberFormat: "count"});
+    assert.deepEqual(aggregate?.properties?.get("Actual Rows"), {value: 100, numberFormat: "count"});
     assert.deepEqual(tree.crosslinks, [{source: cteScan, target: aggregate}]);
 });
 
@@ -120,8 +120,8 @@ test("edge labels and tooltips read actual before estimated", () => {
     const join = tree.root.children?.[0] ?? tree.root;
     const scan = join.children?.[0];
 
-    assert.equal(join.edgeLabel, "1M/980");
+    assert.equal(join.edgeLabel, "1.2M/980");
     assert.equal(join.edgeTooltip, "Actual rows: 1,234,567\nEstimated rows: 980");
-    assert.equal(scan?.edgeLabel, "3k");
+    assert.equal(scan?.edgeLabel, "2.5K");
     assert.equal(scan?.edgeTooltip, "Estimated rows: 2,500");
 });
