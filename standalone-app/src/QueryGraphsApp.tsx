@@ -6,12 +6,13 @@ import {loadPlanFromText} from "@tableau/query-graphs/lib/loaders";
 import type {LoadedPlan} from "@tableau/query-graphs/lib/loaders";
 import {insightPresets} from "@tableau/query-graphs/lib/insights/presets";
 import {GraphToolbar, QueryGraph} from "@tableau/query-graphs/lib/ui/QueryGraph";
-import {tryCreateLocalStorageUrl, isLocalStorageURL, loadLocalStorageURL} from "./LocalStorageUrl";
+import {tryCreateLocalStorageUrl} from "./LocalStorageUrl";
 import {assert} from "./assert";
 import {TreeLabel} from "./TreeLabel";
 import {SettingsButton, SettingsPanel} from "./SettingsPanel";
 import {useSettings} from "./settings";
 import {useTheme} from "./theme";
+import {loadFileText} from "./loadFileText";
 
 export function QueryGraphsApp() {
     const settingsPopoverId = useId();
@@ -96,29 +97,13 @@ export function QueryGraphsApp() {
             const sqlUrl = sqlFileUrl === undefined ? undefined : new URL(sqlFileUrl, window.location.href);
             // Load the plan and optional SQL in parallel.
             setProgress(sqlUrl === undefined ? `Fetching "${urlString}"...` : "Fetching query plan and SQL...");
-            const loadText = async (fileUrl: URL) => {
-                if (isLocalStorageURL(fileUrl)) return loadLocalStorageURL(fileUrl);
-
-                let response;
-                try {
-                    response = await fetch(fileUrl, {signal});
-                } catch (e) {
-                    if (fileUrl.protocol == "blob:") {
-                        throw new Error("Local content no longer accessible", {cause: e});
-                    }
-                    throw e;
-                }
-                if (!response.ok) {
-                    throw new Error(`Failed to load ${fileUrl}: HTTP ${response.status}`);
-                }
-                return response.text();
-            };
-            const loadedFiles = await Promise.all([loadText(url), sqlUrl === undefined ? undefined : loadText(sqlUrl)]).catch(
-                (error: unknown) => {
-                    if (signal.aborted) return undefined;
-                    throw error;
-                },
-            );
+            const loadedFiles = await Promise.all([
+                loadFileText(url, signal),
+                sqlUrl === undefined ? undefined : loadFileText(sqlUrl, signal),
+            ]).catch((error: unknown) => {
+                if (signal.aborted) return undefined;
+                throw error;
+            });
             if (loadedFiles === undefined || signal.aborted) return;
             const [text, sql] = loadedFiles;
             // Parse the tree
