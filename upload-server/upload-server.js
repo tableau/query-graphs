@@ -76,7 +76,7 @@ app.put(UPLOADS_URL_PATH, cors(), express.raw({limit: "2mb", type: "*/*"}), asyn
 const guiLogger = require("debug")("upload-server:gui");
 function forwardToGUI(req, res) {
     const ownUrl = req.protocol + "://" + req.get("host") + UPLOADS_URL_PATH;
-    const forwardURL = `${GUI_URL}?uploadServer=${encodeURIComponent(ownUrl)}`;
+    const forwardURL = `${GUI_URL}#uploadServer=${encodeURIComponent(ownUrl)}`;
     res.redirect(forwardURL);
     res.end();
     guiLogger(`forwarded to ${forwardURL}`);

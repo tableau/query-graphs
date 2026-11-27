@@ -4,8 +4,8 @@ Query Graphs
 
 Helping people see and understand queries - [Visualize your own query!](http://tableau.github.io/query-graphs/index.html)
 
-[<img src="media/tpch-q19.png" width=200 alt="Sample Visualization"/>](https://tableau.github.io/query-graphs/index.html?file=examples%2Fhyper%2Ftpch%2Ftpch-q19-analyze.plan.json&title=tpch-q19-analyze.plan.json&sql-file=examples%2Fhyper%2Ftpch%2Ftpch-q19-analyze.sql)
-[<img src="media/tpch-q2.png" width=400 alt="Sample Visualization"/>](https://tableau.github.io/query-graphs/index.html?file=examples%2Fhyper%2Ftpch%2Ftpch-q2-analyze.plan.json&title=tpch-q2-analyze.plan.json&sql-file=examples%2Fhyper%2Ftpch%2Ftpch-q2-analyze.sql)
+[<img src="media/tpch-q19.png" width=200 alt="Sample Visualization"/>](https://tableau.github.io/query-graphs/index.html#file=examples%2Fhyper%2Ftpch%2Ftpch-q19-analyze.plan.json&title=tpch-q19-analyze.plan.json&sql-file=examples%2Fhyper%2Ftpch%2Ftpch-q19-analyze.sql)
+[<img src="media/tpch-q2.png" width=400 alt="Sample Visualization"/>](https://tableau.github.io/query-graphs/index.html#file=examples%2Fhyper%2Ftpch%2Ftpch-q2-analyze.plan.json&title=tpch-q2-analyze.plan.json&sql-file=examples%2Fhyper%2Ftpch%2Ftpch-q2-analyze.sql)
 
 Description
 -----------
@@ -22,12 +22,12 @@ In contrast to many competing plan visualizers, query graphs:
 * works fully offline and can be installed as a "web app" from your browser.
 
 For a first impression, see our [list of example visualizations](https://tableau.github.io/query-graphs/examples.html). A few examples are:
-* [PostgreSQL TPC-H Query 2](https://tableau.github.io/query-graphs/index.html?file=examples%2Fpostgres%2Ftpch%2Ftpch-q2-analyze.plan.json&title=tpch-q2-analyze.plan.json&sql-file=examples%2Fpostgres%2Ftpch%2Ftpch-q2-analyze.sql)
-* [DuckDB TPC-H Query 2](https://tableau.github.io/query-graphs/index.html?file=examples%2Fduckdb%2Ftpch%2Ftpch-q2-analyze.plan.json&title=tpch-q2-analyze.plan.json&sql-file=examples%2Fduckdb%2Ftpch%2Ftpch-q2-analyze.sql)
-* [Hyper TPC-H Query 2](https://tableau.github.io/query-graphs/index.html?file=examples%2Fhyper%2Ftpch%2Ftpch-q2-analyze.plan.json&title=tpch-q2-analyze.plan.json&sql-file=examples%2Fhyper%2Ftpch%2Ftpch-q2-analyze.sql)
-* [Umbra TPC-H Query 2](https://tableau.github.io/query-graphs/index.html?file=examples%2Fumbra%2Ftpch%2Ftpch-q2-analyze.plan.json&title=tpch-q2-analyze.plan.json&sql-file=examples%2Fumbra%2Ftpch%2Ftpch-q2-analyze.sql)
-* [CedarDB TPC-H Query 2](https://tableau.github.io/query-graphs/index.html?file=examples%2Fcedardb%2Ftpch%2Ftpch-q2.plan.json&title=tpch-q2.plan.json&sql-file=examples%2Fcedardb%2Ftpch%2Ftpch-q2.sql)
-* [Optimizer steps of Hyper for TPC-H Q2](https://tableau.github.io/query-graphs/index.html?file=examples%2Fhyper%2Ftpch%2Ftpch-q2-steps.plan.json&title=tpch-q2-steps.plan.json&sql-file=examples%2Fhyper%2Ftpch%2Ftpch-q2-steps.sql)
+* [PostgreSQL TPC-H Query 2](https://tableau.github.io/query-graphs/index.html#file=examples%2Fpostgres%2Ftpch%2Ftpch-q2-analyze.plan.json&title=tpch-q2-analyze.plan.json&sql-file=examples%2Fpostgres%2Ftpch%2Ftpch-q2-analyze.sql)
+* [DuckDB TPC-H Query 2](https://tableau.github.io/query-graphs/index.html#file=examples%2Fduckdb%2Ftpch%2Ftpch-q2-analyze.plan.json&title=tpch-q2-analyze.plan.json&sql-file=examples%2Fduckdb%2Ftpch%2Ftpch-q2-analyze.sql)
+* [Hyper TPC-H Query 2](https://tableau.github.io/query-graphs/index.html#file=examples%2Fhyper%2Ftpch%2Ftpch-q2-analyze.plan.json&title=tpch-q2-analyze.plan.json&sql-file=examples%2Fhyper%2Ftpch%2Ftpch-q2-analyze.sql)
+* [Umbra TPC-H Query 2](https://tableau.github.io/query-graphs/index.html#file=examples%2Fumbra%2Ftpch%2Ftpch-q2-analyze.plan.json&title=tpch-q2-analyze.plan.json&sql-file=examples%2Fumbra%2Ftpch%2Ftpch-q2-analyze.sql)
+* [CedarDB TPC-H Query 2](https://tableau.github.io/query-graphs/index.html#file=examples%2Fcedardb%2Ftpch%2Ftpch-q2.plan.json&title=tpch-q2.plan.json&sql-file=examples%2Fcedardb%2Ftpch%2Ftpch-q2.sql)
+* [Optimizer steps of Hyper for TPC-H Q2](https://tableau.github.io/query-graphs/index.html#file=examples%2Fhyper%2Ftpch%2Ftpch-q2-steps.plan.json&title=tpch-q2-steps.plan.json&sql-file=examples%2Fhyper%2Ftpch%2Ftpch-q2-steps.sql)
 
 
 Installation
@@ -46,6 +46,7 @@ Usage
 Note that we never upload your query plan.
 All processing happens directly inside your browser.
 The query plans never leave your machine - we value your privacy ;)
+The web app accepts plan parameters only in URL hashes (`#`), not query strings (`?`), because query strings are sent to the server and may expose confidential data; see the [standalone app guide](standalone-app/README.md#the-plan-lives-in-the-url).
 
 Supported query plan formats:
 * PostgreSQL's JSON format, obtained by `EXPLAIN (FORMAT JSON)`. It is particularly useful with `EXPLAIN (ANALYZE, FORMAT JSON)`.
