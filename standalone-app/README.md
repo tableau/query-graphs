@@ -46,10 +46,10 @@ This design buys three things for free:
 * **Shareable links** — a URL fully describes what is on screen.
 * **The examples page** — each entry on `examples.html` links the plan via `file` and its corresponding `sql-file`.
 
-`useUrlParam` reads app parameters only from the URL **hash** and writes updates there.
-Query-string parameters are deliberately unsupported, including for backward compatibility.
-Browsers send the query string to the hosting server with the page request, but do not send the hash.
-Query-string parameters can therefore expose SQL, secrets, or file URLs.
+Parameters are kept in the URL **hash** (`#`), not the query string (`?`).
+We don't want to leak any (potentially confidential) query plans or other secrets to the server.
+Browsers never send the URL hash to the server, so `useUrlParam` keeps them in the URL hash.
+Query-string parameters are deliberately unsupported.
 Refusing query-string parameters helps catch developer mistakes that could leak private data.
 
 ## Getting a Plan In

@@ -46,7 +46,6 @@ Usage
 Note that we never upload your query plan.
 All processing happens directly inside your browser.
 The query plans never leave your machine - we value your privacy ;)
-The web app accepts plan parameters only in URL hashes (`#`), not query strings (`?`), because query strings are sent to the server and may expose confidential data; see the [standalone app guide](standalone-app/README.md#the-plan-lives-in-the-url).
 
 Supported query plan formats:
 * PostgreSQL's JSON format, obtained by `EXPLAIN (FORMAT JSON)`. It is particularly useful with `EXPLAIN (ANALYZE, FORMAT JSON)`.
