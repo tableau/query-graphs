@@ -1,5 +1,5 @@
 import {useCallback, useEffect, useId, useMemo, useState} from "react";
-import {useBrowserUrl, useUrlParam} from "./browserUrlHooks";
+import {useBrowserUrl, useUrlParam, useUrlMapParam} from "./browserUrlHooks";
 import type {FileOpenerData} from "./FileOpener";
 import {FileOpener, useLoadStateController} from "./FileOpener";
 import {loadPlanFromText} from "@tableau/query-graphs/lib/loaders";
@@ -27,7 +27,7 @@ export function QueryGraphsApp() {
     const [fileErrors, setFileErrors] = useState<FileError[]>([]);
     // Store the file collection in the URL to integrate with browser history.
     const browserUrl = useBrowserUrl();
-    const [namedFiles, setNamedFiles, duplicateFiles] = useUrlParam(browserUrl, "file", {type: "map"});
+    const [namedFiles, setNamedFiles, duplicateFiles] = useUrlMapParam(browserUrl, "file");
     const [legacyFile, setLegacyFile, duplicateLegacyFiles] = useUrlParam(browserUrl, "file");
     const [legacySqlFile, setLegacySqlFile, duplicateLegacySqlFiles] = useUrlParam(browserUrl, "sql-file");
     const [treeTitle, setTreeTitle] = useUrlParam(browserUrl, "title", {history: "replace"});

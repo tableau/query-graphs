@@ -10,7 +10,9 @@ interface PendingUrlUpdate {
     shouldPush: boolean;
 }
 
+/** Scalar parameter result: value, React setter, and duplicate keys (the requested key when repeated). */
 type ScalarUrlParamResult = [string | undefined, React.Dispatch<React.SetStateAction<string | undefined>>, readonly string[]];
+/** Map parameter result: value, React setter, and duplicated subkeys in first-repeat order. */
 type MapUrlParamResult = [
     ReadonlyMap<string, string> | undefined,
     React.Dispatch<React.SetStateAction<ReadonlyMap<string, string> | undefined>>,
@@ -74,29 +76,25 @@ export function useBrowserUrl(): URLState {
     return [url, setUrl];
 }
 
+/** URL write behavior shared by both parameter hooks. Writes in one tick are batched; push wins if any write pushes. */
 export interface UrlParamOptions {
-    type?: "string";
     history?: "push" | "replace";
 }
 
-export interface UrlParamMapOptions {
-    type: "map";
-    history?: "push" | "replace";
-}
-
-function readScalar(params: URLSearchParams, key: string): string | undefined {
-    return params.get(key) ?? undefined;
-}
-
-function scalarDuplicates(params: URLSearchParams, key: string): string[] {
-    return params.getAll(key).length > 1 ? [key] : [];
+function readScalar(params: URLSearchParams, key: string): [string | undefined, string[]] {
+    const values = params.getAll(key);
+    return [values.length === 1 ? values[0] : undefined, values.length > 1 ? [key] : []];
 }
 
 function isNamedParam(key: string, group: string): boolean {
     return key.startsWith(`${group}[`) && key.endsWith("]");
 }
 
-function readMap(params: URLSearchParams, group: string): [Map<string, string> | undefined, string[]] {
+function isScalarParam(key: string, parameter: string): boolean {
+    return key === parameter;
+}
+
+function readMap(params: URLSearchParams, group: string): [ReadonlyMap<string, string> | undefined, string[]] {
     const map = new Map<string, string>();
     const duplicates: string[] = [];
     const seenDuplicates = new Set<string>();
@@ -115,60 +113,38 @@ function readMap(params: URLSearchParams, group: string): [Map<string, string> |
     return [duplicates.length ? undefined : map, duplicates];
 }
 
-export function useUrlParam(urlState: URLState, key: string, options?: UrlParamOptions): ScalarUrlParamResult;
-export function useUrlParam(urlState: URLState, key: string, options: UrlParamMapOptions): MapUrlParamResult;
-export function useUrlParam(
+// The shared hook parses only the selected hash token subset. Memoizing that subset
+// keeps parsed maps and duplicate lists stable through edits to unrelated tokens.
+function useUrlParamInternal<T>(
     urlState: URLState,
     key: string,
-    options: UrlParamOptions | UrlParamMapOptions = {},
-): ScalarUrlParamResult | MapUrlParamResult {
+    history: "push" | "replace",
+    matches: (parameter: string, key: string) => boolean,
+    read: (params: URLSearchParams, key: string) => [T, string[]],
+    encode: (key: string, value: T) => [string, string][],
+): [T, React.Dispatch<React.SetStateAction<T>>, readonly string[]] {
     const [url, setUrl] = urlState;
-    const mapMode = options.type === "map";
-    const history = options.history ?? "push";
     const searchParams = new URLSearchParams(url.hash.slice(1));
-    const groupEntries = [...searchParams].filter(([param]) => (mapMode ? isNamedParam(param, key) : param === key));
+    const groupEntries = [...searchParams].filter(([param]) => matches(param, key));
     const groupToken = new URLSearchParams(groupEntries).toString();
     const parsed = useMemo(() => {
         const params = new URLSearchParams(groupToken);
-        if (mapMode) return readMap(params, key);
-        return [readScalar(params, key), scalarDuplicates(params, key)] as const;
-    }, [groupToken, key, mapMode]);
+        return read(params, key);
+    }, [groupToken, key, read]);
     const set = useCallback(
-        (action: React.SetStateAction<string | undefined> | React.SetStateAction<ReadonlyMap<string, string> | undefined>) => {
+        (action: React.SetStateAction<T>) => {
             setUrl((url) => {
                 const params = new URLSearchParams(url.hash.slice(1));
-                if (mapMode) {
-                    const [current] = readMap(params, key);
-                    const next =
-                        typeof action === "function"
-                            ? (
-                                  action as (
-                                      value: ReadonlyMap<string, string> | undefined,
-                                  ) => ReadonlyMap<string, string> | undefined
-                              )(current)
-                            : (action as ReadonlyMap<string, string> | undefined);
-                    const nextEntries = next
-                        ? [...next].map(([name, value]) => [`${key}[${name}]`, value] as [string, string])
-                        : [];
-                    const existing = [...params].filter(([param]) => isNamedParam(param, key));
-                    if (
-                        url.search === "" &&
-                        new URLSearchParams(existing).toString() === new URLSearchParams(nextEntries).toString()
-                    )
-                        return url;
-                    for (const param of [...params.keys()]) {
-                        if (isNamedParam(param, key)) params.delete(param);
-                    }
-                    for (const [param, value] of nextEntries) params.append(param, value);
-                } else {
-                    const currentValue = readScalar(params, key);
-                    const newValue =
-                        typeof action === "function"
-                            ? (action as (value: string | undefined) => string | undefined)(currentValue)
-                            : (action as string | undefined);
-                    if (newValue === undefined) params.delete(key);
-                    else params.set(key, newValue);
+                const [current] = read(params, key);
+                const next = typeof action === "function" ? (action as (value: T) => T)(current) : action;
+                const nextEntries = encode(key, next);
+                const existing = [...params].filter(([param]) => matches(param, key));
+                if (url.search === "" && new URLSearchParams(existing).toString() === new URLSearchParams(nextEntries).toString())
+                    return url;
+                for (const param of [...params.keys()]) {
+                    if (matches(param, key)) params.delete(param);
                 }
+                for (const [param, value] of nextEntries) params.append(param, value);
                 // Keep app state in the fragment so it is never sent to the server.
                 const newURL = new URL(url);
                 newURL.search = "";
@@ -177,10 +153,38 @@ export function useUrlParam(
                 return newURL;
             }, history === "replace");
         },
-        [setUrl, key, mapMode, history],
+        [setUrl, key, matches, history, read, encode],
     );
-    if (mapMode) {
-        return [parsed[0] as ReadonlyMap<string, string> | undefined, set as MapUrlParamResult[1], parsed[1]];
-    }
-    return [parsed[0] as string | undefined, set as ScalarUrlParamResult[1], parsed[1]];
+    return [parsed[0], set, parsed[1]];
+}
+
+function encodeScalar(key: string, value: string | undefined): [string, string][] {
+    return value === undefined ? [] : [[key, value]];
+}
+
+function encodeMap(key: string, value: ReadonlyMap<string, string> | undefined): [string, string][] {
+    return value ? [...value].map(([name, entry]) => [`${key}[${name}]`, entry]) : [];
+}
+
+/**
+ * Reads and writes one hash parameter. Missing or duplicated parameters return undefined;
+ * identical repeated values are duplicates too. The third tuple item contains the requested
+ * key when duplicated; callers choose how to format it. Functional updates see the latest
+ * pending value, including undefined for invalid duplicates. Setting undefined removes only
+ * this key. Explicit writes store state in the hash and clear the query string.
+ */
+export function useUrlParam(urlState: URLState, key: string, options: UrlParamOptions = {}): ScalarUrlParamResult {
+    return useUrlParamInternal(urlState, key, options.history ?? "push", isScalarParam, readScalar, encodeScalar);
+}
+
+/**
+ * Reads and writes bracketed hash parameters for a group. Missing groups return an empty Map;
+ * duplicate subkeys make the value undefined and are listed once in first-repeat order.
+ * Empty subkeys and values are preserved. Functional updates see the latest pending map,
+ * including undefined for duplicates; undefined removes only this group's bracketed keys.
+ * Setting an empty Map also clears the group. The app handles its legacy alias normalization
+ * and clearing alongside these hooks.
+ */
+export function useUrlMapParam(urlState: URLState, key: string, options: UrlParamOptions = {}): MapUrlParamResult {
+    return useUrlParamInternal(urlState, key, options.history ?? "push", isNamedParam, readMap, encodeMap);
 }

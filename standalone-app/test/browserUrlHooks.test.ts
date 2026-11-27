@@ -3,7 +3,7 @@ import test from "node:test";
 import {act, createElement} from "react";
 import type React from "react";
 import {createUiFixture} from "../../query-graphs/test/ui-test-utils";
-import {useBrowserUrl, useUrlParam} from "../src/browserUrlHooks";
+import {useBrowserUrl, useUrlMapParam, useUrlParam} from "../src/browserUrlHooks";
 
 interface TestNavigation extends EventTarget {
     currentEntry: {url: string};
@@ -36,18 +36,20 @@ async function withBrowser(
 
 test("URL hooks read only hash parameters without rewriting the URL", async () => {
     await withBrowser(
-        "https://example.test/path?file=query-file&sql-file=query-sql&title=query-title&uploadServer=query-upload#file=data%3Atext%2Fplain%2Ca%2520b&file=second&keep=a%2Bb&keep=c",
+        "https://example.test/path?file=query-file&sql-file=query-sql&title=query-title&uploadServer=query-upload#file=data%3Atext%2Fplain%2Ca%2520b&keep=a%2Bb&keep=c",
         async (navigation, fixture) => {
             const originalUrl = fixture.dom.window.location.href;
             const historyLength = fixture.dom.window.history.length;
             let values: Record<string, string | undefined> = {};
+            let duplicateKeys: readonly string[] = [];
             function Harness() {
                 const url = useBrowserUrl();
                 const [file] = useUrlParam(url, "file");
                 const [sqlFile] = useUrlParam(url, "sql-file");
                 const [title] = useUrlParam(url, "title");
                 const [uploadServer] = useUrlParam(url, "uploadServer");
-                const [keep] = useUrlParam(url, "keep");
+                const [keep, , duplicates] = useUrlParam(url, "keep");
+                duplicateKeys = duplicates;
                 values = {file, sqlFile, title, uploadServer, keep};
                 return null;
             }
@@ -57,8 +59,9 @@ test("URL hooks read only hash parameters without rewriting the URL", async () =
                 sqlFile: undefined,
                 title: undefined,
                 uploadServer: undefined,
-                keep: "a+b",
+                keep: undefined,
             });
+            assert.deepEqual(duplicateKeys, ["keep"]);
             assert.equal(fixture.dom.window.location.href, originalUrl);
             assert.equal(fixture.dom.window.history.length, historyLength);
             assert.deepEqual(navigation.navigations, []);
@@ -113,6 +116,36 @@ test("URL parameter writes use the hash and batch push/replace updates", async (
     );
 });
 
+test("scalar duplicates are invalid and functional updates use the latest pending value", async () => {
+    for (const values of ["first&value=second", "same&value=same"]) {
+        await withBrowser(`https://example.test/path#value=${values}&keep=1`, async (_navigation, fixture) => {
+            let value!: string | undefined;
+            let duplicates!: readonly string[];
+            let setter!: React.Dispatch<React.SetStateAction<string | undefined>>;
+            function Harness() {
+                const url = useBrowserUrl();
+                [value, setter, duplicates] = useUrlParam(url, "value");
+                return null;
+            }
+            await fixture.render(createElement(Harness));
+            assert.equal(value, undefined);
+            assert.deepEqual(duplicates, ["value"]);
+            await act(async () => {
+                setter((previous) => {
+                    assert.equal(previous, undefined);
+                    return "recovered";
+                });
+                setter((previous) => `${previous}-again`);
+            });
+            assert.equal(value, "recovered-again");
+            assert.deepEqual(duplicates, []);
+            const params = new URLSearchParams(fixture.dom.window.location.hash.slice(1));
+            assert.equal(params.get("value"), "recovered-again");
+            assert.equal(params.get("keep"), "1");
+        });
+    }
+});
+
 test("title edits preserve distinct and duplicate named file parameters", async () => {
     await withBrowser(
         "https://example.test/path#file%5Ba.sql%5D=first&file%5Ba.sql%5D=second&file%5Bb.sql%5D=third&title=old",
@@ -149,7 +182,7 @@ test("batched title and map updates replace aliases in one history entry", async
                 const url = useBrowserUrl();
                 const [, setTitle] = useUrlParam(url, "title", {history: "replace"});
                 titleSetter = setTitle;
-                const [, setFiles] = useUrlParam(url, "file", {type: "map"});
+                const [, setFiles] = useUrlMapParam(url, "file");
                 filesSetter = setFiles;
                 [, fileAliasSetter] = useUrlParam(url, "file", {history: "replace"});
                 [, sqlFileSetter] = useUrlParam(url, "sql-file", {history: "replace"});
@@ -187,7 +220,7 @@ test("map parameters read bracketed hash entries, report duplicate names, and ig
             let duplicates: readonly string[] = [];
             function Harness() {
                 const url = useBrowserUrl();
-                [map, , duplicates] = useUrlParam(url, "item", {type: "map"});
+                [map, , duplicates] = useUrlMapParam(url, "item");
                 return null;
             }
             await fixture.render(createElement(Harness));
@@ -210,7 +243,7 @@ test("map results retain identity across unrelated URL edits", async () => {
             let setTitle!: React.Dispatch<React.SetStateAction<string | undefined>>;
             function Harness() {
                 const url = useBrowserUrl();
-                [map, , duplicates] = useUrlParam(url, "item", {type: "map"});
+                [map, , duplicates] = useUrlMapParam(url, "item");
                 [, setTitle] = useUrlParam(url, "title", {history: "replace"});
                 return null;
             }
@@ -235,7 +268,7 @@ test("map updates batch functionally, replace only their group, and recover inva
             let duplicates!: readonly string[];
             function Harness() {
                 const url = useBrowserUrl();
-                [current, setter, duplicates] = useUrlParam(url, "item", {type: "map", history: "replace"});
+                [current, setter, duplicates] = useUrlMapParam(url, "item", {history: "replace"});
                 return null;
             }
             await fixture.render(createElement(Harness));
@@ -281,7 +314,7 @@ test("clearing the last map entry removes the hash and identical updates do not 
         let setter!: React.Dispatch<React.SetStateAction<ReadonlyMap<string, string> | undefined>>;
         function Harness() {
             const url = useBrowserUrl();
-            [map, setter] = useUrlParam(url, "item", {type: "map", history: "replace"});
+            [map, setter] = useUrlMapParam(url, "item", {history: "replace"});
             return null;
         }
         await fixture.render(createElement(Harness));
