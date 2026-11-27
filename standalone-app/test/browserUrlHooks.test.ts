@@ -4,7 +4,6 @@ import {act, createElement} from "react";
 import type React from "react";
 import {createUiFixture} from "../../query-graphs/test/ui-test-utils";
 import {useBrowserUrl, useUrlParam} from "../src/browserUrlHooks";
-import {setFileReferences} from "../src/files";
 
 interface TestNavigation extends EventTarget {
     currentEntry: {url: string};
@@ -79,7 +78,7 @@ test("URL parameter writes use the hash and batch push/replace updates", async (
             function Harness() {
                 const url = useBrowserUrl();
                 const [file, setFile] = useUrlParam(url, "file");
-                const [title, setTitle] = useUrlParam(url, "title", true);
+                const [title, setTitle] = useUrlParam(url, "title", {history: "replace"});
                 titleSetter = setTitle;
                 fileSetter = setFile;
                 values = {file, title};
@@ -121,7 +120,7 @@ test("title edits preserve distinct and duplicate named file parameters", async 
             let titleSetter!: React.Dispatch<React.SetStateAction<string | undefined>>;
             function Harness() {
                 const url = useBrowserUrl();
-                const [, setTitle] = useUrlParam(url, "title", true);
+                const [, setTitle] = useUrlParam(url, "title", {history: "replace"});
                 titleSetter = setTitle;
                 return null;
             }
@@ -136,25 +135,32 @@ test("title edits preserve distinct and duplicate named file parameters", async 
     );
 });
 
-test("batched title and named file updates replace aliases in one history entry", async () => {
+test("batched title and map updates replace aliases in one history entry", async () => {
     await withBrowser(
         "https://example.test/path?title=query-title&uploadServer=query-upload#file=old&file%5Blegacy.sql%5D=old&sql-file=old-query&uploadServer=hash-upload&title=old",
         async (navigation, fixture) => {
             const {dom} = fixture;
             const historyLength = dom.window.history.length;
-            let setUrl!: ReturnType<typeof useBrowserUrl>[1];
             let titleSetter!: React.Dispatch<React.SetStateAction<string | undefined>>;
+            let filesSetter!: React.Dispatch<React.SetStateAction<ReadonlyMap<string, string> | undefined>>;
+            let fileAliasSetter!: React.Dispatch<React.SetStateAction<string | undefined>>;
+            let sqlFileSetter!: React.Dispatch<React.SetStateAction<string | undefined>>;
             function Harness() {
                 const url = useBrowserUrl();
-                setUrl = url[1];
-                const [, setTitle] = useUrlParam(url, "title", true);
+                const [, setTitle] = useUrlParam(url, "title", {history: "replace"});
                 titleSetter = setTitle;
+                const [, setFiles] = useUrlParam(url, "file", {type: "map"});
+                filesSetter = setFiles;
+                [, fileAliasSetter] = useUrlParam(url, "file", {history: "replace"});
+                [, sqlFileSetter] = useUrlParam(url, "sql-file", {history: "replace"});
                 return null;
             }
             await fixture.render(createElement(Harness));
             await act(async () => {
                 titleSetter("new title");
-                setUrl((url) => setFileReferences(url, [{logicalFilename: "plan.xml", url: "blob:new-plan"}]));
+                fileAliasSetter(undefined);
+                sqlFileSetter(undefined);
+                filesSetter(new Map([["plan.xml", "blob:new-plan"]]));
             });
 
             const params = new URLSearchParams(dom.window.location.hash.slice(1));
@@ -171,4 +177,122 @@ test("batched title and named file updates replace aliases in one history entry"
             assert.doesNotMatch(dom.window.location.href, /query-title|query-upload/);
         },
     );
+});
+
+test("map parameters read bracketed hash entries, report duplicate names, and ignore query", async () => {
+    await withBrowser(
+        "https://example.test/path?item[query]=ignored#item=bare&item%5Ba%5D=one&item[y]=first&item%5By%5D=second&item[a]=one&item[a]=one&item%5Bb%20c%5D=three",
+        async (_navigation, fixture) => {
+            let map: ReadonlyMap<string, string> | undefined;
+            let duplicates: readonly string[] = [];
+            function Harness() {
+                const url = useBrowserUrl();
+                [map, , duplicates] = useUrlParam(url, "item", {type: "map"});
+                return null;
+            }
+            await fixture.render(createElement(Harness));
+            assert.equal(map, undefined);
+            assert.deepEqual(duplicates, ["y", "a"]);
+        },
+    );
+});
+
+test("map results retain identity across unrelated URL edits", async () => {
+    const cases = [
+        {hash: "other=1", entries: [], duplicateKeys: []},
+        {hash: "item[a]=one&other=1", entries: [["a", "one"]], duplicateKeys: []},
+        {hash: "item[a]=one&item[a]=one&other=1", entries: undefined, duplicateKeys: ["a"]},
+    ];
+    for (const {hash, entries, duplicateKeys} of cases) {
+        await withBrowser(`https://example.test/path?item[x]=query#${hash}`, async (_navigation, fixture) => {
+            let map!: ReadonlyMap<string, string> | undefined;
+            let duplicates!: readonly string[];
+            let setTitle!: React.Dispatch<React.SetStateAction<string | undefined>>;
+            function Harness() {
+                const url = useBrowserUrl();
+                [map, , duplicates] = useUrlParam(url, "item", {type: "map"});
+                [, setTitle] = useUrlParam(url, "title", {history: "replace"});
+                return null;
+            }
+            await fixture.render(createElement(Harness));
+            assert.deepEqual(map && [...map], entries);
+            assert.deepEqual(duplicates, duplicateKeys);
+            const firstMap = map;
+            const firstDuplicates = duplicates;
+            await act(async () => setTitle("after"));
+            assert.equal(map, firstMap);
+            assert.equal(duplicates, firstDuplicates);
+        });
+    }
+});
+
+test("map updates batch functionally, replace only their group, and recover invalid groups", async () => {
+    await withBrowser(
+        "https://example.test/path?private=query#item=bare&item%5Bx%5D=one&item[x]=one&item[b%5D%5D=encoded&other%5Bother%5D=keep&keep=1&keep=2",
+        async (navigation, fixture) => {
+            let setter!: React.Dispatch<React.SetStateAction<ReadonlyMap<string, string> | undefined>>;
+            let current!: ReadonlyMap<string, string> | undefined;
+            let duplicates!: readonly string[];
+            function Harness() {
+                const url = useBrowserUrl();
+                [current, setter, duplicates] = useUrlParam(url, "item", {type: "map", history: "replace"});
+                return null;
+            }
+            await fixture.render(createElement(Harness));
+            assert.equal(current, undefined);
+            assert.deepEqual(duplicates, ["x"]);
+            await act(async () => {
+                setter((value) => {
+                    assert.equal(value, undefined);
+                    return new Map([["a b", "first"]]);
+                });
+                setter((value) => new Map([...value!, ["next", "second"]]));
+            });
+            const params = new URLSearchParams(fixture.dom.window.location.hash.slice(1));
+            assert.equal(params.get("item[a b]"), "first");
+            assert.equal(params.get("item[next]"), "second");
+            assert.equal(params.get("other[other]"), "keep");
+            assert.equal(params.get("item"), "bare");
+            assert.deepEqual(params.getAll("keep"), ["1", "2"]);
+            assert.equal(fixture.dom.window.location.search, "");
+            assert.deepEqual(navigation.navigations, ["replace"]);
+            assert.deepEqual(duplicates, []);
+            assert.deepEqual(
+                [...current!],
+                [
+                    ["a b", "first"],
+                    ["next", "second"],
+                ],
+            );
+
+            await act(async () => setter(undefined));
+            const cleared = new URLSearchParams(fixture.dom.window.location.hash.slice(1));
+            assert.equal(cleared.has("item[a b]"), false);
+            assert.equal(cleared.has("item[next]"), false);
+            assert.equal(cleared.get("item"), "bare");
+            assert.equal(cleared.get("other[other]"), "keep");
+        },
+    );
+});
+
+test("clearing the last map entry removes the hash and identical updates do not navigate", async () => {
+    await withBrowser("https://example.test/path#item[x]=value", async (navigation, fixture) => {
+        let map!: ReadonlyMap<string, string> | undefined;
+        let setter!: React.Dispatch<React.SetStateAction<ReadonlyMap<string, string> | undefined>>;
+        function Harness() {
+            const url = useBrowserUrl();
+            [map, setter] = useUrlParam(url, "item", {type: "map", history: "replace"});
+            return null;
+        }
+        await fixture.render(createElement(Harness));
+        await act(async () => setter(map));
+        assert.deepEqual(navigation.navigations, []);
+        await act(async () => setter(new Map([["", ""]])));
+        assert.equal(map?.has(""), true);
+        assert.equal(map?.get(""), "");
+        assert.equal(fixture.dom.window.location.hash, "#item%5B%5D=");
+        await act(async () => setter(new Map()));
+        assert.equal(fixture.dom.window.location.hash, "");
+        assert.deepEqual(navigation.navigations, ["replace", "replace"]);
+    });
 });

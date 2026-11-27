@@ -63,6 +63,26 @@ Browsers never send the URL hash to the server, so `useUrlParam` keeps them in t
 Query-string parameters are deliberately unsupported.
 Refusing query-string parameters helps catch developer mistakes that could leak private data.
 
+## URL Parameter Hooks
+
+`useUrlParam` supports scalar values and named parameter groups:
+
+```ts
+const [title, setTitle] = useUrlParam(browserUrl, "title", {history: "replace"});
+const [files, setFiles, duplicateKeys] = useUrlParam(browserUrl, "file", {type: "map"});
+```
+
+Map mode reads `file[name]` parameters as a `ReadonlyMap<string, string>`; a missing group returns an empty map.
+Map keys and values are literal strings, including empty strings.
+Repeated subkeys return an undefined map and the duplicated subkeys, each listed once in first-repeat order.
+The caller decides how to display these keys; the hook does not format error messages.
+Scalar reads retain the first value and report repeated parameter names in the third tuple element, allowing the app to validate legacy aliases.
+Map values and duplicate-key lists are memoized using only their matching hash parameters, so unrelated title edits do not reload the files.
+Setters accept replacement values or functional updates; a functional map updater receives `undefined` when the current group has duplicate keys.
+Setting an empty map or `undefined` removes only that named group, leaving bare parameters and other groups intact.
+The app clears the legacy `file` and `sql-file` aliases separately when opening a new plan.
+Updates are batched into one history entry; `{history: "replace"}` replaces the current entry unless another update in that batch requests a push.
+
 ## Getting a Plan In
 
 `FileOpener.tsx` is the landing screen.

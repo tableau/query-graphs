@@ -13,15 +13,16 @@ export interface FileError {
     message: string;
 }
 
-export function getFileReferences(url: URL): FileReference[] {
+export function getFileReferences(
+    namedFiles: ReadonlyMap<string, string>,
+    legacyFile?: string,
+    legacySqlFile?: string,
+): FileReference[] {
     // Normalize aliases before duplicate validation so aliases and named files share one namespace.
-    return [...new URLSearchParams(url.hash.slice(1)).entries()].flatMap(([key, value]) => {
-        const match = /^file\[(.+)\]$/.exec(key);
-        if (match) return [{logicalFilename: match[1], url: value}];
-        if (key === "file") return [{logicalFilename: "plan.json", url: value}];
-        if (key === "sql-file") return [{logicalFilename: "query.sql", url: value}];
-        return [];
-    });
+    const references = [...namedFiles].map(([logicalFilename, url]) => ({logicalFilename, url}));
+    if (legacyFile !== undefined) references.push({logicalFilename: "plan.json", url: legacyFile});
+    if (legacySqlFile !== undefined) references.push({logicalFilename: "query.sql", url: legacySqlFile});
+    return references;
 }
 
 export function validateFileReferences(references: readonly FileReference[]): void {
@@ -83,25 +84,6 @@ export async function loadPlanFromFiles(
             : [{name: reference.logicalFilename, message: error instanceof Error ? error.message : "Unknown error"}],
     );
     return {plan, errors};
-}
-
-export function clearFileParameters(url: URL): URL {
-    const next = new URL(url);
-    const params = new URLSearchParams(next.hash.slice(1));
-    for (const key of [...params.keys()]) {
-        if (/^file(?:\[.*\])?$/.test(key) || key === "sql-file") params.delete(key);
-    }
-    next.search = "";
-    next.hash = params.toString() ? `#${params.toString()}` : "";
-    return next;
-}
-
-export function setFileReferences(url: URL, references: readonly FileReference[]): URL {
-    const next = clearFileParameters(url);
-    const params = new URLSearchParams(next.hash.slice(1));
-    for (const {logicalFilename, url: fileUrl} of references) params.append(`file[${logicalFilename}]`, fileUrl);
-    next.hash = `#${params.toString()}`;
-    return next;
 }
 
 export function getFileLanguage(logicalFilename: string): string | undefined {

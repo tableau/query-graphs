@@ -1,39 +1,21 @@
 import assert from "node:assert/strict";
 import {describe, it} from "node:test";
-import {
-    clearFileParameters,
-    createFileDocument,
-    getFileLanguage,
-    getFileReferences,
-    loadPlanFromFiles,
-    validateFileReferences,
-} from "../src/files";
+import {createFileDocument, getFileLanguage, getFileReferences, loadPlanFromFiles, validateFileReferences} from "../src/files";
 
-describe("URL files", () => {
-    it("reads hash entries only and ignores query entries", () => {
-        const url = new URL(
-            "https://example.test/?file%5Ba.sql%5D=query-a&file%5Bx.json%5D=query#file%5Ba.sql%5D=hash-a&file%5Ba.sql%5D=hash-b",
-        );
-        assert.deepEqual(getFileReferences(url), [
-            {logicalFilename: "a.sql", url: "hash-a"},
-            {logicalFilename: "a.sql", url: "hash-b"},
+describe("files", () => {
+    it("normalizes legacy aliases before duplicate validation without overwriting named files", () => {
+        assert.deepEqual(getFileReferences(new Map([["other.txt", "other"]]), "old.xml", "sql"), [
+            {logicalFilename: "other.txt", url: "other"},
+            {logicalFilename: "plan.json", url: "old.xml"},
+            {logicalFilename: "query.sql", url: "sql"},
         ]);
-        assert.throws(() => validateFileReferences(getFileReferences(url)), /Duplicate file name: a.sql/);
-        assert.deepEqual(getFileReferences(new URL("https://example.test/?file%5Bplan.json%5D=query&file=old&sql-file=q")), []);
-    });
-
-    it("normalizes legacy main and SQL aliases before duplicate validation", () => {
-        assert.deepEqual(
-            getFileReferences(new URL("https://example.test/?file=ignored#file=old.xml&sql-file=sql&file%5Bother.txt%5D=other")),
-            [
-                {logicalFilename: "plan.json", url: "old.xml"},
-                {logicalFilename: "query.sql", url: "sql"},
-                {logicalFilename: "other.txt", url: "other"},
-            ],
-        );
+        for (const namedUrl of ["different", "old.xml"]) {
+            const refs = getFileReferences(new Map([["plan.json", namedUrl]]), "old.xml");
+            assert.throws(() => validateFileReferences(refs), /Duplicate file name: plan\.json/);
+        }
         assert.throws(
-            () => validateFileReferences(getFileReferences(new URL("https://example.test/#file=legacy&file%5Bplan.json%5D=named"))),
-            /Duplicate file name: plan\.json/,
+            () => validateFileReferences(getFileReferences(new Map([["query.sql", "sql"]]), undefined, "sql")),
+            /Duplicate file name: query\.sql/,
         );
     });
 
@@ -51,7 +33,7 @@ describe("URL files", () => {
                     {logicalFilename: "plan.json", url: "https://example.test/plan.json"},
                     {logicalFilename: "plan.xml", url: "https://example.test/plan.xml"},
                 ],
-                getFileReferences(new URL("https://example.test/#file=legacy&file%5Bplan.xml%5D=named")),
+                getFileReferences(new Map([["plan.xml", "named"]]), "legacy"),
             ]) {
                 await assert.rejects(
                     loadPlanFromFiles(references, new URL("https://example.test/app"), new AbortController().signal),
@@ -91,14 +73,13 @@ describe("URL files", () => {
         }
     });
 
-    it("ignores query file entries even when they repeat hash names", () => {
-        const fileUrl = new URL("https://example.test/?file%5Ba.sql%5D=one#file%5Ba.sql%5D=two");
-        assert.deepEqual(getFileReferences(fileUrl), [{logicalFilename: "a.sql", url: "two"}]);
-        assert.doesNotThrow(() => validateFileReferences(getFileReferences(fileUrl)));
-    });
-
     it("keeps identifiers case-sensitive", () => {
-        const references = getFileReferences(new URL("https://example.test/#file%5BA.sql%5D=one&file%5Ba.sql%5D=two"));
+        const references = getFileReferences(
+            new Map([
+                ["A.sql", "one"],
+                ["a.sql", "two"],
+            ]),
+        );
         assert.doesNotThrow(() => validateFileReferences(references));
     });
 
@@ -112,41 +93,6 @@ describe("URL files", () => {
             text: "a\nb\nc",
             language: undefined,
         });
-    });
-
-    it("clears file parameters while retaining unrelated duplicate parameters", () => {
-        const result = clearFileParameters(
-            new URL(
-                "https://example.test/?title=query&file%5Bx.sql%5D=query#title=plan&title=second&file%5Bx.sql%5D=hash&sql-file=legacy&uploadServer=server",
-            ),
-        );
-        assert.deepEqual(
-            [...new URLSearchParams(result.hash.slice(1)).entries()],
-            [
-                ["title", "plan"],
-                ["title", "second"],
-                ["uploadServer", "server"],
-            ],
-        );
-        assert.equal(result.search, "");
-    });
-
-    it("replaces all file aliases with a canonical named file and preserves app settings", async () => {
-        const {setFileReferences} = await import("../src/files");
-        const result = setFileReferences(
-            new URL(
-                "https://example.test/?ignored=query#uploadServer=server&file=old&file%5Bold.txt%5D=old&sql-file=sql&title=Plan",
-            ),
-            [{logicalFilename: "plan.xml", url: "blob:local"}],
-        );
-        assert.deepEqual(
-            [...new URLSearchParams(result.hash.slice(1)).entries()],
-            [
-                ["uploadServer", "server"],
-                ["title", "Plan"],
-                ["file[plan.xml]", "blob:local"],
-            ],
-        );
     });
 
     it("loads query SQL with raw UTF-8 byte offsets", async () => {
@@ -179,7 +125,7 @@ describe("URL files", () => {
         const loaded = await loadPlanFromFiles(
             [
                 {logicalFilename: "plan.json", url: data(plan).toString()},
-                ...getFileReferences(new URL(`https://example.test/#sql-file=${encodeURIComponent(data("SELECT 1").toString())}`)),
+                ...getFileReferences(new Map(), undefined, data("SELECT 1").toString()),
                 {logicalFilename: "broken.json", url: "http://["},
             ],
             new URL("https://example.test/app"),
@@ -338,7 +284,7 @@ describe("URL files", () => {
             loaded = await loadPlanFromFiles(
                 [
                     {logicalFilename: "plan.json", url: data(embeddedPlan).toString()},
-                    ...getFileReferences(new URL("https://example.test/#sql-file=http%3A%2F%2F%5B")),
+                    ...getFileReferences(new Map(), undefined, "http://["),
                     {logicalFilename: "kept.txt", url: "https://example.test/response.sql"},
                 ],
                 new URL("https://example.test/app"),
@@ -357,7 +303,7 @@ describe("URL files", () => {
     });
 
     it("normalizes sql-file to query.sql and rejects aliases before fetching", async () => {
-        const alias = getFileReferences(new URL("https://example.test/#sql-file=query.sql"));
+        const alias = getFileReferences(new Map(), undefined, "query.sql");
         assert.deepEqual(alias, [{logicalFilename: "query.sql", url: "query.sql"}]);
         const originalFetch = globalThis.fetch;
         let fetches = 0;
@@ -366,32 +312,24 @@ describe("URL files", () => {
             return new Response("{}", {status: 200});
         };
         try {
-            for (const refs of [
-                getFileReferences(new URL("https://example.test/#sql-file=same&file%5Bquery.sql%5D=same")),
-                getFileReferences(new URL("https://example.test/#sql-file=same&sql-file=same")),
-            ]) {
-                await assert.rejects(
-                    loadPlanFromFiles(
-                        [{logicalFilename: "plan.json", url: "https://example.test/plan.json"}, ...refs],
-                        new URL("https://example.test/app"),
-                        new AbortController().signal,
-                    ),
-                    /Duplicate file name: query\.sql/,
-                );
-            }
+            await assert.rejects(
+                loadPlanFromFiles(
+                    [
+                        {logicalFilename: "plan.json", url: "https://example.test/plan.json"},
+                        ...getFileReferences(new Map([["query.sql", "same"]]), undefined, "same"),
+                    ],
+                    new URL("https://example.test/app"),
+                    new AbortController().signal,
+                ),
+                /Duplicate file name: query\.sql/,
+            );
             assert.equal(fetches, 0);
         } finally {
             globalThis.fetch = originalFetch;
         }
         assert.throws(
-            () =>
-                validateFileReferences(
-                    getFileReferences(new URL("https://example.test/#sql-file=query&file%5Bquery.sql%5D=named")),
-                ),
+            () => validateFileReferences(getFileReferences(new Map([["query.sql", "named"]]), undefined, "query")),
             /Duplicate file name: query\.sql/,
         );
-        assert.deepEqual(getFileReferences(new URL("https://example.test/?sql-file=query#sql-file=hash")), [
-            {logicalFilename: "query.sql", url: "hash"},
-        ]);
     });
 });

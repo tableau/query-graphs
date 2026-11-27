@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useId, useState} from "react";
+import {useCallback, useEffect, useId, useMemo, useState} from "react";
 import {useBrowserUrl, useUrlParam} from "./browserUrlHooks";
 import type {FileOpenerData} from "./FileOpener";
 import {FileOpener, useLoadStateController} from "./FileOpener";
@@ -12,24 +12,31 @@ import {TreeLabel} from "./TreeLabel";
 import {SettingsButton, SettingsPanel} from "./SettingsPanel";
 import {useSettings} from "./settings";
 import {useTheme} from "./theme";
-import {getFileReferences, loadPlanFromFiles, setFileReferences} from "./files";
+import {getFileReferences, loadPlanFromFiles} from "./files";
 import type {FileError} from "./files";
+
+const emptyNamedFiles: ReadonlyMap<string, string> = new Map();
 
 export function QueryGraphsApp() {
     const settingsPopoverId = useId();
     const animationSpeed = useSettings((settings) => settings.values.animationSpeed);
     const theme = useTheme();
     const loadStateController = useLoadStateController();
-    const {setProgress, clearLoadState, tryAndDisplayErrors} = loadStateController;
+    const {setProgress, clearLoadState, setError, tryAndDisplayErrors} = loadStateController;
     const [loadedPlan, setLoadedPlan] = useState<LoadedPlan | undefined>(undefined);
     const [fileErrors, setFileErrors] = useState<FileError[]>([]);
     // Store the file collection in the URL to integrate with browser history.
     const browserUrl = useBrowserUrl();
-    const [currentBrowserUrl, setBrowserUrl] = browserUrl;
-    const [treeTitle, setTreeTitle] = useUrlParam(browserUrl, "title", true);
+    const [namedFiles, setNamedFiles, duplicateFiles] = useUrlParam(browserUrl, "file", {type: "map"});
+    const [legacyFile, setLegacyFile, duplicateLegacyFiles] = useUrlParam(browserUrl, "file");
+    const [legacySqlFile, setLegacySqlFile, duplicateLegacySqlFiles] = useUrlParam(browserUrl, "sql-file");
+    const [treeTitle, setTreeTitle] = useUrlParam(browserUrl, "title", {history: "replace"});
     const [uploadServer] = useUrlParam(browserUrl, "uploadServer");
-    // Depend only on file references so title edits don't reload the files.
-    const fileConfig = JSON.stringify(getFileReferences(currentBrowserUrl));
+    // Stable URL hook values keep title edits out of file-load dependencies.
+    const references = useMemo(
+        () => getFileReferences(namedFiles ?? emptyNamedFiles, legacyFile, legacySqlFile),
+        [namedFiles, legacyFile, legacySqlFile],
+    );
     // Keep the browser tab's title in sync
     useEffect(() => {
         const tabTitle = treeTitle ? `${treeTitle} - QueryGraphs` : "QueryGraphs";
@@ -73,17 +80,29 @@ export function QueryGraphsApp() {
             title = new Date().toLocaleString();
         }
         // Update the tree URL such that link sharing works.
+        setNamedFiles(new Map([[logicalFilename, url.toString()]]));
+        setLegacyFile(undefined);
+        setLegacySqlFile(undefined);
         setTreeTitle(title);
-        const fileUrl = url.toString();
-        setBrowserUrl((current) => setFileReferences(current, [{logicalFilename, url: fileUrl}]));
     };
     // Keep the displayed tree in sync with the named file references.
     useEffect(() => {
-        const references = JSON.parse(fileConfig) as ReturnType<typeof getFileReferences>;
+        const duplicates = [
+            ...duplicateFiles,
+            ...duplicateLegacyFiles.map(() => "plan.json"),
+            ...duplicateLegacySqlFiles.map(() => "query.sql"),
+        ];
+        if (duplicates.length > 0) {
+            // URL duplicates are rejected before any fetch, using the same opener error state as loader failures.
+            // eslint-disable-next-line react-hooks/set-state-in-effect
+            setLoadedPlan(undefined);
+            setFileErrors([]);
+            setError(`Duplicate file name: ${duplicates[0]}`);
+            return;
+        }
         if (references.length === 0) {
             // Resetting here leaves the old tree visible for one extra frame after the file list clears.
             // We accept that flicker to keep `loadedPlan` as the single source of truth for the display.
-            // eslint-disable-next-line react-hooks/set-state-in-effect
             setLoadedPlan(undefined);
             setFileErrors([]);
             clearLoadState();
@@ -110,7 +129,16 @@ export function QueryGraphsApp() {
         return () => {
             abortController.abort();
         };
-    }, [fileConfig, clearLoadState, setProgress, tryAndDisplayErrors]);
+    }, [
+        references,
+        duplicateFiles,
+        duplicateLegacyFiles,
+        duplicateLegacySqlFiles,
+        clearLoadState,
+        setError,
+        setProgress,
+        tryAndDisplayErrors,
+    ]);
 
     const validate = useCallback((text: string) => {
         try {
