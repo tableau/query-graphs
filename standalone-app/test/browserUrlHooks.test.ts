@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {act, createElement} from "react";
 import type React from "react";
-import {createUiFixture} from "../../test/ui-test-utils";
+import {createUiFixture} from "../../query-graphs/test/ui-test-utils";
 import {useBrowserUrl, useUrlParam} from "../src/browserUrlHooks";
 
 interface TestNavigation extends EventTarget {

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import {registerHooks} from "node:module";
 import test from "node:test";
 import * as React from "react";
-import {createUiFixture} from "../../test/ui-test-utils";
+import {createUiFixture} from "../../query-graphs/test/ui-test-utils";
 
 registerHooks({
     load(url, context, nextLoad) {

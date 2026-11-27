@@ -1,6 +1,6 @@
 import {registerHooks} from "node:module";
 import * as React from "react";
-import {createUiFixture as createBaseUiFixture} from "../../../test/ui-test-utils";
+import {createUiFixture as createBaseUiFixture} from "../ui-test-utils";
 import type {TreeNode} from "../../src/tree-description";
 import {createSourceLinkIndex} from "../../src/ui/source-link-index";
 import {createGraphRenderingStore, GraphRenderingStoreContext, type GraphRenderingStore} from "../../src/ui/store";

@@ -3,7 +3,7 @@ import {registerHooks} from "node:module";
 import test from "node:test";
 import * as React from "react";
 import {color as oneDarkColor} from "@codemirror/theme-one-dark";
-import {createUiFixture} from "../../test/ui-test-utils";
+import {createUiFixture} from "../../query-graphs/test/ui-test-utils";
 import {settingsStore} from "../src/settings";
 import type {CodeMirrorDocumentProps} from "../src/CodeMirrorDocument";
 import type {SettingsValues} from "../src/settings";

@@ -17,8 +17,6 @@
         "@eslint/compat": "^2.1.0",
         "@eslint/js": "^10.0.1",
         "@types/jsdom": "^27.0.0",
-        "@types/react": "^19.2.18",
-        "@types/react-dom": "^19.2.4",
         "eslint": "^10.9.0",
         "eslint-config-prettier": "^10.1.8",
         "eslint-plugin-prettier": "^5.2.1",
@@ -27,8 +25,6 @@
         "globals": "^17.11.0",
         "jsdom": "^27.0.0",
         "prettier": "^3.3.3",
-        "react": "^19.2.8",
-        "react-dom": "^19.2.8",
         "tsx": "^4.23.13",
         "typescript": "^6.0.3",
         "typescript-eslint": "^8.10.0"
