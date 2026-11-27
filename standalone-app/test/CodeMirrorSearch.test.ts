@@ -28,7 +28,12 @@ test("the compact search panel exposes labeled, match-aware controls", () => {
         // constructing CompactSearchPanel directly.
         view.focus();
         view.contentDOM.dispatchEvent(
-            new dom.window.KeyboardEvent("keydown", {key: "f", ctrlKey: true, bubbles: true, cancelable: true}),
+            new dom.window.KeyboardEvent("keydown", {
+                key: "f",
+                ...(/Mac/.test(globalThis.navigator?.platform ?? "") ? {metaKey: true} : {ctrlKey: true}),
+                bubbles: true,
+                cancelable: true,
+            }),
         );
 
         assert.equal(searchPanelOpen(view.state), true);

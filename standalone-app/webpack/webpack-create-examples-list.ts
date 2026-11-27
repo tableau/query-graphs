@@ -97,7 +97,7 @@ export class CreateExamplesListPlugin {
                         const title = path.parse(absPath).base;
                         const params = new URLSearchParams({file: relPath, title});
                         const sqlPath = indexedExamples.find((files) => files.plan === planPath)?.sql;
-                        if (sqlPath !== undefined) params.set("sql-file", `examples/${sqlPath}`);
+                        if (sqlPath !== undefined) params.set("file[query.sql]", `examples/${sqlPath}`);
                         return `index.html#${params.toString()}`;
                     }
                     const code = await generateExamplesList(examplesPath, createLink);

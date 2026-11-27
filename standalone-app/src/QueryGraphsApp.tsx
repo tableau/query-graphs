@@ -12,7 +12,8 @@ import {TreeLabel} from "./TreeLabel";
 import {SettingsButton, SettingsPanel} from "./SettingsPanel";
 import {useSettings} from "./settings";
 import {useTheme} from "./theme";
-import {loadFileText} from "./loadFileText";
+import {clearAuxiliaryFileParameters, getAuxiliaryFileReferences, loadPlanWithAuxiliaryFiles} from "./auxiliaryFiles";
+import type {AuxiliaryFileError} from "./auxiliaryFiles";
 
 export function QueryGraphsApp() {
     const settingsPopoverId = useId();
@@ -21,13 +22,15 @@ export function QueryGraphsApp() {
     const loadStateController = useLoadStateController();
     const {setProgress, clearLoadState, tryAndDisplayErrors} = loadStateController;
     const [loadedPlan, setLoadedPlan] = useState<LoadedPlan | undefined>(undefined);
+    const [auxiliaryFileErrors, setAuxiliaryFileErrors] = useState<AuxiliaryFileError[]>([]);
     const browserUrl = useBrowserUrl();
+    const [currentBrowserUrl, setBrowserUrl] = browserUrl;
     // We store the currently opened tree in a URL parameter.
     // Thereby, we automatically integrate with the browser's history.
     const [treeUrl, setTreeUrl] = useUrlParam(browserUrl, "file");
-    const [sqlFileUrl, setSqlFileUrl] = useUrlParam(browserUrl, "sql-file");
     const [treeTitle, setTreeTitle] = useUrlParam(browserUrl, "title", true);
     const [uploadServer] = useUrlParam(browserUrl, "uploadServer");
+    const auxiliaryFileConfig = JSON.stringify(getAuxiliaryFileReferences(currentBrowserUrl));
     // Keep the browser tab's title in sync
     useEffect(() => {
         const tabTitle = treeTitle ? `${treeTitle} - QueryGraphs` : "QueryGraphs";
@@ -69,7 +72,7 @@ export function QueryGraphsApp() {
         }
         // Update the tree URL such that link sharing works.
         setTreeTitle(title);
-        setSqlFileUrl(undefined);
+        setBrowserUrl((current) => clearAuxiliaryFileParameters(current));
         setTreeUrl(url.toString());
     };
     // We keep the displayed tree in sync with the URL parameter
@@ -81,6 +84,7 @@ export function QueryGraphsApp() {
             // keep `loadedPlan` as the single source of truth for what's displayed.
             // eslint-disable-next-line react-hooks/set-state-in-effect
             setLoadedPlan(undefined);
+            setAuxiliaryFileErrors([]);
             clearLoadState();
             return;
         }
@@ -94,21 +98,19 @@ export function QueryGraphsApp() {
             // the "examples.html" page works correctly.
             const url = new URL(treeUrl, window.location.href);
             const urlString = url.toString();
-            const sqlUrl = sqlFileUrl === undefined ? undefined : new URL(sqlFileUrl, window.location.href);
-            // Load the plan and optional SQL in parallel.
-            setProgress(sqlUrl === undefined ? `Fetching "${urlString}"...` : "Fetching query plan and SQL...");
-            const loadedFiles = await Promise.all([
-                loadFileText(url, signal),
-                sqlUrl === undefined ? undefined : loadFileText(sqlUrl, signal),
-            ]).catch((error: unknown) => {
+            setProgress(`Fetching "${urlString}"...`);
+            const loaded = await loadPlanWithAuxiliaryFiles(
+                url,
+                JSON.parse(auxiliaryFileConfig),
+                new URL(window.location.href),
+                signal,
+            ).catch((error: unknown) => {
                 if (signal.aborted) return undefined;
                 throw error;
             });
-            if (loadedFiles === undefined || signal.aborted) return;
-            const [text, sql] = loadedFiles;
-            // Parse the tree
-            setProgress("Parsing plan...");
-            const plan = loadPlanFromText(text, {sql});
+            if (loaded === undefined || signal.aborted) return;
+            const {plan, errors} = loaded;
+            setAuxiliaryFileErrors(errors);
             // Display the freshly loaded plan.
             setLoadedPlan(plan);
             clearLoadState();
@@ -116,7 +118,7 @@ export function QueryGraphsApp() {
         return () => {
             abortController.abort();
         };
-    }, [treeUrl, sqlFileUrl, clearLoadState, setProgress, tryAndDisplayErrors]);
+    }, [treeUrl, auxiliaryFileConfig, clearLoadState, setProgress, tryAndDisplayErrors]);
 
     const validate = useCallback((text: string) => {
         try {
@@ -143,6 +145,7 @@ export function QueryGraphsApp() {
                     metadata={tree.metadata}
                     metadataHighlighted={tree.metadataHighlighted}
                     textDocuments={tree.textDocuments}
+                    auxiliaryFileErrors={auxiliaryFileErrors}
                     insights={insightPresets[format] ? {root: tree.root, definitions: insightPresets[format]} : undefined}
                 />
                 <SettingsPanel popoverId={settingsPopoverId} />

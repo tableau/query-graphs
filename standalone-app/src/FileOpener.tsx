@@ -142,18 +142,14 @@ export function FileOpener({setData, validate, loadStateController}: FileOpenerP
     const {dragging, onDragOver, onDragLeave} = useFileDrop();
     const [planString, setPlanString] = useState<string>("");
 
-    // Re-validate the current string whenever it's updated
+    // An empty opener must preserve loading and errors owned by URL-driven loads in the parent.
     useEffect(() => {
-        if (planString === "") {
-            clearLoadState();
+        if (planString === "") return;
+        const error = validate(planString);
+        if (error) {
+            setError(error);
         } else {
-            const error = validate(planString);
-            console.log(error);
-            if (error) {
-                setError(error);
-            } else {
-                clearLoadState();
-            }
+            clearLoadState();
         }
     }, [planString, validate, clearLoadState, setError]);
 
@@ -161,9 +157,11 @@ export function FileOpener({setData, validate, loadStateController}: FileOpenerP
 
     const onChange = useCallback(
         (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-            setPlanString(e.target.value);
+            const value = e.target.value;
+            setPlanString(value);
+            if (value === "") clearLoadState();
         },
-        [setPlanString],
+        [setPlanString, clearLoadState],
     );
 
     const submit = useCallback(async () => {
