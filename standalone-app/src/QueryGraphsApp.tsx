@@ -23,10 +23,12 @@ export function QueryGraphsApp() {
     const {setProgress, clearLoadState, tryAndDisplayErrors} = loadStateController;
     const [loadedPlan, setLoadedPlan] = useState<LoadedPlan | undefined>(undefined);
     const [fileErrors, setFileErrors] = useState<FileError[]>([]);
+    // Store the file collection in the URL to integrate with browser history.
     const browserUrl = useBrowserUrl();
     const [currentBrowserUrl, setBrowserUrl] = browserUrl;
     const [treeTitle, setTreeTitle] = useUrlParam(browserUrl, "title", true);
     const [uploadServer] = useUrlParam(browserUrl, "uploadServer");
+    // Depend only on file references so title edits don't reload the files.
     const fileConfig = JSON.stringify(getFileReferences(currentBrowserUrl));
     // Keep the browser tab's title in sync
     useEffect(() => {
@@ -79,7 +81,8 @@ export function QueryGraphsApp() {
     useEffect(() => {
         const references = JSON.parse(fileConfig) as ReturnType<typeof getFileReferences>;
         if (references.length === 0) {
-            // Resetting here keeps `loadedPlan` as the single source of truth for the display.
+            // Resetting here leaves the old tree visible for one extra frame after the file list clears.
+            // We accept that flicker to keep `loadedPlan` as the single source of truth for the display.
             // eslint-disable-next-line react-hooks/set-state-in-effect
             setLoadedPlan(undefined);
             setFileErrors([]);

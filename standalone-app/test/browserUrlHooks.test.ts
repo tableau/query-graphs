@@ -4,6 +4,7 @@ import {act, createElement} from "react";
 import type React from "react";
 import {createUiFixture} from "../../query-graphs/test/ui-test-utils";
 import {useBrowserUrl, useUrlParam} from "../src/browserUrlHooks";
+import {setFileReferences} from "../src/files";
 
 interface TestNavigation extends EventTarget {
     currentEntry: {url: string};
@@ -109,6 +110,65 @@ test("URL parameter writes use the hash and batch push/replace updates", async (
             assert.deepEqual(navigation.navigations, ["push", "replace"]);
             assert.equal(new URLSearchParams(dom.window.location.hash.slice(1)).get("title"), "renamed");
             assert.deepEqual(values, {file: "blob:private", title: "renamed"});
+        },
+    );
+});
+
+test("title edits preserve distinct and duplicate named file parameters", async () => {
+    await withBrowser(
+        "https://example.test/path#file%5Ba.sql%5D=first&file%5Ba.sql%5D=second&file%5Bb.sql%5D=third&title=old",
+        async (_navigation, fixture) => {
+            let titleSetter!: React.Dispatch<React.SetStateAction<string | undefined>>;
+            function Harness() {
+                const url = useBrowserUrl();
+                const [, setTitle] = useUrlParam(url, "title", true);
+                titleSetter = setTitle;
+                return null;
+            }
+            await fixture.render(createElement(Harness));
+            await act(async () => titleSetter("renamed"));
+
+            const params = new URLSearchParams(fixture.dom.window.location.hash.slice(1));
+            assert.deepEqual(params.getAll("file[a.sql]"), ["first", "second"]);
+            assert.deepEqual(params.getAll("file[b.sql]"), ["third"]);
+            assert.equal(params.get("title"), "renamed");
+        },
+    );
+});
+
+test("batched title and named file updates replace aliases in one history entry", async () => {
+    await withBrowser(
+        "https://example.test/path?title=query-title&uploadServer=query-upload#file=old&file%5Blegacy.sql%5D=old&sql-file=old-query&uploadServer=hash-upload&title=old",
+        async (navigation, fixture) => {
+            const {dom} = fixture;
+            const historyLength = dom.window.history.length;
+            let setUrl!: ReturnType<typeof useBrowserUrl>[1];
+            let titleSetter!: React.Dispatch<React.SetStateAction<string | undefined>>;
+            function Harness() {
+                const url = useBrowserUrl();
+                setUrl = url[1];
+                const [, setTitle] = useUrlParam(url, "title", true);
+                titleSetter = setTitle;
+                return null;
+            }
+            await fixture.render(createElement(Harness));
+            await act(async () => {
+                titleSetter("new title");
+                setUrl((url) => setFileReferences(url, [{logicalFilename: "plan.xml", url: "blob:new-plan"}]));
+            });
+
+            const params = new URLSearchParams(dom.window.location.hash.slice(1));
+            assert.equal(params.get("title"), "new title");
+            assert.equal(params.get("uploadServer"), "hash-upload");
+            assert.equal(params.get("file[plan.xml]"), "blob:new-plan");
+            assert.deepEqual(
+                [...params.keys()].filter((key) => key === "file" || key === "sql-file" || key.startsWith("file[")),
+                ["file[plan.xml]"],
+            );
+            assert.equal(dom.window.location.search, "");
+            assert.equal(dom.window.history.length, historyLength + 1);
+            assert.deepEqual(navigation.navigations, ["push"]);
+            assert.doesNotMatch(dom.window.location.href, /query-title|query-upload/);
         },
     );
 });
