@@ -12,8 +12,8 @@ import {TreeLabel} from "./TreeLabel";
 import {SettingsButton, SettingsPanel} from "./SettingsPanel";
 import {useSettings} from "./settings";
 import {useTheme} from "./theme";
-import {clearAuxiliaryFileParameters, getAuxiliaryFileReferences, loadPlanWithAuxiliaryFiles} from "./auxiliaryFiles";
-import type {AuxiliaryFileError} from "./auxiliaryFiles";
+import {getFileReferences, loadPlanFromFiles, setFileReferences} from "./files";
+import type {FileError} from "./files";
 
 export function QueryGraphsApp() {
     const settingsPopoverId = useId();
@@ -22,15 +22,12 @@ export function QueryGraphsApp() {
     const loadStateController = useLoadStateController();
     const {setProgress, clearLoadState, tryAndDisplayErrors} = loadStateController;
     const [loadedPlan, setLoadedPlan] = useState<LoadedPlan | undefined>(undefined);
-    const [auxiliaryFileErrors, setAuxiliaryFileErrors] = useState<AuxiliaryFileError[]>([]);
+    const [fileErrors, setFileErrors] = useState<FileError[]>([]);
     const browserUrl = useBrowserUrl();
     const [currentBrowserUrl, setBrowserUrl] = browserUrl;
-    // We store the currently opened tree in a URL parameter.
-    // Thereby, we automatically integrate with the browser's history.
-    const [treeUrl, setTreeUrl] = useUrlParam(browserUrl, "file");
     const [treeTitle, setTreeTitle] = useUrlParam(browserUrl, "title", true);
     const [uploadServer] = useUrlParam(browserUrl, "uploadServer");
-    const auxiliaryFileConfig = JSON.stringify(getAuxiliaryFileReferences(currentBrowserUrl));
+    const fileConfig = JSON.stringify(getFileReferences(currentBrowserUrl));
     // Keep the browser tab's title in sync
     useEffect(() => {
         const tabTitle = treeTitle ? `${treeTitle} - QueryGraphs` : "QueryGraphs";
@@ -39,6 +36,9 @@ export function QueryGraphsApp() {
     // Callback for the file opener
     const openPickedData = async (data: FileOpenerData): Promise<void> => {
         const content = data.content;
+        const detectedPlan = loadPlanFromText(content);
+        const planLanguage = detectedPlan.tree.textDocuments?.find(({id}) => id === "plan")?.language;
+        const logicalFilename = planLanguage === "xml" ? "plan.xml" : "plan.json";
         let url;
         if (uploadServer) {
             // Replace `blob` URLs by shareable URLs
@@ -72,45 +72,34 @@ export function QueryGraphsApp() {
         }
         // Update the tree URL such that link sharing works.
         setTreeTitle(title);
-        setBrowserUrl((current) => clearAuxiliaryFileParameters(current));
-        setTreeUrl(url.toString());
+        const fileUrl = url.toString();
+        setBrowserUrl((current) => setFileReferences(current, [{logicalFilename, url: fileUrl}]));
     };
-    // We keep the displayed tree in sync with the URL parameter
+    // Keep the displayed tree in sync with the named file references.
     useEffect(() => {
-        if (!treeUrl) {
-            // Resetting `loadedPlan` here (rather than deriving it from `treeUrl` at render
-            // time) means the old tree stays on screen for one extra frame after
-            // `treeUrl` clears, until this effect runs. We accept that flicker to
-            // keep `loadedPlan` as the single source of truth for what's displayed.
+        const references = JSON.parse(fileConfig) as ReturnType<typeof getFileReferences>;
+        if (references.length === 0) {
+            // Resetting here keeps `loadedPlan` as the single source of truth for the display.
             // eslint-disable-next-line react-hooks/set-state-in-effect
             setLoadedPlan(undefined);
-            setAuxiliaryFileErrors([]);
+            setFileErrors([]);
             clearLoadState();
             return;
         }
         const abortController = new AbortController();
         const signal = abortController.signal;
         tryAndDisplayErrors(async () => {
-            // Reset the tree before parsing or loading either URL. In case we fail,
+            // Reset the tree before parsing or loading files. In case we fail,
             // we don't want an outdated tree to stay around.
             setLoadedPlan(undefined);
-            // Interpret relative URLs. This is important such that
-            // the "examples.html" page works correctly.
-            const url = new URL(treeUrl, window.location.href);
-            const urlString = url.toString();
-            setProgress(`Fetching "${urlString}"...`);
-            const loaded = await loadPlanWithAuxiliaryFiles(
-                url,
-                JSON.parse(auxiliaryFileConfig),
-                new URL(window.location.href),
-                signal,
-            ).catch((error: unknown) => {
+            setProgress("Fetching files...");
+            const loaded = await loadPlanFromFiles(references, new URL(window.location.href), signal).catch((error: unknown) => {
                 if (signal.aborted) return undefined;
                 throw error;
             });
             if (loaded === undefined || signal.aborted) return;
             const {plan, errors} = loaded;
-            setAuxiliaryFileErrors(errors);
+            setFileErrors(errors);
             // Display the freshly loaded plan.
             setLoadedPlan(plan);
             clearLoadState();
@@ -118,7 +107,7 @@ export function QueryGraphsApp() {
         return () => {
             abortController.abort();
         };
-    }, [treeUrl, auxiliaryFileConfig, clearLoadState, setProgress, tryAndDisplayErrors]);
+    }, [fileConfig, clearLoadState, setProgress, tryAndDisplayErrors]);
 
     const validate = useCallback((text: string) => {
         try {
@@ -145,7 +134,7 @@ export function QueryGraphsApp() {
                     metadata={tree.metadata}
                     metadataHighlighted={tree.metadataHighlighted}
                     textDocuments={tree.textDocuments}
-                    auxiliaryFileErrors={auxiliaryFileErrors}
+                    fileErrors={fileErrors}
                     insights={insightPresets[format] ? {root: tree.root, definitions: insightPresets[format]} : undefined}
                 />
                 <SettingsPanel popoverId={settingsPopoverId} />

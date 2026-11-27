@@ -29,31 +29,33 @@ Moving the text cursor across a linked range provides the same graph highlight f
 ## The Plan Lives in the URL
 
 The currently open plan is not React state that vanishes on reload — it is stored in URL hash parameters.
-`QueryGraphsApp.tsx` reads a `file` parameter (the plan's URL), optional auxiliary file parameters, and a `title` parameter via the hooks in `browserUrlHooks.ts`, and renders either the `FileOpener` (no plan) or the `QueryGraph` (plan loaded).
-The `file` parameter alone opens a plan; named `file[...]` parameters open additional text documents in the document panels.
-For example, `#file=plan.json&file[query.sql]=query.sql&file[views/orders.sql]=views/orders.sql&file[execution.log]=execution.log&file[optimizer.plan.json]=optimizer.plan.json` opens a plan and four text documents.
+`QueryGraphsApp.tsx` reads named `file[...]` parameters and a `title` parameter via the hooks in `browserUrlHooks.ts`, and renders either the `FileOpener` (no files) or the `QueryGraph` (plan loaded).
+The main graph is selected by the logical name `plan.json` or `plan.xml`; every other named file is shown as a text document.
+For example, `#file[plan.json]=plan.json&file[query.sql]=query.sql&file[views/orders.sql]=views/orders.sql&file[execution.log]=execution.log&file[optimizer.plan.json]=optimizer.plan.json` opens a plan and four text documents.
 The reserved name `query.sql` is the main SQL document, and takes precedence over SQL embedded in the plan.
-The older `sql-file` parameter remains supported as an alias for `file[query.sql]`.
-Supplying both spellings is an error because they resolve to the same logical filename.
-The document language is inferred only from the logical filename, not from the URL or response MIME type.
-Names ending in `.sql` receive SQL highlighting, and names ending in `.json` (including `.plan.json`) receive JSON highlighting; all other files are shown as plain text.
-Relative auxiliary file URLs are resolved against the application URL.
-Auxiliary file names are case-sensitive, and duplicate names are errors.
-If an auxiliary file cannot be loaded, its panel shows the error while the plan and other auxiliary files remain available.
-Loading a new plan clears the auxiliary files from the previously open plan.
+The older `file=<url>` parameter remains supported as an alias for `file[plan.json]`, and `sql-file` remains an alias for `file[query.sql]`.
+Supplying an alias and its named spelling together is an error because they resolve to the same logical filename.
+Exactly one main plan file is required whenever files are specified; specifying both `plan.json` and `plan.xml`, or no main plan, is an error.
+The main plan format is detected from its contents, including when a legacy `file=<url>` points to XML.
+For other text files, names ending in `.sql` receive SQL highlighting, names ending in `.json` (including `.plan.json`) receive JSON highlighting, and all other files are shown as plain text.
+These additional text-file languages come only from the logical filename, not from the URL or response MIME type.
+Relative file URLs are resolved against the application URL.
+File names are case-sensitive, and duplicate names are errors.
+If a non-plan file cannot be loaded, its panel shows the error while the plan and other files remain available.
+Opening a local plan replaces the current file collection with that plan.
 
-Note that the `file` and auxiliary file parameters can point to arbitrary valid URLs.
+Note that file parameters can point to arbitrary valid URLs.
 You can construct deeplinks — for example with a `data:` URL — to open a specific query plan directly:
 
 ```
-#file=data:application/json,<url-encoded plan JSON>
+#file[plan.json]=data:application/json,<url-encoded plan JSON>
 ```
 
 This design buys three things for free:
 
 * **Browser history** — opening a plan pushes a history entry, so Back returns to the previous plan; editing the title uses `replaceState` so it does not spam history.
 * **Shareable links** — a URL fully describes what is on screen.
-* **The examples page** — each entry on `examples.html` links the plan via `file` and its corresponding `file[query.sql]` auxiliary file.
+* **The examples page** — each entry on `examples.html` links the plan via `file[plan.json]` or `file[plan.xml]` and its corresponding `file[query.sql]`.
 
 Parameters are kept in the URL **hash** (`#`), not the query string (`?`).
 We don't want to leak any (potentially confidential) query plans or other secrets to the server.
@@ -81,7 +83,7 @@ When a plan is opened, the app has raw text but needs a URL to put in the addres
 2. **Local storage** — otherwise `tryCreateLocalStorageUrl` (`LocalStorageUrl.ts`) stashes the plan under a `local:` URL, so it survives a page reload without a server.
 3. **Blob URL** — as a last resort, an in-memory `blob:` URL that lasts only for the current page.
 
-The upload-server flow starts when someone visits an `upload-server` instance: it redirects to the app with `?uploadServer=…`, after which opened plans become shareable links.
+The upload-server flow starts when someone visits an `upload-server` instance: it redirects to the app with `#uploadServer=…`, after which opened plans become shareable links.
 Because plans can contain sensitive SQL, the default local-storage/blob strategies keep everything on the user's machine — nothing is uploaded unless an upload server is explicitly in play.
 
 ## App Chrome, Offline, and Examples

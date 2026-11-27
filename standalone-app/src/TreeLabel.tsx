@@ -8,7 +8,7 @@ import {useGraphRenderingStore} from "@tableau/query-graphs/lib/ui/store";
 import type {PropertyEntry, SourceLocation, TextDocument, TreeNode} from "@tableau/query-graphs/lib/tree-description";
 import {PropertyList} from "@tableau/query-graphs/lib/ui/PropertyList";
 import type {CategoricalInsightDefinition} from "@tableau/query-graphs/lib/insights/categorical";
-import type {AuxiliaryFileError} from "./auxiliaryFiles";
+import type {FileError} from "./files";
 import "./TreeLabel.css";
 
 const DocumentPane = lazy(() =>
@@ -22,7 +22,7 @@ export interface TreeLabelProps {
     metadataHighlighted?: boolean;
     textDocuments?: TextDocument[];
     insights?: {root: TreeNode; definitions: readonly CategoricalInsightDefinition[]};
-    auxiliaryFileErrors?: AuxiliaryFileError[];
+    fileErrors?: FileError[];
 }
 
 function LoadingDocument({title}: {title: string}) {
@@ -94,15 +94,7 @@ function TextDocumentPanel({document}: {document: TextDocument}) {
     );
 }
 
-export function TreeLabel({
-    title,
-    setTitle,
-    metadata,
-    metadataHighlighted,
-    textDocuments,
-    insights,
-    auxiliaryFileErrors,
-}: TreeLabelProps) {
+export function TreeLabel({title, setTitle, metadata, metadataHighlighted, textDocuments, insights, fileErrors}: TreeLabelProps) {
     // React Flow recognizes these interaction guards on ancestors: `nowheel` lets
     // documents scroll without zooming the canvas, and `nopan` lets users select
     // text or operate controls without dragging the canvas.
@@ -130,7 +122,7 @@ export function TreeLabel({
                     {textDocuments?.map((document) => (
                         <TextDocumentPanel key={document.id} document={document} />
                     ))}
-                    {auxiliaryFileErrors?.map(({name, message}) => (
+                    {fileErrors?.map(({name, message}) => (
                         <CollapsiblePanel
                             key={name}
                             title={`${name} (failed to load)`}

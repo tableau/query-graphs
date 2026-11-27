@@ -77,16 +77,13 @@ test("mounting an empty FileOpener preserves parent loading and error states", a
         const fixture = await createFixture();
         try {
             await React.act(async () => {
-                if (state === "error") fixture.controller().setError("Duplicate auxiliary file name: a.sql");
+                if (state === "error") fixture.controller().setError("Duplicate file name: a.sql");
                 else fixture.controller().setProgress("Fetching plan...");
             });
             await fixture.render(true);
 
             if (state === "error") {
-                assert.equal(
-                    fixture.dom.window.document.querySelector(".load-error")?.textContent,
-                    "Duplicate auxiliary file name: a.sql",
-                );
+                assert.equal(fixture.dom.window.document.querySelector(".load-error")?.textContent, "Duplicate file name: a.sql");
             } else {
                 assert.match(fixture.dom.window.document.querySelector(".file-selection-page")?.textContent ?? "", /Fetching plan/);
             }
