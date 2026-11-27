@@ -2,9 +2,8 @@ import assert from "node:assert/strict";
 import {registerHooks} from "node:module";
 import test from "node:test";
 import * as React from "react";
-import {createRoot} from "react-dom/client";
-import {JSDOM} from "jsdom";
 import {color as oneDarkColor} from "@codemirror/theme-one-dark";
+import {createUiFixture} from "../../query-graphs/test/ui-test-utils";
 import {settingsStore} from "../src/settings";
 import type {CodeMirrorDocumentProps} from "../src/CodeMirrorDocument";
 import type {SettingsValues} from "../src/settings";
@@ -32,28 +31,21 @@ async function createFixture() {
         const theme = useResolvedThemeSetting();
         return React.createElement(ThemeContext.Provider, {value: theme}, children);
     }
-    const dom = new JSDOM("<main></main>", {pretendToBeVisual: true});
     // CodeMirror reads these browser globals directly rather than through the jsdom window.
-    const globalNames = [
-        "window",
-        "Window",
-        "document",
-        "Node",
-        "HTMLElement",
-        "MutationObserver",
-        "requestAnimationFrame",
-        "cancelAnimationFrame",
-        "getComputedStyle",
-        "Event",
-        "KeyboardEvent",
-    ] as const;
-    const previousGlobals = new Map(globalNames.map((name) => [name, Object.getOwnPropertyDescriptor(globalThis, name)]));
-    for (const name of globalNames)
-        Object.defineProperty(globalThis, name, {configurable: true, writable: true, value: dom.window[name]});
+    const fixture = createUiFixture({
+        additionalGlobals: [
+            "Window",
+            "MutationObserver",
+            "requestAnimationFrame",
+            "cancelAnimationFrame",
+            "getComputedStyle",
+            "KeyboardEvent",
+        ],
+    });
     let darkSystemTheme = false;
     const colorSchemeQuery = "(prefers-color-scheme: dark)";
     const colorSchemeListeners = new Set<(event: MediaQueryListEvent) => void>();
-    Object.defineProperty(dom.window, "matchMedia", {
+    Object.defineProperty(fixture.dom.window, "matchMedia", {
         configurable: true,
         value: (query: string) => ({
             get matches() {
@@ -68,54 +60,37 @@ async function createFixture() {
         }),
     });
     // jsdom has no layout; an empty rectangle list is sufficient for these editor interactions.
-    Object.defineProperty(dom.window.Range.prototype, "getClientRects", {configurable: true, value: () => []});
-    const previousActEnvironment = Object.getOwnPropertyDescriptor(globalThis, "IS_REACT_ACT_ENVIRONMENT");
-    const previousReact = Object.getOwnPropertyDescriptor(globalThis, "React");
-    Object.defineProperty(globalThis, "IS_REACT_ACT_ENVIRONMENT", {configurable: true, writable: true, value: true});
-    Object.defineProperty(globalThis, "React", {configurable: true, writable: true, value: React});
+    Object.defineProperty(fixture.dom.window.Range.prototype, "getClientRects", {configurable: true, value: () => []});
     settingsStore.getState().resetSettings();
 
     // Record callbacks so caret movement can be checked independently of rendered decorations.
     const activeLinkedRangeUpdates: {documentId: string; from: number; to: number}[][] = [];
-    const root = createRoot(dom.window.document.querySelector("main")!);
     const onActiveLinkedRangesChange = (activeLinkedRanges: readonly {documentId: string; from: number; to: number}[]) =>
         activeLinkedRangeUpdates.push([...activeLinkedRanges]);
     const render = async (props: Partial<CodeMirrorDocumentProps> = {}) => {
-        await React.act(async () =>
-            root.render(
-                React.createElement(
-                    TestThemeHost,
-                    null,
-                    React.createElement(CodeMirrorDocument, {
-                        document: textDocument,
-                        linkedRanges,
-                        highlightedRanges: [],
-                        onActiveLinkedRangesChange,
-                        ...props,
-                    }),
-                ),
+        await fixture.render(
+            React.createElement(
+                TestThemeHost,
+                null,
+                React.createElement(CodeMirrorDocument, {
+                    document: textDocument,
+                    linkedRanges,
+                    highlightedRanges: [],
+                    onActiveLinkedRangesChange,
+                    ...props,
+                }),
             ),
         );
     };
     const cleanup = async () => {
-        // Restore process-wide globals so later tests receive their original environment.
-        await React.act(async () => root.unmount());
+        await fixture.cleanup();
         settingsStore.getState().resetSettings();
-        dom.window.close();
-        if (previousActEnvironment === undefined) Reflect.deleteProperty(globalThis, "IS_REACT_ACT_ENVIRONMENT");
-        else Object.defineProperty(globalThis, "IS_REACT_ACT_ENVIRONMENT", previousActEnvironment);
-        if (previousReact === undefined) Reflect.deleteProperty(globalThis, "React");
-        else Object.defineProperty(globalThis, "React", previousReact);
-        for (const [name, descriptor] of previousGlobals) {
-            if (descriptor === undefined) Reflect.deleteProperty(globalThis, name);
-            else Object.defineProperty(globalThis, name, descriptor);
-        }
     };
 
     return {
         activeLinkedRangeUpdates,
         cleanup,
-        dom,
+        dom: fixture.dom,
         render,
         setSettings: async (settings: Partial<SettingsValues>) => {
             await React.act(async () => settingsStore.getState().setSettings(settings));

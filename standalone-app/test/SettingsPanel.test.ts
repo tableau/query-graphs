@@ -1,9 +1,8 @@
 import assert from "node:assert/strict";
 import {registerHooks} from "node:module";
 import test from "node:test";
-import {JSDOM} from "jsdom";
 import * as React from "react";
-import {createRoot} from "react-dom/client";
+import {createUiFixture} from "../../query-graphs/test/ui-test-utils";
 
 registerHooks({
     load(url, context, nextLoad) {
@@ -13,14 +12,10 @@ registerHooks({
 });
 
 async function renderSettingsPanel() {
-    const dom = new JSDOM("<main></main>", {pretendToBeVisual: true});
-    const globalNames = ["window", "document", "Node", "HTMLElement", "Event"] as const;
-    const previousGlobals = new Map(globalNames.map((name) => [name, Object.getOwnPropertyDescriptor(globalThis, name)]));
-    for (const name of globalNames)
-        Object.defineProperty(globalThis, name, {configurable: true, writable: true, value: dom.window[name]});
+    const fixture = createUiFixture();
     let reducedMotion = false;
     const motionListeners = new Set<() => void>();
-    Object.defineProperty(dom.window, "matchMedia", {
+    Object.defineProperty(fixture.dom.window, "matchMedia", {
         configurable: true,
         value: () => ({
             get matches() {
@@ -30,25 +25,18 @@ async function renderSettingsPanel() {
             removeEventListener: (_type: string, listener: () => void) => motionListeners.delete(listener),
         }),
     });
-    const previousActEnvironment = Object.getOwnPropertyDescriptor(globalThis, "IS_REACT_ACT_ENVIRONMENT");
-    const previousReact = Object.getOwnPropertyDescriptor(globalThis, "React");
-    Object.defineProperty(globalThis, "IS_REACT_ACT_ENVIRONMENT", {configurable: true, writable: true, value: true});
-    Object.defineProperty(globalThis, "React", {configurable: true, writable: true, value: React});
-    const root = createRoot(dom.window.document.querySelector("main")!);
     const popoverId = "settings-test";
     const {SettingsButton, SettingsPanel} = await import("../src/SettingsPanel");
-    await React.act(async () =>
-        root.render(
-            React.createElement(
-                React.Fragment,
-                null,
-                React.createElement(SettingsButton, {popoverId}),
-                React.createElement(SettingsPanel, {popoverId}),
-            ),
+    await fixture.render(
+        React.createElement(
+            React.Fragment,
+            null,
+            React.createElement(SettingsButton, {popoverId}),
+            React.createElement(SettingsPanel, {popoverId}),
         ),
     );
     return {
-        document: dom.window.document,
+        document: fixture.document,
         popoverId,
         setReducedMotion: async (value: boolean) => {
             await React.act(async () => {
@@ -56,18 +44,7 @@ async function renderSettingsPanel() {
                 for (const listener of motionListeners) listener();
             });
         },
-        cleanup: async () => {
-            await React.act(async () => root.unmount());
-            dom.window.close();
-            if (previousActEnvironment === undefined) Reflect.deleteProperty(globalThis, "IS_REACT_ACT_ENVIRONMENT");
-            else Object.defineProperty(globalThis, "IS_REACT_ACT_ENVIRONMENT", previousActEnvironment);
-            if (previousReact === undefined) Reflect.deleteProperty(globalThis, "React");
-            else Object.defineProperty(globalThis, "React", previousReact);
-            for (const [name, descriptor] of previousGlobals) {
-                if (descriptor === undefined) Reflect.deleteProperty(globalThis, name);
-                else Object.defineProperty(globalThis, name, descriptor);
-            }
-        },
+        cleanup: fixture.cleanup,
     };
 }
 

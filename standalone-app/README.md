@@ -28,10 +28,11 @@ Moving the text cursor across a linked range provides the same graph highlight f
 
 ## The Plan Lives in the URL
 
-The currently open plan is not React state that vanishes on reload — it is a URL parameter.
+The currently open plan is not React state that vanishes on reload — it is stored in URL hash parameters.
 `QueryGraphsApp.tsx` reads a `file` parameter (the plan's URL), an optional `sql-file` parameter (the URL of the SQL query), and a `title` parameter via the hooks in `browserUrlHooks.ts`, and renders either the `FileOpener` (no plan) or the `QueryGraph` (plan loaded).
 When `sql-file` is present, its contents are displayed as the original SQL query and override SQL embedded in the plan.
 
+Links use the URL hash, for example `#file=…&title=…&sql-file=…`.
 Note that the `file` and `sql-file` parameters can point to arbitrary valid URLs.
 You can construct deeplinks — for example with a `data:` URL — to open a specific query plan directly:
 
@@ -45,9 +46,11 @@ This design buys three things for free:
 * **Shareable links** — a URL fully describes what is on screen.
 * **The examples page** — each entry on `examples.html` links the plan via `file` and its corresponding `sql-file`.
 
-Parameters are kept in the URL **hash**, not the query string.
-We don't want to leak any (potentially confidential) query plans to the server.
-Browsers never send the hash portion of a URL to the server, so `useUrlParam` keeps them in the URL hash.
+Parameters are kept in the URL **hash** (`#`), not the query string (`?`).
+We don't want to leak any (potentially confidential) query plans or other secrets to the server.
+Browsers never send the URL hash to the server, so `useUrlParam` keeps them in the URL hash.
+Query-string parameters are deliberately unsupported.
+Refusing query-string parameters helps catch developer mistakes that could leak private data.
 
 ## Getting a Plan In
 
@@ -69,7 +72,7 @@ When a plan is opened, the app has raw text but needs a URL to put in the addres
 2. **Local storage** — otherwise `tryCreateLocalStorageUrl` (`LocalStorageUrl.ts`) stashes the plan under a `local:` URL, so it survives a page reload without a server.
 3. **Blob URL** — as a last resort, an in-memory `blob:` URL that lasts only for the current page.
 
-The upload-server flow starts when someone visits an `upload-server` instance: it redirects to the app with `?uploadServer=…`, after which opened plans become shareable links.
+The upload-server flow starts when someone visits an `upload-server` instance: it redirects to the app with `#uploadServer=…`, after which opened plans become shareable links.
 Because plans can contain sensitive SQL, the default local-storage/blob strategies keep everything on the user's machine — nothing is uploaded unless an upload server is explicitly in play.
 
 ## App Chrome, Offline, and Examples
