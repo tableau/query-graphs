@@ -4,6 +4,7 @@ import {JSDOM} from "jsdom";
 import type {DOMWindow} from "jsdom";
 
 export function createUiFixture(options: {url?: string; additionalGlobals?: readonly (keyof DOMWindow)[]} = {}) {
+    // Give each component test its own document and React root.
     const dom = new JSDOM("<main></main>", {pretendToBeVisual: true, url: options.url});
     const globalNames: (keyof DOMWindow)[] = [
         "window",
@@ -13,6 +14,8 @@ export function createUiFixture(options: {url?: string; additionalGlobals?: read
         "Event",
         ...(options.additionalGlobals ?? []),
     ];
+    // React's DOM event handling uses browser globals. Save their descriptors because
+    // the test runner shares one process and cleanup must restore the previous environment.
     const savedGlobals = new Map<PropertyKey, PropertyDescriptor | undefined>(
         [...globalNames, "IS_REACT_ACT_ENVIRONMENT", "React"].map((name) => [
             name,
@@ -21,6 +24,8 @@ export function createUiFixture(options: {url?: string; additionalGlobals?: read
     );
     for (const name of globalNames)
         Object.defineProperty(globalThis, name, {configurable: true, writable: true, value: dom.window[name]});
+    // React.act needs its test-environment flag. Some tested components also
+    // rely on a global React binding for JSX.
     Object.defineProperty(globalThis, "IS_REACT_ACT_ENVIRONMENT", {configurable: true, writable: true, value: true});
     Object.defineProperty(globalThis, "React", {configurable: true, writable: true, value: React});
 

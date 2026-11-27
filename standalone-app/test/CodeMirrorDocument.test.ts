@@ -31,6 +31,7 @@ async function createFixture() {
         const theme = useResolvedThemeSetting();
         return React.createElement(ThemeContext.Provider, {value: theme}, children);
     }
+    // CodeMirror reads these browser globals directly rather than through the jsdom window.
     const fixture = createUiFixture({
         additionalGlobals: [
             "Window",
