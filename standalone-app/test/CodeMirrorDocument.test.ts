@@ -178,7 +178,13 @@ test("the standard keyboard shortcut opens the search panel", async () => {
         assert.ok(content);
 
         // Programmatic search must not displace CodeMirror's standard search keymap.
-        content.dispatchEvent(new fixture.dom.window.KeyboardEvent("keydown", {key: "f", ctrlKey: true, bubbles: true}));
+        content.dispatchEvent(
+            new fixture.dom.window.KeyboardEvent("keydown", {
+                key: "f",
+                ...(/Mac/.test(globalThis.navigator?.platform ?? "") ? {metaKey: true} : {ctrlKey: true}),
+                bubbles: true,
+            }),
+        );
         assert.ok(fixture.dom.window.document.querySelector(".cm-search"));
     } finally {
         await fixture.cleanup();

@@ -29,28 +29,46 @@ Moving the text cursor across a linked range provides the same graph highlight f
 ## The Plan Lives in the URL
 
 The currently open plan is not React state that vanishes on reload — it is stored in URL hash parameters.
-`QueryGraphsApp.tsx` reads a `file` parameter (the plan's URL), an optional `sql-file` parameter (the URL of the SQL query), and a `title` parameter via the hooks in `browserUrlHooks.ts`, and renders either the `FileOpener` (no plan) or the `QueryGraph` (plan loaded).
-When `sql-file` is present, its contents are displayed as the original SQL query and override SQL embedded in the plan.
+`QueryGraphsApp.tsx` reads named `file[...]` parameters and a `title` parameter via the hooks in `browserUrlHooks.ts`, and renders either the `FileOpener` (no files) or the `QueryGraph` (plan loaded).
+The main graph is selected by the logical name `plan.json` or `plan.xml`; every other named file is shown as a text document.
+For example, `#file[plan.json]=plan.json&file[query.sql]=query.sql&file[views/orders.sql]=views/orders.sql&file[execution.log]=execution.log&file[optimizer.plan.json]=optimizer.plan.json` opens a plan and four text documents.
+The reserved name `query.sql` is the main SQL document, and takes precedence over SQL embedded in the plan.
+The older `file=<url>` parameter remains supported as an alias for `file[plan.json]`, and `sql-file` remains an alias for `file[query.sql]`.
+Supplying an alias and its named spelling together is an error because they resolve to the same logical filename.
+Exactly one main plan file is required whenever files are specified; specifying both `plan.json` and `plan.xml`, or no main plan, is an error.
+The main plan format is detected from its contents, including when a legacy `file=<url>` points to XML.
+For other text files, names ending in `.sql` receive SQL highlighting, names ending in `.json` (including `.plan.json`) receive JSON highlighting, and all other files are shown as plain text.
+These additional text-file languages come only from the logical filename, not from the URL or response MIME type.
+Relative file URLs are resolved against the application URL.
+File names are case-sensitive, and duplicate names are errors.
+Invalid URL configurations are shown on a separate error page before files are fetched.
+When duplicates are present, **Ignore duplicate keys** keeps the first occurrence, including when a legacy alias and a named file conflict.
+**Start over** clears the URL state and returns to the file opener.
+If any file cannot be loaded, the landing page lists the failures and offers **Retry**, **Ignore unloadable files**, and **Back to main page**.
+Retry reloads all files; ignoring failures keeps successful results without fetching them again and removes the failed references from the URL.
+Ignoring failures is available only when the main plan could be loaded and parsed.
+Opening a local plan replaces the current file collection with that plan.
 
-Links use the URL hash, for example `#file=…&title=…&sql-file=…`.
-Note that the `file` and `sql-file` parameters can point to arbitrary valid URLs.
+Note that file parameters can point to arbitrary valid URLs.
 You can construct deeplinks — for example with a `data:` URL — to open a specific query plan directly:
 
 ```
-#file=data:application/json,<url-encoded plan JSON>
+#file[plan.json]=data:application/json,<url-encoded plan JSON>
 ```
 
 This design buys three things for free:
 
 * **Browser history** — opening a plan pushes a history entry, so Back returns to the previous plan; editing the title uses `replaceState` so it does not spam history.
 * **Shareable links** — a URL fully describes what is on screen.
-* **The examples page** — each entry on `examples.html` links the plan via `file` and its corresponding `sql-file`.
+* **The examples page** — each entry on `examples.html` links the plan via `file[plan.json]` or `file[plan.xml]` and its corresponding `file[query.sql]`.
 
 Parameters are kept in the URL **hash** (`#`), not the query string (`?`).
 We don't want to leak any (potentially confidential) query plans or other secrets to the server.
 Browsers never send the URL hash to the server, so `useUrlParam` keeps them in the URL hash.
 Query-string parameters are deliberately unsupported.
 Refusing query-string parameters helps catch developer mistakes that could leak private data.
+
+URL parsing is handled by `useUrlParam` and `useUrlMapParam` in `src/browserUrlHooks.ts`.
 
 ## Getting a Plan In
 

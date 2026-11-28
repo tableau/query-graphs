@@ -1,0 +1,206 @@
+.file-selection-page {
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: var(--qg-canvas);
+    color: var(--qg-text);
+    align-items: center;
+}
+
+.file-selection-page > .caption {
+    margin-top: 2em;
+    font-size: 2em;
+    margin-bottom: 0.5em;
+}
+.file-selection-page > .caption .logo {
+    width: 1.5em;
+    margin-right: 0.5em;
+}
+.file-selection-page > .subcaption {
+    font-size: 1.5em;
+    margin-bottom: 0.5em;
+}
+.qg-landing-main {
+    width: 100%;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem 1rem;
+    box-sizing: border-box;
+}
+.file-opener-slot {
+    position: relative;
+    width: min(40rem, 100%);
+    margin: 0 auto;
+}
+.loading-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    background: color-mix(in srgb, var(--qg-canvas) 82%, transparent);
+}
+.loading-overlay .qg-spinner {
+    margin: 0 2.4em 0 0;
+}
+.loading-errors {
+    overflow-wrap: anywhere;
+    color: var(--qg-danger);
+    padding-left: 1.5em;
+}
+.loading-errors li + li {
+    margin-top: 0.5em;
+}
+.loading-error-content {
+    width: min(40rem, 100%);
+    margin-left: auto;
+    margin-right: auto;
+}
+.landing-footer {
+    border-top: 1px solid var(--qg-border);
+    margin-top: 3em;
+    padding: 0.8em 1rem 0;
+    width: min(40rem, 100%);
+    box-sizing: border-box;
+    font-size: 0.9em;
+    text-align: center;
+    color: var(--qg-text-muted);
+}
+.build-info {
+    margin-top: 0.4em;
+    font-size: 0.85em;
+    color: var(--qg-text-muted);
+}
+.github-link a {
+    color: var(--qg-text-muted);
+}
+.loading-error-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+    justify-content: center;
+}
+@media (max-width: 32rem) {
+    .landing-footer {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+}
+.qg-spinner {
+    --qg-spinner-faint: color-mix(in srgb, currentColor 10%, transparent);
+    --qg-spinner-dim: color-mix(in srgb, currentColor 20%, transparent);
+    --qg-spinner-medium: color-mix(in srgb, currentColor 40%, transparent);
+    --qg-spinner-strong: color-mix(in srgb, currentColor 50%, transparent);
+
+    margin: 3em auto;
+    font-size: 1em;
+    width: 1em;
+    height: 1em;
+    border-radius: 50%;
+    position: relative;
+    text-indent: -9999em;
+    animation: qg-spinner-anim 1.1s infinite ease;
+    transform: translateZ(0);
+}
+
+@keyframes qg-spinner-anim {
+    0%,
+    100% {
+        box-shadow:
+            0em -2.6em 0em 0em var(--qg-spinner-faint),
+            1.8em -1.8em 0 0em var(--qg-spinner-dim),
+            2.5em 0em 0 0em var(--qg-spinner-dim),
+            1.75em 1.75em 0 0em var(--qg-spinner-dim),
+            0em 2.5em 0 0em var(--qg-spinner-dim),
+            -1.8em 1.8em 0 0em var(--qg-spinner-dim),
+            -2.6em 0em 0 0em var(--qg-spinner-medium),
+            -1.8em -1.8em 0 0em var(--qg-spinner-strong);
+    }
+    12.5% {
+        box-shadow:
+            0em -2.6em 0em 0em var(--qg-spinner-strong),
+            1.8em -1.8em 0 0em var(--qg-spinner-faint),
+            2.5em 0em 0 0em var(--qg-spinner-dim),
+            1.75em 1.75em 0 0em var(--qg-spinner-dim),
+            0em 2.5em 0 0em var(--qg-spinner-dim),
+            -1.8em 1.8em 0 0em var(--qg-spinner-dim),
+            -2.6em 0em 0 0em var(--qg-spinner-dim),
+            -1.8em -1.8em 0 0em var(--qg-spinner-medium);
+    }
+    25% {
+        box-shadow:
+            0em -2.6em 0em 0em var(--qg-spinner-medium),
+            1.8em -1.8em 0 0em var(--qg-spinner-strong),
+            2.5em 0em 0 0em var(--qg-spinner-faint),
+            1.75em 1.75em 0 0em var(--qg-spinner-dim),
+            0em 2.5em 0 0em var(--qg-spinner-dim),
+            -1.8em 1.8em 0 0em var(--qg-spinner-dim),
+            -2.6em 0em 0 0em var(--qg-spinner-dim),
+            -1.8em -1.8em 0 0em var(--qg-spinner-dim);
+    }
+    37.5% {
+        box-shadow:
+            0em -2.6em 0em 0em var(--qg-spinner-dim),
+            1.8em -1.8em 0 0em var(--qg-spinner-medium),
+            2.5em 0em 0 0em var(--qg-spinner-strong),
+            1.75em 1.75em 0 0em var(--qg-spinner-faint),
+            0em 2.5em 0 0em var(--qg-spinner-dim),
+            -1.8em 1.8em 0 0em var(--qg-spinner-dim),
+            -2.6em 0em 0 0em var(--qg-spinner-dim),
+            -1.8em -1.8em 0 0em var(--qg-spinner-dim);
+    }
+    50% {
+        box-shadow:
+            0em -2.6em 0em 0em var(--qg-spinner-dim),
+            1.8em -1.8em 0 0em var(--qg-spinner-dim),
+            2.5em 0em 0 0em var(--qg-spinner-medium),
+            1.75em 1.75em 0 0em var(--qg-spinner-strong),
+            0em 2.5em 0 0em var(--qg-spinner-faint),
+            -1.8em 1.8em 0 0em var(--qg-spinner-dim),
+            -2.6em 0em 0 0em var(--qg-spinner-dim),
+            -1.8em -1.8em 0 0em var(--qg-spinner-dim);
+    }
+    62.5% {
+        box-shadow:
+            0em -2.6em 0em 0em var(--qg-spinner-dim),
+            1.8em -1.8em 0 0em var(--qg-spinner-dim),
+            2.5em 0em 0 0em var(--qg-spinner-dim),
+            1.75em 1.75em 0 0em var(--qg-spinner-medium),
+            0em 2.5em 0 0em var(--qg-spinner-strong),
+            -1.8em 1.8em 0 0em var(--qg-spinner-faint),
+            -2.6em 0em 0 0em var(--qg-spinner-dim),
+            -1.8em -1.8em 0 0em var(--qg-spinner-dim);
+    }
+    75% {
+        box-shadow:
+            0em -2.6em 0em 0em var(--qg-spinner-dim),
+            1.8em -1.8em 0 0em var(--qg-spinner-dim),
+            2.5em 0em 0 0em var(--qg-spinner-dim),
+            1.75em 1.75em 0 0em var(--qg-spinner-dim),
+            0em 2.5em 0 0em var(--qg-spinner-medium),
+            -1.8em 1.8em 0 0em var(--qg-spinner-strong),
+            -2.6em 0em 0 0em var(--qg-spinner-faint),
+            -1.8em -1.8em 0 0em var(--qg-spinner-dim);
+    }
+    87.5% {
+        box-shadow:
+            0em -2.6em 0em 0em var(--qg-spinner-dim),
+            1.8em -1.8em 0 0em var(--qg-spinner-dim),
+            2.5em 0em 0 0em var(--qg-spinner-dim),
+            1.75em 1.75em 0 0em var(--qg-spinner-dim),
+            0em 2.5em 0 0em var(--qg-spinner-dim),
+            -1.8em 1.8em 0 0em var(--qg-spinner-medium),
+            -2.6em 0em 0 0em var(--qg-spinner-strong),
+            -1.8em -1.8em 0 0em var(--qg-spinner-faint);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .qg-spinner {
+        animation-play-state: paused;
+    }
+}
