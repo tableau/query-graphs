@@ -128,9 +128,7 @@ function useUrlParamInternal<T>(
 /**
  * Reads and writes one hash parameter. Missing or duplicated parameters return undefined;
  * identical repeated values are duplicates too. The third tuple item reports whether the key
- * is duplicated. Functional updates see the latest pending value, including undefined for
- * invalid duplicates. Setting undefined removes only
- * this key. Explicit writes store state in the hash and clear the query string.
+ * is duplicated.
  */
 export function useUrlParam(urlState: URLState, key: string, options: UrlParamOptions = {}): ScalarUrlParamResult {
     const [value, set, duplicateKeys] = useUrlParamInternal(
@@ -160,10 +158,6 @@ function encodeScalarParam(key: string, value: string | undefined): [string, str
 /**
  * Reads and writes bracketed hash parameters for a group. Missing groups return an empty Map;
  * duplicate subkeys make the value undefined and are listed once in first-repeat order.
- * Empty subkeys and values are preserved. Functional updates see the latest pending map,
- * including undefined for duplicates; undefined removes only this group's bracketed keys.
- * Setting an empty Map also clears the group. The app handles its legacy alias normalization
- * and clearing alongside these hooks.
  */
 export function useUrlMapParam(urlState: URLState, key: string, options: UrlParamOptions = {}): MapUrlParamResult {
     return useUrlParamInternal(urlState, key, options.history ?? "push", isMapParam, readMapParam, encodeMapParam);
