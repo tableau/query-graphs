@@ -76,45 +76,9 @@ export function useBrowserUrl(): URLState {
     return [url, setUrl];
 }
 
-/** URL write behavior shared by both parameter hooks. Writes in one tick are batched; push wins if any write pushes. */
 export interface UrlParamOptions {
     history?: "push" | "replace";
 }
-
-function readScalar(params: URLSearchParams, key: string): [string | undefined, string[]] {
-    const values = params.getAll(key);
-    return [values.length === 1 ? values[0] : undefined, values.length > 1 ? [key] : []];
-}
-
-function isNamedParam(key: string, group: string): boolean {
-    return key.startsWith(`${group}[`) && key.endsWith("]");
-}
-
-function isScalarParam(key: string, parameter: string): boolean {
-    return key === parameter;
-}
-
-function readMap(params: URLSearchParams, group: string): [ReadonlyMap<string, string> | undefined, string[]] {
-    const map = new Map<string, string>();
-    const duplicates: string[] = [];
-    const seenDuplicates = new Set<string>();
-    for (const [key, value] of params) {
-        if (!isNamedParam(key, group)) continue;
-        const name = key.slice(group.length + 1, -1);
-        if (map.has(name)) {
-            if (!seenDuplicates.has(name)) {
-                duplicates.push(name);
-                seenDuplicates.add(name);
-            }
-        } else {
-            map.set(name, value);
-        }
-    }
-    return [duplicates.length ? undefined : map, duplicates];
-}
-
-// The shared hook parses only the selected hash token subset. Memoizing that subset
-// keeps parsed maps and duplicate lists stable through edits to unrelated tokens.
 function useUrlParamInternal<T>(
     urlState: URLState,
     key: string,
@@ -125,6 +89,9 @@ function useUrlParamInternal<T>(
 ): [T, React.Dispatch<React.SetStateAction<T>>, readonly string[]] {
     const [url, setUrl] = urlState;
     const searchParams = new URLSearchParams(url.hash.slice(1));
+    // Memoize the result using only the relevant property subset.
+    // Memoizing makes sure maps keep stable object references if other unrelated parameters changed,
+    // thereby avoiding unnecessary React re-rendering / recomputations.
     const groupEntries = [...searchParams].filter(([param]) => matches(param, key));
     const groupToken = new URLSearchParams(groupEntries).toString();
     const parsed = useMemo(() => {
@@ -134,21 +101,21 @@ function useUrlParamInternal<T>(
     const set = useCallback(
         (action: React.SetStateAction<T>) => {
             setUrl((url) => {
-                const params = new URLSearchParams(url.hash.slice(1));
-                const [current] = read(params, key);
-                const next = typeof action === "function" ? (action as (value: T) => T)(current) : action;
-                const nextEntries = encode(key, next);
-                const existing = [...params].filter(([param]) => matches(param, key));
+                const searchParams = new URLSearchParams(url.hash.slice(1));
+                const [currentValue] = read(searchParams, key);
+                const newValue = typeof action === "function" ? (action as (value: T) => T)(currentValue) : action;
+                const nextEntries = encode(key, newValue);
+                const existing = [...searchParams].filter(([param]) => matches(param, key));
                 if (url.search === "" && new URLSearchParams(existing).toString() === new URLSearchParams(nextEntries).toString())
                     return url;
-                for (const param of [...params.keys()]) {
-                    if (matches(param, key)) params.delete(param);
+                for (const param of [...searchParams.keys()]) {
+                    if (matches(param, key)) searchParams.delete(param);
                 }
-                for (const [param, value] of nextEntries) params.append(param, value);
+                for (const [param, value] of nextEntries) searchParams.append(param, value);
                 // Keep app state in the fragment so it is never sent to the server.
                 const newURL = new URL(url);
                 newURL.search = "";
-                const serialized = params.toString();
+                const serialized = searchParams.toString();
                 newURL.hash = serialized ? `#${serialized}` : "";
                 return newURL;
             }, history === "replace");
@@ -156,14 +123,6 @@ function useUrlParamInternal<T>(
         [setUrl, key, matches, history, read, encode],
     );
     return [parsed[0], set, parsed[1]];
-}
-
-function encodeScalar(key: string, value: string | undefined): [string, string][] {
-    return value === undefined ? [] : [[key, value]];
-}
-
-function encodeMap(key: string, value: ReadonlyMap<string, string> | undefined): [string, string][] {
-    return value ? [...value].map(([name, entry]) => [`${key}[${name}]`, entry]) : [];
 }
 
 /**
@@ -174,14 +133,20 @@ function encodeMap(key: string, value: ReadonlyMap<string, string> | undefined):
  * this key. Explicit writes store state in the hash and clear the query string.
  */
 export function useUrlParam(urlState: URLState, key: string, options: UrlParamOptions = {}): ScalarUrlParamResult {
-    const [value, set, duplicateKeys] = useUrlParamInternal(
-        urlState,
-        key,
-        options.history ?? "push",
-        isScalarParam,
-        readScalar,
-        encodeScalar,
-    );
+    const {matches, read, encode} = useMemo(() => {
+        function readScalar(params: URLSearchParams, key: string): [string | undefined, string[]] {
+            const values = params.getAll(key);
+            return [values.length === 1 ? values[0] : undefined, values.length > 1 ? [key] : []];
+        }
+        function isScalarParam(key: string, parameter: string): boolean {
+            return key === parameter;
+        }
+        function encodeScalar(key: string, value: string | undefined): [string, string][] {
+            return value === undefined ? [] : [[key, value]];
+        }
+        return {matches: isScalarParam, read: readScalar, encode: encodeScalar};
+    }, []);
+    const [value, set, duplicateKeys] = useUrlParamInternal(urlState, key, options.history ?? "push", matches, read, encode);
     return [value, set, duplicateKeys.length > 0];
 }
 
@@ -194,5 +159,32 @@ export function useUrlParam(urlState: URLState, key: string, options: UrlParamOp
  * and clearing alongside these hooks.
  */
 export function useUrlMapParam(urlState: URLState, key: string, options: UrlParamOptions = {}): MapUrlParamResult {
-    return useUrlParamInternal(urlState, key, options.history ?? "push", isNamedParam, readMap, encodeMap);
+    const {matches, read, encode} = useMemo(() => {
+        function isNamedParam(key: string, group: string): boolean {
+            return key.startsWith(`${group}[`) && key.endsWith("]");
+        }
+        function readMap(params: URLSearchParams, group: string): [ReadonlyMap<string, string> | undefined, string[]] {
+            const map = new Map<string, string>();
+            const duplicates: string[] = [];
+            const seenDuplicates = new Set<string>();
+            for (const [key, value] of params) {
+                if (!isNamedParam(key, group)) continue;
+                const name = key.slice(group.length + 1, -1);
+                if (map.has(name)) {
+                    if (!seenDuplicates.has(name)) {
+                        duplicates.push(name);
+                        seenDuplicates.add(name);
+                    }
+                } else {
+                    map.set(name, value);
+                }
+            }
+            return [duplicates.length ? undefined : map, duplicates];
+        }
+        function encodeMap(key: string, value: ReadonlyMap<string, string> | undefined): [string, string][] {
+            return value ? [...value].map(([name, entry]) => [`${key}[${name}]`, entry]) : [];
+        }
+        return {matches: isNamedParam, read: readMap, encode: encodeMap};
+    }, []);
+    return useUrlParamInternal(urlState, key, options.history ?? "push", matches, read, encode);
 }
