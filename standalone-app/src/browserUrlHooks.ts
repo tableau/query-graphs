@@ -138,13 +138,13 @@ export function useUrlParam(urlState: URLState, key: string, options: UrlParamOp
         key,
         options.history ?? "push",
         isScalarParam,
-        readScalar,
-        encodeScalar,
+        readScalarParam,
+        encodeScalarParam,
     );
     return [value, set, duplicateKeys.length > 0];
 }
 
-function readScalar(params: URLSearchParams, key: string): [string | undefined, string[]] {
+function readScalarParam(params: URLSearchParams, key: string): [string | undefined, string[]] {
     const values = params.getAll(key);
     return [values.length === 1 ? values[0] : undefined, values.length > 1 ? [key] : []];
 }
@@ -153,7 +153,7 @@ function isScalarParam(key: string, parameter: string): boolean {
     return key === parameter;
 }
 
-function encodeScalar(key: string, value: string | undefined): [string, string][] {
+function encodeScalarParam(key: string, value: string | undefined): [string, string][] {
     return value === undefined ? [] : [[key, value]];
 }
 
@@ -166,19 +166,19 @@ function encodeScalar(key: string, value: string | undefined): [string, string][
  * and clearing alongside these hooks.
  */
 export function useUrlMapParam(urlState: URLState, key: string, options: UrlParamOptions = {}): MapUrlParamResult {
-    return useUrlParamInternal(urlState, key, options.history ?? "push", isNamedParam, readMap, encodeMap);
+    return useUrlParamInternal(urlState, key, options.history ?? "push", isMapParam, readMapParam, encodeMapParam);
 }
 
-function isNamedParam(key: string, group: string): boolean {
+function isMapParam(key: string, group: string): boolean {
     return key.startsWith(`${group}[`) && key.endsWith("]");
 }
 
-function readMap(params: URLSearchParams, group: string): [ReadonlyMap<string, string> | undefined, string[]] {
+function readMapParam(params: URLSearchParams, group: string): [ReadonlyMap<string, string> | undefined, string[]] {
     const map = new Map<string, string>();
     const duplicates: string[] = [];
     const seenDuplicates = new Set<string>();
     for (const [key, value] of params) {
-        if (!isNamedParam(key, group)) continue;
+        if (!isMapParam(key, group)) continue;
         const name = key.slice(group.length + 1, -1);
         if (map.has(name)) {
             if (!seenDuplicates.has(name)) {
@@ -192,6 +192,6 @@ function readMap(params: URLSearchParams, group: string): [ReadonlyMap<string, s
     return [duplicates.length ? undefined : map, duplicates];
 }
 
-function encodeMap(key: string, value: ReadonlyMap<string, string> | undefined): [string, string][] {
+function encodeMapParam(key: string, value: ReadonlyMap<string, string> | undefined): [string, string][] {
     return value ? [...value].map(([name, entry]) => [`${key}[${name}]`, entry]) : [];
 }
