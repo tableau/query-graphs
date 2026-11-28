@@ -133,21 +133,28 @@ function useUrlParamInternal<T>(
  * this key. Explicit writes store state in the hash and clear the query string.
  */
 export function useUrlParam(urlState: URLState, key: string, options: UrlParamOptions = {}): ScalarUrlParamResult {
-    const {matches, read, encode} = useMemo(() => {
-        function readScalar(params: URLSearchParams, key: string): [string | undefined, string[]] {
-            const values = params.getAll(key);
-            return [values.length === 1 ? values[0] : undefined, values.length > 1 ? [key] : []];
-        }
-        function isScalarParam(key: string, parameter: string): boolean {
-            return key === parameter;
-        }
-        function encodeScalar(key: string, value: string | undefined): [string, string][] {
-            return value === undefined ? [] : [[key, value]];
-        }
-        return {matches: isScalarParam, read: readScalar, encode: encodeScalar};
-    }, []);
-    const [value, set, duplicateKeys] = useUrlParamInternal(urlState, key, options.history ?? "push", matches, read, encode);
+    const [value, set, duplicateKeys] = useUrlParamInternal(
+        urlState,
+        key,
+        options.history ?? "push",
+        isScalarParam,
+        readScalar,
+        encodeScalar,
+    );
     return [value, set, duplicateKeys.length > 0];
+}
+
+function readScalar(params: URLSearchParams, key: string): [string | undefined, string[]] {
+    const values = params.getAll(key);
+    return [values.length === 1 ? values[0] : undefined, values.length > 1 ? [key] : []];
+}
+
+function isScalarParam(key: string, parameter: string): boolean {
+    return key === parameter;
+}
+
+function encodeScalar(key: string, value: string | undefined): [string, string][] {
+    return value === undefined ? [] : [[key, value]];
 }
 
 /**
@@ -159,32 +166,32 @@ export function useUrlParam(urlState: URLState, key: string, options: UrlParamOp
  * and clearing alongside these hooks.
  */
 export function useUrlMapParam(urlState: URLState, key: string, options: UrlParamOptions = {}): MapUrlParamResult {
-    const {matches, read, encode} = useMemo(() => {
-        function isNamedParam(key: string, group: string): boolean {
-            return key.startsWith(`${group}[`) && key.endsWith("]");
-        }
-        function readMap(params: URLSearchParams, group: string): [ReadonlyMap<string, string> | undefined, string[]] {
-            const map = new Map<string, string>();
-            const duplicates: string[] = [];
-            const seenDuplicates = new Set<string>();
-            for (const [key, value] of params) {
-                if (!isNamedParam(key, group)) continue;
-                const name = key.slice(group.length + 1, -1);
-                if (map.has(name)) {
-                    if (!seenDuplicates.has(name)) {
-                        duplicates.push(name);
-                        seenDuplicates.add(name);
-                    }
-                } else {
-                    map.set(name, value);
-                }
+    return useUrlParamInternal(urlState, key, options.history ?? "push", isNamedParam, readMap, encodeMap);
+}
+
+function isNamedParam(key: string, group: string): boolean {
+    return key.startsWith(`${group}[`) && key.endsWith("]");
+}
+
+function readMap(params: URLSearchParams, group: string): [ReadonlyMap<string, string> | undefined, string[]] {
+    const map = new Map<string, string>();
+    const duplicates: string[] = [];
+    const seenDuplicates = new Set<string>();
+    for (const [key, value] of params) {
+        if (!isNamedParam(key, group)) continue;
+        const name = key.slice(group.length + 1, -1);
+        if (map.has(name)) {
+            if (!seenDuplicates.has(name)) {
+                duplicates.push(name);
+                seenDuplicates.add(name);
             }
-            return [duplicates.length ? undefined : map, duplicates];
+        } else {
+            map.set(name, value);
         }
-        function encodeMap(key: string, value: ReadonlyMap<string, string> | undefined): [string, string][] {
-            return value ? [...value].map(([name, entry]) => [`${key}[${name}]`, entry]) : [];
-        }
-        return {matches: isNamedParam, read: readMap, encode: encodeMap};
-    }, []);
-    return useUrlParamInternal(urlState, key, options.history ?? "push", matches, read, encode);
+    }
+    return [duplicates.length ? undefined : map, duplicates];
+}
+
+function encodeMap(key: string, value: ReadonlyMap<string, string> | undefined): [string, string][] {
+    return value ? [...value].map(([name, entry]) => [`${key}[${name}]`, entry]) : [];
 }
