@@ -41,15 +41,19 @@ test("URL hooks read only hash parameters without rewriting the URL", async () =
             const originalUrl = fixture.dom.window.location.href;
             const historyLength = fixture.dom.window.history.length;
             let values: Record<string, string | undefined> = {};
-            let duplicateKeys: readonly string[] = [];
+            let hasDuplicates = false;
+            let missingHasDuplicates = true;
+            let validHasDuplicates = true;
             function Harness() {
                 const url = useBrowserUrl();
-                const [file] = useUrlParam(url, "file");
+                const [file, , fileDuplicates] = useUrlParam(url, "file");
                 const [sqlFile] = useUrlParam(url, "sql-file");
-                const [title] = useUrlParam(url, "title");
+                const [title, , titleDuplicates] = useUrlParam(url, "title");
                 const [uploadServer] = useUrlParam(url, "uploadServer");
                 const [keep, , duplicates] = useUrlParam(url, "keep");
-                duplicateKeys = duplicates;
+                hasDuplicates = duplicates;
+                validHasDuplicates = fileDuplicates;
+                missingHasDuplicates = titleDuplicates;
                 values = {file, sqlFile, title, uploadServer, keep};
                 return null;
             }
@@ -61,7 +65,9 @@ test("URL hooks read only hash parameters without rewriting the URL", async () =
                 uploadServer: undefined,
                 keep: undefined,
             });
-            assert.deepEqual(duplicateKeys, ["keep"]);
+            assert.equal(hasDuplicates, true);
+            assert.equal(validHasDuplicates, false);
+            assert.equal(missingHasDuplicates, false);
             assert.equal(fixture.dom.window.location.href, originalUrl);
             assert.equal(fixture.dom.window.history.length, historyLength);
             assert.deepEqual(navigation.navigations, []);
@@ -120,16 +126,16 @@ test("scalar duplicates are invalid and functional updates use the latest pendin
     for (const values of ["first&value=second", "same&value=same"]) {
         await withBrowser(`https://example.test/path#value=${values}&keep=1`, async (_navigation, fixture) => {
             let value!: string | undefined;
-            let duplicates!: readonly string[];
+            let hasDuplicates!: boolean;
             let setter!: React.Dispatch<React.SetStateAction<string | undefined>>;
             function Harness() {
                 const url = useBrowserUrl();
-                [value, setter, duplicates] = useUrlParam(url, "value");
+                [value, setter, hasDuplicates] = useUrlParam(url, "value");
                 return null;
             }
             await fixture.render(createElement(Harness));
             assert.equal(value, undefined);
-            assert.deepEqual(duplicates, ["value"]);
+            assert.equal(hasDuplicates, true);
             await act(async () => {
                 setter((previous) => {
                     assert.equal(previous, undefined);
@@ -138,7 +144,7 @@ test("scalar duplicates are invalid and functional updates use the latest pendin
                 setter((previous) => `${previous}-again`);
             });
             assert.equal(value, "recovered-again");
-            assert.deepEqual(duplicates, []);
+            assert.equal(hasDuplicates, false);
             const params = new URLSearchParams(fixture.dom.window.location.hash.slice(1));
             assert.equal(params.get("value"), "recovered-again");
             assert.equal(params.get("keep"), "1");

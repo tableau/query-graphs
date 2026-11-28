@@ -39,19 +39,15 @@ export function QueryGraphsApp() {
     // Store the file collection in the URL to integrate with browser history.
     const browserUrl = useBrowserUrl();
     const [namedFiles, setNamedFiles, duplicateFiles] = useUrlMapParam(browserUrl, "file");
-    const [legacyFile, setLegacyFile, duplicateLegacyFiles] = useUrlParam(browserUrl, "file");
-    const [legacySqlFile, setLegacySqlFile, duplicateLegacySqlFiles] = useUrlParam(browserUrl, "sql-file");
-    const [treeTitle, setTreeTitle, duplicateTitles] = useUrlParam(browserUrl, "title", {history: "replace"});
-    const [uploadServer, , duplicateUploadServers] = useUrlParam(browserUrl, "uploadServer");
+    const [legacyFile, setLegacyFile, hasDuplicateLegacyFile] = useUrlParam(browserUrl, "file");
+    const [legacySqlFile, setLegacySqlFile, hasDuplicateLegacySqlFile] = useUrlParam(browserUrl, "sql-file");
+    const [treeTitle, setTreeTitle, hasDuplicateTitle] = useUrlParam(browserUrl, "title", {history: "replace"});
+    const [uploadServer, , hasDuplicateUploadServer] = useUrlParam(browserUrl, "uploadServer");
     // Stable URL hook values keep title edits out of file-load dependencies.
     const references = useMemo(
         () => getFileReferences(namedFiles ?? emptyNamedFiles, legacyFile, legacySqlFile),
         [namedFiles, legacyFile, legacySqlFile],
     );
-    const hasDuplicateLegacyFile = duplicateLegacyFiles.length > 0;
-    const hasDuplicateLegacySqlFile = duplicateLegacySqlFiles.length > 0;
-    const hasDuplicateTitle = duplicateTitles.length > 0;
-    const hasDuplicateUploadServer = duplicateUploadServers.length > 0;
     const urlValidation = useMemo(
         () =>
             validateAppUrl(references, {

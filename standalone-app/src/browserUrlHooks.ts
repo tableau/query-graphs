@@ -10,8 +10,8 @@ interface PendingUrlUpdate {
     shouldPush: boolean;
 }
 
-/** Scalar parameter result: value, React setter, and duplicate keys (the requested key when repeated). */
-type ScalarUrlParamResult = [string | undefined, React.Dispatch<React.SetStateAction<string | undefined>>, readonly string[]];
+/** Scalar parameter result: value, React setter, and whether the key is repeated. */
+type ScalarUrlParamResult = [string | undefined, React.Dispatch<React.SetStateAction<string | undefined>>, boolean];
 /** Map parameter result: value, React setter, and duplicated subkeys in first-repeat order. */
 type MapUrlParamResult = [
     ReadonlyMap<string, string> | undefined,
@@ -168,13 +168,21 @@ function encodeMap(key: string, value: ReadonlyMap<string, string> | undefined):
 
 /**
  * Reads and writes one hash parameter. Missing or duplicated parameters return undefined;
- * identical repeated values are duplicates too. The third tuple item contains the requested
- * key when duplicated; callers choose how to format it. Functional updates see the latest
- * pending value, including undefined for invalid duplicates. Setting undefined removes only
+ * identical repeated values are duplicates too. The third tuple item reports whether the key
+ * is duplicated. Functional updates see the latest pending value, including undefined for
+ * invalid duplicates. Setting undefined removes only
  * this key. Explicit writes store state in the hash and clear the query string.
  */
 export function useUrlParam(urlState: URLState, key: string, options: UrlParamOptions = {}): ScalarUrlParamResult {
-    return useUrlParamInternal(urlState, key, options.history ?? "push", isScalarParam, readScalar, encodeScalar);
+    const [value, set, duplicateKeys] = useUrlParamInternal(
+        urlState,
+        key,
+        options.history ?? "push",
+        isScalarParam,
+        readScalar,
+        encodeScalar,
+    );
+    return [value, set, duplicateKeys.length > 0];
 }
 
 /**
