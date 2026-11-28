@@ -1,0 +1,53 @@
+.invalid-url-page {
+    min-height: 100%;
+    padding: 2rem 1rem;
+    box-sizing: border-box;
+    background: var(--qg-canvas);
+    color: var(--qg-text);
+    display: flex;
+    justify-content: center;
+}
+
+.invalid-url-content {
+    width: min(36rem, 100%);
+    align-self: flex-start;
+    margin-top: min(12vh, 6rem);
+    padding: 1.5rem;
+    background: var(--qg-surface);
+    border: 1px solid var(--qg-border);
+    border-radius: var(--qg-border-radius);
+}
+
+.invalid-url-content h1 {
+    margin-top: 0;
+}
+.invalid-url-errors {
+    overflow-wrap: anywhere;
+    color: var(--qg-danger);
+    padding-left: 1.5em;
+}
+.invalid-url-errors li + li {
+    margin-top: 0.5em;
+}
+.invalid-url-help {
+    color: var(--qg-text-muted);
+}
+.invalid-url-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+}
+.invalid-url-actions button {
+    border-radius: var(--qg-border-radius);
+}
+
+@media (max-width: 32rem) {
+    .invalid-url-content {
+        padding: 1rem;
+        margin-top: 2rem;
+    }
+    .invalid-url-actions {
+        flex-direction: column;
+    }
+}

@@ -14,6 +14,8 @@ import {useSettings} from "./settings";
 import {useTheme} from "./theme";
 import {getFileReferences, loadPlanFromFiles} from "./files";
 import type {FileError} from "./files";
+import {InvalidUrl} from "./InvalidUrl";
+import {removeDuplicateAppUrlEntries, validateAppUrl} from "./urlValidation";
 
 const emptyNamedFiles: ReadonlyMap<string, string> = new Map();
 
@@ -22,7 +24,7 @@ export function QueryGraphsApp() {
     const animationSpeed = useSettings((settings) => settings.values.animationSpeed);
     const theme = useTheme();
     const loadStateController = useLoadStateController();
-    const {setProgress, clearLoadState, setError, tryAndDisplayErrors} = loadStateController;
+    const {setProgress, clearLoadState, tryAndDisplayErrors} = loadStateController;
     const [loadedPlan, setLoadedPlan] = useState<LoadedPlan | undefined>(undefined);
     const [fileErrors, setFileErrors] = useState<FileError[]>([]);
     // Store the file collection in the URL to integrate with browser history.
@@ -30,12 +32,34 @@ export function QueryGraphsApp() {
     const [namedFiles, setNamedFiles, duplicateFiles] = useUrlMapParam(browserUrl, "file");
     const [legacyFile, setLegacyFile, duplicateLegacyFiles] = useUrlParam(browserUrl, "file");
     const [legacySqlFile, setLegacySqlFile, duplicateLegacySqlFiles] = useUrlParam(browserUrl, "sql-file");
-    const [treeTitle, setTreeTitle] = useUrlParam(browserUrl, "title", {history: "replace"});
-    const [uploadServer] = useUrlParam(browserUrl, "uploadServer");
+    const [treeTitle, setTreeTitle, duplicateTitles] = useUrlParam(browserUrl, "title", {history: "replace"});
+    const [uploadServer, , duplicateUploadServers] = useUrlParam(browserUrl, "uploadServer");
     // Stable URL hook values keep title edits out of file-load dependencies.
     const references = useMemo(
         () => getFileReferences(namedFiles ?? emptyNamedFiles, legacyFile, legacySqlFile),
         [namedFiles, legacyFile, legacySqlFile],
+    );
+    const hasDuplicateLegacyFile = duplicateLegacyFiles.length > 0;
+    const hasDuplicateLegacySqlFile = duplicateLegacySqlFiles.length > 0;
+    const hasDuplicateTitle = duplicateTitles.length > 0;
+    const hasDuplicateUploadServer = duplicateUploadServers.length > 0;
+    const urlValidation = useMemo(
+        () =>
+            validateAppUrl(references, {
+                fileNames: duplicateFiles,
+                legacyFile: hasDuplicateLegacyFile,
+                legacySqlFile: hasDuplicateLegacySqlFile,
+                title: hasDuplicateTitle,
+                uploadServer: hasDuplicateUploadServer,
+            }),
+        [
+            references,
+            duplicateFiles,
+            hasDuplicateLegacyFile,
+            hasDuplicateLegacySqlFile,
+            hasDuplicateTitle,
+            hasDuplicateUploadServer,
+        ],
     );
     // Keep the browser tab's title in sync
     useEffect(() => {
@@ -87,17 +111,12 @@ export function QueryGraphsApp() {
     };
     // Keep the displayed tree in sync with the named file references.
     useEffect(() => {
-        const duplicates = [
-            ...duplicateFiles,
-            ...duplicateLegacyFiles.map(() => "plan.json"),
-            ...duplicateLegacySqlFiles.map(() => "query.sql"),
-        ];
-        if (duplicates.length > 0) {
-            // URL duplicates are rejected before any fetch, using the same opener error state as loader failures.
+        if (urlValidation.errors.length > 0) {
+            // Invalid URL state never starts or keeps a file load alive.
             // eslint-disable-next-line react-hooks/set-state-in-effect
             setLoadedPlan(undefined);
             setFileErrors([]);
-            setError(`Duplicate file name: ${duplicates[0]}`);
+            clearLoadState();
             return;
         }
         if (references.length === 0) {
@@ -129,16 +148,7 @@ export function QueryGraphsApp() {
         return () => {
             abortController.abort();
         };
-    }, [
-        references,
-        duplicateFiles,
-        duplicateLegacyFiles,
-        duplicateLegacySqlFiles,
-        clearLoadState,
-        setError,
-        setProgress,
-        tryAndDisplayErrors,
-    ]);
+    }, [references, urlValidation, clearLoadState, setProgress, tryAndDisplayErrors]);
 
     const validate = useCallback((text: string) => {
         try {
@@ -152,6 +162,24 @@ export function QueryGraphsApp() {
             }
         }
     }, []);
+
+    if (urlValidation.errors.length > 0) {
+        return (
+            <InvalidUrl
+                errors={urlValidation.errors}
+                canIgnoreDuplicates={urlValidation.hasDuplicates}
+                onIgnoreDuplicates={() => browserUrl[1]((url) => removeDuplicateAppUrlEntries(url), true)}
+                onStartOver={() =>
+                    browserUrl[1]((url) => {
+                        const next = new URL(url);
+                        next.search = "";
+                        next.hash = "";
+                        return next;
+                    }, true)
+                }
+            />
+        );
+    }
 
     if (!loadedPlan) {
         return <FileOpener setData={openPickedData} loadStateController={loadStateController} validate={validate} />;

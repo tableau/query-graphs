@@ -16,11 +16,19 @@ async function withApp(
     context: TestContext,
     url: string,
     run: (fixture: ReturnType<typeof createUiFixture>, fetchCount: () => number) => Promise<void>,
+    respond?: (signal: AbortSignal | undefined) => Promise<Response>,
 ) {
     const fixture = createUiFixture({url, additionalGlobals: ["FileReader"]});
     Object.assign(fixture.dom.window.HTMLTextAreaElement.prototype, {attachEvent() {}, detachEvent() {}});
     const navigation = new fixture.dom.window.EventTarget();
     Object.defineProperty(navigation, "currentEntry", {get: () => ({url: fixture.dom.window.location.href})});
+    Object.assign(navigation, {
+        navigate(url: string, options: {history: "push" | "replace"}) {
+            if (options.history === "push") fixture.dom.window.history.pushState(null, "", url);
+            else fixture.dom.window.history.replaceState(null, "", url);
+            navigation.dispatchEvent(new fixture.dom.window.Event("currententrychange"));
+        },
+    });
     Object.defineProperty(fixture.dom.window, "navigation", {configurable: true, value: navigation});
     const previousBuildGlobals = new Map(
         ["BUILD_COMMIT_HASH", "BUILD_TIMESTAMP"].map((name) => [name, Object.getOwnPropertyDescriptor(globalThis, name)]),
@@ -28,8 +36,9 @@ async function withApp(
     Object.defineProperty(globalThis, "BUILD_COMMIT_HASH", {configurable: true, value: "test-commit"});
     Object.defineProperty(globalThis, "BUILD_TIMESTAMP", {configurable: true, value: "test-time"});
     let fetchCalls = 0;
-    const mock = context.mock.method(globalThis, "fetch", async () => {
+    const mock = context.mock.method(globalThis, "fetch", async (...args: Parameters<typeof fetch>) => {
         fetchCalls++;
+        if (respond) return respond(args[1]?.signal ?? undefined);
         return new Response("", {status: 404});
     });
     try {
@@ -46,42 +55,41 @@ async function withApp(
     }
 }
 
-test("QueryGraphsApp rejects duplicate URL file references before fetching", async (context) => {
+test("invalid URL configuration has a dedicated page and never fetches files", async (context) => {
     const cases = [
         ["duplicate named subkeys", "#file%5Bplan.json%5D=plan&file%5Ba.sql%5D=same&file%5Ba.sql%5D=same", "a.sql"],
         ["repeated file alias", "#file=one&file=two", "plan.json"],
         ["repeated sql-file alias", "#file%5Bplan.json%5D=plan&sql-file=one&sql-file=two", "query.sql"],
         ["file alias and named collision", "#file=one&file%5Bplan.json%5D=two", "plan.json"],
         ["sql-file alias and named collision", "#sql-file=one&file%5Bquery.sql%5D=two", "query.sql"],
+        ["repeated title", "#title=one&title=two&file=plan", "title"],
+        ["repeated upload server", "#uploadServer=one&uploadServer=two&file=plan", "uploadServer"],
     ] as const;
 
     for (const [description, hash, logicalName] of cases) {
         await withApp(context, `https://example.test/${hash}`, async (fixture, fetchCount) => {
-            assert.equal(
-                fixture.document.querySelector(".load-error")?.textContent,
-                `Duplicate file name: ${logicalName}`,
-                description,
-            );
+            assert.equal(fixture.document.querySelector("h1")?.textContent, "Invalid URL", description);
+            assert.ok(fixture.document.querySelector(".invalid-url-errors")?.textContent?.includes(logicalName), description);
+            assert.equal(fixture.document.querySelector("textarea"), null, description);
+            assert.equal(fixture.document.querySelector(".file-selection-page"), null, description);
             assert.equal(fetchCount(), 0, description);
 
             const params = new URLSearchParams(fixture.dom.window.location.hash.slice(1));
-            params.set("title", "edited title");
+            params.set("unrelated", "edited");
             await React.act(async () => {
                 fixture.dom.window.history.replaceState(null, "", `#${params.toString()}`);
                 fixture.dom.window.navigation.dispatchEvent(new fixture.dom.window.Event("currententrychange"));
             });
-            assert.equal(
-                fixture.document.querySelector(".load-error")?.textContent,
-                `Duplicate file name: ${logicalName}`,
-                description,
-            );
+            assert.equal(fixture.document.querySelector("h1")?.textContent, "Invalid URL", description);
+            assert.ok(fixture.document.querySelector(".invalid-url-errors")?.textContent?.includes(logicalName), description);
             assert.equal(fetchCount(), 0, description);
 
             await React.act(async () => {
                 fixture.dom.window.history.replaceState(null, "", "#title=edited%20title");
                 fixture.dom.window.navigation.dispatchEvent(new fixture.dom.window.Event("currententrychange"));
             });
-            assert.equal(fixture.document.querySelector(".load-error"), null, description);
+            assert.equal(fixture.document.querySelector(".invalid-url-page"), null, description);
+            assert.ok(fixture.document.querySelector("textarea"), description);
             assert.equal(fetchCount(), 0, description);
         });
     }
@@ -113,4 +121,115 @@ test("title edits do not reload files or clear their loading error", async (cont
         assert.equal(fixture.document.title, "Renamed - QueryGraphs");
         assert.equal(fetchCount(), 1);
     });
+});
+
+test("ignoring duplicates keeps the first value and resolves file alias collisions", async (context) => {
+    const cases = [
+        {hash: "file=first.plan&file[plan.json]=second.plan", key: "file", value: "first.plan", fetches: 1},
+        {hash: "file[plan.json]=first.plan&file=second.plan", key: "file[plan.json]", value: "first.plan", fetches: 1},
+        {
+            hash: "file[plan.json]=plan&sql-file=first.sql&file[query.sql]=second.sql",
+            key: "sql-file",
+            value: "first.sql",
+            fetches: 2,
+        },
+        {
+            hash: "file[plan.json]=plan&file[query.sql]=first.sql&sql-file=second.sql",
+            key: "file[query.sql]",
+            value: "first.sql",
+            fetches: 2,
+        },
+        {hash: "file[plan.json]=first.plan&file[plan.json]=second.plan", key: "file[plan.json]", value: "first.plan", fetches: 1},
+        {
+            hash: "file[plan.json]=plan&file[a%0Ab.sql]=first.sql&file[a%0Ab.sql]=second.sql",
+            key: "file[a\nb.sql]",
+            value: "first.sql",
+            fetches: 2,
+        },
+    ];
+    for (const {hash, key, value, fetches} of cases) {
+        const url = `https://example.test/path?ignored=query#title=first&${hash}&title=second&uploadServer=first-server&uploadServer=second-server&keep=unique`;
+        await withApp(context, url, async (fixture, fetchCount) => {
+            assert.equal(fixture.document.querySelector("h1")?.textContent, "Invalid URL");
+            assert.equal(fixture.dom.window.location.href, new URL(url).href);
+            assert.equal(fetchCount(), 0);
+            const historyLength = fixture.dom.window.history.length;
+            const ignore = [...fixture.document.querySelectorAll("button")].find(
+                (button) => button.textContent === "Ignore duplicate keys",
+            );
+            assert.ok(ignore);
+            assert.equal(ignore.disabled, false);
+            await React.act(async () => ignore.click());
+            assert.equal(fixture.document.querySelector(".invalid-url-page"), null);
+            const params = new URLSearchParams(fixture.dom.window.location.hash.slice(1));
+            assert.equal(params.get(key), value);
+            assert.equal(params.get("title"), "first");
+            assert.equal(params.get("uploadServer"), "first-server");
+            assert.equal(params.get("keep"), "unique");
+            assert.equal(fixture.dom.window.location.search, "");
+            assert.equal(fixture.dom.window.history.length, historyLength);
+            assert.equal(fetchCount(), fetches);
+            // The mocked 404 remains a resource-loading error, not an invalid-URL page.
+            assert.match(fixture.document.querySelector(".load-error")?.textContent ?? "", /Failed to load plan\.json/);
+        });
+    }
+});
+
+test("starting over clears all URL state and returns to a pristine file opener", async (context) => {
+    await withApp(
+        context,
+        "https://example.test/path?ignored=query#file=one&file=two&title=Old&uploadServer=server&other=value",
+        async (fixture, fetchCount) => {
+            assert.equal(fixture.document.querySelector("h1")?.textContent, "Invalid URL");
+            const reset = [...fixture.document.querySelectorAll("button")].find((button) => button.textContent === "Start over");
+            assert.ok(reset);
+            await React.act(async () => reset.click());
+            assert.equal(fixture.dom.window.location.href, "https://example.test/path");
+            assert.equal(fixture.document.querySelector(".invalid-url-page"), null);
+            assert.equal(fixture.document.querySelector(".load-error"), null);
+            assert.ok(fixture.document.querySelector("textarea"));
+            assert.equal(fixture.document.title, "QueryGraphs");
+            assert.equal(fetchCount(), 0);
+        },
+    );
+});
+
+test("invalid main-plan selections offer reset without an ineffective duplicate recovery", async (context) => {
+    for (const hash of ["file[notes.txt]=notes", "file[plan.json]=one&file[plan.xml]=two"]) {
+        await withApp(context, `https://example.test/#${hash}`, async (fixture, fetchCount) => {
+            assert.equal(fixture.document.querySelector("h1")?.textContent, "Invalid URL");
+            const buttons = [...fixture.document.querySelectorAll("button")];
+            assert.equal(buttons.length, 2);
+            assert.equal(buttons.find((button) => button.textContent === "Ignore duplicate keys")?.disabled, true);
+            assert.equal(buttons.find((button) => button.textContent === "Start over")?.disabled, false);
+            assert.equal(fetchCount(), 0);
+        });
+    }
+});
+
+test("an invalid URL aborts an in-flight load and replaces its loading screen", async (context) => {
+    let requestedSignal: AbortSignal | undefined;
+    await withApp(
+        context,
+        "https://example.test/#file=plan",
+        async (fixture, fetchCount) => {
+            assert.equal(fetchCount(), 1);
+            assert.ok(requestedSignal);
+            assert.equal(requestedSignal.aborted, false);
+            await React.act(async () => {
+                fixture.dom.window.history.replaceState(null, "", "#file=plan&title=one&title=two");
+                fixture.dom.window.navigation.dispatchEvent(new fixture.dom.window.Event("currententrychange"));
+            });
+            assert.equal(requestedSignal.aborted, true);
+            assert.equal(fixture.document.querySelector("h1")?.textContent, "Invalid URL");
+            assert.equal(fixture.document.querySelector(".file-selection-page"), null);
+            assert.equal(fetchCount(), 1);
+        },
+        (signal) =>
+            new Promise<Response>((_resolve, reject) => {
+                assert.ok(signal);
+                requestedSignal = signal;
+                signal.addEventListener("abort", () => reject(signal.reason), {once: true});
+            }),
+    );
 });

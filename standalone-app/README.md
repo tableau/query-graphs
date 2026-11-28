@@ -41,6 +41,9 @@ For other text files, names ending in `.sql` receive SQL highlighting, names end
 These additional text-file languages come only from the logical filename, not from the URL or response MIME type.
 Relative file URLs are resolved against the application URL.
 File names are case-sensitive, and duplicate names are errors.
+Invalid URL configurations are shown on a separate error page before files are fetched.
+When duplicates are present, **Ignore duplicate keys** keeps the first occurrence, including when a legacy alias and a named file conflict.
+**Start over** clears the URL state and returns to the file opener.
 If a non-plan file cannot be loaded, its panel shows the error while the plan and other files remain available.
 Opening a local plan replaces the current file collection with that plan.
 
