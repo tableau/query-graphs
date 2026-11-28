@@ -8,7 +8,6 @@ import {useGraphRenderingStore} from "@tableau/query-graphs/lib/ui/store";
 import type {PropertyEntry, SourceLocation, TextDocument, TreeNode} from "@tableau/query-graphs/lib/tree-description";
 import {PropertyList} from "@tableau/query-graphs/lib/ui/PropertyList";
 import type {CategoricalInsightDefinition} from "@tableau/query-graphs/lib/insights/categorical";
-import type {FileError} from "./files";
 import "./TreeLabel.css";
 
 const DocumentPane = lazy(() =>
@@ -22,7 +21,6 @@ export interface TreeLabelProps {
     metadataHighlighted?: boolean;
     textDocuments?: TextDocument[];
     insights?: {root: TreeNode; definitions: readonly CategoricalInsightDefinition[]};
-    fileErrors?: FileError[];
 }
 
 function LoadingDocument({title}: {title: string}) {
@@ -94,7 +92,7 @@ function TextDocumentPanel({document}: {document: TextDocument}) {
     );
 }
 
-export function TreeLabel({title, setTitle, metadata, metadataHighlighted, textDocuments, insights, fileErrors}: TreeLabelProps) {
+export function TreeLabel({title, setTitle, metadata, metadataHighlighted, textDocuments, insights}: TreeLabelProps) {
     // React Flow recognizes these interaction guards on ancestors: `nowheel` lets
     // documents scroll without zooming the canvas, and `nopan` lets users select
     // text or operate controls without dragging the canvas.
@@ -121,18 +119,6 @@ export function TreeLabel({title, setTitle, metadata, metadataHighlighted, textD
                     ) : null}
                     {textDocuments?.map((document) => (
                         <TextDocumentPanel key={document.id} document={document} />
-                    ))}
-                    {fileErrors?.map(({name, message}) => (
-                        <CollapsiblePanel
-                            key={name}
-                            title={`${name} (failed to load)`}
-                            className="graph-text-document-panel"
-                            highlighted
-                        >
-                            <div role="alert" style={{padding: "0.75rem"}}>
-                                Failed to load {name}: {message}
-                            </div>
-                        </CollapsiblePanel>
                     ))}
                 </div>
             </div>

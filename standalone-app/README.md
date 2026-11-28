@@ -44,7 +44,9 @@ File names are case-sensitive, and duplicate names are errors.
 Invalid URL configurations are shown on a separate error page before files are fetched.
 When duplicates are present, **Ignore duplicate keys** keeps the first occurrence, including when a legacy alias and a named file conflict.
 **Start over** clears the URL state and returns to the file opener.
-If a non-plan file cannot be loaded, its panel shows the error while the plan and other files remain available.
+If any file cannot be loaded, the landing page lists the failures and offers **Retry**, **Ignore unloadable files**, and **Back to main page**.
+Retry reloads all files; ignoring failures keeps successful results without fetching them again and removes the failed references from the URL.
+Ignoring failures is available only when the main plan could be loaded and parsed.
 Opening a local plan replaces the current file collection with that plan.
 
 Note that file parameters can point to arbitrary valid URLs.

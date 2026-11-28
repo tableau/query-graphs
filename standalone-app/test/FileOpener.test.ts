@@ -13,48 +13,31 @@ registerHooks({
 
 const validatePlan = (_text: string): string | undefined => undefined;
 
-test("mounting an empty FileOpener preserves parent loading and error states", async () => {
+test("FileOpener keeps its input mounted and disabled while loading", async () => {
     const {FileOpener, useLoadStateController} = await import("../src/FileOpener");
-    for (const state of ["error", "loading"] as const) {
-        const fixture = createUiFixture({additionalGlobals: ["FileReader"]});
-        Object.assign(fixture.dom.window.HTMLTextAreaElement.prototype, {attachEvent() {}, detachEvent() {}});
-        const previousBuildGlobals = new Map(
-            ["BUILD_COMMIT_HASH", "BUILD_TIMESTAMP"].map((name) => [name, Object.getOwnPropertyDescriptor(globalThis, name)]),
-        );
-        Object.defineProperty(globalThis, "BUILD_COMMIT_HASH", {configurable: true, value: "test-commit"});
-        Object.defineProperty(globalThis, "BUILD_TIMESTAMP", {configurable: true, value: "test-time"});
-        try {
-            let controller!: ReturnType<typeof useLoadStateController>;
-            let showOpener = false;
-            function Harness() {
-                controller = useLoadStateController();
-                return showOpener
-                    ? React.createElement(FileOpener, {
-                          setData: async () => undefined,
-                          validate: validatePlan,
-                          loadStateController: controller,
-                      })
-                    : null;
-            }
-            await fixture.render(React.createElement(Harness));
-            await React.act(async () => {
-                if (state === "error") controller.setError("Duplicate file name: a.sql");
-                else controller.setProgress("Fetching plan...");
+    const fixture = createUiFixture({additionalGlobals: ["FileReader"]});
+    Object.assign(fixture.dom.window.HTMLTextAreaElement.prototype, {attachEvent() {}, detachEvent() {}});
+    try {
+        let controller!: ReturnType<typeof useLoadStateController>;
+        function Harness() {
+            controller = useLoadStateController();
+            return React.createElement(FileOpener, {
+                setData: async () => undefined,
+                validate: validatePlan,
+                loadStateController: controller,
             });
-            showOpener = true;
-            await fixture.render(React.createElement(Harness));
-
-            if (state === "error") {
-                assert.equal(fixture.document.querySelector(".load-error")?.textContent, "Duplicate file name: a.sql");
-            } else {
-                assert.match(fixture.document.querySelector(".file-selection-page")?.textContent ?? "", /Fetching plan/);
-            }
-        } finally {
-            await fixture.cleanup();
-            for (const [name, descriptor] of previousBuildGlobals) {
-                if (descriptor === undefined) Reflect.deleteProperty(globalThis, name);
-                else Object.defineProperty(globalThis, name, descriptor);
-            }
         }
+        await fixture.render(React.createElement(Harness));
+        assert.ok(fixture.document.querySelector("textarea"));
+        await React.act(async () => controller.setProgress("Fetching plan..."));
+        const textarea = fixture.document.querySelector("textarea");
+        assert.ok(textarea);
+        assert.equal(textarea.disabled, true);
+        assert.ok(fixture.document.querySelector(".file-opener"));
+        assert.equal(fixture.document.querySelector(".qg-spinner"), null);
+        assert.equal(fixture.document.querySelector(".caption"), null);
+        assert.equal(fixture.document.querySelector(".landing-footer"), null);
+    } finally {
+        await fixture.cleanup();
     }
 });

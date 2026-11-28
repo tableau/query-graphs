@@ -64,8 +64,8 @@ describe("files", () => {
                 new URL("https://example.test/app"),
                 new AbortController().signal,
             );
-            assert.equal(legacy.plan.format, "xml");
-            assert.equal(named.plan.format, "xml");
+            assert.equal(legacy.plan!.format, "xml");
+            assert.equal(named.plan!.format, "xml");
         } finally {
             if (previousDomParser === undefined) Reflect.deleteProperty(globalThis, "DOMParser");
             else Object.defineProperty(globalThis, "DOMParser", previousDomParser);
@@ -108,12 +108,12 @@ describe("files", () => {
             new URL("https://example.test/app"),
             new AbortController().signal,
         );
-        const query = loaded.plan.tree.textDocuments?.find(({id}) => id === "query");
+        const query = loaded.plan!.tree.textDocuments?.find(({id}) => id === "query");
         assert.equal(query?.text, `${sql.replace(/\r\n/g, "\n")}\n`);
         assert.equal(query?.title, "query.sql");
         const targetOffset = query?.text.indexOf("target");
         assert.deepEqual(
-            loaded.plan.tree.root.sourceLocations?.find(({documentId}) => documentId === "query"),
+            loaded.plan!.tree.root.sourceLocations?.find(({documentId}) => documentId === "query"),
             {documentId: "query", from: targetOffset, to: (targetOffset ?? 0) + 6},
         );
         assert.deepEqual(loaded.errors, []);
@@ -131,9 +131,9 @@ describe("files", () => {
             new URL("https://example.test/app"),
             new AbortController().signal,
         );
-        assert.equal(loaded.plan.tree.textDocuments?.find(({id}) => id === "query")?.text, "SELECT 1");
+        assert.equal(loaded.plan!.tree.textDocuments?.find(({id}) => id === "query")?.text, "SELECT 1");
         assert.equal(
-            loaded.plan.tree.textDocuments?.find(({id}) => id === "file:broken.json"),
+            loaded.plan!.tree.textDocuments?.find(({id}) => id === "file:broken.json"),
             undefined,
         );
         assert.match(loaded.errors[0]?.message ?? "", /Invalid URL/);
@@ -152,7 +152,7 @@ describe("files", () => {
             new AbortController().signal,
         );
         assert.deepEqual(
-            loaded.plan.tree.textDocuments?.map(({id, title, language}) => ({id, title, language})),
+            loaded.plan!.tree.textDocuments?.map(({id, title, language}) => ({id, title, language})),
             [
                 {id: "plan", title: "Query Plan", language: "json"},
                 {id: "file:explain.plan.json", title: "explain.plan.json", language: "json"},
@@ -178,7 +178,7 @@ describe("files", () => {
                 new URL("https://example.test/app/index.html"),
                 new AbortController().signal,
             );
-            assert.equal(loaded.plan.tree.textDocuments?.find(({id}) => id === "file:other.json")?.text, "{}");
+            assert.equal(loaded.plan!.tree.textDocuments?.find(({id}) => id === "file:other.json")?.text, "{}");
             assert.equal(requested.at(-1), "https://example.test/app/files/doc.json");
         } finally {
             globalThis.fetch = originalFetch;
@@ -205,9 +205,9 @@ describe("files", () => {
                 new URL("https://example.test/app"),
                 new AbortController().signal,
             );
-            const mainPlanText = loaded.plan.tree.textDocuments?.find(({id}) => id === "plan")?.text;
+            const mainPlanText = loaded.plan!.tree.textDocuments?.find(({id}) => id === "plan")?.text;
             assert.equal(JSON.parse(mainPlanText ?? "{}").operator, "scan");
-            assert.equal(loaded.plan.tree.textDocuments?.find(({id}) => id === "file:other.json")?.text, '{"operator":"other"}');
+            assert.equal(loaded.plan!.tree.textDocuments?.find(({id}) => id === "file:other.json")?.text, '{"operator":"other"}');
             assert.deepEqual(requests.sort(), [
                 "https://example.test/notes.txt",
                 "https://example.test/other.json",
@@ -218,26 +218,46 @@ describe("files", () => {
         }
     });
 
-    it("reports a failed main plan as a fatal named error", async () => {
-        await assert.rejects(
-            loadPlanFromFiles(
-                [{logicalFilename: "plan.json", url: "http://["}],
+    it("returns a failed main load as a named error", async () => {
+        const originalFetch = globalThis.fetch;
+        globalThis.fetch = async (input) => new Response("unavailable", {status: String(input).endsWith("plan.json") ? 503 : 404});
+        let loaded;
+        try {
+            loaded = await loadPlanFromFiles(
+                [
+                    {logicalFilename: "plan.json", url: "https://example.test/plan.json"},
+                    {logicalFilename: "broken.txt", url: "https://example.test/broken.txt"},
+                ],
                 new URL("https://example.test/app"),
                 new AbortController().signal,
-            ),
-            /Failed to load plan\.json: Invalid URL/,
+            );
+        } finally {
+            globalThis.fetch = originalFetch;
+        }
+        assert.equal(loaded.plan, undefined);
+        assert.deepEqual(
+            loaded.errors.map(({name}) => name),
+            ["plan.json", "broken.txt"],
         );
+        assert.match(loaded.errors[0]?.message ?? "", /Failed to load plan\.json: Failed to load .*plan\.json: HTTP 503/);
+        assert.match(loaded.errors[1]?.message ?? "", /HTTP 404/);
     });
 
-    it("includes the logical filename when main plan parsing fails", async () => {
-        await assert.rejects(
-            loadPlanFromFiles(
-                [{logicalFilename: "plan.xml", url: "data:text/plain,not-a-plan"}],
-                new URL("https://example.test/app"),
-                new AbortController().signal,
-            ),
-            /Failed to parse plan\.xml: Invalid query plan/,
+    it("returns a named parse error and other file failures", async () => {
+        const loaded = await loadPlanFromFiles(
+            [
+                {logicalFilename: "plan.xml", url: "data:text/plain,not-a-plan"},
+                {logicalFilename: "broken.txt", url: "http://["},
+            ],
+            new URL("https://example.test/app"),
+            new AbortController().signal,
         );
+        assert.equal(loaded.plan, undefined);
+        assert.deepEqual(
+            loaded.errors.map(({name}) => name),
+            ["plan.xml", "broken.txt"],
+        );
+        assert.match(loaded.errors[0]?.message ?? "", /Failed to parse plan\.xml: Invalid query plan/);
     });
 
     it("rejects cancellation instead of returning stale files", async () => {
@@ -293,9 +313,9 @@ describe("files", () => {
         } finally {
             globalThis.fetch = originalFetch;
         }
-        assert.equal(loaded.plan.tree.textDocuments?.find(({id}) => id === "query")?.text, "SELECT embedded");
-        assert.equal(loaded.plan.tree.textDocuments?.find(({id}) => id === "file:kept.txt")?.text, "plain text");
-        assert.equal(loaded.plan.tree.textDocuments?.find(({id}) => id === "file:kept.txt")?.language, undefined);
+        assert.equal(loaded.plan!.tree.textDocuments?.find(({id}) => id === "query")?.text, "SELECT embedded");
+        assert.equal(loaded.plan!.tree.textDocuments?.find(({id}) => id === "file:kept.txt")?.text, "plain text");
+        assert.equal(loaded.plan!.tree.textDocuments?.find(({id}) => id === "file:kept.txt")?.language, undefined);
         assert.deepEqual(
             loaded.errors.map(({name}) => name),
             ["query.sql"],

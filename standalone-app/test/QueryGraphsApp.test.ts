@@ -16,9 +16,35 @@ async function withApp(
     context: TestContext,
     url: string,
     run: (fixture: ReturnType<typeof createUiFixture>, fetchCount: () => number) => Promise<void>,
-    respond?: (signal: AbortSignal | undefined) => Promise<Response>,
+    respond?: (signal: AbortSignal | undefined, url: string) => Promise<Response>,
 ) {
-    const fixture = createUiFixture({url, additionalGlobals: ["FileReader"]});
+    const fixture = createUiFixture({
+        url,
+        additionalGlobals: [
+            "FileReader",
+            "Window",
+            "Element",
+            "HTMLDivElement",
+            "SVGElement",
+            "requestAnimationFrame",
+            "cancelAnimationFrame",
+            "getComputedStyle",
+            "ResizeObserver",
+        ],
+    });
+    // Layout is not exercised here; let the real graph mount without observing browser geometry.
+    Object.defineProperty(globalThis, "ResizeObserver", {
+        configurable: true,
+        value: class {
+            observe() {}
+            unobserve() {}
+            disconnect() {}
+        },
+    });
+    Object.defineProperty(fixture.dom.window, "matchMedia", {
+        configurable: true,
+        value: () => ({matches: false, addEventListener() {}, removeEventListener() {}}),
+    });
     Object.assign(fixture.dom.window.HTMLTextAreaElement.prototype, {attachEvent() {}, detachEvent() {}});
     const navigation = new fixture.dom.window.EventTarget();
     Object.defineProperty(navigation, "currentEntry", {get: () => ({url: fixture.dom.window.location.href})});
@@ -38,7 +64,7 @@ async function withApp(
     let fetchCalls = 0;
     const mock = context.mock.method(globalThis, "fetch", async (...args: Parameters<typeof fetch>) => {
         fetchCalls++;
-        if (respond) return respond(args[1]?.signal ?? undefined);
+        if (respond) return respond(args[1]?.signal ?? undefined, String(args[0]));
         return new Response("", {status: 404});
     });
     try {
@@ -71,7 +97,8 @@ test("invalid URL configuration has a dedicated page and never fetches files", a
             assert.equal(fixture.document.querySelector("h1")?.textContent, "Invalid URL", description);
             assert.ok(fixture.document.querySelector(".invalid-url-errors")?.textContent?.includes(logicalName), description);
             assert.equal(fixture.document.querySelector("textarea"), null, description);
-            assert.equal(fixture.document.querySelector(".file-selection-page"), null, description);
+            assert.ok(fixture.document.querySelector(".caption"), description);
+            assert.ok(fixture.document.querySelector(".landing-footer"), description);
             assert.equal(fetchCount(), 0, description);
 
             const params = new URLSearchParams(fixture.dom.window.location.hash.slice(1));
@@ -109,15 +136,15 @@ test("QueryGraphsApp ignores query-only file configuration", async (context) => 
 
 test("title edits do not reload files or clear their loading error", async (context) => {
     await withApp(context, "https://example.test/#file%5Bplan.json%5D=plan.json", async (fixture, fetchCount) => {
-        const error = fixture.document.querySelector(".load-error")?.textContent;
-        assert.match(error ?? "", /Failed to load plan\.json/);
+        const error = fixture.document.querySelector(".loading-errors")?.textContent;
+        assert.match(error ?? "", /plan\.json/);
         assert.equal(fetchCount(), 1);
 
         await React.act(async () => {
             fixture.dom.window.history.replaceState(null, "", "#file%5Bplan.json%5D=plan.json&title=Renamed");
             fixture.dom.window.navigation.dispatchEvent(new fixture.dom.window.Event("currententrychange"));
         });
-        assert.equal(fixture.document.querySelector(".load-error")?.textContent, error);
+        assert.equal(fixture.document.querySelector(".loading-errors")?.textContent, error);
         assert.equal(fixture.document.title, "Renamed - QueryGraphs");
         assert.equal(fetchCount(), 1);
     });
@@ -170,7 +197,7 @@ test("ignoring duplicates keeps the first value and resolves file alias collisio
             assert.equal(fixture.dom.window.history.length, historyLength);
             assert.equal(fetchCount(), fetches);
             // The mocked 404 remains a resource-loading error, not an invalid-URL page.
-            assert.match(fixture.document.querySelector(".load-error")?.textContent ?? "", /Failed to load plan\.json/);
+            assert.match(fixture.document.querySelector(".loading-errors")?.textContent ?? "", /plan\.json/);
         });
     }
 });
@@ -181,7 +208,9 @@ test("starting over clears all URL state and returns to a pristine file opener",
         "https://example.test/path?ignored=query#file=one&file=two&title=Old&uploadServer=server&other=value",
         async (fixture, fetchCount) => {
             assert.equal(fixture.document.querySelector("h1")?.textContent, "Invalid URL");
-            const reset = [...fixture.document.querySelectorAll("button")].find((button) => button.textContent === "Start over");
+            const reset = [...fixture.document.querySelectorAll("button")].find(
+                (button) => button.textContent === "Back to main page",
+            );
             assert.ok(reset);
             await React.act(async () => reset.click());
             assert.equal(fixture.dom.window.location.href, "https://example.test/path");
@@ -201,7 +230,7 @@ test("invalid main-plan selections offer reset without an ineffective duplicate 
             const buttons = [...fixture.document.querySelectorAll("button")];
             assert.equal(buttons.length, 2);
             assert.equal(buttons.find((button) => button.textContent === "Ignore duplicate keys")?.disabled, true);
-            assert.equal(buttons.find((button) => button.textContent === "Start over")?.disabled, false);
+            assert.equal(buttons.find((button) => button.textContent === "Back to main page")?.disabled, false);
             assert.equal(fetchCount(), 0);
         });
     }
@@ -222,7 +251,8 @@ test("an invalid URL aborts an in-flight load and replaces its loading screen", 
             });
             assert.equal(requestedSignal.aborted, true);
             assert.equal(fixture.document.querySelector("h1")?.textContent, "Invalid URL");
-            assert.equal(fixture.document.querySelector(".file-selection-page"), null);
+            assert.equal(fixture.document.querySelector(".loading-overlay"), null);
+            assert.ok(fixture.document.querySelector(".landing-footer"));
             assert.equal(fetchCount(), 1);
         },
         (signal) =>
@@ -232,4 +262,115 @@ test("an invalid URL aborts an in-flight load and replaces its loading screen", 
                 signal.addEventListener("abort", () => reject(signal.reason), {once: true});
             }),
     );
+});
+
+function button(fixture: ReturnType<typeof createUiFixture>, label: string): HTMLButtonElement {
+    const result = [...fixture.document.querySelectorAll("button")].find((element) => element.textContent === label);
+    assert.ok(result, `Missing button: ${label}`);
+    return result;
+}
+
+test("loading overlays the same opener and retains its footer", async (context) => {
+    let resolve!: (response: Response) => void;
+    await withApp(
+        context,
+        "https://example.test/",
+        async (fixture) => {
+            const textarea = fixture.document.querySelector("textarea");
+            const footer = fixture.document.querySelector(".landing-footer");
+            assert.ok(textarea);
+            assert.ok(footer);
+            await React.act(async () => {
+                fixture.dom.window.history.replaceState(null, "", "#file=plan.json");
+                fixture.dom.window.navigation.dispatchEvent(new fixture.dom.window.Event("currententrychange"));
+            });
+            assert.equal(fixture.document.querySelector("textarea"), textarea);
+            assert.equal(textarea.disabled, true);
+            assert.equal(fixture.document.querySelector(".landing-footer"), footer);
+            assert.ok(fixture.document.querySelector(".loading-overlay[role=status]"));
+            assert.ok(fixture.document.querySelector(".caption"));
+            await React.act(async () => resolve(new Response("", {status: 404})));
+            assert.equal(fixture.document.querySelector("h1")?.textContent, "Unable to load files");
+            assert.equal(fixture.document.querySelector(".landing-footer"), footer);
+            assert.equal(button(fixture, "Ignore unloadable files").disabled, true);
+            await React.act(async () => button(fixture, "Back to main page").click());
+            assert.ok(fixture.document.querySelector("textarea"));
+            assert.equal(fixture.document.querySelector(".landing-footer"), footer);
+            assert.equal(fixture.dom.window.location.hash, "");
+        },
+        () =>
+            new Promise<Response>((done) => {
+                resolve = done;
+            }),
+    );
+});
+
+test("retry reloads all files and ignoring failures reuses the successful plan", async (context) => {
+    const requests: string[] = [];
+    await withApp(
+        context,
+        "https://example.test/#file=main.json&file[ok.log]=ok.log&file[bad.log]=bad.log",
+        async (fixture, fetchCount) => {
+            assert.equal(fixture.document.querySelector("h1")?.textContent, "Unable to load files");
+            assert.match(fixture.document.querySelector(".loading-errors")?.textContent ?? "", /bad.log/);
+            assert.equal(fetchCount(), 3);
+            assert.equal(button(fixture, "Ignore unloadable files").disabled, false);
+            await React.act(async () => button(fixture, "Retry").click());
+            assert.equal(fetchCount(), 6);
+            for (const name of ["main.json", "ok.log", "bad.log"])
+                assert.equal(requests.filter((url) => url.endsWith(name)).length, 2);
+            await React.act(async () => button(fixture, "Ignore unloadable files").click());
+            assert.equal(fetchCount(), 6);
+            assert.equal(fixture.document.querySelector(".loading-errors"), null);
+            assert.ok(fixture.document.querySelector(".react-flow"));
+            const params = new URLSearchParams(fixture.dom.window.location.hash.slice(1));
+            assert.equal(params.has("file[bad.log]"), false);
+            assert.equal(params.get("file[ok.log]"), "ok.log");
+            assert.equal(params.get("file[plan.json]"), "main.json");
+            assert.equal(params.has("file"), false);
+        },
+        async (_signal, url) => {
+            requests.push(url);
+            if (url.endsWith("bad.log")) return new Response("", {status: 404});
+            return new Response(url.endsWith("main.json") ? '{"operator":"scan"}' : "successful extra file");
+        },
+    );
+});
+
+test("a failed retry can succeed and enter the graph", async (context) => {
+    let attempts = 0;
+    await withApp(
+        context,
+        "https://example.test/#file=main.json",
+        async (fixture, fetchCount) => {
+            assert.equal(fixture.document.querySelector("h1")?.textContent, "Unable to load files");
+            assert.equal(button(fixture, "Ignore unloadable files").disabled, true);
+            await React.act(async () => button(fixture, "Retry").click());
+            assert.equal(fetchCount(), 2);
+            assert.ok(fixture.document.querySelector(".react-flow"));
+        },
+        async () => (++attempts === 1 ? new Response("", {status: 404}) : new Response('{"operator":"scan"}')),
+    );
+});
+
+test("decompression and plan parsing failures use the loading recovery page", async (context) => {
+    const nativeFetch = globalThis.fetch;
+    for (const [fileUrl, reason] of [
+        ["data:application/gzip;base64,YmFk", /gzip/i],
+        ["data:text/plain,not-a-query-plan", /parse/i],
+    ] as const) {
+        const params = new URLSearchParams([["file[plan.json]", fileUrl]]);
+        await withApp(
+            context,
+            `https://example.test/#${params}`,
+            async (fixture) => {
+                assert.equal(fixture.document.querySelector("h1")?.textContent, "Unable to load files");
+                assert.match(fixture.document.querySelector(".loading-errors")?.textContent ?? "", reason);
+                assert.equal(button(fixture, "Ignore unloadable files").disabled, true);
+                assert.ok(fixture.document.querySelector(".caption"));
+                assert.ok(fixture.document.querySelector(".landing-footer"));
+            },
+            (signal, url) => nativeFetch(url, {signal}),
+        );
+    }
 });

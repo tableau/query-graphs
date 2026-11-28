@@ -13,6 +13,11 @@ export interface FileError {
     message: string;
 }
 
+export interface FileLoadResult {
+    plan?: LoadedPlan;
+    errors: FileError[];
+}
+
 export function getFileReferences(
     namedFiles: ReadonlyMap<string, string>,
     legacyFile?: string,
@@ -40,7 +45,7 @@ export async function loadPlanFromFiles(
     references: readonly FileReference[],
     baseUrl: URL,
     signal: AbortSignal,
-): Promise<{plan: LoadedPlan; errors: FileError[]}> {
+): Promise<FileLoadResult> {
     validateFileReferences(references);
     const planReference = references.find(({logicalFilename}) => logicalFilename === "plan.json" || logicalFilename === "plan.xml");
     if (!planReference) throw new Error("No main plan file found. Add file[plan.json] or file[plan.xml].");
@@ -57,10 +62,24 @@ export async function loadPlanFromFiles(
         }),
     );
     signal.throwIfAborted();
+    const errors = results.flatMap(({reference, error}) =>
+        error === undefined
+            ? []
+            : [
+                  {
+                      name: reference.logicalFilename,
+                      message:
+                          reference === planReference
+                              ? `Failed to load ${reference.logicalFilename}: ${error instanceof Error ? error.message : "Unknown error"}`
+                              : error instanceof Error
+                                ? error.message
+                                : "Unknown error",
+                  },
+              ],
+    );
     const planResult = results.find(({reference}) => reference === planReference)!;
     if (planResult.text === undefined) {
-        const message = planResult.error instanceof Error ? planResult.error.message : "Unknown error";
-        throw new Error(`Failed to load ${planReference.logicalFilename}: ${message}`, {cause: planResult.error});
+        return {errors};
     }
     const sqlText = results.find(({reference, text}) => reference.logicalFilename === "query.sql" && text !== undefined)?.text;
     let plan: LoadedPlan;
@@ -68,7 +87,12 @@ export async function loadPlanFromFiles(
         plan = loadPlanFromText(planResult.text, {sql: sqlText});
     } catch (error) {
         const message = error instanceof Error ? error.message : "Unknown error";
-        throw new Error(`Failed to parse ${planReference.logicalFilename}: ${message}`, {cause: error});
+        return {
+            errors: [
+                {name: planReference.logicalFilename, message: `Failed to parse ${planReference.logicalFilename}: ${message}`},
+                ...errors.filter(({name}) => name !== planReference.logicalFilename),
+            ],
+        };
     }
     const sqlDocument = plan.tree.textDocuments?.find(({id}) => id === "query");
     if (sqlText !== undefined && sqlDocument) sqlDocument.title = "query.sql";
@@ -78,11 +102,6 @@ export async function loadPlanFromFiles(
             plan.tree.textDocuments.push(createFileDocument(reference, text));
         }
     }
-    const errors = results.flatMap(({reference, error}) =>
-        error === undefined
-            ? []
-            : [{name: reference.logicalFilename, message: error instanceof Error ? error.message : "Unknown error"}],
-    );
     return {plan, errors};
 }
 

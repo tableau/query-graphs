@@ -3,10 +3,6 @@ import {useCallback, useEffect, useMemo, useState} from "react";
 
 import "./FileOpener.css";
 import {assert} from "./assert";
-import classcat from "classcat";
-
-declare const BUILD_COMMIT_HASH: string;
-declare const BUILD_TIMESTAMP: string;
 
 export interface FileOpenerData {
     content: string;
@@ -153,6 +149,7 @@ export function FileOpener({setData, validate, loadStateController}: FileOpenerP
         }
     }, [planString, validate, clearLoadState, setError]);
 
+    const loading = loadState.state === "loading";
     const submitDisabled = planString.trim() === "" || loadState.state != "pristine";
 
     const onChange = useCallback(
@@ -165,40 +162,39 @@ export function FileOpener({setData, validate, loadStateController}: FileOpenerP
     );
 
     const submit = useCallback(async () => {
-        if (planString.trim() === "") return;
+        if (loading || planString.trim() === "") return;
         await tryAndDisplayErrors(async () => {
             await setData({content: planString});
             clearLoadState();
         });
-    }, [planString, setData, tryAndDisplayErrors, clearLoadState]);
+    }, [loading, planString, setData, tryAndDisplayErrors, clearLoadState]);
 
     // If pasting into an empty input area, try to auto-submit on paste events
     const onPaste = useCallback(
         async (e: React.ClipboardEvent) => {
-            if (planString === "") {
-                await tryAndDisplayErrors(async () => {
-                    await setData(await getTextFromPasteEvent(e));
-                    clearLoadState();
-                });
-            }
+            if (loading || planString !== "") return;
+            await tryAndDisplayErrors(async () => {
+                await setData(await getTextFromPasteEvent(e));
+                clearLoadState();
+            });
         },
-        [planString, setData, clearLoadState, tryAndDisplayErrors],
+        [planString, loading, setData, clearLoadState, tryAndDisplayErrors],
     );
 
     // Auto-submit on Ctrl/Cmd-Enter
     const onKeyDown = useCallback(
         (e: React.KeyboardEvent) => {
-            if (e.key == "Enter" && (e.ctrlKey || e.metaKey)) {
+            if (!loading && e.key == "Enter" && (e.ctrlKey || e.metaKey)) {
                 submit();
             }
         },
-        [submit],
+        [submit, loading],
     );
 
     // Allow dropping text
     const onDrop = useCallback(
         async (e: React.DragEvent<HTMLElement>) => {
-            if (e.dataTransfer.types.length != 1 || e.dataTransfer.types[0] != "Files") {
+            if (loading || e.dataTransfer.types.length != 1 || e.dataTransfer.types[0] != "Files") {
                 return;
             }
             e.preventDefault();
@@ -217,60 +213,37 @@ export function FileOpener({setData, validate, loadStateController}: FileOpenerP
                 clearLoadState();
             });
         },
-        [clearLoadState, onDragLeave, setData, tryAndDisplayErrors],
+        [clearLoadState, loading, onDragLeave, setData, tryAndDisplayErrors],
     );
 
-    if (loadState.state == "loading") {
-        return (
-            <div className="file-selection-page">
-                <div className="qg-spinner" />
-                {loadState.detail}
-            </div>
-        );
-    } else {
-        let renderedError;
-        if (loadState.state == "error") {
-            renderedError = <div className="load-error">{loadState.detail}</div>;
-        }
-        let dragOverlay;
-        if (dragging) {
-            dragOverlay = <div className="dragging-operlay">Drop your plan here...</div>;
-        }
-        return (
-            <div className={classcat("file-selection-page")} onDragOver={onDragOver} onDragLeave={onDragLeave} onDrop={onDrop}>
-                <div className="caption">
-                    <img className="logo" src="query-graphs-logo.svg" />
-                    Query Graphs
-                </div>
-                <div className="subcaption">Which query plan do you want to visualize?</div>
-                <div className="file-selection-page-content">
-                    <div className="hinted-textarea">
-                        <textarea
-                            placeholder="Paste your query plan here..."
-                            autoFocus={true}
-                            rows={5}
-                            value={planString}
-                            onChange={onChange}
-                            onPaste={onPaste}
-                            onKeyDown={onKeyDown}
-                        ></textarea>
-                        <div className="textarea-hint">Paste your query plan. To open a file, use drag & drop.</div>
-                    </div>
-                    <button onClick={submit} disabled={submitDisabled}>
-                        Visualize Plan
-                    </button>
-                    {renderedError}
-                    <div className="landing-footer">
-                        <div className="github-link">
-                            Open-sourced on <a href="https://github.com/tableau/query-graphs">Github</a>
-                        </div>
-                        <div className="build-info">
-                            Commit {BUILD_COMMIT_HASH.substring(0, 12)} · {BUILD_TIMESTAMP}
-                        </div>
-                    </div>
-                </div>
-                {dragOverlay}
-            </div>
-        );
+    let renderedError;
+    if (loadState.state == "error") {
+        renderedError = <div className="load-error">{loadState.detail}</div>;
     }
+    let dragOverlay;
+    if (dragging && !loading) {
+        dragOverlay = <div className="dragging-operlay">Drop your plan here...</div>;
+    }
+    return (
+        <div className="file-opener" onDragOver={onDragOver} onDragLeave={onDragLeave} onDrop={onDrop}>
+            <div className="hinted-textarea">
+                <textarea
+                    placeholder="Paste your query plan here..."
+                    autoFocus={true}
+                    rows={5}
+                    value={planString}
+                    onChange={onChange}
+                    onPaste={onPaste}
+                    onKeyDown={onKeyDown}
+                    disabled={loading}
+                ></textarea>
+                <div className="textarea-hint">Paste your query plan. To open a file, use drag & drop.</div>
+            </div>
+            <button onClick={submit} disabled={submitDisabled}>
+                Visualize Plan
+            </button>
+            {renderedError}
+            {dragOverlay}
+        </div>
+    );
 }
